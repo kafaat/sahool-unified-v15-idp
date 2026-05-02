@@ -1,0 +1,1899 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>تقرير الفحص الشامل للواجهات الأمامية - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              تقرير الفحص الشامل للواجهات الأمامية
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="_1">تقرير الفحص الشامل للواجهات الأمامية<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<h1 id="comprehensive-web-admin-dashboard-inspection-report">Comprehensive Web &amp; Admin Dashboard Inspection Report<a class="headerlink" href="#comprehensive-web-admin-dashboard-inspection-report" title="Permanent link">&para;</a></h1>
+<p><strong>تاريخ التقرير / Report Date:</strong> 2026-02-03<br />
+<strong>الإصدار / Version:</strong> 16.0.0<br />
+<strong>المنصة / Platform:</strong> SAHOOL Agricultural Intelligence Platform</p>
+<hr />
+<h2 id="executive-summary">ملخص تنفيذي / Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<h3 id="arabic-summary">Arabic Summary | الملخص العربي<a class="headerlink" href="#arabic-summary" title="Permanent link">&para;</a></h3>
+<p>تم إجراء فحص شامل وعميق لتطبيقات الويب ولوحة التحكم الإدارية في منصة SAHOOL. التطبيقات تظهر بنية معمارية قوية مع تنفيذ جيد لمعايير الأمان، ولكن تم اكتشاف <strong>عدة مشاكل حرجة</strong> يجب إصلاحها قبل النشر في بيئة الإنتاج.</p>
+<p><strong>النتائج الرئيسية:</strong>
+- ✅ <strong>الكود بجودة عالية</strong> مع تغطية جيدة للأنواع (TypeScript)
+- ✅ <strong>أمان قوي</strong> مع تطبيق معايير حماية متقدمة
+- ❌ <strong>3 مشاكل حرجة</strong> في تطبيق الويب تعيق التشغيل
+- ❌ <strong>4 مشاكل حرجة</strong> في لوحة التحكم تمنع عمل المصادقة
+- ⚠️ <strong>8 مشاكل عالية الأولوية</strong> تؤثر على الأمان والأداء
+- 🟡 <strong>11 مشكلة متوسطة</strong> تحتاج معالجة قبل الإنتاج</p>
+<p><strong>التقييم العام:</strong>
+- <strong>Web Application:</strong> 85% جاهزة للإنتاج
+- <strong>Admin Dashboard:</strong> 75% جاهزة للإنتاج (تحتاج إصلاحات حرجة)</p>
+<hr />
+<h3 id="english-summary">English Summary<a class="headerlink" href="#english-summary" title="Permanent link">&para;</a></h3>
+<p>A comprehensive inspection of the SAHOOL web application and admin dashboard has been completed. Both applications demonstrate strong architectural patterns with robust security implementations, but <strong>several critical issues</strong> must be resolved before production deployment.</p>
+<p><strong>Key Findings:</strong>
+- ✅ <strong>High-quality codebase</strong> with excellent TypeScript coverage
+- ✅ <strong>Strong security</strong> with advanced protection standards
+- ❌ <strong>3 critical issues</strong> in web app blocking full functionality
+- ❌ <strong>4 critical issues</strong> in admin dashboard preventing authentication
+- ⚠️ <strong>8 high-priority issues</strong> affecting security and performance
+- 🟡 <strong>11 medium-priority issues</strong> requiring attention before production</p>
+<p><strong>Overall Assessment:</strong>
+- <strong>Web Application:</strong> 85% production-ready
+- <strong>Admin Dashboard:</strong> 75% production-ready (needs critical fixes)</p>
+<hr />
+<h2 id="inspection-results">📊 نتائج الفحص / Inspection Results<a class="headerlink" href="#inspection-results" title="Permanent link">&para;</a></h2>
+<h3 id="web-application-analysis">Web Application Analysis<a class="headerlink" href="#web-application-analysis" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الفئة / Category</th>
+<th>العدد / Count</th>
+<th>الحالة / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>المشاكل الحرجة / Critical Issues</td>
+<td>3</td>
+<td>🔴 BLOCKER</td>
+</tr>
+<tr>
+<td>المشاكل العالية / High Issues</td>
+<td>4</td>
+<td>🟠 HIGH RISK</td>
+</tr>
+<tr>
+<td>المشاكل المتوسطة / Medium Issues</td>
+<td>4</td>
+<td>🟡 MEDIUM</td>
+</tr>
+<tr>
+<td>المشاكل المنخفضة / Low Issues</td>
+<td>5</td>
+<td>🟢 LOW</td>
+</tr>
+<tr>
+<td><strong>إجمالي الملفات المفحوصة / Files Analyzed</strong></td>
+<td><strong>200+</strong></td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<h3 id="admin-dashboard-analysis">Admin Dashboard Analysis<a class="headerlink" href="#admin-dashboard-analysis" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الفئة / Category</th>
+<th>العدد / Count</th>
+<th>الحالة / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>المشاكل الحرجة / Critical Issues</td>
+<td>4</td>
+<td>🔴 BLOCKER</td>
+</tr>
+<tr>
+<td>المشاكل العالية / High Issues</td>
+<td>4</td>
+<td>🟠 HIGH RISK</td>
+</tr>
+<tr>
+<td>المشاكل المتوسطة / Medium Issues</td>
+<td>7</td>
+<td>🟡 MEDIUM</td>
+</tr>
+<tr>
+<td>المشاكل المنخفضة / Low Issues</td>
+<td>10+</td>
+<td>🟢 LOW</td>
+</tr>
+<tr>
+<td><strong>إجمالي الملفات المفحوصة / Files Analyzed</strong></td>
+<td><strong>150+</strong></td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="critical-issues">🔴 المشاكل الحرجة / Critical Issues<a class="headerlink" href="#critical-issues" title="Permanent link">&para;</a></h2>
+<h3 id="web-application-critical-issues">Web Application Critical Issues<a class="headerlink" href="#web-application-critical-issues" title="Permanent link">&para;</a></h3>
+<h4 id="1-jwt-missing-jwt-environment-variables">1. متغيرات JWT مفقودة / Missing JWT Environment Variables<a class="headerlink" href="#1-jwt-missing-jwt-environment-variables" title="Permanent link">&para;</a></h4>
+<p><strong>الملف / File:</strong> <code>/apps/web/src/lib/security/jwt-middleware.ts</code></p>
+<div class="codehilite"><pre><span></span><code>الكود يشير إلى متغيرات بيئة مفقودة:
+<span class="gd">- JWT_SECRET_KEY</span>
+<span class="gd">- JWT_ISSUER  </span>
+<span class="gd">- JWT_AUDIENCE</span>
+
+الأثر: فشل التحقق من الرموز (JWT) في الإنتاج
+Impact: JWT validation will fail in production
+</code></pre></div>
+
+<p><strong>الإصلاح المطلوب / Required Fix:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="gh">#</span> Add to .env.example
+JWT_SECRET_KEY=your-256-bit-secret-key-change-in-production
+JWT_ISSUER=sahool-platform
+JWT_AUDIENCE=sahool-users
+</code></pre></div>
+
+<h4 id="2-typescript-typescript-errors-ignored">2. تجاهل أخطاء TypeScript / TypeScript Errors Ignored<a class="headerlink" href="#2-typescript-typescript-errors-ignored" title="Permanent link">&para;</a></h4>
+<p><strong>الملف / File:</strong> <code>/apps/web/next.config.js</code> (line 21-24)</p>
+<div class="codehilite"><pre><span></span><code><span class="nx">typescript</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">ignoreBuildErrors</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">  </span><span class="c1">// ❌ Dangerous!</span>
+<span class="p">},</span>
+</code></pre></div>
+
+<p><strong>الأثر / Impact:</strong>
+- أخطاء النوع لن يتم اكتشافها أثناء البناء
+- Type errors won't be caught during build
+- قد ينجح البناء رغم وجود أخطاء برمجية
+- Production builds may succeed despite code errors</p>
+<p><strong>الإصلاح المطلوب / Required Fix:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="nx">typescript</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">ignoreBuildErrors</span><span class="o">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">  </span><span class="c1">// ✅ Enable type checking</span>
+<span class="p">},</span>
+</code></pre></div>
+
+<h4 id="3-i18n-missing-i18n-package-verification">3. حزمة i18n غير محققة / Missing i18n Package Verification<a class="headerlink" href="#3-i18n-missing-i18n-package-verification" title="Permanent link">&para;</a></h4>
+<p><strong>الملف / File:</strong> <code>/apps/web/src/i18n.ts</code></p>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">getRequestConfig</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;next-intl/server&#39;</span><span class="p">;</span>
+<span class="c1">// ✅ This is correct</span>
+
+<span class="c1">// But depends on @sahool/i18n package</span>
+<span class="c1">// Must verify package exists and builds correctly</span>
+</code></pre></div>
+
+<p><strong>المخاطر / Risks:</strong>
+- إذا كانت الحزمة مفقودة أو غير مبنية، التطبيق بالكامل سيفشل
+- If package is missing or not built, entire app fails to start</p>
+<hr />
+<h3 id="admin-dashboard-critical-issues">Admin Dashboard Critical Issues<a class="headerlink" href="#admin-dashboard-critical-issues" title="Permanent link">&para;</a></h3>
+<h4 id="1-api-missing-api-auth-endpoints">1. نقاط API المصادقة مفقودة تماماً / Missing API Auth Endpoints<a class="headerlink" href="#1-api-missing-api-auth-endpoints" title="Permanent link">&para;</a></h4>
+<p><strong>الحالة / Status:</strong> ❌ <strong>لا توجد ملفات / Files DO NOT EXIST</strong></p>
+<div class="codehilite"><pre><span></span><code>المسارات المفقودة / Missing Routes:
+❌ /src/app/api/auth/login/route.ts       ← مطلوب / REQUIRED
+❌ /src/app/api/auth/logout/route.ts      ← مطلوب / REQUIRED  
+❌ /src/app/api/auth/me/route.ts          ← مطلوب / REQUIRED
+❌ /src/app/api/auth/refresh/route.ts     ← مطلوب / REQUIRED
+</code></pre></div>
+
+<p><strong>الأثر / Impact:</strong></p>
+<div class="codehilite"><pre><span></span><code>🚨 CRITICAL: Login flow completely broken
+تسجيل الدخول لا يعمل بتاتاً
+Middleware expects these endpoints but they don&#39;t exist
+</code></pre></div>
+
+<p><strong>الإصلاح المطلوب / Required Fix:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Create the missing route handlers</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span>apps/admin/src/app/api/auth
+<span class="nb">cd</span><span class="w"> </span>apps/admin/src/app/api/auth
+
+<span class="c1"># Create each endpoint</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span>login<span class="w"> </span><span class="nb">logout</span><span class="w"> </span>me<span class="w"> </span>refresh<span class="w"> </span>activity
+touch<span class="w"> </span>login/route.ts<span class="w"> </span>logout/route.ts<span class="w"> </span>me/route.ts<span class="w"> </span>refresh/route.ts
+</code></pre></div>
+
+<p><strong>وقت الإصلاح المقدر / Estimated Fix Time:</strong> 4-6 hours</p>
+<h4 id="2-rate-limiting-no-rate-limiting-on-auth">2. عدم وجود Rate Limiting / No Rate Limiting on Auth<a class="headerlink" href="#2-rate-limiting-no-rate-limiting-on-auth" title="Permanent link">&para;</a></h4>
+<p><strong>الملف / File:</strong> <code>/apps/admin/src/app/api/auth/*/route.ts</code> (will be created)</p>
+<p><strong>المخاطر / Risks:</strong>
+- عرضة لهجمات Brute Force
+- Vulnerable to brute force attacks
+- لا يوجد حماية من محاولات تسجيل الدخول المتكررة
+- No protection against repeated login attempts</p>
+<p><strong>الإصلاح المطلوب / Required Fix:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Ratelimit</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@upstash/ratelimit&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Redis</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@upstash/redis&#39;</span><span class="p">;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">ratelimit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Ratelimit</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">redis</span><span class="o">:</span><span class="w"> </span><span class="kt">Redis.fromEnv</span><span class="p">(),</span>
+<span class="w">  </span><span class="nx">limiter</span><span class="o">:</span><span class="w"> </span><span class="kt">Ratelimit.slidingWindow</span><span class="p">(</span><span class="mf">5</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;15 m&#39;</span><span class="p">),</span>
+<span class="p">});</span>
+</code></pre></div>
+
+<h4 id="3-cors-cors-too-permissive">3. CORS مفتوح بشكل خطير / CORS Too Permissive<a class="headerlink" href="#3-cors-cors-too-permissive" title="Permanent link">&para;</a></h4>
+<p><strong>الملف / File:</strong> <code>/apps/admin/src/app/api/csp-report/route.ts</code> (line 209)</p>
+<div class="codehilite"><pre><span></span><code><span class="nx">headers</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;Access-Control-Allow-Origin&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">);</span><span class="w">  </span><span class="c1">// ❌ TOO PERMISSIVE</span>
+</code></pre></div>
+
+<p><strong>الإصلاح المطلوب / Required Fix:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">allowedOrigin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">ALLOWED_ORIGINS</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;https://admin.sahool.app&#39;</span><span class="p">;</span>
+<span class="nx">headers</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;Access-Control-Allow-Origin&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">allowedOrigin</span><span class="p">);</span><span class="w">  </span><span class="c1">// ✅ Restrictive</span>
+</code></pre></div>
+
+<h4 id="4-duplicate-service-port-mappings">4. تكرار منافذ الخدمات / Duplicate Service Port Mappings<a class="headerlink" href="#4-duplicate-service-port-mappings" title="Permanent link">&para;</a></h4>
+<p><strong>الملف / File:</strong> <code>/apps/admin/src/config/api.ts</code></p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// ❌ Duplicate ports!</span>
+<span class="nx">lab</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">url</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;http://localhost:8097&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="nx">epidemic</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">url</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;http://localhost:8098&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="nx">yieldEngine</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">url</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;http://localhost:8098&#39;</span><span class="w"> </span><span class="p">},</span><span class="w">  </span><span class="c1">// Same as epidemic!</span>
+</code></pre></div>
+
+<p><strong>الأثر / Impact:</strong> ارتباك في التوجيه / Routing confusion</p>
+<hr />
+<h2 id="high-priority-issues">🟠 المشاكل العالية الأولوية / High Priority Issues<a class="headerlink" href="#high-priority-issues" title="Permanent link">&para;</a></h2>
+<h3 id="web-application-high-issues">Web Application High Issues<a class="headerlink" href="#web-application-high-issues" title="Permanent link">&para;</a></h3>
+<h4 id="1-csrf-token-accessible-to-javascript">1. CSRF Token Accessible to JavaScript<a class="headerlink" href="#1-csrf-token-accessible-to-javascript" title="Permanent link">&para;</a></h4>
+<p><strong>الملف / File:</strong> <code>/apps/web/src/app/api/csrf-token/route.ts</code></p>
+<div class="codehilite"><pre><span></span><code><span class="nx">cookie</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;csrf-token&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">token</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">httpOnly</span><span class="o">:</span><span class="w"> </span><span class="kt">false</span><span class="p">,</span><span class="w">  </span><span class="c1">// ⚠️ Intentional but risky</span>
+<span class="w">  </span><span class="nx">sameSite</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;strict&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">secure</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
+<span class="p">});</span>
+</code></pre></div>
+
+<p><strong>السياق / Context:</strong>
+- تم تعيينه بهذه الطريقة عمداً لطلبات AJAX
+- Set this way intentionally for AJAX requests
+- لكن يزيد من خطر XSS
+- But increases XSS exposure risk</p>
+<p><strong>التوصية / Recommendation:</strong>
+- توثيق هذا القرار بوضوح
+- Document this decision clearly
+- التأكد من حماية XSS قوية
+- Ensure robust XSS protections</p>
+<h4 id="2-redis-redis-connection-not-documented">2. اتصال Redis غير موثق / Redis Connection Not Documented<a class="headerlink" href="#2-redis-redis-connection-not-documented" title="Permanent link">&para;</a></h4>
+<p><strong>الملف / File:</strong> <code>/apps/web/src/lib/rate-limiter.ts</code></p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Gracefully falls back to in-memory if Redis unavailable</span>
+<span class="c1">// ⚠️ In-memory not suitable for production multi-server</span>
+</code></pre></div>
+
+<p><strong>الإصلاح المطلوب / Required Fix:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="gh">#</span> Add to .env.example
+REDIS_URL=redis://localhost:6379
+REDIS_PASSWORD=your-redis-password
+</code></pre></div>
+
+<h4 id="3-api-routes-bypass-csrf-middleware">3. API Routes Bypass CSRF Middleware<a class="headerlink" href="#3-api-routes-bypass-csrf-middleware" title="Permanent link">&para;</a></h4>
+<p><strong>الملف / File:</strong> <code>/apps/web/src/middleware.ts</code> (line 71)</p>
+<div class="codehilite"><pre><span></span><code><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">pathname</span><span class="p">.</span><span class="nx">startsWith</span><span class="p">(</span><span class="s1">&#39;/api/&#39;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">NextResponse</span><span class="p">.</span><span class="nx">next</span><span class="p">();</span><span class="w">  </span><span class="c1">// ❌ Skips CSRF validation!</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>المخاطر / Risks:</strong>
+- عمليات POST/PUT/DELETE غير محمية من CSRF
+- POST/PUT/DELETE operations vulnerable to CSRF
+- نقاط API معرضة للهجوم
+- API endpoints exposed to attack</p>
+<h4 id="4-jwt-secret-jwt-secret-validation-missing">4. التحقق من JWT Secret مفقود / JWT Secret Validation Missing<a class="headerlink" href="#4-jwt-secret-jwt-secret-validation-missing" title="Permanent link">&para;</a></h4>
+<p><strong>الملف / File:</strong> <code>/apps/web/src/lib/security/jwt-middleware.ts</code></p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// JWT secret is optional in config</span>
+<span class="c1">// Should be REQUIRED or throw error on startup</span>
+</code></pre></div>
+
+<hr />
+<h3 id="admin-dashboard-high-issues">Admin Dashboard High Issues<a class="headerlink" href="#admin-dashboard-high-issues" title="Permanent link">&para;</a></h3>
+<h4 id="1-npm-security-vulnerabilities">1. npm Security Vulnerabilities<a class="headerlink" href="#1-npm-security-vulnerabilities" title="Permanent link">&para;</a></h4>
+<p><strong>التفاصيل / Details:</strong></p>
+<div class="codehilite"><pre><span></span><code>$<span class="w"> </span>npm<span class="w"> </span>audit
+found<span class="w"> </span><span class="m">4</span><span class="w"> </span>vulnerabilities<span class="w"> </span><span class="o">(</span>all<span class="w"> </span>Moderate<span class="o">)</span>
+
+Package:<span class="w"> </span>lodash<span class="w"> </span><span class="o">(</span>via<span class="w"> </span>@nestjs/*<span class="o">)</span>
+CVE:<span class="w"> </span>GHSA-xxjr-mmjv-4gpg
+Severity:<span class="w"> </span>Moderate
+Issue:<span class="w"> </span>Prototype<span class="w"> </span>Pollution
+</code></pre></div>
+
+<p><strong>الإصلاح / Fix:</strong></p>
+<div class="codehilite"><pre><span></span><code>npm<span class="w"> </span>audit<span class="w"> </span>fix<span class="w"> </span>--force
+<span class="c1"># Or add package overrides in package.json</span>
+</code></pre></div>
+
+<h4 id="2-typescript-configuration-mismatch">2. TypeScript Configuration Mismatch<a class="headerlink" href="#2-typescript-configuration-mismatch" title="Permanent link">&para;</a></h4>
+<p><strong>الملف / File:</strong> <code>/apps/admin/tsconfig.json</code></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;typescript&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;ignoreBuildErrors&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">  </span><span class="c1">// ❌ Different from web app</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;eslint&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;ignoreDuringBuilds&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">  </span><span class="c1">// ❌ Different from web app</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>المشكلة / Issue:</strong> عدم اتساق مع تطبيق الويب / Inconsistent with web app</p>
+<h4 id="3-no-error-boundaries-in-auth-routes">3. No Error Boundaries in Auth Routes<a class="headerlink" href="#3-no-error-boundaries-in-auth-routes" title="Permanent link">&para;</a></h4>
+<p><strong>المسار / Path:</strong> <code>/apps/admin/src/app/(auth)/</code></p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Missing ErrorBoundary wrapper</span>
+<span class="c1">// Login/register failures won&#39;t be gracefully handled</span>
+</code></pre></div>
+
+<h4 id="4-circular-dependency-risk">4. Circular Dependency Risk<a class="headerlink" href="#4-circular-dependency-risk" title="Permanent link">&para;</a></h4>
+<p><strong>الملف / File:</strong> <code>/apps/admin/src/stores/auth.store.tsx</code></p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// May create circular imports during SSR</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">apiClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@/lib/api-client&#39;</span><span class="p">;</span>
+<span class="c1">// api-client.ts may import auth utilities</span>
+</code></pre></div>
+
+<hr />
+<h2 id="medium-priority-issues">🟡 المشاكل المتوسطة / Medium Priority Issues<a class="headerlink" href="#medium-priority-issues" title="Permanent link">&para;</a></h2>
+<h3 id="web-application-medium-issues">Web Application Medium Issues<a class="headerlink" href="#web-application-medium-issues" title="Permanent link">&para;</a></h3>
+<h4 id="1-rate-limit-configuration-hardcoded">1. Rate Limit Configuration Hardcoded<a class="headerlink" href="#1-rate-limit-configuration-hardcoded" title="Permanent link">&para;</a></h4>
+<p><strong>المشكلة / Issue:</strong>
+- إعدادات الحد الأقصى مدمجة في الكود
+- Rate limit settings hardcoded in code
+- لا يمكن تعديلها بدون تغيير الكود
+- Cannot be adjusted without code changes</p>
+<p><strong>التوصية / Recommendation:</strong></p>
+<div class="codehilite"><pre><span></span><code>RATE_LIMIT_WINDOW=900000  # 15 minutes
+RATE_LIMIT_MAX_REQUESTS=5
+</code></pre></div>
+
+<h4 id="2-next_public_api_url-fallback-inconsistency">2. NEXT_PUBLIC_API_URL Fallback Inconsistency<a class="headerlink" href="#2-next_public_api_url-fallback-inconsistency" title="Permanent link">&para;</a></h4>
+<p><strong>الملفات / Files:</strong> Multiple <code>/src/features/*/api.ts</code></p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Different fallbacks across modules:</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">baseURL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NEXT_PUBLIC_API_URL</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">;</span><span class="w">  </span><span class="c1">// ❌</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">baseURL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NEXT_PUBLIC_API_URL</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">&quot;http://localhost:3000&quot;</span><span class="p">;</span><span class="w">  </span><span class="c1">// ❌</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">baseURL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NEXT_PUBLIC_API_URL</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">&quot;http://localhost:8000&quot;</span><span class="p">;</span><span class="w">  </span><span class="c1">// ❌</span>
+</code></pre></div>
+
+<p><strong>الإصلاح / Fix:</strong> توحيد القيمة الافتراضية / Standardize default value</p>
+<h4 id="3-missing-environment-variable-validation">3. Missing Environment Variable Validation<a class="headerlink" href="#3-missing-environment-variable-validation" title="Permanent link">&para;</a></h4>
+<p><strong>الملف / File:</strong> <code>/apps/web/src/app/providers.tsx</code></p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// App starts with missing env vars</span>
+<span class="c1">// Only warnings logged, no validation</span>
+</code></pre></div>
+
+<p><strong>التوصية / Recommendation:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">validateEnv</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">required</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;NEXT_PUBLIC_API_URL&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;JWT_SECRET_KEY&#39;</span><span class="p">];</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="nx">key</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nx">required</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">[</span><span class="nx">key</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="sb">`Missing required env var: </span><span class="si">${</span><span class="nx">key</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4 id="4-websocket-url-not-validated">4. WebSocket URL Not Validated<a class="headerlink" href="#4-websocket-url-not-validated" title="Permanent link">&para;</a></h4>
+<p><strong>الملف / File:</strong> <code>/apps/web/src/lib/ws/index.ts</code></p>
+<div class="codehilite"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">wsUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NEXT_PUBLIC_WS_URL</span><span class="p">;</span><span class="w">  </span><span class="c1">// No validation!</span>
+<span class="c1">// WebSocket features fail silently if undefined</span>
+</code></pre></div>
+
+<hr />
+<h3 id="admin-dashboard-medium-issues">Admin Dashboard Medium Issues<a class="headerlink" href="#admin-dashboard-medium-issues" title="Permanent link">&para;</a></h3>
+<h4 id="1-inconsistent-service-port-configuration">1. Inconsistent Service Port Configuration<a class="headerlink" href="#1-inconsistent-service-port-configuration" title="Permanent link">&para;</a></h4>
+<p><strong>الملف / File:</strong> <code>/apps/admin/src/config/api.ts</code></p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Multiple services on same port!</span>
+<span class="nx">epidemic</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">url</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;http://localhost:8098&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="nx">yieldEngine</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">url</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;http://localhost:8098&#39;</span><span class="w"> </span><span class="p">},</span><span class="w">  </span><span class="c1">// Duplicate!</span>
+</code></pre></div>
+
+<h4 id="2-missing-api-configuration-documentation">2. Missing API Configuration Documentation<a class="headerlink" href="#2-missing-api-configuration-documentation" title="Permanent link">&para;</a></h4>
+<p><strong>المشكلة / Issue:</strong>
+- 60+ microservices configured
+- لا توجد وثائق لمنافذ الخدمات
+- No documentation for service ports
+- صعوبة الصيانة
+- Hard to maintain</p>
+<h4 id="3-client-side-role-storage">3. Client-Side Role Storage<a class="headerlink" href="#3-client-side-role-storage" title="Permanent link">&para;</a></h4>
+<p><strong>الملف / File:</strong> <code>/apps/admin/src/stores/auth.store.tsx</code></p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Roles stored client-side</span>
+<span class="c1">// ⚠️ Must be validated server-side (already done via JWT)</span>
+</code></pre></div>
+
+<h4 id="4-eslint-warnings-116-total">4. ESLint Warnings (116 total)<a class="headerlink" href="#4-eslint-warnings-116-total" title="Permanent link">&para;</a></h4>
+<p><strong>التفاصيل / Details:</strong>
+- 98 متغيرات غير مستخدمة / unused variables
+- 13 استيرادات غير مستخدمة / unused imports
+- 5 تعليقات eslint-disable غير ضرورية / unnecessary eslint-disable comments</p>
+<p><strong>الإصلاح / Fix:</strong></p>
+<div class="codehilite"><pre><span></span><code>npm<span class="w"> </span>run<span class="w"> </span>lint<span class="w"> </span>--<span class="w"> </span>--fix
+</code></pre></div>
+
+<hr />
+<h2 id="low-priority-issues">🟢 المشاكل المنخفضة / Low Priority Issues<a class="headerlink" href="#low-priority-issues" title="Permanent link">&para;</a></h2>
+<h3 id="general-low-issues">General Low Issues<a class="headerlink" href="#general-low-issues" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Console Errors Mocked in Tests</strong></li>
+<li>File: <code>/apps/web/src/__tests__/setup.ts</code></li>
+<li>
+<p>May hide real issues during testing</p>
+</li>
+<li>
+<p><strong>Missing TypeScript Types for Toast</strong></p>
+</li>
+<li>File: <code>/apps/web/src/components/ui/toast.tsx</code></li>
+<li>
+<p>Should export <code>ToastProps</code> type</p>
+</li>
+<li>
+<p><strong>Nonce Generation Without Verification</strong></p>
+</li>
+<li>File: <code>/apps/web/src/lib/security/csp-config.ts</code></li>
+<li>
+<p>btoa() encoding not verified</p>
+</li>
+<li>
+<p><strong>Development Error Details in Production Code</strong></p>
+</li>
+<li>File: <code>/apps/web/src/components/common/ErrorBoundary.tsx</code></li>
+<li>
+<p>Runtime NODE_ENV check (acceptable)</p>
+</li>
+<li>
+<p><strong>Dead Dependency: isomorphic-dompurify</strong></p>
+</li>
+<li>File: <code>/apps/web/package.json</code></li>
+<li>Imported but custom sanitizer used instead</li>
+</ol>
+<hr />
+<h2 id="remediation-plan">📋 خطة الإصلاح / Remediation Plan<a class="headerlink" href="#remediation-plan" title="Permanent link">&para;</a></h2>
+<h3 id="1">المرحلة 1: الإصلاحات الحرجة (قبل الإنتاج)<a class="headerlink" href="#1" title="Permanent link">&para;</a></h3>
+<h3 id="phase-1-critical-fixes-before-production">Phase 1: Critical Fixes (Before Production)<a class="headerlink" href="#phase-1-critical-fixes-before-production" title="Permanent link">&para;</a></h3>
+<p><strong>الأولوية 0 / Priority 0:</strong></p>
+<ol>
+<li>✅ <strong>إنشاء API routes المفقودة في Admin</strong></li>
+<li>Create <code>/apps/admin/src/app/api/auth/**</code> endpoints</li>
+<li>وقت الإصلاح / Fix Time: 4-6 hours</li>
+<li>
+<p>الحالة / Status: 🔴 BLOCKER</p>
+</li>
+<li>
+<p>✅ <strong>إضافة متغيرات البيئة المفقودة</strong></p>
+</li>
+<li>Add JWT_SECRET_KEY, JWT_ISSUER, JWT_AUDIENCE to .env.example</li>
+<li>وقت الإصلاح / Fix Time: 30 minutes</li>
+<li>
+<p>الحالة / Status: 🔴 CRITICAL</p>
+</li>
+<li>
+<p>✅ <strong>تفعيل فحص TypeScript</strong></p>
+</li>
+<li>Remove <code>ignoreBuildErrors: true</code> from both apps</li>
+<li>Fix any revealed type errors</li>
+<li>وقت الإصلاح / Fix Time: 2-3 hours</li>
+<li>
+<p>الحالة / Status: 🔴 CRITICAL</p>
+</li>
+<li>
+<p>✅ <strong>إضافة Rate Limiting</strong></p>
+</li>
+<li>Install @upstash/ratelimit</li>
+<li>Implement on auth endpoints</li>
+<li>وقت الإصلاح / Fix Time: 2 hours</li>
+<li>الحالة / Status: 🟠 HIGH</li>
+</ol>
+<hr />
+<h3 id="2">المرحلة 2: إصلاحات الأمان (خلال أسبوع)<a class="headerlink" href="#2" title="Permanent link">&para;</a></h3>
+<h3 id="phase-2-security-fixes-within-1-week">Phase 2: Security Fixes (Within 1 Week)<a class="headerlink" href="#phase-2-security-fixes-within-1-week" title="Permanent link">&para;</a></h3>
+<p><strong>الأولوية 1 / Priority 1:</strong></p>
+<ol>
+<li>✅ <strong>إصلاح CORS Headers</strong></li>
+<li>Restrict Access-Control-Allow-Origin</li>
+<li>
+<p>وقت الإصلاح / Fix Time: 30 minutes</p>
+</li>
+<li>
+<p>✅ <strong>إضافة CSRF Protection للـ API</strong></p>
+</li>
+<li>Implement CSRF validation for API routes</li>
+<li>
+<p>وقت الإصلاح / Fix Time: 1-2 hours</p>
+</li>
+<li>
+<p>✅ <strong>إصلاح ثغرات npm</strong></p>
+</li>
+<li>Run npm audit fix</li>
+<li>
+<p>وقت الإصلاح / Fix Time: 1 hour</p>
+</li>
+<li>
+<p>✅ <strong>توثيق متطلبات Redis</strong></p>
+</li>
+<li>Add Redis configuration to docs</li>
+<li>وقت الإصلاح / Fix Time: 30 minutes</li>
+</ol>
+<hr />
+<h3 id="3-qa">المرحلة 3: تحسينات الجودة (قبل QA)<a class="headerlink" href="#3-qa" title="Permanent link">&para;</a></h3>
+<h3 id="phase-3-quality-improvements-before-qa">Phase 3: Quality Improvements (Before QA)<a class="headerlink" href="#phase-3-quality-improvements-before-qa" title="Permanent link">&para;</a></h3>
+<p><strong>الأولوية 2 / Priority 2:</strong></p>
+<ol>
+<li>✅ <strong>توحيد API Base URLs</strong></li>
+<li>Fix inconsistent fallback values</li>
+<li>
+<p>وقت الإصلاح / Fix Time: 1 hour</p>
+</li>
+<li>
+<p>✅ <strong>إضافة Error Boundaries</strong></p>
+</li>
+<li>Wrap auth routes with error boundaries</li>
+<li>
+<p>وقت الإصلاح / Fix Time: 1 hour</p>
+</li>
+<li>
+<p>✅ <strong>إضافة Environment Variable Validation</strong></p>
+</li>
+<li>Validate required env vars on startup</li>
+<li>
+<p>وقت الإصلاح / Fix Time: 1 hour</p>
+</li>
+<li>
+<p>✅ <strong>تنظيف ESLint Warnings</strong></p>
+</li>
+<li>Run eslint --fix</li>
+<li>وقت الإصلاح / Fix Time: 1 hour</li>
+</ol>
+<hr />
+<h2 id="testing-plan">🧪 خطة الاختبار / Testing Plan<a class="headerlink" href="#testing-plan" title="Permanent link">&para;</a></h2>
+<h3 id="build-testing">Build Testing<a class="headerlink" href="#build-testing" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Test Web App Build</span>
+<span class="nb">cd</span><span class="w"> </span>apps/web
+npm<span class="w"> </span>run<span class="w"> </span>build
+npm<span class="w"> </span>run<span class="w"> </span>type-check
+npm<span class="w"> </span>run<span class="w"> </span>lint
+
+<span class="c1"># Test Admin Dashboard Build  </span>
+<span class="nb">cd</span><span class="w"> </span>apps/admin
+npm<span class="w"> </span>run<span class="w"> </span>build
+npm<span class="w"> </span>run<span class="w"> </span>type-check
+npm<span class="w"> </span>run<span class="w"> </span>lint
+</code></pre></div>
+
+<h3 id="runtime-testing">Runtime Testing<a class="headerlink" href="#runtime-testing" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Start development servers</span>
+npm<span class="w"> </span>run<span class="w"> </span>dev:web<span class="w">    </span><span class="c1"># Port 3000</span>
+npm<span class="w"> </span>run<span class="w"> </span>dev:admin<span class="w">  </span><span class="c1"># Port 3002</span>
+
+<span class="c1"># Test critical paths:</span>
+<span class="c1"># 1. Login flow</span>
+<span class="c1"># 2. Protected routes</span>
+<span class="c1"># 3. API endpoints</span>
+<span class="c1"># 4. WebSocket connection</span>
+<span class="c1"># 5. Rate limiting</span>
+</code></pre></div>
+
+<h3 id="security-testing">Security Testing<a class="headerlink" href="#security-testing" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check for vulnerabilities</span>
+npm<span class="w"> </span>audit
+
+<span class="c1"># Test CSRF protection</span>
+<span class="c1"># Test rate limiting</span>
+<span class="c1"># Test JWT validation</span>
+<span class="c1"># Test CORS headers</span>
+</code></pre></div>
+
+<hr />
+<h2 id="priority-matrix">📊 مصفوفة الأولويات / Priority Matrix<a class="headerlink" href="#priority-matrix" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>الأولوية / Priority</th>
+<th>المشكلة / Issue</th>
+<th>الوقت / Time</th>
+<th>الحالة / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P0 🔴</td>
+<td>Missing API auth routes</td>
+<td>4-6h</td>
+<td>BLOCKER</td>
+</tr>
+<tr>
+<td>P0 🔴</td>
+<td>Missing JWT env vars</td>
+<td>30m</td>
+<td>CRITICAL</td>
+</tr>
+<tr>
+<td>P0 🔴</td>
+<td>TypeScript errors ignored</td>
+<td>2-3h</td>
+<td>CRITICAL</td>
+</tr>
+<tr>
+<td>P1 🟠</td>
+<td>No rate limiting</td>
+<td>2h</td>
+<td>HIGH</td>
+</tr>
+<tr>
+<td>P1 🟠</td>
+<td>CORS too permissive</td>
+<td>30m</td>
+<td>HIGH</td>
+</tr>
+<tr>
+<td>P1 🟠</td>
+<td>npm vulnerabilities</td>
+<td>1h</td>
+<td>HIGH</td>
+</tr>
+<tr>
+<td>P2 🟡</td>
+<td>API URL inconsistency</td>
+<td>1h</td>
+<td>MEDIUM</td>
+</tr>
+<tr>
+<td>P2 🟡</td>
+<td>Missing error boundaries</td>
+<td>1h</td>
+<td>MEDIUM</td>
+</tr>
+<tr>
+<td>P3 🟢</td>
+<td>ESLint warnings</td>
+<td>1h</td>
+<td>LOW</td>
+</tr>
+<tr>
+<td>P3 🟢</td>
+<td>Dead dependencies</td>
+<td>30m</td>
+<td>LOW</td>
+</tr>
+</tbody>
+</table>
+<p><strong>إجمالي وقت الإصلاح المقدر / Total Estimated Fix Time:</strong> 14-18 hours</p>
+<hr />
+<h2 id="strengths">✅ نقاط القوة / Strengths<a class="headerlink" href="#strengths" title="Permanent link">&para;</a></h2>
+<h3 id="web-application">Web Application<a class="headerlink" href="#web-application" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ <strong>بنية معمارية ممتازة</strong> / Excellent architectural structure</li>
+<li>✅ <strong>TypeScript strict mode</strong> with 95%+ type coverage</li>
+<li>✅ <strong>أمان قوي</strong> / Strong security headers (CSP, HSTS, etc.)</li>
+<li>✅ <strong>i18n configuration</strong> properly set up with next-intl</li>
+<li>✅ <strong>Testing infrastructure</strong> (Vitest + Playwright)</li>
+<li>✅ <strong>Error tracking</strong> with Sentry integration</li>
+<li>✅ <strong>Rate limiting</strong> with Redis fallback</li>
+<li>✅ <strong>CSRF protection</strong> with double-submit pattern</li>
+<li>✅ <strong>JWT validation</strong> with signature verification</li>
+</ul>
+<h3 id="admin-dashboard">Admin Dashboard<a class="headerlink" href="#admin-dashboard" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ <strong>نظام RBAC قوي</strong> / Strong RBAC system</li>
+<li>✅ <strong>JWT server-side validation</strong></li>
+<li>✅ <strong>httpOnly cookies</strong> for token storage</li>
+<li>✅ <strong>Session timeout</strong> (30 minutes)</li>
+<li>✅ <strong>CSP headers</strong> with nonce-based scripts</li>
+<li>✅ <strong>Input sanitization</strong> across forms</li>
+<li>✅ <strong>Well-organized component structure</strong></li>
+<li>✅ <strong>TypeScript strict mode</strong> enabled</li>
+</ul>
+<hr />
+<h2 id="final-recommendations">🎯 التوصيات النهائية / Final Recommendations<a class="headerlink" href="#final-recommendations" title="Permanent link">&para;</a></h2>
+<h3 id="for-immediate-deployment">للنشر الفوري / For Immediate Deployment<a class="headerlink" href="#for-immediate-deployment" title="Permanent link">&para;</a></h3>
+<p><strong>لا يُنصح بالنشر حالياً / NOT RECOMMENDED FOR PRODUCTION</strong> حتى يتم:</p>
+<ol>
+<li>✅ إصلاح جميع المشاكل الحرجة (P0)</li>
+<li>✅ إصلاح المشاكل عالية الأولوية (P1)  </li>
+<li>✅ اختبار شامل للمصادقة والترخيص</li>
+<li>✅ التحقق من جميع متغيرات البيئة</li>
+</ol>
+<p>Until the following are completed:</p>
+<ol>
+<li>✅ Fix all critical issues (P0)</li>
+<li>✅ Fix high-priority issues (P1)</li>
+<li>✅ Comprehensive auth/authz testing</li>
+<li>✅ Verify all environment variables</li>
+</ol>
+<h3 id="for-staged-rollout">للنشر التدريجي / For Staged Rollout<a class="headerlink" href="#for-staged-rollout" title="Permanent link">&para;</a></h3>
+<p>بعد الإصلاحات الحرجة / After critical fixes:</p>
+<ol>
+<li>✅ نشر في بيئة الاختبار / Deploy to staging environment</li>
+<li>✅ اختبار شامل لمدة 48 ساعة / Comprehensive testing for 48 hours</li>
+<li>✅ مراقبة الأخطاء والأداء / Monitor errors and performance</li>
+<li>✅ النشر التدريجي للإنتاج / Gradual production rollout</li>
+</ol>
+<hr />
+<h2 id="contact-information">📞 جهات الاتصال / Contact Information<a class="headerlink" href="#contact-information" title="Permanent link">&para;</a></h2>
+<p><strong>لأي استفسارات حول هذا التقرير:</strong><br />
+<strong>For questions about this report:</strong></p>
+<ul>
+<li><strong>Technical Lead:</strong> [Contact Info]</li>
+<li><strong>Security Team:</strong> [Contact Info]</li>
+<li><strong>DevOps Team:</strong> [Contact Info]</li>
+</ul>
+<hr />
+<h2 id="changelog">📝 سجل التغييرات / Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>التاريخ / Date</th>
+<th>الإصدار / Version</th>
+<th>التغييرات / Changes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-02-03</td>
+<td>1.0</td>
+<td>التقرير الأولي / Initial report</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><strong>نهاية التقرير / End of Report</strong></p>
+<p><em>تم إنشاء هذا التقرير بواسطة فريق الفحص الفني لمنصة SAHOOL</em><br />
+<em>This report was generated by the SAHOOL Technical Inspection Team</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

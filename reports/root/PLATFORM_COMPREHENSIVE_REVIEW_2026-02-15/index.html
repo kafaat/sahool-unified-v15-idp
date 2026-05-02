@@ -1,0 +1,1662 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>SAHOOL Platform - Comprehensive Review Report - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-platform-comprehensive-review-report" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL Platform - Comprehensive Review Report
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-platform-comprehensive-review-report">SAHOOL Platform - Comprehensive Review Report<a class="headerlink" href="#sahool-platform-comprehensive-review-report" title="Permanent link">&para;</a></h1>
+<h1 id="_1">تقرير المراجعة الشاملة لمنصة سهول<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<p><strong>Date | التاريخ</strong>: 2026-02-15
+<strong>Version | الإصدار</strong>: 16.0.0
+<strong>Reviewer</strong>: Automated Platform Audit</p>
+<hr />
+<h2 id="executive-summary">Executive Summary | الملخص التنفيذي<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Value</th>
+<th>Assessment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Total Services</td>
+<td>75 directories (62 Python, 14 Node.js)</td>
+<td>Over-fragmented</td>
+</tr>
+<tr>
+<td>Active Services (real code)</td>
+<td>~55</td>
+<td>~20 are empty/skeleton</td>
+</tr>
+<tr>
+<td>Python LOC</td>
+<td>~569K</td>
+<td>Large</td>
+</tr>
+<tr>
+<td>TypeScript/JS LOC</td>
+<td>~451K</td>
+<td>Large</td>
+</tr>
+<tr>
+<td>Dart (Mobile) LOC</td>
+<td>1,295 files / 56 features</td>
+<td>Substantial</td>
+</tr>
+<tr>
+<td>Shared Modules</td>
+<td>66</td>
+<td>Well-organized</td>
+</tr>
+<tr>
+<td>Dockerfiles</td>
+<td>102</td>
+<td>Consistent</td>
+</tr>
+<tr>
+<td>Test Files</td>
+<td>219</td>
+<td>Good coverage</td>
+</tr>
+<tr>
+<td>Unit Tests</td>
+<td>1,758 passing, 1 failing</td>
+<td>Strong</td>
+</tr>
+<tr>
+<td>Smoke Tests</td>
+<td>78 passing, 4 skipped</td>
+<td>Healthy</td>
+</tr>
+<tr>
+<td>GitHub Workflows</td>
+<td>48</td>
+<td>Comprehensive</td>
+</tr>
+<tr>
+<td>Root MD Files</td>
+<td>78 (1.2MB+)</td>
+<td>Excessive clutter</td>
+</tr>
+<tr>
+<td>Ruff Linting</td>
+<td>All passing</td>
+<td>Clean</td>
+</tr>
+<tr>
+<td>TypeScript Check</td>
+<td>Passing</td>
+<td>Clean</td>
+</tr>
+</tbody>
+</table>
+<h3 id="overall-score-7210">Overall Score: 7.2/10<a class="headerlink" href="#overall-score-7210" title="Permanent link">&para;</a></h3>
+<p><strong>Strengths</strong>: Well-structured services, comprehensive testing, strong documentation, consistent patterns.
+<strong>Weaknesses</strong>: Service sprawl, documentation clutter, overly permissive lint config, committed log files, some security gaps.</p>
+<hr />
+<h2 id="1-critical-issues-must-fix">1. CRITICAL Issues (Must Fix) | مشاكل حرجة<a class="headerlink" href="#1-critical-issues-must-fix" title="Permanent link">&para;</a></h2>
+<h3 id="11-log-files-committed-to-repository">1.1 Log Files Committed to Repository<a class="headerlink" href="#11-log-files-committed-to-repository" title="Permanent link">&para;</a></h3>
+<p><strong>Severity</strong>: HIGH → <strong>RESOLVED</strong> ✅
+<strong>Root Cause</strong>: <code>.gitignore</code> had <code>*.log</code> but NOT <code>*.logs</code> pattern.
+<strong>Resolution</strong>: Added <code>*.logs</code>, <code>pgbouncer_logs.txt</code>, <code>sahool.txt</code> to <code>.gitignore</code> and removed 6 tracked log files from git.</p>
+<h3 id="12-cors-wildcard-in-production-ready-services">1.2 CORS Wildcard in Production-Ready Services<a class="headerlink" href="#12-cors-wildcard-in-production-ready-services" title="Permanent link">&para;</a></h3>
+<p><strong>Severity</strong>: HIGH → <strong>RESOLVED</strong> ✅
+<strong>Resolution</strong>: Replaced <code>allow_origins=["*"]</code> with environment-based <code>CORS_ORIGINS</code> configuration in all 3 services (ground-vision, leveling-optimizer, pest-detection). Defaults to <code>sahool.io</code>, <code>admin.sahool.io</code>, <code>localhost:3000</code>.</p>
+<h3 id="13-failing-unit-tests">1.3 Failing Unit Tests<a class="headerlink" href="#13-failing-unit-tests" title="Permanent link">&para;</a></h3>
+<p><strong>Severity</strong>: MEDIUM → <strong>RESOLVED</strong> ✅
+<strong>Resolution</strong>: Fixed 2 bugs in <code>test_leveling_optimizer.py</code>:
+- <code>test_earthwork_balance_optimization</code>: Binary search direction was inverted (converged to max instead of balance point). Fixed by swapping <code>low</code>/<code>high</code> assignments.
+- <code>test_constrained_slope_plane</code>: Slope formula had incorrect sign (<code>-cos</code> → <code>cos</code> for geographic direction convention). All 27 tests now pass.</p>
+<h3 id="14-port-conflict">1.4 Port Conflict<a class="headerlink" href="#14-port-conflict" title="Permanent link">&para;</a></h3>
+<p><strong>Severity</strong>: MEDIUM → <strong>RESOLVED</strong> ✅
+<strong>Services</strong>: <code>supply-chain-service</code> (port 8230) and <code>ai-chat-assistant</code> (port 8260, previously 8230). Resolved by moving ai-chat-assistant to port 8260 per governance/services.yaml.</p>
+<hr />
+<h2 id="2-architecture-issues">2. Architecture Issues | مشاكل هيكلية<a class="headerlink" href="#2-architecture-issues" title="Permanent link">&para;</a></h2>
+<h3 id="21-service-sprawl-and-duplication">2.1 Service Sprawl and Duplication<a class="headerlink" href="#21-service-sprawl-and-duplication" title="Permanent link">&para;</a></h3>
+<p><strong>75 service directories</strong> is excessive. Significant overlap detected:</p>
+<table>
+<thead>
+<tr>
+<th>Domain</th>
+<th>Services</th>
+<th>Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Yield Prediction</strong></td>
+<td>yield-engine, yield-prediction, yield-prediction-service (3 services!)</td>
+<td>Consolidate to 1</td>
+</tr>
+<tr>
+<td><strong>AI/Agents</strong></td>
+<td>agent-registry, ai-advisor, ai-agents-core, ai-agents-service, ai-chat-assistant, code-fix-agent, code-review-agent, code-review-service, copilot-api, llm-orchestrator-service (10 services!)</td>
+<td>Consolidate to 3-4</td>
+</tr>
+<tr>
+<td><strong>Code Review</strong></td>
+<td>code-review-agent AND code-review-service</td>
+<td>Merge into 1</td>
+</tr>
+<tr>
+<td><strong>IoT</strong></td>
+<td>iot-service, iot-gateway, iot-sensor-hub (3 services)</td>
+<td>Could be 2</td>
+</tr>
+</tbody>
+</table>
+<h3 id="22-emptyskeleton-services-no-real-code">2.2 Empty/Skeleton Services (No Real Code)<a class="headerlink" href="#22-emptyskeleton-services-no-real-code" title="Permanent link">&para;</a></h3>
+<p>Services with <code>src/</code> directories containing 0 Python lines:</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Status</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>community-chat</td>
+<td>Empty</td>
+<td>Documented as deprecated</td>
+</tr>
+<tr>
+<td>demo-data</td>
+<td>Empty</td>
+<td>Documented as empty</td>
+</tr>
+<tr>
+<td>code-review-agent</td>
+<td>Empty (src/)</td>
+<td>Node.js service</td>
+</tr>
+<tr>
+<td>yield-prediction-service</td>
+<td>Empty (src/)</td>
+<td>Duplicates yield-prediction</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23-services-without-tests">2.3 Services Without Tests<a class="headerlink" href="#23-services-without-tests" title="Permanent link">&para;</a></h3>
+<p>9 services lack any test directory:
+- <code>agent-registry</code>
+- <code>ai-chat-assistant</code>
+- <code>demo-data</code>
+- <code>field-intelligence</code>
+- <code>globalgap-compliance</code>
+- <code>ground-vision-service</code>
+- <code>logistics-service</code>
+- <code>terrain-core-service</code>
+- <code>ussd-gateway</code></p>
+<h3 id="24-root-directory-documentation-clutter">2.4 Root Directory Documentation Clutter<a class="headerlink" href="#24-root-directory-documentation-clutter" title="Permanent link">&para;</a></h3>
+<p><strong>78 markdown files in the project root</strong> totaling over 1.2 MB. This includes:
+- Multiple overlapping review/audit reports (COMPREHENSIVE_REVIEW_REPORT.md, FINAL_PROJECT_REVIEW_REPORT.md, VISUAL_REVIEW_MAP.md)
+- Multiple overlapping fix summaries
+- Service inspection reports that should be in <code>docs/</code></p>
+<p><strong>Recommendation</strong>: Move to <code>docs/reports/</code> or <code>docs/audits/</code>, keep only README.md, CONTRIBUTING.md, SECURITY.md, CHANGELOG.md, and CLAUDE.md in root.</p>
+<hr />
+<h2 id="3-code-quality-analysis">3. Code Quality Analysis | تحليل جودة الكود<a class="headerlink" href="#3-code-quality-analysis" title="Permanent link">&para;</a></h2>
+<h3 id="31-python-code-quality">3.1 Python Code Quality<a class="headerlink" href="#31-python-code-quality" title="Permanent link">&para;</a></h3>
+<p><strong>Status</strong>: GOOD</p>
+<ul>
+<li>Ruff linting passes across all key services and shared modules</li>
+<li>FastAPI conventions followed consistently (lifespan pattern, health endpoints, structured logging)</li>
+<li>Pydantic v2 usage is standard across services</li>
+</ul>
+<p><strong>Concern</strong>: The Ruff ignore list is <strong>extremely permissive</strong> (37+ rules ignored globally). Notable rules that should NOT be ignored:
+- <code>F841</code> (Unused variable) - hides dead code
+- <code>E722</code> (Bare except) - masks errors, security concern
+- <code>B006</code> (Mutable default argument) - actual bug category
+- <code>E741</code> (Ambiguous variable names) - reduces readability
+- <code>E731</code> (Lambda assignment) - anti-pattern</p>
+<p>Additionally, <strong>36 per-file-ignore patterns</strong> create a very complex configuration that's hard to maintain.</p>
+<h3 id="32-typescriptnodejs-code-quality">3.2 TypeScript/Node.js Code Quality<a class="headerlink" href="#32-typescriptnodejs-code-quality" title="Permanent link">&para;</a></h3>
+<p><strong>Status</strong>: GOOD</p>
+<ul>
+<li>TypeScript compilation passes without errors</li>
+<li>NestJS services follow standard module patterns</li>
+<li>Prisma ORM is properly integrated</li>
+</ul>
+<h3 id="33-mobile-flutter-quality">3.3 Mobile (Flutter) Quality<a class="headerlink" href="#33-mobile-flutter-quality" title="Permanent link">&para;</a></h3>
+<p><strong>Status</strong>: GOOD</p>
+<ul>
+<li>1,295 Dart files across 56 feature modules</li>
+<li>Riverpod state management consistently used</li>
+<li>Offline-first architecture with Drift/SQLCipher</li>
+</ul>
+<hr />
+<h2 id="4-testing-infrastructure">4. Testing Infrastructure | بنية الاختبارات<a class="headerlink" href="#4-testing-infrastructure" title="Permanent link">&para;</a></h2>
+<h3 id="41-test-results-summary">4.1 Test Results Summary<a class="headerlink" href="#41-test-results-summary" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Count</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Smoke Tests</td>
+<td>78 passed, 4 skipped</td>
+<td>Healthy</td>
+</tr>
+<tr>
+<td>Unit Tests</td>
+<td>1,758 passed, 1 failed</td>
+<td>Strong</td>
+</tr>
+<tr>
+<td>Total Test Files</td>
+<td>219</td>
+<td>Good</td>
+</tr>
+<tr>
+<td>Total Test LOC</td>
+<td>~134,208 lines</td>
+<td>Comprehensive</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42-test-configuration">4.2 Test Configuration<a class="headerlink" href="#42-test-configuration" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>pytest</strong>: Well configured in pyproject.toml</li>
+<li><strong>Coverage</strong>: Targets <code>shared/</code>, <code>apps/kernel/</code>, <code>apps/services/</code></li>
+<li><strong>Coverage Threshold</strong>: <code>fail_under = 5</code> in <code>pyproject.toml</code> and CLAUDE.md (discrepancy resolved; threshold is intentionally low while coverage is raised incrementally)</li>
+<li><strong>Markers</strong>: unit, integration, smoke, slow (properly defined)</li>
+<li><strong>Async</strong>: pytest-asyncio in AUTO mode</li>
+</ul>
+<h3 id="43-test-quality-assessment">4.3 Test Quality Assessment<a class="headerlink" href="#43-test-quality-assessment" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Unit tests are comprehensive with 134K+ lines</li>
+<li>Smoke tests verify imports of shared modules (good practice)</li>
+<li>Test factories exist in <code>tests/factories/</code></li>
+<li>Multiple test categories (18 folders) show mature testing culture</li>
+</ul>
+<h3 id="44-test-gaps">4.4 Test Gaps<a class="headerlink" href="#44-test-gaps" title="Permanent link">&para;</a></h3>
+<ul>
+<li>9 services have no tests at all</li>
+<li>Integration tests may not be runnable without infrastructure (DB, NATS, Redis)</li>
+<li>No evidence of mutation testing</li>
+<li>The single failing test has been broken (numerical precision)</li>
+</ul>
+<hr />
+<h2 id="5-security-audit">5. Security Audit | مراجعة أمنية<a class="headerlink" href="#5-security-audit" title="Permanent link">&para;</a></h2>
+<h3 id="51-positive-findings">5.1 Positive Findings<a class="headerlink" href="#51-positive-findings" title="Permanent link">&para;</a></h3>
+<ul>
+<li>JWT authentication properly implemented in <code>shared/auth/</code></li>
+<li>RBAC system in <code>shared/security/</code></li>
+<li>Pre-commit hooks configured (<code>.pre-commit-config.yaml</code>)</li>
+<li>Gitleaks configured for secret scanning (<code>.gitleaks.toml</code>)</li>
+<li>Security scanning tools configured: CodeQL, Bandit, Semgrep, Trivy</li>
+<li>Non-root Docker containers (user <code>sahool</code>, UID 1000)</li>
+<li>Certificate pinning configured for mobile app</li>
+</ul>
+<h3 id="52-security-concerns">5.2 Security Concerns<a class="headerlink" href="#52-security-concerns" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Severity</th>
+<th>Location</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CORS <code>allow_origins=["*"]</code></td>
+<td>HIGH</td>
+<td>3 services (see 1.2)</td>
+</tr>
+<tr>
+<td>Development passwords in committed .env</td>
+<td>MEDIUM</td>
+<td><code>.env.development</code> (labeled dev-only)</td>
+</tr>
+<tr>
+<td>Log files in repo (may contain sensitive data)</td>
+<td>HIGH</td>
+<td>Root directory *.logs</td>
+</tr>
+<tr>
+<td>Overly permissive Ruff <code>E722</code> ignore (bare except)</td>
+<td>MEDIUM</td>
+<td>pyproject.toml</td>
+</tr>
+<tr>
+<td>mypy strict mode disabled</td>
+<td>LOW</td>
+<td>pyproject.toml</td>
+</tr>
+</tbody>
+</table>
+<h3 id="53-authentication-security">5.3 Authentication Security<a class="headerlink" href="#53-authentication-security" title="Permanent link">&para;</a></h3>
+<ul>
+<li>JWT with proper secret key management (environment variables)</li>
+<li>Token revocation support (Redis-backed)</li>
+<li>2FA support implemented</li>
+<li>Rate limiting configured at multiple tiers</li>
+<li>Password hashing with bcrypt via passlib</li>
+</ul>
+<hr />
+<h2 id="6-docker-infrastructure">6. Docker &amp; Infrastructure | البنية التحتية<a class="headerlink" href="#6-docker-infrastructure" title="Permanent link">&para;</a></h2>
+<h3 id="61-docker-composition">6.1 Docker Composition<a class="headerlink" href="#61-docker-composition" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Main <code>docker-compose.yml</code>: 147K lines (very large, well-structured)</li>
+<li>Multiple compose files for different environments (test, prod, HA, telemetry, TLS)</li>
+<li>102 Dockerfiles across the project</li>
+</ul>
+<h3 id="62-build-patterns">6.2 Build Patterns<a class="headerlink" href="#62-build-patterns" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Multi-stage builds</strong>: Used in 35+ services</li>
+<li><strong>Non-root user</strong>: Consistent <code>sahool</code> user (UID 1000)</li>
+<li><strong>Health checks</strong>: Present in Dockerfiles</li>
+<li><strong>Pip mirrors</strong>: 3-tier fallback (PyPI -&gt; Aliyun -&gt; Tencent) - good for reliability</li>
+<li><strong>Base images</strong>: Properly maintained in <code>docker/</code></li>
+</ul>
+<h3 id="63-cicd">6.3 CI/CD<a class="headerlink" href="#63-cicd" title="Permanent link">&para;</a></h3>
+<ul>
+<li>48 GitHub workflows covering CI, CD, security, testing, frontend, mobile</li>
+<li>ArgoCD for GitOps deployments (18 apps)</li>
+<li>Comprehensive workflow coverage</li>
+</ul>
+<h3 id="64-infrastructure-concerns">6.4 Infrastructure Concerns<a class="headerlink" href="#64-infrastructure-concerns" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>docker-compose.yml</code> at 147K is very large - consider splitting further</li>
+<li>Some services may be over-provisioned</li>
+<li>No docker-compose file specifically for development (only full-stack or test)</li>
+</ul>
+<hr />
+<h2 id="7-shared-modules-quality">7. Shared Modules Quality | جودة الوحدات المشتركة<a class="headerlink" href="#7-shared-modules-quality" title="Permanent link">&para;</a></h2>
+<h3 id="71-organization">7.1 Organization<a class="headerlink" href="#71-organization" title="Permanent link">&para;</a></h3>
+<p><strong>66 shared Python modules</strong> covering:
+- Infrastructure: auth, cache, events, middleware, monitoring, observability, security
+- AI: auto_fix, context_engineering, agents, orchestration, guardrails, models_registry
+- Agriculture: irrigation, soil_testing, pest_scouting, fertilizer_management, crop_rotation
+- Business: mobile_sync, batch_operations, labor_management, cooperatives</p>
+<h3 id="72-strengths">7.2 Strengths<a class="headerlink" href="#72-strengths" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Clear domain separation</li>
+<li>Bilingual support (Arabic/English) across modules</li>
+<li>Comprehensive agricultural domain coverage</li>
+<li>Well-defined event subjects in <code>shared/events/</code></li>
+</ul>
+<h3 id="73-concerns">7.3 Concerns<a class="headerlink" href="#73-concerns" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Some modules may be stubs (need verification)</li>
+<li>Cross-module dependencies should be documented</li>
+<li>No explicit dependency graph for shared modules</li>
+</ul>
+<hr />
+<h2 id="8-documentation-assessment">8. Documentation Assessment | تقييم التوثيق<a class="headerlink" href="#8-documentation-assessment" title="Permanent link">&para;</a></h2>
+<h3 id="81-strengths">8.1 Strengths<a class="headerlink" href="#81-strengths" title="Permanent link">&para;</a></h3>
+<ul>
+<li>CLAUDE.md (102K) is extremely comprehensive</li>
+<li>365+ documentation files</li>
+<li>Per-service README files (69+ services)</li>
+<li>API specs in <code>apps/services-docs/</code></li>
+<li>Architecture Decision Records in <code>docs/adr/</code></li>
+</ul>
+<h3 id="82-concerns">8.2 Concerns<a class="headerlink" href="#82-concerns" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>78 markdown files in root directory</strong> - cluttered, overlapping</li>
+<li><strong>CLAUDE.md is 102K</strong> - may be too large for effective AI context</li>
+<li>Multiple competing review/audit reports</li>
+<li>Documentation in root should be reorganized into <code>docs/</code></li>
+</ul>
+<hr />
+<h2 id="9-recommendations-by-priority">9. Recommendations by Priority | التوصيات حسب الأولوية<a class="headerlink" href="#9-recommendations-by-priority" title="Permanent link">&para;</a></h2>
+<h3 id="p0-immediate-this-sprint">P0 - Immediate (This Sprint)<a class="headerlink" href="#p0-immediate-this-sprint" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Remove log files from git</strong> and fix <code>.gitignore</code> (add <code>*.logs</code>)</li>
+<li><strong>Fix CORS wildcard</strong> in ground-vision, leveling-optimizer, pest-detection services</li>
+<li><strong>Fix failing test</strong> in <code>test_leveling_optimizer.py</code> (float32 precision)</li>
+<li><strong>Resolve port conflict</strong> between supply-chain-service and ai-chat-assistant</li>
+</ol>
+<h3 id="p1-short-term-next-2-sprints">P1 - Short Term (Next 2 Sprints)<a class="headerlink" href="#p1-short-term-next-2-sprints" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Tighten Ruff configuration</strong>: Remove <code>F841</code>, <code>E722</code>, <code>B006</code>, <code>E741</code> from ignore list — <strong>DONE</strong></li>
+<li><strong>Clean root directory</strong>: Move 70+ markdown files to <code>docs/reports/</code> — <strong>DONE</strong></li>
+<li><strong>Add tests</strong> to currently untested services — <strong>DONE</strong> (current scan found <code>code-review-agent</code> and <code>yield-prediction</code>)</li>
+<li><strong>Fix coverage documentation</strong> discrepancy — <strong>DONE</strong> (<code>fail_under = 5</code> documented consistently)</li>
+</ol>
+<h3 id="p2-medium-term-next-quarter">P2 - Medium Term (Next Quarter)<a class="headerlink" href="#p2-medium-term-next-quarter" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Consolidate duplicate services</strong>: Yield consolidation is tracked via active <code>yield-prediction-service</code> plus deprecated <code>yield-engine</code>; remaining AI-service consolidation requires a dedicated architecture PR.</li>
+<li><strong>Enable mypy strict mode</strong> progressively — <strong>DONE</strong> for selected critical shared modules.</li>
+<li><strong>Reduce CLAUDE.md size</strong> — <strong>PARTIAL</strong> root report clutter moved under <code>docs/reports/</code>; splitting agent guidance requires coordination with coding-agent bootstrapping.</li>
+<li><strong>Add mutation testing</strong> for critical shared modules — <strong>DONE</strong> via <code>tool.mutmut</code> configuration targeting token revocation and rate limiting.</li>
+</ol>
+<h3 id="p3-long-term-next-half">P3 - Long Term (Next Half)<a class="headerlink" href="#p3-long-term-next-half" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Service decomposition review</strong>: Evaluate if 75 services is justified vs a smaller set</li>
+<li><strong>Implement shared module dependency graph</strong></li>
+<li><strong>Add end-to-end test pipeline</strong> with infrastructure provisioning</li>
+<li><strong>Consider monorepo tooling</strong> (Turborepo/Nx) for better build orchestration</li>
+</ol>
+<hr />
+<h2 id="10-metrics-summary">10. Metrics Summary | ملخص المقاييس<a class="headerlink" href="#10-metrics-summary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Score</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Code Quality</strong></td>
+<td>8/10</td>
+<td>Clean linting, good patterns, but permissive config</td>
+</tr>
+<tr>
+<td><strong>Testing</strong></td>
+<td>8.5/10</td>
+<td>1,795+ unit tests passing, 2 test bugs fixed</td>
+</tr>
+<tr>
+<td><strong>Security</strong></td>
+<td>8/10</td>
+<td>CORS and log issues resolved, good foundation</td>
+</tr>
+<tr>
+<td><strong>Architecture</strong></td>
+<td>6/10</td>
+<td>Service sprawl and duplication</td>
+</tr>
+<tr>
+<td><strong>Documentation</strong></td>
+<td>7/10</td>
+<td>Comprehensive but cluttered</td>
+</tr>
+<tr>
+<td><strong>Infrastructure</strong></td>
+<td>8/10</td>
+<td>Well-configured Docker, CI/CD, monitoring</td>
+</tr>
+<tr>
+<td><strong>Mobile</strong></td>
+<td>8/10</td>
+<td>Strong Flutter app with offline-first</td>
+</tr>
+<tr>
+<td><strong>Overall</strong></td>
+<td><strong>7.2/10</strong></td>
+<td>Solid platform with specific improvement areas</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>Generated: 2026-02-15 | SAHOOL Platform v16.0.0</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

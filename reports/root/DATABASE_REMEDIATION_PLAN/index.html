@@ -1,0 +1,1459 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Database Configuration Remediation Plan - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#database-configuration-remediation-plan" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Database Configuration Remediation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="database-configuration-remediation-plan">Database Configuration Remediation Plan<a class="headerlink" href="#database-configuration-remediation-plan" title="Permanent link">&para;</a></h1>
+<h1 id="_1">خطة معالجة إعدادات قاعدة البيانات<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<p><strong>Generated</strong>: 2026-02-04
+<strong>Priority</strong>: HIGH
+<strong>Status</strong>: In Progress</p>
+<h2 id="executive-summary">Executive Summary | الملخص التنفيذي<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>This document outlines the comprehensive remediation plan for database configuration issues identified during the audit of the SAHOOL platform.</p>
+<p>تحدد هذه الوثيقة خطة المعالجة الشاملة لمشكلات إعداد قاعدة البيانات التي تم تحديدها أثناء تدقيق منصة سهول.</p>
+<h3 id="issues-summary">Issues Summary<a class="headerlink" href="#issues-summary" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Critical (6)</strong>: Missing SSL/TLS configuration in database connection files</li>
+<li><strong>Warnings (23)</strong>: Docker Compose SSL mode, duplicate Prisma models, missing governance entries</li>
+<li><strong>Services Audited</strong>: 72 total services</li>
+<li><strong>Database Connections</strong>: 10 Prisma services, 9 Python database files</li>
+</ul>
+<hr />
+<h2 id="critical-issues-">🔴 Critical Issues - المشكلات الحرجة<a class="headerlink" href="#critical-issues-" title="Permanent link">&para;</a></h2>
+<h3 id="issue-1-missing-ssltls-configuration-in-python-database-files">Issue 1: Missing SSL/TLS Configuration in Python Database Files<a class="headerlink" href="#issue-1-missing-ssltls-configuration-in-python-database-files" title="Permanent link">&para;</a></h3>
+<p><strong>Severity</strong>: CRITICAL<br />
+<strong>Risk</strong>: Unencrypted database connections expose sensitive data</p>
+<p><strong>Affected Files</strong>:
+1. <code>apps/services/field-intelligence/src/database.py</code>
+2. <code>apps/services/task-service/src/database.py</code>
+3. <code>apps/services/equipment-service/src/database.py</code>
+4. <code>apps/services/globalgap-compliance/src/database.py</code>
+5. <code>apps/services/notification-service/src/database.py</code>
+6. <code>apps/services/ai-agents-service/src/db.py</code></p>
+<p><strong>Root Cause</strong>:
+- Database connection pools created without SSL/TLS parameters
+- No <code>ssl</code> parameter in <code>asyncpg.create_pool()</code> calls
+- Missing SSL verification settings</p>
+<p><strong>Fix Strategy</strong>:
+1. Add SSL/TLS configuration comments to all database files
+2. Document that SSL is configured via DATABASE_URL connection string
+3. Add validation to ensure production connections use SSL
+4. Update DATABASE_URL format documentation</p>
+<p><strong>Implementation</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># SSL/TLS Security:</span>
+<span class="c1"># SSL is configured via DATABASE_URL connection string parameter: ?sslmode=require</span>
+<span class="c1"># For production, DATABASE_URL MUST include sslmode=require</span>
+<span class="c1"># Example: postgresql://user:pass@host:port/db?sslmode=require</span>
+<span class="c1">#</span>
+<span class="c1"># If SSL is required programmatically (alternative to DATABASE_URL parameter):</span>
+<span class="c1"># ssl_context = ssl.create_default_context(cafile=&quot;/path/to/ca-cert.pem&quot;)</span>
+<span class="c1"># pool = await asyncpg.create_pool(DATABASE_URL, ssl=ssl_context)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="warning-issues-">🟡 Warning Issues - التحذيرات<a class="headerlink" href="#warning-issues-" title="Permanent link">&para;</a></h2>
+<h3 id="issue-2-docker-compose-sslmodedisable">Issue 2: Docker Compose sslmode=disable<a class="headerlink" href="#issue-2-docker-compose-sslmodedisable" title="Permanent link">&para;</a></h3>
+<p><strong>Severity</strong>: WARNING<br />
+<strong>Risk</strong>: Development environment mirrors production configuration weakness</p>
+<p><strong>Affected</strong>: <code>docker-compose.yml</code> - 57 DATABASE_URL references with <code>sslmode=disable</code></p>
+<p><strong>Fix</strong>:
+- Keep <code>sslmode=disable</code> for local development (justified for Docker internal network)
+- Add clear comments explaining security trade-offs
+- Ensure production deployment uses <code>sslmode=require</code></p>
+<p><strong>Implementation</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">environment</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># Development: sslmode=disable for Docker internal network (no external exposure)</span>
+<span class="w">  </span><span class="c1"># Production: MUST use sslmode=require via .env override</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DATABASE_URL=postgresql://...?sslmode=disable</span>
+</code></pre></div>
+
+<hr />
+<h3 id="issue-3-duplicate-prisma-model-definitions">Issue 3: Duplicate Prisma Model Definitions<a class="headerlink" href="#issue-3-duplicate-prisma-model-definitions" title="Permanent link">&para;</a></h3>
+<p><strong>Severity</strong>: WARNING<br />
+<strong>Risk</strong>: Schema conflicts, data inconsistency, migration conflicts</p>
+<p><strong>Count</strong>: 50+ duplicate model names across 10 Prisma services</p>
+<p><strong>Examples</strong>:
+- <code>Device</code> (iot-service, field-management-service, inventory-service)
+- <code>Field</code> (field-management-service, research-core, disaster-assessment)
+- <code>Order</code> (marketplace-service, inventory-service)
+- <code>Transaction</code> (marketplace-service, inventory-service, disaster-assessment)</p>
+<p><strong>Fix Strategy</strong>:
+1. Document model ownership per service (bounded contexts)
+2. Ensure each service uses unique table names (e.g., <code>iot_devices</code>, <code>marketplace_orders</code>)
+3. Add schema prefix or service namespace to Prisma models
+4. Review and consolidate overlapping domains</p>
+<p><strong>Long-term Solution</strong>:
+- Implement schema-per-service pattern
+- Use database namespaces or separate databases for services</p>
+<hr />
+<h3 id="issue-4-missing-services-in-governanceservicesyaml">Issue 4: Missing Services in governance/services.yaml<a class="headerlink" href="#issue-4-missing-services-in-governanceservicesyaml" title="Permanent link">&para;</a></h3>
+<p><strong>Severity</strong>: WARNING<br />
+<strong>Risk</strong>: Service registry out of sync with actual deployment</p>
+<p><strong>Missing Services (20)</strong>:
+- Infrastructure: vault, etcd, etcd-init, minio, milvus, qdrant, ollama, ollama-model-loader
+- Data: mlflow, demo-data, yolo26-models, terrain-dem-data
+- Services: yield-prediction-service, copilot-api, traceability-service, soil-analysis-service, 
+  pest-detection-service, drone-service, cooperative-service</p>
+<p><strong>Fix</strong>:
+- Add infrastructure services to governance file under <code>infrastructure</code> category
+- Add missing microservices with proper metadata
+- Distinguish between services and data volumes
+- Update service registry documentation</p>
+<hr />
+<h3 id="issue-5-missing-connection-pool-in-notification-service">Issue 5: Missing Connection Pool in notification-service<a class="headerlink" href="#issue-5-missing-connection-pool-in-notification-service" title="Permanent link">&para;</a></h3>
+<p><strong>Severity</strong>: WARNING<br />
+<strong>Risk</strong>: Connection exhaustion under load</p>
+<p><strong>Affected</strong>: <code>apps/services/notification-service/src/database.py</code></p>
+<p><strong>Current</strong>: Uses Tortoise ORM without explicit connection pool configuration</p>
+<p><strong>Fix</strong>:
+- Verify Tortoise ORM default connection pooling settings
+- Add explicit pool size configuration if needed
+- Document connection pool parameters</p>
+<hr />
+<h3 id="issue-6-weak-placeholder-passwords">Issue 6: Weak Placeholder Passwords<a class="headerlink" href="#issue-6-weak-placeholder-passwords" title="Permanent link">&para;</a></h3>
+<p><strong>Severity</strong>: WARNING<br />
+<strong>Risk</strong>: Developers may deploy with default credentials</p>
+<p><strong>Affected Files</strong>:
+- <code>.env.example</code>
+- <code>.env.development</code></p>
+<p><strong>Current Values</strong>:
+- <code>POSTGRES_PASSWORD=change_this_secure_password_in_production</code></p>
+<p><strong>Fix</strong>:
+- Keep placeholder in <code>.env.example</code> with strong warning
+- Update <code>.env.development</code> to use randomly generated password
+- Add password generation script for developers
+- Update documentation with password requirements</p>
+<hr />
+<h2 id="validation-steps-">✅ Validation Steps - خطوات التحقق<a class="headerlink" href="#validation-steps-" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>SSL/TLS Verification</strong>
+   ```bash
+   # Check DATABASE_URL includes sslmode parameter
+   grep -r "DATABASE_URL" apps/services/<em>/src/</em>.py | grep -i ssl</li>
+</ol>
+<p># Verify production deployment uses sslmode=require
+   kubectl get configmap -n production | grep DATABASE_URL
+   ```</p>
+<ol>
+<li><strong>Connection Pool Testing</strong>
+   ```bash
+   # Test connection pool under load
+   make test-integration</li>
+</ol>
+<p># Monitor connection counts
+   psql -c "SELECT count(*) FROM pg_stat_activity WHERE application_name LIKE 'sahool%';"
+   ```</p>
+<ol>
+<li>
+<p><strong>Prisma Model Validation</strong>
+   <code>bash
+   # Check for duplicate table names
+   for schema in $(find apps/services -name "schema.prisma"); do
+     echo "=== $schema ==="
+     grep "@@map(" $schema || echo "No custom table mapping"
+   done</code></p>
+</li>
+<li>
+<p><strong>Governance Registry Check</strong>
+   <code>bash
+   # Compare docker-compose services vs governance registry
+   diff &lt;(grep -E "^  [a-z0-9-]+:" docker-compose.yml | sed 's/://g' | sed 's/^  //' | sort) \
+        &lt;(grep -E "^  [a-z0-9-]+:" governance/services.yaml | sed 's/://g' | sed 's/^  //' | sort)</code></p>
+</li>
+</ol>
+<hr />
+<h2 id="implementation-checklist">📋 Implementation Checklist<a class="headerlink" href="#implementation-checklist" title="Permanent link">&para;</a></h2>
+<h3 id="phase-1-documentation-comments-current">Phase 1: Documentation &amp; Comments (Current)<a class="headerlink" href="#phase-1-documentation-comments-current" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[x] Complete database configuration audit</li>
+<li>[x] Document all findings</li>
+<li>[ ] Add SSL/TLS configuration comments to database files</li>
+<li>[ ] Update DATABASE_URL documentation</li>
+<li>[ ] Add security warnings to environment files</li>
+</ul>
+<h3 id="phase-2-code-fixes-next">Phase 2: Code Fixes (Next)<a class="headerlink" href="#phase-2-code-fixes-next" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Add SSL configuration comments to 6 Python database files</li>
+<li>[ ] Update docker-compose.yml with security comments</li>
+<li>[ ] Create password generation script</li>
+<li>[ ] Document Prisma model ownership</li>
+</ul>
+<h3 id="phase-3-governance-updates">Phase 3: Governance Updates<a class="headerlink" href="#phase-3-governance-updates" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Add missing services to governance/services.yaml</li>
+<li>[ ] Document infrastructure services</li>
+<li>[ ] Update service categories</li>
+<li>[ ] Review and update port allocations</li>
+</ul>
+<h3 id="phase-4-testing-validation">Phase 4: Testing &amp; Validation<a class="headerlink" href="#phase-4-testing-validation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Test SSL/TLS connections</li>
+<li>[ ] Validate connection pooling under load</li>
+<li>[ ] Check Prisma migrations compatibility</li>
+<li>[ ] Run integration tests</li>
+</ul>
+<h3 id="phase-5-production-readiness">Phase 5: Production Readiness<a class="headerlink" href="#phase-5-production-readiness" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Audit production DATABASE_URL configurations</li>
+<li>[ ] Verify SSL certificates</li>
+<li>[ ] Update deployment documentation</li>
+<li>[ ] Create runbook for database issues</li>
+</ul>
+<hr />
+<h2 id="quick-fixes-">🔧 Quick Fixes - الإصلاحات السريعة<a class="headerlink" href="#quick-fixes-" title="Permanent link">&para;</a></h2>
+<h3 id="fix-1-add-ssl-documentation-to-database-files">Fix 1: Add SSL Documentation to Database Files<a class="headerlink" href="#fix-1-add-ssl-documentation-to-database-files" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Apply to all 6 affected files</span>
+<span class="k">for</span><span class="w"> </span>file<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>apps/services/field-intelligence/src/database.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>apps/services/task-service/src/database.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>apps/services/equipment-service/src/database.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>apps/services/globalgap-compliance/src/database.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>apps/services/notification-service/src/database.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>apps/services/ai-agents-service/src/db.py
+<span class="k">do</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Processing </span><span class="nv">$file</span><span class="s2">...&quot;</span>
+<span class="w">  </span><span class="c1"># Add SSL comment block after DATABASE_URL definition</span>
+<span class="k">done</span>
+</code></pre></div>
+
+<h3 id="fix-2-update-environment-files">Fix 2: Update Environment Files<a class="headerlink" href="#fix-2-update-environment-files" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Generate secure password for .env.development</span>
+openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span><span class="w"> </span>&gt;<span class="w"> </span>/tmp/postgres_password.txt
+</code></pre></div>
+
+<h3 id="fix-3-validate-prisma-schemas">Fix 3: Validate Prisma Schemas<a class="headerlink" href="#fix-3-validate-prisma-schemas" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check all Prisma schemas for proper table mapping</span>
+npx<span class="w"> </span>prisma<span class="w"> </span>validate<span class="w"> </span>--schema<span class="w"> </span>apps/services/*/prisma/schema.prisma
+</code></pre></div>
+
+<hr />
+<h2 id="metrics-success-criteria">📊 Metrics &amp; Success Criteria<a class="headerlink" href="#metrics-success-criteria" title="Permanent link">&para;</a></h2>
+<h3 id="before-remediation">Before Remediation<a class="headerlink" href="#before-remediation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>SSL/TLS configured: 3/9 Python DB files (33%)</li>
+<li>Services in governance: 52/72 (72%)</li>
+<li>Duplicate models: 50+ across services</li>
+<li>Connection pool config: 8/9 services (89%)</li>
+</ul>
+<h3 id="target-after-remediation">Target After Remediation<a class="headerlink" href="#target-after-remediation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>SSL/TLS configured: 9/9 Python DB files (100%)</li>
+<li>Services in governance: 72/72 (100%)</li>
+<li>Documented duplicate models: 100%</li>
+<li>Connection pool config: 9/9 services (100%)</li>
+</ul>
+<hr />
+<h2 id="next-steps">🚀 Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Immediate (Today)</strong></li>
+<li>Add SSL/TLS configuration comments to database files</li>
+<li>Update docker-compose.yml with security comments</li>
+<li>
+<p>Document DATABASE_URL SSL configuration</p>
+</li>
+<li>
+<p><strong>Short-term (This Week)</strong></p>
+</li>
+<li>Add missing services to governance registry</li>
+<li>Create Prisma model ownership documentation</li>
+<li>
+<p>Update environment file templates</p>
+</li>
+<li>
+<p><strong>Medium-term (This Month)</strong></p>
+</li>
+<li>Implement schema-per-service pattern for Prisma</li>
+<li>Audit production SSL/TLS configurations</li>
+<li>
+<p>Create database security runbook</p>
+</li>
+<li>
+<p><strong>Long-term (This Quarter)</strong></p>
+</li>
+<li>Migrate to separate databases per service (microservices best practice)</li>
+<li>Implement automated governance validation</li>
+<li>Add database configuration CI/CD checks</li>
+</ol>
+<hr />
+<h2 id="references">📚 References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://www.postgresql.org/docs/current/ssl-tcp.html">PostgreSQL SSL Documentation</a></li>
+<li><a href="https://magicstack.github.io/asyncpg/current/api/index.html#ssl">AsyncPG SSL Configuration</a></li>
+<li><a href="https://www.pgbouncer.org/config.html">PgBouncer Security Best Practices</a></li>
+<li><a href="https://www.prisma.io/docs/guides/performance-and-optimization">Prisma Schema Best Practices</a></li>
+<li><a href="./SECURITY.md">SAHOOL Security Guidelines</a></li>
+</ul>
+<hr />
+<p><strong>Document Owner</strong>: Database Infrastructure Team<br />
+<strong>Last Updated</strong>: 2026-02-04<br />
+<strong>Review Date</strong>: 2026-02-11</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

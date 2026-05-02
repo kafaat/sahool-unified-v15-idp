@@ -1,0 +1,2123 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>تقرير المراجعة الشاملة للحاويات | Comprehensive Container Audit Report - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#comprehensive-container-audit-report" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              تقرير المراجعة الشاملة للحاويات | Comprehensive Container Audit Report
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="comprehensive-container-audit-report">تقرير المراجعة الشاملة للحاويات | Comprehensive Container Audit Report<a class="headerlink" href="#comprehensive-container-audit-report" title="Permanent link">&para;</a></h1>
+<p><strong>التاريخ | Date</strong>: 2026-02-04<br />
+<strong>المنصة | Platform</strong>: SAHOOL v16.0.0<br />
+<strong>النطاق | Scope</strong>: 92 Service Containers (71 Dockerfiles + 17 Infrastructure + 8 Deprecated)<br />
+<strong>المراجع | Auditor</strong>: AI Code Agent</p>
+<hr />
+<h2 id="executive-summary">الملخص التنفيذي | Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<h3 id="overview">Overview | نظرة عامة<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h3>
+<p>تم إجراء مراجعة شاملة لجميع حاويات الخدمات في منصة SAHOOL، بما في ذلك:
+- <strong>71 Dockerfile</strong> في مجلد <code>apps/services/</code>
+- <strong>17 خدمة بنية تحتية</strong> (PostgreSQL, Redis, NATS, Kong, إلخ)
+- <strong>8 خدمات منتهية الصلاحية</strong> في <code>/archive/deprecated-services/</code></p>
+<p>A comprehensive audit was conducted of all service containers in the SAHOOL platform, including:
+- <strong>71 Dockerfiles</strong> in <code>apps/services/</code>
+- <strong>17 infrastructure services</strong> (PostgreSQL, Redis, NATS, Kong, etc.)
+- <strong>8 deprecated services</strong> in <code>/archive/deprecated-services/</code></p>
+<h3 id="summary-statistics">Summary Statistics | إحصائيات موجزة<a class="headerlink" href="#summary-statistics" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الفئة</th>
+<th>Category</th>
+<th>العدد</th>
+<th>Count</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>خدمات نشطة</td>
+<td>Active Services</td>
+<td>67</td>
+<td>67</td>
+</tr>
+<tr>
+<td>خدمات البنية التحتية</td>
+<td>Infrastructure</td>
+<td>17</td>
+<td>17</td>
+</tr>
+<tr>
+<td>خدمات منتهية الصلاحية</td>
+<td>Deprecated</td>
+<td>8</td>
+<td>8</td>
+</tr>
+<tr>
+<td>مشاكل حرجة</td>
+<td>Critical Issues</td>
+<td>5</td>
+<td>5</td>
+</tr>
+<tr>
+<td>مشاكل عالية الأولوية</td>
+<td>High Priority</td>
+<td>12</td>
+<td>12</td>
+</tr>
+<tr>
+<td>مشاكل متوسطة الأولوية</td>
+<td>Medium Priority</td>
+<td>18</td>
+<td>18</td>
+</tr>
+<tr>
+<td>توصيات عامة</td>
+<td>Low Priority</td>
+<td>8</td>
+<td>8</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="critical-findings">🔴 المشاكل الحرجة | CRITICAL FINDINGS<a class="headerlink" href="#critical-findings" title="Permanent link">&para;</a></h2>
+<h3 id="1-security-vulnerabilities-running-as-root">1. ثغرات أمنية - تشغيل بصلاحيات الجذر | Security Vulnerabilities - Running as Root<a class="headerlink" href="#1-security-vulnerabilities-running-as-root" title="Permanent link">&para;</a></h3>
+<p><strong>الخطورة | Severity</strong>: 🔴 CRITICAL<br />
+<strong>الخدمات المتأثرة | Affected Services</strong>: 2</p>
+<h4 id="edge-orchestrator-service">edge-orchestrator-service<a class="headerlink" href="#edge-orchestrator-service" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c"># File: /apps/services/edge-orchestrator-service/Dockerfile:38</span>
+<span class="k">USER</span><span class="w"> </span><span class="s">root  # ❌ CRITICAL SECURITY RISK</span>
+</code></pre></div>
+
+<p><strong>المشكلة | Issue</strong>: الخدمة تعمل بصلاحيات الجذر (root) بدلاً من مستخدم محدود<br />
+<strong>The service runs with root privileges instead of a restricted user</strong></p>
+<p><strong>التأثير | Impact</strong>:
+- انتهاك أمني خطير | Severe security violation
+- إمكانية الهروب من الحاوية | Container escape potential
+- انتهاك سياسات الأمان العامة | Violation of security policies</p>
+<p><strong>الحل المقترح | Recommended Fix</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c"># Replace line 38 with:</span>
+<span class="k">USER</span><span class="w"> </span><span class="s">sahool:sahool</span>
+</code></pre></div>
+
+<h4 id="yolo26-vision-service">yolo26-vision-service<a class="headerlink" href="#yolo26-vision-service" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c"># File: /apps/services/yolo26-vision-service/Dockerfile:60</span>
+<span class="k">USER</span><span class="w"> </span><span class="s">root  # ❌ CRITICAL SECURITY RISK</span>
+</code></pre></div>
+
+<p><strong>المشكلة | Issue</strong>: نفس المشكلة - تشغيل بصلاحيات الجذر<br />
+<strong>Same issue - running with root privileges</strong></p>
+<p><strong>الحل المقترح | Recommended Fix</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c"># Replace line 60 with:</span>
+<span class="k">USER</span><span class="w"> </span><span class="s">sahool:sahool</span>
+</code></pre></div>
+
+<hr />
+<h3 id="2-dockerignore-missing-dockerignore-files">2. ملفات .dockerignore مفقودة | Missing .dockerignore Files<a class="headerlink" href="#2-dockerignore-missing-dockerignore-files" title="Permanent link">&para;</a></h3>
+<p><strong>الخطورة | Severity</strong>: 🔴 CRITICAL (Security &amp; Performance)<br />
+<strong>الخدمات المتأثرة | Affected Services</strong>: 31</p>
+<p><strong>القائمة الكاملة | Full List</strong>:
+1. code-review-service
+2. cooperative-service
+3. drone-service
+4. globalgap-compliance
+5. soil-analysis-service
+6. traceability-service
+7. ussd-gateway
+8. crop-intelligence-service
+9. terrain-core-service
+10. hydrology-service
+11. crm-service
+12. wechat-service
+13. leveling-optimizer-service
+14. copilot-api
+15. lowcode-engine
+16. llm-orchestrator-service
+17. code-fix-agent
+18. ai-agents-core
+19. ai-agents-service
+20. demo-data
+21. ground-vision-service
+22. pest-detection-service
+23. knowledge-graph
+24. supply-chain-service
+25. inventory-service
+26. skills-service
+27. irrigation-smart
+28. audit-service
+29. equipment-service
+30. landscape
+31. shared</p>
+<p><strong>المشكلة | Issue</strong>:
+- تسريب محتمل للأسرار (.env, credentials) | Potential secret leaks
+- حجم صور كبير بسبب ملفات غير ضرورية | Large image sizes due to unnecessary files
+- بناء بطيء | Slow builds
+- تضمين node_modules, <strong>pycache</strong>, .git | Including node_modules, <strong>pycache</strong>, .git</p>
+<p><strong>الحل المقترح | Recommended Fix</strong>:
+إنشاء ملف <code>.dockerignore</code> قياسي لكل خدمة:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Standard .dockerignore template</span>
+<span class="nf">__pycache__</span>
+<span class="err">*</span><span class="na">.pyc</span>
+<span class="err">*</span><span class="na">.pyo</span>
+<span class="err">*</span><span class="na">.pyd</span>
+<span class="na">.Python</span>
+<span class="na">.env</span>
+<span class="na">.env.</span><span class="p">*</span>
+<span class="na">.git</span>
+<span class="na">.gitignore</span>
+<span class="na">.vscode</span>
+<span class="na">.idea</span>
+<span class="err">*</span><span class="na">.log</span>
+<span class="nf">node_modules</span>
+<span class="nf">npm-debug.log</span><span class="p">*</span>
+<span class="nf">coverage</span><span class="err">/</span>
+<span class="err">*</span><span class="na">.test</span>
+<span class="err">*</span><span class="na">.md</span>
+<span class="nf">Dockerfile</span><span class="p">*</span>
+<span class="nf">docker-compose</span><span class="p">*</span>
+</code></pre></div>
+
+<hr />
+<h3 id="3-outdated-or-insecure-base-images">3. صور أساسية قديمة أو غير آمنة | Outdated or Insecure Base Images<a class="headerlink" href="#3-outdated-or-insecure-base-images" title="Permanent link">&para;</a></h3>
+<p><strong>الخطورة | Severity</strong>: 🟠 HIGH</p>
+<h4 id="yolo26-vision-service_1">yolo26-vision-service<a class="headerlink" href="#yolo26-vision-service_1" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="k">FROM</span><span class="w"> </span><span class="s">nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04</span>
+</code></pre></div>
+
+<p><strong>المشكلة | Issue</strong>:
+- Ubuntu 22.04 قديمة (Ubuntu 24.04 متوفرة) | Ubuntu 22.04 is older (24.04 available)
+- صورة أساسية كبيرة جداً (~2.5 GB) | Very large base image (~2.5 GB)
+- سطح هجوم واسع | Large attack surface</p>
+<p><strong>التوصية | Recommendation</strong>:
+- النظر في استخدام Ubuntu 24.04 | Consider using Ubuntu 24.04
+- أو استخدام صور CUDA المخصصة الأصغر | Or use smaller specialized CUDA images</p>
+<hr />
+<h2 id="high-priority-issues">🟠 المشاكل عالية الأولوية | HIGH PRIORITY ISSUES<a class="headerlink" href="#high-priority-issues" title="Permanent link">&para;</a></h2>
+<h3 id="1-deprecated-services-in-archive">1. خدمات منتهية الصلاحية في المخزن | Deprecated Services in Archive<a class="headerlink" href="#1-deprecated-services-in-archive" title="Permanent link">&para;</a></h3>
+<p><strong>الموقع | Location</strong>: <code>/archive/deprecated-services/</code></p>
+<p><strong>الخدمات | Services</strong> (8):
+1. <code>field-core</code> → تم الاستبدال بـ | Replaced by: <code>field-management-service</code>
+2. <code>crop-health</code> → تم الاستبدال بـ | Replaced by: <code>crop-intelligence-service</code>
+3. <code>weather-advanced</code> → تم الاستبدال بـ | Replaced by: <code>weather-service</code>
+4. <code>fertilizer-advisor</code> → تم الاستبدال بـ | Replaced by: <code>advisory-service</code>
+5. <code>crop-health-ai</code> → تم الاستبدال بـ | Replaced by: <code>crop-intelligence-service</code>
+6. <code>field-ops</code> → تم الاستبدال بـ | Replaced by: <code>field-management-service</code>
+7. <code>satellite-service</code> → تم الاستبدال بـ | Replaced by: <code>vegetation-analysis-service</code>
+8. <code>field-service</code> → تم الاستبدال بـ | Replaced by: <code>field-management-service</code></p>
+<p><strong>الإجراء المطلوب | Required Action</strong>:
+- إزالة هذه الخدمات من المخزن | Remove these services from archive
+- التأكد من عدم وجود تبعيات | Verify no dependencies exist
+- تحديث الوثائق | Update documentation</p>
+<hr />
+<h3 id="2-base-image-version-inconsistencies">2. عدم اتساق إصدارات الصور الأساسية | Base Image Version Inconsistencies<a class="headerlink" href="#2-base-image-version-inconsistencies" title="Permanent link">&para;</a></h3>
+<p><strong>Python Images</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Variations found:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python:3.11-slim</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python:3.11-slim-bookworm</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python:3.11</span>
+</code></pre></div>
+
+<p><strong>المشكلة | Issue</strong>: عدم الاتساق يؤدي إلى:
+- صعوبة الصيانة | Maintenance difficulty
+- احتمال مشاكل التوافق | Compatibility issues
+- استهلاك مساحة إضافية | Extra storage consumption</p>
+<p><strong>التوصية | Recommendation</strong>:
+توحيد على <code>python:3.11-slim-bookworm</code> لجميع الخدمات
+Standardize on <code>python:3.11-slim-bookworm</code> for all services</p>
+<p><strong>Node.js Images</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Standardized (Good):</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">node:20-alpine</span>
+</code></pre></div>
+
+<p>✅ جيد - موحد عبر جميع خدمات Node.js | Good - standardized across all Node.js services</p>
+<hr />
+<h3 id="3-inconsistent-health-checks">3. فحوصات الصحة غير متسقة | Inconsistent Health Checks<a class="headerlink" href="#3-inconsistent-health-checks" title="Permanent link">&para;</a></h3>
+<p><strong>الخدمات بفترات بدء طويلة | Services with Long Startup Periods</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c"># terrain-core-service</span>
+<span class="k">HEALTHCHECK</span><span class="w"> </span>--interval<span class="o">=</span>30s<span class="w"> </span>--timeout<span class="o">=</span>10s<span class="w"> </span>--start-period<span class="o">=</span>90s<span class="w"> </span>--retries<span class="o">=</span><span class="m">3</span>
+
+<span class="c"># iot-gateway</span>
+<span class="k">HEALTHCHECK</span><span class="w"> </span>--interval<span class="o">=</span>30s<span class="w"> </span>--timeout<span class="o">=</span>10s<span class="w"> </span>--start-period<span class="o">=</span>90s<span class="w"> </span>--retries<span class="o">=</span><span class="m">3</span>
+</code></pre></div>
+
+<p><strong>المشكلة | Issue</strong>:
+- 90 ثانية فترة بدء طويلة جداً | 90s startup period too long
+- قد تسبب تأخير في الإطلاق | May delay deployment
+- قد تخفي مشاكل البدء الفعلية | May hide actual startup issues</p>
+<p><strong>التوصية | Recommendation</strong>:
+تقليل إلى 30-45 ثانية كحد أقصى
+Reduce to 30-45s maximum</p>
+<hr />
+<h3 id="4-infrastructure-services-without-health-checks">4. خدمات البنية التحتية بدون فحوصات صحة | Infrastructure Services Without Health Checks<a class="headerlink" href="#4-infrastructure-services-without-health-checks" title="Permanent link">&para;</a></h3>
+<p><strong>الخدمات المتأثرة | Affected Services</strong>:
+- Kong (API Gateway)
+- NATS (Message Queue)
+- MQTT (IoT Protocol)
+- Vault (Secrets Management)</p>
+<p><strong>المشكلة | Issue</strong>:
+- عدم القدرة على الكشف المبكر عن الفشل | Cannot detect failures early
+- مشاكل في الاعتماديات | Dependency issues
+- صعوبة في Orchestration | Orchestration difficulties</p>
+<p><strong>الحل المقترح | Recommended Fix</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Kong health check</span>
+<span class="nt">healthcheck</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CMD&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;kong&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;health&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10s</span>
+<span class="w">  </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5s</span>
+<span class="w">  </span><span class="nt">retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+
+<span class="c1"># NATS health check</span>
+<span class="nt">healthcheck</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CMD&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;nc&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;-z&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;localhost&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;4222&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10s</span>
+<span class="w">  </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5s</span>
+<span class="w">  </span><span class="nt">retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+
+<span class="c1"># MQTT health check</span>
+<span class="nt">healthcheck</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CMD&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;mosquitto_sub&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;-t&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;$SYS/#&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;-C&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;1&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;-i&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;healthcheck&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10s</span>
+<span class="w">  </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5s</span>
+<span class="w">  </span><span class="nt">retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+</code></pre></div>
+
+<hr />
+<h2 id="medium-priority-issues">🟡 المشاكل متوسطة الأولوية | MEDIUM PRIORITY ISSUES<a class="headerlink" href="#medium-priority-issues" title="Permanent link">&para;</a></h2>
+<h3 id="1-port-exposure-binding">1. تعرض المنافذ والربط | Port Exposure &amp; Binding<a class="headerlink" href="#1-port-exposure-binding" title="Permanent link">&para;</a></h3>
+<p><strong>النمط الحالي | Current Pattern</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Most services:</span>
+<span class="nt">ports</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;0.0.0.0:PORT:PORT&quot;</span>
+</code></pre></div>
+
+<p><strong>المشاكل المحتملة | Potential Issues</strong>:</p>
+<h4 id="potential-port-conflicts">تعارضات المنافذ المحتملة | Potential Port Conflicts<a class="headerlink" href="#potential-port-conflicts" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>Service</th>
+<th>المنفذ</th>
+<th>Port</th>
+<th>الفئة</th>
+<th>Category</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Kong</td>
+<td>Kong</td>
+<td>80, 443</td>
+<td>80, 443</td>
+<td>API Gateway</td>
+<td>API Gateway</td>
+</tr>
+<tr>
+<td>Kong Admin</td>
+<td>Kong Admin</td>
+<td>8001, 8444</td>
+<td>8001, 8444</td>
+<td>Admin</td>
+<td>Admin</td>
+</tr>
+<tr>
+<td>PostgreSQL</td>
+<td>PostgreSQL</td>
+<td>5432</td>
+<td>5432</td>
+<td>Database</td>
+<td>Database</td>
+</tr>
+<tr>
+<td>PgBouncer</td>
+<td>PgBouncer</td>
+<td>6432</td>
+<td>6432</td>
+<td>Connection Pooling</td>
+<td>Connection Pooling</td>
+</tr>
+<tr>
+<td>Redis</td>
+<td>Redis</td>
+<td>6379</td>
+<td>6379</td>
+<td>Cache</td>
+<td>Cache</td>
+</tr>
+<tr>
+<td>NATS</td>
+<td>NATS</td>
+<td>4222, 8222</td>
+<td>4222, 8222</td>
+<td>Messaging</td>
+<td>Messaging</td>
+</tr>
+<tr>
+<td>MQTT</td>
+<td>MQTT</td>
+<td>1883, 8883</td>
+<td>1883, 8883</td>
+<td>IoT</td>
+<td>IoT</td>
+</tr>
+<tr>
+<td>Vault</td>
+<td>Vault</td>
+<td>8200-8203</td>
+<td>8200-8203</td>
+<td>Secrets</td>
+<td>Secrets</td>
+</tr>
+</tbody>
+</table>
+<p><strong>توزيع نطاقات المنافذ | Port Range Distribution</strong>:
+- 3000-3999: خدمات Node.js (15 خدمة) | Node.js services (15 services)
+- 8000-8199: خدمات Python (52+ خدمة) | Python services (52+ services)
+- 9000-9999: خدمات التحليل | Analysis services</p>
+<p><strong>التوصية | Recommendation</strong>:
+إنشاء خريطة تخصيص المنافذ الموثقة
+Create a documented port allocation map</p>
+<hr />
+<h3 id="2-service-dependencies-health-conditions">2. اعتماديات الخدمات وشروط الصحة | Service Dependencies &amp; Health Conditions<a class="headerlink" href="#2-service-dependencies-health-conditions" title="Permanent link">&para;</a></h3>
+<p><strong>النمط الحالي | Current Pattern</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">depends_on</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">pgbouncer</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">condition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">service_healthy</span>
+</code></pre></div>
+
+<p><strong>المشاكل | Issues</strong>:
+- 39+ خدمة تعتمد على pgbouncer | 39+ services depend on pgbouncer
+- DEFAULT_POOL_SIZE=30 قد لا يكفي | DEFAULT_POOL_SIZE=30 may be insufficient
+- بعض الخدمات لا تنتظر التبعيات بشكل صحيح | Some services don't wait for dependencies properly</p>
+<p><strong>مثال على مشكلة محتملة | Example Potential Issue</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># LLM services may start before Redis is fully ready</span>
+<span class="nt">llm-orchestrator-service</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">depends_on</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis</span><span class="w">  </span><span class="c1"># ❌ No health check condition</span>
+</code></pre></div>
+
+<p><strong>الحل المقترح | Recommended Fix</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">llm-orchestrator-service</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">depends_on</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">redis</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">condition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">service_healthy</span><span class="w">  </span><span class="c1"># ✅ Add health condition</span>
+<span class="w">    </span><span class="nt">pgbouncer</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">condition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">service_healthy</span>
+</code></pre></div>
+
+<hr />
+<h3 id="3-volume-configuration">3. إعداد المجلدات | Volume Configuration<a class="headerlink" href="#3-volume-configuration" title="Permanent link">&para;</a></h3>
+<p><strong>الأنماط الموجودة | Existing Patterns</strong>:</p>
+<h4 id="persistent-volumes">مجلدات دائمة | Persistent Volumes<a class="headerlink" href="#persistent-volumes" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">postgres_data</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">redis_data</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">nats_data</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">ollama_data</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">qdrant_data</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">milvus_data</span><span class="p">:</span>
+</code></pre></div>
+
+<p><strong>المشاكل | Issues</strong>:
+- ❌ لا توجد إستراتيجية نسخ احتياطي موثقة | No documented backup strategy
+- ❌ عدم وضوح سياسة الاحتفاظ بالبيانات | Unclear data retention policy
+- ⚠️ بعض المسارات النسبية قد تسبب مشاكل | Some relative paths may cause issues</p>
+<h4 id="tmpfs-tmpfs-security-hardening">tmpfs (تحسينات الأمان) | tmpfs (Security Hardening)<a class="headerlink" href="#tmpfs-tmpfs-security-hardening" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nt">tmpfs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/tmp</span><span class="w">  </span><span class="c1"># ✅ Good - prevents tmp file persistence</span>
+</code></pre></div>
+
+<p><strong>التوصية | Recommendation</strong>:
+- توثيق إستراتيجية النسخ الاحتياطي | Document backup strategy
+- استخدام المسارات المطلقة فقط | Use absolute paths only
+- إضافة labels للمجلدات الحرجة | Add labels to critical volumes</p>
+<hr />
+<h3 id="4-environment-variables">4. المتغيرات البيئية | Environment Variables<a class="headerlink" href="#4-environment-variables" title="Permanent link">&para;</a></h3>
+<p><strong>المشكلة الحالية | Current Issue</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># docker-compose.yml (visible passwords)</span>
+<span class="nt">environment</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">POSTGRES_PASSWORD</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${POSTGRES_PASSWORD:-sahool_secure_password_2024}</span>
+<span class="w">  </span><span class="nt">REDIS_PASSWORD</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${REDIS_PASSWORD:-redis_secure_password_2024}</span>
+</code></pre></div>
+
+<p><strong>المخاطر | Risks</strong>:
+- كلمات المرور مرئية في docker-compose.yml | Passwords visible in docker-compose.yml
+- يمكن قراءتها من <code>docker inspect</code> | Can be read from <code>docker inspect</code>
+- لا يوجد تدوير تلقائي للأسرار | No automatic secrets rotation</p>
+<p><strong>الحل المقترح | Recommended Fix</strong>:
+استخدام Docker Secrets أو تكامل Vault
+Use Docker Secrets or Vault integration</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Example with Docker Secrets</span>
+<span class="nt">secrets</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">postgres_password</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">external</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">postgres</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">secrets</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgres_password</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">POSTGRES_PASSWORD_FILE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/run/secrets/postgres_password</span>
+</code></pre></div>
+
+<hr />
+<h3 id="5-pgbouncer-custom-pgbouncer-entrypoint">5. سكريبت نقطة الدخول المخصص لـ PgBouncer | Custom PgBouncer Entrypoint<a class="headerlink" href="#5-pgbouncer-custom-pgbouncer-entrypoint" title="Permanent link">&para;</a></h3>
+<p><strong>الملف | File</strong>: <code>/infrastructure/core/pgbouncer/entrypoint.sh</code></p>
+<p><strong>المشاكل المحتملة | Potential Issues</strong>:
+- تعقيد إضافي في الإعداد | Additional complexity in setup
+- احتمال مشاكل الصلاحيات | Potential permission issues
+- صعوبة في التصحيح | Debugging difficulty</p>
+<p><strong>التوصية | Recommendation</strong>:
+- مراجعة ضرورة السكريبت المخصص | Review necessity of custom script
+- توثيق الغرض والاستخدام | Document purpose and usage
+- إضافة معالجة أخطاء قوية | Add robust error handling</p>
+<hr />
+<h2 id="good-practices-found">✅ الممارسات الجيدة المكتشفة | GOOD PRACTICES FOUND<a class="headerlink" href="#good-practices-found" title="Permanent link">&para;</a></h2>
+<h3 id="1-pinned-base-image-versions">1. تثبيت إصدارات الصور الأساسية | Pinned Base Image Versions<a class="headerlink" href="#1-pinned-base-image-versions" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>جميع الصور مثبتة - لا توجد علامات <code>latest</code></strong><br />
+✅ <strong>All images pinned - no <code>latest</code> tags</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c"># Examples:</span>
+<span class="k">FROM</span><span class="w"> </span><span class="s">python:3.11-slim-bookworm</span>
+<span class="k">FROM</span><span class="w"> </span><span class="s">node:20-alpine</span>
+<span class="k">FROM</span><span class="w"> </span><span class="s">postgis/postgis:16-3.4</span>
+<span class="k">FROM</span><span class="w"> </span><span class="s">redis:7.4-alpine</span>
+<span class="k">FROM</span><span class="w"> </span><span class="s">nats:2.10.24-alpine</span>
+</code></pre></div>
+
+<p><strong>الفائدة | Benefit</strong>: بناء قابل للتكرار وأمان أفضل<br />
+<strong>Reproducible builds and better security</strong></p>
+<hr />
+<h3 id="2-multi-stage-builds">2. بناء متعدد المراحل | Multi-Stage Builds<a class="headerlink" href="#2-multi-stage-builds" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>47+ خدمة تستخدم بناء متعدد المراحل</strong><br />
+✅ <strong>47+ services use multi-stage builds</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c"># Example pattern:</span>
+<span class="k">FROM</span><span class="w"> </span><span class="s">python:3.11-slim</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="s">builder</span>
+<span class="c"># Build dependencies</span>
+
+<span class="k">FROM</span><span class="w"> </span><span class="s">python:3.11-slim</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="s">runtime</span>
+<span class="c"># Copy only necessary artifacts</span>
+</code></pre></div>
+
+<p><strong>الفائدة | Benefit</strong>: صور أصغر بكثير (تقليل 60-80%)<br />
+<strong>Much smaller images (60-80% reduction)</strong></p>
+<hr />
+<h3 id="3-non-root-users">3. مستخدمين غير جذر | Non-Root Users<a class="headerlink" href="#3-non-root-users" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>معظم الخدمات تتحول إلى مستخدمين محدودين</strong><br />
+✅ <strong>Most services switch to restricted users</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="k">RUN</span><span class="w"> </span>groupadd<span class="w"> </span>-r<span class="w"> </span>sahool<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>useradd<span class="w"> </span>-r<span class="w"> </span>-g<span class="w"> </span>sahool<span class="w"> </span>sahool
+<span class="k">USER</span><span class="w"> </span><span class="s">sahool:sahool</span>
+</code></pre></div>
+
+<p><strong>الاستثناءات | Exceptions</strong> (❌ CRITICAL):
+- edge-orchestrator-service
+- yolo26-vision-service</p>
+<hr />
+<h3 id="4-security-variants">4. المتغيرات الأمنية | Security Variants<a class="headerlink" href="#4-security-variants" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>استخدام متغيرات slim و alpine</strong><br />
+✅ <strong>Using slim and alpine variants</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Python: -slim (Debian-based, smaller)</span>
+<span class="c1"># Node.js: -alpine (Alpine Linux, smallest)</span>
+</code></pre></div>
+
+<p><strong>الفائدة | Benefit</strong>: سطح هجوم أصغر، حجم أصغر<br />
+<strong>Smaller attack surface, smaller size</strong></p>
+<hr />
+<h2 id="infrastructure-analysis">📊 تحليل البنية التحتية | INFRASTRUCTURE ANALYSIS<a class="headerlink" href="#infrastructure-analysis" title="Permanent link">&para;</a></h2>
+<h3 id="postgresql-postgis">PostgreSQL + PostGIS<a class="headerlink" href="#postgresql-postgis" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">postgres</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgis/postgis:16-3.4</span><span class="w">  </span><span class="c1"># ✅ Latest stable with PostGIS</span>
+<span class="w">  </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;127.0.0.1:5432:5432&quot;</span><span class="w">  </span><span class="c1"># ✅ Localhost only (secure)</span>
+<span class="w">  </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">POSTGRES_INITDB_ARGS</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;--encoding=UTF8</span><span class="nv"> </span><span class="s">--lc-collate=ar_SA.UTF-8</span><span class="nv"> </span><span class="s">--lc-ctype=ar_SA.UTF-8&quot;</span>
+<span class="w">    </span><span class="c1"># ✅ Arabic locale support</span>
+</code></pre></div>
+
+<p><strong>التقييم | Assessment</strong>: ✅ ممتاز<br />
+<strong>Excellent configuration</strong></p>
+<hr />
+<h3 id="pgbouncer-connection-pooling">PgBouncer (Connection Pooling)<a class="headerlink" href="#pgbouncer-connection-pooling" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">pgbouncer</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">edoburu/pgbouncer:v1.23.1-p3</span><span class="w">  </span><span class="c1"># ✅ Stable version</span>
+<span class="w">  </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;127.0.0.1:6432:6432&quot;</span><span class="w">  </span><span class="c1"># ✅ Localhost only</span>
+<span class="w">  </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">DEFAULT_POOL_SIZE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
+<span class="w">    </span><span class="nt">MAX_CLIENT_CONN</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1000</span>
+</code></pre></div>
+
+<p><strong>التقييم | Assessment</strong>: ⚠️ جيد مع تحذيرات<br />
+<strong>Good with warnings</strong></p>
+<p><strong>التحذيرات | Warnings</strong>:
+- 39+ خدمة تعتمد على pool_size=30 | 39+ services depend on pool_size=30
+- قد يحتاج إلى زيادة MAX_DB_CONNECTIONS | May need to increase MAX_DB_CONNECTIONS</p>
+<hr />
+<h3 id="redis-caching">Redis (Caching)<a class="headerlink" href="#redis-caching" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">redis</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis:7.4-alpine</span><span class="w">  </span><span class="c1"># ✅ Latest stable</span>
+<span class="w">  </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;</span>
+<span class="w">    </span><span class="no">redis-server</span>
+<span class="w">    </span><span class="no">--requirepass ${REDIS_PASSWORD}</span>
+<span class="w">    </span><span class="no">--maxmemory 2gb</span>
+<span class="w">    </span><span class="no">--maxmemory-policy allkeys-lru</span>
+</code></pre></div>
+
+<p><strong>التقييم | Assessment</strong>: ✅ جيد<br />
+<strong>Good configuration</strong></p>
+<p><strong>التوصية | Recommendation</strong>: إضافة فحص صحة<br />
+<strong>Add health check</strong></p>
+<hr />
+<h3 id="nats-message-queue">NATS (Message Queue)<a class="headerlink" href="#nats-message-queue" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">nats</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nats:2.10.24-alpine</span><span class="w">  </span><span class="c1"># ✅ Pinned version</span>
+<span class="w">  </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;4222:4222&quot;</span><span class="w">  </span><span class="c1"># Client connections</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;8222:8222&quot;</span><span class="w">  </span><span class="c1"># HTTP monitoring</span>
+<span class="w">  </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;</span>
+<span class="w">    </span><span class="no">--cluster_name sahool-cluster</span>
+<span class="w">    </span><span class="no">--max_payload 8MB</span>
+</code></pre></div>
+
+<p><strong>التقييم | Assessment</strong>: ⚠️ جيد مع تحسينات مقترحة<br />
+<strong>Good with suggested improvements</strong></p>
+<p><strong>التوصيات | Recommendations</strong>:
+- إضافة فحص صحة | Add health check
+- النظر في TLS للإنتاج | Consider TLS for production</p>
+<hr />
+<h3 id="kong-api-gateway">Kong (API Gateway)<a class="headerlink" href="#kong-api-gateway" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">kong</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kong:3.4</span><span class="w">  </span><span class="c1"># ✅ Recent stable</span>
+<span class="w">  </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;80:8000&quot;</span><span class="w">      </span><span class="c1"># HTTP</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;443:8443&quot;</span><span class="w">     </span><span class="c1"># HTTPS</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;8001:8001&quot;</span><span class="w">    </span><span class="c1"># Admin API</span>
+</code></pre></div>
+
+<p><strong>التقييم | Assessment</strong>: ⚠️ يحتاج إلى تحسينات<br />
+<strong>Needs improvements</strong></p>
+<p><strong>المشاكل | Issues</strong>:
+- ❌ لا يوجد فحص صحة | No health check
+- ⚠️ Admin API معرض على 8001 | Admin API exposed on 8001
+- ⚠️ لا يوجد ذكر لشهادات TLS | No mention of TLS certificates</p>
+<hr />
+<h3 id="ollama-local-llm">Ollama (Local LLM)<a class="headerlink" href="#ollama-local-llm" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">ollama</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ollama/ollama:0.5.4</span><span class="w">  </span><span class="c1"># ✅ Recent version</span>
+<span class="w">  </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ollama_data:/var/lib/ollama</span><span class="w">  </span><span class="c1"># ⚠️ Large models storage</span>
+<span class="w">  </span><span class="nt">deploy</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">resources</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">reservations</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">devices</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">driver</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nvidia</span>
+<span class="w">            </span><span class="nt">capabilities</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">gpu</span><span class="p p-Indicator">]</span>
+</code></pre></div>
+
+<p><strong>التقييم | Assessment</strong>: ✅ جيد للبيئة المحلية<br />
+<strong>Good for local environment</strong></p>
+<p><strong>التحذير | Warning</strong>: نماذج كبيرة تحتاج مساحة (&gt;10GB)<br />
+<strong>Large models need space (&gt;10GB)</strong></p>
+<hr />
+<h2 id="recommended-action-plan">🛠️ خطة العمل الموصى بها | RECOMMENDED ACTION PLAN<a class="headerlink" href="#recommended-action-plan" title="Permanent link">&para;</a></h2>
+<h3 id="1-1-2-phase-1-immediate-fixes-1-2-days">المرحلة 1: إصلاحات فورية (1-2 أيام) | Phase 1: Immediate Fixes (1-2 days)<a class="headerlink" href="#1-1-2-phase-1-immediate-fixes-1-2-days" title="Permanent link">&para;</a></h3>
+<h4 id="top-priority">أولوية قصوى | Top Priority<a class="headerlink" href="#top-priority" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[ ] إصلاح edge-orchestrator-service: تغيير <code>USER root</code> إلى <code>USER sahool</code></li>
+<li>[ ] إصلاح yolo26-vision-service: تغيير <code>USER root</code> إلى <code>USER sahool</code></li>
+<li>[ ] إضافة .dockerignore للخدمات ذات الأولوية العالية (10 خدمات):</li>
+<li>[ ] llm-orchestrator-service</li>
+<li>[ ] code-review-service</li>
+<li>[ ] terrain-core-service</li>
+<li>[ ] hydrology-service</li>
+<li>[ ] leveling-optimizer-service</li>
+<li>[ ] globalgap-compliance</li>
+<li>[ ] audit-service</li>
+<li>[ ] knowledge-graph</li>
+<li>[ ] copilot-api</li>
+<li>[ ] ai-agents-core</li>
+</ul>
+<h4 id="health-checks">فحوصات الصحة | Health Checks<a class="headerlink" href="#health-checks" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[ ] إضافة فحص صحة لـ Kong</li>
+<li>[ ] إضافة فحص صحة لـ NATS</li>
+<li>[ ] إضافة فحص صحة لـ MQTT</li>
+<li>[ ] إضافة فحص صحة لـ Redis</li>
+</ul>
+<hr />
+<h3 id="2-3-5-phase-2-standardization-documentation-3-5-days">المرحلة 2: توحيد وتوثيق (3-5 أيام) | Phase 2: Standardization &amp; Documentation (3-5 days)<a class="headerlink" href="#2-3-5-phase-2-standardization-documentation-3-5-days" title="Permanent link">&para;</a></h3>
+<h4 id="standardize-base-images">توحيد الصور الأساسية | Standardize Base Images<a class="headerlink" href="#standardize-base-images" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[ ] توحيد جميع خدمات Python على <code>python:3.11-slim-bookworm</code></li>
+<li>[ ] توثيق معايير الصور الأساسية</li>
+<li>[ ] إنشاء قالب Dockerfile قياسي</li>
+</ul>
+<h4 id="documentation">التوثيق | Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[ ] إنشاء خريطة تخصيص المنافذ</li>
+<li>[ ] توثيق اعتماديات الخدمات</li>
+<li>[ ] إنشاء دليل أفضل الممارسات للحاويات</li>
+<li>[ ] توثيق إستراتيجية النسخ الاحتياطي</li>
+</ul>
+<h4 id="security">الأمان | Security<a class="headerlink" href="#security" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[ ] تنفيذ Docker Secrets لكلمات المرور</li>
+<li>[ ] إضافة إرشادات تدوير الأسرار</li>
+<li>[ ] مراجعة صلاحيات المجلدات</li>
+</ul>
+<hr />
+<h3 id="3-1-2-phase-3-medium-improvements-1-2-weeks">المرحلة 3: تحسينات متوسطة (1-2 أسبوع) | Phase 3: Medium Improvements (1-2 weeks)<a class="headerlink" href="#3-1-2-phase-3-medium-improvements-1-2-weeks" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] إضافة .dockerignore للـ 21 خدمة المتبقية</li>
+<li>[ ] تقليل فترات بدء فحوصات الصحة (90s → 45s)</li>
+<li>[ ] إضافة حدود الموارد (CPU/Memory) لجميع الخدمات</li>
+<li>[ ] مراجعة وتحسين سكريبت PgBouncer entrypoint</li>
+<li>[ ] تحسين حجم صورة yolo26-vision-service</li>
+</ul>
+<hr />
+<h3 id="4-phase-4-cleanup-maintenance-2-weeks">المرحلة 4: تنظيف وصيانة (أسبوعين) | Phase 4: Cleanup &amp; Maintenance (2 weeks)<a class="headerlink" href="#4-phase-4-cleanup-maintenance-2-weeks" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] إزالة الخدمات المنتهية الصلاحية من <code>/archive/</code></li>
+<li>[ ] التحقق من عدم وجود تبعيات على الخدمات المنتهية</li>
+<li>[ ] تحديث الوثائق لإزالة الإشارات للخدمات المنتهية</li>
+<li>[ ] إضافة إشعارات الإهلاك في الكود إن وجدت</li>
+</ul>
+<hr />
+<h3 id="5-phase-5-long-term-improvements">المرحلة 5: التحسينات طويلة الأمد | Phase 5: Long-term Improvements<a class="headerlink" href="#5-phase-5-long-term-improvements" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] تنفيذ مسح صور الحاويات تلقائياً (Trivy في CI/CD)</li>
+<li>[ ] النظر في Kubernetes لـ orchestration متقدم</li>
+<li>[ ] تنفيذ مراقبة متقدمة (Prometheus/Grafana)</li>
+<li>[ ] إعداد تنبيهات تلقائية لمشاكل الحاويات</li>
+</ul>
+<hr />
+<h2 id="metrics-statistics">📈 المقاييس والإحصائيات | METRICS &amp; STATISTICS<a class="headerlink" href="#metrics-statistics" title="Permanent link">&para;</a></h2>
+<h3 id="service-distribution-by-language">توزيع الخدمات حسب اللغة | Service Distribution by Language<a class="headerlink" href="#service-distribution-by-language" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>اللغة</th>
+<th>Language</th>
+<th>العدد</th>
+<th>Count</th>
+<th>النسبة</th>
+<th>Percentage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Python</td>
+<td>Python</td>
+<td>52</td>
+<td>52</td>
+<td>77%</td>
+<td>77%</td>
+</tr>
+<tr>
+<td>Node.js</td>
+<td>Node.js</td>
+<td>15</td>
+<td>15</td>
+<td>22%</td>
+<td>22%</td>
+</tr>
+<tr>
+<td>Mixed</td>
+<td>Mixed</td>
+<td>4</td>
+<td>4</td>
+<td>6%</td>
+<td>6%</td>
+</tr>
+</tbody>
+</table>
+<h3 id="service-distribution-by-type">توزيع الخدمات حسب النوع | Service Distribution by Type<a class="headerlink" href="#service-distribution-by-type" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>النوع</th>
+<th>Type</th>
+<th>العدد</th>
+<th>Count</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Advisory &amp; Intelligence</td>
+<td>استشارات وذكاء</td>
+<td>18</td>
+<td>18</td>
+</tr>
+<tr>
+<td>Field Operations</td>
+<td>عمليات الحقل</td>
+<td>12</td>
+<td>12</td>
+</tr>
+<tr>
+<td>IoT &amp; Integration</td>
+<td>إنترنت الأشياء</td>
+<td>8</td>
+<td>8</td>
+</tr>
+<tr>
+<td>AI/ML Services</td>
+<td>خدمات الذكاء الاصطناعي</td>
+<td>7</td>
+<td>7</td>
+</tr>
+<tr>
+<td>Infrastructure</td>
+<td>البنية التحتية</td>
+<td>17</td>
+<td>17</td>
+</tr>
+<tr>
+<td>Business &amp; Community</td>
+<td>الأعمال والمجتمع</td>
+<td>9</td>
+<td>9</td>
+</tr>
+<tr>
+<td>Compliance &amp; Audit</td>
+<td>الامتثال والمراجعة</td>
+<td>5</td>
+<td>5</td>
+</tr>
+<tr>
+<td>Communication</td>
+<td>الاتصالات</td>
+<td>6</td>
+<td>6</td>
+</tr>
+</tbody>
+</table>
+<h3 id="health-check-status">حالة فحوصات الصحة | Health Check Status<a class="headerlink" href="#health-check-status" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الحالة</th>
+<th>Status</th>
+<th>العدد</th>
+<th>Count</th>
+<th>النسبة</th>
+<th>Percentage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>معرف ويعمل</td>
+<td>Defined &amp; Working</td>
+<td>63</td>
+<td>63</td>
+<td>94%</td>
+<td>94%</td>
+</tr>
+<tr>
+<td>مفقود</td>
+<td>Missing</td>
+<td>4</td>
+<td>4</td>
+<td>6%</td>
+<td>6%</td>
+</tr>
+<tr>
+<td>يحتاج تحسين</td>
+<td>Needs Improvement</td>
+<td>2</td>
+<td>2</td>
+<td>3%</td>
+<td>3%</td>
+</tr>
+</tbody>
+</table>
+<h3 id="security-status">حالة الأمان | Security Status<a class="headerlink" href="#security-status" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الجانب</th>
+<th>Aspect</th>
+<th>حالة جيدة</th>
+<th>Good</th>
+<th>يحتاج إصلاح</th>
+<th>Needs Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>مستخدم غير جذر</td>
+<td>Non-root user</td>
+<td>65</td>
+<td>65</td>
+<td>2</td>
+<td>2</td>
+</tr>
+<tr>
+<td>.dockerignore</td>
+<td>.dockerignore</td>
+<td>40</td>
+<td>40</td>
+<td>31</td>
+<td>31</td>
+</tr>
+<tr>
+<td>تثبيت الإصدارات</td>
+<td>Pinned versions</td>
+<td>71</td>
+<td>71</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>بناء متعدد المراحل</td>
+<td>Multi-stage</td>
+<td>47</td>
+<td>47</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="conclusion">🎯 الخلاصة | CONCLUSION<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<h3 id="strengths">النقاط الإيجابية | Strengths<a class="headerlink" href="#strengths" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>معمارية قوية</strong>: 67 خدمة نشطة موزعة جيداً<br />
+✅ <strong>Strong architecture</strong>: 67 active services well-distributed</p>
+<p>✅ <strong>ممارسات أمنية جيدة</strong>: معظم الخدمات تستخدم مستخدمين محدودين<br />
+✅ <strong>Good security practices</strong>: Most services use restricted users</p>
+<p>✅ <strong>تثبيت الإصدارات</strong>: جميع الصور مثبتة الإصدار<br />
+✅ <strong>Version pinning</strong>: All images have pinned versions</p>
+<p>✅ <strong>تحسين الحجم</strong>: استخدام واسع للصور slim/alpine<br />
+✅ <strong>Size optimization</strong>: Widespread use of slim/alpine images</p>
+<h3 id="areas-for-improvement">النقاط التي تحتاج تحسين | Areas for Improvement<a class="headerlink" href="#areas-for-improvement" title="Permanent link">&para;</a></h3>
+<p>⚠️ <strong>2 خدمة حرجة</strong> تعمل بصلاحيات الجذر<br />
+⚠️ <strong>2 critical services</strong> running as root</p>
+<p>⚠️ <strong>31 خدمة</strong> بدون ملف .dockerignore<br />
+⚠️ <strong>31 services</strong> without .dockerignore</p>
+<p>⚠️ <strong>4 خدمات بنية تحتية</strong> بدون فحوصات صحة<br />
+⚠️ <strong>4 infrastructure services</strong> without health checks</p>
+<p>⚠️ <strong>حاجة للتوثيق</strong> لتخصيص المنافذ والاعتماديات<br />
+⚠️ <strong>Need documentation</strong> for port allocation and dependencies</p>
+<h3 id="expected-impact-of-fixes">التأثير المتوقع للإصلاحات | Expected Impact of Fixes<a class="headerlink" href="#expected-impact-of-fixes" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الجانب</th>
+<th>Aspect</th>
+<th>التحسين</th>
+<th>Improvement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>الأمان</td>
+<td>Security</td>
+<td>🔴→🟢</td>
+<td>Critical → Secure</td>
+</tr>
+<tr>
+<td>حجم الصور</td>
+<td>Image Size</td>
+<td>📉</td>
+<td>-15-25%</td>
+</tr>
+<tr>
+<td>وقت البناء</td>
+<td>Build Time</td>
+<td>📉</td>
+<td>-20-30%</td>
+</tr>
+<tr>
+<td>الموثوقية</td>
+<td>Reliability</td>
+<td>📈</td>
+<td>+30%</td>
+</tr>
+<tr>
+<td>قابلية الصيانة</td>
+<td>Maintainability</td>
+<td>📈</td>
+<td>+40%</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="support-assistance">📞 الدعم والمساعدة | SUPPORT &amp; ASSISTANCE<a class="headerlink" href="#support-assistance" title="Permanent link">&para;</a></h2>
+<p>للأسئلة أو المساعدة في تنفيذ الإصلاحات:
+For questions or assistance implementing fixes:</p>
+<ul>
+<li><strong>التوثيق | Documentation</strong>: <code>docs/</code> directory</li>
+<li><strong>الأمان | Security</strong>: <code>SECURITY.md</code></li>
+<li><strong>سجل الخدمات | Service Registry</strong>: <code>governance/services.yaml</code></li>
+</ul>
+<hr />
+<p><strong>تاريخ التقرير | Report Date</strong>: 2026-02-04<br />
+<strong>الإصدار | Version</strong>: 1.0<br />
+<strong>الحالة | Status</strong>: تم إكمال المراجعة | Audit Completed</p>
+<hr />
+<p><em>ملاحظة: هذا التقرير تم إنشاؤه بواسطة أداة المراجعة التلقائية وتم التحقق منه يدوياً.</em><br />
+<em>Note: This report was generated by the automated audit tool and manually verified.</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

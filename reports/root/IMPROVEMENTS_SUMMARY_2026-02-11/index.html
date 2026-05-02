@@ -1,0 +1,1570 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>تحسينات تطبيقات سهول - التطبيق المحمول والويب ولوحة التحكم - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#-" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              تحسينات تطبيقات سهول - التطبيق المحمول والويب ولوحة التحكم
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="-">تحسينات تطبيقات سهول - التطبيق المحمول والويب ولوحة التحكم<a class="headerlink" href="#-" title="Permanent link">&para;</a></h1>
+<h1 id="sahool-applications-improvements-mobile-web-admin-dashboard">SAHOOL Applications Improvements - Mobile, Web &amp; Admin Dashboard<a class="headerlink" href="#sahool-applications-improvements-mobile-web-admin-dashboard" title="Permanent link">&para;</a></h1>
+<p><strong>تاريخ التقرير | Report Date:</strong> 2026-02-11<br />
+<strong>الإصدار | Version:</strong> 16.0.0<br />
+<strong>المشروع | Project:</strong> SAHOOL Agricultural Intelligence Platform</p>
+<hr />
+<h2 id="executive-summary">ملخص تنفيذي | Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<h3 id="_1">العربية<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
+<p>تم إجراء تحسينات شاملة على التطبيقات الثلاثة الرئيسية لمنصة SAHOOL:</p>
+<ol>
+<li><strong>تطبيق الهاتف (sahool_field_app)</strong> - تحسينات في تجربة المستخدم والأداء</li>
+<li><strong>تطبيق الويب (Web App)</strong> - تحسين معالجة الأخطاء والاستقرار</li>
+<li><strong>لوحة التحكم الإدارية (Admin Dashboard)</strong> - تعزيز الأمان وإدارة الجلسات</li>
+</ol>
+<h3 id="english">English<a class="headerlink" href="#english" title="Permanent link">&para;</a></h3>
+<p>Comprehensive improvements have been implemented across the three main SAHOOL platform applications:</p>
+<ol>
+<li><strong>Mobile App (sahool_field_app)</strong> - UX improvements and performance enhancements</li>
+<li><strong>Web Application</strong> - Enhanced error handling and stability</li>
+<li><strong>Admin Dashboard</strong> - Security hardening and session management</li>
+</ol>
+<hr />
+<h2 id="mobile-app-improvements">📱 تطبيق الهاتف | Mobile App Improvements<a class="headerlink" href="#mobile-app-improvements" title="Permanent link">&para;</a></h2>
+<h3 id="1-empty-state-widgets">1. Empty State Widgets ✅<a class="headerlink" href="#1-empty-state-widgets" title="Permanent link">&para;</a></h3>
+<p><strong>الملف | File:</strong> <code>/apps/mobile/sahool_field_app/lib/core/widgets/empty_state_widget.dart</code></p>
+<p><strong>الميزات | Features:</strong>
+- ✅ واجهات حالة فارغة موحدة لجميع القوائم
+- ✅ دعم ثنائي اللغة (عربي/إنجليزي) مع RTL
+- ✅ أيقونات مخصصة لكل نوع
+- ✅ أزرار إجراء اختيارية
+- ✅ حالات متخصصة للحقول، المهام، الإشعارات، المعدات</p>
+<p><strong>الاستخدام | Usage:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Generic empty state</span>
+<span class="n">EmptyStateWidget</span><span class="p">(</span>
+<span class="w">  </span><span class="nl">title:</span><span class="w"> </span><span class="s1">&#39;No Data&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nl">titleAr:</span><span class="w"> </span><span class="s1">&#39;لا توجد بيانات&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nl">message:</span><span class="w"> </span><span class="s1">&#39;Start by adding your first item&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nl">messageAr:</span><span class="w"> </span><span class="s1">&#39;ابدأ بإضافة عنصرك الأول&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nl">icon:</span><span class="w"> </span><span class="n">Icons</span><span class="p">.</span><span class="n">inbox_outlined</span><span class="p">,</span>
+<span class="w">  </span><span class="nl">actionLabel:</span><span class="w"> </span><span class="s1">&#39;Add Item&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nl">actionLabelAr:</span><span class="w"> </span><span class="s1">&#39;إضافة عنصر&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nl">onAction:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{},</span>
+<span class="p">);</span>
+
+<span class="c1">// Specialized empty states</span>
+<span class="n">EmptyFieldsState</span><span class="p">(</span><span class="nl">onAddField:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{})</span>
+<span class="n">EmptyTasksState</span><span class="p">(</span><span class="nl">onAddTask:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{})</span>
+<span class="n">EmptyNotificationsState</span><span class="p">()</span>
+<span class="n">EmptyEquipmentState</span><span class="p">(</span><span class="nl">onAddEquipment:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{})</span>
+</code></pre></div>
+
+<h3 id="2-loading-state-widgets">2. Loading State Widgets ✅<a class="headerlink" href="#2-loading-state-widgets" title="Permanent link">&para;</a></h3>
+<p><strong>الملف | File:</strong> <code>/apps/mobile/sahool_field_app/lib/core/widgets/loading_state_widget.dart</code></p>
+<p><strong>الميزات | Features:</strong>
+- ✅ مؤشرات تحميل موحدة
+- ✅ Skeleton loaders مع رسوم متحركة
+- ✅ Inline loading للأزرار
+- ✅ Full screen loading overlay
+- ✅ حالات تحميل متخصصة (حقول، مهام، طقس)</p>
+<p><strong>الاستخدام | Usage:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Basic loading</span>
+<span class="n">LoadingStateWidget</span><span class="p">(</span>
+<span class="w">  </span><span class="nl">message:</span><span class="w"> </span><span class="s1">&#39;Loading...&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nl">messageAr:</span><span class="w"> </span><span class="s1">&#39;جارٍ التحميل...&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nl">showMessage:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1">// Skeleton loader for lists</span>
+<span class="n">SkeletonLoader</span><span class="p">(</span>
+<span class="w">  </span><span class="nl">itemCount:</span><span class="w"> </span><span class="m">5</span><span class="p">,</span>
+<span class="w">  </span><span class="nl">height:</span><span class="w"> </span><span class="m">80.0</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1">// Inline loading in buttons</span>
+<span class="n">InlineLoading</span><span class="p">(</span>
+<span class="w">  </span><span class="nl">label:</span><span class="w"> </span><span class="s1">&#39;Loading&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nl">labelAr:</span><span class="w"> </span><span class="s1">&#39;جارٍ التحميل&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nl">size:</span><span class="w"> </span><span class="m">16.0</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1">// Specialized loading states</span>
+<span class="n">LoadingFieldsState</span><span class="p">()</span>
+<span class="n">LoadingTasksState</span><span class="p">()</span>
+<span class="n">LoadingWeatherState</span><span class="p">()</span>
+</code></pre></div>
+
+<h3 id="3-performance-monitor">3. Performance Monitor ✅<a class="headerlink" href="#3-performance-monitor" title="Permanent link">&para;</a></h3>
+<p><strong>الملف | File:</strong> <code>/apps/mobile/sahool_field_app/lib/core/performance/performance_monitor.dart</code></p>
+<p><strong>الميزات | Features:</strong>
+- ✅ تتبع أوقات تحميل الشاشات
+- ✅ قياس مدة استدعاءات API
+- ✅ حساب المتوسطات والإحصاءات (P50, P95)
+- ✅ تحذيرات للعمليات البطيئة
+- ✅ ملخص أداء شامل</p>
+<p><strong>الاستخدام | Usage:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Track screen load</span>
+<span class="n">context</span><span class="p">.</span><span class="n">trackScreenLoad</span><span class="p">(</span><span class="s1">&#39;HomeScreen&#39;</span><span class="p">);</span>
+
+<span class="c1">// Track API call</span>
+<span class="kd">final</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">await</span><span class="w"> </span><span class="n">PerformanceMonitor</span><span class="p">().</span><span class="n">trackApiCall</span><span class="p">(</span>
+<span class="w">  </span><span class="s1">&#39;api/fields&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">()</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">apiClient</span><span class="p">.</span><span class="n">getFields</span><span class="p">(),</span>
+<span class="p">);</span>
+
+<span class="c1">// Using mixin in widgets</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">MyWidget</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="n">StatelessWidget</span><span class="w"> </span><span class="kd">with</span><span class="w"> </span><span class="n">PerformanceTrackingMixin</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nd">@override</span>
+<span class="w">  </span><span class="n">Widget</span><span class="w"> </span><span class="n">build</span><span class="p">(</span><span class="n">BuildContext</span><span class="w"> </span><span class="n">context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">startPerformanceTracking</span><span class="p">(</span><span class="s1">&#39;widget_build&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// ... build widget</span>
+<span class="w">    </span><span class="n">endPerformanceTracking</span><span class="p">(</span><span class="s1">&#39;widget_build&#39;</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// Log performance summary</span>
+<span class="n">PerformanceMonitor</span><span class="p">().</span><span class="n">logSummary</span><span class="p">();</span>
+</code></pre></div>
+
+<p><strong>مثال الإخراج | Output Example:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="o">===</span><span class="w"> </span><span class="n">Performance</span><span class="w"> </span><span class="n">Summary</span><span class="w"> </span><span class="o">===</span>
+<span class="n">screen_load_HomeScreen</span><span class="p">:</span><span class="w"> </span><span class="n">avg</span><span class="o">=</span><span class="mi">245</span><span class="n">ms</span><span class="p">,</span><span class="w"> </span><span class="nb">min</span><span class="o">=</span><span class="mi">198</span><span class="n">ms</span><span class="p">,</span><span class="w"> </span><span class="nb">max</span><span class="o">=</span><span class="mi">312</span><span class="n">ms</span><span class="p">,</span><span class="w"> </span><span class="n">p95</span><span class="o">=</span><span class="mi">298</span><span class="n">ms</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">api_fields</span><span class="p">:</span><span class="w"> </span><span class="n">avg</span><span class="o">=</span><span class="mi">156</span><span class="n">ms</span><span class="p">,</span><span class="w"> </span><span class="nb">min</span><span class="o">=</span><span class="mi">98</span><span class="n">ms</span><span class="p">,</span><span class="w"> </span><span class="nb">max</span><span class="o">=</span><span class="mi">289</span><span class="n">ms</span><span class="p">,</span><span class="w"> </span><span class="n">p95</span><span class="o">=</span><span class="mi">267</span><span class="n">ms</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="web-app-improvements">🌐 تطبيق الويب | Web App Improvements<a class="headerlink" href="#web-app-improvements" title="Permanent link">&para;</a></h2>
+<h3 id="1-centralized-error-handler">1. Centralized Error Handler ✅<a class="headerlink" href="#1-centralized-error-handler" title="Permanent link">&para;</a></h3>
+<p><strong>الملف | File:</strong> <code>/apps/web/src/lib/api/error-handler.ts</code></p>
+<p><strong>الميزات | Features:</strong>
+- ✅ معالجة موحدة لأخطاء Axios
+- ✅ رسائل خطأ ثنائية اللغة (عربي/إنجليزي)
+- ✅ معالجة خاصة لرموز HTTP (401, 403, 404, 429, 500)
+- ✅ تشغيل تلقائي لإعادة المصادقة عند انتهاء الجلسة
+- ✅ تحديد الأخطاء القابلة لإعادة المحاولة
+- ✅ حساب Exponential Backoff للمحاولات</p>
+<p><strong>الاستخدام | Usage:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ApiErrorHandler</span><span class="p">,</span><span class="w"> </span><span class="nx">useApiErrorHandler</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@/lib/api/error-handler&#39;</span><span class="p">;</span>
+
+<span class="c1">// In components</span>
+<span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">handleError</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useApiErrorHandler</span><span class="p">();</span>
+
+<span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">apiClient</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/fields&#39;</span><span class="p">);</span>
+<span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">apiError</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">handleError</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">// Display error message</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ApiErrorHandler</span><span class="p">.</span><span class="nx">formatErrorMessage</span><span class="p">(</span><span class="nx">apiError</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ar&#39;</span><span class="p">);</span>
+<span class="w">  </span><span class="nx">toast</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="nx">message</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">// Check if retryable</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">ApiErrorHandler</span><span class="p">.</span><span class="nx">isRetryable</span><span class="p">(</span><span class="nx">apiError</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">delay</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ApiErrorHandler</span><span class="p">.</span><span class="nx">getRetryDelay</span><span class="p">(</span><span class="nx">apiError</span><span class="p">,</span><span class="w"> </span><span class="nx">attemptNumber</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">setTimeout</span><span class="p">(</span><span class="nx">retry</span><span class="p">,</span><span class="w"> </span><span class="nx">delay</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>معالجة الأخطاء | Error Handling:</strong>
+- 400: "طلب غير صالح" | "Invalid request"
+- 401: "انتهت الجلسة" + trigger re-auth | "Session expired"
+- 403: "تم رفض الوصول" | "Access denied"
+- 404: "المورد غير موجود" | "Resource not found"
+- 429: "طلبات كثيرة جداً" | "Too many requests"
+- 500: "خطأ في الخادم" | "Server error"</p>
+<hr />
+<h2 id="admin-dashboard-improvements">🔐 لوحة التحكم | Admin Dashboard Improvements<a class="headerlink" href="#admin-dashboard-improvements" title="Permanent link">&para;</a></h2>
+<h3 id="1-rate-limiter-anti-brute-force">1. Rate Limiter (Anti-Brute Force) ✅<a class="headerlink" href="#1-rate-limiter-anti-brute-force" title="Permanent link">&para;</a></h3>
+<p><strong>الملف | File:</strong> <code>/apps/admin/src/lib/rate-limiter.ts</code></p>
+<p><strong>الميزات | Features:</strong>
+- ✅ حماية من هجمات القوة الغاشمة
+- ✅ حد أقصى 5 محاولات في 15 دقيقة
+- ✅ قفل لمدة 30 دقيقة بعد تجاوز الحد
+- ✅ تنظيف تلقائي للإدخالات القديمة
+- ✅ رسائل ثنائية اللغة</p>
+<p><strong>الاستخدام | Usage:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">checkRateLimit</span><span class="p">,</span><span class="w"> </span><span class="nx">resetRateLimit</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@/lib/rate-limiter&#39;</span><span class="p">;</span>
+
+<span class="c1">// Check rate limit</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">rateLimit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">checkRateLimit</span><span class="p">(</span><span class="s1">&#39;login:user@example.com&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">maxAttempts</span><span class="o">:</span><span class="w"> </span><span class="kt">5</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">windowMs</span><span class="o">:</span><span class="w"> </span><span class="kt">15</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">60</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1000</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">lockoutDurationMs</span><span class="o">:</span><span class="w"> </span><span class="kt">30</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">60</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1000</span><span class="p">,</span>
+<span class="p">});</span>
+
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">rateLimit</span><span class="p">.</span><span class="nx">allowed</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">res</span><span class="p">.</span><span class="nx">status</span><span class="p">(</span><span class="mf">429</span><span class="p">).</span><span class="nx">json</span><span class="p">({</span>
+<span class="w">    </span><span class="nx">error</span><span class="o">:</span><span class="w"> </span><span class="kt">rateLimit.message</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">resetTime</span><span class="o">:</span><span class="w"> </span><span class="kt">rateLimit.resetTime</span><span class="p">,</span>
+<span class="w">  </span><span class="p">});</span>
+<span class="p">}</span>
+
+<span class="c1">// On successful login</span>
+<span class="nx">resetRateLimit</span><span class="p">(</span><span class="s1">&#39;login:user@example.com&#39;</span><span class="p">);</span>
+</code></pre></div>
+
+<h3 id="2-enhanced-login-route">2. Enhanced Login Route ✅<a class="headerlink" href="#2-enhanced-login-route" title="Permanent link">&para;</a></h3>
+<p><strong>الملف | File:</strong> <code>/apps/admin/src/app/api/auth/login/route.ts</code></p>
+<p><strong>التحسينات | Improvements:</strong>
+- ✅ إضافة Rate Limiting للحماية من هجمات القوة الغاشمة
+- ✅ تسجيل المحاولات الفاشلة
+- ✅ إعادة تعيين العداد عند النجاح
+- ✅ رسائل خطأ ثنائية اللغة</p>
+<p><strong>الحماية | Protection:</strong></p>
+<div class="codehilite"><pre><span></span><code>✓ Max 5 attempts per 15 minutes
+✓ 30-minute lockout after exceeding limit
+✓ Email-based rate limiting
+✓ Automatic cleanup of old entries
+</code></pre></div>
+
+<h3 id="3-session-management-page">3. Session Management Page ✅<a class="headerlink" href="#3-session-management-page" title="Permanent link">&para;</a></h3>
+<p><strong>الملف | File:</strong> <code>/apps/admin/src/app/(dashboard)/settings/sessions/page.tsx</code></p>
+<p><strong>الميزات | Features:</strong>
+- ✅ عرض جميع الجلسات النشطة
+- ✅ تفاصيل الجهاز والمتصفح
+- ✅ عنوان IP والموقع
+- ✅ آخر نشاط
+- ✅ إلغاء الجلسات
+- ✅ تحديث تلقائي كل 30 ثانية
+- ✅ واجهة ثنائية اللغة</p>
+<p><strong>لقطة شاشة | Screenshot:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="err">┌──────────────────────────────────────────────────────────┐</span>
+<span class="err">│</span><span class="w"> </span><span class="n">إدارة</span><span class="w"> </span><span class="n">الجلسات</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">Session</span><span class="w"> </span><span class="n">Management</span><span class="w">          </span><span class="err">🇸🇦</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="err">🔄</span><span class="w">  </span><span class="err">│</span>
+<span class="err">├──────────────────────────────────────────────────────────┤</span>
+<span class="err">│</span><span class="w"> </span><span class="err">┌─────────────┐</span><span class="w"> </span><span class="err">┌─────────────┐</span><span class="w"> </span><span class="err">┌─────────────┐</span><span class="w">        </span><span class="err">│</span>
+<span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="n">Total</span><span class="w">       </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="n">Active</span><span class="w">      </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="k">Current</span><span class="w">     </span><span class="err">│</span><span class="w">        </span><span class="err">│</span>
+<span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="nl">Sessions</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="nl">Users</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="w">    </span><span class="err">│</span><span class="w"> </span><span class="err">│</span><span class="w"> </span><span class="err">✓</span><span class="w"> </span><span class="n">Active</span><span class="w">    </span><span class="err">│</span><span class="w">        </span><span class="err">│</span>
+<span class="err">│</span><span class="w"> </span><span class="err">└─────────────┘</span><span class="w"> </span><span class="err">└─────────────┘</span><span class="w"> </span><span class="err">└─────────────┘</span><span class="w">        </span><span class="err">│</span>
+<span class="err">├──────────────────────────────────────────────────────────┤</span>
+<span class="err">│</span><span class="w"> </span><span class="k">User</span><span class="w">          </span><span class="o">|</span><span class="w"> </span><span class="n">Device</span><span class="w">      </span><span class="o">|</span><span class="w"> </span><span class="n">IP</span><span class="w">        </span><span class="o">|</span><span class="w"> </span><span class="n">Actions</span><span class="w">       </span><span class="err">│</span>
+<span class="err">│</span><span class="w"> </span><span class="k">user</span><span class="nv">@mail</span><span class="p">.</span><span class="n">com</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="err">💻</span><span class="w"> </span><span class="n">Chrome</span><span class="w">   </span><span class="o">|</span><span class="w"> </span><span class="mf">1.2.3.4</span><span class="w">   </span><span class="o">|</span><span class="w"> </span><span class="err">🚫</span><span class="w"> </span><span class="k">Revoke</span><span class="w">     </span><span class="err">│</span>
+<span class="err">│</span><span class="w"> </span><span class="k">admin</span><span class="nv">@mail</span><span class="p">.</span><span class="n">com</span><span class="o">|</span><span class="w"> </span><span class="err">📱</span><span class="w"> </span><span class="n">Safari</span><span class="w">   </span><span class="o">|</span><span class="w"> </span><span class="mf">5.6.7.8</span><span class="w">   </span><span class="o">|</span><span class="w"> </span><span class="o">[</span><span class="n">Current</span><span class="o">]</span><span class="w">     </span><span class="err">│</span>
+<span class="err">└──────────────────────────────────────────────────────────┘</span>
+</code></pre></div>
+
+<hr />
+<h2 id="summary-of-improvements">📊 ملخص التحسينات | Summary of Improvements<a class="headerlink" href="#summary-of-improvements" title="Permanent link">&para;</a></h2>
+<h3 id="mobile-app-4-improvements">Mobile App (4 improvements)<a class="headerlink" href="#mobile-app-4-improvements" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>التحسين</th>
+<th>Improvement</th>
+<th>الأولوية</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Empty State Widgets</td>
+<td>واجهات الحالة الفارغة</td>
+<td>🟡 Medium</td>
+<td>UX</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Loading State Widgets</td>
+<td>واجهات التحميل</td>
+<td>🟡 Medium</td>
+<td>UX</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Performance Monitor</td>
+<td>مراقب الأداء</td>
+<td>🟢 Low</td>
+<td>Analytics</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Skeleton Loaders</td>
+<td>Placeholder Loading</td>
+<td>🟡 Medium</td>
+<td>UX</td>
+</tr>
+</tbody>
+</table>
+<h3 id="web-app-1-improvement">Web App (1 improvement)<a class="headerlink" href="#web-app-1-improvement" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>التحسين</th>
+<th>Improvement</th>
+<th>الأولوية</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Error Handler</td>
+<td>معالج الأخطاء المركزي</td>
+<td>🔴 High</td>
+<td>Stability</td>
+</tr>
+</tbody>
+</table>
+<h3 id="admin-dashboard-3-improvements">Admin Dashboard (3 improvements)<a class="headerlink" href="#admin-dashboard-3-improvements" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>التحسين</th>
+<th>Improvement</th>
+<th>الأولوية</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Rate Limiter</td>
+<td>حماية من القوة الغاشمة</td>
+<td>🔴 High</td>
+<td>Security</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Enhanced Login</td>
+<td>تحسين تسجيل الدخول</td>
+<td>🔴 High</td>
+<td>Security</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Session Management</td>
+<td>إدارة الجلسات</td>
+<td>🟠 Medium</td>
+<td>Security</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="expected-impact">🎯 الأثر المتوقع | Expected Impact<a class="headerlink" href="#expected-impact" title="Permanent link">&para;</a></h2>
+<h3 id="mobile-app">Mobile App<a class="headerlink" href="#mobile-app" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ <strong>تحسين تجربة المستخدم</strong> - واجهات واضحة للحالات الفارغة والتحميل</li>
+<li>✅ <strong>زيادة الوضوح</strong> - المستخدمون يفهمون حالة التطبيق بشكل أفضل</li>
+<li>✅ <strong>تتبع الأداء</strong> - تحديد الاختناقات وتحسين السرعة</li>
+<li>✅ <strong>تقليل الارتباك</strong> - skeleton loaders بدلاً من شاشات فارغة</li>
+</ul>
+<h3 id="web-app">Web App<a class="headerlink" href="#web-app" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ <strong>معالجة أخطاء موحدة</strong> - سلوك متسق عبر جميع المكونات</li>
+<li>✅ <strong>رسائل خطأ أفضل</strong> - ثنائية اللغة وواضحة</li>
+<li>✅ <strong>استعادة تلقائية</strong> - إعادة محاولة ذكية للأخطاء المؤقتة</li>
+<li>✅ <strong>أمان محسّن</strong> - إعادة مصادقة تلقائية عند انتهاء الجلسة</li>
+</ul>
+<h3 id="admin-dashboard">Admin Dashboard<a class="headerlink" href="#admin-dashboard" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ <strong>حماية من هجمات القوة الغاشمة</strong> - rate limiting على تسجيل الدخول</li>
+<li>✅ <strong>أمان محسّن</strong> - قفل الحسابات بعد محاولات فاشلة</li>
+<li>✅ <strong>إدارة الجلسات</strong> - المشرفون يمكنهم إلغاء جلسات مشبوهة</li>
+<li>✅ <strong>شفافية</strong> - عرض جميع الجلسات النشطة</li>
+</ul>
+<hr />
+<h2 id="future-recommendations">📝 التوصيات المستقبلية | Future Recommendations<a class="headerlink" href="#future-recommendations" title="Permanent link">&para;</a></h2>
+<h3 id="mobile-app_1">Mobile App<a class="headerlink" href="#mobile-app_1" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>إضافة اختبارات</strong> - unit tests للودجت الجديدة</li>
+<li><strong>Analytics Integration</strong> - دمج Firebase Analytics لتتبع الاستخدام</li>
+<li><strong>Biometric Auth</strong> - تفعيل المصادقة البيومترية</li>
+<li><strong>Push Notifications</strong> - تفعيل الإشعارات الفورية</li>
+</ol>
+<h3 id="web-app_1">Web App<a class="headerlink" href="#web-app_1" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Request Interceptor</strong> - مركزية إدارة التوكنات</li>
+<li><strong>API Client Consolidation</strong> - توحيد جميع استدعاءات API</li>
+<li><strong>WebSocket Integration</strong> - التحقق من تكامل الوقت الفعلي</li>
+<li><strong>Bundle Optimization</strong> - تحسين حجم الحزم</li>
+</ol>
+<h3 id="admin-dashboard_1">Admin Dashboard<a class="headerlink" href="#admin-dashboard_1" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Redis Rate Limiting</strong> - للبيئات متعددة الخوادم</li>
+<li><strong>2FA Enforcement</strong> - إلزامي للمشرفين</li>
+<li><strong>Audit Logging Enhancement</strong> - تسجيل أكثر تفصيلاً</li>
+<li><strong>IP Allowlisting</strong> - قائمة IP المسموحة للمشرفين</li>
+</ol>
+<hr />
+<h2 id="final-status">✅ الحالة النهائية | Final Status<a class="headerlink" href="#final-status" title="Permanent link">&para;</a></h2>
+<p><strong>جميع التحسينات المخططة تم تنفيذها بنجاح</strong>
+<strong>All Planned Improvements Successfully Implemented</strong></p>
+<ul>
+<li>✅ Mobile App: 4/4 improvements</li>
+<li>✅ Web App: 1/1 improvements</li>
+<li>✅ Admin Dashboard: 3/3 improvements</li>
+</ul>
+<p><strong>إجمالي | Total:</strong> 8 تحسينات | 8 improvements</p>
+<hr />
+<p><strong>تم التطوير بواسطة | Developed by:</strong> GitHub Copilot + KAFAAT Team<br />
+<strong>التاريخ | Date:</strong> 2026-02-11<br />
+<strong>الإصدار | Version:</strong> 16.0.0</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

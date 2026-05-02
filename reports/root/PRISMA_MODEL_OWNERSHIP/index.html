@@ -1,0 +1,2000 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Prisma Model Ownership & Schema Management - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#prisma-model-ownership-schema-management" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Prisma Model Ownership &amp; Schema Management
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="prisma-model-ownership-schema-management">Prisma Model Ownership &amp; Schema Management<a class="headerlink" href="#prisma-model-ownership-schema-management" title="Permanent link">&para;</a></h1>
+<h1 id="prisma">إدارة ملكية نماذج Prisma والمخططات<a class="headerlink" href="#prisma" title="Permanent link">&para;</a></h1>
+<p><strong>Generated</strong>: 2026-02-04<br />
+<strong>Version</strong>: 1.0<br />
+<strong>Status</strong>: Documentation</p>
+<h2 id="overview">Overview | نظرة عامة<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>This document defines the ownership and responsibility for Prisma data models across the SAHOOL microservices architecture. It addresses the issue of duplicate model definitions and establishes clear boundaries for each service.</p>
+<p>توثق هذه الوثيقة ملكية والمسؤولية عن نماذج بيانات Prisma عبر بنية الخدمات المصغرة لمنصة سهول. تعالج مشكلة تعريفات النماذج المكررة وتحدد حدودًا واضحة لكل خدمة.</p>
+<hr />
+<h2 id="prisma-services-10-total">Prisma Services (10 Total)<a class="headerlink" href="#prisma-services-10-total" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>iot-service</strong> - IoT Device Management</li>
+<li><strong>disaster-assessment</strong> - Disaster Risk Assessment  </li>
+<li><strong>research-core</strong> - Agricultural Research Trials</li>
+<li><strong>chat-service</strong> - Messaging &amp; Chat</li>
+<li><strong>inventory-service</strong> - Equipment &amp; Product Inventory</li>
+<li><strong>user-service</strong> - User Management &amp; Authentication</li>
+<li><strong>community-chat</strong> - Community Discussions</li>
+<li><strong>field-management-service</strong> - Field &amp; Farm Management</li>
+<li><strong>weather-service</strong> - Weather Data &amp; Forecasts</li>
+<li><strong>marketplace-service</strong> - Agricultural Marketplace</li>
+</ol>
+<hr />
+<h2 id="model-ownership-matrix">Model Ownership Matrix | مصفوفة ملكية النماذج<a class="headerlink" href="#model-ownership-matrix" title="Permanent link">&para;</a></h2>
+<h3 id="core-principles">Core Principles | المبادئ الأساسية<a class="headerlink" href="#core-principles" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Single Source of Truth</strong>: Each model has ONE authoritative service</li>
+<li><strong>Bounded Contexts</strong>: Services own their domain models</li>
+<li><strong>Table Mapping</strong>: Use <code>@@map()</code> to ensure unique table names</li>
+<li><strong>Cross-Service References</strong>: Use IDs, not foreign keys</li>
+<li><strong>Data Duplication</strong>: Acceptable for microservices autonomy</li>
+</ol>
+<hr />
+<h3 id="service-specific-models">Service-Specific Models<a class="headerlink" href="#service-specific-models" title="Permanent link">&para;</a></h3>
+<h4 id="1-iot-service-6-models">1. iot-service (6 models)<a class="headerlink" href="#1-iot-service-6-models" title="Permanent link">&para;</a></h4>
+<p><strong>Domain</strong>: IoT devices, sensors, actuators</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Table Name</th>
+<th>Description</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Device</td>
+<td><code>iot_devices</code></td>
+<td>IoT device registry</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>Sensor</td>
+<td><code>iot_sensors</code></td>
+<td>Sensor configurations</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>SensorReading</td>
+<td><code>iot_sensor_readings</code></td>
+<td>Sensor data points</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>Actuator</td>
+<td><code>iot_actuators</code></td>
+<td>Actuator configurations</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>ActuatorCommand</td>
+<td><code>iot_actuator_commands</code></td>
+<td>Actuator control commands</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>DeviceAlert</td>
+<td><code>iot_device_alerts</code></td>
+<td>Device-specific alerts</td>
+<td>✅ Owner</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Recommendation</strong>: </p>
+<div class="codehilite"><pre><span></span><code><span class="n">model</span><span class="w"> </span><span class="n">Device</span><span class="w"> </span><span class="err">{</span>
+<span class="w">  </span><span class="o">//</span><span class="w"> </span><span class="p">...</span>
+<span class="w">  </span><span class="nb">@@map</span><span class="p">(</span><span class="ss">&quot;iot_devices&quot;</span><span class="p">)</span>
+<span class="err">}</span>
+</code></pre></div>
+
+<hr />
+<h4 id="2-disaster-assessment-4-models">2. disaster-assessment (4 models)<a class="headerlink" href="#2-disaster-assessment-4-models" title="Permanent link">&para;</a></h4>
+<p><strong>Domain</strong>: Natural disaster risk assessment</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Table Name</th>
+<th>Description</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Assessment</td>
+<td><code>disaster_assessments</code></td>
+<td>Risk assessments</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>RiskFactor</td>
+<td><code>disaster_risk_factors</code></td>
+<td>Risk factor definitions</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>Mitigation</td>
+<td><code>disaster_mitigations</code></td>
+<td>Mitigation strategies</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>HistoricalEvent</td>
+<td><code>disaster_historical_events</code></td>
+<td>Past disaster records</td>
+<td>✅ Owner</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h4 id="3-research-core-12-models">3. research-core (12 models)<a class="headerlink" href="#3-research-core-12-models" title="Permanent link">&para;</a></h4>
+<p><strong>Domain</strong>: Agricultural research &amp; experimentation</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Table Name</th>
+<th>Description</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Experiment</td>
+<td><code>research_experiments</code></td>
+<td>Research experiments</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>ResearchPlot</td>
+<td><code>research_plots</code></td>
+<td>Experimental field plots</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>Treatment</td>
+<td><code>research_treatments</code></td>
+<td>Experimental treatments</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>Planting</td>
+<td><code>research_plantings</code></td>
+<td>Planting records</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>ResearchProtocol</td>
+<td><code>research_protocols</code></td>
+<td>Research protocols</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>Germplasm</td>
+<td><code>research_germplasm</code></td>
+<td>Seed/genetic material</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>SeedLot</td>
+<td><code>research_seed_lots</code></td>
+<td>Seed lot tracking</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>LabSample</td>
+<td><code>research_lab_samples</code></td>
+<td>Laboratory samples</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>ResearchDailyLog</td>
+<td><code>research_daily_logs</code></td>
+<td>Daily observations</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>ExperimentCollaborator</td>
+<td><code>research_collaborators</code></td>
+<td>Research team members</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>ExperimentAuditLog</td>
+<td><code>research_audit_logs</code></td>
+<td>Experiment audit trail</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>NdviReading</td>
+<td><code>research_ndvi_readings</code></td>
+<td>NDVI measurements</td>
+<td>⚠️ Shared with field-management</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Note</strong>: <code>NdviReading</code> appears in both research-core and field-management. Consider:
+- Research: <code>research_ndvi_readings</code> (experimental plots)
+- Field Management: <code>field_ndvi_readings</code> (production fields)</p>
+<hr />
+<h4 id="4-chat-service-3-models">4. chat-service (3 models)<a class="headerlink" href="#4-chat-service-3-models" title="Permanent link">&para;</a></h4>
+<p><strong>Domain</strong>: Real-time messaging</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Table Name</th>
+<th>Description</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Conversation</td>
+<td><code>chat_conversations</code></td>
+<td>Chat conversations</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>Message</td>
+<td><code>chat_messages</code></td>
+<td>Chat messages</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>Participant</td>
+<td><code>chat_participants</code></td>
+<td>Conversation participants</td>
+<td>✅ Owner</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h4 id="5-inventory-service-8-models">5. inventory-service (8 models)<a class="headerlink" href="#5-inventory-service-8-models" title="Permanent link">&para;</a></h4>
+<p><strong>Domain</strong>: Equipment &amp; product inventory management</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Table Name</th>
+<th>Description</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>InventoryItem</td>
+<td><code>inventory_items</code></td>
+<td>Inventory items</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>StorageLocation</td>
+<td><code>inventory_storage_locations</code></td>
+<td>Warehouse locations</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>Warehouse</td>
+<td><code>inventory_warehouses</code></td>
+<td>Warehouse facilities</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>InventoryMovement</td>
+<td><code>inventory_movements</code></td>
+<td>Stock movements</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>StockTransfer</td>
+<td><code>inventory_stock_transfers</code></td>
+<td>Inter-warehouse transfers</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>InventoryAlert</td>
+<td><code>inventory_alerts</code></td>
+<td>Stock alerts (low stock, etc.)</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>Product</td>
+<td><code>inventory_products</code></td>
+<td>Product catalog</td>
+<td>⚠️ Shared with marketplace</td>
+</tr>
+<tr>
+<td>SyncStatus</td>
+<td><code>inventory_sync_status</code></td>
+<td>Offline sync tracking</td>
+<td>✅ Owner</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Note</strong>: <code>Product</code> conflict with marketplace-service. Recommendation:
+- Inventory: <code>inventory_products</code> (warehouse stock)
+- Marketplace: <code>marketplace_products</code> (customer-facing catalog)</p>
+<hr />
+<h4 id="6-user-service-5-models">6. user-service (5 models)<a class="headerlink" href="#6-user-service-5-models" title="Permanent link">&para;</a></h4>
+<p><strong>Domain</strong>: User authentication &amp; management</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Table Name</th>
+<th>Description</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>User</td>
+<td><code>users</code></td>
+<td>User accounts</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>Role</td>
+<td><code>user_roles</code></td>
+<td>User roles</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>Permission</td>
+<td><code>user_permissions</code></td>
+<td>Permissions</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>Session</td>
+<td><code>user_sessions</code></td>
+<td>Active sessions</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>TwoFactorAuth</td>
+<td><code>user_2fa</code></td>
+<td>2FA settings</td>
+<td>✅ Owner</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h4 id="7-community-chat-3-models">7. community-chat (3 models)<a class="headerlink" href="#7-community-chat-3-models" title="Permanent link">&para;</a></h4>
+<p><strong>Domain</strong>: Community forums &amp; discussions</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Table Name</th>
+<th>Description</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Topic</td>
+<td><code>community_topics</code></td>
+<td>Discussion topics</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>Post</td>
+<td><code>community_posts</code></td>
+<td>Forum posts</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>Comment</td>
+<td><code>community_comments</code></td>
+<td>Post comments</td>
+<td>✅ Owner</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h4 id="8-field-management-service-6-models">8. field-management-service (6 models)<a class="headerlink" href="#8-field-management-service-6-models" title="Permanent link">&para;</a></h4>
+<p><strong>Domain</strong>: Farm &amp; field operations management</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Table Name</th>
+<th>Description</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Field</td>
+<td><code>fields</code></td>
+<td>Agricultural fields</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>Zone</td>
+<td><code>field_zones</code></td>
+<td>Field sub-zones</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>FieldBoundaryHistory</td>
+<td><code>field_boundary_history</code></td>
+<td>Boundary change tracking</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>Task</td>
+<td><code>field_tasks</code></td>
+<td>Field operations tasks</td>
+<td>⚠️ Shared with research-core</td>
+</tr>
+<tr>
+<td>LocationConfig</td>
+<td><code>field_location_configs</code></td>
+<td>GPS/location settings</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>AlertSettings</td>
+<td><code>field_alert_settings</code></td>
+<td>Field-specific alert rules</td>
+<td>✅ Owner</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Note</strong>: <code>Task</code> conflict. Recommendation:
+- Field Management: <code>field_tasks</code> (operational tasks)
+- Research: <code>research_tasks</code> (research activities)</p>
+<hr />
+<h4 id="9-weather-service-4-models">9. weather-service (4 models)<a class="headerlink" href="#9-weather-service-4-models" title="Permanent link">&para;</a></h4>
+<p><strong>Domain</strong>: Weather data &amp; forecasting</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Table Name</th>
+<th>Description</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>WeatherObservation</td>
+<td><code>weather_observations</code></td>
+<td>Historical weather data</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>WeatherForecast</td>
+<td><code>weather_forecasts</code></td>
+<td>Weather predictions</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>WeatherAlert</td>
+<td><code>weather_alerts</code></td>
+<td>Weather warnings</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>WeatherStation</td>
+<td><code>weather_stations</code></td>
+<td>Weather station registry</td>
+<td>✅ Owner</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h4 id="10-marketplace-service-14-models">10. marketplace-service (14 models)<a class="headerlink" href="#10-marketplace-service-14-models" title="Permanent link">&para;</a></h4>
+<p><strong>Domain</strong>: Agricultural e-commerce marketplace</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Table Name</th>
+<th>Description</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Product</td>
+<td><code>marketplace_products</code></td>
+<td>Product listings</td>
+<td>⚠️ Shared with inventory</td>
+</tr>
+<tr>
+<td>Order</td>
+<td><code>marketplace_orders</code></td>
+<td>Customer orders</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>OrderItem</td>
+<td><code>marketplace_order_items</code></td>
+<td>Order line items</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>Transaction</td>
+<td><code>marketplace_transactions</code></td>
+<td>Payment transactions</td>
+<td>⚠️ Shared with inventory</td>
+</tr>
+<tr>
+<td>BuyerProfile</td>
+<td><code>marketplace_buyer_profiles</code></td>
+<td>Buyer accounts</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>SellerProfile</td>
+<td><code>marketplace_seller_profiles</code></td>
+<td>Seller accounts</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>ProductReview</td>
+<td><code>marketplace_product_reviews</code></td>
+<td>Product reviews</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>ReviewResponse</td>
+<td><code>marketplace_review_responses</code></td>
+<td>Seller responses</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>Escrow</td>
+<td><code>marketplace_escrow</code></td>
+<td>Escrow payments</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>Wallet</td>
+<td><code>marketplace_wallets</code></td>
+<td>User wallet balances</td>
+<td>⚠️ Shared with billing</td>
+</tr>
+<tr>
+<td>WalletAuditLog</td>
+<td><code>marketplace_wallet_audit_logs</code></td>
+<td>Wallet transaction logs</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>CreditEvent</td>
+<td><code>marketplace_credit_events</code></td>
+<td>Credit/debit events</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>Loan</td>
+<td><code>marketplace_loans</code></td>
+<td>Agricultural loans</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>ScheduledPayment</td>
+<td><code>marketplace_scheduled_payments</code></td>
+<td>Payment schedules</td>
+<td>✅ Owner</td>
+</tr>
+<tr>
+<td>DigitalSignature</td>
+<td><code>marketplace_digital_signatures</code></td>
+<td>Contract signatures</td>
+<td>✅ Owner</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="duplicate-model-resolution-strategy">Duplicate Model Resolution Strategy<a class="headerlink" href="#duplicate-model-resolution-strategy" title="Permanent link">&para;</a></h2>
+<h3 id="high-priority-conflicts-require-immediate-action">High-Priority Conflicts (Require Immediate Action)<a class="headerlink" href="#high-priority-conflicts-require-immediate-action" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Model Name</th>
+<th>Services</th>
+<th>Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Device</td>
+<td>iot-service, field-management, inventory</td>
+<td><code>iot_devices</code>, <code>field_devices</code>, <code>inventory_devices</code></td>
+</tr>
+<tr>
+<td>Field</td>
+<td>field-management, research-core, disaster</td>
+<td><code>fields</code> (field-mgmt owner), others use field_id reference</td>
+</tr>
+<tr>
+<td>Product</td>
+<td>marketplace, inventory</td>
+<td><code>marketplace_products</code>, <code>inventory_products</code></td>
+</tr>
+<tr>
+<td>Transaction</td>
+<td>marketplace, inventory, disaster</td>
+<td><code>marketplace_transactions</code>, <code>inventory_transactions</code></td>
+</tr>
+<tr>
+<td>Order</td>
+<td>marketplace, inventory</td>
+<td><code>marketplace_orders</code>, <code>inventory_orders</code></td>
+</tr>
+<tr>
+<td>Task</td>
+<td>field-management, research-core</td>
+<td><code>field_tasks</code>, <code>research_tasks</code></td>
+</tr>
+<tr>
+<td>Sensor</td>
+<td>iot-service, field-management</td>
+<td><code>iot_sensors</code> (iot owner), field-mgmt references</td>
+</tr>
+<tr>
+<td>Wallet</td>
+<td>marketplace, billing-core</td>
+<td><code>marketplace_wallets</code>, <code>billing_wallets</code></td>
+</tr>
+<tr>
+<td>NdviReading</td>
+<td>research-core, field-management</td>
+<td><code>research_ndvi_readings</code>, <code>field_ndvi_readings</code></td>
+</tr>
+<tr>
+<td>Zone</td>
+<td>field-management, disaster-assessment</td>
+<td><code>field_zones</code>, <code>disaster_zones</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="medium-priority-conflicts-document-monitor">Medium-Priority Conflicts (Document &amp; Monitor)<a class="headerlink" href="#medium-priority-conflicts-document-monitor" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Model Name</th>
+<th>Services</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Conversation</td>
+<td>chat-service, community-chat</td>
+<td>Different contexts, acceptable</td>
+</tr>
+<tr>
+<td>Message</td>
+<td>chat-service, community-chat</td>
+<td>Different contexts, acceptable</td>
+</tr>
+<tr>
+<td>Participant</td>
+<td>chat-service, community-chat</td>
+<td>Different contexts, acceptable</td>
+</tr>
+<tr>
+<td>AlertSettings</td>
+<td>field-management, iot-service</td>
+<td>Different contexts, acceptable</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="implementation-guidelines">Implementation Guidelines<a class="headerlink" href="#implementation-guidelines" title="Permanent link">&para;</a></h2>
+<h3 id="1-use-map-directive">1. Use @@map() Directive<a class="headerlink" href="#1-use-map-directive" title="Permanent link">&para;</a></h3>
+<p><strong>Before</strong> (causes conflict):</p>
+<div class="codehilite"><pre><span></span><code><span class="n">model</span><span class="w"> </span><span class="n">Device</span><span class="w"> </span><span class="err">{</span>
+<span class="w">  </span><span class="n">id</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nv">@id</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">uuid</span><span class="p">())</span>
+<span class="w">  </span><span class="n">name</span><span class="w"> </span><span class="n">String</span>
+<span class="w">  </span><span class="o">//</span><span class="w"> </span><span class="p">...</span>
+<span class="err">}</span>
+</code></pre></div>
+
+<p><strong>After</strong> (prevents conflict):</p>
+<div class="codehilite"><pre><span></span><code><span class="n">model</span><span class="w"> </span><span class="n">Device</span><span class="w"> </span><span class="err">{</span>
+<span class="w">  </span><span class="n">id</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nv">@id</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">uuid</span><span class="p">())</span>
+<span class="w">  </span><span class="n">name</span><span class="w"> </span><span class="n">String</span>
+<span class="w">  </span><span class="o">//</span><span class="w"> </span><span class="p">...</span>
+
+<span class="w">  </span><span class="nb">@@map</span><span class="p">(</span><span class="ss">&quot;iot_devices&quot;</span><span class="p">)</span><span class="w">  </span><span class="o">//</span><span class="w"> </span><span class="k">Unique</span><span class="w"> </span><span class="nc">table</span><span class="w"> </span><span class="n">name</span>
+<span class="err">}</span>
+</code></pre></div>
+
+<h3 id="2-schema-namespacing">2. Schema Namespacing<a class="headerlink" href="#2-schema-namespacing" title="Permanent link">&para;</a></h3>
+<p>Use service prefixes for all tables:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// iot-service</span>
+<span class="n">model</span><span class="w"> </span><span class="n">Device</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="p">@@</span><span class="n">map</span><span class="p">(</span><span class="s">&quot;iot_devices&quot;</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// field-management-service</span>
+<span class="n">model</span><span class="w"> </span><span class="n">Device</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="p">@@</span><span class="n">map</span><span class="p">(</span><span class="s">&quot;field_devices&quot;</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="3-cross-service-references">3. Cross-Service References<a class="headerlink" href="#3-cross-service-references" title="Permanent link">&para;</a></h3>
+<p>Use foreign key IDs, not actual foreign keys:</p>
+<div class="codehilite"><pre><span></span><code><span class="o">//</span><span class="w"> </span><span class="n">marketplace</span><span class="o">-</span><span class="n">service</span>
+<span class="n">model</span><span class="w"> </span><span class="n">Order</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">id</span><span class="w"> </span><span class="nb nb-Type">String</span><span class="w"> </span><span class="err">@</span><span class="n">id</span>
+<span class="w">  </span><span class="n">fieldId</span><span class="w"> </span><span class="nb nb-Type">String</span><span class="w">  </span><span class="o">//</span><span class="w"> </span><span class="n">Reference</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">field</span><span class="o">-</span><span class="n">management</span><span class="o">.</span><span class="n">Field</span>
+<span class="w">  </span><span class="o">//</span><span class="w"> </span><span class="n">NO</span><span class="w"> </span><span class="n">foreign</span><span class="w"> </span><span class="n">key</span><span class="w"> </span><span class="n">constraint</span><span class="w"> </span><span class="n">across</span><span class="w"> </span><span class="n">services</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="4-migration-script-template">4. Migration Script Template<a class="headerlink" href="#4-migration-script-template" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># For each service with conflicts</span>
+<span class="nb">cd</span><span class="w"> </span>apps/services/<span class="o">[</span>service-name<span class="o">]</span>
+
+<span class="c1"># Update schema.prisma with @@map() directives</span>
+<span class="c1"># Then create migration</span>
+
+npx<span class="w"> </span>prisma<span class="w"> </span>migrate<span class="w"> </span>dev<span class="w"> </span>--name<span class="w"> </span>add_table_mapping
+npx<span class="w"> </span>prisma<span class="w"> </span>generate
+</code></pre></div>
+
+<hr />
+<h2 id="validation-checklist">Validation Checklist<a class="headerlink" href="#validation-checklist" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] All Prisma services have unique table names via <code>@@map()</code></li>
+<li>[ ] No foreign keys across service boundaries</li>
+<li>[ ] Service ownership documented for each model</li>
+<li>[ ] Migration plan created for conflicting models</li>
+<li>[ ] Integration tests verify data isolation</li>
+<li>[ ] API documentation reflects service boundaries</li>
+</ul>
+<hr />
+<h2 id="monitoring-compliance">Monitoring &amp; Compliance<a class="headerlink" href="#monitoring-compliance" title="Permanent link">&para;</a></h2>
+<h3 id="automated-checks">Automated Checks<a class="headerlink" href="#automated-checks" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check for duplicate table names</span>
+<span class="k">for</span><span class="w"> </span>schema<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">$(</span>find<span class="w"> </span>apps/services<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;schema.prisma&quot;</span><span class="k">)</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="nv">service</span><span class="o">=</span><span class="k">$(</span><span class="nb">echo</span><span class="w"> </span><span class="nv">$schema</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>cut<span class="w"> </span>-d<span class="s1">&#39;/&#39;</span><span class="w"> </span>-f3<span class="k">)</span>
+<span class="w">  </span>grep<span class="w"> </span><span class="s2">&quot;@@map(&quot;</span><span class="w"> </span><span class="nv">$schema</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;⚠️ </span><span class="nv">$service</span><span class="s2">: No table mapping found&quot;</span>
+<span class="k">done</span>
+
+<span class="c1"># Validate unique table names across all services</span>
+find<span class="w"> </span>apps/services<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;schema.prisma&quot;</span><span class="w"> </span>-exec<span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;@@map(&quot;</span><span class="w"> </span><span class="o">{}</span><span class="w"> </span><span class="se">\;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sort<span class="w"> </span><span class="p">|</span><span class="w"> </span>uniq<span class="w"> </span>-d
+</code></pre></div>
+
+<h3 id="pre-deployment-validation">Pre-Deployment Validation<a class="headerlink" href="#pre-deployment-validation" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># .github/workflows/prisma-validation.yml</span>
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Prisma Schema Validation</span>
+<span class="nt">on</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">pull_request</span><span class="p p-Indicator">]</span>
+
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">validate</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v3</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Check for duplicate table names</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">          </span><span class="no">./scripts/validate-prisma-schemas.sh</span>
+</code></pre></div>
+
+<hr />
+<h2 id="migration-timeline">Migration Timeline<a class="headerlink" href="#migration-timeline" title="Permanent link">&para;</a></h2>
+<h3 id="phase-1-documentation-week-1">Phase 1: Documentation (Week 1)<a class="headerlink" href="#phase-1-documentation-week-1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[x] Document all Prisma models and ownership</li>
+<li>[x] Identify all conflicts</li>
+<li>[ ] Create migration plan per service</li>
+</ul>
+<h3 id="phase-2-schema-updates-week-2-3">Phase 2: Schema Updates (Week 2-3)<a class="headerlink" href="#phase-2-schema-updates-week-2-3" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Add <code>@@map()</code> directives to all schemas</li>
+<li>[ ] Test migrations in development</li>
+<li>[ ] Update service tests</li>
+</ul>
+<h3 id="phase-3-deployment-week-4">Phase 3: Deployment (Week 4)<a class="headerlink" href="#phase-3-deployment-week-4" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Deploy schema updates service-by-service</li>
+<li>[ ] Monitor for issues</li>
+<li>[ ] Update API documentation</li>
+</ul>
+<h3 id="phase-4-validation-week-5">Phase 4: Validation (Week 5)<a class="headerlink" href="#phase-4-validation-week-5" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Run integration tests</li>
+<li>[ ] Verify data isolation</li>
+<li>[ ] Performance testing</li>
+</ul>
+<hr />
+<h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference">Prisma Schema Reference</a></li>
+<li><a href="https://microservices.io/patterns/data/database-per-service.html">Microservices Data Patterns</a></li>
+<li><a href="https://martinfowler.com/bliki/BoundedContext.html">Bounded Context (DDD)</a></li>
+<li><a href="./governance/services.yaml">SAHOOL Governance Registry</a></li>
+</ul>
+<hr />
+<p><strong>Document Maintainers</strong>:
+- Database Team
+- Service Owners
+- Architecture Team</p>
+<p><strong>Review Frequency</strong>: Monthly</p>
+<p><strong>Last Updated</strong>: 2026-02-04</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

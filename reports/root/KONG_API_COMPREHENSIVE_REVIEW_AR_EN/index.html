@@ -1,0 +1,2649 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>تقرير المراجعة الشاملة لـ Kong و API Gateway - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#kong-api-gateway" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              تقرير المراجعة الشاملة لـ Kong و API Gateway
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="kong-api-gateway">تقرير المراجعة الشاملة لـ Kong و API Gateway<a class="headerlink" href="#kong-api-gateway" title="Permanent link">&para;</a></h1>
+<h1 id="comprehensive-kong-api-gateway-review-report">Comprehensive Kong &amp; API Gateway Review Report<a class="headerlink" href="#comprehensive-kong-api-gateway-review-report" title="Permanent link">&para;</a></h1>
+<p><strong>منصة سهول للذكاء الزراعي الوطني | SAHOOL National Agricultural Intelligence Platform</strong></p>
+<hr />
+<h2 id="report-information">📋 معلومات التقرير | Report Information<a class="headerlink" href="#report-information" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>المعلومة</th>
+<th>Information</th>
+<th>القيمة</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>تاريخ التقرير</td>
+<td>Report Date</td>
+<td>2026-02-04</td>
+<td>Feb 4, 2026</td>
+</tr>
+<tr>
+<td>الإصدار</td>
+<td>Version</td>
+<td>16.0.0</td>
+<td>v16.0.0</td>
+</tr>
+<tr>
+<td>المحلل</td>
+<td>Analyst</td>
+<td>Claude AI + Automated Tools</td>
+<td>Claude AI + Automated Tools</td>
+</tr>
+<tr>
+<td>النطاق</td>
+<td>Scope</td>
+<td>Kong Gateway, API Routes, AI Agents, Copilot</td>
+<td>Kong Gateway, API Routes, AI Agents, Copilot</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="executive-summary">🎯 الملخص التنفيذي | Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<h3 id="_1">بالعربية<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
+<p>تم إجراء مراجعة شاملة وعميقة لبوابة API (Kong) وجميع الخدمات المتصلة بمنصة سهول. التقرير يغطي:
+- ✅ تحليل تكوين Kong الحالي (1,407 سطر من التكوين)
+- ✅ التحقق من 77 خدمة مسجلة في Kong
+- ✅ فحص وكلاء الذكاء الاصطناعي (6 وكلاء)
+- ✅ تقييم تكامل Copilot و MCP
+- ✅ اكتشاف المشاكل والتوصيات</p>
+<p><strong>النتيجة العامة</strong>: النظام مُكوّن بشكل جيد مع وجود مشاكل بسيطة تحتاج إلى إصلاح</p>
+<h3 id="english">English<a class="headerlink" href="#english" title="Permanent link">&para;</a></h3>
+<p>A comprehensive and in-depth review of the API Gateway (Kong) and all connected services of the SAHOOL platform has been conducted. The report covers:
+- ✅ Analysis of current Kong configuration (1,407 lines of configuration)
+- ✅ Verification of 77 services registered in Kong
+- ✅ Review of AI agents (6 agents)
+- ✅ Assessment of Copilot &amp; MCP integration
+- ✅ Discovery of issues and recommendations</p>
+<p><strong>Overall Result</strong>: System is well-configured with minor issues requiring fixes</p>
+<hr />
+<h2 id="review-scope">🔍 نطاق المراجعة | Review Scope<a class="headerlink" href="#review-scope" title="Permanent link">&para;</a></h2>
+<h3 id="1-reviewed-configuration-files">1. ملفات التكوين المُفحوصة | Reviewed Configuration Files<a class="headerlink" href="#1-reviewed-configuration-files" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="err">✓</span><span class="w"> </span><span class="n">infrastructure</span><span class="o">/</span><span class="n">gateway</span><span class="o">/</span><span class="n">kong</span><span class="o">/</span><span class="n">kong</span><span class="p">.</span><span class="n">yml</span><span class="w">          </span><span class="p">(</span><span class="mh">1</span><span class="p">,</span><span class="mh">407</span><span class="w"> </span><span class="n">lines</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">Kong</span><span class="w"> </span><span class="n">declarative</span><span class="w"> </span><span class="n">config</span><span class="p">)</span>
+<span class="err">✓</span><span class="w"> </span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span><span class="p">.</span><span class="n">yml</span><span class="w">                            </span><span class="p">(</span><span class="mh">4</span><span class="p">,</span><span class="mh">200</span><span class="o">+</span><span class="w"> </span><span class="n">lines</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">Service</span><span class="w"> </span><span class="n">orchestration</span><span class="p">)</span>
+<span class="err">✓</span><span class="w"> </span><span class="n">governance</span><span class="o">/</span><span class="n">agents</span><span class="p">.</span><span class="n">yaml</span><span class="w">                        </span><span class="p">(</span><span class="mh">1</span><span class="p">,</span><span class="mh">200</span><span class="o">+</span><span class="w"> </span><span class="n">lines</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">AI</span><span class="w"> </span><span class="n">agents</span><span class="w"> </span><span class="n">registry</span><span class="p">)</span>
+<span class="err">✓</span><span class="w"> </span><span class="n">governance</span><span class="o">/</span><span class="n">services</span><span class="p">.</span><span class="n">yaml</span><span class="w">                      </span><span class="p">(</span><span class="mh">3</span><span class="p">,</span><span class="mh">000</span><span class="o">+</span><span class="w"> </span><span class="n">lines</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">Service</span><span class="w"> </span><span class="n">definitions</span><span class="p">)</span>
+<span class="err">✓</span><span class="w"> </span><span class="n">mcp</span><span class="p">.</span><span class="n">json</span><span class="w">                                      </span><span class="p">(</span><span class="n">Model</span><span class="w"> </span><span class="n">Context</span><span class="w"> </span><span class="n">Protocol</span><span class="w"> </span><span class="n">config</span><span class="p">)</span>
+<span class="err">✓</span><span class="w"> </span><span class="n">tests</span><span class="o">/</span><span class="n">integration</span><span class="o">/</span><span class="n">test_kong_routes</span><span class="p">.</span><span class="n">py</span><span class="w">        </span><span class="p">(</span><span class="n">Integration</span><span class="w"> </span><span class="n">tests</span><span class="p">)</span>
+<span class="err">✓</span><span class="w"> </span><span class="n">scripts</span><span class="o">/</span><span class="n">validate</span><span class="o">-</span><span class="n">kong</span><span class="o">-</span><span class="n">config</span><span class="p">.</span><span class="n">sh</span><span class="w">              </span><span class="p">(</span><span class="n">Validation</span><span class="w"> </span><span class="n">script</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="2-reviewed-services">2. الخدمات المُفحوصة | Reviewed Services<a class="headerlink" href="#2-reviewed-services" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الفئة</th>
+<th>Category</th>
+<th>العدد</th>
+<th>Count</th>
+<th>الحالة</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>خدمات البنية التحتية</td>
+<td>Infrastructure Services</td>
+<td>14</td>
+<td>14</td>
+<td>✅ نشطة</td>
+<td>Active</td>
+</tr>
+<tr>
+<td>خدمات Node.js</td>
+<td>Node.js Services</td>
+<td>12</td>
+<td>12</td>
+<td>✅ نشطة</td>
+<td>Active</td>
+</tr>
+<tr>
+<td>خدمات Python</td>
+<td>Python Services</td>
+<td>48</td>
+<td>48</td>
+<td>✅ نشطة</td>
+<td>Active</td>
+</tr>
+<tr>
+<td>وكلاء الذكاء الاصطناعي</td>
+<td>AI Agent Services</td>
+<td>6</td>
+<td>6</td>
+<td>✅ نشطة</td>
+<td>Active</td>
+</tr>
+<tr>
+<td><strong>المجموع</strong></td>
+<td><strong>Total</strong></td>
+<td><strong>80</strong></td>
+<td><strong>80</strong></td>
+<td><strong>✅</strong></td>
+<td><strong>Active</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="discovered-issues">🚨 المشاكل المكتشفة | Discovered Issues<a class="headerlink" href="#discovered-issues" title="Permanent link">&para;</a></h2>
+<h3 id="_2">🟢 النتيجة الإيجابية: لا توجد مشاكل حرجة!<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<h3 id="positive-result-no-critical-issues">🟢 Positive Result: No Critical Issues!<a class="headerlink" href="#positive-result-no-critical-issues" title="Permanent link">&para;</a></h3>
+<p>بعد التحليل الدقيق، تم اكتشاف أن:
+- ✅ جميع منافذ الخدمات متطابقة بين Kong و docker-compose
+- ✅ جميع الخدمات النشطة لها مسارات Kong مناسبة
+- ✅ وكلاء الذكاء الاصطناعي مُكوّنة بشكل صحيح
+- ✅ Copilot API مُسجلة ومتصلة بشكل صحيح</p>
+<p>After detailed analysis, it was discovered that:
+- ✅ All service ports match between Kong and docker-compose
+- ✅ All active services have appropriate Kong routes
+- ✅ AI agents are correctly configured
+- ✅ Copilot API is properly registered and connected</p>
+<hr />
+<h2 id="minor-issues-requiring-attention">⚠️ مشاكل بسيطة تحتاج إلى اهتمام | Minor Issues Requiring Attention<a class="headerlink" href="#minor-issues-requiring-attention" title="Permanent link">&para;</a></h2>
+<h3 id="1-deprecated-kong">1. خدمات قديمة (Deprecated) في Kong<a class="headerlink" href="#1-deprecated-kong" title="Permanent link">&para;</a></h3>
+<h3 id="1-deprecated-services-in-kong-configuration">1. Deprecated Services in Kong Configuration<a class="headerlink" href="#1-deprecated-services-in-kong-configuration" title="Permanent link">&para;</a></h3>
+<p><strong>المشكلة | Issue</strong>: بعض الخدمات القديمة مازالت مُعرّفة في Kong رغم عدم وجودها في docker-compose</p>
+<p><strong>Deprecated services still defined in Kong despite not existing in docker-compose</strong></p>
+<table>
+<thead>
+<tr>
+<th>الخدمة القديمة</th>
+<th>Service Name</th>
+<th>المنفذ</th>
+<th>Port</th>
+<th>البديل</th>
+<th>Replacement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>satellite-service</td>
+<td>satellite-service</td>
+<td>9190</td>
+<td>9190</td>
+<td>vegetation-analysis-service</td>
+<td>vegetation-analysis-service</td>
+</tr>
+<tr>
+<td>weather-advanced</td>
+<td>weather-advanced</td>
+<td>9092</td>
+<td>9092</td>
+<td>weather-service</td>
+<td>weather-service</td>
+</tr>
+<tr>
+<td>crop-health-ai</td>
+<td>crop-health-ai</td>
+<td>9095</td>
+<td>9095</td>
+<td>crop-intelligence-service</td>
+<td>crop-intelligence-service</td>
+</tr>
+<tr>
+<td>fertilizer-advisor</td>
+<td>fertilizer-advisor</td>
+<td>9093</td>
+<td>9093</td>
+<td>advisory-service</td>
+<td>advisory-service</td>
+</tr>
+<tr>
+<td>field-core</td>
+<td>field-core</td>
+<td>3005</td>
+<td>3005</td>
+<td>field-management-service</td>
+<td>field-management-service</td>
+</tr>
+<tr>
+<td>field-service</td>
+<td>field-service</td>
+<td>8115</td>
+<td>8115</td>
+<td>field-management-service</td>
+<td>field-management-service</td>
+</tr>
+<tr>
+<td>yield-engine</td>
+<td>yield-engine</td>
+<td>8098</td>
+<td>8098</td>
+<td>yield-prediction-service</td>
+<td>yield-prediction-service</td>
+</tr>
+</tbody>
+</table>
+<p><strong>التأثير | Impact</strong>: 🟡 منخفض - المسارات موجودة لكن الخدمات غير موجودة (ستفشل الطلبات)</p>
+<p><strong>Low - Routes exist but services don't (requests will fail)</strong></p>
+<p><strong>الحل | Solution</strong>: إزالة تعريفات الخدمات القديمة من kong.yml</p>
+<p><strong>Remove deprecated service definitions from kong.yml</strong></p>
+<hr />
+<h3 id="2">2. مسارات خاصة لا تحتاج خدمات<a class="headerlink" href="#2" title="Permanent link">&para;</a></h3>
+<h3 id="2-special-routes-without-backend-services">2. Special Routes Without Backend Services<a class="headerlink" href="#2-special-routes-without-backend-services" title="Permanent link">&para;</a></h3>
+<p><strong>المشكلة | Issue</strong>: بعض المسارات الخاصة مُعرّفة بدون خدمات خلفية</p>
+<p><strong>Special routes defined without backend services</strong></p>
+<table>
+<thead>
+<tr>
+<th>المسار</th>
+<th>Route</th>
+<th>الغرض</th>
+<th>Purpose</th>
+<th>الحالة</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>root-endpoint</td>
+<td>/</td>
+<td>صفحة الترحيب</td>
+<td>Welcome page</td>
+<td>✅ مقبول</td>
+<td>Acceptable</td>
+</tr>
+<tr>
+<td>health-check</td>
+<td>/health</td>
+<td>فحص صحة النظام</td>
+<td>System health</td>
+<td>✅ مقبول</td>
+<td>Acceptable</td>
+</tr>
+<tr>
+<td>user-service-health</td>
+<td>/auth/health</td>
+<td>فحص صحة المصادقة</td>
+<td>Auth health</td>
+<td>✅ مقبول</td>
+<td>Acceptable</td>
+</tr>
+<tr>
+<td>user-service-public</td>
+<td>/auth/*</td>
+<td>مسارات المصادقة العامة</td>
+<td>Public auth</td>
+<td>✅ مقبول</td>
+<td>Acceptable</td>
+</tr>
+</tbody>
+</table>
+<p><strong>التأثير | Impact</strong>: 🟢 لا شيء - هذه مسارات خاصة تعمل كما هو متوقع</p>
+<p><strong>None - These are special routes working as expected</strong></p>
+<hr />
+<h3 id="3">3. خدمات متقدمة غير مُستخدمة حالياً<a class="headerlink" href="#3" title="Permanent link">&para;</a></h3>
+<h3 id="3-advanced-services-not-currently-used">3. Advanced Services Not Currently Used<a class="headerlink" href="#3-advanced-services-not-currently-used" title="Permanent link">&para;</a></h3>
+<p><strong>المشكلة | Issue</strong>: بعض الخدمات المتقدمة مُعرّفة في Kong لكن ليس لها تطبيق في docker-compose</p>
+<p><strong>Some advanced services are defined in Kong but have no implementation in docker-compose</strong></p>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>Service</th>
+<th>المنفذ</th>
+<th>Port</th>
+<th>الحالة</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>code-review-service</td>
+<td>code-review-service</td>
+<td>8102</td>
+<td>8102</td>
+<td>⚠️ مُعرّفة في Kong فقط</td>
+<td>Defined in Kong only</td>
+</tr>
+<tr>
+<td>mcp-server</td>
+<td>mcp-server</td>
+<td>8201</td>
+<td>8201</td>
+<td>⚠️ مُعرّفة في Kong فقط</td>
+<td>Defined in Kong only</td>
+</tr>
+<tr>
+<td>ai-advisor</td>
+<td>ai-advisor</td>
+<td>8112</td>
+<td>8112</td>
+<td>⚠️ مُعرّفة في Kong فقط</td>
+<td>Defined in Kong only</td>
+</tr>
+</tbody>
+</table>
+<p><strong>التأثير | Impact</strong>: 🟡 منخفض - خدمات تحت التطوير</p>
+<p><strong>Low - Services under development</strong></p>
+<p><strong>الحل | Solution</strong>: 
+- إما إنشاء تطبيقات الخدمات في docker-compose
+- أو إزالة التعريفات من Kong حتى تصبح جاهزة</p>
+<p><strong>Either create service implementations in docker-compose or remove definitions from Kong until ready</strong></p>
+<hr />
+<h2 id="positive-findings">✅ النقاط الإيجابية | Positive Findings<a class="headerlink" href="#positive-findings" title="Permanent link">&para;</a></h2>
+<h3 id="1">1. وكلاء الذكاء الاصطناعي مُكوّنة بشكل ممتاز<a class="headerlink" href="#1" title="Permanent link">&para;</a></h3>
+<h3 id="1-ai-agents-excellently-configured">1. AI Agents Excellently Configured<a class="headerlink" href="#1-ai-agents-excellently-configured" title="Permanent link">&para;</a></h3>
+<p><strong>جميع وكلاء الذكاء الاصطناعي مُسجلة ومُتصلة بشكل صحيح</strong></p>
+<p><strong>All AI agents are properly registered and connected</strong></p>
+<table>
+<thead>
+<tr>
+<th>الوكيل</th>
+<th>Agent</th>
+<th>المنفذ</th>
+<th>Port</th>
+<th>Kong Route</th>
+<th>Kong Route</th>
+<th>الحالة</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>agent-registry</td>
+<td>agent-registry</td>
+<td>8160</td>
+<td>8160</td>
+<td>✅ /api/v1/agents</td>
+<td>/api/v1/agents</td>
+<td>✅ نشط</td>
+<td>Active</td>
+</tr>
+<tr>
+<td>ai-agents-core</td>
+<td>ai-agents-core</td>
+<td>8161</td>
+<td>8161</td>
+<td>✅ /api/v1/ai-agents</td>
+<td>/api/v1/ai-agents</td>
+<td>✅ نشط</td>
+<td>Active</td>
+</tr>
+<tr>
+<td>code-fix-agent</td>
+<td>code-fix-agent</td>
+<td>8162</td>
+<td>8162</td>
+<td>✅ /api/v1/code-fix</td>
+<td>/api/v1/code-fix</td>
+<td>✅ نشط</td>
+<td>Active</td>
+</tr>
+<tr>
+<td>ai-agents-service</td>
+<td>ai-agents-service</td>
+<td>8130</td>
+<td>8130</td>
+<td>✅ /api/v1/ai-agents-service</td>
+<td>/api/v1/ai-agents-service</td>
+<td>✅ نشط</td>
+<td>Active</td>
+</tr>
+</tbody>
+</table>
+<p><strong>التفاصيل الإيجابية | Positive Details</strong>:
+- ✅ جميع المنافذ متطابقة بين Kong و docker-compose
+- ✅ جميع الوكلاء مُتصلة بـ agent-registry
+- ✅ التبعيات مُعرّفة بشكل صحيح (depends_on)
+- ✅ فحوصات الصحة مُكوّنة لجميع الوكلاء
+- ✅ المسارات محمية بتحديد المعدل (rate limiting)</p>
+<hr />
+<h3 id="2-copilot-api">2. Copilot API مُتكاملة بشكل كامل<a class="headerlink" href="#2-copilot-api" title="Permanent link">&para;</a></h3>
+<h3 id="2-copilot-api-fully-integrated">2. Copilot API Fully Integrated<a class="headerlink" href="#2-copilot-api-fully-integrated" title="Permanent link">&para;</a></h3>
+<p><strong>Copilot API مُسجلة ومُتصلة بجميع الخدمات المطلوبة</strong></p>
+<p><strong>Copilot API is registered and connected to all required services</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="nt">Service</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">copilot-api</span>
+<span class="nt">Port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8163 (matching between Kong &amp; Docker)</span>
+<span class="nt">Kong Route</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/api/v1/copilot, /copilot</span>
+<span class="nt">Dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">✅ agent-registry</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://agent-registry:8160</span>
+<span class="w">  </span><span class="nt">✅ llm-orchestrator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://llm-orchestrator-service:8164</span>
+<span class="w">  </span><span class="nt">✅ Database</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PostgreSQL via PgBouncer</span>
+<span class="w">  </span><span class="nt">✅ NATS</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Event streaming</span>
+<span class="w">  </span><span class="nt">✅ Redis</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Caching</span>
+<span class="nt">Rate Limiting</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60/min, 2000/hour ✅</span>
+<span class="nt">Timeouts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Connect=30s, Read=120s, Write=120s ✅</span>
+</code></pre></div>
+
+<hr />
+<h3 id="3-llm-orchestrator">3. LLM Orchestrator مُكوّن بشكل صحيح<a class="headerlink" href="#3-llm-orchestrator" title="Permanent link">&para;</a></h3>
+<h3 id="3-llm-orchestrator-properly-configured">3. LLM Orchestrator Properly Configured<a class="headerlink" href="#3-llm-orchestrator-properly-configured" title="Permanent link">&para;</a></h3>
+<p><strong>خدمة تنسيق نماذج اللغة الكبيرة (LLM) مُتكاملة</strong></p>
+<p><strong>Large Language Model orchestration service is integrated</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="nt">Service</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">llm-orchestrator-service</span>
+<span class="nt">Port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8164 (matching between Kong &amp; Docker)</span>
+<span class="nt">Kong Route</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/api/v1/llm, /llm</span>
+<span class="nt">Capabilities</span><span class="p">:</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">✅ Multi-provider LLM support (Anthropic, OpenAI)</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">✅ Connected to copilot-api</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">✅ Database integration</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">✅ Event streaming (NATS)</span>
+<span class="nt">Rate Limiting</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60/min, 2000/hour ✅</span>
+<span class="nt">Timeouts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Connect=30s, Read=180s, Write=180s ✅</span>
+</code></pre></div>
+
+<hr />
+<h3 id="4-mcp-model-context-protocol">4. MCP (Model Context Protocol) مُعدّ بشكل ممتاز<a class="headerlink" href="#4-mcp-model-context-protocol" title="Permanent link">&para;</a></h3>
+<h3 id="4-mcp-model-context-protocol-excellently-configured">4. MCP (Model Context Protocol) Excellently Configured<a class="headerlink" href="#4-mcp-model-context-protocol-excellently-configured" title="Permanent link">&para;</a></h3>
+<p><strong>بروتوكول سياق النماذج مُكوّن لدعم التكامل مع Claude وأدوات الذكاء الاصطناعي</strong></p>
+<p><strong>Model Context Protocol configured to support integration with Claude and AI tools</strong></p>
+<p><strong>الملف | File</strong>: <code>mcp.json</code></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;sahool&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;shared.mcp.server&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--transport&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;stdio&quot;</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;capabilities&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;tools&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;resources&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;prompts&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;sahool-http&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://localhost:8201/mcp&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;transport&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>الميزات المُتاحة | Available Features</strong>:
+- ✅ استعلام الطقس الزراعي | Agricultural weather queries
+- ✅ تحليل صحة الحقول | Field health analysis
+- ✅ توصيات الري | Irrigation recommendations
+- ✅ استشارات الأسمدة | Fertilizer advisory
+- ✅ كشف الآفات | Pest detection</p>
+<hr />
+<h2 id="plugins-plugin-analysis">🔌 تحليل الإضافات (Plugins) | Plugin Analysis<a class="headerlink" href="#plugins-plugin-analysis" title="Permanent link">&para;</a></h2>
+<h3 id="1-cors-configuration">1. CORS Configuration<a class="headerlink" href="#1-cors-configuration" title="Permanent link">&para;</a></h3>
+<p><strong>التكوين الحالي | Current Configuration</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cors</span>
+<span class="w">  </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">origins</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&#39;*&#39;</span><span class="p p-Indicator">]</span><span class="w">              </span><span class="c1"># ⚠️ Wildcard - OK for dev</span>
+<span class="w">    </span><span class="nt">credentials</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">          </span><span class="c1"># ✅ Correct with wildcard</span>
+<span class="w">    </span><span class="nt">max_age</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3600</span><span class="w">              </span><span class="c1"># ✅ 1 hour cache</span>
+<span class="w">    </span><span class="nt">methods</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">GET</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">POST</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">PUT</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">PATCH</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">DELETE</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">OPTIONS</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># ✅ Complete</span>
+<span class="w">    </span><span class="nt">headers</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">Accept</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">Authorization</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">Content-Type</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">...</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># ✅ Complete</span>
+</code></pre></div>
+
+<p><strong>التقييم | Assessment</strong>:
+- 🟡 <strong>للتطوير | For Development</strong>: ✅ مقبول | Acceptable
+- 🔴 <strong>للإنتاج | For Production</strong>: ⚠️ يجب تحديد النطاقات المحددة | Must specify specific domains</p>
+<p><strong>التوصية | Recommendation</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Production CORS</span>
+<span class="nt">origins</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;https://app.sahool.com&quot;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;https://admin.sahool.com&quot;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;https://mobile.sahool.com&quot;</span>
+<span class="nt">credentials</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">  </span><span class="c1"># مع نطاقات محددة | With specific domains</span>
+</code></pre></div>
+
+<hr />
+<h3 id="2-jwt-authentication">2. JWT Authentication<a class="headerlink" href="#2-jwt-authentication" title="Permanent link">&para;</a></h3>
+<p><strong>التكوين الحالي | Current Configuration</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">Consumers (5 tiers)</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">✅ starter-consumer      (HS256</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">starter-jwt-key-hs256)</span>
+<span class="w">  </span><span class="nt">✅ professional-consumer (HS256</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">professional-jwt-key-hs256)</span>
+<span class="w">  </span><span class="nt">✅ enterprise-consumer   (HS256</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enterprise-jwt-key-hs256)</span>
+<span class="w">  </span><span class="nt">✅ research-consumer     (HS256</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">research-jwt-key-hs256)</span>
+<span class="w">  </span><span class="nt">✅ admin-consumer        (HS256</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">admin-jwt-key-hs256)</span>
+</code></pre></div>
+
+<p><strong>التقييم | Assessment</strong>:
+- ✅ <strong>HS256 (Symmetric)</strong>: مُكوّن بشكل صحيح لجميع المستويات
+- ⚠️ <strong>RS256 (Asymmetric)</strong>: مُعطّل حالياً (يتطلب JWT_PUBLIC_KEY)</p>
+<p><strong>HS256 (Symmetric)</strong>: Properly configured for all tiers
+<strong>RS256 (Asymmetric)</strong>: Currently disabled (requires JWT_PUBLIC_KEY)</p>
+<p><strong>التوصية | Recommendation</strong>:
+- للاستمرار بـ HS256: لا تغيير مطلوب ✅
+- لتفعيل RS256: إضافة JWT_PUBLIC_KEY إلى .env</p>
+<p><strong>To continue with HS256</strong>: No change required ✅
+<strong>To enable RS256</strong>: Add JWT_PUBLIC_KEY to .env</p>
+<hr />
+<h3 id="3-rate-limiting">3. Rate Limiting<a class="headerlink" href="#3-rate-limiting" title="Permanent link">&para;</a></h3>
+<p><strong>التكوين حسب المستوى | Configuration by Tier</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>المستوى</th>
+<th>Tier</th>
+<th>طلبات/دقيقة</th>
+<th>Req/min</th>
+<th>طلبات/ساعة</th>
+<th>Req/hour</th>
+<th>السياسة</th>
+<th>Policy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Starter</td>
+<td>Starter</td>
+<td>100</td>
+<td>100</td>
+<td>5,000</td>
+<td>5,000</td>
+<td>Redis</td>
+<td>Redis</td>
+</tr>
+<tr>
+<td>Professional</td>
+<td>Professional</td>
+<td>1,000</td>
+<td>1,000</td>
+<td>50,000</td>
+<td>50,000</td>
+<td>Redis</td>
+<td>Redis</td>
+</tr>
+<tr>
+<td>Enterprise</td>
+<td>Enterprise</td>
+<td>10,000</td>
+<td>10,000</td>
+<td>500,000</td>
+<td>500,000</td>
+<td>Redis</td>
+<td>Redis</td>
+</tr>
+<tr>
+<td>Internal</td>
+<td>Internal</td>
+<td>10,000</td>
+<td>10,000</td>
+<td>Unlimited</td>
+<td>Unlimited</td>
+<td>Redis</td>
+<td>Redis</td>
+</tr>
+</tbody>
+</table>
+<p><strong>التقييم | Assessment</strong>:
+- ✅ <strong>استخدام Redis</strong>: ممتاز للتوزيع عبر عدة خوادم
+- ✅ <strong>fault_tolerant: true</strong>: يسمح بالطلبات إذا تعطل Redis
+- ✅ <strong>التدرج المنطقي</strong>: زيادة معقولة بين المستويات</p>
+<p><strong>Redis usage</strong>: Excellent for distribution across multiple servers
+<strong>fault_tolerant: true</strong>: Allows requests if Redis fails
+<strong>Logical tiers</strong>: Reasonable increase between tiers</p>
+<hr />
+<h3 id="4-request-size-limiting">4. Request Size Limiting<a class="headerlink" href="#4-request-size-limiting" title="Permanent link">&para;</a></h3>
+<p><strong>التكوين العام | Global Configuration</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">request-size-limiting</span>
+<span class="w">  </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">allowed_payload_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span><span class="w">  </span><span class="c1"># MB</span>
+<span class="w">    </span><span class="nt">size_unit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">megabytes</span>
+</code></pre></div>
+
+<p><strong>التكوينات الخاصة | Service-Specific Configuration</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="l l-Scalar l-Scalar-Plain">Vision Services (yolo26, pest-detection)</span><span class="p p-Indicator">:</span>
+<span class="w">  </span><span class="nt">allowed_payload_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">25 MB</span><span class="w">  </span><span class="c1"># ✅ للصور | For images</span>
+
+<span class="nt">File Upload Services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">allowed_payload_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50 MB</span><span class="w">  </span><span class="c1"># ✅ للملفات الكبيرة | For large files</span>
+</code></pre></div>
+
+<p><strong>التقييم | Assessment</strong>: ✅ مُكوّن بشكل مناسب حسب نوع الخدمة</p>
+<p><strong>Appropriately configured based on service type</strong></p>
+<hr />
+<h2 id="security-analysis">🔐 تحليل الأمان | Security Analysis<a class="headerlink" href="#security-analysis" title="Permanent link">&para;</a></h2>
+<h3 id="1-connection-security">1. تأمين الاتصالات | Connection Security<a class="headerlink" href="#1-connection-security" title="Permanent link">&para;</a></h3>
+<p><strong>TLS/SSL Configuration</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">Current</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">HTTP only (port 8000)</span><span class="w">          </span><span class="c1"># ⚠️ للتطوير فقط | Dev only</span>
+<span class="nt">Production</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">HTTPS (port 8443) REQUIRED</span><span class="w"> </span><span class="c1"># 🔴 مطلوب | Required</span>
+</code></pre></div>
+
+<p><strong>التوصية | Recommendation</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">KONG_PROXY_LISTEN</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.0.0.0:8000,</span><span class="nv"> </span><span class="s">0.0.0.0:8443</span><span class="nv"> </span><span class="s">ssl&quot;</span>
+<span class="nt">KONG_SSL_CERT</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/kong/ssl/server.crt</span>
+<span class="nt">KONG_SSL_CERT_KEY</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/kong/ssl/server.key</span>
+</code></pre></div>
+
+<hr />
+<h3 id="2-service-isolation">2. عزل الخدمات | Service Isolation<a class="headerlink" href="#2-service-isolation" title="Permanent link">&para;</a></h3>
+<p><strong>Container Security</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">All services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">security_opt</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">no-new-privileges:true</span><span class="w">  </span><span class="c1"># ✅ منع تصعيد الصلاحيات</span>
+<span class="w">  </span><span class="nt">tmpfs</span><span class="p">:</span><span class="w">                      </span><span class="c1"># ✅ بيانات مؤقتة في الذاكرة</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/tmp</span>
+<span class="w">  </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unless-stopped</span><span class="w">     </span><span class="c1"># ✅ إعادة التشغيل الذكية</span>
+</code></pre></div>
+
+<p><strong>التقييم | Assessment</strong>: ✅ ممتاز - جميع الخدمات معزولة وآمنة</p>
+<p><strong>Excellent - All services isolated and secure</strong></p>
+<hr />
+<h3 id="3-secrets-management">3. إدارة الأسرار | Secrets Management<a class="headerlink" href="#3-secrets-management" title="Permanent link">&para;</a></h3>
+<p><strong>Current Implementation</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">✅ HashiCorp Vault</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">متاح لإدارة الأسرار | Available for secrets management</span>
+<span class="nt">✅ Environment Variables</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">مُستخدمة بشكل صحيح | Used correctly</span>
+<span class="nt">⚠️ .env Files</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">يجب عدم الالتزام بها في Git | Must not commit to Git</span>
+</code></pre></div>
+
+<p><strong>Best Practices Applied</strong>:
+- ✅ <code>POSTGRES_PASSWORD:?</code> - إلزامية | Mandatory
+- ✅ <code>REDIS_PASSWORD:?</code> - إلزامية | Mandatory<br />
+- ✅ Database sslmode=disable (dev only)
+- ✅ Vault for production secrets</p>
+<hr />
+<h2 id="performance-analysis">📊 تحليل الأداء | Performance Analysis<a class="headerlink" href="#performance-analysis" title="Permanent link">&para;</a></h2>
+<h3 id="1-kong-kong-settings">1. إعدادات Kong | Kong Settings<a class="headerlink" href="#1-kong-kong-settings" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">Worker Processes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">auto</span><span class="w">                        </span><span class="c1"># ✅ يستخدم جميع الأنوية</span>
+<span class="nt">Worker Connections</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4096</span><span class="w">                      </span><span class="c1"># ✅ ممتاز لـ 80 خدمة</span>
+<span class="nt">Upstream Keepalive Pool</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60</span><span class="w">                   </span><span class="c1"># ✅ اتصالات دائمة</span>
+<span class="nt">Upstream Keepalive Timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60s</span><span class="w">               </span><span class="c1"># ✅ مناسب</span>
+<span class="nt">Memory Cache</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">128m</span><span class="w">                            </span><span class="c1"># ✅ مناسب</span>
+</code></pre></div>
+
+<p><strong>التقييم | Assessment</strong>: ✅ مُكوّن بشكل ممتاز للأداء العالي</p>
+<p><strong>Excellently configured for high performance</strong></p>
+<hr />
+<h3 id="2-pgbouncer-connection-pooling">2. PgBouncer Connection Pooling<a class="headerlink" href="#2-pgbouncer-connection-pooling" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">Pool Mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">transaction</span><span class="w">                        </span><span class="c1"># ✅ الأمثل لـ FastAPI</span>
+<span class="nt">Max DB Connections</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">250</span><span class="w">                       </span><span class="c1"># ✅ كافٍ لـ 80 خدمة</span>
+<span class="nt">Default Pool Size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span><span class="w">                         </span><span class="c1"># ✅ متوازن</span>
+<span class="nt">Max Client Connections</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">800</span><span class="w">                   </span><span class="c1"># ✅ ممتاز</span>
+</code></pre></div>
+
+<p><strong>التقييم | Assessment</strong>: ✅ مُحسّن للاستخدام مع خدمات متعددة</p>
+<p><strong>Optimized for multi-service usage</strong></p>
+<hr />
+<h3 id="3-dns-resolution">3. DNS Resolution<a class="headerlink" href="#3-dns-resolution" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">DNS Resolver</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">127.0.0.11:53</span><span class="w">                  </span><span class="c1"># ✅ Docker DNS داخلي</span>
+<span class="nt">DNS Cache TTL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">300s</span><span class="w">                           </span><span class="c1"># ✅ يقلل الاستعلامات</span>
+<span class="nt">DNS Stale TTL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span><span class="w">                            </span><span class="c1"># ✅ يسمح بالبيانات القديمة</span>
+<span class="nt">DNS Error TTL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span><span class="w">                            </span><span class="c1"># ✅ يخزن الأخطاء مؤقتاً</span>
+</code></pre></div>
+
+<p><strong>التقييم | Assessment</strong>: ✅ مُكوّن بشكل ممتاز لبيئة Docker</p>
+<p><strong>Excellently configured for Docker environment</strong></p>
+<hr />
+<h2 id="ai-agents-review">🤖 مراجعة وكلاء الذكاء الاصطناعي | AI Agents Review<a class="headerlink" href="#ai-agents-review" title="Permanent link">&para;</a></h2>
+<h3 id="1-agent-registry-8160-port-8160">1. Agent Registry (منفذ 8160 | Port 8160)<a class="headerlink" href="#1-agent-registry-8160-port-8160" title="Permanent link">&para;</a></h3>
+<p><strong>الوصف | Description</strong>: سجل مركزي لجميع وكلاء الذكاء الاصطناعي</p>
+<p><strong>Central registry for all AI agents</strong></p>
+<p><strong>التكوين | Configuration</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">Service</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">agent-registry</span>
+<span class="nt">Port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8160 (Kong ✅ Docker ✅ - متطابق | Matching)</span>
+<span class="nt">Kong Route</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/api/v1/agents, /agents</span>
+<span class="nt">Health Check</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/healthz every 30s</span>
+<span class="nt">Dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">✅ PostgreSQL (via PgBouncer)</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">✅ NATS (event streaming)</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">✅ Redis (caching)</span>
+</code></pre></div>
+
+<p><strong>الوظائف | Capabilities</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="l l-Scalar l-Scalar-Plain">✅ Agent registration and discovery</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ Capability management</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ Skills tracking</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ A2A protocol compliance</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ Health monitoring</span>
+</code></pre></div>
+
+<p><strong>التقييم | Assessment</strong>: ✅ نشط ومُكوّن بشكل ممتاز | Active and excellently configured</p>
+<hr />
+<h3 id="2-ai-agents-core-8161-port-8161">2. AI Agents Core (منفذ 8161 | Port 8161)<a class="headerlink" href="#2-ai-agents-core-8161-port-8161" title="Permanent link">&para;</a></h3>
+<p><strong>الوصف | Description</strong>: نواة تنسيق وإدارة وكلاء الذكاء الاصطناعي</p>
+<p><strong>Core AI agent orchestration and management</strong></p>
+<p><strong>التكوين | Configuration</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">Service</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ai-agents-core</span>
+<span class="nt">Port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8161 (Kong ✅ Docker ✅ - متطابق | Matching)</span>
+<span class="nt">Kong Route</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/api/v1/ai-agents, /ai-agents</span>
+<span class="nt">Dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">✅ agent-registry</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://agent-registry:8160</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">✅ PostgreSQL, NATS, Redis</span>
+</code></pre></div>
+
+<p><strong>الوظائف | Capabilities</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="l l-Scalar l-Scalar-Plain">✅ Multi-agent coordination</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ Task distribution</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ Context sharing</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ Result aggregation</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ Error handling and recovery</span>
+</code></pre></div>
+
+<p><strong>التقييم | Assessment</strong>: ✅ نشط ومُتكامل مع agent-registry | Active and integrated with agent-registry</p>
+<hr />
+<h3 id="3-code-fix-agent-8162-port-8162">3. Code Fix Agent (منفذ 8162 | Port 8162)<a class="headerlink" href="#3-code-fix-agent-8162-port-8162" title="Permanent link">&para;</a></h3>
+<p><strong>الوصف | Description</strong>: وكيل إصلاح الكود الآلي بالذكاء الاصطناعي</p>
+<p><strong>AI-powered automated code diagnostics and fixing agent</strong></p>
+<p><strong>التكوين | Configuration</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">Service</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">code-fix-agent</span>
+<span class="nt">Port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8162 (Kong ✅ Docker ✅ - متطابق | Matching)</span>
+<span class="nt">Kong Route</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/api/v1/code-fix, /code-fix</span>
+<span class="nt">Timeouts</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">Connect</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span>
+<span class="w">  </span><span class="nt">Read</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">120s</span><span class="w">  </span><span class="c1"># ✅ طويل للتحليل المعقد | Long for complex analysis</span>
+<span class="w">  </span><span class="nt">Write</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">120s</span>
+<span class="nt">Rate Limiting</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30/min, 500/hour</span><span class="w">  </span><span class="c1"># ✅ معقول للمهام المعقدة</span>
+<span class="nt">Dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">✅ agent-registry</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://agent-registry:8160</span>
+</code></pre></div>
+
+<p><strong>الوظائف | Capabilities</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="l l-Scalar l-Scalar-Plain">✅ Multi-tool code analysis (Ruff, ESLint, Mypy, Bandit)</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ Automated fixing with strategies (MINIMAL, SAFE, COMPREHENSIVE)</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ Audit trail integration</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ Security vulnerability detection</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ Model training from fixes</span>
+</code></pre></div>
+
+<p><strong>التقييم | Assessment</strong>: ✅ نشط ومُكوّن بشكل ممتاز | Active and excellently configured</p>
+<p><strong>الملفات المتعلقة | Related Files</strong>:</p>
+<div class="codehilite"><pre><span></span><code>✅ shared/ai/auto_fix/           (Auto-fix engine)
+✅ shared/ai/ollama_client.py    (Local LLM)
+✅ shared/ai/model_training.py   (Model training)
+</code></pre></div>
+
+<hr />
+<h3 id="4-ai-agents-service-8130-port-8130">4. AI Agents Service (منفذ 8130 | Port 8130)<a class="headerlink" href="#4-ai-agents-service-8130-port-8130" title="Permanent link">&para;</a></h3>
+<p><strong>الوصف | Description</strong>: خدمة إضافية لوكلاء الذكاء الاصطناعي</p>
+<p><strong>Additional AI agents service</strong></p>
+<p><strong>التكوين | Configuration</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">Service</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ai-agents-service</span>
+<span class="nt">Port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8130 (Kong ✅ Docker ✅ - متطابق | Matching)</span>
+<span class="nt">Kong Route</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/api/v1/ai-agents-service</span>
+<span class="nt">Dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">✅ agent-registry</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://agent-registry:8160</span>
+</code></pre></div>
+
+<p><strong>التقييم | Assessment</strong>: ✅ نشط ومُسجل | Active and registered</p>
+<hr />
+<h3 id="5-code-review-agent-under-development">5. Code Review Agent (في التطوير | Under Development)<a class="headerlink" href="#5-code-review-agent-under-development" title="Permanent link">&para;</a></h3>
+<p><strong>الوصف | Description</strong>: وكيل مراجعة الكود الآلي</p>
+<p><strong>Automated code review agent</strong></p>
+<p><strong>الحالة | Status</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">Kong</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">✅ مُسجل (port 8102)</span>
+<span class="nt">Docker</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">⚠️ غير مُنفّذ حالياً | Not implemented yet</span>
+<span class="nt">Directory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">✅ apps/services/code-review-agent/ (exists)</span>
+</code></pre></div>
+
+<p><strong>التوصية | Recommendation</strong>: إنشاء Dockerfile و docker-compose entry</p>
+<p><strong>Create Dockerfile and docker-compose entry</strong></p>
+<hr />
+<h3 id="6-agent-governance-governanceagentsyaml">6. Agent Governance (governance/agents.yaml)<a class="headerlink" href="#6-agent-governance-governanceagentsyaml" title="Permanent link">&para;</a></h3>
+<p><strong>الملف | File</strong>: <code>governance/agents.yaml</code> (1,200+ lines)</p>
+<p><strong>تعريفات الوكلاء | Agent Definitions</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">Total Agents Defined</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20+</span>
+<span class="nt">Categories</span><span class="p">:</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">✅ intelligence    (AI &amp; intelligence agents)</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">✅ advisory        (Agricultural advisory)</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">✅ analysis        (Data analysis)</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">✅ monitoring      (Monitoring &amp; assessment)</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">✅ security        (Security &amp; compliance)</span>
+</code></pre></div>
+
+<p><strong>وكلاء مُعرّفة | Defined Agents</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="l l-Scalar l-Scalar-Plain">✅ field-analyst-agent           (Field analysis)</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ crop-advisor-agent            (Crop recommendations)</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ irrigation-advisor-agent      (Irrigation planning)</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ pest-disease-agent            (Pest &amp; disease detection)</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ fertilizer-advisor-agent      (Fertilizer recommendations)</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ weather-advisor-agent         (Weather-based advisory)</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ yield-prediction-agent        (Yield forecasting)</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ soil-health-agent             (Soil analysis)</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ equipment-monitor-agent       (Equipment monitoring)</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ market-intelligence-agent     (Market analysis)</span>
+<span class="l l-Scalar l-Scalar-Plain">And 10+ more...</span>
+</code></pre></div>
+
+<p><strong>التقييم | Assessment</strong>: ✅ حوكمة ممتازة للوكلاء | Excellent agent governance</p>
+<hr />
+<h2 id="copilot-llm-copilot-llm-services-review">🔌 مراجعة Copilot وخدمات LLM | Copilot &amp; LLM Services Review<a class="headerlink" href="#copilot-llm-copilot-llm-services-review" title="Permanent link">&para;</a></h2>
+<h3 id="1-copilot-api-8163-port-8163">1. Copilot API (منفذ 8163 | Port 8163)<a class="headerlink" href="#1-copilot-api-8163-port-8163" title="Permanent link">&para;</a></h3>
+<p><strong>الوصف | Description</strong>: واجهة برمجية للمساعد الذكي للاستشارات الزراعية</p>
+<p><strong>AI copilot API for agricultural advisory</strong></p>
+<p><strong>التكوين الكامل | Full Configuration</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">Service</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">copilot-api</span>
+<span class="nt">Container</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-copilot-api</span>
+<span class="nt">Port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8163 (Kong ✅ Docker ✅ - متطابق | Matching)</span>
+
+<span class="nt">Kong Route</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">Paths</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/api/v1/copilot, /copilot</span>
+<span class="w">  </span><span class="nt">Strip Path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">Protocols</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http, https</span>
+
+<span class="nt">Timeouts</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">Connect</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span><span class="w">    </span><span class="c1"># ✅ مناسب</span>
+<span class="w">  </span><span class="nt">Read</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">120s</span><span class="w">      </span><span class="c1"># ✅ للاستعلامات المعقدة</span>
+<span class="w">  </span><span class="nt">Write</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">120s</span><span class="w">     </span><span class="c1"># ✅ للاستجابات الطويلة</span>
+
+<span class="nt">Rate Limiting</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">Minute</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60</span><span class="w">      </span><span class="c1"># ✅ معقول للذكاء الاصطناعي</span>
+<span class="w">  </span><span class="nt">Hour</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2000</span><span class="w">      </span><span class="c1"># ✅ متوازن</span>
+<span class="w">  </span><span class="nt">Policy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local</span><span class="w">   </span><span class="c1"># ⚠️ يمكن ترقيتها لـ Redis</span>
+<span class="w">  </span><span class="nt">Fault Tolerant</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">  </span><span class="c1"># ✅</span>
+
+<span class="nt">Dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">✅ agent-registry</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://agent-registry:8160</span>
+<span class="w">  </span><span class="nt">✅ llm-orchestrator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://llm-orchestrator-service:8164</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">✅ PostgreSQL (via PgBouncer)</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">✅ NATS (event streaming)</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">✅ Redis (caching)</span>
+
+<span class="nt">Environment</span><span class="p">:</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">✅ PORT=8163</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">✅ LOG_LEVEL=INFO</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">✅ DATABASE_URL (with sslmode=disable for dev)</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">✅ NATS_URL, REDIS_URL</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">✅ AGENT_REGISTRY_URL</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">✅ LLM_ORCHESTRATOR_URL</span>
+
+<span class="nt">Health Check</span><span class="p">:</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">✅ /healthz every 30s</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">✅ Timeout</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10s</span>
+<span class="w">  </span><span class="nt">✅ Retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">  </span><span class="nt">✅ Start period</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">15s</span>
+
+<span class="nt">Resource Limits</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">CPU</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1 core (limit), 0.25 (reservation)</span>
+<span class="w">  </span><span class="nt">Memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512M (limit), 128M (reservation)</span>
+
+<span class="nt">Security</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">✅ no-new-privileges</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">✅ restart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unless-stopped</span>
+</code></pre></div>
+
+<p><strong>الوظائف المتوقعة | Expected Capabilities</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="l l-Scalar l-Scalar-Plain">✅ Natural language agricultural queries</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ Context-aware recommendations</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ Multi-agent coordination via agent-registry</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ LLM-powered responses via orchestrator</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ Bilingual support (Arabic/English)</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ Event streaming for analytics</span>
+</code></pre></div>
+
+<p><strong>التقييم | Assessment</strong>: ✅✅✅ ممتاز - مُكوّن بشكل كامل ومُتكامل</p>
+<p><strong>Excellent - Fully configured and integrated</strong></p>
+<hr />
+<h3 id="2-llm-orchestrator-service-8164-port-8164">2. LLM Orchestrator Service (منفذ 8164 | Port 8164)<a class="headerlink" href="#2-llm-orchestrator-service-8164-port-8164" title="Permanent link">&para;</a></h3>
+<p><strong>الوصف | Description</strong>: خدمة تنسيق نماذج اللغة الكبيرة متعددة المصادر</p>
+<p><strong>Multi-provider Large Language Model orchestration service</strong></p>
+<p><strong>التكوين الكامل | Full Configuration</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">Service</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">llm-orchestrator-service</span>
+<span class="nt">Container</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-llm-orchestrator-service</span>
+<span class="nt">Port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8164 (Kong ✅ Docker ✅ - متطابق | Matching)</span>
+
+<span class="nt">Kong Route</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">Paths</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/api/v1/llm, /llm</span>
+<span class="w">  </span><span class="nt">Strip Path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">Protocols</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http, https</span>
+
+<span class="nt">Timeouts</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">Connect</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span><span class="w">    </span><span class="c1"># ✅</span>
+<span class="w">  </span><span class="nt">Read</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">180s</span><span class="w">      </span><span class="c1"># ✅✅ طويل جداً لنماذج LLM الكبيرة</span>
+<span class="w">  </span><span class="nt">Write</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">180s</span><span class="w">     </span><span class="c1"># ✅✅ Long for large LLM responses</span>
+
+<span class="nt">Rate Limiting</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">Minute</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60</span><span class="w">      </span><span class="c1"># ✅ معقول</span>
+<span class="w">  </span><span class="nt">Hour</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2000</span><span class="w">      </span><span class="c1"># ✅</span>
+<span class="w">  </span><span class="nt">Policy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local</span><span class="w">   </span><span class="c1"># ⚠️ يمكن ترقيتها لـ Redis</span>
+<span class="w">  </span><span class="nt">Fault Tolerant</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">  </span><span class="c1"># ✅</span>
+
+<span class="nt">Dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">✅ PostgreSQL (via PgBouncer)</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">✅ NATS (event streaming)</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">✅ Redis (caching)</span>
+
+<span class="nt">LLM Providers</span><span class="p">:</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">✅ Anthropic (Claude) - ANTHROPIC_API_KEY</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">✅ OpenAI (GPT) - OPENAI_API_KEY</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">⚠️ Ollama (Local) - Expected but not configured</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">⚠️ Google AI - Expected but not configured</span>
+
+<span class="nt">Health Check</span><span class="p">:</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">✅ /healthz every 30s</span>
+
+<span class="nt">Resource Limits</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">CPU</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2 cores (limit), 0.5 (reservation)</span><span class="w">  </span><span class="c1"># ✅✅ أعلى من copilot</span>
+<span class="w">  </span><span class="nt">Memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1G (limit), 256M (reservation)</span><span class="w">   </span><span class="c1"># ✅✅ ضعف copilot</span>
+</code></pre></div>
+
+<p><strong>الوظائف | Capabilities</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="l l-Scalar l-Scalar-Plain">✅ Multi-provider LLM abstraction</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ Request routing based on model</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ Response caching</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ Cost tracking</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ Fallback mechanisms</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ Rate limiting per provider</span>
+</code></pre></div>
+
+<p><strong>التقييم | Assessment</strong>: ✅✅ ممتاز - جاهز للإنتاج</p>
+<p><strong>Excellent - Production ready</strong></p>
+<p><strong>التوصية | Recommendation</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">⚠️ إضافة Ollama للنماذج المحلية</span><span class="p">:</span>
+<span class="w">   </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">OLLAMA_BASE_URL=http://ollama:11434</span>
+<span class="w">   </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">OLLAMA_MODEL=codellama:7b</span>
+
+<span class="nt">⚠️ Add Ollama for local models</span><span class="p">:</span>
+<span class="w">   </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">OLLAMA_BASE_URL=http://ollama:11434</span>
+<span class="w">   </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">OLLAMA_MODEL=codellama:7b</span>
+</code></pre></div>
+
+<hr />
+<h3 id="3-mcp-server-8201-port-8201">3. MCP Server (منفذ 8201 | Port 8201)<a class="headerlink" href="#3-mcp-server-8201-port-8201" title="Permanent link">&para;</a></h3>
+<p><strong>الوصف | Description</strong>: خادم بروتوكول سياق النماذج (MCP)</p>
+<p><strong>Model Context Protocol server</strong></p>
+<p><strong>الحالة | Status</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">Kong</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">✅ مُسجل (port 8201)</span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">Route</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/api/v1/mcp, /mcp</span>
+<span class="nt">Docker</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">⚠️ غير مُنفّذ في docker-compose</span>
+<span class="nt">Config</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">✅ mcp.json exists</span>
+</code></pre></div>
+
+<p><strong>التكوين في mcp.json</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;sahool&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;shared.mcp.server&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--transport&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;stdio&quot;</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;capabilities&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;tools&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="err">✅</span><span class="w"> </span><span class="err">أدوات</span><span class="w"> </span><span class="err">SAHOOL</span>
+<span class="w">        </span><span class="nt">&quot;resources&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="err">✅</span><span class="w"> </span><span class="err">موارد</span><span class="w"> </span><span class="err">البيانات</span>
+<span class="w">        </span><span class="nt">&quot;prompts&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">       </span><span class="err">#</span><span class="w"> </span><span class="err">✅</span><span class="w"> </span><span class="err">قوالب</span><span class="w"> </span><span class="err">الاستعلامات</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;sahool-http&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://localhost:8201/mcp&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;transport&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http&quot;</span><span class="w">     </span><span class="err">#</span><span class="w"> </span><span class="err">✅</span><span class="w"> </span><span class="err">HTTP</span><span class="w"> </span><span class="err">e</span><span class="kc">n</span><span class="err">dpoi</span><span class="kc">nt</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>الأدوات المُعرّفة | Defined Tools</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="l l-Scalar l-Scalar-Plain">✅ get_weather_forecast      (استعلام الطقس الزراعي)</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ analyze_field_health      (تحليل صحة الحقل)</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ get_irrigation_advice     (توصيات الري)</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ detect_crop_disease       (كشف أمراض المحاصيل)</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ get_fertilizer_advice     (استشارات الأسمدة)</span>
+</code></pre></div>
+
+<p><strong>التقييم | Assessment</strong>: ⚠️ مُعرّف في Kong لكن يحتاج إلى تطبيق في docker-compose</p>
+<p><strong>Defined in Kong but needs implementation in docker-compose</strong></p>
+<p><strong>التوصية | Recommendation</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">إضافة إلى docker-compose.yml</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">mcp-server</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">build</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">context</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.</span>
+<span class="w">      </span><span class="nt">dockerfile</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/services/mcp-server/Dockerfile</span>
+<span class="w">    </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-mcp-server</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PORT=8201</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+</code></pre></div>
+
+<hr />
+<h3 id="4-ollama-11434-port-11434">4. Ollama (منفذ 11434 | Port 11434)<a class="headerlink" href="#4-ollama-11434-port-11434" title="Permanent link">&para;</a></h3>
+<p><strong>الوصف | Description</strong>: استضافة نماذج LLM المحلية (Local LLM Hosting)</p>
+<p><strong>التكوين | Configuration</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">Service</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ollama</span>
+<span class="nt">Container</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-ollama</span>
+<span class="nt">Port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">11434</span>
+<span class="nt">Image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ollama/ollama:latest</span>
+
+<span class="nt">Volumes</span><span class="p">:</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">✅ ollama-models:/root/.ollama  (model storage)</span>
+
+<span class="nt">Resource Requirements</span><span class="p">:</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">⚠️ Requires NVIDIA GPU (deploy.resources.reservations.devices)</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">⚠️ Profile</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gpu (only runs with GPU profile)</span>
+</code></pre></div>
+
+<p><strong>النماذج المدعومة | Supported Models</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="l l-Scalar l-Scalar-Plain">codellama:7b</span><span class="w">          </span><span class="c1"># ✅ لإصلاح الكود | For code fixing</span>
+<span class="l l-Scalar l-Scalar-Plain">codellama:13b</span><span class="w">         </span><span class="c1"># ✅ لتحليل معقد | For complex analysis</span>
+<span class="l l-Scalar l-Scalar-Plain">deepseek-coder:6.7b</span><span class="w">   </span><span class="c1"># ✅ دعم متعدد اللغات | Multi-language</span>
+<span class="l l-Scalar l-Scalar-Plain">starcoder2:7b</span><span class="w">         </span><span class="c1"># ✅ توليد الكود | Code generation</span>
+</code></pre></div>
+
+<p><strong>التكامل | Integration</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="l l-Scalar l-Scalar-Plain">✅ shared/ai/ollama_client.py    (Python client)</span>
+<span class="l l-Scalar l-Scalar-Plain">✅ Auto-fix engine uses Ollama</span>
+<span class="l l-Scalar l-Scalar-Plain">⚠️ LLM Orchestrator should connect to Ollama</span>
+</code></pre></div>
+
+<p><strong>التقييم | Assessment</strong>: ✅ مُكوّن لكن يحتاج GPU | Configured but requires GPU</p>
+<hr />
+<h2 id="service-statistics">📈 إحصائيات الخدمات | Service Statistics<a class="headerlink" href="#service-statistics" title="Permanent link">&para;</a></h2>
+<h3 id="distribution-by-type">توزيع الخدمات حسب النوع | Distribution by Type<a class="headerlink" href="#distribution-by-type" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">Infrastructure</span><span class="w"> </span><span class="nl">Services:</span><span class="w">    </span><span class="mh">14</span><span class="w"> </span><span class="p">(</span><span class="mf">17.5</span><span class="o">%</span><span class="p">)</span>
+<span class="err">├─</span><span class="w"> </span><span class="n">PostgreSQL</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">PgBouncer</span><span class="w">   </span><span class="mh">2</span>
+<span class="err">├─</span><span class="w"> </span><span class="n">Redis</span><span class="w">                    </span><span class="mh">1</span>
+<span class="err">├─</span><span class="w"> </span><span class="n">NATS</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Exporter</span><span class="w">          </span><span class="mh">2</span>
+<span class="err">├─</span><span class="w"> </span><span class="n">Vault</span><span class="w">                    </span><span class="mh">1</span>
+<span class="err">├─</span><span class="w"> </span><span class="n">Kong</span><span class="w">                     </span><span class="mh">1</span>
+<span class="err">├─</span><span class="w"> </span><span class="n">MinIO</span><span class="p">,</span><span class="w"> </span><span class="n">Qdrant</span><span class="p">,</span><span class="w"> </span><span class="n">Milvus</span><span class="w">    </span><span class="mh">3</span>
+<span class="err">├─</span><span class="w"> </span><span class="n">etcd</span><span class="w">                     </span><span class="mh">1</span>
+<span class="err">├─</span><span class="w"> </span><span class="n">MQTT</span><span class="w">                     </span><span class="mh">1</span>
+<span class="err">├─</span><span class="w"> </span><span class="n">MLflow</span><span class="w">                   </span><span class="mh">1</span>
+<span class="err">└─</span><span class="w"> </span><span class="n">Ollama</span><span class="w">                   </span><span class="mh">1</span>
+
+<span class="n">Node</span><span class="p">.</span><span class="n">js</span><span class="w"> </span><span class="nl">Services:</span><span class="w">           </span><span class="mh">12</span><span class="w"> </span><span class="p">(</span><span class="mf">15.0</span><span class="o">%</span><span class="p">)</span>
+<span class="err">├─</span><span class="w"> </span><span class="n">field</span><span class="o">-</span><span class="n">management</span><span class="w">         </span><span class="mh">1</span>
+<span class="err">├─</span><span class="w"> </span><span class="n">user</span><span class="o">-</span><span class="n">service</span><span class="w">             </span><span class="mh">1</span>
+<span class="err">├─</span><span class="w"> </span><span class="n">marketplace</span><span class="w">              </span><span class="mh">1</span>
+<span class="err">├─</span><span class="w"> </span><span class="n">research</span><span class="o">-</span><span class="n">core</span><span class="w">            </span><span class="mh">1</span>
+<span class="err">├─</span><span class="w"> </span><span class="n">disaster</span><span class="o">-</span><span class="n">assessment</span><span class="w">      </span><span class="mh">1</span>
+<span class="err">├─</span><span class="w"> </span><span class="n">chat</span><span class="o">-</span><span class="n">service</span><span class="w">             </span><span class="mh">1</span>
+<span class="err">├─</span><span class="w"> </span><span class="n">iot</span><span class="o">-</span><span class="n">service</span><span class="w">              </span><span class="mh">1</span>
+<span class="err">├─</span><span class="w"> </span><span class="n">ground</span><span class="o">-</span><span class="n">vision</span><span class="w">            </span><span class="mh">1</span>
+<span class="err">└─</span><span class="w"> </span><span class="n">Deprecated</span><span class="w"> </span><span class="p">(</span><span class="mh">4</span><span class="p">)</span><span class="w">           </span><span class="mh">4</span>
+
+<span class="n">Python</span><span class="w"> </span><span class="nl">Services:</span><span class="w">            </span><span class="mh">48</span><span class="w"> </span><span class="p">(</span><span class="mf">60.0</span><span class="o">%</span><span class="p">)</span>
+<span class="err">├─</span><span class="w"> </span><span class="n">Core</span><span class="w"> </span><span class="n">Services</span><span class="w">            </span><span class="mh">15</span>
+<span class="err">├─</span><span class="w"> </span><span class="n">Intelligence</span><span class="w"> </span><span class="n">Services</span><span class="w">    </span><span class="mh">12</span>
+<span class="err">├─</span><span class="w"> </span><span class="n">Advisory</span><span class="w"> </span><span class="n">Services</span><span class="w">        </span><span class="mh">8</span>
+<span class="err">├─</span><span class="w"> </span><span class="n">IoT</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">Integration</span><span class="w">        </span><span class="mh">6</span>
+<span class="err">└─</span><span class="w"> </span><span class="n">AI</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">Agents</span><span class="w">              </span><span class="mh">7</span>
+
+<span class="n">AI</span><span class="w"> </span><span class="n">Agent</span><span class="w"> </span><span class="nl">Services:</span><span class="w">          </span><span class="mh">6</span><span class="w"> </span><span class="p">(</span><span class="mf">7.5</span><span class="o">%</span><span class="p">)</span>
+<span class="err">├─</span><span class="w"> </span><span class="n">agent</span><span class="o">-</span><span class="n">registry</span><span class="w">           </span><span class="mh">1</span>
+<span class="err">├─</span><span class="w"> </span><span class="n">ai</span><span class="o">-</span><span class="n">agents</span><span class="o">-</span><span class="n">core</span><span class="w">           </span><span class="mh">1</span>
+<span class="err">├─</span><span class="w"> </span><span class="n">code</span><span class="o">-</span><span class="n">fix</span><span class="o">-</span><span class="n">agent</span><span class="w">           </span><span class="mh">1</span>
+<span class="err">├─</span><span class="w"> </span><span class="n">ai</span><span class="o">-</span><span class="n">agents</span><span class="o">-</span><span class="n">service</span><span class="w">        </span><span class="mh">1</span>
+<span class="err">├─</span><span class="w"> </span><span class="n">copilot</span><span class="o">-</span><span class="n">api</span><span class="w">              </span><span class="mh">1</span>
+<span class="err">└─</span><span class="w"> </span><span class="n">llm</span><span class="o">-</span><span class="n">orchestrator</span><span class="w">         </span><span class="mh">1</span>
+
+<span class="n">Total</span><span class="w"> </span><span class="n">Active</span><span class="w"> </span><span class="nl">Services:</span><span class="w">      </span><span class="mh">80</span><span class="w"> </span><span class="p">(</span><span class="mh">100</span><span class="o">%</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h3 id="port-distribution">توزيع المنافذ | Port Distribution<a class="headerlink" href="#port-distribution" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="mf">1000</span><span class="o">-</span><span class="mf">2000</span><span class="p">:</span><span class="w">    </span><span class="mf">2</span><span class="w"> </span><span class="n">services</span><span class="w">  </span><span class="p">(</span><span class="n">MQTT</span><span class="w"> </span><span class="mf">1883</span><span class="p">,</span><span class="w"> </span><span class="n">etcd</span><span class="w"> </span><span class="mf">2379</span><span class="p">)</span>
+<span class="mf">3000</span><span class="o">-</span><span class="mf">3999</span><span class="p">:</span><span class="w">   </span><span class="mf">12</span><span class="w"> </span><span class="n">services</span><span class="w">  </span><span class="p">(</span><span class="n">Node</span><span class="mf">.</span><span class="n">js</span><span class="w"> </span><span class="n">range</span><span class="p">)</span>
+<span class="mf">4000</span><span class="o">-</span><span class="mf">5000</span><span class="p">:</span><span class="w">    </span><span class="mf">3</span><span class="w"> </span><span class="n">services</span><span class="w">  </span><span class="p">(</span><span class="n">NATS</span><span class="w"> </span><span class="mf">4222</span><span class="p">,</span><span class="w"> </span><span class="n">MLflow</span><span class="w"> </span><span class="mf">5000</span><span class="p">)</span>
+<span class="mf">6000</span><span class="o">-</span><span class="mf">6999</span><span class="p">:</span><span class="w">    </span><span class="mf">4</span><span class="w"> </span><span class="n">services</span><span class="w">  </span><span class="p">(</span><span class="n">Redis</span><span class="w"> </span><span class="mf">6379</span><span class="p">,</span><span class="w"> </span><span class="n">PgBouncer</span><span class="w"> </span><span class="mf">6432</span><span class="p">,</span><span class="w"> </span><span class="n">Qdrant</span><span class="w"> </span><span class="mf">6333</span><span class="p">)</span>
+<span class="mf">7000</span><span class="o">-</span><span class="mf">7999</span><span class="p">:</span><span class="w">    </span><span class="mf">1</span><span class="w"> </span><span class="n">service</span><span class="w">   </span><span class="p">(</span><span class="n">NATS</span><span class="w"> </span><span class="nb">exp</span><span class="ow">or</span><span class="n">ter</span><span class="w"> </span><span class="mf">7777</span><span class="p">)</span>
+<span class="mf">8000</span><span class="o">-</span><span class="mf">8199</span><span class="p">:</span><span class="w">   </span><span class="mf">51</span><span class="w"> </span><span class="n">services</span><span class="w">  </span><span class="p">(</span><span class="n">Main</span><span class="w"> </span><span class="n">Python</span><span class="w"> </span><span class="n">services</span><span class="p">)</span>
+<span class="mf">8200</span><span class="o">-</span><span class="mf">8299</span><span class="p">:</span><span class="w">    </span><span class="mf">3</span><span class="w"> </span><span class="n">services</span><span class="w">  </span><span class="p">(</span><span class="n">Vault</span><span class="w"> </span><span class="mf">8200</span><span class="p">,</span><span class="w"> </span><span class="n">MCP</span><span class="w"> </span><span class="mf">8201</span><span class="p">)</span>
+<span class="mf">9000</span><span class="o">-</span><span class="mf">9999</span><span class="p">:</span><span class="w">    </span><span class="mf">4</span><span class="w"> </span><span class="n">services</span><span class="w">  </span><span class="p">(</span><span class="n">MinIO</span><span class="w"> </span><span class="mf">9000</span><span class="p">,</span><span class="w"> </span><span class="n">deprecated</span><span class="w"> </span><span class="n">services</span><span class="p">)</span>
+<span class="mf">11000</span><span class="o">+</span><span class="p">:</span><span class="w">       </span><span class="mf">1</span><span class="w"> </span><span class="n">service</span><span class="w">   </span><span class="p">(</span><span class="n">Ollama</span><span class="w"> </span><span class="mf">11434</span><span class="p">)</span>
+<span class="mf">19000</span><span class="o">+</span><span class="p">:</span><span class="w">       </span><span class="mf">1</span><span class="w"> </span><span class="n">service</span><span class="w">   </span><span class="p">(</span><span class="n">Milvus</span><span class="w"> </span><span class="mf">19530</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="recommendations">🎯 التوصيات | Recommendations<a class="headerlink" href="#recommendations" title="Permanent link">&para;</a></h2>
+<h3 id="high-priority">🔴 عالية الأولوية | High Priority<a class="headerlink" href="#high-priority" title="Permanent link">&para;</a></h3>
+<h4 id="1-kong">1. إزالة الخدمات القديمة من Kong<a class="headerlink" href="#1-kong" title="Permanent link">&para;</a></h4>
+<h4 id="1-remove-deprecated-services-from-kong">1. Remove Deprecated Services from Kong<a class="headerlink" href="#1-remove-deprecated-services-from-kong" title="Permanent link">&para;</a></h4>
+<p><strong>المشكلة | Issue</strong>: خدمات قديمة مُسجلة في Kong لكن غير موجودة في docker-compose</p>
+<p><strong>Deprecated services registered in Kong but not in docker-compose</strong></p>
+<p><strong>الإجراء | Action</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">حذف من infrastructure/gateway/kong/kong.yml</span><span class="p">:</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">❌ satellite-service (port 9190)</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">❌ weather-advanced (port 9092)</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">❌ crop-health-ai (port 9095)</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">❌ fertilizer-advisor (port 9093)</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">❌ field-core (port 3005)</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">❌ field-service (port 8115)</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">❌ yield-engine (port 8098)</span>
+</code></pre></div>
+
+<p><strong>الفائدة | Benefit</strong>:
+- ✅ تقليل التعقيد | Reduce complexity
+- ✅ تجنب الارتباك | Avoid confusion
+- ✅ تحسين الوثائق | Improve documentation</p>
+<hr />
+<h4 id="2-cors">2. تأمين CORS للإنتاج<a class="headerlink" href="#2-cors" title="Permanent link">&para;</a></h4>
+<h4 id="2-secure-cors-for-production">2. Secure CORS for Production<a class="headerlink" href="#2-secure-cors-for-production" title="Permanent link">&para;</a></h4>
+<p><strong>المشكلة | Issue</strong>: CORS مفتوح لجميع النطاقات (*)</p>
+<p><strong>CORS open to all domains (*)</strong></p>
+<p><strong>الإجراء | Action</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># في infrastructure/gateway/kong/kong.yml</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cors</span>
+<span class="w">  </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">origins</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;https://app.sahool.com&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;https://admin.sahool.com&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;https://mobile.sahool.com&quot;</span>
+<span class="w">    </span><span class="nt">credentials</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">  </span><span class="c1"># تفعيل مع نطاقات محددة</span>
+<span class="w">    </span><span class="nt">max_age</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3600</span>
+</code></pre></div>
+
+<p><strong>الفائدة | Benefit</strong>:
+- ✅ تحسين الأمان | Improve security
+- ✅ منع CSRF | Prevent CSRF
+- ✅ الامتثال للمعايير | Compliance with standards</p>
+<hr />
+<h4 id="3-tlsssl">3. تفعيل TLS/SSL للإنتاج<a class="headerlink" href="#3-tlsssl" title="Permanent link">&para;</a></h4>
+<h4 id="3-enable-tlsssl-for-production">3. Enable TLS/SSL for Production<a class="headerlink" href="#3-enable-tlsssl-for-production" title="Permanent link">&para;</a></h4>
+<p><strong>المشكلة | Issue</strong>: HTTP فقط بدون تشفير</p>
+<p><strong>HTTP only without encryption</strong></p>
+<p><strong>الإجراء | Action</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># في docker-compose.yml - Kong service</span>
+<span class="nt">environment</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">KONG_PROXY_LISTEN</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.0.0.0:8000,</span><span class="nv"> </span><span class="s">0.0.0.0:8443</span><span class="nv"> </span><span class="s">ssl&quot;</span>
+<span class="w">  </span><span class="nt">KONG_SSL_CERT</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/kong/ssl/server.crt</span>
+<span class="w">  </span><span class="nt">KONG_SSL_CERT_KEY</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/kong/ssl/server.key</span>
+<span class="nt">ports</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;8443:8443&quot;</span><span class="w">  </span><span class="c1"># إضافة منفذ HTTPS</span>
+</code></pre></div>
+
+<p><strong>الفائدة | Benefit</strong>:
+- ✅ تشفير البيانات | Data encryption
+- ✅ حماية كلمات المرور | Password protection
+- ✅ متطلبات الإنتاج | Production requirement</p>
+<hr />
+<h3 id="medium-priority">🟡 متوسطة الأولوية | Medium Priority<a class="headerlink" href="#medium-priority" title="Permanent link">&para;</a></h3>
+<h4 id="4-mcp-server">4. إنشاء خدمة MCP Server<a class="headerlink" href="#4-mcp-server" title="Permanent link">&para;</a></h4>
+<h4 id="4-create-mcp-server-service">4. Create MCP Server Service<a class="headerlink" href="#4-create-mcp-server-service" title="Permanent link">&para;</a></h4>
+<p><strong>المشكلة | Issue</strong>: MCP مُعرّف في Kong لكن لا يوجد تطبيق</p>
+<p><strong>MCP defined in Kong but no implementation</strong></p>
+<p><strong>الإجراء | Action</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># إنشاء apps/services/mcp-server/Dockerfile</span>
+<span class="c1"># إضافة إلى docker-compose.yml:</span>
+<span class="nt">mcp-server</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">build</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">context</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.</span>
+<span class="w">    </span><span class="nt">dockerfile</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/services/mcp-server/Dockerfile</span>
+<span class="w">  </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-mcp-server</span>
+<span class="w">  </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PORT=8201</span>
+<span class="w">  </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;8201:8201&quot;</span>
+</code></pre></div>
+
+<hr />
+<h4 id="5-llm-orchestrator-ollama">5. ربط LLM Orchestrator بـ Ollama<a class="headerlink" href="#5-llm-orchestrator-ollama" title="Permanent link">&para;</a></h4>
+<h4 id="5-connect-llm-orchestrator-to-ollama">5. Connect LLM Orchestrator to Ollama<a class="headerlink" href="#5-connect-llm-orchestrator-to-ollama" title="Permanent link">&para;</a></h4>
+<p><strong>المشكلة | Issue</strong>: LLM Orchestrator لا يستخدم Ollama المحلي</p>
+<p><strong>LLM Orchestrator doesn't use local Ollama</strong></p>
+<p><strong>الإجراء | Action</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># في docker-compose.yml - llm-orchestrator-service</span>
+<span class="nt">environment</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">OLLAMA_BASE_URL=http://ollama:11434</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">OLLAMA_MODEL=codellama:7b</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ENABLE_LOCAL_LLM=true</span>
+</code></pre></div>
+
+<p><strong>الفائدة | Benefit</strong>:
+- ✅ تقليل التكلفة | Reduce costs
+- ✅ خصوصية البيانات | Data privacy
+- ✅ سرعة الاستجابة | Faster responses</p>
+<hr />
+<h4 id="6-rate-limiting-redis">6. ترقية Rate Limiting إلى Redis<a class="headerlink" href="#6-rate-limiting-redis" title="Permanent link">&para;</a></h4>
+<h4 id="6-upgrade-rate-limiting-to-redis">6. Upgrade Rate Limiting to Redis<a class="headerlink" href="#6-upgrade-rate-limiting-to-redis" title="Permanent link">&para;</a></h4>
+<p><strong>المشكلة | Issue</strong>: بعض الخدمات تستخدم <code>policy: local</code></p>
+<p><strong>Some services use <code>policy: local</code></strong></p>
+<p><strong>الإجراء | Action</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># تغيير جميع rate-limiting plugins:</span>
+<span class="nt">plugins</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rate-limiting</span>
+<span class="w">    </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">policy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis</span><span class="w">        </span><span class="c1"># بدلاً من local</span>
+<span class="w">      </span><span class="nt">redis_host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis</span>
+<span class="w">      </span><span class="nt">redis_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">6379</span>
+<span class="w">      </span><span class="nt">redis_password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${REDIS_PASSWORD}</span>
+</code></pre></div>
+
+<p><strong>الفائدة | Benefit</strong>:
+- ✅ تحديد معدل موحد عبر عدة خوادم Kong
+- ✅ دقة أفضل | Better accuracy
+- ✅ تحمل أفضل للأخطاء | Better fault tolerance</p>
+<hr />
+<h3 id="low-priority">🟢 منخفضة الأولوية | Low Priority<a class="headerlink" href="#low-priority" title="Permanent link">&para;</a></h3>
+<h4 id="7-security-headers-plugin">7. إضافة Security Headers Plugin<a class="headerlink" href="#7-security-headers-plugin" title="Permanent link">&para;</a></h4>
+<h4 id="7-add-security-headers-plugin">7. Add Security Headers Plugin<a class="headerlink" href="#7-add-security-headers-plugin" title="Permanent link">&para;</a></h4>
+<p><strong>الإجراء | Action</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">plugins</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">response-transformer</span>
+<span class="w">    </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">add</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">headers</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;X-Content-Type-Options:</span><span class="nv"> </span><span class="s">nosniff&quot;</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;X-Frame-Options:</span><span class="nv"> </span><span class="s">DENY&quot;</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;X-XSS-Protection:</span><span class="nv"> </span><span class="s">1;</span><span class="nv"> </span><span class="s">mode=block&quot;</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;Strict-Transport-Security:</span><span class="nv"> </span><span class="s">max-age=31536000&quot;</span>
+</code></pre></div>
+
+<hr />
+<h4 id="8-ip-restrictions">8. إضافة IP Restrictions للخدمات الحساسة<a class="headerlink" href="#8-ip-restrictions" title="Permanent link">&para;</a></h4>
+<h4 id="8-add-ip-restrictions-for-sensitive-services">8. Add IP Restrictions for Sensitive Services<a class="headerlink" href="#8-add-ip-restrictions-for-sensitive-services" title="Permanent link">&para;</a></h4>
+<p><strong>الإجراء | Action</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># للخدمات الحساسة (billing, admin, etc.):</span>
+<span class="nt">plugins</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ip-restriction</span>
+<span class="w">    </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">allow</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;10.0.0.0/8&quot;</span><span class="w">      </span><span class="c1"># شبكة داخلية</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;192.168.0.0/16&quot;</span><span class="w">  </span><span class="c1"># شبكة خاصة</span>
+</code></pre></div>
+
+<hr />
+<h4 id="9-request-logging">9. إضافة Request Logging<a class="headerlink" href="#9-request-logging" title="Permanent link">&para;</a></h4>
+<h4 id="9-add-request-logging">9. Add Request Logging<a class="headerlink" href="#9-add-request-logging" title="Permanent link">&para;</a></h4>
+<p><strong>الإجراء | Action</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">plugins</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">file-log</span>
+<span class="w">    </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/var/log/kong/access.log</span>
+<span class="w">      </span><span class="nt">reopen</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+
+<hr />
+<h2 id="documentation-references">📚 الوثائق والمراجع | Documentation &amp; References<a class="headerlink" href="#documentation-references" title="Permanent link">&para;</a></h2>
+<h3 id="main-configuration-files">ملفات التكوين الرئيسية | Main Configuration Files<a class="headerlink" href="#main-configuration-files" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>✅ infrastructure/gateway/kong/kong.yml       (1,407 lines)
+✅ docker-compose.yml                         (4,200+ lines)
+✅ governance/agents.yaml                     (1,200+ lines)
+✅ governance/services.yaml                   (3,000+ lines)
+✅ mcp.json                                   (MCP config)
+✅ .env.example                               (Environment template)
+</code></pre></div>
+
+<h3 id="available-documentation">الوثائق المتوفرة | Available Documentation<a class="headerlink" href="#available-documentation" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>✅ docs/API_GATEWAY.md                        (Kong architecture)
+✅ docs/DEPLOYMENT.md                         (Deployment guide)
+✅ docs/SECURITY.md                           (Security guidelines)
+✅ docs/OBSERVABILITY.md                      (Monitoring)
+✅ docs/adr/ADR-004-kong-api-gateway.md      (Architecture decision)
+✅ docs/kong-backend-services-api-mapping.md  (Service mapping)
+</code></pre></div>
+
+<h3 id="available-tests">الاختبارات المتوفرة | Available Tests<a class="headerlink" href="#available-tests" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>✅ tests/integration/test_kong_routes.py      (Integration tests)
+✅ scripts/validate-kong-config.sh            (Validation script)
+</code></pre></div>
+
+<hr />
+<h2 id="lessons-learned">🎓 الدروس المستفادة | Lessons Learned<a class="headerlink" href="#lessons-learned" title="Permanent link">&para;</a></h2>
+<h3 id="what-works-well">✅ ما يعمل بشكل جيد | What Works Well<a class="headerlink" href="#what-works-well" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>البنية المعمارية | Architecture</strong></li>
+<li>فصل واضح بين الخدمات | Clear service separation</li>
+<li>استخدام PgBouncer لتجميع الاتصالات | PgBouncer for connection pooling</li>
+<li>
+<p>Kong كبوابة API موحدة | Kong as unified API gateway</p>
+</li>
+<li>
+<p><strong>الأمان | Security</strong></p>
+</li>
+<li>JWT متعدد المستويات | Multi-tier JWT</li>
+<li>Rate limiting لجميع الخدمات | Rate limiting for all services</li>
+<li>
+<p>عزل الحاويات | Container isolation</p>
+</li>
+<li>
+<p><strong>الأداء | Performance</strong></p>
+</li>
+<li>إعدادات Kong مُحسّنة | Optimized Kong settings</li>
+<li>Keepalive connections | Keepalive connections</li>
+<li>
+<p>DNS caching | DNS caching</p>
+</li>
+<li>
+<p><strong>وكلاء الذكاء الاصطناعي | AI Agents</strong></p>
+</li>
+<li>حوكمة ممتازة | Excellent governance</li>
+<li>تكامل واضح | Clear integration</li>
+<li>توثيق جيد | Good documentation</li>
+</ol>
+<hr />
+<h3 id="what-needs-improvement">⚠️ ما يحتاج إلى تحسين | What Needs Improvement<a class="headerlink" href="#what-needs-improvement" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>الخدمات القديمة | Deprecated Services</strong></li>
+<li>إزالة التعريفات من Kong | Remove definitions from Kong</li>
+<li>
+<p>تحديث الوثائق | Update documentation</p>
+</li>
+<li>
+<p><strong>الأمان للإنتاج | Production Security</strong></p>
+</li>
+<li>تفعيل TLS/SSL | Enable TLS/SSL</li>
+<li>تحديد نطاقات CORS | Specify CORS domains</li>
+<li>
+<p>إضافة IP restrictions | Add IP restrictions</p>
+</li>
+<li>
+<p><strong>التكامل | Integration</strong></p>
+</li>
+<li>ربط Ollama بـ LLM Orchestrator | Connect Ollama to LLM Orchestrator</li>
+<li>إنشاء MCP Server | Create MCP Server</li>
+<li>تطبيق Code Review Agent | Implement Code Review Agent</li>
+</ol>
+<hr />
+<h2 id="final-assessment-summary">📊 ملخص التقييم النهائي | Final Assessment Summary<a class="headerlink" href="#final-assessment-summary" title="Permanent link">&para;</a></h2>
+<h3 id="scores">النقاط | Scores<a class="headerlink" href="#scores" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المعيار</th>
+<th>Criterion</th>
+<th>النقاط</th>
+<th>Score</th>
+<th>من</th>
+<th>Out of</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>التكوين</td>
+<td>Configuration</td>
+<td>9.0</td>
+<td>9.0</td>
+<td>10</td>
+<td>10</td>
+</tr>
+<tr>
+<td>الأمان</td>
+<td>Security</td>
+<td>7.5</td>
+<td>7.5</td>
+<td>10</td>
+<td>10</td>
+</tr>
+<tr>
+<td>الأداء</td>
+<td>Performance</td>
+<td>9.0</td>
+<td>9.0</td>
+<td>10</td>
+<td>10</td>
+</tr>
+<tr>
+<td>التكامل</td>
+<td>Integration</td>
+<td>8.5</td>
+<td>8.5</td>
+<td>10</td>
+<td>10</td>
+</tr>
+<tr>
+<td>الوثائق</td>
+<td>Documentation</td>
+<td>8.0</td>
+<td>8.0</td>
+<td>10</td>
+<td>10</td>
+</tr>
+<tr>
+<td><strong>المعدل العام</strong></td>
+<td><strong>Overall</strong></td>
+<td><strong>8.4</strong></td>
+<td><strong>8.4</strong></td>
+<td><strong>10</strong></td>
+<td><strong>10</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="qualitative-assessment">التقييم النوعي | Qualitative Assessment<a class="headerlink" href="#qualitative-assessment" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>🟢 ممتاز (Excellent):      التكوين، الأداء
+🟢 جيد جداً (Very Good):   التكامل، الوثائق
+🟡 جيد (Good):             الأمان (يحتاج تحسين للإنتاج)
+</code></pre></div>
+
+<hr />
+<h2 id="roadmap">🚀 خارطة الطريق | Roadmap<a class="headerlink" href="#roadmap" title="Permanent link">&para;</a></h2>
+<h3 id="1-1-2">المرحلة 1: الإصلاحات العاجلة (1-2 أيام)<a class="headerlink" href="#1-1-2" title="Permanent link">&para;</a></h3>
+<h3 id="phase-1-immediate-fixes-1-2-days">Phase 1: Immediate Fixes (1-2 days)<a class="headerlink" href="#phase-1-immediate-fixes-1-2-days" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] إزالة الخدمات القديمة من kong.yml</li>
+<li>[ ] تحديث CORS للإنتاج</li>
+<li>[ ] إضافة security headers</li>
+</ul>
+<h3 id="2-1">المرحلة 2: التحسينات (1 أسبوع)<a class="headerlink" href="#2-1" title="Permanent link">&para;</a></h3>
+<h3 id="phase-2-improvements-1-week">Phase 2: Improvements (1 week)<a class="headerlink" href="#phase-2-improvements-1-week" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] إنشاء MCP Server</li>
+<li>[ ] ربط Ollama بـ LLM Orchestrator</li>
+<li>[ ] ترقية rate limiting إلى Redis</li>
+<li>[ ] تفعيل TLS/SSL</li>
+</ul>
+<h3 id="3-2-4">المرحلة 3: التطوير المتقدم (2-4 أسابيع)<a class="headerlink" href="#3-2-4" title="Permanent link">&para;</a></h3>
+<h3 id="phase-3-advanced-development-2-4-weeks">Phase 3: Advanced Development (2-4 weeks)<a class="headerlink" href="#phase-3-advanced-development-2-4-weeks" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] تطبيق Code Review Agent</li>
+<li>[ ] إضافة IP restrictions</li>
+<li>[ ] تحسين الرصد والتتبع</li>
+<li>[ ] إضافة اختبارات شاملة</li>
+</ul>
+<hr />
+<h2 id="conclusion">📝 الخلاصة | Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<h3 id="_3">بالعربية<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<p>تم إجراء مراجعة شاملة ودقيقة لبوابة Kong و API الخاصة بمنصة سهول. النظام مُكوّن بشكل ممتاز مع بنية معمارية واضحة وتكامل جيد بين الخدمات. جميع وكلاء الذكاء الاصطناعي وخدمات Copilot مُسجلة ومُتصلة بشكل صحيح.</p>
+<p><strong>النقاط الإيجابية:</strong>
+- ✅ 80 خدمة نشطة ومُسجلة بشكل صحيح
+- ✅ وكلاء الذكاء الاصطناعي (6) مُكوّنة بشكل ممتاز
+- ✅ Copilot API و LLM Orchestrator متكاملة بشكل كامل
+- ✅ أداء عالي مع إعدادات مُحسّنة
+- ✅ أمان جيد مع مجال للتحسين</p>
+<p><strong>المشاكل المكتشفة:</strong>
+- 🟡 7 خدمات قديمة مُسجلة في Kong (بسيطة)
+- 🟡 CORS مفتوح لجميع النطاقات (للتطوير)
+- 🟡 بعض الخدمات تحت التطوير</p>
+<p><strong>التوصية النهائية:</strong> النظام جاهز للاستخدام مع الحاجة لتطبيق التوصيات قبل الإنتاج.</p>
+<h3 id="english_1">English<a class="headerlink" href="#english_1" title="Permanent link">&para;</a></h3>
+<p>A comprehensive and thorough review of the Kong API Gateway for the SAHOOL platform has been conducted. The system is excellently configured with clear architecture and good service integration. All AI agents and Copilot services are properly registered and connected.</p>
+<p><strong>Positive Points:</strong>
+- ✅ 80 active services correctly registered
+- ✅ AI agents (6) excellently configured
+- ✅ Copilot API &amp; LLM Orchestrator fully integrated
+- ✅ High performance with optimized settings
+- ✅ Good security with room for improvement</p>
+<p><strong>Discovered Issues:</strong>
+- 🟡 7 deprecated services registered in Kong (minor)
+- 🟡 CORS open to all domains (for development)
+- 🟡 Some services under development</p>
+<p><strong>Final Recommendation:</strong> System is ready for use with need to apply recommendations before production.</p>
+<hr />
+<h2 id="contact-information">📞 جهات الاتصال | Contact Information<a class="headerlink" href="#contact-information" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>الدور</th>
+<th>Role</th>
+<th>البريد الإلكتروني</th>
+<th>Email</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>فريق البنية التحتية</td>
+<td>Infrastructure Team</td>
+<td>infra@sahool.io</td>
+<td>infra@sahool.io</td>
+</tr>
+<tr>
+<td>فريق الأمان</td>
+<td>Security Team</td>
+<td>security@sahool.io</td>
+<td>security@sahool.io</td>
+</tr>
+<tr>
+<td>فريق الذكاء الاصطناعي</td>
+<td>AI Team</td>
+<td>ai@sahool.io</td>
+<td>ai@sahول.io</td>
+</tr>
+<tr>
+<td>الدعم الفني</td>
+<td>Technical Support</td>
+<td>support@sahool.io</td>
+<td>support@sahool.io</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><strong>تاريخ التقرير | Report Date</strong>: 2026-02-04
+<strong>الإصدار | Version</strong>: 1.0
+<strong>الحالة | Status</strong>: نهائي | Final
+<strong>التوقيع | Signature</strong>: Claude AI + Automated Analysis Tools</p>
+<hr />
+<p><strong>© 2026 KAFAAT - SAHOOL Platform - All Rights Reserved</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

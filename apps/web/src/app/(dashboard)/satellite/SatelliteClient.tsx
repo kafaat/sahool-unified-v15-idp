@@ -9,9 +9,18 @@ import {
   Download,
   AlertTriangle,
   Droplets,
+  X,
+  Cloud,
+  Clock,
+  ChevronRight,
 } from 'lucide-react';
 import { logger } from '@/lib/logger';
-import { useSatelliteFields, useSatelliteStats } from '@/features/satellite';
+import {
+  useSatelliteFields,
+  useSatelliteStats,
+  useSatelliteFieldDetails,
+  useSatelliteZoneAnalysis,
+} from '@/features/satellite';
 import type { SatelliteField, IndexType } from '@/features/satellite';
 
 const INDEX_CONFIG: Record<
@@ -109,6 +118,150 @@ const indexTypes = Object.entries(INDEX_CONFIG).map(([value, config]) => ({
   label: config.label,
   labelAr: config.labelAr,
 }));
+
+function FieldDetailPanel({
+  fieldId,
+  onClose,
+}: {
+  fieldId: string;
+  onClose: () => void;
+}) {
+  const { data: field, isLoading: loadingField } = useSatelliteFieldDetails(fieldId);
+  const { data: zones = [], isLoading: loadingZones } = useSatelliteZoneAnalysis(fieldId);
+
+  if (loadingField) {
+    return (
+      <div className="bg-white rounded-lg border p-6 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-sahool-green-600" />
+      </div>
+    );
+  }
+
+  if (!field) return null;
+
+  return (
+    <div className="bg-white rounded-lg border overflow-hidden">
+      <div className="p-4 border-b flex items-center justify-between bg-sahool-green-50">
+        <div>
+          <h2 className="font-semibold text-gray-900">{field.fieldNameAr}</h2>
+          <p className="text-sm text-gray-500">{field.fieldName}</p>
+        </div>
+        <button
+          onClick={onClose}
+          className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded"
+          title="إغلاق"
+        >
+          <X className="w-5 h-5" />
+        </button>
+      </div>
+
+      <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-4 border-b">
+        <div>
+          <div className="text-xs text-gray-500 mb-1">NDVI</div>
+          <div className="font-bold text-gray-900">{field.indices.ndvi.toFixed(3)}</div>
+          <div
+            className={`text-xs ${field.indices.ndviChange >= 0 ? 'text-green-600' : 'text-red-600'}`}
+          >
+            {field.indices.ndviChange >= 0 ? '+' : ''}
+            {field.indices.ndviChange.toFixed(3)} التغيير
+          </div>
+        </div>
+        {field.indices.ndwi != null && (
+          <div>
+            <div className="text-xs text-gray-500 mb-1">NDWI</div>
+            <div className="font-bold text-gray-900">{field.indices.ndwi.toFixed(3)}</div>
+          </div>
+        )}
+        {field.indices.evi != null && (
+          <div>
+            <div className="text-xs text-gray-500 mb-1">EVI</div>
+            <div className="font-bold text-gray-900">{field.indices.evi.toFixed(3)}</div>
+          </div>
+        )}
+        {field.indices.lai != null && (
+          <div>
+            <div className="text-xs text-gray-500 mb-1">LAI</div>
+            <div className="font-bold text-gray-900">
+              {field.indices.lai.toFixed(2)} m²/m²
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="p-4 grid grid-cols-2 md:grid-cols-3 gap-4 text-sm border-b">
+        <div>
+          <div className="text-xs text-gray-500 mb-1">آخر التقاط</div>
+          <div className="font-medium text-gray-800">{field.lastCapture}</div>
+          <div className="text-xs text-gray-400">{field.lastCaptureSource}</div>
+        </div>
+        {field.cloudCoverage != null && (
+          <div>
+            <div className="text-xs text-gray-500 mb-1">تغطية السحب</div>
+            <div className="font-medium text-gray-800 flex items-center gap-1">
+              <Cloud className="w-4 h-4 text-gray-400" />
+              {field.cloudCoverage}%
+            </div>
+          </div>
+        )}
+        <div>
+          <div className="text-xs text-gray-500 mb-1">المساحة</div>
+          <div className="font-medium text-gray-800">{field.area} هكتار</div>
+        </div>
+      </div>
+
+      {field.alerts && field.alerts.length > 0 && (
+        <div className="p-4 border-b bg-red-50">
+          <div className="text-xs font-semibold text-red-700 mb-2 flex items-center gap-1">
+            <AlertTriangle className="w-3.5 h-3.5" />
+            تنبيهات
+          </div>
+          <ul className="space-y-1">
+            {field.alerts.map((alert, i) => (
+              <li key={i} className="text-sm text-red-600">
+                • {alert}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {(loadingZones || zones.length > 0) && (
+        <div className="p-4">
+          <div className="text-xs font-semibold text-gray-700 mb-3">تحليل المناطق</div>
+          {loadingZones ? (
+            <div className="text-sm text-gray-400">جاري التحميل...</div>
+          ) : (
+            <div className="space-y-2">
+              {zones.map((zone) => (
+                <div key={zone.id} className="flex items-center justify-between text-sm">
+                  <span className="text-gray-700">{zone.zoneNameAr}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-500">NDVI: {zone.ndvi.toFixed(2)}</span>
+                    <span
+                      className={`px-1.5 py-0.5 rounded text-xs font-medium ${
+                        zone.healthStatus === 'excellent'
+                          ? 'bg-green-100 text-green-700'
+                          : zone.healthStatus === 'good'
+                            ? 'bg-green-50 text-green-600'
+                            : zone.healthStatus === 'moderate'
+                              ? 'bg-yellow-100 text-yellow-700'
+                              : zone.healthStatus === 'poor'
+                                ? 'bg-orange-100 text-orange-700'
+                                : 'bg-red-100 text-red-700'
+                      }`}
+                    >
+                      {zone.zoneNameAr}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function SatelliteClient() {
   const [selectedIndex, setSelectedIndex] = useState<IndexType>('ndvi');
@@ -226,7 +379,7 @@ export default function SatelliteClient() {
           <select
             value={selectedIndex}
             onChange={(e) => setSelectedIndex(e.target.value as IndexType)}
-            className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
+            className="px-4 py-2 bg-white border border-gray-300 text-gray-900 rounded-lg focus:ring-2 focus:ring-sahool-green-500 focus:border-sahool-green-500"
           >
             {indexTypes.map((idx) => (
               <option key={idx.value} value={idx.value}>
@@ -327,8 +480,17 @@ export default function SatelliteClient() {
 
         {/* Fields List */}
         <div className="bg-white rounded-lg border">
-          <div className="p-4 border-b">
+          <div className="p-4 border-b flex items-center justify-between">
             <h2 className="font-semibold text-gray-900">الحقول</h2>
+            {selectedField && (
+              <button
+                onClick={() => setSelectedField(null)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+                title="إلغاء التحديد"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </div>
           <div className="divide-y max-h-[500px] overflow-y-auto">
             {fields.length === 0 ? (
@@ -384,12 +546,48 @@ export default function SatelliteClient() {
                       />
                     </div>
                   </div>
+
+                  <div className="mt-2 flex items-center gap-3 text-xs text-gray-400">
+                    {field.cloudCoverage != null && (
+                      <span className="flex items-center gap-1">
+                        <Cloud className="w-3 h-3" />
+                        {field.cloudCoverage}%
+                      </span>
+                    )}
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {field.lastCapture}
+                    </span>
+                    {selectedField !== field.id && (
+                      <span className="mr-auto flex items-center gap-0.5 text-sahool-green-600">
+                        تفاصيل <ChevronRight className="w-3 h-3" />
+                      </span>
+                    )}
+                  </div>
+
+                  {field.alerts && field.alerts.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      {field.alerts.map((alert, i) => (
+                        <span
+                          key={i}
+                          className="px-1.5 py-0.5 bg-red-50 text-red-600 text-xs rounded border border-red-100"
+                        >
+                          {alert}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))
             )}
           </div>
         </div>
       </div>
+
+      {/* Selected Field Detail Panel */}
+      {selectedField && (
+        <FieldDetailPanel fieldId={selectedField} onClose={() => setSelectedField(null)} />
+      )}
 
       {/* Water Stress Alerts (NDWI-based) */}
       {waterStressFields.length > 0 && (
@@ -414,7 +612,7 @@ export default function SatelliteClient() {
                     {field.fieldName} — {field.area} هكتار
                   </p>
                 </div>
-                <div className="text-left">
+                <div>
                   <span className="text-sm font-bold text-orange-600">
                     NDWI: {(field.indices.ndwi ?? 0).toFixed(2)}
                   </span>

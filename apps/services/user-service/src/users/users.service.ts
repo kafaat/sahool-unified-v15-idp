@@ -82,7 +82,7 @@ export class UsersService {
         firstName,
         lastName,
         role: (createUserDto.role || UserRole.VIEWER) as any, // Cast to Prisma UserRole enum
-        status: (createUserDto.status || UserStatus.PENDING) as any, // Cast to Prisma UserStatus enum
+        status: (createUserDto.status || UserStatus.ACTIVE) as any, // Cast to Prisma UserStatus enum
         emailVerified: createUserDto.emailVerified || false,
         phoneVerified: createUserDto.phoneVerified || false,
       },

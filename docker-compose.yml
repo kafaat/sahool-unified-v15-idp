@@ -1273,9 +1273,12 @@ asyncio.run(main())
     container_name: sahool-kong
     environment:
       KONG_DATABASE: "off"
-      # Load ALL YAML files from the active/ directory (kong.yml + kong-security.yml + ...)
-      # See infrastructure/gateway/kong/active/ for the list of loaded files
-      KONG_DECLARATIVE_CONFIG_DIR: /kong/declarative
+      # Load declarative config from the primary kong.yml file
+      # Note: KONG_DECLARATIVE_CONFIG_DIR is not a valid Kong env var in Kong 3.x.
+      # Kong only supports KONG_DECLARATIVE_CONFIG pointing to a single YAML file.
+      KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yml
+      # JWT_SECRET_KEY is used in kong.yml consumer credentials via ${JWT_SECRET_KEY} substitution
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       KONG_PROXY_ACCESS_LOG: /dev/stdout
       KONG_ADMIN_ACCESS_LOG: /dev/stdout
       KONG_PROXY_ERROR_LOG: /dev/stderr
@@ -1942,6 +1945,8 @@ asyncio.run(main())
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
       - JWT_ACCESS_TOKEN_EXPIRE_MINUTES=${JWT_ACCESS_TOKEN_EXPIRE_MINUTES:-30}
       - JWT_REFRESH_TOKEN_EXPIRE_DAYS=${JWT_REFRESH_TOKEN_EXPIRE_DAYS:-7}
+      - JWT_ISSUER=${JWT_ISSUER:-sahool}
+      - JWT_AUDIENCE=${JWT_AUDIENCE:-sahool-api}
       - NOTIFICATION_SERVICE_URL=http://notification-service:8110
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-https://sahool.com,https://app.sahool.com,https://admin.sahool.com}

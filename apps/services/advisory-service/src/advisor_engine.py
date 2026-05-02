@@ -119,6 +119,7 @@ class AdvisorEngine:
         crop: str,
         region: str,
         action: str,
+        tenant_id: str | None = None,
     ) -> None:
         """Persist outcome to the learning engine and publish to NATS."""
         feedback = {
@@ -128,8 +129,10 @@ class AdvisorEngine:
             "region": region,
             "action": action,
         }
+        if tenant_id:
+            feedback["tenant_id"] = tenant_id
         self.learning.record_outcome(feedback)
-        await self.feedback.publish_feedback(feedback)
+        await self.feedback.publish_feedback(feedback, tenant_id=tenant_id)
         logger.info("advisor.feedback_recorded", extra={"decision_id": decision_id})
 
     # ---------- Helpers -----------------------------------------------------

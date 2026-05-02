@@ -542,12 +542,20 @@ async def submit_feedback(
     if isinstance(decision, dict) and decision.get("tenant_id"):
         _check_tenant_match(decision, user)
     field_ctx = decision.get("field_context", {}) if isinstance(decision, dict) else {}
+    # Prefer tenant_id from the stored decision (set at /recommend time) and
+    # fall back to the authenticated user's tenant. This keeps feedback events
+    # tenant-scoped even when the decision was issued anonymously.
+    tenant_id = (decision.get("tenant_id") if isinstance(decision, dict) else None) or (
+        getattr(user, "tenant_id", None)
+        or (user.get("tenant_id") if isinstance(user, dict) else None)
+    )
     await advisor.record_feedback(
         decision_id=body.decision_id,
         result=body.result,
         crop=field_ctx.get("crop", "unknown"),
         region=field_ctx.get("region", "unknown"),
         action=decision.get("action", "unknown") if isinstance(decision, dict) else "unknown",
+        tenant_id=tenant_id,
     )
     return {"status": "feedback_recorded"}
 

@@ -39,7 +39,7 @@ class _SilentFeedback(FeedbackPublisher):
         super().__init__(nats_url="nats://disabled")
         self.sent: list[dict] = []
 
-    async def publish_feedback(self, feedback):
+    async def publish_feedback(self, feedback, tenant_id=None):
         self.sent.append(feedback)
         return True
 

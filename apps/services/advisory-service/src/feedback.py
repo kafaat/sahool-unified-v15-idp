@@ -16,9 +16,12 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-# Subject is namespaced under ``sahool.advisory.*`` to match
-# the existing event bus convention.
-FEEDBACK_SUBJECT = "sahool.advisory.feedback_recorded"
+# Domain/action used to construct the tenant-scoped subject:
+#   sahool.tenant.{tenant_id}.advisory.feedback_recorded
+# Tenant-scoped subjects are required by ``test_no_new_global_nats_publishes``
+# to enforce multi-tenant event isolation.
+_FEEDBACK_DOMAIN = "advisory"
+_FEEDBACK_ACTION = "feedback_recorded"
 
 
 class FeedbackPublisher:
@@ -43,21 +46,67 @@ class FeedbackPublisher:
             logger.warning("feedback.nats_connect_failed", extra={"error": str(exc)})
             self.nc = None
 
-    async def publish_feedback(self, feedback: dict[str, Any]) -> bool:
+    async def publish_feedback(
+        self,
+        feedback: dict[str, Any],
+        tenant_id: str | None = None,
+    ) -> bool:
         """Publish a feedback event. Returns True on success, False otherwise.
 
         Always stamps the message with a UTC ``timestamp`` (ISO 8601).
+
+        ``tenant_id`` (or ``feedback["tenant_id"]``) is required to construct
+        a tenant-scoped subject ``sahool.tenant.{tenant_id}.advisory.feedback_recorded``;
+        without it the publish is skipped (returns False) to avoid leaking
+        events on a global subject.
         """
         if self.nc is None:
             logger.warning("feedback.not_connected")
             return False
 
-        payload = {**feedback, "timestamp": datetime.now(UTC).isoformat()}
+        # Resolve tenant_id (explicit arg takes precedence over the payload).
+        resolved_tenant = tenant_id or feedback.get("tenant_id")
+        if not resolved_tenant:
+            logger.warning(
+                "feedback.publish_skipped_missing_tenant",
+                extra={"decision_id": feedback.get("decision_id")},
+            )
+            return False
+
+        # Build tenant-scoped subject. Lazy-import keeps shared coupling soft
+        # and matches the pattern used elsewhere in this service.
         try:
-            await self.nc.publish(FEEDBACK_SUBJECT, json.dumps(payload).encode())
+            from shared.events.subjects import get_tenant_subject  # noqa: PLC0415
+
+            subject = get_tenant_subject(
+                str(resolved_tenant), _FEEDBACK_DOMAIN, _FEEDBACK_ACTION
+            )
+        except ValueError as exc:
+            # ``get_tenant_subject`` rejects invalid tenant_id (e.g. NATS wildcards).
+            logger.warning(
+                "feedback.publish_skipped_invalid_tenant",
+                extra={
+                    "error": str(exc),
+                    "tenant_id": str(resolved_tenant),
+                    "decision_id": feedback.get("decision_id"),
+                },
+            )
+            return False
+        except (ImportError, ModuleNotFoundError):
+            # Conservative inline construction matches the fallback pattern in
+            # ``events/types.py`` for environments where ``shared`` is absent.
+            subject = f"sahool.tenant.{resolved_tenant}.{_FEEDBACK_DOMAIN}.{_FEEDBACK_ACTION}"
+
+        payload = {
+            **feedback,
+            "tenant_id": str(resolved_tenant),
+            "timestamp": datetime.now(UTC).isoformat(),
+        }
+        try:
+            await self.nc.publish(subject, json.dumps(payload).encode())
             logger.info(
                 "feedback.published",
-                extra={"decision_id": payload.get("decision_id")},
+                extra={"decision_id": payload.get("decision_id"), "subject": subject},
             )
             return True
         except Exception as exc:  # noqa: BLE001 — fail open

@@ -35,7 +35,7 @@ class _SilentFeedback(FeedbackPublisher):
         super().__init__(nats_url="nats://disabled")
         self.sent: list[dict] = []
 
-    async def publish_feedback(self, feedback):
+    async def publish_feedback(self, feedback, tenant_id=None):
         self.sent.append(feedback)
         return True
 
@@ -128,3 +128,42 @@ async def test_feedback_publisher_no_nats_returns_false() -> None:
     # nc is never connected → publish should return False, not raise.
     result = await publisher.publish_feedback({"decision_id": "x"})
     assert result is False
+
+
+@pytest.mark.asyncio
+async def test_feedback_publisher_uses_tenant_scoped_subject() -> None:
+    """``publish_feedback`` must construct ``sahool.tenant.<id>.advisory.feedback_recorded``."""
+    import json
+
+    captured: dict = {}
+
+    class _RecordingNC:
+        async def publish(self, subject, data):
+            captured["subject"] = subject
+            captured["payload"] = json.loads(data.decode())
+
+    publisher = FeedbackPublisher(nats_url="nats://disabled")
+    publisher.nc = _RecordingNC()  # type: ignore[assignment]
+
+    tenant = "00000000-0000-4000-8000-000000000001"
+    ok = await publisher.publish_feedback(
+        {"decision_id": "dec-9", "result": "improved"},
+        tenant_id=tenant,
+    )
+    assert ok is True
+    assert captured["subject"] == f"sahool.tenant.{tenant}.advisory.feedback_recorded"
+    assert captured["payload"]["tenant_id"] == tenant
+
+
+@pytest.mark.asyncio
+async def test_feedback_publisher_skips_when_tenant_missing() -> None:
+    """Without a tenant_id the publish must NOT fall back to a global subject."""
+
+    class _BoomNC:
+        async def publish(self, subject, data):  # pragma: no cover - must not be called
+            raise AssertionError(f"unexpected publish to {subject!r}")
+
+    publisher = FeedbackPublisher(nats_url="nats://disabled")
+    publisher.nc = _BoomNC()  # type: ignore[assignment]
+    ok = await publisher.publish_feedback({"decision_id": "dec-9"})
+    assert ok is False

@@ -19,6 +19,10 @@ export function EquipmentMap() {
 
   useEffect(() => {
     if (typeof window === 'undefined' || !mapRef.current) return;
+    // Capture the container DOM node now: React 19 may set
+    // mapRef.current = null before the cleanup function runs, which would
+    // otherwise prevent us from clearing Leaflet's `_leaflet_id` marker.
+    const container = mapRef.current;
 
     // Initialize map
     const initMap = async () => {
@@ -133,6 +137,23 @@ export function EquipmentMap() {
       // Cleanup markers
       markersRef.current.forEach((marker) => marker.remove());
       markersRef.current = [];
+      // Cleanup map instance to prevent "Map container is already initialized"
+      // on re-mount (matches the pattern used in SensorMap and FieldMapWithTasks).
+      if (mapInstanceRef.current) {
+        try {
+          mapInstanceRef.current.remove();
+        } catch {
+          // ignore — Leaflet may already be torn down
+        }
+        mapInstanceRef.current = null;
+      }
+      // Belt-and-braces: drop Leaflet's per-element marker so a remount on the
+      // same DOM node (e.g. React Strict Mode in dev) cannot trip the
+      // "already initialized" guard inside L.Map.
+      const tagged = container as HTMLDivElement & { _leaflet_id?: number };
+      if (tagged._leaflet_id) {
+        delete tagged._leaflet_id;
+      }
     };
   }, [equipment]);
 

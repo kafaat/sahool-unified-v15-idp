@@ -5,9 +5,9 @@
  * حد الخطأ للوحة التحكم
  */
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { logger } from '@/lib/logger';
 
 export default function DashboardError({
@@ -18,11 +18,23 @@ export default function DashboardError({
   reset: () => void;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
+  // Capture the pathname at the moment the error was thrown so that
+  // navigating to *any* other route auto-resets the boundary instead of
+  // leaving a stale error (e.g. Leaflet "Map container is already
+  // initialized" from /sensors) visible on unrelated pages like /satellite.
+  const erroredPathRef = useRef(pathname);
 
   useEffect(() => {
     // Log the error to an error reporting service
     logger.error('Dashboard error:', error);
   }, [error]);
+
+  useEffect(() => {
+    if (pathname !== erroredPathRef.current) {
+      reset();
+    }
+  }, [pathname, reset]);
 
   return (
     <div className="min-h-full flex items-center justify-center p-6">

@@ -272,7 +272,7 @@ export default function RegisterClient() {
       });
 
       if (!result.success) {
-        throw new Error(result.error || result.message || 'Registration failed');
+        throw new Error(result.error || 'Registration failed');
       }
 
       showToast({

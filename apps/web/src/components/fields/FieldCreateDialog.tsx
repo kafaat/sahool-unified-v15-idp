@@ -2,24 +2,51 @@
 
 /**
  * Field Create Dialog — انشاء حقل جديد
- * Modal dialog for creating new fields with form inputs (name, crop type,
- * irrigation type) and an embedded drawable map for boundary drawing.
- * Extracts GeoJSON boundary and submits to API.
+ *
+ * Modal dialog for creating new fields, following the UX pattern used by
+ * leading agricultural platforms (John Deere Operations Center, Climate
+ * FieldView, Granular):
+ *
+ *   1. The user draws the field boundary on a real interactive map FIRST
+ *      (using the shared DrawableMap with Leaflet).
+ *   2. Once a polygon is drawn, the details form (single name, crop,
+ *      irrigation type, optional area) becomes available.
+ *   3. The form submits a GeoJSON polygon plus metadata.
+ *
+ * Notes:
+ * - The name input is bilingual (one field, RTL-aware placeholder).
+ *   Internally we still expose `name` (English) and `nameAr` (Arabic) on
+ *   `FieldCreateData` for API back-compat: when only one is provided, the
+ *   other is mirrored from it.
+ * - The DrawableMap is loaded dynamically (Leaflet is browser-only) and
+ *   emits a `GeoJSON.Polygon | null` via `onBoundaryChange`.
  */
 
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import { clsx } from 'clsx';
 import {
   X,
   MapPin,
   Wheat,
   Droplets,
-  PenTool,
-  Trash2,
   Loader2,
   Check,
   AlertCircle,
 } from 'lucide-react';
+
+// ---------------------------------------------------------------------------
+// DrawableMap is browser-only (Leaflet). Load on demand to keep the modal
+// SSR-safe and avoid pulling Leaflet into the initial bundle.
+// ---------------------------------------------------------------------------
+const DrawableMap = dynamic(() => import('@/components/maps/DrawableMap'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-80 rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse flex items-center justify-center">
+      <p className="text-sm text-gray-500 dark:text-gray-400">جاري تحميل الخريطة...</p>
+    </div>
+  ),
+});
 
 // ---------------------------------------------------------------------------
 // Types
@@ -31,7 +58,9 @@ export interface FieldBoundary {
 }
 
 export interface FieldCreateData {
+  /** English (or Latin-script) name. Mirrors `nameAr` if the user entered Arabic only. */
   name: string;
+  /** Arabic name. Mirrors `name` if the user entered English only. */
   nameAr: string;
   cropType: string;
   irrigationType: string;
@@ -77,137 +106,46 @@ const IRRIGATION_OPTIONS = [
 ] as const;
 
 // ---------------------------------------------------------------------------
-// DrawableMap (placeholder for map integration)
+// Geometry helpers
 // ---------------------------------------------------------------------------
 
-interface DrawableMapProps {
-  points: [number, number][];
-  onPointsChange: (points: [number, number][]) => void;
-  isDrawing: boolean;
-}
+/**
+ * Approximate polygon area in hectares using the spherical-excess (shoelace
+ * on equirectangular projection) formula. Accurate enough for sub-1000 ha
+ * fields in the Yemen latitude band.
+ */
+function approxAreaHectares(polygon: GeoJSON.Polygon | null): number | null {
+  if (!polygon || polygon.coordinates.length === 0) return null;
+  const ring = polygon.coordinates[0];
+  if (!ring || ring.length < 4) return null;
 
-function DrawableMap({ points, onPointsChange, isDrawing }: DrawableMapProps) {
-  const mapRef = useRef<HTMLDivElement>(null);
+  // Convert lat/lng to local-meter coordinates (equirectangular).
+  // 1 degree latitude ≈ 111_320 m, 1 degree longitude ≈ 111_320 * cos(lat) m.
+  let latSum = 0;
+  for (const pt of ring) {
+    const lat = pt[1];
+    if (lat === undefined) return null;
+    latSum += lat;
+  }
+  const meanLat = latSum / ring.length;
+  const cosLat = Math.cos((meanLat * Math.PI) / 180);
 
-  const handleMapClick = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (!isDrawing || !mapRef.current) return;
+  const pts: Array<readonly [number, number]> = [];
+  for (const pt of ring) {
+    const lng = pt[0];
+    const lat = pt[1];
+    if (lng === undefined || lat === undefined) return null;
+    pts.push([lng * 111_320 * cosLat, lat * 111_320] as const);
+  }
 
-      const rect = mapRef.current.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-
-      // Map pixel coordinates to approximate geo coordinates
-      // Default center: Yemen (15.5, 44.2) with ~0.01 degree per 10px
-      const lng = 44.2 + ((x - rect.width / 2) / rect.width) * 0.5;
-      const lat = 15.5 - ((y - rect.height / 2) / rect.height) * 0.5;
-
-      onPointsChange([...points, [lng, lat]]);
-    },
-    [isDrawing, points, onPointsChange],
-  );
-
-  return (
-    <div
-      ref={mapRef}
-      onClick={handleMapClick}
-      className={clsx(
-        'relative w-full h-64 rounded-xl overflow-hidden border-2',
-        isDrawing
-          ? 'border-green-400 dark:border-green-600 cursor-crosshair'
-          : 'border-gray-200 dark:border-gray-700 cursor-default',
-        'bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50',
-        'dark:from-gray-800 dark:via-gray-750 dark:to-gray-700',
-      )}
-    >
-      {/* Map placeholder background */}
-      <div className="absolute inset-0 opacity-10">
-        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="0.5" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#grid)" className="text-gray-400" />
-        </svg>
-      </div>
-
-      {/* Center label */}
-      {points.length === 0 && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center">
-            <MapPin className="h-8 w-8 mx-auto text-gray-400 dark:text-gray-500 mb-2" />
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              {isDrawing ? 'اضغط لرسم حدود الحقل' : 'فعل وضع الرسم اولا'}
-            </p>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-              {isDrawing ? 'Click to draw field boundary' : 'Enable drawing mode first'}
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Drawn points visualization */}
-      {points.length > 0 && (
-        <svg className="absolute inset-0 w-full h-full pointer-events-none">
-          {/* Lines between points */}
-          {points.length > 1 && (
-            <polyline
-              points={points
-                .map(([lng, lat]) => {
-                  const x = ((lng - 43.95) / 0.5) * 100;
-                  const y = ((15.75 - lat) / 0.5) * 100;
-                  return `${x}%,${y}%`;
-                })
-                .join(' ')}
-              fill="none"
-              stroke="#22c55e"
-              strokeWidth="2"
-              strokeDasharray="4 2"
-            />
-          )}
-          {/* Close polygon line */}
-          {points.length > 2 && (
-            <line
-              x1={`${((points[points.length - 1]![0] - 43.95) / 0.5) * 100}%`}
-              y1={`${((15.75 - points[points.length - 1]![1]) / 0.5) * 100}%`}
-              x2={`${((points[0]![0] - 43.95) / 0.5) * 100}%`}
-              y2={`${((15.75 - points[0]![1]) / 0.5) * 100}%`}
-              stroke="#22c55e"
-              strokeWidth="2"
-              strokeDasharray="4 2"
-              opacity="0.5"
-            />
-          )}
-          {/* Point markers */}
-          {points.map(([lng, lat], i) => {
-            const cx = ((lng - 43.95) / 0.5) * 100;
-            const cy = ((15.75 - lat) / 0.5) * 100;
-            return (
-              <circle
-                key={i}
-                cx={`${cx}%`}
-                cy={`${cy}%`}
-                r="5"
-                fill="#22c55e"
-                stroke="white"
-                strokeWidth="2"
-              />
-            );
-          })}
-        </svg>
-      )}
-
-      {/* Point count badge */}
-      {points.length > 0 && (
-        <div className="absolute top-2 right-2 bg-white dark:bg-gray-800 rounded-lg px-2 py-1 shadow-sm border border-gray-200 dark:border-gray-600">
-          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-            {points.length} نقطة
-          </span>
-        </div>
-      )}
-    </div>
-  );
+  let area = 0;
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+    const pi = pts[i]!;
+    const pj = pts[j]!;
+    area += (pj[0] + pi[0]) * (pj[1] - pi[1]);
+  }
+  const sqMeters = Math.abs(area) / 2;
+  return sqMeters / 10_000; // 1 ha = 10_000 m²
 }
 
 // ---------------------------------------------------------------------------
@@ -220,24 +158,24 @@ export default function FieldCreateDialog({
   onSubmit,
   className,
 }: FieldCreateDialogProps) {
+  // Single bilingual name input — RTL-aware. Stored as Arabic by default,
+  // mirrored to `name` (English) at submit time if the latter is empty.
   const [name, setName] = useState('');
-  const [nameAr, setNameAr] = useState('');
   const [cropType, setCropType] = useState('');
   const [irrigationType, setIrrigationType] = useState('');
   const [areaHectares, setAreaHectares] = useState('');
-  const [boundaryPoints, setBoundaryPoints] = useState<[number, number][]>([]);
-  const [isDrawing, setIsDrawing] = useState(false);
+  const [boundary, setBoundary] = useState<GeoJSON.Polygon | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const computedArea = useMemo(() => approxAreaHectares(boundary), [boundary]);
+
   const resetForm = useCallback(() => {
     setName('');
-    setNameAr('');
     setCropType('');
     setIrrigationType('');
     setAreaHectares('');
-    setBoundaryPoints([]);
-    setIsDrawing(false);
+    setBoundary(null);
     setError(null);
   }, []);
 
@@ -247,41 +185,51 @@ export default function FieldCreateDialog({
     onClose();
   }, [onClose, resetForm, submitting]);
 
-  const buildGeoJSON = useCallback((): FieldBoundary | undefined => {
-    if (boundaryPoints.length < 3) return undefined;
-    // Close the polygon ring
-    const ring: [number, number][] = [...boundaryPoints, boundaryPoints[0]!];
-    return {
-      type: 'Polygon',
-      coordinates: [ring],
-    };
-  }, [boundaryPoints]);
-
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
       setError(null);
 
-      if (!nameAr.trim()) {
-        setError('الرجاء ادخال اسم الحقل بالعربية');
+      if (!boundary) {
+        setError('الرجاء رسم حدود الحقل على الخريطة أولاً | Please draw the field boundary on the map first');
+        return;
+      }
+      if (!name.trim()) {
+        setError('الرجاء ادخال اسم الحقل | Please enter the field name');
         return;
       }
       if (!cropType) {
-        setError('الرجاء اختيار المحصول');
+        setError('الرجاء اختيار المحصول | Please select a crop');
         return;
       }
       if (!irrigationType) {
-        setError('الرجاء اختيار نوع الري');
+        setError('الرجاء اختيار نوع الري | Please select an irrigation type');
         return;
       }
 
+      const trimmed = name.trim();
+      // Single bilingual input: mirror the value into both `name` and
+      // `nameAr` so the API receives a populated label regardless of
+      // which language the user typed in. The backend can detect the
+      // script and route the value to the appropriate display field.
+
+      // Normalize boundary coordinates to the [number, number] tuple shape
+      // expected by the API contract (drops any altitude component if present).
+      const coords: [number, number][][] = boundary.coordinates.map((ring) =>
+        ring.map(([lng, lat]) => [lng, lat] as [number, number]),
+      );
+
       const data: FieldCreateData = {
-        name: name.trim() || nameAr.trim(),
-        nameAr: nameAr.trim(),
+        name: trimmed,
+        nameAr: trimmed,
         cropType,
         irrigationType,
-        areaHectares: areaHectares ? parseFloat(areaHectares) : undefined,
-        boundary: buildGeoJSON(),
+        areaHectares: areaHectares
+          ? parseFloat(areaHectares)
+          : computedArea
+          ? Math.round(computedArea * 100) / 100
+          : undefined,
+        boundary: { type: 'Polygon', coordinates: coords },
       };
 
       try {
@@ -290,15 +238,17 @@ export default function FieldCreateDialog({
         resetForm();
         onClose();
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'حدث خطأ اثناء الحفظ');
+        setError(err instanceof Error ? err.message : 'حدث خطأ اثناء الحفظ | Error while saving');
       } finally {
         setSubmitting(false);
       }
     },
-    [name, nameAr, cropType, irrigationType, areaHectares, buildGeoJSON, onSubmit, resetForm, onClose],
+    [name, cropType, irrigationType, areaHectares, boundary, computedArea, onSubmit, resetForm, onClose],
   );
 
   if (!open) return null;
+
+  const detailsEnabled = boundary !== null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -312,7 +262,7 @@ export default function FieldCreateDialog({
       <div
         dir="rtl"
         className={clsx(
-          'relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl',
+          'relative w-full max-w-3xl max-h-[92vh] overflow-y-auto rounded-2xl',
           'bg-white dark:bg-gray-900 shadow-2xl border border-gray-200 dark:border-gray-700',
           'mx-4',
           className,
@@ -325,13 +275,13 @@ export default function FieldCreateDialog({
             <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
               انشاء حقل جديد
             </h2>
-            <span className="text-sm text-gray-400 dark:text-gray-500">Create Field</span>
+            <span className="text-sm text-gray-400 dark:text-gray-500">| Create Field</span>
           </div>
           <button
             type="button"
             onClick={handleClose}
             disabled={submitting}
-            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition disabled:opacity-50"
             aria-label="اغلاق"
           >
             <X className="w-5 h-5" />
@@ -339,215 +289,226 @@ export default function FieldCreateDialog({
         </div>
 
         {/* ---- Form ---- */}
-        <form onSubmit={handleSubmit} className="px-6 py-5 space-y-5">
+        <form onSubmit={handleSubmit} className="px-6 py-5 space-y-6">
           {/* Error message */}
           {error && (
-            <div className="flex items-center gap-2 px-4 py-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800">
-              <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400 shrink-0" />
+            <div
+              role="alert"
+              className="flex items-start gap-2 px-4 py-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800"
+            >
+              <AlertCircle className="h-4 w-4 mt-0.5 text-red-600 dark:text-red-400 shrink-0" />
               <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
             </div>
           )}
 
-          {/* Field name */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label
-                htmlFor="field-name-ar"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
+          {/* ===========================================================
+              STEP 1 — Draw the boundary on the map (always first)
+              ───────────────────────────────────────────────────────────
+              This matches the UX of John Deere Operations Center and
+              Climate FieldView: the spatial extent is selected before
+              any metadata, so the form always reflects a real polygon.
+              =========================================================== */}
+          <section aria-labelledby="step-1-label">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-green-600 text-white text-xs font-bold">
+                1
+              </span>
+              <h3
+                id="step-1-label"
+                className="text-sm font-semibold text-gray-900 dark:text-gray-100"
               >
-                اسم الحقل (عربي) <span className="text-red-500">*</span>
-              </label>
-              <input
-                id="field-name-ar"
-                type="text"
-                dir="rtl"
-                value={nameAr}
-                onChange={(e) => setNameAr(e.target.value)}
-                placeholder="مثال: حقل القمح الشمالي"
-                className={clsx(
-                  'w-full px-3.5 py-2.5 rounded-xl border text-sm',
-                  'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100',
-                  'border-gray-300 dark:border-gray-600',
-                  'focus:ring-2 focus:ring-green-500 focus:border-green-500 transition',
-                  'placeholder:text-gray-400 dark:placeholder:text-gray-500',
-                )}
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="field-name-en"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
-              >
-                Field Name (English)
-              </label>
-              <input
-                id="field-name-en"
-                type="text"
-                dir="ltr"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. North Wheat Field"
-                className={clsx(
-                  'w-full px-3.5 py-2.5 rounded-xl border text-sm',
-                  'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100',
-                  'border-gray-300 dark:border-gray-600',
-                  'focus:ring-2 focus:ring-green-500 focus:border-green-500 transition',
-                  'placeholder:text-gray-400 dark:placeholder:text-gray-500',
-                )}
-              />
-            </div>
-          </div>
-
-          {/* Crop + Irrigation */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label
-                htmlFor="field-crop"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
-              >
-                <Wheat className="h-3.5 w-3.5 inline ml-1" />
-                المحصول <span className="text-red-500">*</span>
-              </label>
-              <select
-                id="field-crop"
-                value={cropType}
-                onChange={(e) => setCropType(e.target.value)}
-                className={clsx(
-                  'w-full px-3.5 py-2.5 rounded-xl border text-sm appearance-none',
-                  'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100',
-                  'border-gray-300 dark:border-gray-600',
-                  'focus:ring-2 focus:ring-green-500 focus:border-green-500 transition',
-                )}
-              >
-                {CROP_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.labelAr} {opt.value ? `- ${opt.label}` : ''}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label
-                htmlFor="field-irrigation"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
-              >
-                <Droplets className="h-3.5 w-3.5 inline ml-1" />
-                نوع الري <span className="text-red-500">*</span>
-              </label>
-              <select
-                id="field-irrigation"
-                value={irrigationType}
-                onChange={(e) => setIrrigationType(e.target.value)}
-                className={clsx(
-                  'w-full px-3.5 py-2.5 rounded-xl border text-sm appearance-none',
-                  'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100',
-                  'border-gray-300 dark:border-gray-600',
-                  'focus:ring-2 focus:ring-green-500 focus:border-green-500 transition',
-                )}
-              >
-                {IRRIGATION_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.labelAr} {opt.value ? `- ${opt.label}` : ''}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Area */}
-          <div className="max-w-xs">
-            <label
-              htmlFor="field-area"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
-            >
-              المساحة (هكتار)
-            </label>
-            <input
-              id="field-area"
-              type="number"
-              step="0.1"
-              min="0"
-              dir="ltr"
-              value={areaHectares}
-              onChange={(e) => setAreaHectares(e.target.value)}
-              placeholder="0.0"
-              className={clsx(
-                'w-full px-3.5 py-2.5 rounded-xl border text-sm',
-                'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100',
-                'border-gray-300 dark:border-gray-600',
-                'focus:ring-2 focus:ring-green-500 focus:border-green-500 transition',
-                'placeholder:text-gray-400 dark:placeholder:text-gray-500',
-              )}
-            />
-          </div>
-
-          {/* ---- Map section ---- */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                <MapPin className="h-3.5 w-3.5 inline ml-1" />
-                حدود الحقل | Field Boundary
-              </label>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsDrawing(!isDrawing)}
-                  className={clsx(
-                    'inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition',
-                    isDrawing
-                      ? 'bg-green-600 text-white'
-                      : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700',
-                  )}
-                >
-                  <PenTool className="w-3.5 h-3.5" />
-                  {isDrawing ? 'الرسم مفعل' : 'رسم الحدود'}
-                </button>
-                {boundaryPoints.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => setBoundaryPoints([])}
-                    className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-lg text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 hover:bg-red-100 dark:hover:bg-red-900/30 transition"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                    مسح
-                  </button>
-                )}
-              </div>
+                ارسم حدود الحقل على الخريطة
+                <span className="ms-2 text-gray-400 font-normal">| Draw field boundary</span>
+              </h3>
             </div>
 
             <DrawableMap
-              points={boundaryPoints}
-              onPointsChange={setBoundaryPoints}
-              isDrawing={isDrawing}
+              onBoundaryChange={setBoundary}
+              height="380px"
+              initialCenter={[15.5527, 48.5164]}
+              initialZoom={6}
             />
 
-            {boundaryPoints.length > 0 && boundaryPoints.length < 3 && (
-              <p className="mt-1.5 text-xs text-amber-600 dark:text-amber-400">
-                يجب رسم 3 نقاط على الاقل لتكوين حدود الحقل
+            {boundary && computedArea !== null && (
+              <p className="mt-2 text-xs text-green-700 dark:text-green-400 flex items-center gap-1">
+                <Check className="h-3.5 w-3.5" />
+                تم رسم الحدود — المساحة التقريبية: {computedArea.toFixed(2)} هكتار
+                <span className="text-gray-400">| ≈ {computedArea.toFixed(2)} ha</span>
               </p>
             )}
-            {boundaryPoints.length >= 3 && (
-              <p className="mt-1.5 text-xs text-green-600 dark:text-green-400">
-                <Check className="h-3 w-3 inline ml-0.5" />
-                تم رسم {boundaryPoints.length} نقطة - الحدود جاهزة
+            {!boundary && (
+              <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                استخدم أدوات الرسم لتحديد المضلع أو المستطيل، ثم انتقل لإدخال التفاصيل أدناه.
+                <span className="block text-gray-400">
+                  Use the drawing tools to outline a polygon or rectangle, then continue below.
+                </span>
               </p>
             )}
-          </div>
+          </section>
 
-          {/* ---- GeoJSON preview ---- */}
-          {boundaryPoints.length >= 3 && (
-            <details className="group">
-              <summary className="text-xs text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-700 dark:hover:text-gray-300 transition">
-                عرض GeoJSON | View GeoJSON
-              </summary>
-              <pre
-                dir="ltr"
-                className="mt-2 p-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-xs font-mono text-gray-600 dark:text-gray-400 overflow-x-auto max-h-32"
+          {/* ===========================================================
+              STEP 2 — Details (enabled only after the boundary exists)
+              =========================================================== */}
+          <section
+            aria-labelledby="step-2-label"
+            aria-disabled={!detailsEnabled}
+            className={clsx(
+              'rounded-xl border p-4 transition',
+              detailsEnabled
+                ? 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900'
+                : 'border-dashed border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/40 opacity-60',
+            )}
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <span
+                className={clsx(
+                  'inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold',
+                  detailsEnabled
+                    ? 'bg-green-600 text-white'
+                    : 'bg-gray-300 dark:bg-gray-700 text-gray-600 dark:text-gray-400',
+                )}
               >
-                {JSON.stringify(buildGeoJSON(), null, 2)}
-              </pre>
-            </details>
-          )}
+                2
+              </span>
+              <h3
+                id="step-2-label"
+                className="text-sm font-semibold text-gray-900 dark:text-gray-100"
+              >
+                تفاصيل الحقل
+                <span className="ms-2 text-gray-400 font-normal">| Field details</span>
+              </h3>
+            </div>
+
+            <fieldset
+              disabled={!detailsEnabled}
+              className="space-y-4 disabled:opacity-60"
+            >
+              {/* Single bilingual name field — replaces the two duplicate
+                  Arabic/English inputs that the previous design exposed. */}
+              <div>
+                <label
+                  htmlFor="field-name"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
+                >
+                  اسم الحقل
+                  <span className="ms-2 text-gray-400 font-normal">| Field name</span>
+                  <span className="text-red-500 ms-1">*</span>
+                </label>
+                <input
+                  id="field-name"
+                  type="text"
+                  // dir="auto" lets the browser pick LTR/RTL per character set
+                  // (Arabic input flows RTL, Latin input flows LTR) without
+                  // duplicating the input.
+                  dir="auto"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="مثال: حقل القمح الشمالي / North Wheat Field"
+                  autoComplete="off"
+                  className={clsx(
+                    'w-full px-3.5 py-2.5 rounded-xl border text-sm',
+                    'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100',
+                    'border-gray-300 dark:border-gray-600',
+                    'focus:ring-2 focus:ring-green-500 focus:border-green-500 transition',
+                    'placeholder:text-gray-400 dark:placeholder:text-gray-500',
+                  )}
+                />
+              </div>
+
+              {/* Crop + Irrigation */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label
+                    htmlFor="field-crop"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
+                  >
+                    <Wheat className="h-3.5 w-3.5 inline ms-1" />
+                    المحصول <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    id="field-crop"
+                    value={cropType}
+                    onChange={(e) => setCropType(e.target.value)}
+                    className={clsx(
+                      'w-full px-3.5 py-2.5 rounded-xl border text-sm appearance-none',
+                      'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100',
+                      'border-gray-300 dark:border-gray-600',
+                      'focus:ring-2 focus:ring-green-500 focus:border-green-500 transition',
+                    )}
+                  >
+                    {CROP_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.labelAr} {opt.value ? `- ${opt.label}` : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label
+                    htmlFor="field-irrigation"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
+                  >
+                    <Droplets className="h-3.5 w-3.5 inline ms-1" />
+                    نوع الري <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    id="field-irrigation"
+                    value={irrigationType}
+                    onChange={(e) => setIrrigationType(e.target.value)}
+                    className={clsx(
+                      'w-full px-3.5 py-2.5 rounded-xl border text-sm appearance-none',
+                      'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100',
+                      'border-gray-300 dark:border-gray-600',
+                      'focus:ring-2 focus:ring-green-500 focus:border-green-500 transition',
+                    )}
+                  >
+                    {IRRIGATION_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.labelAr} {opt.value ? `- ${opt.label}` : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Area — pre-filled from the polygon if the user does not override */}
+              <div className="max-w-xs">
+                <label
+                  htmlFor="field-area"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
+                >
+                  المساحة (هكتار) <span className="text-gray-400 font-normal">| Area (ha)</span>
+                </label>
+                <input
+                  id="field-area"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  dir="ltr"
+                  value={areaHectares}
+                  onChange={(e) => setAreaHectares(e.target.value)}
+                  placeholder={
+                    computedArea !== null ? computedArea.toFixed(2) : '0.0'
+                  }
+                  className={clsx(
+                    'w-full px-3.5 py-2.5 rounded-xl border text-sm',
+                    'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100',
+                    'border-gray-300 dark:border-gray-600',
+                    'focus:ring-2 focus:ring-green-500 focus:border-green-500 transition',
+                    'placeholder:text-gray-400 dark:placeholder:text-gray-500',
+                  )}
+                />
+                {computedArea !== null && !areaHectares && (
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    سيتم استخدام المساحة المحسوبة من الحدود إذا تُركت فارغة
+                    <span className="block text-gray-400">
+                      Computed area from boundary will be used if left empty
+                    </span>
+                  </p>
+                )}
+              </div>
+            </fieldset>
+          </section>
 
           {/* ---- Actions ---- */}
           <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-200 dark:border-gray-700">
@@ -566,13 +527,18 @@ export default function FieldCreateDialog({
             </button>
             <button
               type="submit"
-              disabled={submitting}
+              disabled={submitting || !detailsEnabled}
               className={clsx(
                 'inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white rounded-xl transition',
                 'bg-green-600 hover:bg-green-700',
                 'focus:ring-2 focus:ring-green-500 focus:ring-offset-2',
                 'disabled:opacity-50 disabled:cursor-not-allowed',
               )}
+              title={
+                !detailsEnabled
+                  ? 'ارسم الحدود أولاً | Draw the boundary first'
+                  : undefined
+              }
             >
               {submitting ? (
                 <>

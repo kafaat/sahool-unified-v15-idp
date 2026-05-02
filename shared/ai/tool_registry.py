@@ -1063,7 +1063,7 @@ class ToolRegistry:
                 return len(re.findall(r"(info|warning|error)\s+-", stdout + stderr))
             else:
                 # Generic: count non-empty lines
-                return len([l for l in stdout.split("\n") if l.strip()])
+                return len([line for line in stdout.split("\n") if line.strip()])
         except Exception:
             return 0
 

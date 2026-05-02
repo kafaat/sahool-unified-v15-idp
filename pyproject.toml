@@ -81,7 +81,6 @@ ignore = [
     "E501",  # Line too long - handled by formatter (line-length = 120)
     "C901",  # Function too complex - allowed up to 20 for AI/RAG services
     "B007",  # Loop control variable not used - often intentional
-    "B006",  # Mutable default argument - sometimes intentional
     "N814",  # CamelCase imported as constant - common pattern
     "N815",  # Variable in class scope mixedCase - existing codebase style
     "N806",  # Variable should be lowercase - false positives
@@ -92,8 +91,6 @@ ignore = [
     "N803",  # Argument name should be lowercase - math variables like X, Y
     "B905",  # zip() without strict - Python 3.10+ only
     "E712",  # Comparison to True/False - SQLAlchemy filter pattern
-    "E741",  # Ambiguous variable name - sometimes intentional (l, O, I)
-    "E722",  # Bare except - sometimes needed for catch-all
     "E721",  # Type comparison using == - sometimes intentional
     "B018",  # Useless expression - sometimes intentional for documentation
     "B026",  # Star-arg unpacking - valid pattern in some cases
@@ -109,7 +106,6 @@ ignore = [
     "SIM210", # True if else False - sometimes clearer
     "SIM222", # Use True instead of or True - edge cases
     "E731",   # Lambda assignment - sometimes cleaner
-    "F841",   # Unused variable - often intentional placeholders
     "UP035",  # Deprecated typing imports - backwards compat
     "I001",   # Import sorting - auto-formatter handles this
 ]
@@ -254,6 +250,21 @@ exclude = [
     "tests/",
     ".venv/",
 ]
+
+[[tool.mypy.overrides]]
+module = [
+    "shared.security.token_revocation",
+    "shared.middleware.rate_limit",
+]
+strict = true
+
+[tool.mutmut]
+paths_to_mutate = [
+    "shared/security/token_revocation.py",
+    "shared/middleware/rate_limit.py",
+]
+tests_dir = "tests"
+runner = "pytest tests/unit tests/security -q"
 
 [tool.bandit]
 exclude_dirs = ["archive", "tests", ".venv", "node_modules"]

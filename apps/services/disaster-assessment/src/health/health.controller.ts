@@ -3,7 +3,8 @@
  * Kubernetes health check endpoints for disaster-assessment service
  */
 
-import { Controller, Get, SetMetadata } from "@nestjs/common";
+import { Controller, Get, HttpStatus, Res, SetMetadata } from "@nestjs/common";
+import type { Response } from "express";
 import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { SkipThrottle } from "@nestjs/throttler";
 import { PrismaService } from "../prisma/prisma.service";
@@ -32,7 +33,7 @@ export class HealthController {
   @Get("readyz")
   @ApiOperation({ summary: "Readiness probe | فحص الجاهزية" })
   @ApiResponse({ status: 200, description: "Service is ready" })
-  async readinessCheck() {
+  async readinessCheck(@Res({ passthrough: true }) res?: Response) {
     let dbConnected = false;
 
     try {
@@ -40,6 +41,9 @@ export class HealthController {
       dbConnected = true;
     } catch {
       dbConnected = false;
+    }
+    if (!dbConnected) {
+      res?.status(HttpStatus.SERVICE_UNAVAILABLE);
     }
 
     return {

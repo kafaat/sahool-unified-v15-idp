@@ -1257,15 +1257,15 @@ class CodeFixAgent:
     def _calculate_code_metrics(self, code: str) -> dict[str, Any]:
         """حساب مقاييس الكود"""
         lines = code.split("\n")
-        non_empty_lines = [l for l in lines if l.strip()]
-        comment_lines = [l for l in lines if l.strip().startswith("#")]
+        non_empty_lines = [line for line in lines if line.strip()]
+        comment_lines = [line for line in lines if line.strip().startswith("#")]
 
         return {
             "total_lines": len(lines),
             "code_lines": len(non_empty_lines) - len(comment_lines),
             "comment_lines": len(comment_lines),
             "blank_lines": len(lines) - len(non_empty_lines),
-            "avg_line_length": sum(len(l) for l in lines) / max(len(lines), 1),
+            "avg_line_length": sum(len(line) for line in lines) / max(len(lines), 1),
         }
 
     def _generate_suggestions(self, issues: list[CodeIssue]) -> list[str]:
@@ -1501,7 +1501,7 @@ Provide ONLY the fixed code without any explanation. Return the complete fixed c
             if fixed_code.startswith("```"):
                 lines = fixed_code.split("\n")
                 # Remove first and last lines (code block markers)
-                lines = [l for l in lines if not l.startswith("```")]
+                lines = [line for line in lines if not line.startswith("```")]
                 fixed_code = "\n".join(lines)
 
             # Validate the fix is different from original
@@ -1889,7 +1889,7 @@ Provide ONLY the fixed code without any explanation. Return the complete fixed c
                         "name": t.name,
                         "name_ar": t.name_ar,
                         "category": t.category.value,
-                        "languages": [l.value for l in t.languages],
+                        "languages": [lang.value for lang in t.languages],
                         "status": t.status.value,
                         "version": t.version,
                         "available": availability.get(t.id, False),

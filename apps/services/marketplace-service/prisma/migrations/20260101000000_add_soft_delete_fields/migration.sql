@@ -9,12 +9,12 @@
 -- ═══════════════════════════════════════════════════════════════════════════
 
 ALTER TABLE "products"
-ADD COLUMN "deleted_at" TIMESTAMPTZ,
-ADD COLUMN "deleted_by" VARCHAR(255);
+ADD COLUMN IF NOT EXISTS "deleted_at" TIMESTAMPTZ,
+ADD COLUMN IF NOT EXISTS "deleted_by" VARCHAR(255);
 
 -- Create index for soft delete queries (remediated in 20260303)
 -- drift:safe reason=remediated remediated_by=20260303000000_safe_index_remediation
-CREATE INDEX "idx_products_deleted_at" ON "products"("deleted_at");
+CREATE INDEX IF NOT EXISTS "idx_products_deleted_at" ON "products"("deleted_at");
 
 -- Add comment to columns
 COMMENT ON COLUMN "products"."deleted_at" IS 'تاريخ الحذف الناعم - Soft delete timestamp';
@@ -27,11 +27,11 @@ COMMENT ON COLUMN "products"."deleted_by" IS 'من قام بالحذف - User wh
 -- ═══════════════════════════════════════════════════════════════════════════
 
 ALTER TABLE "orders"
-ADD COLUMN "deleted_at" TIMESTAMPTZ,
-ADD COLUMN "deleted_by" VARCHAR(255);
+ADD COLUMN IF NOT EXISTS "deleted_at" TIMESTAMPTZ,
+ADD COLUMN IF NOT EXISTS "deleted_by" VARCHAR(255);
 
 -- drift:safe reason=remediated remediated_by=20260303000000_safe_index_remediation
-CREATE INDEX "idx_orders_deleted_at" ON "orders"("deleted_at");
+CREATE INDEX IF NOT EXISTS "idx_orders_deleted_at" ON "orders"("deleted_at");
 
 -- Add comment to columns
 COMMENT ON COLUMN "orders"."deleted_at" IS 'تاريخ الحذف الناعم - Soft delete timestamp';
@@ -44,11 +44,11 @@ COMMENT ON COLUMN "orders"."deleted_by" IS 'من قام بالحذف - User who 
 -- ═══════════════════════════════════════════════════════════════════════════
 
 ALTER TABLE "wallets"
-ADD COLUMN "deleted_at" TIMESTAMPTZ,
-ADD COLUMN "deleted_by" VARCHAR(255);
+ADD COLUMN IF NOT EXISTS "deleted_at" TIMESTAMPTZ,
+ADD COLUMN IF NOT EXISTS "deleted_by" VARCHAR(255);
 
 -- drift:safe reason=remediated remediated_by=20260303000000_safe_index_remediation
-CREATE INDEX "idx_wallets_deleted_at" ON "wallets"("deleted_at");
+CREATE INDEX IF NOT EXISTS "idx_wallets_deleted_at" ON "wallets"("deleted_at");
 
 -- Add comment to columns
 COMMENT ON COLUMN "wallets"."deleted_at" IS 'تاريخ الحذف الناعم - Soft delete timestamp';
@@ -61,11 +61,11 @@ COMMENT ON COLUMN "wallets"."deleted_by" IS 'من قام بالحذف - User who
 -- ═══════════════════════════════════════════════════════════════════════════
 
 ALTER TABLE "loans"
-ADD COLUMN "deleted_at" TIMESTAMPTZ,
-ADD COLUMN "deleted_by" VARCHAR(255);
+ADD COLUMN IF NOT EXISTS "deleted_at" TIMESTAMPTZ,
+ADD COLUMN IF NOT EXISTS "deleted_by" VARCHAR(255);
 
 -- drift:safe reason=remediated remediated_by=20260303000000_safe_index_remediation
-CREATE INDEX "idx_loans_deleted_at" ON "loans"("deleted_at");
+CREATE INDEX IF NOT EXISTS "idx_loans_deleted_at" ON "loans"("deleted_at");
 
 -- Add comment to columns
 COMMENT ON COLUMN "loans"."deleted_at" IS 'تاريخ الحذف الناعم - Soft delete timestamp';

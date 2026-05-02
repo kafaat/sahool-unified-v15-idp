@@ -374,9 +374,9 @@ class ASTAnalyzer:
         metrics = ComplexityMetrics()
 
         # Lines of code
-        metrics.lines_of_code = len([l for l in self._lines if l.strip()])
-        metrics.blank_lines = len([l for l in self._lines if not l.strip()])
-        metrics.lines_of_comments = len([l for l in self._lines if l.strip().startswith("#")])
+        metrics.lines_of_code = len([line for line in self._lines if line.strip()])
+        metrics.blank_lines = len([line for line in self._lines if not line.strip()])
+        metrics.lines_of_comments = len([line for line in self._lines if line.strip().startswith("#")])
 
         # Cyclomatic complexity
         metrics.cyclomatic = self._calculate_cyclomatic_complexity()

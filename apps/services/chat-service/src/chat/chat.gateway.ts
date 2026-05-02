@@ -93,9 +93,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
       }
 
       // Validate JWT token
-      const jwtSecret = process.env.JWT_SECRET;
+      const jwtSecret = process.env.JWT_SECRET_KEY || process.env.JWT_SECRET;
       if (!jwtSecret) {
-        this.logger.error("JWT_SECRET environment variable is not set");
+        this.logger.error("JWT_SECRET_KEY or JWT_SECRET environment variable is not set");
         return null;
       }
 

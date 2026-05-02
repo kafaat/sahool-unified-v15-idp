@@ -627,7 +627,7 @@ class ProgressTracker:
             course_id=course.id,
             status=EnrollmentStatus.ENROLLED,
             total_lessons=len(course.lessons),
-            total_quizzes=sum(1 for l in course.lessons if l.quiz),
+            total_quizzes=sum(1 for les in course.lessons if les.quiz),
         )
 
         # Update profile

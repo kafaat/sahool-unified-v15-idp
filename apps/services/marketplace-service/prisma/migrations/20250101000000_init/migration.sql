@@ -1,47 +1,103 @@
 -- CreateEnum
-CREATE TYPE "ProductCategory" AS ENUM ('HARVEST', 'SEEDS', 'FERTILIZER', 'PESTICIDE', 'EQUIPMENT', 'IRRIGATION', 'OTHER');
+DO $$
+BEGIN
+    CREATE TYPE "ProductCategory" AS ENUM ('HARVEST', 'SEEDS', 'FERTILIZER', 'PESTICIDE', 'EQUIPMENT', 'IRRIGATION', 'OTHER');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- CreateEnum
-CREATE TYPE "SellerType" AS ENUM ('FARMER', 'COMPANY', 'COOPERATIVE');
+DO $$
+BEGIN
+    CREATE TYPE "SellerType" AS ENUM ('FARMER', 'COMPANY', 'COOPERATIVE');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- CreateEnum
-CREATE TYPE "ProductStatus" AS ENUM ('AVAILABLE', 'SOLD_OUT', 'RESERVED', 'PENDING');
+DO $$
+BEGIN
+    CREATE TYPE "ProductStatus" AS ENUM ('AVAILABLE', 'SOLD_OUT', 'RESERVED', 'PENDING');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- CreateEnum
-CREATE TYPE "OrderStatus" AS ENUM ('PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED');
+DO $$
+BEGIN
+    CREATE TYPE "OrderStatus" AS ENUM ('PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- CreateEnum
-CREATE TYPE "PaymentStatus" AS ENUM ('UNPAID', 'PARTIAL', 'PAID', 'REFUNDED');
+DO $$
+BEGIN
+    CREATE TYPE "PaymentStatus" AS ENUM ('UNPAID', 'PARTIAL', 'PAID', 'REFUNDED');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- CreateEnum
-CREATE TYPE "CreditTier" AS ENUM ('BRONZE', 'SILVER', 'GOLD', 'PLATINUM');
+DO $$
+BEGIN
+    CREATE TYPE "CreditTier" AS ENUM ('BRONZE', 'SILVER', 'GOLD', 'PLATINUM');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- CreateEnum
-CREATE TYPE "TransactionType" AS ENUM ('DEPOSIT', 'WITHDRAWAL', 'PURCHASE', 'SALE', 'LOAN', 'REPAYMENT', 'FEE', 'REFUND', 'MARKETPLACE_SALE', 'MARKETPLACE_PURCHASE', 'LOAN_DISBURSEMENT', 'LOAN_REPAYMENT', 'ESCROW_HOLD', 'ESCROW_RELEASE', 'ESCROW_REFUND', 'SCHEDULED_PAYMENT', 'TRANSFER_IN', 'TRANSFER_OUT');
+DO $$
+BEGIN
+    CREATE TYPE "TransactionType" AS ENUM ('DEPOSIT', 'WITHDRAWAL', 'PURCHASE', 'SALE', 'LOAN', 'REPAYMENT', 'FEE', 'REFUND', 'MARKETPLACE_SALE', 'MARKETPLACE_PURCHASE', 'LOAN_DISBURSEMENT', 'LOAN_REPAYMENT', 'ESCROW_HOLD', 'ESCROW_RELEASE', 'ESCROW_REFUND', 'SCHEDULED_PAYMENT', 'TRANSFER_IN', 'TRANSFER_OUT');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- CreateEnum
-CREATE TYPE "TransactionStatus" AS ENUM ('PENDING', 'COMPLETED', 'FAILED', 'CANCELLED');
+DO $$
+BEGIN
+    CREATE TYPE "TransactionStatus" AS ENUM ('PENDING', 'COMPLETED', 'FAILED', 'CANCELLED');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- CreateEnum
-CREATE TYPE "LoanPurpose" AS ENUM ('SEEDS', 'FERTILIZER', 'EQUIPMENT', 'IRRIGATION', 'EXPANSION', 'EMERGENCY', 'OTHER');
+DO $$
+BEGIN
+    CREATE TYPE "LoanPurpose" AS ENUM ('SEEDS', 'FERTILIZER', 'EQUIPMENT', 'IRRIGATION', 'EXPANSION', 'EMERGENCY', 'OTHER');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- CreateEnum
-CREATE TYPE "LoanStatus" AS ENUM ('PENDING', 'APPROVED', 'ACTIVE', 'PAID', 'DEFAULTED', 'REJECTED');
+DO $$
+BEGIN
+    CREATE TYPE "LoanStatus" AS ENUM ('PENDING', 'APPROVED', 'ACTIVE', 'PAID', 'DEFAULTED', 'REJECTED');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- CreateEnum
-CREATE TYPE "CreditEventType" AS ENUM ('LOAN_REPAID_ONTIME', 'LOAN_REPAID_LATE', 'LOAN_DEFAULTED', 'ORDER_COMPLETED', 'ORDER_CANCELLED', 'VERIFICATION_UPGRADE', 'FARM_VERIFIED', 'COOPERATIVE_JOINED', 'LAND_VERIFIED');
+DO $$
+BEGIN
+    CREATE TYPE "CreditEventType" AS ENUM ('LOAN_REPAID_ONTIME', 'LOAN_REPAID_LATE', 'LOAN_DEFAULTED', 'ORDER_COMPLETED', 'ORDER_CANCELLED', 'VERIFICATION_UPGRADE', 'FARM_VERIFIED', 'COOPERATIVE_JOINED', 'LAND_VERIFIED');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- CreateEnum
-CREATE TYPE "EscrowStatus" AS ENUM ('HELD', 'RELEASED', 'REFUNDED', 'DISPUTED', 'CANCELLED');
+DO $$
+BEGIN
+    CREATE TYPE "EscrowStatus" AS ENUM ('HELD', 'RELEASED', 'REFUNDED', 'DISPUTED', 'CANCELLED');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- CreateEnum
-CREATE TYPE "PaymentFrequency" AS ENUM ('DAILY', 'WEEKLY', 'BIWEEKLY', 'MONTHLY', 'QUARTERLY', 'YEARLY');
+DO $$
+BEGIN
+    CREATE TYPE "PaymentFrequency" AS ENUM ('DAILY', 'WEEKLY', 'BIWEEKLY', 'MONTHLY', 'QUARTERLY', 'YEARLY');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- CreateEnum
-CREATE TYPE "BusinessType" AS ENUM ('INDIVIDUAL', 'FARM', 'COOPERATIVE', 'DISTRIBUTOR', 'RETAILER');
+DO $$
+BEGIN
+    CREATE TYPE "BusinessType" AS ENUM ('INDIVIDUAL', 'FARM', 'COOPERATIVE', 'DISTRIBUTOR', 'RETAILER');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- CreateTable
-CREATE TABLE "products" (
+CREATE TABLE IF NOT EXISTS "products" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "tenant_id" TEXT NOT NULL DEFAULT 'unassigned',
     "name" TEXT NOT NULL,
@@ -72,7 +128,7 @@ CREATE TABLE "products" (
 );
 
 -- CreateTable
-CREATE TABLE "orders" (
+CREATE TABLE IF NOT EXISTS "orders" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "tenant_id" TEXT NOT NULL DEFAULT 'unassigned',
     "order_number" TEXT NOT NULL,
@@ -98,7 +154,7 @@ CREATE TABLE "orders" (
 );
 
 -- CreateTable
-CREATE TABLE "order_items" (
+CREATE TABLE IF NOT EXISTS "order_items" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "tenant_id" TEXT NOT NULL DEFAULT 'unassigned',
     "order_id" UUID NOT NULL,
@@ -111,7 +167,7 @@ CREATE TABLE "order_items" (
 );
 
 -- CreateTable
-CREATE TABLE "wallets" (
+CREATE TABLE IF NOT EXISTS "wallets" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "tenant_id" TEXT NOT NULL DEFAULT 'unassigned',
     "user_id" TEXT NOT NULL,
@@ -141,7 +197,7 @@ CREATE TABLE "wallets" (
 );
 
 -- CreateTable
-CREATE TABLE "transactions" (
+CREATE TABLE IF NOT EXISTS "transactions" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "tenant_id" TEXT NOT NULL DEFAULT 'unassigned',
     "wallet_id" TEXT NOT NULL,
@@ -163,7 +219,7 @@ CREATE TABLE "transactions" (
 );
 
 -- CreateTable
-CREATE TABLE "loans" (
+CREATE TABLE IF NOT EXISTS "loans" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "tenant_id" TEXT NOT NULL DEFAULT 'unassigned',
     "wallet_id" TEXT NOT NULL,
@@ -188,7 +244,7 @@ CREATE TABLE "loans" (
 );
 
 -- CreateTable
-CREATE TABLE "credit_events" (
+CREATE TABLE IF NOT EXISTS "credit_events" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "tenant_id" TEXT NOT NULL DEFAULT 'unassigned',
     "wallet_id" TEXT NOT NULL,
@@ -203,7 +259,7 @@ CREATE TABLE "credit_events" (
 );
 
 -- CreateTable
-CREATE TABLE "escrows" (
+CREATE TABLE IF NOT EXISTS "escrows" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "tenant_id" TEXT NOT NULL DEFAULT 'unassigned',
     "order_id" TEXT NOT NULL,
@@ -221,7 +277,7 @@ CREATE TABLE "escrows" (
 );
 
 -- CreateTable
-CREATE TABLE "scheduled_payments" (
+CREATE TABLE IF NOT EXISTS "scheduled_payments" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "tenant_id" TEXT NOT NULL DEFAULT 'unassigned',
     "wallet_id" TEXT NOT NULL,
@@ -242,7 +298,7 @@ CREATE TABLE "scheduled_payments" (
 );
 
 -- CreateTable
-CREATE TABLE "wallet_audit_logs" (
+CREATE TABLE IF NOT EXISTS "wallet_audit_logs" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "tenant_id" TEXT NOT NULL DEFAULT 'unassigned',
     "wallet_id" TEXT NOT NULL,
@@ -265,7 +321,7 @@ CREATE TABLE "wallet_audit_logs" (
 );
 
 -- CreateTable
-CREATE TABLE "seller_profiles" (
+CREATE TABLE IF NOT EXISTS "seller_profiles" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "user_id" TEXT NOT NULL,
     "tenant_id" TEXT NOT NULL DEFAULT 'unassigned',
@@ -286,7 +342,7 @@ CREATE TABLE "seller_profiles" (
 );
 
 -- CreateTable
-CREATE TABLE "buyer_profiles" (
+CREATE TABLE IF NOT EXISTS "buyer_profiles" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "user_id" TEXT NOT NULL,
     "tenant_id" TEXT NOT NULL DEFAULT 'unassigned',
@@ -302,7 +358,7 @@ CREATE TABLE "buyer_profiles" (
 );
 
 -- CreateTable
-CREATE TABLE "product_reviews" (
+CREATE TABLE IF NOT EXISTS "product_reviews" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "tenant_id" TEXT NOT NULL DEFAULT 'unassigned',
     "product_id" UUID NOT NULL,
@@ -322,7 +378,7 @@ CREATE TABLE "product_reviews" (
 );
 
 -- CreateTable
-CREATE TABLE "review_responses" (
+CREATE TABLE IF NOT EXISTS "review_responses" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "tenant_id" TEXT NOT NULL DEFAULT 'unassigned',
     "review_id" UUID NOT NULL,
@@ -335,226 +391,226 @@ CREATE TABLE "review_responses" (
 );
 
 -- CreateIndex
-CREATE INDEX "idx_product_tenant" ON "products"("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_product_tenant" ON "products"("tenant_id");
 
 -- CreateIndex
-CREATE INDEX "idx_product_tenant_status" ON "products"("tenant_id", "status");
+CREATE INDEX IF NOT EXISTS "idx_product_tenant_status" ON "products"("tenant_id", "status");
 
 -- CreateIndex
-CREATE INDEX "products_seller_id_status_idx" ON "products"("seller_id", "status");
+CREATE INDEX IF NOT EXISTS "products_seller_id_status_idx" ON "products"("seller_id", "status");
 
 -- CreateIndex
-CREATE INDEX "products_category_status_idx" ON "products"("category", "status");
+CREATE INDEX IF NOT EXISTS "products_category_status_idx" ON "products"("category", "status");
 
 -- CreateIndex
-CREATE INDEX "products_status_featured_idx" ON "products"("status", "featured");
+CREATE INDEX IF NOT EXISTS "products_status_featured_idx" ON "products"("status", "featured");
 
 -- CreateIndex
-CREATE INDEX "products_id_stock_idx" ON "products"("id", "stock");
+CREATE INDEX IF NOT EXISTS "products_id_stock_idx" ON "products"("id", "stock");
 
 -- CreateIndex
-CREATE INDEX "products_deleted_at_idx" ON "products"("deleted_at");
+CREATE INDEX IF NOT EXISTS "products_deleted_at_idx" ON "products"("deleted_at");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "orders_order_number_key" ON "orders"("order_number");
+CREATE UNIQUE INDEX IF NOT EXISTS "orders_order_number_key" ON "orders"("order_number");
 
 -- CreateIndex
-CREATE INDEX "idx_order_tenant" ON "orders"("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_order_tenant" ON "orders"("tenant_id");
 
 -- CreateIndex
-CREATE INDEX "idx_order_tenant_status" ON "orders"("tenant_id", "status");
+CREATE INDEX IF NOT EXISTS "idx_order_tenant_status" ON "orders"("tenant_id", "status");
 
 -- CreateIndex
-CREATE INDEX "orders_buyer_id_status_idx" ON "orders"("buyer_id", "status");
+CREATE INDEX IF NOT EXISTS "orders_buyer_id_status_idx" ON "orders"("buyer_id", "status");
 
 -- CreateIndex
-CREATE INDEX "idx_order_buyer_date" ON "orders"("buyer_id", "created_at");
+CREATE INDEX IF NOT EXISTS "idx_order_buyer_date" ON "orders"("buyer_id", "created_at");
 
 -- CreateIndex
-CREATE INDEX "orders_status_created_at_idx" ON "orders"("status", "created_at");
+CREATE INDEX IF NOT EXISTS "orders_status_created_at_idx" ON "orders"("status", "created_at");
 
 -- CreateIndex
-CREATE INDEX "orders_payment_status_idx" ON "orders"("payment_status");
+CREATE INDEX IF NOT EXISTS "orders_payment_status_idx" ON "orders"("payment_status");
 
 -- CreateIndex
-CREATE INDEX "orders_created_at_idx" ON "orders"("created_at");
+CREATE INDEX IF NOT EXISTS "orders_created_at_idx" ON "orders"("created_at");
 
 -- CreateIndex
-CREATE INDEX "orders_deleted_at_idx" ON "orders"("deleted_at");
+CREATE INDEX IF NOT EXISTS "orders_deleted_at_idx" ON "orders"("deleted_at");
 
 -- CreateIndex
-CREATE INDEX "idx_order_item_tenant" ON "order_items"("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_order_item_tenant" ON "order_items"("tenant_id");
 
 -- CreateIndex
-CREATE INDEX "order_items_order_id_idx" ON "order_items"("order_id");
+CREATE INDEX IF NOT EXISTS "order_items_order_id_idx" ON "order_items"("order_id");
 
 -- CreateIndex
-CREATE INDEX "order_items_product_id_idx" ON "order_items"("product_id");
+CREATE INDEX IF NOT EXISTS "order_items_product_id_idx" ON "order_items"("product_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "wallets_user_id_key" ON "wallets"("user_id");
+CREATE UNIQUE INDEX IF NOT EXISTS "wallets_user_id_key" ON "wallets"("user_id");
 
 -- CreateIndex
-CREATE INDEX "idx_wallet_tenant" ON "wallets"("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_wallet_tenant" ON "wallets"("tenant_id");
 
 -- CreateIndex
-CREATE INDEX "wallets_deleted_at_idx" ON "wallets"("deleted_at");
+CREATE INDEX IF NOT EXISTS "wallets_deleted_at_idx" ON "wallets"("deleted_at");
 
 -- CreateIndex
-CREATE INDEX "idx_wallet_credit_tier" ON "wallets"("credit_tier");
+CREATE INDEX IF NOT EXISTS "idx_wallet_credit_tier" ON "wallets"("credit_tier");
 
 -- CreateIndex
-CREATE INDEX "idx_wallet_verified" ON "wallets"("is_verified");
+CREATE INDEX IF NOT EXISTS "idx_wallet_verified" ON "wallets"("is_verified");
 
 -- CreateIndex
-CREATE INDEX "idx_wallet_kyc_status" ON "wallets"("kyc_status");
+CREATE INDEX IF NOT EXISTS "idx_wallet_kyc_status" ON "wallets"("kyc_status");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "transactions_idempotency_key_key" ON "transactions"("idempotency_key");
+CREATE UNIQUE INDEX IF NOT EXISTS "transactions_idempotency_key_key" ON "transactions"("idempotency_key");
 
 -- CreateIndex
-CREATE INDEX "idx_transaction_tenant" ON "transactions"("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_transaction_tenant" ON "transactions"("tenant_id");
 
 -- CreateIndex
-CREATE INDEX "idx_transaction_wallet" ON "transactions"("wallet_id");
+CREATE INDEX IF NOT EXISTS "idx_transaction_wallet" ON "transactions"("wallet_id");
 
 -- CreateIndex
-CREATE INDEX "idx_transaction_reference" ON "transactions"("reference_id");
+CREATE INDEX IF NOT EXISTS "idx_transaction_reference" ON "transactions"("reference_id");
 
 -- CreateIndex
-CREATE INDEX "idx_transaction_type" ON "transactions"("type");
+CREATE INDEX IF NOT EXISTS "idx_transaction_type" ON "transactions"("type");
 
 -- CreateIndex
-CREATE INDEX "idx_transaction_status" ON "transactions"("status");
+CREATE INDEX IF NOT EXISTS "idx_transaction_status" ON "transactions"("status");
 
 -- CreateIndex
-CREATE INDEX "idx_transaction_wallet_date" ON "transactions"("wallet_id", "created_at");
+CREATE INDEX IF NOT EXISTS "idx_transaction_wallet_date" ON "transactions"("wallet_id", "created_at");
 
 -- CreateIndex
-CREATE INDEX "transactions_idempotency_key_idx" ON "transactions"("idempotency_key");
+CREATE INDEX IF NOT EXISTS "transactions_idempotency_key_idx" ON "transactions"("idempotency_key");
 
 -- CreateIndex
-CREATE INDEX "idx_loan_tenant" ON "loans"("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_loan_tenant" ON "loans"("tenant_id");
 
 -- CreateIndex
-CREATE INDEX "idx_loan_wallet" ON "loans"("wallet_id");
+CREATE INDEX IF NOT EXISTS "idx_loan_wallet" ON "loans"("wallet_id");
 
 -- CreateIndex
-CREATE INDEX "idx_loan_status" ON "loans"("status");
+CREATE INDEX IF NOT EXISTS "idx_loan_status" ON "loans"("status");
 
 -- CreateIndex
-CREATE INDEX "idx_loan_wallet_status" ON "loans"("wallet_id", "status");
+CREATE INDEX IF NOT EXISTS "idx_loan_wallet_status" ON "loans"("wallet_id", "status");
 
 -- CreateIndex
-CREATE INDEX "loans_deleted_at_idx" ON "loans"("deleted_at");
+CREATE INDEX IF NOT EXISTS "loans_deleted_at_idx" ON "loans"("deleted_at");
 
 -- CreateIndex
-CREATE INDEX "idx_credit_event_tenant" ON "credit_events"("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_credit_event_tenant" ON "credit_events"("tenant_id");
 
 -- CreateIndex
-CREATE INDEX "credit_events_wallet_id_idx" ON "credit_events"("wallet_id");
+CREATE INDEX IF NOT EXISTS "credit_events_wallet_id_idx" ON "credit_events"("wallet_id");
 
 -- CreateIndex
-CREATE INDEX "credit_events_event_type_idx" ON "credit_events"("event_type");
+CREATE INDEX IF NOT EXISTS "credit_events_event_type_idx" ON "credit_events"("event_type");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "escrows_order_id_key" ON "escrows"("order_id");
+CREATE UNIQUE INDEX IF NOT EXISTS "escrows_order_id_key" ON "escrows"("order_id");
 
 -- CreateIndex
-CREATE INDEX "idx_escrow_tenant" ON "escrows"("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_escrow_tenant" ON "escrows"("tenant_id");
 
 -- CreateIndex
-CREATE INDEX "escrows_buyer_wallet_id_idx" ON "escrows"("buyer_wallet_id");
+CREATE INDEX IF NOT EXISTS "escrows_buyer_wallet_id_idx" ON "escrows"("buyer_wallet_id");
 
 -- CreateIndex
-CREATE INDEX "escrows_seller_wallet_id_idx" ON "escrows"("seller_wallet_id");
+CREATE INDEX IF NOT EXISTS "escrows_seller_wallet_id_idx" ON "escrows"("seller_wallet_id");
 
 -- CreateIndex
-CREATE INDEX "escrows_status_idx" ON "escrows"("status");
+CREATE INDEX IF NOT EXISTS "escrows_status_idx" ON "escrows"("status");
 
 -- CreateIndex
-CREATE INDEX "idx_scheduled_payment_tenant" ON "scheduled_payments"("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_scheduled_payment_tenant" ON "scheduled_payments"("tenant_id");
 
 -- CreateIndex
-CREATE INDEX "scheduled_payments_wallet_id_idx" ON "scheduled_payments"("wallet_id");
+CREATE INDEX IF NOT EXISTS "scheduled_payments_wallet_id_idx" ON "scheduled_payments"("wallet_id");
 
 -- CreateIndex
-CREATE INDEX "scheduled_payments_next_payment_date_idx" ON "scheduled_payments"("next_payment_date");
+CREATE INDEX IF NOT EXISTS "scheduled_payments_next_payment_date_idx" ON "scheduled_payments"("next_payment_date");
 
 -- CreateIndex
-CREATE INDEX "scheduled_payments_is_active_idx" ON "scheduled_payments"("is_active");
+CREATE INDEX IF NOT EXISTS "scheduled_payments_is_active_idx" ON "scheduled_payments"("is_active");
 
 -- CreateIndex
-CREATE INDEX "scheduled_payments_loan_id_idx" ON "scheduled_payments"("loan_id");
+CREATE INDEX IF NOT EXISTS "scheduled_payments_loan_id_idx" ON "scheduled_payments"("loan_id");
 
 -- CreateIndex
-CREATE INDEX "idx_wallet_audit_tenant" ON "wallet_audit_logs"("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_wallet_audit_tenant" ON "wallet_audit_logs"("tenant_id");
 
 -- CreateIndex
-CREATE INDEX "wallet_audit_logs_wallet_id_idx" ON "wallet_audit_logs"("wallet_id");
+CREATE INDEX IF NOT EXISTS "wallet_audit_logs_wallet_id_idx" ON "wallet_audit_logs"("wallet_id");
 
 -- CreateIndex
-CREATE INDEX "wallet_audit_logs_transaction_id_idx" ON "wallet_audit_logs"("transaction_id");
+CREATE INDEX IF NOT EXISTS "wallet_audit_logs_transaction_id_idx" ON "wallet_audit_logs"("transaction_id");
 
 -- CreateIndex
-CREATE INDEX "wallet_audit_logs_created_at_idx" ON "wallet_audit_logs"("created_at");
+CREATE INDEX IF NOT EXISTS "wallet_audit_logs_created_at_idx" ON "wallet_audit_logs"("created_at");
 
 -- CreateIndex
-CREATE INDEX "wallet_audit_logs_idempotency_key_idx" ON "wallet_audit_logs"("idempotency_key");
+CREATE INDEX IF NOT EXISTS "wallet_audit_logs_idempotency_key_idx" ON "wallet_audit_logs"("idempotency_key");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "seller_profiles_user_id_key" ON "seller_profiles"("user_id");
+CREATE UNIQUE INDEX IF NOT EXISTS "seller_profiles_user_id_key" ON "seller_profiles"("user_id");
 
 -- CreateIndex
-CREATE INDEX "seller_profiles_user_id_idx" ON "seller_profiles"("user_id");
+CREATE INDEX IF NOT EXISTS "seller_profiles_user_id_idx" ON "seller_profiles"("user_id");
 
 -- CreateIndex
-CREATE INDEX "seller_profiles_tenant_id_idx" ON "seller_profiles"("tenant_id");
+CREATE INDEX IF NOT EXISTS "seller_profiles_tenant_id_idx" ON "seller_profiles"("tenant_id");
 
 -- CreateIndex
-CREATE INDEX "seller_profiles_business_type_idx" ON "seller_profiles"("business_type");
+CREATE INDEX IF NOT EXISTS "seller_profiles_business_type_idx" ON "seller_profiles"("business_type");
 
 -- CreateIndex
-CREATE INDEX "seller_profiles_verified_idx" ON "seller_profiles"("verified");
+CREATE INDEX IF NOT EXISTS "seller_profiles_verified_idx" ON "seller_profiles"("verified");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "buyer_profiles_user_id_key" ON "buyer_profiles"("user_id");
+CREATE UNIQUE INDEX IF NOT EXISTS "buyer_profiles_user_id_key" ON "buyer_profiles"("user_id");
 
 -- CreateIndex
-CREATE INDEX "buyer_profiles_user_id_idx" ON "buyer_profiles"("user_id");
+CREATE INDEX IF NOT EXISTS "buyer_profiles_user_id_idx" ON "buyer_profiles"("user_id");
 
 -- CreateIndex
-CREATE INDEX "buyer_profiles_tenant_id_idx" ON "buyer_profiles"("tenant_id");
+CREATE INDEX IF NOT EXISTS "buyer_profiles_tenant_id_idx" ON "buyer_profiles"("tenant_id");
 
 -- CreateIndex
-CREATE INDEX "idx_review_tenant" ON "product_reviews"("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_review_tenant" ON "product_reviews"("tenant_id");
 
 -- CreateIndex
-CREATE INDEX "product_reviews_product_id_idx" ON "product_reviews"("product_id");
+CREATE INDEX IF NOT EXISTS "product_reviews_product_id_idx" ON "product_reviews"("product_id");
 
 -- CreateIndex
-CREATE INDEX "product_reviews_buyer_id_idx" ON "product_reviews"("buyer_id");
+CREATE INDEX IF NOT EXISTS "product_reviews_buyer_id_idx" ON "product_reviews"("buyer_id");
 
 -- CreateIndex
-CREATE INDEX "product_reviews_order_id_idx" ON "product_reviews"("order_id");
+CREATE INDEX IF NOT EXISTS "product_reviews_order_id_idx" ON "product_reviews"("order_id");
 
 -- CreateIndex
-CREATE INDEX "product_reviews_rating_idx" ON "product_reviews"("rating");
+CREATE INDEX IF NOT EXISTS "product_reviews_rating_idx" ON "product_reviews"("rating");
 
 -- CreateIndex
-CREATE INDEX "product_reviews_verified_idx" ON "product_reviews"("verified");
+CREATE INDEX IF NOT EXISTS "product_reviews_verified_idx" ON "product_reviews"("verified");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "review_responses_review_id_key" ON "review_responses"("review_id");
+CREATE UNIQUE INDEX IF NOT EXISTS "review_responses_review_id_key" ON "review_responses"("review_id");
 
 -- CreateIndex
-CREATE INDEX "idx_review_response_tenant" ON "review_responses"("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_review_response_tenant" ON "review_responses"("tenant_id");
 
 -- CreateIndex
-CREATE INDEX "review_responses_review_id_idx" ON "review_responses"("review_id");
+CREATE INDEX IF NOT EXISTS "review_responses_review_id_idx" ON "review_responses"("review_id");
 
 -- CreateIndex
-CREATE INDEX "review_responses_seller_id_idx" ON "review_responses"("seller_id");
+CREATE INDEX IF NOT EXISTS "review_responses_seller_id_idx" ON "review_responses"("seller_id");
 
 -- AddForeignKey
 ALTER TABLE "order_items" ADD CONSTRAINT "order_items_order_id_fkey" FOREIGN KEY ("order_id") REFERENCES "orders"("id") ON DELETE CASCADE ON UPDATE CASCADE;

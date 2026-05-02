@@ -212,15 +212,15 @@ class MarketplaceEngine:
 
         الحصول على ملخص السوق.
         """
-        active = [l for l in self._listings if l.status == ListingStatus.ACTIVE]
+        active = [listing for listing in self._listings if listing.status == ListingStatus.ACTIVE]
 
-        total_volume = sum(l.quantity_tons for l in active)
-        total_value = sum(l.quantity_tons * l.price_sar_per_ton for l in active)
+        total_volume = sum(listing.quantity_tons for listing in active)
+        total_value = sum(listing.quantity_tons * listing.price_sar_per_ton for listing in active)
 
         # Top crops by volume
         crop_volumes: dict[str, float] = {}
-        for l in active:
-            crop_volumes[l.crop_type] = crop_volumes.get(l.crop_type, 0) + l.quantity_tons
+        for listing in active:
+            crop_volumes[listing.crop_type] = crop_volumes.get(listing.crop_type, 0) + listing.quantity_tons
 
         top_crops = [{"crop": k, "volume_tons": v} for k, v in sorted(crop_volumes.items(), key=lambda x: -x[1])[:5]]
 

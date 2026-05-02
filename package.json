@@ -33,6 +33,13 @@
     "build:all": "npm run build:packages && npm run build --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "lint:all": "npm run lint --workspaces --if-present",
+    "lint:sahool": "python3 scripts/sahool_lint.py",
+    "lowcode:theme": "python3 scripts/generate_themes.py",
+    "lowcode:form:poc": "python3 scripts/openapi_form_generator.py --operation-id analyzeSatelliteGeometry",
+    "lowcode:view:poc": "python3 scripts/openapi_form_generator.py --operation-id listFields --layout card",
+    "lowcode:tests:poc": "python3 scripts/generate_flutter_widget_tests_poc.py",
+    "lowcode:registry:check": "python3 scripts/lowcode_schema_registry.py validate",
+    "lowcode:poc": "npm run lowcode:theme && npm run lowcode:form:poc && npm run lowcode:view:poc && npm run lowcode:tests:poc && npm run lowcode:registry:check",
     "lint:fix": "npm run lint:fix --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "vitest run && npm run test --workspace=apps/admin",
@@ -111,7 +118,8 @@
     "socket.io-parser": ">=4.2.6",
     "smol-toml": ">=1.6.1",
     "yaml": ">=2.8.3",
-    "next": ">=15.5.14"
+    "next": ">=15.5.15",
+    "follow-redirects": ">=1.16.0"
   },
   "engines": {
     "node": ">=20.0.0",

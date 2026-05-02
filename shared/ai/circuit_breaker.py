@@ -253,6 +253,10 @@ class CircuitBreaker:
     def _record_failure(self) -> None:
         """Record a failed call."""
         now_wall = time.time()
+        # ``self._last_failure_time`` is initialized to 0.0 in __init__ and acts
+        # as a sentinel meaning "no previous failure observed". We capture it
+        # *before* updating so the EWMA below can compare against the prior
+        # failure timestamp; the ``> 0`` guard skips the very first failure.
         previous_failure_wall = self._last_failure_time
 
         self._stats.total_calls += 1

@@ -31,7 +31,6 @@ from src.signal_derivation import (  # noqa: E402
     derive_signals,
 )
 
-
 # ---------- signal_derivation ---------------------------------------------
 
 
@@ -206,35 +205,41 @@ def test_learning_default_rate_when_no_data() -> None:
 def test_learning_records_and_computes_rate() -> None:
     engine = LearningEngine()
     for result in ["improved", "improved", "no_change", "worsened"]:
-        engine.record_outcome({
-            "crop": "wheat",
-            "region": "saudi",
-            "action": "increase_irrigation",
-            "result": result,
-        })
+        engine.record_outcome(
+            {
+                "crop": "wheat",
+                "region": "saudi",
+                "action": "increase_irrigation",
+                "result": result,
+            }
+        )
     assert engine.get_success_rate("wheat", "saudi", "increase_irrigation") == pytest.approx(0.5)
 
 
 def test_learning_invalid_result_treated_as_no_change() -> None:
     engine = LearningEngine()
-    engine.record_outcome({
-        "crop": "wheat",
-        "region": "saudi",
-        "action": "no_action",
-        "result": "garbage",
-    })
+    engine.record_outcome(
+        {
+            "crop": "wheat",
+            "region": "saudi",
+            "action": "no_action",
+            "result": "garbage",
+        }
+    )
     assert engine.get_success_rate("wheat", "saudi", "no_action") == 0.0
 
 
 def test_learning_bounded_memory() -> None:
     engine = LearningEngine(memory_size=3)
     for _ in range(10):
-        engine.record_outcome({
-            "crop": "wheat",
-            "region": "saudi",
-            "action": "no_action",
-            "result": "improved",
-        })
+        engine.record_outcome(
+            {
+                "crop": "wheat",
+                "region": "saudi",
+                "action": "no_action",
+                "result": "improved",
+            }
+        )
     assert len(engine.outcomes[("wheat", "saudi", "no_action")]) == 3
 
 
@@ -320,6 +325,7 @@ async def test_redis_breaker_error_not_leaked_to_response() -> None:
 
     advisor_router._redis_breaker.trip()
     try:
+
         async def _never_called():  # pragma: no cover - must not run
             raise AssertionError("should not be invoked when CB is OPEN")
 

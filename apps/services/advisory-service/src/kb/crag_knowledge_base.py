@@ -101,10 +101,7 @@ class CragKnowledgeBase:
         collection_name = collection or self.default_collection
         qdrant_filter = None
         if filters:
-            conditions = [
-                FieldCondition(key=key, match=MatchValue(value=value))
-                for key, value in filters.items()
-            ]
+            conditions = [FieldCondition(key=key, match=MatchValue(value=value)) for key, value in filters.items()]
             qdrant_filter = Filter(must=conditions)
 
         try:

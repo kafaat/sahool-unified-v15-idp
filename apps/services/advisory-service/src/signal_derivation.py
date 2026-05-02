@@ -51,23 +51,12 @@ _VEGETATIVE_STAGES = {"vegetative", "flowering"}
 
 def derive_signals(field: FieldContext) -> DerivedSignals:
     """Convert raw field measurements into binary/categorical signals."""
-    water_stress = (
-        field.ndwi < NDWI_STRESS_THRESHOLD
-        or field.soil_moisture < SOIL_MOISTURE_STRESS_THRESHOLD
-    )
+    water_stress = field.ndwi < NDWI_STRESS_THRESHOLD or field.soil_moisture < SOIL_MOISTURE_STRESS_THRESHOLD
     heat_stress = field.temperature > HEAT_STRESS_TEMP_C
-    nitrogen_deficiency = (
-        field.nitrogen_level is not None
-        and field.nitrogen_level < NITROGEN_DEFICIENCY_THRESHOLD
-    )
-    pest_risk = (
-        "medium"
-        if (field.ndvi < NDVI_PEST_THRESHOLD and field.growth_stage in _VEGETATIVE_STAGES)
-        else "low"
-    )
-    growth_stage_appropriate = (
-        (field.growth_stage in _VEGETATIVE_STAGES and field.ndvi > NDVI_HEALTHY_VEGETATIVE)
-        or (field.growth_stage == "maturity" and field.ndvi < NDVI_MATURITY_LOW)
+    nitrogen_deficiency = field.nitrogen_level is not None and field.nitrogen_level < NITROGEN_DEFICIENCY_THRESHOLD
+    pest_risk = "medium" if (field.ndvi < NDVI_PEST_THRESHOLD and field.growth_stage in _VEGETATIVE_STAGES) else "low"
+    growth_stage_appropriate = (field.growth_stage in _VEGETATIVE_STAGES and field.ndvi > NDVI_HEALTHY_VEGETATIVE) or (
+        field.growth_stage == "maturity" and field.ndvi < NDVI_MATURITY_LOW
     )
     critical_ndvi = field.ndvi < NDVI_CRITICAL_THRESHOLD
 

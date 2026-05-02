@@ -111,6 +111,7 @@ class FeedbackRequest(BaseModel):
 _redis_singleton: Any = None
 _redis_unavailable: bool = False
 
+
 # Canonical circuit breaker around Redis. When Redis flaps, the breaker trips
 # OPEN and subsequent calls fail fast (no 5s socket-timeout per request) until
 # the adaptive recovery window elapses. We never surface ``CircuitBreakerError``
@@ -371,9 +372,7 @@ async def _resolve_current_user() -> Any:
     # ``Depends(security)``). Calling it directly here would bypass that
     # plumbing, so instead we raise to let the user wire it as ``Depends``.
     # In practice tests should override ``_resolve_current_user`` directly.
-    raise RuntimeError(
-        "_resolve_current_user must be overridden when shared.auth is present"
-    )
+    raise RuntimeError("_resolve_current_user must be overridden when shared.auth is present")
 
 
 def _current_user_dep() -> Any:
@@ -420,9 +419,7 @@ async def recommend(
 
 def _check_tenant_match(decision: dict[str, Any], user: Any) -> None:
     expected = decision.get("tenant_id")
-    actual = getattr(user, "tenant_id", None) or (
-        user.get("tenant_id") if isinstance(user, dict) else None
-    )
+    actual = getattr(user, "tenant_id", None) or (user.get("tenant_id") if isinstance(user, dict) else None)
     if expected and actual and expected != actual:
         raise HTTPException(status_code=403, detail="tenant mismatch")
 
@@ -439,12 +436,8 @@ async def approve_decision(
     _check_tenant_match(decision, user)
 
     advisor = await _get_advisor()
-    approver = getattr(user, "id", None) or (
-        user.get("id") if isinstance(user, dict) else "human"
-    )
-    approved = advisor.governance.approve(
-        decision, approved_by=str(approver), modified_action=body.modified_action
-    )
+    approver = getattr(user, "id", None) or (user.get("id") if isinstance(user, dict) else "human")
+    approved = advisor.governance.approve(decision, approved_by=str(approver), modified_action=body.modified_action)
     await _delete_pending(body.decision_id)
     return {"status": "approved", "decision": approved}
 
@@ -461,12 +454,8 @@ async def reject_decision(
     _check_tenant_match(decision, user)
 
     advisor = await _get_advisor()
-    rejecter = getattr(user, "id", None) or (
-        user.get("id") if isinstance(user, dict) else "human"
-    )
-    rejected = advisor.governance.reject(
-        decision, rejected_by=str(rejecter), reason=body.reason
-    )
+    rejecter = getattr(user, "id", None) or (user.get("id") if isinstance(user, dict) else "human")
+    rejected = advisor.governance.reject(decision, rejected_by=str(rejecter), reason=body.reason)
     await _delete_pending(body.decision_id)
     return {"status": "rejected", "decision": rejected}
 

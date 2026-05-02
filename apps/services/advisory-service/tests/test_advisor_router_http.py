@@ -120,9 +120,7 @@ def test_recommend_auto_approve_returns_no_decision_id(client: TestClient) -> No
 
 def test_recommend_pending_then_approve_flow(client: TestClient) -> None:
     # Nitrogen deficiency → add_nitrogen → pending_approval
-    resp = client.post(
-        "/v2/recommend", json=_ok_payload(ndwi=0.5, nitrogen_level=0.2)
-    )
+    resp = client.post("/v2/recommend", json=_ok_payload(ndwi=0.5, nitrogen_level=0.2))
     assert resp.status_code == 200
     body = resp.json()
     assert body["action"] == "add_nitrogen"
@@ -144,21 +142,15 @@ def test_recommend_pending_then_approve_flow(client: TestClient) -> None:
 
 
 def test_approve_unknown_decision_returns_404(client: TestClient) -> None:
-    resp = client.post(
-        "/v2/approve", json={"decision_id": "does-not-exist"}
-    )
+    resp = client.post("/v2/approve", json={"decision_id": "does-not-exist"})
     assert resp.status_code == 404
 
 
 def test_reject_pending_flow(client: TestClient) -> None:
-    resp = client.post(
-        "/v2/recommend", json=_ok_payload(ndwi=0.5, nitrogen_level=0.2)
-    )
+    resp = client.post("/v2/recommend", json=_ok_payload(ndwi=0.5, nitrogen_level=0.2))
     decision_id = resp.json()["decision_id"]
 
-    resp2 = client.post(
-        "/v2/reject", json={"decision_id": decision_id, "reason": "soil pH too low"}
-    )
+    resp2 = client.post("/v2/reject", json={"decision_id": decision_id, "reason": "soil pH too low"})
     assert resp2.status_code == 200
     body = resp2.json()
     assert body["status"] == "rejected"
@@ -166,16 +158,12 @@ def test_reject_pending_flow(client: TestClient) -> None:
 
 
 def test_feedback_invalid_result_value_rejected(client: TestClient) -> None:
-    resp = client.post(
-        "/v2/feedback", json={"decision_id": "x", "result": "great"}
-    )
+    resp = client.post("/v2/feedback", json={"decision_id": "x", "result": "great"})
     assert resp.status_code == 422
 
 
 def test_feedback_publishes_event(client: TestClient) -> None:
-    resp = client.post(
-        "/v2/feedback", json={"decision_id": "any", "result": "improved"}
-    )
+    resp = client.post("/v2/feedback", json={"decision_id": "any", "result": "improved"})
     assert resp.status_code == 200
     assert resp.json()["status"] == "feedback_recorded"
 
@@ -185,8 +173,6 @@ def test_pending_memory_is_bounded(client: TestClient, monkeypatch) -> None:
     monkeypatch.setattr(advisor_router, "_PENDING_MEMORY_MAX", 3)
     # Generate 5 pending decisions; only the last 3 should survive.
     for _ in range(5):
-        resp = client.post(
-            "/v2/recommend", json=_ok_payload(ndwi=0.5, nitrogen_level=0.2)
-        )
+        resp = client.post("/v2/recommend", json=_ok_payload(ndwi=0.5, nitrogen_level=0.2))
         assert resp.status_code == 200
     assert len(advisor_router._pending_memory) == 3

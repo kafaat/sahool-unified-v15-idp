@@ -77,8 +77,7 @@ class AdvisorEngine:
             (
                 action,
                 RULE_WEIGHT * self._rule_score(signals, action)
-                + LEARNED_WEIGHT
-                * self.learning.get_success_rate(field.crop_type, field.region, action),
+                + LEARNED_WEIGHT * self.learning.get_success_rate(field.crop_type, field.region, action),
             )
             for action in actions
         ]
@@ -182,9 +181,7 @@ class AdvisorEngine:
     async def _get_graph_context(self, field: FieldContext) -> dict[str, Any]:
         context: dict[str, Any] = {}
         try:
-            diseases = await self.kg_client.search_entities(
-                field.crop_type, entity_type="disease", limit=3
-            )
+            diseases = await self.kg_client.search_entities(field.crop_type, entity_type="disease", limit=3)
             context["common_diseases"] = diseases
         except Exception as exc:  # noqa: BLE001 — degrade gracefully
             logger.error("advisor.graph_context_failed", extra={"error": str(exc)})

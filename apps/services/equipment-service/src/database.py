@@ -80,78 +80,50 @@ def get_db() -> Generator[Session, None, None]:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
+def _run_additive_migrations() -> None:
+    """Add columns that exist in the ORM model but may be missing from older DB schemas."""
+    # Columns that were added to the model after the initial DB schema was created.
+    # All are nullable so adding them to existing rows is safe.
+    new_columns = [
+        ("year", "INTEGER"),
+        ("horsepower", "INTEGER"),
+        ("fuel_capacity_liters", "NUMERIC(8, 2)"),
+        ("current_fuel_percent", "NUMERIC(5, 2)"),
+        ("current_lat", "NUMERIC(10, 7)"),
+        ("current_lon", "NUMERIC(10, 7)"),
+        ("next_maintenance_hours", "NUMERIC(10, 2)"),
+        ("qr_code", "VARCHAR(100)"),
+    ]
+    try:
+        db = SessionLocal()
+        for col_name, col_type in new_columns:
+            db.execute(
+                text(
+                    f"ALTER TABLE equipment ADD COLUMN IF NOT EXISTS {col_name} {col_type}"
+                )
+            )
+        db.commit()
+        db.close()
+    except Exception as e:
+        print(f"⚠️  Additive migration failed (non-fatal): {e}")
+
+
 def init_db():
     """
     Initialize database tables and run migrations.
 
     This function:
     1. Creates tables if they don't exist
-    2. Runs migration to rename 'id' to 'equipment_id' if needed
+    2. Adds columns that the model requires but may be missing from older DB schemas
 
-    In production, consider using Alembic migrations directly.
+    Column name mismatches (e.g. model 'equipment_id' → DB 'id') are handled
+    via SQLAlchemy mapped_column aliases in db_models.py — no DB renames needed.
     """
-    # Create tables that don't exist
+    # Create tables that don't exist (no-op for existing tables)
     Base.metadata.create_all(bind=engine)
 
-    # Run migration to rename id -> equipment_id if needed
-    # This handles the schema mismatch where DB has 'id' but model expects 'equipment_id'
-    try:
-        db = SessionLocal()
-
-        # Check if 'id' column exists (needs migration)
-        result = db.execute(
-            text(
-                """
-                SELECT column_name
-                FROM information_schema.columns
-                WHERE table_name = 'equipment' AND column_name = 'id'
-                """
-            )
-        )
-        has_id_column = result.fetchone() is not None
-
-        if has_id_column:
-            # Run migration: rename 'id' to 'equipment_id'
-            print("🔄 Running migration: renaming equipment.id to equipment.equipment_id...")
-            db.execute(
-                text(
-                    """
-                    ALTER TABLE equipment
-                    RENAME COLUMN id TO equipment_id
-                    """
-                )
-            )
-            # Also change type from UUID to VARCHAR(50) to match model
-            db.execute(
-                text(
-                    """
-                    ALTER TABLE equipment
-                    ALTER COLUMN equipment_id TYPE VARCHAR(50) USING equipment_id::VARCHAR(50)
-                    """
-                )
-            )
-            db.commit()
-            print("✅ Migration completed: equipment.id -> equipment.equipment_id")
-        else:
-            # Check if equipment_id column exists
-            result = db.execute(
-                text(
-                    """
-                    SELECT column_name
-                    FROM information_schema.columns
-                    WHERE table_name = 'equipment' AND column_name = 'equipment_id'
-                    """
-                )
-            )
-            has_equipment_id = result.fetchone() is not None
-            if has_equipment_id:
-                print("✅ Database schema is up to date (equipment_id column exists)")
-            else:
-                print("ℹ️  Equipment table not found or empty, will be created on first use")
-
-        db.close()
-    except Exception as e:
-        print(f"⚠️  Migration check failed (non-fatal): {e}")
+    # Add columns introduced in newer model versions that may not exist in older DB schemas
+    _run_additive_migrations()
 
 
 def drop_all_tables():

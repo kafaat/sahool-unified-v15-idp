@@ -19,12 +19,11 @@ import { logger } from '@/lib/logger';
 import { AUTH_ENDPOINTS } from '@sahool/shared-types/contracts';
 
 // USER_SERVICE_URL calls user-service directly, bypassing Kong.
-// API_GATEWAY_URL / NEXT_PUBLIC_API_URL are kept as fallbacks for when
-// Kong is configured with the register route in production.
+// DO NOT fall back to API_GATEWAY_URL / NEXT_PUBLIC_API_URL here:
+// Kong does not have a /api/v1/auth/register route and will return
+// "no Route matched with those values". Use a direct user-service URL.
 const BACKEND_URL =
   process.env.USER_SERVICE_URL ||
-  process.env.API_GATEWAY_URL ||
-  process.env.NEXT_PUBLIC_API_URL ||
   'http://localhost:3025';
 
 const RATE_LIMIT_CONFIG = {

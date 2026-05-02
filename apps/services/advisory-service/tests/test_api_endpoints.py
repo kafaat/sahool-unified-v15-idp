@@ -66,12 +66,17 @@ class TestTenantEnforcement:
         assert exc_info.value.status_code == 403
 
     def test_enforce_tenant_no_tenant_on_user(self):
-        """User without tenant_id should pass (no restriction)."""
+        """Token without tenant_id must be rejected (secure-by-default)."""
+        from fastapi import HTTPException
+
         try:
             user = User(id="u1", email="t@t.com", roles=[], tenant_id=None)
         except TypeError:
             user = User(id="u1", email="t@t.com", hashed_password="x", roles=[], tenant_id=None)
-        _enforce_tenant(user, "any_tenant")  # should not raise
+        with pytest.raises(HTTPException) as exc_info:
+            _enforce_tenant(user, "any_tenant")
+        assert exc_info.value.status_code == 403
+        assert exc_info.value.detail.get("error") == "missing_tenant"
 
 
 # ---------------------------------------------------------------------------

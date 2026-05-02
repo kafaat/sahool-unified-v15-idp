@@ -1,32 +1,68 @@
 -- CreateEnum
-CREATE TYPE "ItemCategory" AS ENUM ('SEEDS', 'FERTILIZER', 'PESTICIDE', 'HERBICIDE', 'FUNGICIDE', 'INSECTICIDE', 'EQUIPMENT', 'TOOLS', 'IRRIGATION', 'PACKAGING', 'FUEL', 'OTHER');
+DO $$
+BEGIN
+    CREATE TYPE "ItemCategory" AS ENUM ('SEEDS', 'FERTILIZER', 'PESTICIDE', 'HERBICIDE', 'FUNGICIDE', 'INSECTICIDE', 'EQUIPMENT', 'TOOLS', 'IRRIGATION', 'PACKAGING', 'FUEL', 'OTHER');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- CreateEnum
-CREATE TYPE "MovementType" AS ENUM ('PURCHASE', 'SALE', 'RETURN', 'ADJUSTMENT', 'TRANSFER', 'WASTE', 'USAGE', 'PRODUCTION', 'RESTOCK');
+DO $$
+BEGIN
+    CREATE TYPE "MovementType" AS ENUM ('PURCHASE', 'SALE', 'RETURN', 'ADJUSTMENT', 'TRANSFER', 'WASTE', 'USAGE', 'PRODUCTION', 'RESTOCK');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- CreateEnum
-CREATE TYPE "AlertType" AS ENUM ('LOW_STOCK', 'OUT_OF_STOCK', 'EXPIRING_SOON', 'EXPIRED', 'REORDER_POINT', 'OVERSTOCK', 'STORAGE_CONDITION');
+DO $$
+BEGIN
+    CREATE TYPE "AlertType" AS ENUM ('LOW_STOCK', 'OUT_OF_STOCK', 'EXPIRING_SOON', 'EXPIRED', 'REORDER_POINT', 'OVERSTOCK', 'STORAGE_CONDITION');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- CreateEnum
-CREATE TYPE "AlertPriority" AS ENUM ('LOW', 'MEDIUM', 'HIGH', 'CRITICAL');
+DO $$
+BEGIN
+    CREATE TYPE "AlertPriority" AS ENUM ('LOW', 'MEDIUM', 'HIGH', 'CRITICAL');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- CreateEnum
-CREATE TYPE "AlertStatus" AS ENUM ('ACTIVE', 'ACKNOWLEDGED', 'RESOLVED', 'SNOOZED');
+DO $$
+BEGIN
+    CREATE TYPE "AlertStatus" AS ENUM ('ACTIVE', 'ACKNOWLEDGED', 'RESOLVED', 'SNOOZED');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- CreateEnum
-CREATE TYPE "WarehouseType" AS ENUM ('MAIN', 'FIELD', 'COLD', 'CHEMICAL', 'SEED', 'FUEL');
+DO $$
+BEGIN
+    CREATE TYPE "WarehouseType" AS ENUM ('MAIN', 'FIELD', 'COLD', 'CHEMICAL', 'SEED', 'FUEL');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- CreateEnum
-CREATE TYPE "StorageCondition" AS ENUM ('AMBIENT', 'COOL', 'COLD', 'FROZEN', 'DRY', 'CONTROLLED');
+DO $$
+BEGIN
+    CREATE TYPE "StorageCondition" AS ENUM ('AMBIENT', 'COOL', 'COLD', 'FROZEN', 'DRY', 'CONTROLLED');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- CreateEnum
-CREATE TYPE "TransferType" AS ENUM ('INTER_WAREHOUSE', 'RECEIVING', 'DISPATCH');
+DO $$
+BEGIN
+    CREATE TYPE "TransferType" AS ENUM ('INTER_WAREHOUSE', 'RECEIVING', 'DISPATCH');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- CreateEnum
-CREATE TYPE "TransferStatus" AS ENUM ('PENDING', 'APPROVED', 'IN_TRANSIT', 'COMPLETED', 'CANCELLED');
+DO $$
+BEGIN
+    CREATE TYPE "TransferStatus" AS ENUM ('PENDING', 'APPROVED', 'IN_TRANSIT', 'COMPLETED', 'CANCELLED');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- CreateTable
-CREATE TABLE "inventory_items" (
+CREATE TABLE IF NOT EXISTS "inventory_items" (
     "id" TEXT NOT NULL,
     "tenant_id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
@@ -61,7 +97,7 @@ CREATE TABLE "inventory_items" (
 );
 
 -- CreateTable
-CREATE TABLE "inventory_movements" (
+CREATE TABLE IF NOT EXISTS "inventory_movements" (
     "id" TEXT NOT NULL,
     "item_id" TEXT NOT NULL,
     "tenant_id" TEXT NOT NULL,
@@ -81,7 +117,7 @@ CREATE TABLE "inventory_movements" (
 );
 
 -- CreateTable
-CREATE TABLE "inventory_alerts" (
+CREATE TABLE IF NOT EXISTS "inventory_alerts" (
     "id" TEXT NOT NULL,
     "tenant_id" TEXT NOT NULL,
     "alert_type" "AlertType" NOT NULL,
@@ -111,7 +147,7 @@ CREATE TABLE "inventory_alerts" (
 );
 
 -- CreateTable
-CREATE TABLE "alert_settings" (
+CREATE TABLE IF NOT EXISTS "alert_settings" (
     "id" TEXT NOT NULL,
     "tenant_id" TEXT NOT NULL,
     "expiry_warning_days" INTEGER NOT NULL DEFAULT 30,
@@ -131,7 +167,7 @@ CREATE TABLE "alert_settings" (
 );
 
 -- CreateTable
-CREATE TABLE "warehouses" (
+CREATE TABLE IF NOT EXISTS "warehouses" (
     "id" TEXT NOT NULL,
     "tenant_id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
@@ -159,7 +195,7 @@ CREATE TABLE "warehouses" (
 );
 
 -- CreateTable
-CREATE TABLE "zones" (
+CREATE TABLE IF NOT EXISTS "zones" (
     "id" TEXT NOT NULL,
     "tenant_id" TEXT NOT NULL,
     "warehouse_id" TEXT NOT NULL,
@@ -175,7 +211,7 @@ CREATE TABLE "zones" (
 );
 
 -- CreateTable
-CREATE TABLE "storage_locations" (
+CREATE TABLE IF NOT EXISTS "storage_locations" (
     "id" TEXT NOT NULL,
     "tenant_id" TEXT NOT NULL,
     "zone_id" TEXT NOT NULL,
@@ -194,7 +230,7 @@ CREATE TABLE "storage_locations" (
 );
 
 -- CreateTable
-CREATE TABLE "stock_transfers" (
+CREATE TABLE IF NOT EXISTS "stock_transfers" (
     "id" TEXT NOT NULL,
     "tenant_id" TEXT NOT NULL,
     "item_id" TEXT NOT NULL,
@@ -217,112 +253,112 @@ CREATE TABLE "stock_transfers" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "inventory_items_sku_key" ON "inventory_items"("sku");
+CREATE UNIQUE INDEX IF NOT EXISTS "inventory_items_sku_key" ON "inventory_items"("sku");
 
 -- CreateIndex
-CREATE INDEX "inventory_items_tenant_id_idx" ON "inventory_items"("tenant_id");
+CREATE INDEX IF NOT EXISTS "inventory_items_tenant_id_idx" ON "inventory_items"("tenant_id");
 
 -- CreateIndex
-CREATE INDEX "inventory_items_category_idx" ON "inventory_items"("category");
+CREATE INDEX IF NOT EXISTS "inventory_items_category_idx" ON "inventory_items"("category");
 
 -- CreateIndex
-CREATE INDEX "inventory_items_quantity_idx" ON "inventory_items"("quantity");
+CREATE INDEX IF NOT EXISTS "inventory_items_quantity_idx" ON "inventory_items"("quantity");
 
 -- CreateIndex
-CREATE INDEX "inventory_items_expiry_date_idx" ON "inventory_items"("expiry_date");
+CREATE INDEX IF NOT EXISTS "inventory_items_expiry_date_idx" ON "inventory_items"("expiry_date");
 
 -- CreateIndex
-CREATE INDEX "idx_inventory_tenant_cat_qty" ON "inventory_items"("tenant_id", "category", "quantity");
+CREATE INDEX IF NOT EXISTS "idx_inventory_tenant_cat_qty" ON "inventory_items"("tenant_id", "category", "quantity");
 
 -- CreateIndex
-CREATE INDEX "inventory_movements_item_id_idx" ON "inventory_movements"("item_id");
+CREATE INDEX IF NOT EXISTS "inventory_movements_item_id_idx" ON "inventory_movements"("item_id");
 
 -- CreateIndex
-CREATE INDEX "inventory_movements_tenant_id_idx" ON "inventory_movements"("tenant_id");
+CREATE INDEX IF NOT EXISTS "inventory_movements_tenant_id_idx" ON "inventory_movements"("tenant_id");
 
 -- CreateIndex
-CREATE INDEX "inventory_movements_type_idx" ON "inventory_movements"("type");
+CREATE INDEX IF NOT EXISTS "inventory_movements_type_idx" ON "inventory_movements"("type");
 
 -- CreateIndex
-CREATE INDEX "inventory_movements_created_at_idx" ON "inventory_movements"("created_at");
+CREATE INDEX IF NOT EXISTS "inventory_movements_created_at_idx" ON "inventory_movements"("created_at");
 
 -- CreateIndex
-CREATE INDEX "idx_movement_item_date" ON "inventory_movements"("item_id", "created_at");
+CREATE INDEX IF NOT EXISTS "idx_movement_item_date" ON "inventory_movements"("item_id", "created_at");
 
 -- CreateIndex
-CREATE INDEX "idx_movement_tenant_type_date" ON "inventory_movements"("tenant_id", "type", "created_at");
+CREATE INDEX IF NOT EXISTS "idx_movement_tenant_type_date" ON "inventory_movements"("tenant_id", "type", "created_at");
 
 -- CreateIndex
-CREATE INDEX "inventory_alerts_tenant_id_idx" ON "inventory_alerts"("tenant_id");
+CREATE INDEX IF NOT EXISTS "inventory_alerts_tenant_id_idx" ON "inventory_alerts"("tenant_id");
 
 -- CreateIndex
-CREATE INDEX "inventory_alerts_status_priority_idx" ON "inventory_alerts"("status", "priority");
+CREATE INDEX IF NOT EXISTS "inventory_alerts_status_priority_idx" ON "inventory_alerts"("status", "priority");
 
 -- CreateIndex
-CREATE INDEX "inventory_alerts_item_id_idx" ON "inventory_alerts"("item_id");
+CREATE INDEX IF NOT EXISTS "inventory_alerts_item_id_idx" ON "inventory_alerts"("item_id");
 
 -- CreateIndex
-CREATE INDEX "inventory_alerts_alert_type_idx" ON "inventory_alerts"("alert_type");
+CREATE INDEX IF NOT EXISTS "inventory_alerts_alert_type_idx" ON "inventory_alerts"("alert_type");
 
 -- CreateIndex
-CREATE INDEX "inventory_alerts_created_at_idx" ON "inventory_alerts"("created_at");
+CREATE INDEX IF NOT EXISTS "inventory_alerts_created_at_idx" ON "inventory_alerts"("created_at");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "alert_settings_tenant_id_key" ON "alert_settings"("tenant_id");
+CREATE UNIQUE INDEX IF NOT EXISTS "alert_settings_tenant_id_key" ON "alert_settings"("tenant_id");
 
 -- CreateIndex
-CREATE INDEX "warehouses_tenant_id_idx" ON "warehouses"("tenant_id");
+CREATE INDEX IF NOT EXISTS "warehouses_tenant_id_idx" ON "warehouses"("tenant_id");
 
 -- CreateIndex
-CREATE INDEX "idx_warehouse_active" ON "warehouses"("is_active");
+CREATE INDEX IF NOT EXISTS "idx_warehouse_active" ON "warehouses"("is_active");
 
 -- CreateIndex
-CREATE INDEX "idx_warehouse_type" ON "warehouses"("warehouse_type");
+CREATE INDEX IF NOT EXISTS "idx_warehouse_type" ON "warehouses"("warehouse_type");
 
 -- CreateIndex
-CREATE INDEX "idx_warehouse_location" ON "warehouses"("latitude", "longitude");
+CREATE INDEX IF NOT EXISTS "idx_warehouse_location" ON "warehouses"("latitude", "longitude");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "warehouses_tenant_id_name_key" ON "warehouses"("tenant_id", "name");
+CREATE UNIQUE INDEX IF NOT EXISTS "warehouses_tenant_id_name_key" ON "warehouses"("tenant_id", "name");
 
 -- CreateIndex
-CREATE INDEX "zones_tenant_id_idx" ON "zones"("tenant_id");
+CREATE INDEX IF NOT EXISTS "zones_tenant_id_idx" ON "zones"("tenant_id");
 
 -- CreateIndex
-CREATE INDEX "zones_warehouse_id_idx" ON "zones"("warehouse_id");
+CREATE INDEX IF NOT EXISTS "zones_warehouse_id_idx" ON "zones"("warehouse_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "zones_warehouse_id_name_key" ON "zones"("warehouse_id", "name");
+CREATE UNIQUE INDEX IF NOT EXISTS "zones_warehouse_id_name_key" ON "zones"("warehouse_id", "name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "storage_locations_location_code_key" ON "storage_locations"("location_code");
+CREATE UNIQUE INDEX IF NOT EXISTS "storage_locations_location_code_key" ON "storage_locations"("location_code");
 
 -- CreateIndex
-CREATE INDEX "storage_locations_tenant_id_idx" ON "storage_locations"("tenant_id");
+CREATE INDEX IF NOT EXISTS "storage_locations_tenant_id_idx" ON "storage_locations"("tenant_id");
 
 -- CreateIndex
-CREATE INDEX "storage_locations_zone_id_idx" ON "storage_locations"("zone_id");
+CREATE INDEX IF NOT EXISTS "storage_locations_zone_id_idx" ON "storage_locations"("zone_id");
 
 -- CreateIndex
-CREATE INDEX "storage_locations_location_code_idx" ON "storage_locations"("location_code");
+CREATE INDEX IF NOT EXISTS "storage_locations_location_code_idx" ON "storage_locations"("location_code");
 
 -- CreateIndex
-CREATE INDEX "storage_locations_current_item_id_idx" ON "storage_locations"("current_item_id");
+CREATE INDEX IF NOT EXISTS "storage_locations_current_item_id_idx" ON "storage_locations"("current_item_id");
 
 -- CreateIndex
-CREATE INDEX "stock_transfers_tenant_id_idx" ON "stock_transfers"("tenant_id");
+CREATE INDEX IF NOT EXISTS "stock_transfers_tenant_id_idx" ON "stock_transfers"("tenant_id");
 
 -- CreateIndex
-CREATE INDEX "stock_transfers_item_id_idx" ON "stock_transfers"("item_id");
+CREATE INDEX IF NOT EXISTS "stock_transfers_item_id_idx" ON "stock_transfers"("item_id");
 
 -- CreateIndex
-CREATE INDEX "stock_transfers_from_warehouse_id_idx" ON "stock_transfers"("from_warehouse_id");
+CREATE INDEX IF NOT EXISTS "stock_transfers_from_warehouse_id_idx" ON "stock_transfers"("from_warehouse_id");
 
 -- CreateIndex
-CREATE INDEX "stock_transfers_to_warehouse_id_idx" ON "stock_transfers"("to_warehouse_id");
+CREATE INDEX IF NOT EXISTS "stock_transfers_to_warehouse_id_idx" ON "stock_transfers"("to_warehouse_id");
 
 -- CreateIndex
-CREATE INDEX "stock_transfers_status_idx" ON "stock_transfers"("status");
+CREATE INDEX IF NOT EXISTS "stock_transfers_status_idx" ON "stock_transfers"("status");
 
 -- AddForeignKey
 ALTER TABLE "inventory_movements" ADD CONSTRAINT "inventory_movements_item_id_fkey" FOREIGN KEY ("item_id") REFERENCES "inventory_items"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

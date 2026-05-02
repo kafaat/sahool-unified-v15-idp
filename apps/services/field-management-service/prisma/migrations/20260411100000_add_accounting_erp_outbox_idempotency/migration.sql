@@ -1,4 +1,4 @@
--- drift:safe reason=Additive migration. All operations are either ADD COLUMN (new
+-- drift:safe reason=Additive migration. All operations are either ADD COLUMN IF NOT EXISTS (new
 -- nullable columns on tables that were created empty in the prior migration in the
 -- same transaction) or CREATE TABLE IF NOT EXISTS on new tables with zero rows.
 -- No existing rows are mutated. CREATE INDEX on empty tables is instantaneous.

@@ -4,11 +4,17 @@ set -e
 # NestJS service entrypoint with Prisma migration support
 # Handles P3005 (non-empty database) by baselining existing migrations
 # Handles P3009 (failed migrations) by marking them as rolled back and retrying
-# Includes wait-for-db and retry logic for environments where postgres starts slowly
+# Handles unfinished migration rows left by killed containers before deploy starts
+# Includes wait-for-db and retry logic for environments where postgres starts slowly.
+# Default DB wait is 60s; compose can override it to 120s for bulk startup.
 
 MAX_MIGRATION_ATTEMPTS=3
-DB_WAIT_TIMEOUT=${DB_WAIT_TIMEOUT:-30}
+DB_WAIT_TIMEOUT=${DB_WAIT_TIMEOUT:-60}
 DB_WAIT_INTERVAL=2
+ORIGINAL_DATABASE_URL=${DATABASE_URL:-}
+# POSIX ${var+x}: expands to "x" only when the variable was originally set.
+# If DATABASE_URL was set at entrypoint start, marker="x"; if unset, marker is empty.
+DATABASE_URL_SET_MARKER=${DATABASE_URL+x}
 
 # All SAHOOL Node.js services pin Prisma ~5.22.0 in their package.json, but
 # only @prisma/client is copied into the production image — the `prisma` CLI
@@ -17,7 +23,13 @@ DB_WAIT_INTERVAL=2
 # fails with P1012 ("url/directUrl no longer supported"). Pin the exact
 # version (not just the major) so migrations always run with a CLI whose
 # behavior matches the @prisma/client baked into the image.
-PRISMA_CLI="npx prisma@5.22.0"
+# Prefer the locally-installed prisma CLI (no network dependency).
+# Fall back to npx only if the local binary is absent (e.g. field-management-service).
+if [ -f /app/node_modules/.bin/prisma ]; then
+  PRISMA_CLI="node /app/node_modules/.bin/prisma"
+else
+  PRISMA_CLI="npx prisma@5.22.0"
+fi
 
 # ---------------------------------------------------------------------------
 # Migrations must use a direct Postgres connection (postgres:5432), NOT the
@@ -25,28 +37,62 @@ PRISMA_CLI="npx prisma@5.22.0"
 # between statements, which breaks Prisma's session-level advisory lock and
 # causes concurrent services to corrupt _prisma_migrations with stuck rows.
 # DATABASE_URL_DIRECT is set in docker-compose.yml for every NestJS service.
+# Keep the application DATABASE_URL intact for runtime; switch to the direct
+# URL only while running Prisma migrations below.
 # ---------------------------------------------------------------------------
-if [ -n "$DATABASE_URL_DIRECT" ]; then
-  export DATABASE_URL="$DATABASE_URL_DIRECT"
-fi
+use_migration_database_url() {
+  if [ -n "$DATABASE_URL_DIRECT" ]; then
+    export DATABASE_URL="$DATABASE_URL_DIRECT"
+  fi
+  if [ -z "${DATABASE_URL:-}" ]; then
+    echo 'ERROR: No database URL configured for Prisma migrations. Set DATABASE_URL_DIRECT (recommended to bypass PgBouncer) or DATABASE_URL.'
+    exit 1
+  fi
+}
+
+restore_application_database_url() {
+  if [ -n "$DATABASE_URL_SET_MARKER" ]; then
+    export DATABASE_URL="$ORIGINAL_DATABASE_URL"
+  else
+    unset DATABASE_URL
+  fi
+  # DATABASE_URL_DIRECT is only for Prisma migrations. Remove it before
+  # starting NestJS so runtime clients can only use the application pool URL.
+  unset DATABASE_URL_DIRECT
+}
 
 # ---------------------------------------------------------------------------
 # wait_for_db: block until PostgreSQL accepts connections or timeout expires
 # ---------------------------------------------------------------------------
 wait_for_db() {
   echo "Waiting for database to be ready (timeout: ${DB_WAIT_TIMEOUT}s)..."
+  # Extract host and port from DATABASE_URL for a lightweight TCP probe.
+  # DATABASE_URL may be postgres:5432 (direct) or pgbouncer:6432 (pool).
+  # We always probe the DIRECT url so we don't need PgBouncer to be up first.
+  _probe_url="${DATABASE_URL_DIRECT:-$DATABASE_URL}"
+  # Strip scheme and credentials: postgresql://user:pass@host:port/db → host:port
+  _host_port=$(echo "$_probe_url" | sed 's|.*@||; s|/.*||')
+  _host=$(echo "$_host_port" | cut -d: -f1)
+  _port=$(echo "$_host_port" | cut -d: -f2)
+  _port=${_port:-5432}
+
   elapsed=0
   while [ "$elapsed" -lt "$DB_WAIT_TIMEOUT" ]; do
-    # Try pg_isready first (available in most postgres-client packages)
+    # pg_isready is the cleanest check; fall back to a Node.js TCP probe
+    # (no npm download needed — uses the node binary already in the image).
     if command -v pg_isready >/dev/null 2>&1; then
-      if pg_isready -d "$DATABASE_URL" -q 2>/dev/null; then
+      if pg_isready -h "$_host" -p "$_port" -q 2>/dev/null; then
         echo "Database is ready (pg_isready)."
         return 0
       fi
     else
-      # Fallback: use node to attempt a raw TCP connection via prisma
-      if printf 'SELECT 1;' | $PRISMA_CLI db execute --stdin >/dev/null 2>&1; then
-        echo "Database is ready (prisma probe)."
+      if node -e "
+var net=require('net');
+var c=net.createConnection({host:'$_host',port:$_port,timeout:2000},function(){process.exit(0);});
+c.on('error',function(){process.exit(1);});
+c.on('timeout',function(){c.destroy();process.exit(1);});
+" 2>/dev/null; then
+        echo "Database is ready (TCP probe)."
         return 0
       fi
     fi
@@ -72,6 +118,35 @@ handle_p3005() {
 }
 
 # ---------------------------------------------------------------------------
+# cleanup_unfinished_migrations: recover from containers killed mid-migration.
+# Prisma records started migrations in _prisma_migrations before all SQL is
+# complete. If Docker restarts the container at that point, subsequent
+# `migrate deploy` runs stop on P3009/P3018 before applying new migrations.
+# Mark unfinished rows as rolled back so Prisma can safely retry them.
+# ---------------------------------------------------------------------------
+cleanup_unfinished_migrations() {
+  echo 'Checking for unfinished Prisma migration rows...'
+  if printf '%s\n' \
+    'UPDATE "_prisma_migrations"' \
+    "SET rolled_back_at = COALESCE(rolled_back_at, NOW())," \
+    "    logs = concat_ws(E'\\n', NULLIF(logs, ''), '[entrypoint] rolled back unfinished migration before deploy')" \
+    'WHERE finished_at IS NULL AND rolled_back_at IS NULL;' \
+    | $PRISMA_CLI db execute --stdin >/tmp/prisma_cleanup.log 2>&1; then
+    cat /tmp/prisma_cleanup.log
+    return 0
+  fi
+
+  if grep -qi 'does not exist\|undefined_table\|42P01' /tmp/prisma_cleanup.log; then
+    echo 'No _prisma_migrations table yet; skipping unfinished migration cleanup.'
+    return 0
+  fi
+
+  echo 'WARNING: Could not inspect unfinished Prisma migrations; continuing to deploy.'
+  cat /tmp/prisma_cleanup.log
+  return 0
+}
+
+# ---------------------------------------------------------------------------
 # handle_p3018: a migration SQL statement failed mid-apply.
 # The migration is recorded as "started" but not finished. Mark it rolled-back
 # so that Prisma will re-attempt it on the next deploy.
@@ -79,7 +154,7 @@ handle_p3005() {
 handle_p3018() {
   echo 'Mid-migration failure detected (P3018). Attempting to resolve...'
   # Prisma error includes: Migration name: <migration_name>
-  failed_migration=$(grep -oP 'Migration name: \K\S+' /tmp/prisma_migrate.log | head -n1)
+  failed_migration=$(sed -n 's/.*Migration name: \([^[:space:]]*\).*/\1/p' /tmp/prisma_migrate.log | head -n1)
   if [ -z "$failed_migration" ]; then
     # Fallback: try backtick pattern used in other error messages
     failed_migration=$(sed -n "s/.*The \`\([^\`]*\)\` migration.*/\1/p" /tmp/prisma_migrate.log | head -n1)
@@ -92,7 +167,7 @@ handle_p3018() {
   # If the underlying SQL error is "already exists" the migration's work is
   # already done (objects exist from a prior run). Mark it as applied so
   # Prisma stops retrying it. Otherwise mark rolled-back so it retries.
-  if grep -qi 'already exists\|duplicate_object\|duplicate_table\|duplicate_column\|DuplicateObject' /tmp/prisma_migrate.log; then
+  if grep -Eqi 'already exists|duplicate_object|duplicate_table|duplicate_column|DuplicateObject|42P06|42P07|42701|42710|relation .* already exists|constraint .* already exists|index .* already exists|column .* already exists' /tmp/prisma_migrate.log; then
     echo "Marking migration as applied (objects already exist): $failed_migration"
     if ! $PRISMA_CLI migrate resolve --applied "$failed_migration" >>/tmp/prisma_migrate.log 2>&1; then
       echo "WARNING: Could not mark '$failed_migration' as applied; falling back to rolled-back."
@@ -220,8 +295,11 @@ run_migrations() {
 if [ "$SKIP_DB_INIT" = "true" ]; then
   echo 'Skipping database migrations (SKIP_DB_INIT=true)'
 else
+  use_migration_database_url
   wait_for_db
+  cleanup_unfinished_migrations
   run_migrations
 fi
 
+restore_application_database_url
 exec node dist/main.js

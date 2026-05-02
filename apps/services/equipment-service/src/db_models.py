@@ -28,6 +28,7 @@ class Equipment(Base):
     __tablename__ = "equipment"
 
     equipment_id: Mapped[str] = mapped_column(
+        "id",  # Actual DB column name is 'id' (UUID stored as string)
         String(50),
         primary_key=True,
         comment="Unique equipment identifier",
@@ -55,6 +56,7 @@ class Equipment(Base):
 
     # Equipment classification
     equipment_type: Mapped[str] = mapped_column(
+        "type",  # Actual DB column name is 'type'
         String(50),
         nullable=False,
         index=True,
@@ -70,6 +72,7 @@ class Equipment(Base):
 
     # Equipment details
     brand: Mapped[str | None] = mapped_column(
+        "manufacturer",  # Actual DB column name is 'manufacturer'
         String(100),
         nullable=True,
         comment="Equipment brand/manufacturer",
@@ -105,12 +108,14 @@ class Equipment(Base):
 
     # Location information
     field_id: Mapped[str | None] = mapped_column(
+        "assigned_field_id",  # Actual DB column name is 'assigned_field_id'
         String(100),
         nullable=True,
         index=True,
         comment="Field ID where equipment is located",
     )
     location_name: Mapped[str | None] = mapped_column(
+        "current_location",  # Actual DB column name is 'current_location'
         String(200),
         nullable=True,
         comment="Location name (e.g., 'Northern Field - Sector C')",
@@ -135,6 +140,7 @@ class Equipment(Base):
         comment="Current fuel level percentage",
     )
     current_hours: Mapped[Decimal | None] = mapped_column(
+        "operating_hours",  # Actual DB column name is 'operating_hours'
         Numeric(10, 2),
         nullable=True,
         comment="Current operating hours",
@@ -152,11 +158,13 @@ class Equipment(Base):
 
     # Maintenance scheduling
     last_maintenance_at: Mapped[datetime | None] = mapped_column(
+        "last_maintenance_date",  # Actual DB column name is 'last_maintenance_date'
         DateTime(timezone=True),
         nullable=True,
         comment="Last maintenance date",
     )
     next_maintenance_at: Mapped[datetime | None] = mapped_column(
+        "next_maintenance_date",  # Actual DB column name is 'next_maintenance_date'
         DateTime(timezone=True),
         nullable=True,
         comment="Next scheduled maintenance date",
@@ -202,14 +210,14 @@ class Equipment(Base):
     __table_args__ = (
         # Primary query pattern: tenant + status
         Index("ix_equipment_tenant_status", "tenant_id", "status"),
-        # Equipment type queries (tenant-scoped)
-        Index("ix_equipment_tenant_type", "tenant_id", "equipment_type"),
-        Index("ix_equipment_type_status", "equipment_type", "status"),
-        # Field-based queries
-        Index("ix_equipment_field_status", "field_id", "status"),
-        # Maintenance scheduling queries (tenant-scoped)
-        Index("ix_equipment_next_maintenance", "next_maintenance_at"),
-        Index("ix_equipment_tenant_maintenance", "tenant_id", "next_maintenance_at"),
+        # Equipment type queries (tenant-scoped) - use actual DB column names
+        Index("ix_equipment_tenant_type", "tenant_id", "type"),
+        Index("ix_equipment_type_status", "type", "status"),
+        # Field-based queries - use actual DB column name
+        Index("ix_equipment_field_status", "assigned_field_id", "status"),
+        # Maintenance scheduling queries (tenant-scoped) - use actual DB column names
+        Index("ix_equipment_next_maintenance", "next_maintenance_date"),
+        Index("ix_equipment_tenant_maintenance", "tenant_id", "next_maintenance_date"),
     )
 
     def __repr__(self) -> str:

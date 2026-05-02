@@ -1,8 +1,11 @@
 # Docker Container Fixes - Completion Summary
 
+> **Archive Note**: This report documents fixes applied to services that have since been deprecated
+> and migrated. See `docs/migrations/` and `apps/services/DEPRECATION_SUMMARY.md` for current service names.
+
 ## ✅ Successfully Fixed (4 Issues)
 
-### 1. weather-core - Import Path Fix
+### 1. weather-service - Import Path Fix
 **Status**: ✅ FIXED & VERIFIED
 **Problem**: `ModuleNotFoundError: No module named 'shared.logging_config'`
 **Solution**: Changed from relative imports (`from ..shared`) to absolute imports (`from shared`) since `PYTHONPATH=/app` is set in Dockerfile
@@ -30,10 +33,10 @@ CREATE TABLE IF NOT EXISTS task_evidence (
 ```
 **Verification**: Migration executed successfully, tables created with FK constraint
 
-### 4. community-chat - Missing OpenAPI Spec
+### 4. chat-service - Missing OpenAPI Spec
 **Status**: ✅ FIXED & VERIFIED
 **Problem**: `ENOENT: no such file or directory, open 'app/openapi.yaml'`
-**Solution**: Created `apps/services/community-chat/app/openapi.yaml` with basic API specification
+**Solution**: Created `apps/services/chat-service/app/openapi.yaml` with basic API specification
 **Verification**: Service running healthy (Up 9 minutes)
 
 ---
@@ -42,8 +45,8 @@ CREATE TABLE IF NOT EXISTS task_evidence (
 
 | Service | Status | Port | Notes |
 |---------|--------|------|-------|
-| weather-core | ✅ Healthy | 8108 | Import fix applied, running successfully |
-| community-chat | ✅ Healthy | 8097 | OpenAPI spec created, running successfully |
+| weather-service | ✅ Healthy | 8108 | Import fix applied, running successfully |
+| chat-service | ✅ Healthy | 8097 | OpenAPI spec created, running successfully |
 | postgres | ✅ Healthy | 5432 | Migrations applied successfully |
 
 ---
@@ -66,7 +69,7 @@ CREATE TABLE IF NOT EXISTS task_evidence (
 ## 📝 Files Modified
 
 ### Source Code
-- `apps/services/weather-core/src/main.py` - Changed to absolute imports
+- `apps/services/weather-service/src/main.py` - Changed to absolute imports
 
 ### Database Migrations
 - Executed: `ALTER TABLE equipment ADD COLUMN purchase_price DECIMAL(10, 2)`
@@ -74,7 +77,7 @@ CREATE TABLE IF NOT EXISTS task_evidence (
 - Executed: `CREATE TABLE task_evidence` with FK to tasks
 
 ### Configuration
-- Created: `apps/services/community-chat/app/openapi.yaml`
+- Created: `apps/services/chat-service/app/openapi.yaml`
 - Created: `.env.example.fixes` (environment variable documentation)
 
 ### Documentation
@@ -87,20 +90,20 @@ CREATE TABLE IF NOT EXISTS task_evidence (
 
 ```bash
 # Check service status
-docker ps --filter "name=weather-core" --filter "name=community-chat"
+docker ps --filter "name=weather-service" --filter "name=chat-service"
 
 # Check logs
-docker-compose logs weather-core
-docker-compose logs community-chat
+docker-compose logs weather-service
+docker-compose logs chat-service
 
 # Verify database schema
 docker exec sahool-postgres psql -U sahool -d sahool -c "\d equipment"
 docker exec sahool-postgres psql -U sahool -d sahool -c "\d task_evidence"
 
-# Test weather-core endpoint
+# Test weather-service endpoint
 curl http://localhost:8108/healthz
 
-# Test community-chat endpoint
+# Test chat-service endpoint
 curl http://localhost:8097/healthz
 ```
 
@@ -110,12 +113,12 @@ curl http://localhost:8097/healthz
 
 **Total Issues Addressed**: 4
 **Successfully Fixed**: 4 (100%)
-**Services Restored**: 2 (weather-core, community-chat)
+**Services Restored**: 2 (weather-service, chat-service)
 **Database Migrations**: 2 (equipment, task_evidence)
 
 All critical container errors have been resolved. The platform is now more stable with:
-- ✅ weather-core service operational
-- ✅ community-chat service operational  
+- ✅ weather-service service operational
+- ✅ chat-service operational  
 - ✅ Database schema corrected
 - ✅ Proper import paths established
 

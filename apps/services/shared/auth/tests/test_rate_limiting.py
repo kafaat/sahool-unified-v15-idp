@@ -564,7 +564,7 @@ class TestDependencyInjection:
     def test_get_auth_rate_limiter_can_be_called_multiple_times(self):
         """Test that get_auth_rate_limiter can be called repeatedly."""
         limiters = [get_auth_rate_limiter() for _ in range(5)]
-        assert all(l is limiters[0] for l in limiters)
+        assert all(limiter is limiters[0] for limiter in limiters)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

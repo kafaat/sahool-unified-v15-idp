@@ -104,7 +104,11 @@
       "Bash(docker inspect sahool-chat-service:*)",
       "Bash(echo \"Exit: $?\")",
       "Bash(awk '{print $NF, $1}')",
-      "Bash(echo \"EXIT:$?\")"
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(awk '{print $1, $3, $4, $5}')",
+      "Bash(xargs wc:*)",
+      "Bash(find /d/projects/v92/sahool-v92-1/apps/web/src -name \"*.tsx\" -exec grep -l \"try.*catch\\\\|catch.*=>.*return\\\\|Promise.*reject\" {} \\\\;)",
+      "Bash(docker version:*)"
     ]
   }
 }

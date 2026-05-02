@@ -127,6 +127,8 @@ COPY --from=builder /workspace/chat-service/prisma ./prisma/
 # Copy it to node_modules/.prisma/client/ where @prisma/client expects it at runtime
 COPY --from=builder /workspace/chat-service/prisma/generated/client/ ./node_modules/.prisma/client/
 COPY --from=builder /workspace/chat-service/node_modules/@prisma/client ./node_modules/@prisma/client/
+# Copy shared-events built by builder (file: dep can't resolve in production stage)
+COPY --from=builder /workspace/chat-service/node_modules/@sahool/shared-events ./node_modules/@sahool/shared-events/
 
 # Copy built application
 COPY --from=builder /workspace/chat-service/dist ./dist
@@ -143,8 +145,8 @@ RUN chown -R node:node /app
 USER node
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost:8115/health || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
+    CMD curl -f http://localhost:8115/healthz || exit 1
 
 # Run database migrations and start the application
 COPY --chmod=755 docker/docker-entrypoint-nestjs.sh /usr/local/bin/docker-entrypoint.sh

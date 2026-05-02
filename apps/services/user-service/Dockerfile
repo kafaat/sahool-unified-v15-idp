@@ -42,6 +42,13 @@ RUN npm pkg set dependencies.'@sahool/shared-events'='file:../packages/shared-ev
 RUN node -e "JSON.parse(require('fs').readFileSync('package.json','utf8'))" || \
     (echo 'ERROR: package.json is invalid JSON. Check for merge conflict markers (<<<<<<< HEAD).' && exit 1)
 
+# Install OpenSSL BEFORE npm install so Prisma's postinstall script can detect
+# the correct binary target (debian-openssl-3.0.x). Without this, @prisma/engines
+# postinstall fails with "failed to detect the libssl/openssl version".
+COPY docker/apt-update.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/apt-update.sh && \
+    apt-update.sh && apt-get install -y --no-install-recommends openssl && rm -rf /var/lib/apt/lists/*
+
 # Install dependencies with resilient retry loop and npm cache
 RUN --mount=type=cache,target=/root/.npm \
     npm config set registry https://registry.npmmirror.com && \
@@ -131,6 +138,8 @@ COPY --from=builder /workspace/user-service/prisma ./prisma/
 # Copy it to node_modules/.prisma/client/ where @prisma/client expects it at runtime
 COPY --from=builder /workspace/user-service/prisma/generated/client/ ./node_modules/.prisma/client/
 COPY --from=builder /workspace/user-service/node_modules/@prisma/client ./node_modules/@prisma/client/
+# Copy shared-events built by builder (file: dep can't resolve in production stage)
+COPY --from=builder /workspace/user-service/node_modules/@sahool/shared-events ./node_modules/@sahool/shared-events/
 
 # Copy built application
 COPY --from=builder /workspace/user-service/dist ./dist

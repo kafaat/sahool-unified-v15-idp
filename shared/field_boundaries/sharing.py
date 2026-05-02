@@ -858,7 +858,7 @@ def generate_postgis_neighbor_notification_query(
 
     g = geometry_column
     tbl = boundaries_table
-    bid = boundary_id
+    _bid = boundary_id
     # SECURITY: Use parameterized placeholder ($1) for boundary_id
     sql = f"""  # noqa: S608  # nosec B608 - table/column names are application constants; boundary_id uses $1 param
     SELECT DISTINCT

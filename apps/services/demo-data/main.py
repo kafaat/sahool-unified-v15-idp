@@ -24,12 +24,25 @@ logging.basicConfig(
 logger = logging.getLogger("demo-data")
 
 # Configuration
+# Demo-data bypasses Kong and calls services directly on the internal Docker network.
+# Kong's JWT auth blocks unauthenticated internal service-to-service calls.
+# Use KONG_URL only as a legacy fallback if per-service URLs are not configured.
 KONG_URL = os.getenv("KONG_URL", "http://kong:8000")
-API_KEY = os.getenv("API_KEY", "demo-api-key")
 TENANT_ID = os.getenv("TENANT_ID", "a0000000-0000-0000-0000-000000000001")
 USER_ID = os.getenv("USER_ID", "b0000000-0000-0000-0000-000000000001")
 INTERVAL_SECONDS = int(os.getenv("INTERVAL_SECONDS", "30"))
 DEMO_MODE = os.getenv("DEMO_MODE", "continuous")  # continuous, once, batch
+
+# Per-service direct URLs (bypass Kong for internal traffic)
+WEATHER_SERVICE_URL = os.getenv("WEATHER_SERVICE_URL", "http://weather-service:8092")
+IOT_SERVICE_URL = os.getenv("IOT_SERVICE_URL", "http://iot-gateway:8106")
+NDVI_SERVICE_URL = os.getenv("NDVI_SERVICE_URL", "http://vegetation-analysis-service:8090")
+ALERT_SERVICE_URL = os.getenv("ALERT_SERVICE_URL", "http://alert-service:8113")
+TASK_SERVICE_URL = os.getenv("TASK_SERVICE_URL", "http://task-service:8103")
+YIELD_SERVICE_URL = os.getenv("YIELD_SERVICE_URL", "http://yield-prediction-service:8152")
+FIELD_SERVICE_URL = os.getenv("FIELD_SERVICE_URL", "http://field-management-service:3000")
+INVENTORY_SERVICE_URL = os.getenv("INVENTORY_SERVICE_URL", "http://inventory-service:8116")
+MARKETPLACE_SERVICE_URL = os.getenv("MARKETPLACE_SERVICE_URL", "http://marketplace-service:3010")
 
 # Demo field IDs
 FIELD_IDS = [
@@ -58,12 +71,11 @@ class DemoDataGenerator:
     """Generates realistic demo data for SAHOOL platform"""
 
     def __init__(self):
+        # No base_url: each method uses the direct per-service URL to bypass Kong.
         self.client = httpx.AsyncClient(
-            base_url=KONG_URL,
             timeout=30.0,
             headers={
                 "Content-Type": "application/json",
-                "X-API-Key": API_KEY,
                 "X-Tenant-ID": TENANT_ID,
                 "X-User-ID": USER_ID,
             },
@@ -99,7 +111,7 @@ class DemoDataGenerator:
         """Send weather data to weather service"""
         data = self.generate_weather_data()
         try:
-            response = await self.client.post("/api/v1/weather/readings", json=data)
+            response = await self.client.post(f"{WEATHER_SERVICE_URL}/api/v1/weather/readings", json=data)
             self._log_response("Weather", response)
             return response.status_code < 400
         except httpx.ConnectError as e:
@@ -163,7 +175,7 @@ class DemoDataGenerator:
         """Send IoT sensor data to IoT gateway"""
         data = self.generate_sensor_data()
         try:
-            response = await self.client.post("/api/v1/iot/readings", json=data)
+            response = await self.client.post(f"{IOT_SERVICE_URL}/api/v1/iot/readings", json=data)
             self._log_response("IoT Sensor", response)
             return response.status_code < 400
         except httpx.ConnectError as e:
@@ -217,7 +229,7 @@ class DemoDataGenerator:
         """Send NDVI data to NDVI engine"""
         data = self.generate_ndvi_data()
         try:
-            response = await self.client.post("/api/v1/ndvi/records", json=data)
+            response = await self.client.post(f"{NDVI_SERVICE_URL}/api/v1/ndvi/records", json=data)
             self._log_response("NDVI", response)
             return response.status_code < 400
         except httpx.ConnectError as e:
@@ -286,7 +298,7 @@ class DemoDataGenerator:
         """Send alert to notification service"""
         data = self.generate_alert_data()
         try:
-            response = await self.client.post("/api/v1/alerts", json=data)
+            response = await self.client.post(f"{ALERT_SERVICE_URL}/api/v1/alerts", json=data)
             self._log_response("Alert", response)
             return response.status_code < 400
         except httpx.ConnectError as e:
@@ -335,7 +347,7 @@ class DemoDataGenerator:
         """Send task to task service"""
         data = self.generate_task_data()
         try:
-            response = await self.client.post("/api/v1/tasks", json=data)
+            response = await self.client.post(f"{TASK_SERVICE_URL}/api/v1/tasks", json=data)
             self._log_response("Task", response)
             return response.status_code < 400
         except httpx.ConnectError as e:
@@ -370,7 +382,7 @@ class DemoDataGenerator:
         """Request yield prediction from ML service"""
         data = self.generate_yield_prediction_request()
         try:
-            response = await self.client.post("/api/v1/yield-prediction/predict", json=data)
+            response = await self.client.post(f"{YIELD_SERVICE_URL}/api/v1/yield-prediction/predict", json=data)
             self._log_response("Yield Prediction", response)
             return response.status_code < 400
         except httpx.ConnectError as e:
@@ -394,7 +406,7 @@ class DemoDataGenerator:
         """Query field health status"""
         field_id = random.choice(FIELD_IDS)
         try:
-            response = await self.client.get(f"/api/v1/fields/{field_id}/health")
+            response = await self.client.get(f"{FIELD_SERVICE_URL}/api/v1/fields/{field_id}/health")
             self._log_response("Field Health", response)
             return response.status_code < 400
         except httpx.ConnectError as e:
@@ -438,7 +450,7 @@ class DemoDataGenerator:
         """Send inventory update"""
         data = self.generate_inventory_update()
         try:
-            response = await self.client.post("/api/v1/inventory/transactions", json=data)
+            response = await self.client.post(f"{INVENTORY_SERVICE_URL}/api/v1/inventory/transactions", json=data)
             self._log_response("Inventory", response)
             return response.status_code < 400
         except httpx.ConnectError as e:
@@ -486,7 +498,7 @@ class DemoDataGenerator:
         """Create marketplace listing"""
         data = self.generate_marketplace_listing()
         try:
-            response = await self.client.post("/api/v1/marketplace/products", json=data)
+            response = await self.client.post(f"{MARKETPLACE_SERVICE_URL}/api/v1/marketplace/products", json=data)
             self._log_response("Marketplace", response)
             return response.status_code < 400
         except httpx.ConnectError as e:
@@ -524,15 +536,15 @@ class DemoDataGenerator:
             return False
 
     async def run_health_checks(self):
-        """Run health checks on all services"""
+        """Run health checks on all services using their direct /healthz endpoints"""
         services = [
-            ("/api/v1/weather/health", "Weather"),
-            ("/api/v1/iot/health", "IoT Gateway"),
-            ("/api/v1/ndvi/health", "NDVI Engine"),
-            ("/api/v1/fields/health", "Field Service"),
-            ("/api/v1/tasks/health", "Task Service"),
-            ("/api/v1/alerts/health", "Alert Service"),
-            ("/api/v1/marketplace/health", "Marketplace"),
+            (f"{WEATHER_SERVICE_URL}/healthz", "Weather"),
+            (f"{IOT_SERVICE_URL}/healthz", "IoT Gateway"),
+            (f"{NDVI_SERVICE_URL}/healthz", "NDVI Engine"),
+            (f"{FIELD_SERVICE_URL}/healthz", "Field Service"),
+            (f"{TASK_SERVICE_URL}/healthz", "Task Service"),
+            (f"{ALERT_SERVICE_URL}/healthz", "Alert Service"),
+            (f"{MARKETPLACE_SERVICE_URL}/healthz", "Marketplace"),
         ]
 
         results = {}
@@ -662,7 +674,7 @@ async def main():
     logger.info("  SAHOOL Demo Data Service")
     logger.info("  خدمة البيانات التجريبية")
     logger.info("=" * 60)
-    logger.info(f"Kong URL: {KONG_URL}")
+    logger.info(f"Weather: {WEATHER_SERVICE_URL} | IoT: {IOT_SERVICE_URL}")
     logger.info(f"Tenant ID: {TENANT_ID}")
     logger.info(f"Mode: {DEMO_MODE}")
     logger.info("=" * 60)

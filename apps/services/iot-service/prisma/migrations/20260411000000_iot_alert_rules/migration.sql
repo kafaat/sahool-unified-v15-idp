@@ -19,11 +19,11 @@ CREATE TABLE IF NOT EXISTS iot_alert_rules (
     version INTEGER NOT NULL DEFAULT 1
 );
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_iot_alert_rules_tenant_enabled
+CREATE INDEX IF NOT EXISTS idx_iot_alert_rules_tenant_enabled
     ON iot_alert_rules (tenant_id, enabled) WHERE enabled = TRUE;
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_iot_alert_rules_sensor
+CREATE INDEX IF NOT EXISTS idx_iot_alert_rules_sensor
     ON iot_alert_rules (tenant_id, sensor_id);
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_iot_alert_rules_field
+CREATE INDEX IF NOT EXISTS idx_iot_alert_rules_field
     ON iot_alert_rules (tenant_id, field_id);

@@ -163,7 +163,7 @@ class IncidentReport:
             or "- No actions recorded"
         )
 
-        lessons_list = "\n".join([f"- {l}" for l in self.lessons_learned]) or "- None identified"
+        lessons_list = "\n".join([f"- {lesson}" for lesson in self.lessons_learned]) or "- None identified"
         prevention_list = "\n".join([f"- {p}" for p in self.preventive_measures]) or "- None planned"
 
         return f"""# Incident Report: {self.title}

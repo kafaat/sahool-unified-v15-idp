@@ -321,7 +321,7 @@ class QualityOrchestrator:
             proc = await self._run_cmd(["mypy", "--no-error-summary", "apps/", "shared/"])
             result.tools_run.append("mypy")
             if proc.returncode != 0:
-                error_lines = [l for l in proc.stdout.splitlines() if ": error:" in l]
+                error_lines = [line for line in proc.stdout.splitlines() if ": error:" in line]
                 errors += len(error_lines)
                 result.details.append({"tool": "mypy", "errors": len(error_lines)})
         else:
@@ -332,7 +332,7 @@ class QualityOrchestrator:
             proc = await self._run_cmd(["npx", "tsc", "--noEmit", "--pretty", "false"])
             result.tools_run.append("typescript")
             if proc.returncode != 0:
-                ts_errors = len([l for l in proc.stdout.splitlines() if "error TS" in l])
+                ts_errors = len([line for line in proc.stdout.splitlines() if "error TS" in line])
                 errors += ts_errors
                 result.details.append({"tool": "typescript", "errors": ts_errors})
         else:
@@ -504,7 +504,7 @@ class QualityOrchestrator:
             proc = await self._run_cmd(["vulture", "apps/", "shared/", "--min-confidence=80"])
             result.tools_run.append("vulture")
             if proc.returncode != 0:
-                dead_lines = [l for l in proc.stdout.splitlines() if l.strip()]
+                dead_lines = [line for line in proc.stdout.splitlines() if line.strip()]
                 warnings += len(dead_lines)
                 result.details.append({"tool": "vulture", "dead_code": len(dead_lines)})
         else:

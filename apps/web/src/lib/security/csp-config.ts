@@ -125,17 +125,14 @@ export function getCSPDirectives(nonce?: string): CSPDirectives {
     ],
 
     // Style elements (<style> and <link rel="stylesheet"> / <link rel="preload">).
-    // We include the nonce *in addition to* 'unsafe-inline' so that:
-    //   - Next.js/Tailwind injected <style> tags (which currently cannot carry
-    //     a nonce reliably) continue to work via 'unsafe-inline' on CSP2 browsers.
-    //   - Code that does carry the nonce gets stricter enforcement on
-    //     CSP3 browsers (in CSP3, a matching nonce is authoritative and
-    //     'unsafe-inline' is only consulted for un-nonced inline content).
-    // This is the safest tightening available until Next.js exposes the
-    // nonce to every injected <style> tag.
+    // No nonce here: in CSP Level 3, the presence of *any* nonce in a directive
+    // causes browsers to ignore 'unsafe-inline' entirely — so adding a nonce
+    // that Next.js/Tailwind/webpack cannot reliably inject into every <style>
+    // tag would block those inline styles in CSP3 browsers (Chrome 60+).
+    // 'unsafe-inline' is therefore the only reliable allow-list for injected
+    // style elements until Next.js exposes a nonce to every injected <style> tag.
     'style-src-elem': [
       "'self'",
-      ...(nonce ? [`'nonce-${nonce}'`] : []),
       "'unsafe-inline'",
       'https://fonts.googleapis.com',
       'https://unpkg.com',

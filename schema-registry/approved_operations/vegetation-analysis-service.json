@@ -1,0 +1,14 @@
+{
+  "service": "vegetation-analysis-service",
+  "operations": [
+    {
+      "operationId": "analyzeSatelliteGeometry",
+      "method": "POST",
+      "path": "/api/v1/satellite/v1/analyze",
+      "template": "form.basic",
+      "permission": "analyzeSatelliteGeometry:write",
+      "requiresTenantContext": true,
+      "requiresUnifiedResponse": true
+    }
+  ]
+}

@@ -87,9 +87,15 @@ RUN --mount=type=cache,target=/root/.npm \
 # Copy prisma schema (required for prisma generate)
 COPY apps/services/field-management-service/prisma ./prisma
 
+# Install OpenSSL so Prisma can detect the correct binary target (debian-openssl-3.0.x).
+# Without this, Prisma defaults to openssl-1.1.x, downloads the wrong binary, and fails.
+RUN apt-get update -y && apt-get install -y --no-install-recommends openssl && rm -rf /var/lib/apt/lists/*
+
 # Generate Prisma client (required before TypeScript compilation)
 # Schema uses output = "./generated/client" so verify that path
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
+ENV PRISMA_CLI_QUERY_ENGINE_TYPE=binary
+ENV PRISMA_CLIENT_ENGINE_TYPE=binary
 RUN npx prisma@5 generate && \
     test -f prisma/generated/client/index.js || \
     (echo "Retrying prisma generate..." && sleep 5 && npx prisma@5 generate && \

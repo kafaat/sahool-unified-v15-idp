@@ -9,17 +9,17 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createLogger } from "../src/logger.js";
 
 describe("createLogger - pretty format", () => {
-  const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-  const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+  let logSpy: ReturnType<typeof vi.spyOn>;
+  let errSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
-    logSpy.mockClear();
-    errSpy.mockClear();
+    logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterEach(() => {
-    logSpy.mockClear();
-    errSpy.mockClear();
+    logSpy.mockRestore();
+    errSpy.mockRestore();
   });
 
   it("info goes to stdout with a pretty prefix", () => {
@@ -49,12 +49,17 @@ describe("createLogger - pretty format", () => {
 });
 
 describe("createLogger - json format", () => {
-  const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-  const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+  let logSpy: ReturnType<typeof vi.spyOn>;
+  let errSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
-    logSpy.mockClear();
-    errSpy.mockClear();
+    logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    logSpy.mockRestore();
+    errSpy.mockRestore();
   });
 
   it("emits parseable JSON with ts/level/msg", () => {
@@ -76,12 +81,17 @@ describe("createLogger - json format", () => {
 });
 
 describe("createLogger - level filtering", () => {
-  const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-  const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+  let logSpy: ReturnType<typeof vi.spyOn>;
+  let errSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
-    logSpy.mockClear();
-    errSpy.mockClear();
+    logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    logSpy.mockRestore();
+    errSpy.mockRestore();
   });
 
   it("minLevel=warn drops info messages", () => {

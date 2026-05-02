@@ -10,7 +10,9 @@
 -- ─────────────────────────────────────────────────────────────────────────────
 
 -- Alert Type - نوع التنبيه
-CREATE TYPE "AlertType" AS ENUM (
+DO $$
+BEGIN
+    CREATE TYPE "AlertType" AS ENUM (
     'HEAT_STRESS',
     'FROST',
     'HEAVY_RAIN',
@@ -20,22 +22,28 @@ CREATE TYPE "AlertType" AS ENUM (
     'DISEASE_RISK',
     'OTHER'
 );
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- Alert Severity - شدة التنبيه
-CREATE TYPE "AlertSeverity" AS ENUM (
+DO $$
+BEGIN
+    CREATE TYPE "AlertSeverity" AS ENUM (
     'INFO',
     'MINOR',
     'MODERATE',
     'SEVERE',
     'EXTREME'
 );
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- TABLES
 -- ─────────────────────────────────────────────────────────────────────────────
 
 -- 1. Weather Observations - الأرصاد الجوية
-CREATE TABLE "weather_observations" (
+CREATE TABLE IF NOT EXISTS "weather_observations" (
     "id" TEXT NOT NULL DEFAULT gen_random_uuid()::TEXT,
     "location_id" TEXT NOT NULL,
     "tenant_id" VARCHAR(50) NOT NULL DEFAULT 'unassigned',
@@ -59,7 +67,7 @@ CREATE TABLE "weather_observations" (
 );
 
 -- 2. Weather Forecasts - التنبؤات الجوية
-CREATE TABLE "weather_forecasts" (
+CREATE TABLE IF NOT EXISTS "weather_forecasts" (
     "id" TEXT NOT NULL DEFAULT gen_random_uuid()::TEXT,
     "location_id" TEXT NOT NULL,
     "tenant_id" VARCHAR(50) NOT NULL DEFAULT 'unassigned',
@@ -75,7 +83,7 @@ CREATE TABLE "weather_forecasts" (
 );
 
 -- 3. Weather Alerts - التنبيهات الجوية
-CREATE TABLE "weather_alerts" (
+CREATE TABLE IF NOT EXISTS "weather_alerts" (
     "id" TEXT NOT NULL DEFAULT gen_random_uuid()::TEXT,
     "location_id" TEXT NOT NULL,
     "tenant_id" VARCHAR(50) NOT NULL DEFAULT 'unassigned',
@@ -93,7 +101,7 @@ CREATE TABLE "weather_alerts" (
 );
 
 -- 4. Location Configs - إعدادات المواقع
-CREATE TABLE "location_configs" (
+CREATE TABLE IF NOT EXISTS "location_configs" (
     "id" TEXT NOT NULL DEFAULT gen_random_uuid()::TEXT,
     "tenant_id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
@@ -113,26 +121,26 @@ CREATE TABLE "location_configs" (
 -- ─────────────────────────────────────────────────────────────────────────────
 
 -- Weather Observations indexes
-CREATE INDEX "weather_observations_location_id_timestamp_idx" ON "weather_observations"("location_id", "timestamp" DESC);
-CREATE INDEX "weather_observations_tenant_id_timestamp_idx" ON "weather_observations"("tenant_id", "timestamp" DESC);
-CREATE INDEX "weather_observations_timestamp_idx" ON "weather_observations"("timestamp" DESC);
-CREATE INDEX "weather_observations_latitude_longitude_timestamp_idx" ON "weather_observations"("latitude", "longitude", "timestamp");
+CREATE INDEX IF NOT EXISTS "weather_observations_location_id_timestamp_idx" ON "weather_observations"("location_id", "timestamp" DESC);
+CREATE INDEX IF NOT EXISTS "weather_observations_tenant_id_timestamp_idx" ON "weather_observations"("tenant_id", "timestamp" DESC);
+CREATE INDEX IF NOT EXISTS "weather_observations_timestamp_idx" ON "weather_observations"("timestamp" DESC);
+CREATE INDEX IF NOT EXISTS "weather_observations_latitude_longitude_timestamp_idx" ON "weather_observations"("latitude", "longitude", "timestamp");
 
 -- Weather Forecasts indexes
-CREATE INDEX "weather_forecasts_location_id_forecast_for_idx" ON "weather_forecasts"("location_id", "forecast_for" DESC);
-CREATE INDEX "weather_forecasts_tenant_id_forecast_for_idx" ON "weather_forecasts"("tenant_id", "forecast_for" DESC);
-CREATE INDEX "weather_forecasts_forecast_for_idx" ON "weather_forecasts"("forecast_for" DESC);
-CREATE INDEX "weather_forecasts_fetched_at_idx" ON "weather_forecasts"("fetched_at" DESC);
-CREATE UNIQUE INDEX "weather_forecasts_location_id_forecast_for_provider_key" ON "weather_forecasts"("location_id", "forecast_for", "provider");
+CREATE INDEX IF NOT EXISTS "weather_forecasts_location_id_forecast_for_idx" ON "weather_forecasts"("location_id", "forecast_for" DESC);
+CREATE INDEX IF NOT EXISTS "weather_forecasts_tenant_id_forecast_for_idx" ON "weather_forecasts"("tenant_id", "forecast_for" DESC);
+CREATE INDEX IF NOT EXISTS "weather_forecasts_forecast_for_idx" ON "weather_forecasts"("forecast_for" DESC);
+CREATE INDEX IF NOT EXISTS "weather_forecasts_fetched_at_idx" ON "weather_forecasts"("fetched_at" DESC);
+CREATE UNIQUE INDEX IF NOT EXISTS "weather_forecasts_location_id_forecast_for_provider_key" ON "weather_forecasts"("location_id", "forecast_for", "provider");
 
 -- Weather Alerts indexes
-CREATE INDEX "weather_alerts_location_id_start_time_idx" ON "weather_alerts"("location_id", "start_time" DESC);
-CREATE INDEX "weather_alerts_tenant_id_start_time_idx" ON "weather_alerts"("tenant_id", "start_time" DESC);
-CREATE INDEX "weather_alerts_alert_type_severity_idx" ON "weather_alerts"("alert_type", "severity");
-CREATE INDEX "weather_alerts_start_time_end_time_idx" ON "weather_alerts"("start_time", "end_time");
-CREATE INDEX "weather_alerts_end_time_idx" ON "weather_alerts"("end_time" DESC);
+CREATE INDEX IF NOT EXISTS "weather_alerts_location_id_start_time_idx" ON "weather_alerts"("location_id", "start_time" DESC);
+CREATE INDEX IF NOT EXISTS "weather_alerts_tenant_id_start_time_idx" ON "weather_alerts"("tenant_id", "start_time" DESC);
+CREATE INDEX IF NOT EXISTS "weather_alerts_alert_type_severity_idx" ON "weather_alerts"("alert_type", "severity");
+CREATE INDEX IF NOT EXISTS "weather_alerts_start_time_end_time_idx" ON "weather_alerts"("start_time", "end_time");
+CREATE INDEX IF NOT EXISTS "weather_alerts_end_time_idx" ON "weather_alerts"("end_time" DESC);
 
 -- Location Configs indexes
-CREATE INDEX "location_configs_tenant_id_is_active_idx" ON "location_configs"("tenant_id", "is_active");
-CREATE INDEX "location_configs_is_active_idx" ON "location_configs"("is_active");
-CREATE UNIQUE INDEX "location_configs_tenant_id_latitude_longitude_key" ON "location_configs"("tenant_id", "latitude", "longitude");
+CREATE INDEX IF NOT EXISTS "location_configs_tenant_id_is_active_idx" ON "location_configs"("tenant_id", "is_active");
+CREATE INDEX IF NOT EXISTS "location_configs_is_active_idx" ON "location_configs"("is_active");
+CREATE UNIQUE INDEX IF NOT EXISTS "location_configs_tenant_id_latitude_longitude_key" ON "location_configs"("tenant_id", "latitude", "longitude");

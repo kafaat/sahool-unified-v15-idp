@@ -3,16 +3,24 @@
  * نقاط فحص صحة الخدمة
  */
 
-import { Controller, Get } from "@nestjs/common";
+import { Controller, Get, HttpStatus, Res, SetMetadata } from "@nestjs/common";
+import type { Response } from "express";
 import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { PrismaService } from "../prisma/prisma.service";
+import { SkipTenantCheck } from "../auth/tenant.guard";
+import { ChatEventsService } from "../events/chat-events.service";
 
 @ApiTags("Health")
 @Controller()
+@SkipTenantCheck()
+@SetMetadata("isPublic", true)
 export class HealthController {
   private readonly startTime: Date;
 
-  constructor(private readonly prisma: PrismaService) {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly eventsService: ChatEventsService,
+  ) {
     this.startTime = new Date();
   }
 
@@ -56,21 +64,32 @@ export class HealthController {
   @Get("readyz")
   @ApiOperation({ summary: "Kubernetes readiness check" })
   @ApiResponse({ status: 200, description: "Service is ready" })
-  async readyz() {
+  async readyz(@Res({ passthrough: true }) res?: Response) {
     // Check if service is ready to accept traffic
     let ready = true;
+    const checks: Record<string, string> = {};
 
     try {
       await this.prisma.$queryRaw`SELECT 1`;
+      checks.database = "connected";
     } catch (error) {
       ready = false;
+      checks.database = "disconnected";
+    }
+
+    const natsConnected = this.eventsService.isConnected();
+    checks.nats = natsConnected ? "connected" : "disconnected";
+    ready = ready && natsConnected;
+    if (!ready) {
+      res?.status(HttpStatus.SERVICE_UNAVAILABLE);
     }
 
     return {
       status: ready ? "ready" : "not_ready",
       service: "chat-service",
       timestamp: new Date().toISOString(),
-      database: ready,
+      database: checks.database === "connected",
+      checks,
     };
   }
 

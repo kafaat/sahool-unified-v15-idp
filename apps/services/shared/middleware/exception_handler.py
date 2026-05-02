@@ -295,7 +295,7 @@ def setup_exception_handlers(app: FastAPI) -> None:
         # Extract validation errors
         errors = []
         for error in exc.errors():
-            loc = " -> ".join(str(l) for l in error.get("loc", []))
+            loc = " -> ".join(str(loc_part) for loc_part in error.get("loc", []))
             msg = error.get("msg", "Validation error")
             errors.append(f"{loc}: {msg}")
 
@@ -321,7 +321,7 @@ def setup_exception_handlers(app: FastAPI) -> None:
                 details={
                     "validation_errors": [
                         {
-                            "field": " -> ".join(str(l) for l in e.get("loc", [])),
+                            "field": " -> ".join(str(loc_part) for loc_part in e.get("loc", [])),
                             "message": e.get("msg"),
                         }
                         for e in exc.errors()

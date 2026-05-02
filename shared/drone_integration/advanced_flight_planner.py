@@ -223,9 +223,9 @@ class DroneFlightPlanner:
         total_images = self.estimate_images(side_m, side_m, altitude_m, overlap, sidelap)
 
         waypoints = []
-        half = side_m / 2
+        _half = side_m / 2
         ground_width = 2 * altitude_m * math.tan(math.radians(38.5))
-        spacing = ground_width * (1 - sidelap / 100)
+        _spacing = ground_width * (1 - sidelap / 100)
 
         # Boustrophedon (serpentine/lawnmower) waypoint pattern.
         # Lines run north–south; flight direction alternates each pass.

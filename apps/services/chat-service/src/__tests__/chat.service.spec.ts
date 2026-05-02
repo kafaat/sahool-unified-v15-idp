@@ -132,7 +132,7 @@ describe("Health Endpoints", () => {
         providers: [
           ChatService,
           { provide: PrismaService, useValue: mockPrisma },
-          { provide: ChatEventsService, useValue: { publishMessageSent: jest.fn(), publishMessageRead: jest.fn(), isConnected: jest.fn().mockReturnValue(false) } },
+          { provide: ChatEventsService, useValue: { publishMessageSent: jest.fn(), publishMessageRead: jest.fn(), isConnected: jest.fn().mockReturnValue(true) } },
         ],
       }).compile();
 
@@ -161,7 +161,7 @@ describe("Health Endpoints", () => {
         controllers: [HealthController],
         providers: [
           { provide: PrismaService, useValue: mockPrisma },
-          { provide: ChatEventsService, useValue: { publishMessageSent: jest.fn(), publishMessageRead: jest.fn(), isConnected: jest.fn().mockReturnValue(false) } },
+          { provide: ChatEventsService, useValue: { publishMessageSent: jest.fn(), publishMessageRead: jest.fn(), isConnected: jest.fn().mockReturnValue(true) } },
         ],
       }).compile();
 

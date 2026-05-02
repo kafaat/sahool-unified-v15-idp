@@ -178,7 +178,7 @@ class LanguageSupport:
         }
         if language.lower() in lang_map:
             return lang_map[language.lower()]
-        return language.lower() in [l.lower() for l in self.other_languages]
+        return language.lower() in [lang.lower() for lang in self.other_languages]
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""

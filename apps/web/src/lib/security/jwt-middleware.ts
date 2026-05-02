@@ -55,6 +55,17 @@ export function getJwtConfig(): JwtConfig | null {
 
   // All configuration must be present
   if (!secretKey || !issuer || !audience) {
+    // In development, fall back to defaults so the middleware can distinguish
+    // "not configured" from "not authenticated". The fallback secret is weak
+    // and only useful for local dev — never matches a production token.
+    if (process.env.NODE_ENV === 'development') {
+      return {
+        cookieName: 'access_token',
+        secretKey: secretKey || 'dev-secret-key-not-for-production-use-32ch',
+        issuer: issuer || 'sahool',
+        audience: audience || 'sahool-web',
+      };
+    }
     return null;
   }
 

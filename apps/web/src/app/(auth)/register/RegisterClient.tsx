@@ -101,15 +101,20 @@ function getErrorMessage(error: unknown): string {
 /**
  * Validates the registration form data
  * @param data - Form data to validate
+ * @param method - Registration method (email or phone)
  * @returns Array of validation errors
  */
-function validateForm(data: RegisterFormData): RegisterError[] {
+function validateForm(data: RegisterFormData, method: RegisterMethod): RegisterError[] {
   const errors: RegisterError[] = [];
 
-  // Email validation
-  if (!data.email) {
-    errors.push({ field: 'email', message: 'Email is required' });
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+  // Email validation — required for email method; optional (format-only) for phone method
+  if (method === 'email') {
+    if (!data.email) {
+      errors.push({ field: 'email', message: 'Email is required' });
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+      errors.push({ field: 'email', message: 'Invalid email format' });
+    }
+  } else if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
     errors.push({ field: 'email', message: 'Invalid email format' });
   }
 
@@ -218,7 +223,7 @@ export default function RegisterClient() {
     }
 
     // Validate form
-    const validationErrors = validateForm(formData);
+    const validationErrors = validateForm(formData, registerMethod);
     if (validationErrors.length > 0) {
       const errorMap: Record<string, string> = {};
       validationErrors.forEach((err) => {

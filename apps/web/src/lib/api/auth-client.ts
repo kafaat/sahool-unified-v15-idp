@@ -204,31 +204,61 @@ class AuthApiClient {
     firstName: string;
     lastName: string;
   }) {
-    // Normalise email BEFORE validation so a value like ` user@x.com `
-    // isn't rejected as "Invalid email format" only to be silently
-    // accepted by the body's `.toLowerCase().trim()` a few lines down.
     const normalizedEmail = input.email?.toLowerCase().trim();
 
     if (!normalizedEmail && !input.phone) {
-      return {
-        success: false as const,
-        error: 'Either email or phone is required',
-      };
+      return { success: false as const, error: 'Either email or phone is required' };
     }
     if (normalizedEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
       return { success: false as const, error: 'Invalid email format' };
     }
 
-    return this.request<LoginResponse>(AUTH_ENDPOINTS.REGISTER, {
-      method: 'POST',
-      body: JSON.stringify({
-        email: normalizedEmail || undefined,
-        phone: input.phone || undefined,
-        password: input.password,
-        firstName: input.firstName.trim(),
-        lastName: input.lastName.trim(),
-      }),
-    });
+    // Route through the Next.js server-side proxy (/api/auth/register) which
+    // calls user-service directly, bypassing Kong (Kong currently has no route
+    // for /api/v1/auth/register). Mirrors the pattern used by getCurrentUser()
+    // and refreshToken() above.
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT);
+
+    try {
+      let response: Response;
+      try {
+        response = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          signal: controller.signal,
+          body: JSON.stringify({
+            email: normalizedEmail || undefined,
+            phone: input.phone || undefined,
+            password: input.password,
+            firstName: input.firstName.trim(),
+            lastName: input.lastName.trim(),
+          }),
+        });
+      } finally {
+        clearTimeout(timeoutId);
+      }
+
+      let data: any;
+      const contentType = response.headers.get('content-type');
+      if (contentType?.includes('application/json')) {
+        try { data = await response.json(); } catch { return { success: false as const, error: 'Invalid JSON response from server' }; }
+      } else {
+        data = await response.text();
+      }
+
+      if (!response.ok) {
+        return { success: false as const, error: data?.error || data?.message || `Request failed with status ${response.status}` };
+      }
+
+      return { success: true as const, data: data as LoginResponse };
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        return { success: false as const, error: 'Request timeout' };
+      }
+      return { success: false as const, error: error instanceof Error ? error.message : 'Network error' };
+    }
   }
 
   async getCurrentUser() {

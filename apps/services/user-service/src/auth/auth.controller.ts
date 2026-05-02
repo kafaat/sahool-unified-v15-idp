@@ -206,13 +206,15 @@ class VerifyOtpRequestDto implements VerifyOtpDto {
 }
 
 class RegisterRequestDto implements RegisterDto {
-  @ApiProperty({
-    description: "User email address",
+  @ApiPropertyOptional({
+    description: "User email address (required when phone is not provided)",
     example: "farmer@sahool.com",
   })
+  @IsOptional()
+  @ValidateIf((o) => !o.phone)
+  @IsNotEmpty({ message: "Email is required when phone is not provided" })
   @IsEmail({}, { message: "Invalid email format" })
-  @IsNotEmpty({ message: "Email is required" })
-  email: string;
+  email?: string;
 
   @ApiProperty({
     description: "User password (min 8 characters, must contain uppercase, lowercase, number, and special character)",

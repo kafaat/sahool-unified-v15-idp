@@ -36,7 +36,7 @@ export interface LoginDto {
 }
 
 export interface RegisterDto {
-  email: string;
+  email?: string;
   password: string;
   name?: string;
   firstName?: string;
@@ -757,7 +757,16 @@ export class AuthService {
     registerDto: RegisterDto,
   ): Promise<TokenResponse | { success: true; message: string }> {
     const { password, phone, tenantId } = registerDto;
-    const email = registerDto.email.toLowerCase().trim();
+    const email = registerDto.email ? registerDto.email.toLowerCase().trim() : undefined;
+
+    // At least one of email or phone must be provided
+    if (!email && !phone) {
+      throw new BadRequestException("Either 'email' or 'phone' must be provided");
+    }
+    // Database schema requires email — phone-only registration is not yet supported
+    if (!email) {
+      throw new BadRequestException("Email is required for registration");
+    }
 
     // Handle name splitting: accept either `name` or `firstName`+`lastName`
     const names = splitFullName(registerDto.name, registerDto.firstName, registerDto.lastName);

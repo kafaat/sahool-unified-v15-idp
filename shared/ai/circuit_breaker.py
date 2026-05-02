@@ -223,10 +223,17 @@ class CircuitBreaker:
         return clamped
 
     def _should_attempt_reset(self) -> bool:
-        """Check if we should try to reset from open state."""
+        """Check if we should try to reset from open state.
+
+        Uses ``time.monotonic()`` so wall-clock adjustments (NTP slews, VM
+        clock drift, suspend/resume) cannot make ``elapsed`` go negative or
+        leap forward and prematurely transition the breaker to HALF_OPEN.
+        Wall-clock timestamps are still used for human-readable telemetry on
+        ``CircuitBreakerStats.last_failure_time``.
+        """
         if self._state != CircuitState.OPEN:
             return False
-        elapsed = time.time() - self._last_failure_time
+        elapsed = time.monotonic() - self._last_failure_time
         return elapsed >= self._get_recovery_timeout()
 
     def _transition_to(self, new_state: CircuitState) -> None:
@@ -256,24 +263,28 @@ class CircuitBreaker:
 
     def _record_failure(self) -> None:
         """Record a failed call."""
-        now_wall = time.time()
+        # Monotonic time is used for elapsed/EWMA computations so wall-clock
+        # adjustments (NTP, VM clock drift) cannot produce negative intervals
+        # that would distort adaptive recovery. Wall-clock ``datetime`` is
+        # retained on ``stats.last_failure_time`` for telemetry only.
+        now_mono = time.monotonic()
         # ``self._last_failure_time`` is initialized to 0.0 in __init__ and acts
         # as a sentinel meaning "no previous failure observed". We capture it
         # *before* updating so the EWMA below can compare against the prior
         # failure timestamp; the ``> 0`` guard skips the very first failure.
-        previous_failure_wall = self._last_failure_time
+        previous_failure_mono = self._last_failure_time
 
         self._stats.total_calls += 1
         self._stats.failed_calls += 1
         self._stats.consecutive_failures += 1
         self._stats.consecutive_successes = 0
         self._stats.last_failure_time = datetime.now(UTC)
-        self._last_failure_time = now_wall
+        self._last_failure_time = now_mono
 
         # Update EWMA of inter-failure intervals only when adaptive recovery
         # is enabled, to avoid any overhead for the default code path.
-        if self.config.adaptive_recovery and previous_failure_wall > 0:
-            interval = now_wall - previous_failure_wall
+        if self.config.adaptive_recovery and previous_failure_mono > 0:
+            interval = now_mono - previous_failure_mono
             if interval > 0:
                 alpha = self.config.adaptive_alpha
                 prev = self._stats.ewma_failure_interval
@@ -322,7 +333,7 @@ class CircuitBreaker:
             if self._state == CircuitState.OPEN:
                 self._record_rejection()
                 recovery_timeout = self._get_recovery_timeout()
-                retry_after = recovery_timeout - (time.time() - self._last_failure_time)
+                retry_after = recovery_timeout - (time.monotonic() - self._last_failure_time)
                 raise CircuitBreakerError(
                     f"Circuit breaker '{self.name}' is OPEN. Service unavailable.",
                     retry_after=max(0, retry_after),

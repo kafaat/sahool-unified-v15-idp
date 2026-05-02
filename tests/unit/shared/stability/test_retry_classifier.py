@@ -89,8 +89,12 @@ class TestParseRetryAfter:
         assert parse_retry_after(self._exc({"Retry-After": "-5"})) is None
 
     def test_absurd_value_capped(self):
-        # > 1h → treated as missing to avoid pathological waits.
-        assert parse_retry_after(self._exc({"Retry-After": "999999"})) is None
+        # > 1h → capped at 3600s (the comment promises a cap, not discard).
+        assert parse_retry_after(self._exc({"Retry-After": "999999"})) == 3600.0
+
+    def test_exact_one_hour_preserved(self):
+        # Boundary: exactly 3600s passes through unchanged.
+        assert parse_retry_after(self._exc({"Retry-After": "3600"})) == 3600.0
 
     def test_non_http_exception_returns_none(self):
         assert parse_retry_after(ValueError("x")) is None

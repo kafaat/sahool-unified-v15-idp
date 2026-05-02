@@ -225,9 +225,13 @@ def parse_retry_after(exc: BaseException) -> float | None:
         value = float(raw)
     except (TypeError, ValueError):
         return None
-    if value < 0 or value > 3600:  # cap absurd values to 1h
+    if value < 0:
         return None
-    return value
+    # Cap absurd values to 1h: the upstream is asking us to wait, but we
+    # don't want a misbehaving server to pin a worker for hours. Capping
+    # (rather than discarding) preserves the intent of the directive
+    # without unbounded delay.
+    return min(value, 3600.0)
 
 
 # ─────────────────────────────────────────────────────────────────────────────

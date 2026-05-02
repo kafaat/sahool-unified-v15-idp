@@ -147,13 +147,25 @@ _redis_breaker: Any = _build_redis_breaker()
 async def _through_redis_breaker(op_name: str, coro_factory: Any) -> Any:
     """Run a Redis operation through the circuit breaker.
 
-    ``coro_factory`` must be a zero-arg async callable producing the awaitable.
-    On ``CircuitBreakerError`` returns ``None`` — callers fall through to the
-    in-memory fallback. We deliberately don't include the component name in
-    any error returned to the client.
+    ``coro_factory`` must be a zero-arg callable returning an awaitable
+    (either ``async def`` or a sync callable that returns a coroutine /
+    awaitable). On ``CircuitBreakerError`` (or any backend exception)
+    returns ``None`` — callers fall through to the in-memory fallback.
+    We deliberately don't include the component name in any error returned
+    to the client.
     """
     if _redis_breaker is None:
-        return await coro_factory()
+        # Without a breaker, still degrade gracefully: callers expect
+        # ``None`` on backend failure and rely on the in-memory fallback,
+        # not exceptions bubbling up to the request handler.
+        try:
+            return await coro_factory()
+        except Exception as exc:  # noqa: BLE001 — caller logs context
+            logger.warning(
+                "advisor.redis_op_failed",
+                extra={"op": op_name, "error": str(exc)},
+            )
+            return None
     try:
         return await _redis_breaker.call(coro_factory)
     except CircuitBreakerError:
@@ -186,13 +198,16 @@ async def _redis_client() -> Any:
     if not redis_url:
         _redis_unavailable = True
         return None
-    # Short-circuit when the breaker is OPEN: building a fresh aioredis
-    # client and immediately closing it on every approve/reject/feedback
-    # call during an outage adds churn without value. The breaker will
-    # transition to HALF_OPEN after the (adaptive) recovery window, at
-    # which point we resume probing.
-    if _redis_breaker is not None and _redis_breaker.is_open:
-        return None
+    # Note: we deliberately do *not* short-circuit here on
+    # ``_redis_breaker.is_open``. The breaker only re-evaluates
+    # ``_should_attempt_reset`` from inside ``CircuitBreaker.call()``; if we
+    # bypass the breaker entirely while OPEN, the breaker can never observe
+    # that the recovery window has elapsed and would stay OPEN indefinitely
+    # in the first-call-failed-so-no-singleton case. Instead, the ping below
+    # is routed through ``_through_redis_breaker``, which fails fast when
+    # OPEN and probes when the recovery window allows. ``aioredis.from_url``
+    # does not open a connection, so the only cost during an outage is
+    # constructing/discarding a small client object.
     try:
         import redis.asyncio as aioredis  # noqa: PLC0415
     except ImportError:

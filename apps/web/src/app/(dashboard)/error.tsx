@@ -19,11 +19,13 @@ export default function DashboardError({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  // Capture the pathname at the moment the error was thrown so that
+  // Capture the pathname at the moment the boundary first mounts so that
   // navigating to *any* other route auto-resets the boundary instead of
   // leaving a stale error (e.g. Leaflet "Map container is already
   // initialized" from /sensors) visible on unrelated pages like /satellite.
-  const erroredPathRef = useRef(pathname);
+  // Note: we never update this ref — its only job is to detect a route
+  // change relative to the initial mount.
+  const initialPathnameRef = useRef(pathname);
 
   useEffect(() => {
     // Log the error to an error reporting service
@@ -31,7 +33,7 @@ export default function DashboardError({
   }, [error]);
 
   useEffect(() => {
-    if (pathname !== erroredPathRef.current) {
+    if (pathname !== initialPathnameRef.current) {
       reset();
     }
   }, [pathname, reset]);

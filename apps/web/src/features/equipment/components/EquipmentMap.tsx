@@ -143,7 +143,10 @@ export function EquipmentMap() {
         try {
           mapInstanceRef.current.remove();
         } catch {
-          // ignore — Leaflet may already be torn down
+          // Leaflet may already be torn down (e.g. React Strict Mode
+          // double-invocation in dev, hot reload, or a partially-initialized
+          // map after a failed tile-layer init). Swallowing here keeps the
+          // remainder of the cleanup (`_leaflet_id` removal below) running.
         }
         mapInstanceRef.current = null;
       }

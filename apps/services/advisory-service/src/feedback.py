@@ -78,9 +78,7 @@ class FeedbackPublisher:
         try:
             from shared.events.subjects import get_tenant_subject  # noqa: PLC0415
 
-            subject = get_tenant_subject(
-                str(resolved_tenant), _FEEDBACK_DOMAIN, _FEEDBACK_ACTION
-            )
+            subject = get_tenant_subject(str(resolved_tenant), _FEEDBACK_DOMAIN, _FEEDBACK_ACTION)
         except ValueError as exc:
             # ``get_tenant_subject`` rejects invalid tenant_id (e.g. NATS wildcards).
             logger.warning(

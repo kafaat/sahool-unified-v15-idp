@@ -546,8 +546,7 @@ async def submit_feedback(
     # fall back to the authenticated user's tenant. This keeps feedback events
     # tenant-scoped even when the decision was issued anonymously.
     tenant_id = (decision.get("tenant_id") if isinstance(decision, dict) else None) or (
-        getattr(user, "tenant_id", None)
-        or (user.get("tenant_id") if isinstance(user, dict) else None)
+        getattr(user, "tenant_id", None) or (user.get("tenant_id") if isinstance(user, dict) else None)
     )
     await advisor.record_feedback(
         decision_id=body.decision_id,

@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sahool.app/schemas/lowcode-registry.schema.json",
+  "title": "SAHOOL Low-Code Schema Registry",
+  "type": "object",
+  "required": ["version", "specs"],
+  "additionalProperties": false,
+  "properties": {
+    "version": { "type": "string" },
+    "specs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["service", "spec", "approvedOperations", "templates"],
+        "additionalProperties": false,
+        "properties": {
+          "service": { "type": "string", "minLength": 1 },
+          "spec": { "type": "string", "pattern": "^api/services/.+\\.openapi\\.yaml$" },
+          "approvedOperations": { "type": "string", "pattern": "^schema-registry/approved_operations/.+\\.json$" },
+          "templates": { "type": "string", "pattern": "^schema-registry/templates/.+\\.json$" }
+        }
+      }
+    }
+  }
+}

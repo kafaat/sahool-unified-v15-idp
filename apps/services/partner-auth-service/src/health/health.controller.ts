@@ -5,7 +5,8 @@
  * /health   → combined status (for curl/humans)
  */
 
-import { Controller, Get } from "@nestjs/common";
+import { Controller, Get, HttpStatus, Res } from "@nestjs/common";
+import type { Response } from "express";
 import { PrismaService } from "../prisma/prisma.service";
 
 const SERVICE_NAME = "partner-auth-service";
@@ -21,13 +22,16 @@ export class HealthzController {
   }
 
   @Get("readyz")
-  async readiness() {
+  async readiness(@Res({ passthrough: true }) res?: Response) {
     let dbOk = false;
     try {
       await this.prisma.$queryRaw`SELECT 1`;
       dbOk = true;
     } catch {
       dbOk = false;
+    }
+    if (!dbOk) {
+      res?.status(HttpStatus.SERVICE_UNAVAILABLE);
     }
     return {
       status: dbOk ? "ok" : "not_ready",

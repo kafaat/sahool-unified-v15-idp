@@ -1179,7 +1179,7 @@ class AgrovocLookup:
         for uri, concept in _AGROVOC_CONCEPTS.items():
             all_labels = (
                 [concept.pref_label_en.lower()]
-                + [l.lower() for l in concept.alt_labels_en]
+                + [lbl.lower() for lbl in concept.alt_labels_en]
                 + [concept.pref_label_ar]
                 + concept.alt_labels_ar
             )
@@ -1236,7 +1236,7 @@ class AgrovocLookup:
         for uri, concept in _AGROVOC_CONCEPTS.items():
             if uri in found:
                 continue
-            all_labels = [concept.pref_label_en.lower()] + [l.lower() for l in concept.alt_labels_en]
+            all_labels = [concept.pref_label_en.lower()] + [lbl.lower() for lbl in concept.alt_labels_en]
             if any(f" {label} " in f" {text_lower} " for label in all_labels if len(label) > 2):
                 found[uri] = concept
                 continue

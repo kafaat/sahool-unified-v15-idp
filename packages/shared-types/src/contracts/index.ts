@@ -166,7 +166,24 @@
 //          * SKILL_ROUTER_ENDPOINTS (new): ROUTE, SKILLS — matches the
 //            actual router in skill-router-service/app/router.py.
 //          * SERVICE_HEALTH_ENDPOINTS: add SKILL_ROUTER, CRM.
-export const CONTRACT_VERSION = "4.23.0" as const;
+// 4.24.0 — SATELLITE_ENDPOINTS Phase 2 map-visualization upgrade (purely
+//          additive — endpoints were already live in api-endpoints.ts but
+//          lacked a changelog entry, causing merge-conflict confusion):
+//          * INDEX_MAP          (/satellite/v1/index-map/{fieldId})
+//            — Raster/WMS tile for any spectral index on a given date,
+//              used by the IndexMapViewer component.
+//          * INDEX_CALENDAR     (/satellite/v1/index-calendar/{fieldId})
+//            — Cloud-quality calendar for IndexTimeSlider date coloring.
+//          * CLOUD_COVER        (/satellite/v1/cloud-cover/{fieldId})
+//            — Cloud cover analysis for a single acquisition date.
+//          * CLEAR_OBSERVATIONS (/satellite/v1/clear-observations/{fieldId})
+//            — Lists cloud-free dates in a date range for the slider.
+//          * TIMESERIES_ANALYZE (/satellite/v1/ndvi-timeseries/analyze/{fieldId})
+//            — NDVI time-series anomaly detection (stress, harvest events).
+//          * PHENOLOGY_TIMELINE (/satellite/v1/phenology/{fieldId}/timeline)
+//            — Full phenology timeline; complements the existing PHENOLOGY
+//              point estimate added in 4.21.0.
+export const CONTRACT_VERSION = "4.24.0" as const;
 
 export * from './service-ports';
 export * from './error-codes';

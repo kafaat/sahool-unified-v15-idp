@@ -40,7 +40,7 @@ Pull Request #882 titled "Fix container build and runtime errors - env vars, Ope
 2. Dockerfiles (23 services):
    - `apps/services/ai-agents-service/Dockerfile`
    - `apps/services/chat-service/Dockerfile`
-   - `apps/services/community-chat/Dockerfile`
+   - `apps/services/chat-service/Dockerfile`
    - `apps/services/cooperative-service/Dockerfile`
    - `apps/services/copilot-api/Dockerfile`
    - `apps/services/crm-service/Dockerfile`

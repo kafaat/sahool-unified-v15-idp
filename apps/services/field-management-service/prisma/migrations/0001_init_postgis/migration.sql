@@ -14,18 +14,42 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- 2. Create Enums
 -- ═══════════════════════════════════════════════════════════════════════════
 
-CREATE TYPE field_status AS ENUM ('active', 'fallow', 'harvested', 'preparing', 'inactive');
-CREATE TYPE change_source AS ENUM ('mobile', 'web', 'api', 'system');
-CREATE TYPE sync_state AS ENUM ('idle', 'syncing', 'error', 'conflict');
-CREATE TYPE task_type AS ENUM ('irrigation', 'fertilization', 'spraying', 'scouting', 'maintenance', 'sampling', 'harvest', 'planting', 'other');
-CREATE TYPE priority AS ENUM ('low', 'medium', 'high', 'urgent');
-CREATE TYPE task_state AS ENUM ('pending', 'in_progress', 'completed', 'cancelled', 'overdue');
+DO $$
+BEGIN
+    CREATE TYPE field_status AS ENUM ('active', 'fallow', 'harvested', 'preparing', 'inactive');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+DO $$
+BEGIN
+    CREATE TYPE change_source AS ENUM ('mobile', 'web', 'api', 'system');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+DO $$
+BEGIN
+    CREATE TYPE sync_state AS ENUM ('idle', 'syncing', 'error', 'conflict');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+DO $$
+BEGIN
+    CREATE TYPE task_type AS ENUM ('irrigation', 'fertilization', 'spraying', 'scouting', 'maintenance', 'sampling', 'harvest', 'planting', 'other');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+DO $$
+BEGIN
+    CREATE TYPE priority AS ENUM ('low', 'medium', 'high', 'urgent');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+DO $$
+BEGIN
+    CREATE TYPE task_state AS ENUM ('pending', 'in_progress', 'completed', 'cancelled', 'overdue');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- ═══════════════════════════════════════════════════════════════════════════
 -- 3. Create Fields Table
 -- ═══════════════════════════════════════════════════════════════════════════
 
-CREATE TABLE fields (
+CREATE TABLE IF NOT EXISTS fields (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     version INTEGER NOT NULL DEFAULT 1,
 
@@ -69,18 +93,18 @@ CREATE TABLE fields (
 );
 
 -- Indexes for Fields
-CREATE INDEX idx_field_tenant ON fields(tenant_id);
-CREATE INDEX idx_field_sync ON fields(server_updated_at);
-CREATE INDEX idx_field_status ON fields(status);
-CREATE INDEX idx_field_crop ON fields(crop_type);
-CREATE INDEX idx_field_boundary ON fields USING GIST(boundary);
-CREATE INDEX idx_field_centroid ON fields USING GIST(centroid);
+CREATE INDEX IF NOT EXISTS idx_field_tenant ON fields(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_field_sync ON fields(server_updated_at);
+CREATE INDEX IF NOT EXISTS idx_field_status ON fields(status);
+CREATE INDEX IF NOT EXISTS idx_field_crop ON fields(crop_type);
+CREATE INDEX IF NOT EXISTS idx_field_boundary ON fields USING GIST(boundary);
+CREATE INDEX IF NOT EXISTS idx_field_centroid ON fields USING GIST(centroid);
 
 -- ═══════════════════════════════════════════════════════════════════════════
 -- 4. Create Field Boundary History Table
 -- ═══════════════════════════════════════════════════════════════════════════
 
-CREATE TABLE field_boundary_history (
+CREATE TABLE IF NOT EXISTS field_boundary_history (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 
     -- Field Reference
@@ -105,14 +129,14 @@ CREATE TABLE field_boundary_history (
 );
 
 -- Indexes for Boundary History
-CREATE INDEX idx_history_field ON field_boundary_history(field_id);
-CREATE INDEX idx_history_date ON field_boundary_history(created_at);
+CREATE INDEX IF NOT EXISTS idx_history_field ON field_boundary_history(field_id);
+CREATE INDEX IF NOT EXISTS idx_history_date ON field_boundary_history(created_at);
 
 -- ═══════════════════════════════════════════════════════════════════════════
 -- 5. Create Sync Status Table
 -- ═══════════════════════════════════════════════════════════════════════════
 
-CREATE TABLE sync_status (
+CREATE TABLE IF NOT EXISTS sync_status (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 
     -- Device Identification
@@ -145,13 +169,13 @@ CREATE TABLE sync_status (
 );
 
 -- Indexes for Sync Status
-CREATE INDEX idx_sync_tenant ON sync_status(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_sync_tenant ON sync_status(tenant_id);
 
 -- ═══════════════════════════════════════════════════════════════════════════
 -- 6. Create Tasks Table
 -- ═══════════════════════════════════════════════════════════════════════════
 
-CREATE TABLE tasks (
+CREATE TABLE IF NOT EXISTS tasks (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 
     -- Task Info
@@ -191,15 +215,15 @@ CREATE TABLE tasks (
 );
 
 -- Indexes for Tasks
-CREATE INDEX idx_task_field ON tasks(field_id);
-CREATE INDEX idx_task_status ON tasks(status);
-CREATE INDEX idx_task_due ON tasks(due_date);
+CREATE INDEX IF NOT EXISTS idx_task_field ON tasks(field_id);
+CREATE INDEX IF NOT EXISTS idx_task_status ON tasks(status);
+CREATE INDEX IF NOT EXISTS idx_task_due ON tasks(due_date);
 
 -- ═══════════════════════════════════════════════════════════════════════════
 -- 7. Create NDVI Readings Table
 -- ═══════════════════════════════════════════════════════════════════════════
 
-CREATE TABLE ndvi_readings (
+CREATE TABLE IF NOT EXISTS ndvi_readings (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 
     -- Field Reference
@@ -221,7 +245,7 @@ CREATE TABLE ndvi_readings (
 );
 
 -- Indexes for NDVI Readings
-CREATE INDEX idx_ndvi_field_date ON ndvi_readings(field_id, captured_at);
+CREATE INDEX IF NOT EXISTS idx_ndvi_field_date ON ndvi_readings(field_id, captured_at);
 
 -- ═══════════════════════════════════════════════════════════════════════════
 -- 8. Create Helper Functions

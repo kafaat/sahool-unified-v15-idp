@@ -189,6 +189,8 @@ describe("Health Endpoints", () => {
     publish: jest.fn().mockResolvedValue(undefined),
   };
 
+  const mockCacheService = createMockCacheService();
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
@@ -197,6 +199,7 @@ describe("Health Endpoints", () => {
         { provide: FintechService, useValue: mockFintechService },
         { provide: PrismaService, useValue: mockPrismaService },
         { provide: EventsService, useValue: mockEventsService },
+        { provide: CacheService, useValue: mockCacheService },
       ],
     }).compile();
 

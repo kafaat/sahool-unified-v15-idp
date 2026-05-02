@@ -7,7 +7,7 @@
 -- الهجرة: إضافة جدول لقطات KPI للحقول (Sentinel Hub + OpenWeather)
 -- Created: 2026-04-07
 
-CREATE TABLE "field_kpi_snapshots" (
+CREATE TABLE IF NOT EXISTS "field_kpi_snapshots" (
     "id"                    UUID NOT NULL DEFAULT gen_random_uuid(),
     "field_id"              UUID NOT NULL,
     "tenant_id"             VARCHAR(100) NOT NULL,
@@ -39,5 +39,5 @@ CREATE TABLE "field_kpi_snapshots" (
         FOREIGN KEY ("field_id") REFERENCES "fields"("id") ON DELETE CASCADE
 );
 
-CREATE INDEX "idx_kpi_field_date" ON "field_kpi_snapshots" ("field_id", "fetched_at" DESC);
-CREATE INDEX "idx_kpi_tenant"     ON "field_kpi_snapshots" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_kpi_field_date" ON "field_kpi_snapshots" ("field_id", "fetched_at" DESC);
+CREATE INDEX IF NOT EXISTS "idx_kpi_tenant"     ON "field_kpi_snapshots" ("tenant_id");

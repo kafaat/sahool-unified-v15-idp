@@ -529,7 +529,7 @@ export const InteractiveFieldMap: React.FC<InteractiveFieldMapProps> = ({
       className={`relative rounded-xl overflow-hidden border-2 border-gray-200 shadow-lg ${className}`}
       style={{ height }}
     >
-      {/* react-leaflet with React 19 compatible types (see types/external.d.ts) */}
+      {/* react-leaflet v5+ has built-in React 19 support */}
       <MapContainer
         center={mapCenter}
         zoom={zoom}

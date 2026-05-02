@@ -201,7 +201,7 @@ export const PrescriptionMap: React.FC<PrescriptionMapProps> = ({
           className="rounded-lg border-2 border-gray-200 overflow-hidden relative"
           style={{ height }}
         >
-          {/* react-leaflet with React 19 compatible types (see types/external.d.ts) */}
+          {/* react-leaflet v5+ has built-in React 19 support */}
           <MapContainer
             center={mapConfig.center}
             zoom={mapConfig.zoom}

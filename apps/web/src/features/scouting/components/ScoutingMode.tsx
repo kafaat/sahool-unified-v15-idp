@@ -294,7 +294,7 @@ export const ScoutingMode: React.FC<ScoutingModeProps> = ({
       <div className="flex-1 flex overflow-hidden">
         {/* Map */}
         <div className={clsx('flex-1 relative', isScoutingMode && 'cursor-crosshair')}>
-          {/* react-leaflet with React 19 compatible types (see types/external.d.ts) */}
+          {/* react-leaflet v5+ has built-in React 19 support */}
           <MapContainer
             center={center}
             zoom={zoom}

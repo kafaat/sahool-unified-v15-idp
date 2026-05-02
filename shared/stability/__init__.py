@@ -19,6 +19,14 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from .retry_classifier import (
+    DEFAULT_RETRYABLE,
+    FailureClass,
+    build_retry,
+    classify,
+    parse_retry_after,
+)
+
 __version__ = "1.0.0"
 __all__ = [
     "RequestContext",
@@ -32,4 +40,10 @@ __all__ = [
     "DriftReport",
     "RemediationEngine",
     "StabilityHealthCheck",
+    # Retry classifier (PR-B)
+    "FailureClass",
+    "DEFAULT_RETRYABLE",
+    "classify",
+    "parse_retry_after",
+    "build_retry",
 ]

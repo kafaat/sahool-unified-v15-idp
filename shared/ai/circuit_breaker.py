@@ -38,12 +38,38 @@ class CircuitState(StrEnum):
 
 @dataclass
 class CircuitBreakerConfig:
-    """Configuration for circuit breaker."""
+    """Configuration for circuit breaker.
+
+    Adaptive recovery (opt-in)
+    --------------------------
+    When ``adaptive_recovery`` is ``True``, the recovery wait between OPEN and
+    HALF_OPEN is dynamically scaled based on an EWMA of recent failure
+    intervals, bounded by ``[min_recovery_seconds, max_recovery_seconds]``.
+    Default is ``False`` for full backward compatibility — existing call sites
+    continue to use the fixed ``timeout_seconds`` exactly as before.
+    """
 
     failure_threshold: int = 5  # Failures before opening
     success_threshold: int = 2  # Successes to close from half-open
     timeout_seconds: float = 60.0  # Time before trying again
     half_open_max_calls: int = 3  # Max concurrent calls in half-open
+
+    # ── Adaptive recovery (opt-in, default OFF) ──
+    adaptive_recovery: bool = False
+    min_recovery_seconds: float = 5.0  # Hard lower bound when adaptive
+    max_recovery_seconds: float = 300.0  # Hard upper bound when adaptive
+    adaptive_alpha: float = 0.3  # EWMA smoothing factor in (0, 1]
+
+    def __post_init__(self) -> None:
+        # Validate adaptive recovery bounds eagerly so misconfiguration is
+        # surfaced at construction, not on first failure.
+        if self.adaptive_recovery:
+            if self.min_recovery_seconds <= 0:
+                raise ValueError("min_recovery_seconds must be > 0")
+            if self.max_recovery_seconds < self.min_recovery_seconds:
+                raise ValueError("max_recovery_seconds must be >= min_recovery_seconds")
+            if not (0.0 < self.adaptive_alpha <= 1.0):
+                raise ValueError("adaptive_alpha must be in the interval (0, 1]")
 
 
 @dataclass
@@ -60,6 +86,13 @@ class CircuitBreakerStats:
     consecutive_failures: int = 0
     consecutive_successes: int = 0
 
+    # ── Adaptive recovery telemetry (populated only when enabled) ──
+    # EWMA (in seconds) of intervals between consecutive failure events.
+    # ``None`` until at least two failures have been observed.
+    ewma_failure_interval: float | None = None
+    # Last computed adaptive recovery timeout (seconds). Useful for metrics.
+    last_adaptive_recovery_seconds: float | None = None
+
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
@@ -73,6 +106,8 @@ class CircuitBreakerStats:
             "consecutive_failures": self.consecutive_failures,
             "consecutive_successes": self.consecutive_successes,
             "success_rate": self.success_rate,
+            "ewma_failure_interval": self.ewma_failure_interval,
+            "last_adaptive_recovery_seconds": self.last_adaptive_recovery_seconds,
         }
 
     @property
@@ -154,12 +189,41 @@ class CircuitBreaker:
         """Check if circuit is open (failing fast)."""
         return self._state == CircuitState.OPEN
 
+    def _get_recovery_timeout(self) -> float:
+        """Return the (possibly adaptive) recovery timeout in seconds.
+
+        With ``adaptive_recovery`` disabled this returns ``timeout_seconds``
+        unchanged so behavior is identical to the original implementation.
+        With it enabled, the value scales with the EWMA of failure intervals,
+        clamped to ``[min_recovery_seconds, max_recovery_seconds]``. A short
+        EWMA (rapid, repeated failures) shortens recovery probes; a long EWMA
+        (rare, isolated failures) lengthens them.
+        """
+        cfg = self.config
+        if not cfg.adaptive_recovery:
+            return cfg.timeout_seconds
+
+        ewma = self._stats.ewma_failure_interval
+        if ewma is None:
+            # Not enough data yet — fall back to configured base timeout but
+            # still respect the adaptive bounds.
+            adaptive = cfg.timeout_seconds
+        else:
+            # Scale base timeout by the ratio of recent failure cadence to the
+            # configured base. Use a simple multiplicative model rather than a
+            # learned policy: predictable, debuggable, no hidden state.
+            adaptive = cfg.timeout_seconds * (ewma / cfg.timeout_seconds)
+
+        clamped = max(cfg.min_recovery_seconds, min(cfg.max_recovery_seconds, adaptive))
+        self._stats.last_adaptive_recovery_seconds = clamped
+        return clamped
+
     def _should_attempt_reset(self) -> bool:
         """Check if we should try to reset from open state."""
         if self._state != CircuitState.OPEN:
             return False
         elapsed = time.time() - self._last_failure_time
-        return elapsed >= self.config.timeout_seconds
+        return elapsed >= self._get_recovery_timeout()
 
     def _transition_to(self, new_state: CircuitState) -> None:
         """Transition to a new state."""
@@ -188,12 +252,26 @@ class CircuitBreaker:
 
     def _record_failure(self) -> None:
         """Record a failed call."""
+        now_wall = time.time()
+        previous_failure_wall = self._last_failure_time
+
         self._stats.total_calls += 1
         self._stats.failed_calls += 1
         self._stats.consecutive_failures += 1
         self._stats.consecutive_successes = 0
         self._stats.last_failure_time = datetime.now(UTC)
-        self._last_failure_time = time.time()
+        self._last_failure_time = now_wall
+
+        # Update EWMA of inter-failure intervals only when adaptive recovery
+        # is enabled, to avoid any overhead for the default code path.
+        if self.config.adaptive_recovery and previous_failure_wall > 0:
+            interval = now_wall - previous_failure_wall
+            if interval > 0:
+                alpha = self.config.adaptive_alpha
+                prev = self._stats.ewma_failure_interval
+                self._stats.ewma_failure_interval = (
+                    interval if prev is None else (alpha * interval) + ((1.0 - alpha) * prev)
+                )
 
         if self._state == CircuitState.CLOSED:
             if self._stats.consecutive_failures >= self.config.failure_threshold:
@@ -235,7 +313,8 @@ class CircuitBreaker:
             # Reject if open
             if self._state == CircuitState.OPEN:
                 self._record_rejection()
-                retry_after = self.config.timeout_seconds - (time.time() - self._last_failure_time)
+                recovery_timeout = self._get_recovery_timeout()
+                retry_after = recovery_timeout - (time.time() - self._last_failure_time)
                 raise CircuitBreakerError(
                     f"Circuit breaker '{self.name}' is OPEN. Service unavailable.",
                     retry_after=max(0, retry_after),
@@ -284,6 +363,9 @@ class CircuitBreaker:
                 "failure_threshold": self.config.failure_threshold,
                 "success_threshold": self.config.success_threshold,
                 "timeout_seconds": self.config.timeout_seconds,
+                "adaptive_recovery": self.config.adaptive_recovery,
+                "min_recovery_seconds": self.config.min_recovery_seconds,
+                "max_recovery_seconds": self.config.max_recovery_seconds,
             },
         }
 

@@ -539,5 +539,141 @@ class TestEdgeCases:
         assert result == 42
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+# Adaptive Recovery Tests (PR-A)
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+class TestAdaptiveRecovery:
+    """Tests for opt-in adaptive recovery behavior."""
+
+    def test_default_config_has_adaptive_recovery_disabled(self):
+        """Adaptive recovery must be opt-in (default False) for backward compat."""
+        cfg = CircuitBreakerConfig()
+        assert cfg.adaptive_recovery is False
+        # Bounds carry sensible defaults even though they are unused.
+        assert cfg.min_recovery_seconds > 0
+        assert cfg.max_recovery_seconds >= cfg.min_recovery_seconds
+
+    def test_invalid_adaptive_bounds_rejected(self):
+        with pytest.raises(ValueError):
+            CircuitBreakerConfig(adaptive_recovery=True, min_recovery_seconds=0)
+        with pytest.raises(ValueError):
+            CircuitBreakerConfig(
+                adaptive_recovery=True,
+                min_recovery_seconds=10.0,
+                max_recovery_seconds=5.0,
+            )
+        with pytest.raises(ValueError):
+            CircuitBreakerConfig(adaptive_recovery=True, adaptive_alpha=0.0)
+        with pytest.raises(ValueError):
+            CircuitBreakerConfig(adaptive_recovery=True, adaptive_alpha=1.5)
+
+    def test_get_recovery_timeout_returns_base_when_disabled(self):
+        """With adaptive disabled the recovery timeout must equal timeout_seconds."""
+        cb = CircuitBreaker(
+            "x",
+            CircuitBreakerConfig(timeout_seconds=42.0, adaptive_recovery=False),
+        )
+        assert cb._get_recovery_timeout() == 42.0
+
+    def test_get_recovery_timeout_clamped_to_bounds(self):
+        """Adaptive timeout must respect [min_recovery_seconds, max_recovery_seconds]."""
+        cfg = CircuitBreakerConfig(
+            timeout_seconds=10.0,
+            adaptive_recovery=True,
+            min_recovery_seconds=5.0,
+            max_recovery_seconds=20.0,
+        )
+        cb = CircuitBreaker("x", cfg)
+
+        # Force EWMA below the lower bound — must clamp to min.
+        cb._stats.ewma_failure_interval = 0.1
+        assert cb._get_recovery_timeout() == 5.0
+
+        # Force EWMA above the upper bound — must clamp to max.
+        cb._stats.ewma_failure_interval = 9999.0
+        assert cb._get_recovery_timeout() == 20.0
+
+        # In-range value passes through.
+        cb._stats.ewma_failure_interval = 12.0
+        assert cb._get_recovery_timeout() == 12.0
+
+    @pytest.mark.asyncio
+    async def test_ewma_only_updated_when_adaptive(self):
+        """EWMA must remain None when adaptive_recovery is disabled."""
+        cb = CircuitBreaker(
+            "x",
+            CircuitBreakerConfig(failure_threshold=10, adaptive_recovery=False),
+        )
+
+        async def boom():
+            raise RuntimeError("fail")
+
+        for _ in range(3):
+            with pytest.raises(RuntimeError):
+                await cb.call(boom)
+
+        assert cb.stats.ewma_failure_interval is None
+
+    @pytest.mark.asyncio
+    async def test_ewma_updated_across_failures_when_adaptive(self):
+        """With adaptive_recovery enabled, EWMA must be populated after >=2 failures."""
+        cb = CircuitBreaker(
+            "x",
+            CircuitBreakerConfig(
+                failure_threshold=10,
+                adaptive_recovery=True,
+                min_recovery_seconds=0.001,
+                max_recovery_seconds=600.0,
+            ),
+        )
+
+        async def boom():
+            raise RuntimeError("fail")
+
+        for _ in range(3):
+            with pytest.raises(RuntimeError):
+                await cb.call(boom)
+            await asyncio.sleep(0.01)
+
+        assert cb.stats.ewma_failure_interval is not None
+        assert cb.stats.ewma_failure_interval > 0
+
+    @pytest.mark.asyncio
+    async def test_adaptive_recovery_used_for_retry_after(self):
+        """When OPEN, retry_after must be derived from the adaptive timeout."""
+        cfg = CircuitBreakerConfig(
+            failure_threshold=2,
+            timeout_seconds=10.0,
+            adaptive_recovery=True,
+            min_recovery_seconds=7.5,
+            max_recovery_seconds=15.0,
+        )
+        cb = CircuitBreaker("x", cfg)
+
+        async def boom():
+            raise RuntimeError("fail")
+
+        # Trip the breaker.
+        for _ in range(2):
+            with pytest.raises(RuntimeError):
+                await cb.call(boom)
+
+        # Force a tiny EWMA to drive adaptive timeout to its lower bound.
+        cb._stats.ewma_failure_interval = 0.001
+
+        async def ok():
+            return "ok"
+
+        with pytest.raises(CircuitBreakerError) as ei:
+            await cb.call(ok)
+
+        # retry_after must reflect the clamped lower bound (~7.5s), not the
+        # raw EWMA (~0.001s) and not the configured timeout_seconds (10.0s).
+        assert ei.value.retry_after is not None
+        assert 7.0 <= ei.value.retry_after <= 7.6
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

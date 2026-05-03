@@ -48,11 +48,9 @@ export const FieldsList: React.FC<FieldsListProps> = ({
     if (
       !highlightedFieldId ||
       isLoading ||
+      !fields ||
       handledHighlightRef.current === highlightedFieldId
     ) {
-      return;
-    }
-    if (!fields) {
       return;
     }
     handledHighlightRef.current = highlightedFieldId;
@@ -63,7 +61,15 @@ export const FieldsList: React.FC<FieldsListProps> = ({
     }
     const node = cardRefs.current.get(highlightedFieldId);
     if (node) {
-      node.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Defer to the next frame so layout has settled after the cards
+      // mount; avoids races with smooth-scroll timing in Safari/Firefox.
+      const raf =
+        typeof window !== 'undefined' && typeof window.requestAnimationFrame === 'function'
+          ? window.requestAnimationFrame
+          : (cb: FrameRequestCallback) => setTimeout(() => cb(0), 0);
+      raf(() => {
+        node.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
     }
   }, [highlightedFieldId, fields, isLoading, onMissingHighlight]);
 

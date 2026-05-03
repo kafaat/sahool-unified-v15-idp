@@ -98,7 +98,7 @@ def _run_additive_migrations() -> None:
         db = SessionLocal()
         for col_name, col_type in new_columns:
             db.execute(
-                text(
+                text(  # nosec B608 - col_name and col_type come from the hardcoded `new_columns` tuple list above (not user input); identifiers cannot be parameterized in SQL DDL  # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text
                     f"ALTER TABLE equipment ADD COLUMN IF NOT EXISTS {col_name} {col_type}"
                 )
             )

@@ -103,7 +103,9 @@ def _run_additive_migrations() -> None:
         db = SessionLocal()
         for col_name, col_type in new_columns:
             if not _IDENT_RE.match(col_name) or not _TYPE_RE.match(col_type):
-                raise ValueError(f"Refusing to run additive migration with unsafe identifier: {col_name!r} {col_type!r}")
+                raise ValueError(
+                    f"Refusing to run additive migration with unsafe identifier: {col_name!r} {col_type!r}"
+                )
             # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text -- DDL cannot bind identifiers; col_name/col_type come from a hardcoded literal tuple above and are validated against _IDENT_RE/_TYPE_RE allowlists.
             db.execute(text(f"ALTER TABLE equipment ADD COLUMN IF NOT EXISTS {col_name} {col_type}"))  # noqa: S608
         db.commit()

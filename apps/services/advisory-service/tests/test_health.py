@@ -11,14 +11,40 @@ except ImportError:
 
 try:
     from src.main import app
+
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
 except ImportError:
     pytest.skip("advisory-service src not available", allow_module_level=True)
 
 
+def _fake_user():
+    """Authenticated user used to bypass JWT auth in catalog/lookup tests."""
+    try:
+        return User(
+            id="test-user-001",
+            email="test@sahool.sa",
+            roles=["farmer"],
+            tenant_id="test_tenant",
+        )
+    except TypeError:
+        return User(
+            id="test-user-001",
+            email="test@sahool.sa",
+            hashed_password="fake-hash",
+            roles=[],
+            tenant_id="test_tenant",
+        )
+
+
 @pytest.fixture
 def client():
-    """Create test client"""
-    return TestClient(app)
+    """Create test client with auth dependency overridden."""
+    app.dependency_overrides[get_current_user] = _fake_user
+    try:
+        yield TestClient(app)
+    finally:
+        app.dependency_overrides.pop(get_current_user, None)
 
 
 def test_health_check(client):

@@ -62,7 +62,7 @@ class TestEventEnvelope:
             event_type="test_type",
             version=2,
             aggregate_id="agg_1",
-            tenant_id="t1",
+            tenant_id="11111111-1111-1111-1111-111111111111",
             correlation_id="c1",
             payload={"data": 42},
         )
@@ -71,7 +71,7 @@ class TestEventEnvelope:
         assert d["event_type"] == "test_type"
         assert d["version"] == 2
         assert d["aggregate_id"] == "agg_1"
-        assert d["tenant_id"] == "t1"
+        assert d["tenant_id"] == "11111111-1111-1111-1111-111111111111"
         assert d["correlation_id"] == "c1"
         assert d["payload"] == {"data": 42}
         assert "event_id" in d
@@ -148,7 +148,7 @@ class TestAdvisorPublisher:
         event_id = asyncio.run(
             publisher.publish(
                 event_type="recommendation_issued",
-                tenant_id="t1",
+                tenant_id="11111111-1111-1111-1111-111111111111",
                 aggregate_id="field_1",
                 payload={"severity": "high"},
             )
@@ -156,13 +156,13 @@ class TestAdvisorPublisher:
         assert event_id  # returns UUID string
         publisher.nc.publish.assert_called_once()
         call_args = publisher.nc.publish.call_args
-        assert call_args[0][0] == "sahool.tenant.t1.advisory.recommendation_issued"
+        assert call_args[0][0] == "sahool.tenant.11111111-1111-1111-1111-111111111111.advisory.recommendation_issued"
 
     def test_publish_message_format(self, publisher):
         asyncio.run(
             publisher.publish(
                 event_type="recommendation_issued",
-                tenant_id="t1",
+                tenant_id="11111111-1111-1111-1111-111111111111",
                 aggregate_id="field_1",
                 payload={"key": "val"},
                 correlation_id="corr_1",
@@ -172,7 +172,7 @@ class TestAdvisorPublisher:
         message_bytes = call_args[0][1]
         message = json.loads(message_bytes.decode())
         assert message["event_type"] == "recommendation_issued"
-        assert message["tenant_id"] == "t1"
+        assert message["tenant_id"] == "11111111-1111-1111-1111-111111111111"
         assert message["aggregate_id"] == "field_1"
         assert message["correlation_id"] == "corr_1"
         assert message["payload"] == {"key": "val"}
@@ -181,7 +181,7 @@ class TestAdvisorPublisher:
         asyncio.run(
             publisher.publish(
                 event_type="recommendation_issued",
-                tenant_id="t1",
+                tenant_id="11111111-1111-1111-1111-111111111111",
                 aggregate_id="f1",
                 payload={},
                 correlation_id=None,
@@ -195,7 +195,7 @@ class TestAdvisorPublisher:
         asyncio.run(
             publisher.publish(
                 event_type="recommendation_issued",
-                tenant_id="t1",
+                tenant_id="11111111-1111-1111-1111-111111111111",
                 aggregate_id="f1",
                 payload={},
                 subject="custom.subject.here",
@@ -207,7 +207,7 @@ class TestAdvisorPublisher:
     def test_publish_recommendation(self, publisher):
         event_id = asyncio.run(
             publisher.publish_recommendation(
-                tenant_id="t1",
+                tenant_id="11111111-1111-1111-1111-111111111111",
                 field_id="field_1",
                 category="disease",
                 severity="high",
@@ -232,7 +232,7 @@ class TestAdvisorPublisher:
     def test_publish_recommendation_no_details(self, publisher):
         asyncio.run(
             publisher.publish_recommendation(
-                tenant_id="t1",
+                tenant_id="11111111-1111-1111-1111-111111111111",
                 field_id="f1",
                 category="disease",
                 severity="medium",
@@ -249,7 +249,7 @@ class TestAdvisorPublisher:
     def test_publish_fertilizer_plan(self, publisher):
         event_id = asyncio.run(
             publisher.publish_fertilizer_plan(
-                tenant_id="t1",
+                tenant_id="11111111-1111-1111-1111-111111111111",
                 field_id="field_1",
                 crop="tomato",
                 stage="vegetative",
@@ -269,7 +269,7 @@ class TestAdvisorPublisher:
     def test_publish_fertilizer_plan_no_notes(self, publisher):
         asyncio.run(
             publisher.publish_fertilizer_plan(
-                tenant_id="t1",
+                tenant_id="11111111-1111-1111-1111-111111111111",
                 field_id="f1",
                 crop="wheat",
                 stage="tillering",
@@ -283,7 +283,7 @@ class TestAdvisorPublisher:
     def test_publish_nutrient_assessment(self, publisher):
         event_id = asyncio.run(
             publisher.publish_nutrient_assessment(
-                tenant_id="t1",
+                tenant_id="11111111-1111-1111-1111-111111111111",
                 field_id="field_1",
                 deficiency_id="nitrogen_deficiency",
                 nutrient="N",
@@ -330,7 +330,7 @@ class TestAdvisorPublisher:
         event_id = asyncio.run(
             pub.publish(
                 event_type="recommendation_issued",
-                tenant_id="t1",
+                tenant_id="11111111-1111-1111-1111-111111111111",
                 aggregate_id="f1",
                 payload={},
             )
@@ -345,7 +345,7 @@ class TestAdvisorPublisher:
             asyncio.run(
                 publisher.publish(
                     event_type="recommendation_issued",
-                    tenant_id="t1",
+                    tenant_id="11111111-1111-1111-1111-111111111111",
                     aggregate_id="f1",
                     payload={},
                 )

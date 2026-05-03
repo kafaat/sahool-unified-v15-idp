@@ -557,7 +557,7 @@ except ImportError:
 if REVOCATION_AVAILABLE:
     app.add_middleware(
         TokenRevocationMiddleware,
-        exempt_paths=["/healthz", "/health", "/docs", "/redoc", "/openapi.json"],
+        exclude_paths=["/healthz", "/health", "/docs", "/redoc", "/openapi.json"],
     )
 
 # Add service-to-service authentication middleware

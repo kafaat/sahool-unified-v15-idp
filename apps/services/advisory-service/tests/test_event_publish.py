@@ -105,7 +105,7 @@ class TestAdvisorPublisher:
         event_id = asyncio.run(
             publisher.publish(
                 event_type="recommendation_issued",
-                tenant_id="t1",
+                tenant_id="11111111-1111-1111-1111-111111111111",
                 aggregate_id="f1",
                 payload={"test": True},
             )
@@ -114,7 +114,7 @@ class TestAdvisorPublisher:
         publisher.nc.publish.assert_called_once()
         call_args = publisher.nc.publish.call_args
         subject = call_args[0][0]
-        assert subject == "sahool.tenant.t1.advisory.recommendation_issued"
+        assert subject == "sahool.tenant.11111111-1111-1111-1111-111111111111.advisory.recommendation_issued"
 
     def test_publish_auto_connects(self):
         publisher = AdvisorPublisher(nats_url="nats://test:4222")
@@ -124,7 +124,7 @@ class TestAdvisorPublisher:
             event_id = asyncio.run(
                 publisher.publish(
                     event_type="test",
-                    tenant_id="t1",
+                    tenant_id="11111111-1111-1111-1111-111111111111",
                     aggregate_id="a1",
                     payload={},
                 )
@@ -138,7 +138,7 @@ class TestAdvisorPublisher:
 
         event_id = asyncio.run(
             publisher.publish_recommendation(
-                tenant_id="t1",
+                tenant_id="11111111-1111-1111-1111-111111111111",
                 field_id="f1",
                 category="disease",
                 severity="high",
@@ -158,7 +158,7 @@ class TestAdvisorPublisher:
 
         event_id = asyncio.run(
             publisher.publish_fertilizer_plan(
-                tenant_id="t1",
+                tenant_id="11111111-1111-1111-1111-111111111111",
                 field_id="f1",
                 crop="tomato",
                 stage="vegetative",
@@ -175,7 +175,7 @@ class TestAdvisorPublisher:
 
         event_id = asyncio.run(
             publisher.publish_nutrient_assessment(
-                tenant_id="t1",
+                tenant_id="11111111-1111-1111-1111-111111111111",
                 field_id="f1",
                 deficiency_id="nitrogen_deficiency",
                 nutrient="N",

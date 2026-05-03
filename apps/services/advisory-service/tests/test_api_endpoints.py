@@ -12,8 +12,8 @@ try:
 
     from shared.auth.dependencies import get_current_user
     from shared.auth.models import User
-except ImportError:
-    pytest.skip("advisory-service dependencies not installed", allow_module_level=True)
+except ImportError as exc:  # pragma: no cover - diagnostic aid for CI skips
+    pytest.skip(f"advisory-service dependencies not installed: {exc!r}", allow_module_level=True)
 
 
 def _fake_user():
@@ -66,12 +66,21 @@ class TestTenantEnforcement:
         assert exc_info.value.status_code == 403
 
     def test_enforce_tenant_no_tenant_on_user(self):
-        """User without tenant_id should pass (no restriction)."""
+        """User without tenant_id MUST be rejected with 403 missing_tenant.
+
+        SECURITY: A token without a tenant identifier cannot be used to access
+        tenant-scoped data — see ``_enforce_tenant`` in ``src/main.py``.
+        """
+        from fastapi import HTTPException
+
         try:
             user = User(id="u1", email="t@t.com", roles=[], tenant_id=None)
         except TypeError:
             user = User(id="u1", email="t@t.com", hashed_password="x", roles=[], tenant_id=None)
-        _enforce_tenant(user, "any_tenant")  # should not raise
+        with pytest.raises(HTTPException) as exc_info:
+            _enforce_tenant(user, "any_tenant")
+        assert exc_info.value.status_code == 403
+        assert exc_info.value.detail["error"] == "missing_tenant"
 
 
 # ---------------------------------------------------------------------------

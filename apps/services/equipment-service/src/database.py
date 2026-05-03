@@ -4,6 +4,7 @@ SAHOOL Equipment Service - Database Configuration
 """
 
 import os
+import re
 from collections.abc import Generator
 
 from sqlalchemy import create_engine, text
@@ -84,6 +85,9 @@ def _run_additive_migrations() -> None:
     """Add columns that exist in the ORM model but may be missing from older DB schemas."""
     # Columns that were added to the model after the initial DB schema was created.
     # All are nullable so adding them to existing rows is safe.
+    # NOTE: col_name and col_type are hardcoded literals (not user input) — the
+    # regex validation below is defense-in-depth in case this list is ever edited
+    # carelessly. SQL injection is not reachable from any external input here.
     new_columns = [
         ("year", "INTEGER"),
         ("horsepower", "INTEGER"),
@@ -94,10 +98,17 @@ def _run_additive_migrations() -> None:
         ("next_maintenance_hours", "NUMERIC(10, 2)"),
         ("qr_code", "VARCHAR(100)"),
     ]
+    # Defense-in-depth: only allow safe identifier/type characters.
+    _ident_re = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+    _type_re = re.compile(r"^[A-Z]+(\([0-9]+(,\s*[0-9]+)?\))?$")
     try:
         db = SessionLocal()
         for col_name, col_type in new_columns:
-            db.execute(text(f"ALTER TABLE equipment ADD COLUMN IF NOT EXISTS {col_name} {col_type}"))
+            if not _ident_re.match(col_name) or not _type_re.match(col_type):
+                raise ValueError(f"Refusing unsafe DDL identifier: {col_name} {col_type}")
+            stmt = f"ALTER TABLE equipment ADD COLUMN IF NOT EXISTS {col_name} {col_type}"
+            # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text -- col_name/col_type are hardcoded literals, validated by regex above
+            db.execute(text(stmt))  # noqa: S608
         db.commit()
         db.close()
     except Exception as e:

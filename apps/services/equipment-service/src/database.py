@@ -107,8 +107,7 @@ def _run_additive_migrations() -> None:
             if not _ident_re.match(col_name) or not _type_re.match(col_type):
                 raise ValueError(f"Refusing unsafe DDL identifier: {col_name} {col_type}")
             stmt = f"ALTER TABLE equipment ADD COLUMN IF NOT EXISTS {col_name} {col_type}"
-            # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text -- col_name/col_type are hardcoded literals, validated by regex above
-            db.execute(text(stmt))  # noqa: S608
+            db.execute(text(stmt))  # noqa: S608  # nosec B608  # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text -- col_name/col_type are validated against strict regex above; no user input reaches here
         db.commit()
         db.close()
     except Exception as e:

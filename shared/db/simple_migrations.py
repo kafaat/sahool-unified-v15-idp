@@ -88,6 +88,17 @@ CREATE TABLE IF NOT EXISTS {_TRACKING_TABLE} (
 )
 """
 
+# Pre-built SQL statements using the tracking table name. Defined as module-level
+# constants (not f-string concatenations at call sites) so static analyzers can
+# easily verify these queries have no user-controlled inputs interpolated.
+_INSERT_TRACKING_ROW_SQL = f"""
+INSERT INTO {_TRACKING_TABLE} (version, description, duration_ms)
+VALUES ($1, $2, $3)
+ON CONFLICT (version) DO NOTHING
+"""  # noqa: S608 - _TRACKING_TABLE is a module constant
+_DELETE_TRACKING_ROW_SQL = f"DELETE FROM {_TRACKING_TABLE} WHERE version = $1"  # noqa: S608
+_SELECT_APPLIED_VERSIONS_SQL = f"SELECT version FROM {_TRACKING_TABLE} ORDER BY version"  # noqa: S608
+
 
 class SimpleMigrationRunner:
     """
@@ -170,12 +181,8 @@ class SimpleMigrationRunner:
                     async with conn.transaction():
                         await conn.execute(migration.up)
                         duration_ms = int((time.monotonic() - t0) * 1000)
-                        await conn.execute(  # nosemgrep: python.sqlalchemy.security.sqlalchemy-execute-raw-query, asyncpg-sqli -- table name is module constant, values are parameterized
-                            f"""
-                            INSERT INTO {_TRACKING_TABLE} (version, description, duration_ms)
-                            VALUES ($1, $2, $3)
-                            ON CONFLICT (version) DO NOTHING
-                            """,  # noqa: S608  # nosec B608 - _TRACKING_TABLE is a module constant, not user input
+                        await conn.execute(
+                            _INSERT_TRACKING_ROW_SQL,
                             migration.version,
                             migration.description,
                             duration_ms,
@@ -262,8 +269,8 @@ class SimpleMigrationRunner:
                     t0 = time.monotonic()
                     async with conn.transaction():
                         await conn.execute(migration.down)
-                        await conn.execute(  # nosemgrep: python.sqlalchemy.security.sqlalchemy-execute-raw-query, asyncpg-sqli -- table name is module constant, version is parameterized
-                            f"DELETE FROM {_TRACKING_TABLE} WHERE version = $1",  # noqa: S608  # nosec B608
+                        await conn.execute(
+                            _DELETE_TRACKING_ROW_SQL,
                             migration.version,
                         )
                     duration_ms = int((time.monotonic() - t0) * 1000)
@@ -316,7 +323,7 @@ class SimpleMigrationRunner:
     async def _get_applied_versions(self, conn: asyncpg.Connection, *, dry_run: bool = False) -> set[int]:
         """Return set of already-applied version numbers."""
         try:
-            rows = await conn.fetch(f"SELECT version FROM {_TRACKING_TABLE} ORDER BY version")  # noqa: S608  # nosec B608  # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli.asyncpg-sqli -- _TRACKING_TABLE is a module constant, not user input
+            rows = await conn.fetch(_SELECT_APPLIED_VERSIONS_SQL)
             return {row["version"] for row in rows}
         except Exception:
             # Table may not exist yet (first run or dry_run before real run).

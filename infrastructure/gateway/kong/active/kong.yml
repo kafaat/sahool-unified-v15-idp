@@ -153,7 +153,7 @@ services:
     - /api/v1/health
     - /api/v1/healthz
     - /api/v1/readyz
-    strip_path: false
+    strip_path: true
     protocols:
     - http
     - https
@@ -1498,7 +1498,7 @@ services:
     paths:
     - /api/v1/fields/healthz
     - /api/v1/fields/readyz
-    strip_path: false
+    strip_path: true
     protocols:
     - http
     - https
@@ -1511,7 +1511,7 @@ services:
     paths:
     - /api/v1/chat/healthz
     - /api/v1/chat/readyz
-    strip_path: false
+    strip_path: true
     protocols:
     - http
     - https
@@ -1524,7 +1524,7 @@ services:
     paths:
     - /api/v1/equipment/healthz
     - /api/v1/equipment/readyz
-    strip_path: false
+    strip_path: true
     protocols:
     - http
     - https
@@ -1537,7 +1537,7 @@ services:
     paths:
     - /api/v1/tasks/healthz
     - /api/v1/tasks/readyz
-    strip_path: false
+    strip_path: true
     protocols:
     - http
     - https
@@ -1550,7 +1550,7 @@ services:
     paths:
     - /api/v1/notifications/healthz
     - /api/v1/notifications/readyz
-    strip_path: false
+    strip_path: true
     protocols:
     - http
     - https
@@ -1563,7 +1563,7 @@ services:
     paths:
     - /api/v1/inventory/healthz
     - /api/v1/inventory/readyz
-    strip_path: false
+    strip_path: true
     protocols:
     - http
     - https
@@ -1576,7 +1576,7 @@ services:
     paths:
     - /api/v1/crm/healthz
     - /api/v1/crm/readyz
-    strip_path: false
+    strip_path: true
     protocols:
     - http
     - https
@@ -1589,7 +1589,7 @@ services:
     paths:
     - /api/v1/marketplace/healthz
     - /api/v1/marketplace/readyz
-    strip_path: false
+    strip_path: true
     protocols:
     - http
     - https
@@ -1602,7 +1602,7 @@ services:
     paths:
     - /api/v1/billing/healthz
     - /api/v1/billing/readyz
-    strip_path: false
+    strip_path: true
     protocols:
     - http
     - https
@@ -1615,7 +1615,7 @@ services:
     paths:
     - /api/v1/supply-chain/healthz
     - /api/v1/supply-chain/readyz
-    strip_path: false
+    strip_path: true
     protocols:
     - http
     - https
@@ -1628,7 +1628,7 @@ services:
     paths:
     - /api/v1/iot/healthz
     - /api/v1/iot/readyz
-    strip_path: false
+    strip_path: true
     protocols:
     - http
     - https
@@ -1641,7 +1641,7 @@ services:
     paths:
     - /api/v1/iot-gateway/healthz
     - /api/v1/iot-gateway/readyz
-    strip_path: false
+    strip_path: true
     protocols:
     - http
     - https
@@ -1654,7 +1654,7 @@ services:
     paths:
     - /api/v1/vegetation/healthz
     - /api/v1/vegetation/readyz
-    strip_path: false
+    strip_path: true
     protocols:
     - http
     - https
@@ -1667,7 +1667,7 @@ services:
     paths:
     - /api/v1/advisory/healthz
     - /api/v1/advisory/readyz
-    strip_path: false
+    strip_path: true
     protocols:
     - http
     - https
@@ -1680,7 +1680,7 @@ services:
     paths:
     - /api/v1/crop-health/healthz
     - /api/v1/crop-health/readyz
-    strip_path: false
+    strip_path: true
     protocols:
     - http
     - https
@@ -1693,7 +1693,7 @@ services:
     paths:
     - /api/v1/yield/healthz
     - /api/v1/yield/readyz
-    strip_path: false
+    strip_path: true
     protocols:
     - http
     - https
@@ -1706,7 +1706,7 @@ services:
     paths:
     - /api/v1/field-intelligence/healthz
     - /api/v1/field-intelligence/readyz
-    strip_path: false
+    strip_path: true
     protocols:
     - http
     - https
@@ -1719,7 +1719,7 @@ services:
     paths:
     - /api/v1/ai-chat/healthz
     - /api/v1/ai-chat/readyz
-    strip_path: false
+    strip_path: true
     protocols:
     - http
     - https
@@ -1732,7 +1732,7 @@ services:
     paths:
     - /api/v1/iot-sensor-hub/healthz
     - /api/v1/iot-sensor-hub/readyz
-    strip_path: false
+    strip_path: true
     protocols:
     - http
     - https
@@ -1745,7 +1745,7 @@ services:
     paths:
     - /api/v1/audit/healthz
     - /api/v1/audit/readyz
-    strip_path: false
+    strip_path: true
     protocols:
     - http
     - https
@@ -1758,7 +1758,7 @@ services:
     paths:
     - /api/v1/vision/healthz
     - /api/v1/vision/readyz
-    strip_path: false
+    strip_path: true
     protocols:
     - http
     - https
@@ -1771,7 +1771,7 @@ services:
     paths:
     - /api/v1/terrain/healthz
     - /api/v1/terrain/readyz
-    strip_path: false
+    strip_path: true
     protocols:
     - http
     - https
@@ -1784,7 +1784,7 @@ services:
     paths:
     - /api/v1/hydrology/healthz
     - /api/v1/hydrology/readyz
-    strip_path: false
+    strip_path: true
     protocols:
     - http
     - https
@@ -1797,7 +1797,7 @@ services:
     paths:
     - /api/v1/leveling/healthz
     - /api/v1/leveling/readyz
-    strip_path: false
+    strip_path: true
     protocols:
     - http
     - https
@@ -1810,7 +1810,7 @@ services:
     paths:
     - /api/v1/edge/healthz
     - /api/v1/edge/readyz
-    strip_path: false
+    strip_path: true
     protocols:
     - http
     - https
@@ -1823,7 +1823,7 @@ services:
     paths:
     - /api/v1/whatsapp/healthz
     - /api/v1/whatsapp/readyz
-    strip_path: false
+    strip_path: true
     protocols:
     - http
     - https

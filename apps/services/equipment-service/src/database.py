@@ -4,6 +4,7 @@ SAHOOL Equipment Service - Database Configuration
 """
 
 import os
+import re
 from collections.abc import Generator
 
 from sqlalchemy import create_engine, text
@@ -94,11 +95,24 @@ def _run_additive_migrations() -> None:
         ("next_maintenance_hours", "NUMERIC(10, 2)"),
         ("qr_code", "VARCHAR(100)"),
     ]
+    # Safety: col_name and col_type are hardcoded literals from `new_columns`
+    # above (never user input), so f-string interpolation here is safe. ALTER
+    # TABLE does not accept bound parameters for identifiers/types, so direct
+    # text() is the only option. Identifier allowlist is enforced by the
+    # static `new_columns` tuple.
+    _allowed_identifier = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+    _allowed_type = re.compile(r"^[A-Z]+(\([0-9, ]+\))?$")
     try:
         db = SessionLocal()
         for col_name, col_type in new_columns:
+            # Defensive validation in case `new_columns` is ever extended
+            # from a non-literal source in the future.
+            if not _allowed_identifier.fullmatch(col_name):
+                raise ValueError(f"Invalid column name: {col_name!r}")
+            if not _allowed_type.fullmatch(col_type):
+                raise ValueError(f"Invalid column type: {col_type!r}")
             db.execute(
-                text(
+                text(  # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text
                     f"ALTER TABLE equipment ADD COLUMN IF NOT EXISTS {col_name} {col_type}"
                 )
             )

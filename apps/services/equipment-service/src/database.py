@@ -4,6 +4,7 @@ SAHOOL Equipment Service - Database Configuration
 """
 
 import os
+import re
 from collections.abc import Generator
 
 from sqlalchemy import create_engine, text
@@ -94,14 +95,19 @@ def _run_additive_migrations() -> None:
         ("next_maintenance_hours", "NUMERIC(10, 2)"),
         ("qr_code", "VARCHAR(100)"),
     ]
+    # Defense-in-depth: validate each identifier against a strict allowlist so a future
+    # edit to ``new_columns`` cannot introduce a SQL-injection vector even by accident.
+    _IDENT_RE = re.compile(r"^[a-z_][a-z0-9_]*$")
+    _TYPE_RE = re.compile(r"^[A-Z]+(\(\s*\d+(\s*,\s*\d+)?\s*\))?$")
     try:
         db = SessionLocal()
         for col_name, col_type in new_columns:
-            db.execute(
-                text(
-                    f"ALTER TABLE equipment ADD COLUMN IF NOT EXISTS {col_name} {col_type}"
+            if not _IDENT_RE.match(col_name) or not _TYPE_RE.match(col_type):
+                raise ValueError(
+                    f"Refusing to run additive migration with unsafe identifier: {col_name!r} {col_type!r}"
                 )
-            )
+            # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text -- DDL cannot bind identifiers; col_name/col_type come from a hardcoded literal tuple above and are validated against _IDENT_RE/_TYPE_RE allowlists.
+            db.execute(text(f"ALTER TABLE equipment ADD COLUMN IF NOT EXISTS {col_name} {col_type}"))  # noqa: S608
         db.commit()
         db.close()
     except Exception as e:

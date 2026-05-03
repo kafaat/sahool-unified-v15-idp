@@ -35,6 +35,11 @@ import { Modal } from '@/components/ui/modal';
 import type { FieldFormData } from '@/features/fields/types';
 import { logger } from '@/lib/logger';
 import { useAuth } from '@/stores/auth.store';
+import {
+  saveLastViewedField,
+  getLastViewedField,
+  clearLastViewedField,
+} from '@/features/fields/lib/lastViewedField';
 
 // Dynamic import — no SSR for Google Maps
 const GoogleMapsFieldDrawer = dynamic(
@@ -90,6 +95,22 @@ export default function FieldDetailsClient({ fieldId }: FieldDetailsClientProps)
       kpiRefresh.mutate({ lat: fieldLat, lng: fieldLng, polygonCoordinates });
     }
   }, [field, kpiSnapshotLoading, kpiSnapshot, fieldLat, fieldLng]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Persist the last-viewed field so the fields list can restore selection
+  // on re-entry. If *this* field's load fails (deleted / access denied) and
+  // it happens to be the one we stored, clear it so we don't keep restoring
+  // a broken id. Stale ids that no longer match any loaded field are also
+  // cleared by FieldsClient on the list page.
+  useEffect(() => {
+    if (field?.id) {
+      saveLastViewedField(user?.tenant_id, field.id);
+    } else if (error && fieldId) {
+      const stored = getLastViewedField(user?.tenant_id);
+      if (stored === fieldId) {
+        clearLastViewedField(user?.tenant_id);
+      }
+    }
+  }, [field?.id, error, fieldId, user?.tenant_id]);
 
   const handleDelete = async () => {
     try {

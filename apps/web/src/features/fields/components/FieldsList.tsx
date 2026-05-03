@@ -5,7 +5,7 @@
  * مكون قائمة الحقول
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Grid3x3, List, Map as MapIcon, Search, Plus } from 'lucide-react';
 import { useFields } from '../hooks/useFields';
 import { FieldCard } from './FieldCard';
@@ -14,12 +14,58 @@ import type { FieldViewMode, FieldFilters } from '../types';
 interface FieldsListProps {
   onFieldClick?: (fieldId: string) => void;
   onCreateClick?: () => void;
+  /**
+   * If set, the matching field's card is scrolled into view and visually
+   * highlighted on first render. Used to restore the user's last-viewed
+   * field when they return to the fields list.
+   */
+  highlightedFieldId?: string | null;
+  /**
+   * Called once when `highlightedFieldId` is set but no matching field is
+   * found in the loaded list (deleted / access denied / stale). Lets the
+   * caller clean up persisted state.
+   */
+  onMissingHighlight?: (fieldId: string) => void;
 }
 
-export const FieldsList: React.FC<FieldsListProps> = ({ onFieldClick, onCreateClick }) => {
+export const FieldsList: React.FC<FieldsListProps> = ({
+  onFieldClick,
+  onCreateClick,
+  highlightedFieldId,
+  onMissingHighlight,
+}) => {
   const [viewMode, setViewMode] = useState<FieldViewMode>('grid');
   const [filters, setFilters] = useState<FieldFilters>({});
   const { data: fields, isLoading } = useFields(filters);
+  const cardRefs = useRef<Map<string, HTMLDivElement | null>>(new Map());
+  // Track the id we've already scrolled to / cleaned up so we don't repeat
+  // the side-effect on every re-render or filter change.
+  const handledHighlightRef = useRef<string | null>(null);
+
+  // When the stored last-viewed field id arrives and the list has loaded,
+  // either scroll the card into view or notify the caller it's stale.
+  useEffect(() => {
+    if (
+      !highlightedFieldId ||
+      isLoading ||
+      handledHighlightRef.current === highlightedFieldId
+    ) {
+      return;
+    }
+    if (!fields) {
+      return;
+    }
+    handledHighlightRef.current = highlightedFieldId;
+    const match = fields.find((f) => f.id === highlightedFieldId);
+    if (!match) {
+      onMissingHighlight?.(highlightedFieldId);
+      return;
+    }
+    const node = cardRefs.current.get(highlightedFieldId);
+    if (node) {
+      node.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [highlightedFieldId, fields, isLoading, onMissingHighlight]);
 
   const handleSearch = (search: string) => {
     setFilters((prev) => ({ ...prev, search }));
@@ -127,9 +173,30 @@ export const FieldsList: React.FC<FieldsListProps> = ({ onFieldClick, onCreateCl
               : 'space-y-4'
           }
         >
-          {fields.map((field) => (
-            <FieldCard key={field.id} field={field} onClick={() => onFieldClick?.(field.id)} />
-          ))}
+          {fields.map((field) => {
+            const isHighlighted = field.id === highlightedFieldId;
+            return (
+              <div
+                key={field.id}
+                ref={(node) => {
+                  if (node) {
+                    cardRefs.current.set(field.id, node);
+                  } else {
+                    cardRefs.current.delete(field.id);
+                  }
+                }}
+                className={
+                  isHighlighted
+                    ? 'rounded-xl ring-2 ring-blue-500 ring-offset-2 transition-shadow'
+                    : undefined
+                }
+                aria-current={isHighlighted ? 'true' : undefined}
+                data-testid={isHighlighted ? 'field-card-highlighted' : undefined}
+              >
+                <FieldCard field={field} onClick={() => onFieldClick?.(field.id)} />
+              </div>
+            );
+          })}
         </div>
       )}
 

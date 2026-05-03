@@ -5,7 +5,7 @@
  * صفحة الحقول
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { FieldsList } from '@/features/fields';
@@ -19,6 +19,10 @@ import { useToast } from '@/components/ui/toast';
 import { fieldsApi } from '@/features/fields/api';
 import { useAuth } from '@/stores/auth.store';
 import { logger } from '@/lib/logger';
+import {
+  getLastViewedField,
+  clearLastViewedField,
+} from '@/features/fields/lib/lastViewedField';
 
 export default function FieldsClient() {
   const router = useRouter();
@@ -27,6 +31,19 @@ export default function FieldsClient() {
   const { showToast } = useToast();
   const createField = useCreateField();
   const { user } = useAuth();
+
+  // Read the stored last-viewed field id once after mount (SSR-safe — the
+  // helper guards against window being undefined). FieldsList scrolls to and
+  // highlights the matching card, or notifies us if the id is stale.
+  const [lastViewedFieldId, setLastViewedFieldId] = useState<string | null>(null);
+  useEffect(() => {
+    setLastViewedFieldId(getLastViewedField(user?.tenant_id));
+  }, [user?.tenant_id]);
+
+  const handleMissingHighlight = (fieldId: string) => {
+    clearLastViewedField(user?.tenant_id);
+    setLastViewedFieldId((current) => (current === fieldId ? null : current));
+  };
 
   const handleFieldClick = (fieldId: string) => {
     ErrorTracking.addBreadcrumb({
@@ -124,7 +141,12 @@ export default function FieldsClient() {
       </div>
 
       {/* Fields List */}
-      <FieldsList onFieldClick={handleFieldClick} onCreateClick={handleCreateClick} />
+      <FieldsList
+        onFieldClick={handleFieldClick}
+        onCreateClick={handleCreateClick}
+        highlightedFieldId={lastViewedFieldId}
+        onMissingHighlight={handleMissingHighlight}
+      />
 
       {/* Create Field Modal */}
       <Modal

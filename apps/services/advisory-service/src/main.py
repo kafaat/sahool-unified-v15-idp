@@ -630,6 +630,38 @@ def health():
     return {"status": "ok", "service": "advisory_service", "version": VERSION}
 
 
+# ============== AI Advisor v2 (CRAG + Knowledge-Graph + Governance) ==============
+# Mounted under /v2 → reachable through Kong as /api/v1/advisory/v2/...
+# Failure to import the v2 modules (e.g. missing httpx/qdrant) is tolerated:
+# the rest of the service must remain available.
+try:
+    from .advisor_router import router as _advisor_v2_router
+    from .advisor_router import shutdown_advisor as _shutdown_advisor_v2
+
+    app.include_router(_advisor_v2_router)
+
+    # Hook the v2 shutdown into the existing lifespan rather than using the
+    # deprecated `@app.on_event("shutdown")` (which emits a DeprecationWarning
+    # when an app is constructed with a `lifespan=` context manager).
+    _orig_lifespan_ctx = app.router.lifespan_context
+
+    @asynccontextmanager
+    async def _wrapped_lifespan(app):  # type: ignore[no-redef]
+        async with _orig_lifespan_ctx(app):
+            try:
+                yield
+            finally:
+                try:
+                    await _shutdown_advisor_v2()
+                except Exception as _e:  # noqa: BLE001 — best-effort cleanup
+                    logger.warning("advisor_v2_shutdown_failed", error=str(_e))
+
+    app.router.lifespan_context = _wrapped_lifespan
+
+except Exception as _exc:  # noqa: BLE001
+    logger.warning("advisor_v2_router_unavailable", error=str(_exc))
+
+
 @app.get("/readyz")
 def readiness():
     """Kubernetes readiness probe - is the service ready to accept traffic?"""

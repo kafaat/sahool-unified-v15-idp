@@ -15,7 +15,7 @@ export const HealthDashboard: React.FC = () => {
 
   const { data: summary, isLoading: summaryLoading } = useHealthSummary(filters);
   const { data: records, isLoading: recordsLoading } = useHealthRecords(filters);
-  const { data: alerts } = useDiseaseAlerts();
+  const { data: alerts = [] } = useDiseaseAlerts();
 
   const statusConfig = {
     healthy: {

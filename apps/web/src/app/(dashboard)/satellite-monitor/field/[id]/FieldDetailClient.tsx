@@ -394,7 +394,7 @@ export default function FieldDetailClient({ fieldId }: { fieldId: string }) {
               </div>
 
               {/* Alerts */}
-              {field.alerts.length > 0 && (
+              {Array.isArray(field.alerts) && field.alerts.length > 0 && (
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-3">التنبيهات النشطة ({field.alerts.length})</h3>
                   <div className="space-y-2">

@@ -1408,7 +1408,7 @@ asyncio.run(main())
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
     ports:
-      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:3006:3000"
     depends_on:
       # FIX: Use pgbouncer instead of postgres for proper connection pooling
       pgbouncer:
@@ -2153,8 +2153,17 @@ asyncio.run(main())
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - USE_MULTI_PROVIDER=${USE_MULTI_PROVIDER:-true}
+      # CDSE / Sentinel Hub credentials (CDSE_* aliases also accepted by multi_provider.py)
+      - CDSE_CLIENT_ID=${CDSE_CLIENT_ID:-}
+      - CDSE_CLIENT_SECRET=${CDSE_CLIENT_SECRET:-}
       - SENTINEL_HUB_CLIENT_ID=${SENTINEL_HUB_CLIENT_ID:-}
       - SENTINEL_HUB_CLIENT_SECRET=${SENTINEL_HUB_CLIENT_SECRET:-}
+      # CDSE API endpoints — must match Copernicus Data Space Ecosystem
+      - SENTINEL_HUB_AUTH_URL=${SENTINEL_HUB_AUTH_URL:-https://identity.dataspace.copernicus.eu/auth/realms/CDSE/protocol/openid-connect/token}
+      - SENTINEL_HUB_PROCESS_URL=${SENTINEL_HUB_PROCESS_URL:-https://sh.dataspace.copernicus.eu/api/v1/process}
+      - SENTINEL_HUB_CATALOG_URL=${SENTINEL_HUB_CATALOG_URL:-https://sh.dataspace.copernicus.eu/api/v1/catalog/1.0.0/search}
+      - SH_BASE_URL=${SH_BASE_URL:-https://sh.dataspace.copernicus.eu}
+      - SH_TOKEN_URL=${SH_TOKEN_URL:-https://identity.dataspace.copernicus.eu/auth/realms/CDSE/protocol/openid-connect/token}
       - NASA_EARTHDATA_USERNAME=${NASA_EARTHDATA_USERNAME:-}
       - NASA_EARTHDATA_PASSWORD=${NASA_EARTHDATA_PASSWORD:-}
       # NOTE: Planet provider not implemented - env vars removed (see vegetation-analysis-service docs)
@@ -2163,6 +2172,9 @@ asyncio.run(main())
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - JWT_ISSUER=${JWT_ISSUER:-sahool}
+      - JWT_AUDIENCE=${JWT_AUDIENCE:-sahool-api}
     ports:
       - "127.0.0.1:8090:8090"
     depends_on:

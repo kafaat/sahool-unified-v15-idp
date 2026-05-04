@@ -18,7 +18,7 @@ interface AlertPanelProps {
 }
 
 export const AlertPanel = React.memo<AlertPanelProps>(function AlertPanel({
-  alerts,
+  alerts = [],
   onDismiss,
   onDismissAll,
   onAction,

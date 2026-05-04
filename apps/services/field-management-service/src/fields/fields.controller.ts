@@ -172,6 +172,36 @@ export class FieldsController {
   }
 
   /**
+   * Get field health status
+   * Called by demo-data service and monitoring probes.
+   * Must be declared before @Get(":id") so NestJS matches the literal
+   * "health" sub-path before the generic UUID route.
+   */
+  @Get(":id/health")
+  @ApiOperation({
+    summary: "Get field health status",
+    description: "جلب حالة صحة الحقل",
+  })
+  @ApiParam({ name: "id", type: String, format: "uuid" })
+  @ApiResponse({ status: 200, description: "Field health status" })
+  @ApiResponse({ status: 404, description: "Field not found" })
+  async getFieldHealth(
+    @Req() req: any,
+    @Param("id", ParseUUIDPipe) id: string,
+  ) {
+    const tenantId = getRequestTenantId(req);
+    const field = await this.fieldsService.findById(id, tenantId);
+    return {
+      success: true,
+      data: {
+        fieldId: field.id,
+        status: "healthy",
+        lastUpdated: new Date().toISOString(),
+      },
+    };
+  }
+
+  /**
    * Get field by ID
    */
   @Get(":id")

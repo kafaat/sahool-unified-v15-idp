@@ -33,6 +33,21 @@
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 250, 250, 250;
   --background-end-rgb: 255, 255, 255;
+
+  /* JD Operations Center Design Tokens */
+  --jd-green:        #367C2B;
+  --jd-green-dark:   #1e5218;
+  --jd-green-light:  #3f9e30;
+  --jd-green-glow:   #4caf50;
+  --jd-yellow:       #FFDE00;
+  --jd-bg:           #090e18;
+  --jd-panel:        #0d1520;
+  --jd-surface:      #111a27;
+  --jd-surface-high: #152030;
+  --jd-border:       #1a2840;
+  --jd-text:         #e2edf8;
+  --jd-text-sub:     #8baec9;
+  --jd-text-muted:   #3d5a78;
 }
 
 .dark {

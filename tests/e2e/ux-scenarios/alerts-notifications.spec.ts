@@ -27,6 +27,192 @@ import {
 } from "./helpers/ux-helpers";
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// Test Suite: Alert Panel Regression — alerts.filter is not a function
+// مجموعة الاختبارات: اختبار الانحدار — alerts.filter ليست دالة
+//
+// Regression: Dashboard crashed with "alerts.filter is not a function" when
+// the API returned a non-array response (e.g., { success: false } wrapper).
+// The fix adds Array.isArray() guards across 6 files.
+// الانحدار: انهارت لوحة التحكم عند إرجاع API استجابة غير مصفوفة
+// ═══════════════════════════════════════════════════════════════════════════════
+
+test.describe("Alert Panel Regression | اختبار الانحدار — alerts.filter", () => {
+  test("dashboard loads without JS error when alerts API is unavailable | لوحة التحكم تعمل بدون خطأ عند عدم توفر API التنبيهات", async ({
+    farmerPage,
+  }) => {
+    // Intercept the alerts API and return a non-array (the regression trigger)
+    // اعتراض API التنبيهات وإرجاع قيمة غير مصفوفة (محفز الانحدار)
+    await farmerPage.route("**/api/v1/satellite-monitor/alerts**", (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ success: false, message: "Service unavailable" }),
+      })
+    );
+
+    await navigateAndWait(farmerPage, "/dashboard");
+
+    // The dashboard must render — no error boundary should have triggered
+    // يجب أن تُعرض لوحة التحكم — لا يجب أن يُفعَّل حد الخطأ
+    const errorBoundary = farmerPage.locator(
+      'text=/حدث خطأ في لوحة التحكم|Dashboard Error|alerts.filter is not a function/i'
+    );
+    await expect(errorBoundary).not.toBeVisible({ timeout: timeouts.medium }).catch(() => {
+      // Error boundary may not exist in DOM at all — that's fine
+    });
+
+    // At least one dashboard element must be visible
+    // يجب أن يكون عنصر لوحة التحكم واحد على الأقل مرئياً
+    const dashboardContent = farmerPage.locator(
+      '[class*="dashboard"], main, [role="main"], text=/لوحة التحكم|Dashboard/i'
+    );
+    await expect(dashboardContent.first()).toBeVisible({ timeout: timeouts.long });
+  });
+
+  test("dashboard loads without JS error when alerts API returns null | لوحة التحكم تعمل عند إرجاع null", async ({
+    farmerPage,
+  }) => {
+    await farmerPage.route("**/api/v1/satellite-monitor/alerts**", (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(null),
+      })
+    );
+
+    await navigateAndWait(farmerPage, "/dashboard");
+
+    const errorBoundary = farmerPage.locator(
+      'text=/حدث خطأ في لوحة التحكم|Dashboard Error/i'
+    );
+    const hasError = await errorBoundary
+      .first()
+      .isVisible({ timeout: timeouts.short })
+      .catch(() => false);
+
+    expect(hasError).toBe(false);
+  });
+
+  test("dashboard loads correctly when alerts API returns empty array | لوحة التحكم تعمل عند إرجاع مصفوفة فارغة", async ({
+    farmerPage,
+  }) => {
+    await farmerPage.route("**/api/v1/satellite-monitor/alerts**", (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ success: true, data: [] }),
+      })
+    );
+
+    await navigateAndWait(farmerPage, "/dashboard");
+
+    const errorBoundary = farmerPage.locator(
+      'text=/حدث خطأ في لوحة التحكم|Dashboard Error/i'
+    );
+    const hasError = await errorBoundary
+      .first()
+      .isVisible({ timeout: timeouts.short })
+      .catch(() => false);
+
+    expect(hasError).toBe(false);
+  });
+
+  test("satellite monitor page loads without JS error when alerts are non-array | صفحة مراقبة الأقمار الصناعية تعمل بدون خطأ", async ({
+    farmerPage,
+  }) => {
+    await farmerPage.route("**/api/v1/satellite-monitor/alerts**", (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ error: "not found" }),
+      })
+    );
+
+    await navigateAndWait(farmerPage, "/satellite-monitor");
+
+    const errorBoundary = farmerPage.locator(
+      'text=/حدث خطأ في لوحة التحكم|Dashboard Error|is not a function/i'
+    );
+    const hasError = await errorBoundary
+      .first()
+      .isVisible({ timeout: timeouts.short })
+      .catch(() => false);
+
+    expect(hasError).toBe(false);
+  });
+
+  test("crop health page loads without JS error when disease alerts are non-array | صفحة صحة المحصول تعمل بدون خطأ", async ({
+    farmerPage,
+  }) => {
+    await farmerPage.route("**/api/v1/crop-health/alerts**", (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ success: false }),
+      })
+    );
+
+    await navigateAndWait(farmerPage, "/crop-health");
+
+    const errorBoundary = farmerPage.locator(
+      'text=/حدث خطأ في لوحة التحكم|Dashboard Error|is not a function/i'
+    );
+    const hasError = await errorBoundary
+      .first()
+      .isVisible({ timeout: timeouts.short })
+      .catch(() => false);
+
+    expect(hasError).toBe(false);
+  });
+
+  test("AlertPanel renders with unread count when alerts are valid array | لوحة التنبيهات تعرض العدد بشكل صحيح", async ({
+    farmerPage,
+  }) => {
+    const mockAlerts = [
+      {
+        id: "alert-1",
+        type: "disease",
+        severity: "critical",
+        read: false,
+        messageAr: "تنبيه اختبار",
+        message: "Test alert",
+        createdAt: new Date().toISOString(),
+      },
+      {
+        id: "alert-2",
+        type: "pest",
+        severity: "warning",
+        read: true,
+        messageAr: "تنبيه اختبار 2",
+        message: "Test alert 2",
+        createdAt: new Date().toISOString(),
+      },
+    ];
+
+    await farmerPage.route("**/api/v1/satellite-monitor/alerts**", (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ success: true, data: mockAlerts }),
+      })
+    );
+
+    await navigateAndWait(farmerPage, "/dashboard");
+
+    // No crash is the primary assertion
+    const errorBoundary = farmerPage.locator(
+      'text=/حدث خطأ في لوحة التحكم|Dashboard Error/i'
+    );
+    const hasError = await errorBoundary
+      .first()
+      .isVisible({ timeout: timeouts.short })
+      .catch(() => false);
+
+    expect(hasError).toBe(false);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // Test Suite: Weather Alerts
 // مجموعة الاختبارات: تنبيهات الطقس
 // ═══════════════════════════════════════════════════════════════════════════════

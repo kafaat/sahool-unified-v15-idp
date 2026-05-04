@@ -90,7 +90,9 @@ export const satelliteMonitorApi = {
     return safeFetch(SATELLITE_MONITOR_ENDPOINTS.ALERTS, async () => {
       const params = fieldId ? `?field_id=${fieldId}` : '';
       const response = await api.get(`${SATELLITE_MONITOR_ENDPOINTS.ALERTS}${params}`);
-      return response.data.data || response.data;
+      const data = response.data.data || response.data;
+      if (Array.isArray(data)) return data;
+      return [];
     });
   },
 

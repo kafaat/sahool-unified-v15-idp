@@ -36,12 +36,14 @@ try:
     EO_LEARN_AVAILABLE = True
     logger.info("sahool-eo package available")
 
-    # Check if Sentinel Hub is configured
-    if os.environ.get("SENTINEL_HUB_CLIENT_ID") and os.environ.get("SENTINEL_HUB_CLIENT_SECRET"):
+    # Check if Sentinel Hub / CDSE is configured (accept either variable naming convention)
+    _sh_id = os.environ.get("SENTINEL_HUB_CLIENT_ID") or os.environ.get("CDSE_CLIENT_ID")
+    _sh_secret = os.environ.get("SENTINEL_HUB_CLIENT_SECRET") or os.environ.get("CDSE_CLIENT_SECRET")
+    if _sh_id and _sh_secret:
         SENTINEL_HUB_CONFIGURED = True
-        logger.info("Sentinel Hub credentials configured")
+        logger.info("Sentinel Hub / CDSE credentials configured")
     else:
-        logger.warning("Sentinel Hub credentials not set - using simulated data")
+        logger.warning("Sentinel Hub / CDSE credentials not set - using simulated data")
 
 except ImportError:
     logger.warning("sahool-eo not installed - using simulated data")

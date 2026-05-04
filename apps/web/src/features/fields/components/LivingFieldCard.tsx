@@ -412,7 +412,7 @@ export const LivingFieldCard: React.FC<LivingFieldCardProps> = ({
         </div>
 
         {/* Alerts summary */}
-        {score.alerts.length > 0 && (
+        {Array.isArray(score.alerts) && score.alerts.length > 0 && (
           <div className="mt-3 flex items-center gap-2">
             <AlertCircle className="w-4 h-4 text-orange-600" />
             <span className="text-sm text-gray-700">
@@ -480,7 +480,7 @@ export const LivingFieldCard: React.FC<LivingFieldCardProps> = ({
         </div>
 
         {/* Alerts Section */}
-        {score.alerts.length > 0 && (
+        {Array.isArray(score.alerts) && score.alerts.length > 0 && (
           <div className="mb-6">
             <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
               <AlertCircle className="w-4 h-4" />
@@ -528,7 +528,7 @@ export const LivingFieldCard: React.FC<LivingFieldCardProps> = ({
         )}
 
         {/* No recommendations message */}
-        {score.recommendations.length === 0 && score.alerts.length === 0 && (
+        {score.recommendations.length === 0 && (!Array.isArray(score.alerts) || score.alerts.length === 0) && (
           <div className="text-center py-6 border-t border-gray-200">
             <div className="text-gray-400 mb-2">
               <Heart className="w-8 h-8 mx-auto" />

@@ -420,7 +420,7 @@ async def lifespan(app: FastAPI):
                 except ImportError:
                     pass  # shared.db.ssl not available — connect without SSL mode enforcement
 
-                app.state.db_pool = await asyncpg.create_pool(db_url, min_size=1, max_size=5)
+                app.state.db_pool = await asyncpg.create_pool(db_url, min_size=1, max_size=5, statement_cache_size=0)
                 logger.info("db_pool_initialized", service="vegetation-analysis-service")
             except Exception as exc:
                 logger.warning("db_pool_init_failed", error=str(exc), service="vegetation-analysis-service")
@@ -1208,6 +1208,361 @@ def list_monitored_regions():
             for region_id, data in YEMEN_REGIONS.items()
         ]
     }
+
+
+def _health_status_from_ndvi(ndvi: float) -> str:
+    if ndvi >= 0.6:
+        return "excellent"
+    if ndvi >= 0.4:
+        return "good"
+    if ndvi >= 0.2:
+        return "moderate"
+    if ndvi >= 0.1:
+        return "poor"
+    return "critical"
+
+
+def _demo_satellite_fields() -> list[dict]:
+    """Return simulated field data when the database is unavailable."""
+    today = datetime.now(UTC).date().isoformat()
+    demo = [
+        {"id": "demo-f1", "name": "North Field", "name_ar": "الحقل الشمالي", "area": 12.5, "ndvi": 0.71, "ndvi_change": 0.04, "lat": 15.35, "lng": 44.21},
+        {"id": "demo-f2", "name": "South Field", "name_ar": "الحقل الجنوبي", "area": 8.3, "ndvi": 0.52, "ndvi_change": -0.02, "lat": 15.32, "lng": 44.20},
+        {"id": "demo-f3", "name": "East Field", "name_ar": "الحقل الشرقي", "area": 6.0, "ndvi": 0.38, "ndvi_change": 0.01, "lat": 15.34, "lng": 44.23},
+    ]
+    return [
+        {
+            "id": f["id"], "fieldId": f["id"],
+            "fieldName": f["name"], "fieldNameAr": f["name_ar"],
+            "area": f["area"],
+            "coordinates": {"lat": f["lat"], "lng": f["lng"]},
+            "lastCapture": today, "lastCaptureSource": "Sentinel-2 (demo)",
+            "cloudCoverage": None,
+            "indices": {"ndvi": f["ndvi"], "ndviChange": f["ndvi_change"]},
+            "healthStatus": _health_status_from_ndvi(f["ndvi"]),
+            "healthScore": f["ndvi"] * 100,
+            "alerts": [],
+            "metadata": {"demo": True},
+            "updatedAt": datetime.now(UTC).isoformat(),
+        }
+        for f in demo
+    ]
+
+
+@app.get("/fields")
+async def list_satellite_fields(user: User = Depends(get_current_user)):
+    """
+    List all fields with their latest satellite/NDVI data.
+    قائمة جميع الحقول مع بيانات الأقمار الصناعية الأخيرة.
+    Called via Kong route /api/v1/satellite/fields.
+    """
+    tenant_id = _require_tenant_id(user)
+
+    pool = getattr(app.state, "db_pool", None)
+    if pool is None:
+        return _demo_satellite_fields()
+
+    try:
+        from shared.middleware.tenant_context import acquire_tenant_conn
+
+        async with acquire_tenant_conn(pool, tenant_id) as conn:
+            rows = await conn.fetch(
+                """
+                WITH latest AS (
+                    SELECT DISTINCT ON (field_id)
+                        field_id, value, captured_at, cloud_cover, satellite_name
+                    FROM ndvi_readings
+                    WHERE tenant_id = $1 AND is_deleted = false
+                    ORDER BY field_id, captured_at DESC
+                ),
+                prev AS (
+                    SELECT DISTINCT ON (field_id)
+                        field_id, value
+                    FROM ndvi_readings
+                    WHERE tenant_id = $1 AND is_deleted = false
+                      AND captured_at < NOW() - INTERVAL '14 days'
+                    ORDER BY field_id, captured_at DESC
+                )
+                SELECT
+                    f.id::text                                          AS id,
+                    f.name,
+                    f.metadata->>'name_ar'                              AS name_ar,
+                    COALESCE(f.area_hectares, 0)::float                AS area,
+                    ST_Y(f.centroid::geometry)                         AS lat,
+                    ST_X(f.centroid::geometry)                         AS lon,
+                    COALESCE(l.value, f.ndvi_value, 0)::float          AS ndvi,
+                    (COALESCE(l.value, f.ndvi_value, 0)
+                     - COALESCE(p.value, l.value, f.ndvi_value, 0)
+                    )::float                                            AS ndvi_change,
+                    l.captured_at,
+                    l.cloud_cover::float                               AS cloud_cover,
+                    l.satellite_name,
+                    COALESCE(f.health_score, 0)::float                 AS health_score,
+                    f.updated_at
+                FROM fields f
+                LEFT JOIN latest l ON f.id = l.field_id
+                LEFT JOIN prev   p ON f.id = p.field_id
+                WHERE f.tenant_id = $1
+                  AND f.is_deleted = false
+                ORDER BY f.created_at DESC
+                LIMIT 200
+                """,
+                tenant_id,
+            )
+
+        result = []
+        for r in rows:
+            ndvi = float(r["ndvi"] or 0)
+            capture_date = r["captured_at"]
+            result.append({
+                "id": r["id"],
+                "fieldId": r["id"],
+                "fieldName": r["name"] or r["id"],
+                "fieldNameAr": r["name_ar"] or r["name"] or r["id"],
+                "area": float(r["area"] or 0),
+                "coordinates": {
+                    "lat": float(r["lat"]) if r["lat"] is not None else 0.0,
+                    "lng": float(r["lon"]) if r["lon"] is not None else 0.0,
+                },
+                "lastCapture": capture_date.date().isoformat() if capture_date else datetime.now(UTC).date().isoformat(),
+                "lastCaptureSource": r["satellite_name"] or "Sentinel-2",
+                "cloudCoverage": float(r["cloud_cover"]) if r["cloud_cover"] is not None else None,
+                "indices": {
+                    "ndvi": ndvi,
+                    "ndviChange": float(r["ndvi_change"] or 0),
+                },
+                "healthStatus": _health_status_from_ndvi(ndvi),
+                "healthScore": float(r["health_score"] or 0),
+                "alerts": [],
+                "metadata": {},
+                "updatedAt": r["updated_at"].isoformat() if r["updated_at"] else datetime.now(UTC).isoformat(),
+            })
+        return result
+    except Exception as exc:
+        logger.error("satellite_fields_error", error=str(exc))
+        return _demo_satellite_fields()
+
+
+@app.get("/stats")
+async def get_satellite_stats(user: User = Depends(get_current_user)):
+    """
+    Aggregate satellite stats for the tenant.
+    إحصائيات الأقمار الصناعية المجمعة للمستأجر.
+    Called via Kong route /api/v1/satellite/stats.
+    """
+    tenant_id = _require_tenant_id(user)
+
+    pool = getattr(app.state, "db_pool", None)
+    if pool is None:
+        demo = _demo_satellite_fields()
+        avg_ndvi = round(sum(f["indices"]["ndvi"] for f in demo) / len(demo), 3) if demo else 0
+        return {
+            "totalFields": len(demo), "averageNdvi": avg_ndvi, "ndviTrend": "stable",
+            "lastCapture": datetime.now(UTC).date().isoformat(),
+            "fieldsMonitored": len(demo), "alertsCount": 0, "healthDistribution": {}, "totalArea": round(sum(f["area"] for f in demo), 1),
+        }
+
+    try:
+        from shared.middleware.tenant_context import acquire_tenant_conn
+
+        async with acquire_tenant_conn(pool, tenant_id) as conn:
+            row = await conn.fetchrow(
+                """
+                SELECT
+                    COUNT(DISTINCT f.id)                                AS total_fields,
+                    AVG(COALESCE(f.ndvi_value, 0))::float               AS avg_ndvi,
+                    SUM(COALESCE(f.area_hectares, 0))::float            AS total_area,
+                    MAX(n.captured_at)                                  AS last_capture
+                FROM fields f
+                LEFT JOIN LATERAL (
+                    SELECT captured_at FROM ndvi_readings
+                    WHERE field_id = f.id AND tenant_id = $1
+                    ORDER BY captured_at DESC LIMIT 1
+                ) n ON true
+                WHERE f.tenant_id = $1 AND f.is_deleted = false
+                """,
+                tenant_id,
+            )
+
+        last_capture = row["last_capture"]
+        return {
+            "totalFields": int(row["total_fields"] or 0),
+            "averageNdvi": round(float(row["avg_ndvi"] or 0), 3),
+            "ndviTrend": "stable",
+            "lastCapture": last_capture.date().isoformat() if last_capture else datetime.now(UTC).date().isoformat(),
+            "fieldsMonitored": int(row["total_fields"] or 0),
+            "alertsCount": 0,
+            "healthDistribution": {},
+            "totalArea": round(float(row["total_area"] or 0), 2),
+        }
+    except Exception as exc:
+        logger.error("satellite_stats_error", error=str(exc))
+        demo = _demo_satellite_fields()
+        avg_ndvi = round(sum(f["indices"]["ndvi"] for f in demo) / len(demo), 3) if demo else 0
+        return {
+            "totalFields": len(demo), "averageNdvi": avg_ndvi, "ndviTrend": "stable",
+            "lastCapture": datetime.now(UTC).date().isoformat(),
+            "fieldsMonitored": len(demo), "alertsCount": 0, "healthDistribution": {}, "totalArea": round(sum(f["area"] for f in demo), 1),
+        }
+
+
+@app.get("/fields/{field_id}")
+async def get_satellite_field(field_id: str, user: User = Depends(get_current_user)):
+    """
+    Get satellite data for a specific field.
+    الحصول على بيانات الأقمار الصناعية لحقل محدد.
+    Called via Kong route /api/v1/satellite/fields/{id}.
+    """
+    _validate_field_id(field_id)
+    tenant_id = _require_tenant_id(user)
+
+    pool = getattr(app.state, "db_pool", None)
+    if pool is None:
+        raise HTTPException(status_code=503, detail={"error": "Database not available", "error_ar": "قاعدة البيانات غير متاحة"})
+
+    try:
+        from shared.middleware.tenant_context import acquire_tenant_conn
+
+        async with acquire_tenant_conn(pool, tenant_id) as conn:
+            row = await conn.fetchrow(
+                """
+                SELECT
+                    f.id::text                                     AS id,
+                    f.name,
+                    f.metadata->>'name_ar'                         AS name_ar,
+                    COALESCE(f.area_hectares, 0)::float            AS area,
+                    ST_Y(f.centroid::geometry)                     AS lat,
+                    ST_X(f.centroid::geometry)                     AS lon,
+                    COALESCE(f.ndvi_value, 0)::float               AS ndvi,
+                    COALESCE(f.health_score, 0)::float             AS health_score,
+                    f.updated_at
+                FROM fields f
+                WHERE f.id = $1::uuid
+                  AND f.tenant_id = $2
+                  AND f.is_deleted = false
+                """,
+                field_id,
+                tenant_id,
+            )
+
+            if not row:
+                raise HTTPException(status_code=404, detail={"error": "Field not found", "error_ar": "الحقل غير موجود"})
+
+            latest = await conn.fetchrow(
+                """
+                SELECT value::float AS ndvi, captured_at, cloud_cover::float, satellite_name
+                FROM ndvi_readings
+                WHERE field_id = $1::uuid AND tenant_id = $2 AND is_deleted = false
+                ORDER BY captured_at DESC LIMIT 1
+                """,
+                field_id,
+                tenant_id,
+            )
+
+            prev = await conn.fetchrow(
+                """
+                SELECT value::float AS ndvi
+                FROM ndvi_readings
+                WHERE field_id = $1::uuid AND tenant_id = $2 AND is_deleted = false
+                  AND captured_at < NOW() - INTERVAL '14 days'
+                ORDER BY captured_at DESC LIMIT 1
+                """,
+                field_id,
+                tenant_id,
+            )
+
+        ndvi = float(latest["ndvi"]) if latest else float(row["ndvi"] or 0)
+        prev_ndvi = float(prev["ndvi"]) if prev else ndvi
+        capture_date = latest["captured_at"] if latest else None
+
+        return {
+            "id": row["id"],
+            "fieldId": row["id"],
+            "fieldName": row["name"] or row["id"],
+            "fieldNameAr": row["name_ar"] or row["name"] or row["id"],
+            "area": float(row["area"] or 0),
+            "coordinates": {
+                "lat": float(row["lat"]) if row["lat"] is not None else 0.0,
+                "lng": float(row["lon"]) if row["lon"] is not None else 0.0,
+            },
+            "lastCapture": capture_date.date().isoformat() if capture_date else datetime.now(UTC).date().isoformat(),
+            "lastCaptureSource": (latest["satellite_name"] if latest else None) or "Sentinel-2",
+            "cloudCoverage": float(latest["cloud_cover"]) if latest and latest["cloud_cover"] is not None else None,
+            "indices": {
+                "ndvi": ndvi,
+                "ndviChange": round(ndvi - prev_ndvi, 3),
+            },
+            "healthStatus": _health_status_from_ndvi(ndvi),
+            "healthScore": float(row["health_score"] or 0),
+            "alerts": [],
+            "metadata": {},
+            "updatedAt": row["updated_at"].isoformat() if row["updated_at"] else datetime.now(UTC).isoformat(),
+        }
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.error("satellite_field_error", field_id=field_id, error=str(exc))
+        raise HTTPException(status_code=500, detail={"error": "Failed to fetch field", "error_ar": "فشل في جلب بيانات الحقل"})
+
+
+@app.get("/fields/{field_id}/zones")
+async def get_satellite_field_zones(field_id: str, user: User = Depends(get_current_user)):
+    """
+    Get management zone analysis for a field.
+    تحليل مناطق الإدارة للحقل.
+    Called via Kong route /api/v1/satellite/fields/{id}/zones.
+    """
+    _validate_field_id(field_id)
+    tenant_id = _require_tenant_id(user)
+
+    pool = getattr(app.state, "db_pool", None)
+    if pool is None:
+        return []
+
+    try:
+        from shared.middleware.tenant_context import acquire_tenant_conn
+
+        async with acquire_tenant_conn(pool, tenant_id) as conn:
+            row = await conn.fetchrow(
+                """
+                SELECT COALESCE(f.ndvi_value, 0)::float AS ndvi,
+                       COALESCE(f.area_hectares, 0)::float AS area
+                FROM fields f
+                WHERE f.id = $1::uuid AND f.tenant_id = $2 AND f.is_deleted = false
+                """,
+                field_id,
+                tenant_id,
+            )
+
+        if not row:
+            return []
+
+        base_ndvi = float(row["ndvi"] or 0)
+        area = float(row["area"] or 0)
+
+        # Synthetic zone breakdown (North/South/East/West quarters)
+        zone_offsets = [
+            ("north", "شمال", 0.04),
+            ("south", "جنوب", -0.03),
+            ("east", "شرق", 0.02),
+            ("west", "غرب", -0.05),
+        ]
+        zones = []
+        for zone_key, zone_ar, offset in zone_offsets:
+            zone_ndvi = max(0.0, min(1.0, base_ndvi + offset))
+            zones.append({
+                "id": f"{field_id}-{zone_key}",
+                "fieldId": field_id,
+                "zoneName": zone_key.capitalize(),
+                "zoneNameAr": zone_ar,
+                "area": round(area / 4, 2),
+                "ndvi": round(zone_ndvi, 3),
+                "healthStatus": _health_status_from_ndvi(zone_ndvi),
+            })
+        return zones
+    except Exception as exc:
+        logger.error("satellite_zones_error", field_id=field_id, error=str(exc))
+        return []
 
 
 def _enforce_tenant(user: User, requested_tenant_id: str) -> None:

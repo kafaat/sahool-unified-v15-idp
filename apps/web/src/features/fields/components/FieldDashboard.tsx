@@ -320,7 +320,7 @@ export const FieldDashboard: React.FC<FieldDashboardProps> = ({
   const { data: ndviData, isLoading: ndviLoading, refetch: refetchNDVI } = useFieldNDVI(fieldId);
   const { data: ndviTimeSeries, isLoading: timeSeriesLoading } = useNDVITimeSeries(fieldId);
   const { data: tasks, isLoading: tasksLoading, refetch: refetchTasks } = useTasksByField(fieldId);
-  const { data: alerts, isLoading: alertsLoading, refetch: refetchAlerts } = useAlerts({ fieldId });
+  const { data: alerts = [], isLoading: alertsLoading, refetch: refetchAlerts } = useAlerts({ fieldId });
   const { data: weather, isLoading: weatherLoading, refetch: refetchWeather } = useCurrentWeather();
   const {
     data: astronomical,

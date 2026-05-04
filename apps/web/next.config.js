@@ -31,6 +31,9 @@ const withNextIntl = createNextIntlPlugin("./src/i18n.ts");
 const nextConfig = {
   reactStrictMode: true,
 
+  // Disable Next.js 15.5.x DevTools overlay — buggy SegmentViewNode RSC manifest error
+  devIndicators: false,
+
   // Allow cross-origin requests from local network in development
   // (prevents "Cross origin request detected" warning)
   allowedDevOrigins: (process.env.ALLOWED_DEV_ORIGINS?.split(",").map(s => s.trim()).filter(Boolean)) || ["localhost", "127.0.0.1"],
@@ -204,12 +207,21 @@ const nextConfig = {
       process.env.API_GATEWAY_URL ||
       process.env.NEXT_PUBLIC_API_URL ||
       "http://localhost:8000";
-    return [
-      {
-        source: "/api/v1/:path*",
-        destination: `${apiOrigin}/api/v1/:path*`,
-      },
-    ];
+    return {
+      // beforeFiles: run before file-system routes — used to exclude our custom
+      // Next.js route handlers so they are never forwarded to Kong.
+      beforeFiles: [],
+      // afterFiles: run after file-system routes. The satellite proxy is a
+      // file-system route (route.ts), so it takes priority and afterFiles
+      // only catches paths that have no matching route.ts.
+      afterFiles: [
+        {
+          source: "/api/v1/:path*",
+          destination: `${apiOrigin}/api/v1/:path*`,
+        },
+      ],
+      fallback: [],
+    };
   },
 
   // Environment variables exposed to browser

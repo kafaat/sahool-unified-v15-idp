@@ -1,628 +1,385 @@
 'use client';
 
-import React, { useState, useMemo, useRef } from 'react';
-import {
-  Satellite,
-  MapPin,
-  Layers,
-  TrendingUp,
-  Download,
-  AlertTriangle,
-  Droplets,
-  X,
-  Cloud,
-  Clock,
-  ChevronRight,
-} from 'lucide-react';
-import { logger } from '@/lib/logger';
+import React, { useState, useMemo, useCallback } from 'react';
+import Link from 'next/link';
+import { AlertTriangle, Search } from 'lucide-react';
+import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
 import {
   useSatelliteFields,
   useSatelliteStats,
-  useSatelliteFieldDetails,
-  useSatelliteZoneAnalysis,
 } from '@/features/satellite';
 import type { SatelliteField, IndexType } from '@/features/satellite';
 
-const INDEX_CONFIG: Record<
-  IndexType,
-  {
-    label: string;
-    labelAr: string;
-    unit: string;
-    colorStops: Array<{ max: number; color: string; bgClass: string; label: string }>;
-    description: string;
-  }
-> = {
-  ndvi: {
-    label: 'NDVI',
-    labelAr: 'مؤشر الغطاء النباتي',
-    unit: '',
-    description: 'كثافة الغطاء النباتي',
-    colorStops: [
-      { max: 0.15, color: 'bg-red-500', bgClass: 'text-red-600', label: 'حرج' },
-      { max: 0.3, color: 'bg-orange-500', bgClass: 'text-orange-600', label: 'ضعيف' },
-      { max: 0.5, color: 'bg-yellow-500', bgClass: 'text-yellow-600', label: 'متوسط' },
-      { max: 0.7, color: 'bg-green-400', bgClass: 'text-green-600', label: 'جيد' },
-      { max: 1.0, color: 'bg-green-600', bgClass: 'text-green-700', label: 'ممتاز' },
-    ],
-  },
-  ndwi: {
-    label: 'NDWI',
-    labelAr: 'مؤشر المياه',
-    unit: '',
-    description: 'محتوى الماء في الغطاء النباتي',
-    colorStops: [
-      { max: -0.1, color: 'bg-red-500', bgClass: 'text-red-600', label: 'جفاف شديد' },
-      { max: 0.0, color: 'bg-orange-500', bgClass: 'text-orange-600', label: 'إجهاد مائي' },
-      { max: 0.2, color: 'bg-yellow-500', bgClass: 'text-yellow-600', label: 'منخفض' },
-      { max: 0.4, color: 'bg-blue-400', bgClass: 'text-blue-600', label: 'كافٍ' },
-      { max: 1.0, color: 'bg-blue-600', bgClass: 'text-blue-700', label: 'ممتاز' },
-    ],
-  },
-  evi: {
-    label: 'EVI',
-    labelAr: 'مؤشر الغطاء المحسن',
-    unit: '',
-    description: 'الغطاء النباتي مع تصحيح جوي',
-    colorStops: [
-      { max: 0.1, color: 'bg-red-500', bgClass: 'text-red-600', label: 'حرج' },
-      { max: 0.25, color: 'bg-orange-500', bgClass: 'text-orange-600', label: 'ضعيف' },
-      { max: 0.4, color: 'bg-yellow-500', bgClass: 'text-yellow-600', label: 'متوسط' },
-      { max: 0.6, color: 'bg-green-400', bgClass: 'text-green-600', label: 'جيد' },
-      { max: 1.0, color: 'bg-green-600', bgClass: 'text-green-700', label: 'ممتاز' },
-    ],
-  },
-  savi: {
-    label: 'SAVI',
-    labelAr: 'مؤشر الغطاء المعدل للتربة',
-    unit: '',
-    description: 'الغطاء النباتي مع تصحيح التربة (مناسب للبيئة الجافة)',
-    colorStops: [
-      { max: 0.1, color: 'bg-red-500', bgClass: 'text-red-600', label: 'حرج' },
-      { max: 0.25, color: 'bg-orange-500', bgClass: 'text-orange-600', label: 'ضعيف' },
-      { max: 0.4, color: 'bg-yellow-500', bgClass: 'text-yellow-600', label: 'متوسط' },
-      { max: 0.6, color: 'bg-green-400', bgClass: 'text-green-600', label: 'جيد' },
-      { max: 1.0, color: 'bg-green-600', bgClass: 'text-green-700', label: 'ممتاز' },
-    ],
-  },
-  ndre: {
-    label: 'NDRE',
-    labelAr: 'مؤشر الحافة الحمراء',
-    unit: '',
-    description: 'تركيز الكلوروفيل (مناسب للبن)',
-    colorStops: [
-      { max: 0.05, color: 'bg-red-500', bgClass: 'text-red-600', label: 'نقص شديد' },
-      { max: 0.15, color: 'bg-orange-500', bgClass: 'text-orange-600', label: 'نقص' },
-      { max: 0.3, color: 'bg-yellow-500', bgClass: 'text-yellow-600', label: 'متوسط' },
-      { max: 0.5, color: 'bg-green-400', bgClass: 'text-green-600', label: 'جيد' },
-      { max: 1.0, color: 'bg-green-600', bgClass: 'text-green-700', label: 'ممتاز' },
-    ],
-  },
-  lai: {
-    label: 'LAI',
-    labelAr: 'مؤشر مساحة الأوراق',
-    unit: 'm²/m²',
-    description: 'نسبة مساحة الأوراق إلى مساحة الأرض',
-    colorStops: [
-      { max: 1.0, color: 'bg-red-500', bgClass: 'text-red-600', label: 'متناثر' },
-      { max: 2.0, color: 'bg-orange-500', bgClass: 'text-orange-600', label: 'خفيف' },
-      { max: 3.5, color: 'bg-yellow-500', bgClass: 'text-yellow-600', label: 'متوسط' },
-      { max: 5.0, color: 'bg-green-400', bgClass: 'text-green-600', label: 'كثيف' },
-      { max: 8.0, color: 'bg-green-600', bgClass: 'text-green-700', label: 'كثيف جداً' },
-    ],
-  },
-};
+/* ─── Index Buttons ─────────────────────────────────────────── */
+const INDICES = [
+  { id: 'ndvi',  label: 'NDVI',  key: 'ndvi'  as IndexType },
+  { id: 'evi',   label: 'EVI',   key: 'evi'   as IndexType },
+  { id: 'sar',   label: 'SAR',   key: 'ndvi'  as IndexType },
+  { id: 'ndre',  label: 'NDRE',  key: 'ndre'  as IndexType },
+  { id: 'ndwi',  label: 'NDWI',  key: 'ndwi'  as IndexType },
+  { id: 'lai',   label: 'LAI',   key: 'lai'   as IndexType },
+];
 
-const indexTypes = Object.entries(INDEX_CONFIG).map(([value, config]) => ({
-  value: value as IndexType,
-  label: config.label,
-  labelAr: config.labelAr,
-}));
+/* ─── NDVI color helper ─────────────────────────────────────── */
+function ndviColor(v: number): string {
+  if (v >= 0.6) return '#16a34a';
+  if (v >= 0.45) return '#65a30d';
+  if (v >= 0.3) return '#f59e0b';
+  if (v >= 0.15) return '#ea580c';
+  return '#dc2626';
+}
 
-function FieldDetailPanel({
-  fieldId,
-  onClose,
+function ndviLabel(v: number): string {
+  if (v >= 0.6) return 'ممتاز';
+  if (v >= 0.45) return 'جيد';
+  if (v >= 0.3) return 'متوسط';
+  if (v >= 0.15) return 'ضعيف';
+  return 'حرج';
+}
+
+function ndviLabelColor(v: number): string {
+  if (v >= 0.6) return 'text-green-700 bg-green-50';
+  if (v >= 0.45) return 'text-lime-700 bg-lime-50';
+  if (v >= 0.3) return 'text-amber-700 bg-amber-50';
+  return 'text-red-700 bg-red-50';
+}
+
+/* ─── Field card in right panel ─────────────────────────────── */
+function FieldCard({
+  field,
+  selected,
+  onClick,
 }: {
-  fieldId: string;
-  onClose: () => void;
+  field: SatelliteField;
+  selected: boolean;
+  onClick: () => void;
 }) {
-  const { data: field, isLoading: loadingField } = useSatelliteFieldDetails(fieldId);
-  const { data: zones = [], isLoading: loadingZones } = useSatelliteZoneAnalysis(fieldId);
-
-  if (loadingField) {
-    return (
-      <div className="bg-white rounded-lg border p-6 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-sahool-green-600" />
-      </div>
-    );
-  }
-
-  if (!field) return null;
+  const ndvi = field.indices.ndvi ?? 0;
+  const ndviChange = field.indices.ndviChange ?? 0;
+  const barPct = Math.max(0, Math.min(100, ndvi * 100));
+  const changeSign = ndviChange >= 0 ? '+' : '';
+  const color = ndviColor(ndvi);
 
   return (
-    <div className="bg-white rounded-lg border overflow-hidden">
-      <div className="p-4 border-b flex items-center justify-between bg-sahool-green-50">
-        <div>
-          <h2 className="font-semibold text-gray-900">{field.fieldNameAr}</h2>
-          <p className="text-sm text-gray-500">{field.fieldName}</p>
+    <div
+      onClick={onClick}
+      className={`rounded-xl border p-3 cursor-pointer transition-all hover:shadow-md ${
+        selected
+          ? 'border-green-500 bg-green-50/60 shadow-sm'
+          : 'border-gray-200 bg-white hover:border-green-300'
+      }`}
+    >
+      {/* Name + badge */}
+      <div className="flex items-start justify-between gap-2 mb-1.5">
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-bold text-gray-800 truncate">{field.fieldName}</div>
+          <div className="text-xs text-gray-400 truncate">{field.fieldNameAr}</div>
         </div>
-        <button
-          onClick={onClose}
-          className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded"
-          title="إغلاق"
+        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap ${ndviLabelColor(ndvi)}`}>
+          {ndviLabel(ndvi)}
+        </span>
+      </div>
+
+      {/* NDVI value + change */}
+      <div className="flex items-center gap-1.5 mb-1">
+        <span className="text-xs font-bold" style={{ color }}>
+          NDVI: {ndvi.toFixed(2)}
+        </span>
+        <span
+          className="text-[10px] font-semibold"
+          style={{ color: ndviChange >= 0 ? '#16a34a' : '#dc2626' }}
         >
-          <X className="w-5 h-5" />
-        </button>
+          ({changeSign}{ndviChange.toFixed(2)})
+        </span>
       </div>
 
-      <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-4 border-b">
-        <div>
-          <div className="text-xs text-gray-500 mb-1">NDVI</div>
-          <div className="font-bold text-gray-900">{field.indices.ndvi.toFixed(3)}</div>
-          <div
-            className={`text-xs ${field.indices.ndviChange >= 0 ? 'text-green-600' : 'text-red-600'}`}
-          >
-            {field.indices.ndviChange >= 0 ? '+' : ''}
-            {field.indices.ndviChange.toFixed(3)} التغيير
-          </div>
-        </div>
-        {field.indices.ndwi != null && (
-          <div>
-            <div className="text-xs text-gray-500 mb-1">NDWI</div>
-            <div className="font-bold text-gray-900">{field.indices.ndwi.toFixed(3)}</div>
-          </div>
-        )}
-        {field.indices.evi != null && (
-          <div>
-            <div className="text-xs text-gray-500 mb-1">EVI</div>
-            <div className="font-bold text-gray-900">{field.indices.evi.toFixed(3)}</div>
-          </div>
-        )}
-        {field.indices.lai != null && (
-          <div>
-            <div className="text-xs text-gray-500 mb-1">LAI</div>
-            <div className="font-bold text-gray-900">
-              {field.indices.lai.toFixed(2)} m²/m²
-            </div>
-          </div>
-        )}
+      {/* Progress bar */}
+      <div className="h-1.5 rounded-full bg-gray-100 overflow-hidden mb-2">
+        <div
+          className="h-full rounded-full transition-all"
+          style={{ width: `${barPct}%`, background: color }}
+        />
       </div>
 
-      <div className="p-4 grid grid-cols-2 md:grid-cols-3 gap-4 text-sm border-b">
-        <div>
-          <div className="text-xs text-gray-500 mb-1">آخر التقاط</div>
-          <div className="font-medium text-gray-800">{field.lastCapture}</div>
-          <div className="text-xs text-gray-400">{field.lastCaptureSource}</div>
+      {/* Footer: date + area + link */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 text-[10px] text-gray-400">
+          <span>{field.lastCapture}</span>
+          <span>·</span>
+          <span>{field.area.toFixed(2)} هـ</span>
         </div>
-        {field.cloudCoverage != null && (
-          <div>
-            <div className="text-xs text-gray-500 mb-1">تغطية السحب</div>
-            <div className="font-medium text-gray-800 flex items-center gap-1">
-              <Cloud className="w-4 h-4 text-gray-400" />
-              {field.cloudCoverage}%
-            </div>
-          </div>
-        )}
-        <div>
-          <div className="text-xs text-gray-500 mb-1">المساحة</div>
-          <div className="font-medium text-gray-800">{field.area} هكتار</div>
-        </div>
+        <Link
+          href={`/satellite-monitor/field/${field.id}`}
+          onClick={e => e.stopPropagation()}
+          className="text-[10px] font-semibold text-green-600 hover:text-green-700 hover:underline"
+        >
+          تفاصيل
+        </Link>
       </div>
-
-      {field.alerts && field.alerts.length > 0 && (
-        <div className="p-4 border-b bg-red-50">
-          <div className="text-xs font-semibold text-red-700 mb-2 flex items-center gap-1">
-            <AlertTriangle className="w-3.5 h-3.5" />
-            تنبيهات
-          </div>
-          <ul className="space-y-1">
-            {field.alerts.map((alert, i) => (
-              <li key={i} className="text-sm text-red-600">
-                • {alert}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {(loadingZones || zones.length > 0) && (
-        <div className="p-4">
-          <div className="text-xs font-semibold text-gray-700 mb-3">تحليل المناطق</div>
-          {loadingZones ? (
-            <div className="text-sm text-gray-400">جاري التحميل...</div>
-          ) : (
-            <div className="space-y-2">
-              {zones.map((zone) => (
-                <div key={zone.id} className="flex items-center justify-between text-sm">
-                  <span className="text-gray-700">{zone.zoneNameAr}</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-gray-500">NDVI: {zone.ndvi.toFixed(2)}</span>
-                    <span
-                      className={`px-1.5 py-0.5 rounded text-xs font-medium ${
-                        zone.healthStatus === 'excellent'
-                          ? 'bg-green-100 text-green-700'
-                          : zone.healthStatus === 'good'
-                            ? 'bg-green-50 text-green-600'
-                            : zone.healthStatus === 'moderate'
-                              ? 'bg-yellow-100 text-yellow-700'
-                              : zone.healthStatus === 'poor'
-                                ? 'bg-orange-100 text-orange-700'
-                                : 'bg-red-100 text-red-700'
-                      }`}
-                    >
-                      {zone.zoneNameAr}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 }
 
-export default function SatelliteClient() {
-  const [selectedIndex, setSelectedIndex] = useState<IndexType>('ndvi');
-  const [selectedField, setSelectedField] = useState<string | null>(null);
-  const warnedIndicesRef = useRef(new Set<string>());
+/* ─── Stats card ─────────────────────────────────────────────── */
+function StatCard({ icon, label, value, color }: { icon: string; label: string; value: string; color: string }) {
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 p-4 flex items-center gap-3">
+      <div
+        className="w-10 h-10 rounded-lg flex items-center justify-center text-lg flex-shrink-0"
+        style={{ background: `${color}15`, color }}
+      >
+        {icon}
+      </div>
+      <div>
+        <div className="text-[10px] text-gray-400">{label}</div>
+        <div className="text-lg font-black tabular-nums" style={{ color }}>{value}</div>
+      </div>
+    </div>
+  );
+}
 
-  // Fetch data using React Query hooks
+/* ─── Map container style ────────────────────────────────────── */
+const MAP_CONTAINER = { width: '100%', height: '100%' };
+const YEMEN_CENTER = { lat: 15.55, lng: 48.52 };
+
+/* ═══ MAIN COMPONENT ═════════════════════════════════════════ */
+export default function SatelliteClient() {
+  const [selIdx, setSelIdx] = useState('ndvi');
+  const [selectedField, setSelectedField] = useState<SatelliteField | null>(null);
+  const [search, setSearch] = useState('');
+  const [mapRef, setMapRef] = useState<google.maps.Map | null>(null);
+
   const { data: fields = [], isLoading, error } = useSatelliteFields();
   const { data: stats } = useSatelliteStats();
 
-  const getHealthColor = (status: SatelliteField['healthStatus']) => {
-    const colors: Record<SatelliteField['healthStatus'], string> = {
-      excellent: 'text-green-700 bg-green-100',
-      good: 'text-green-600 bg-green-50',
-      moderate: 'text-yellow-600 bg-yellow-100',
-      poor: 'text-orange-600 bg-orange-100',
-      critical: 'text-red-600 bg-red-100',
-    };
-    return colors[status];
-  };
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? '';
+  const { isLoaded: mapsLoaded } = useJsApiLoader({
+    googleMapsApiKey: apiKey,
+    language: 'ar',
+  });
 
-  const getHealthLabel = (status: SatelliteField['healthStatus']) => {
-    const labels: Record<SatelliteField['healthStatus'], string> = {
-      excellent: 'ممتاز',
-      good: 'جيد',
-      moderate: 'متوسط',
-      poor: 'ضعيف',
-      critical: 'حرج',
-    };
-    return labels[status];
-  };
-
-  // Get the value of the currently selected index for a field
-  const getIndexValue = (field: SatelliteField): number => {
-    if (selectedIndex === 'ndvi') return field.indices.ndvi;
-    const value = field.indices[selectedIndex];
-    if (value == null) {
-      const key = `${selectedIndex}:${field.id}`;
-      if (process.env.NODE_ENV !== 'production' && !warnedIndicesRef.current.has(key)) {
-        warnedIndicesRef.current.add(key);
-        logger.warn(
-          `[SatelliteClient] Index "${selectedIndex}" not available for field ${field.id}, falling back to NDVI`
-        );
-      }
-      return field.indices.ndvi;
-    }
-    return value;
-  };
-
-  // Get color/label for a value based on the active index config
-  const getIndexColor = (value: number): { bgClass: string; barColor: string; label: string } => {
-    const config = INDEX_CONFIG[selectedIndex];
-    for (const stop of config.colorStops) {
-      if (value <= stop.max) {
-        return { bgClass: stop.bgClass, barColor: stop.color, label: stop.label };
-      }
-    }
-    const last = config.colorStops[config.colorStops.length - 1]!;
-    return { bgClass: last.bgClass, barColor: last.color, label: last.label };
-  };
-
-  // Normalize a value to 0-100% for the progress bar based on index range
-  const getBarWidth = (value: number): number => {
-    if (selectedIndex === 'lai') return Math.min((value / 8) * 100, 100);
-    return Math.max(Math.min(((value + 1) / 2) * 100, 100), 0); // normalized [-1, 1] → [0, 100]
-  };
-
-  const activeConfig = INDEX_CONFIG[selectedIndex];
-
-  const avgIndex = useMemo(() => {
-    if (fields.length === 0) return '0.00';
-    const values = fields.map((f) => getIndexValue(f));
-    return (values.reduce((a, b) => a + b, 0) / values.length).toFixed(2);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fields, selectedIndex]);
-
-  const totalArea = useMemo(() => {
-    return fields.reduce((acc, f) => acc + f.area, 0).toFixed(1);
+  /* Compute map center from real field coordinates */
+  const mapCenter = useMemo(() => {
+    const fieldsWithCoords = fields.filter(
+      f => f.coordinates?.lat && f.coordinates?.lng,
+    );
+    if (fieldsWithCoords.length === 0) return YEMEN_CENTER;
+    const avgLat = fieldsWithCoords.reduce((s, f) => s + f.coordinates.lat, 0) / fieldsWithCoords.length;
+    const avgLng = fieldsWithCoords.reduce((s, f) => s + f.coordinates.lng, 0) / fieldsWithCoords.length;
+    return { lat: avgLat, lng: avgLng };
   }, [fields]);
 
-  // Detect water stress alerts from NDWI
-  const waterStressFields = useMemo(() => {
-    return fields.filter((f) => (f.indices.ndwi ?? 0) < 0);
-  }, [fields]);
+  const filteredFields = useMemo(
+    () =>
+      fields.filter(
+        f =>
+          !search ||
+          f.fieldName.toLowerCase().includes(search.toLowerCase()) ||
+          f.fieldNameAr.includes(search),
+      ),
+    [fields, search],
+  );
 
+  const onMapLoad = useCallback((map: google.maps.Map) => {
+    setMapRef(map);
+  }, []);
+
+  /* Fit map to field bounds when fields load */
+  React.useEffect(() => {
+    if (!mapRef || fields.length === 0) return;
+    const fieldsWithCoords = fields.filter(f => f.coordinates?.lat && f.coordinates?.lng);
+    if (fieldsWithCoords.length === 0) return;
+    const bounds = new window.google.maps.LatLngBounds();
+    fieldsWithCoords.forEach(f => bounds.extend({ lat: f.coordinates.lat, lng: f.coordinates.lng }));
+    mapRef.fitBounds(bounds, 80);
+  }, [mapRef, fields]);
+
+  /* Loading */
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sahool-green-600" />
+      <div className="flex items-center justify-center min-h-[400px] rounded-xl bg-white border border-gray-200">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-600 mx-auto mb-3" />
+          <p className="text-sm text-gray-500">جاري تحميل بيانات الأقمار الصناعية…</p>
+        </div>
       </div>
     );
   }
 
+  /* Error */
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex items-center justify-center min-h-[400px] rounded-xl bg-white border border-red-200">
         <div className="text-center">
-          <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <p className="text-red-600">فشل في تحميل بيانات الأقمار الصناعية</p>
-          <p className="text-gray-500 text-sm">Failed to load satellite data</p>
+          <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-red-500" />
+          <p className="font-medium text-red-600">فشل في تحميل بيانات الأقمار الصناعية</p>
+          <p className="text-sm text-gray-400 mt-1">Failed to load satellite data</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 rounded bg-green-600 text-white text-sm font-bold hover:bg-green-700"
+          >
+            إعادة المحاولة / Retry
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">تحليل الأقمار الصناعية</h1>
-          <p className="text-gray-500 mt-1">Satellite Imagery & Vegetation Analysis</p>
+    <div className="flex flex-col gap-4" dir="rtl">
+
+      {/* ── Page title ── */}
+      <div>
+        <h1 className="text-lg font-bold text-gray-800">صور الأقمار الصناعية وتحليل الغطاء النباتي</h1>
+        <p className="text-xs text-gray-400">Satellite Imagery &amp; Vegetation Analysis</p>
+      </div>
+
+      {/* ── Stats row ── */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <StatCard icon="🛰" label="آخر التقاط" value={stats?.lastCapture ?? '—'} color="#3b82f6" />
+        <StatCard icon="📈" label="متوسط NDVI" value={stats?.averageNdvi?.toFixed(2) ?? '—'} color="#16a34a" />
+        <StatCard icon="📍" label="الحقول المراقبة" value={String(stats?.totalFields ?? fields.length)} color="#8b5cf6" />
+        <StatCard icon="◫" label="المساحة الكلية (هـ)" value={stats?.totalArea?.toFixed(1) ?? '—'} color="#f59e0b" />
+      </div>
+
+      {/* ── Index filter bar ── */}
+      <div className="bg-white border border-gray-200 rounded-xl p-2 flex items-center gap-2 flex-wrap">
+        <div className="flex gap-1 flex-wrap">
+          {INDICES.map(idx => (
+            <button
+              key={idx.id}
+              onClick={() => setSelIdx(idx.id)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
+                selIdx === idx.id
+                  ? 'bg-green-600 text-white border-green-600 shadow-sm'
+                  : 'text-gray-500 border-gray-200 hover:border-green-400 hover:text-green-600'
+              }`}
+            >
+              {idx.label}
+            </button>
+          ))}
         </div>
-        <div className="flex gap-2">
-          <select
-            value={selectedIndex}
-            onChange={(e) => setSelectedIndex(e.target.value as IndexType)}
-            className="px-4 py-2 bg-white border border-gray-300 text-gray-900 rounded-lg focus:ring-2 focus:ring-sahool-green-500 focus:border-sahool-green-500"
+        <div className="mr-auto">
+          <Link
+            href="/satellite-monitor/add-field"
+            className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-green-600 text-white text-xs font-bold rounded-lg hover:bg-green-700 transition-colors"
           >
-            {indexTypes.map((idx) => (
-              <option key={idx.value} value={idx.value}>
-                {idx.labelAr} ({idx.label})
-              </option>
-            ))}
-          </select>
-          <button className="inline-flex items-center gap-2 px-4 py-2 bg-sahool-green-600 text-white rounded-lg hover:bg-sahool-green-700 transition-colors">
-            <Download className="w-4 h-4" />
-            <span>تصدير</span>
-          </button>
+            <span>+</span>
+            <span>إضافة حقل</span>
+          </Link>
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg border p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <Satellite className="w-5 h-5 text-blue-600" />
-            </div>
-            <div>
-              <div className="text-sm text-gray-500">آخر التقاط</div>
-              <div className="text-lg font-bold text-gray-900">
-                {stats?.lastCapture ?? '2026-01-24'}
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-lg border p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-green-600" />
-            </div>
-            <div>
-              <div className="text-sm text-gray-500">متوسط {activeConfig.label}</div>
-              <div className="text-lg font-bold text-green-600">
-                {selectedIndex === 'ndvi' ? (stats?.averageNdvi?.toFixed(2) ?? avgIndex) : avgIndex}
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-lg border p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-              <MapPin className="w-5 h-5 text-purple-600" />
-            </div>
-            <div>
-              <div className="text-sm text-gray-500">الحقول المراقبة</div>
-              <div className="text-lg font-bold text-purple-600">
-                {stats?.totalFields ?? fields.length}
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-lg border p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
-              <Layers className="w-5 h-5 text-amber-600" />
-            </div>
-            <div>
-              <div className="text-sm text-gray-500">المساحة الكلية</div>
-              <div className="text-lg font-bold text-amber-600">
-                {stats?.totalArea?.toFixed(1) ?? totalArea} هـ
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* ── Main content: map + field list ── */}
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-4" style={{ minHeight: 520 }}>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Map Placeholder */}
-        <div className="lg:col-span-2 bg-white rounded-lg border overflow-hidden">
-          <div className="p-4 border-b">
-            <h2 className="font-semibold text-gray-900">خريطة الأقمار الصناعية</h2>
-          </div>
-          <div className="aspect-video bg-gradient-to-br from-green-200 via-green-300 to-green-400 flex items-center justify-center">
-            <div className="text-center">
-              <Satellite className="w-16 h-16 text-green-700 mx-auto mb-4" />
-              <p className="text-green-800 font-medium">خريطة تفاعلية للأقمار الصناعية</p>
-              <p className="text-green-700 text-sm">Sentinel-2 / Landsat-8</p>
-            </div>
-          </div>
-          <div className="p-4 flex justify-between items-center text-sm">
-            <span className="text-gray-500">
-              المصدر: Sentinel-2 L2A | {activeConfig.description}
-            </span>
-            <div className="flex gap-3 flex-wrap">
-              {activeConfig.colorStops.map((stop) => (
-                <div key={stop.max} className="flex items-center gap-1.5">
-                  <div className={`w-3 h-3 rounded-full ${stop.color}`} />
-                  <span>{stop.label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+        {/* Map */}
+        <div className="rounded-xl overflow-hidden border border-gray-200 bg-gray-100" style={{ minHeight: 480 }}>
+          {mapsLoaded ? (
+            <GoogleMap
+              mapContainerStyle={MAP_CONTAINER}
+              center={mapCenter}
+              zoom={13}
+              mapTypeId="satellite"
+              onLoad={onMapLoad}
+              options={{
+                mapTypeControl: true,
+                streetViewControl: false,
+                fullscreenControl: true,
+                zoomControl: true,
+              }}
+            >
+              {fields.map(field => {
+                const lat = field.coordinates?.lat;
+                const lng = field.coordinates?.lng;
+                if (!lat || !lng) return null;
+                const isSelected = selectedField?.id === field.id;
+                return (
+                  <Marker
+                    key={field.id}
+                    position={{ lat, lng }}
+                    onClick={() => setSelectedField(isSelected ? null : field)}
+                    icon={{
+                      path: window.google.maps.SymbolPath.CIRCLE,
+                      scale: isSelected ? 14 : 10,
+                      fillColor: ndviColor(field.indices.ndvi ?? 0),
+                      fillOpacity: 0.9,
+                      strokeColor: isSelected ? '#ffffff' : ndviColor(field.indices.ndvi ?? 0),
+                      strokeWeight: isSelected ? 3 : 1.5,
+                    }}
+                    title={field.fieldNameAr}
+                  />
+                );
+              })}
 
-        {/* Fields List */}
-        <div className="bg-white rounded-lg border">
-          <div className="p-4 border-b flex items-center justify-between">
-            <h2 className="font-semibold text-gray-900">الحقول</h2>
-            {selectedField && (
-              <button
-                onClick={() => setSelectedField(null)}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
-                title="إلغاء التحديد"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
-          </div>
-          <div className="divide-y max-h-[500px] overflow-y-auto">
-            {fields.length === 0 ? (
-              <div className="p-4 text-center text-gray-500">لا توجد حقول مراقبة</div>
-            ) : (
-              fields.map((field) => (
-                <div
-                  key={field.id}
-                  className={`p-4 cursor-pointer transition-colors ${
-                    selectedField === field.id ? 'bg-sahool-green-50' : 'hover:bg-gray-50'
-                  }`}
-                  onClick={() => setSelectedField(field.id)}
+              {selectedField && selectedField.coordinates?.lat && selectedField.coordinates?.lng && (
+                <InfoWindow
+                  position={{ lat: selectedField.coordinates.lat, lng: selectedField.coordinates.lng }}
+                  onCloseClick={() => setSelectedField(null)}
                 >
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <h3 className="font-medium text-gray-900">{field.fieldNameAr}</h3>
-                      <p className="text-sm text-gray-500">{field.fieldName}</p>
+                  <div className="text-sm p-1 min-w-[140px]" style={{ direction: 'rtl' }}>
+                    <div className="font-bold text-gray-800 mb-1">{selectedField.fieldNameAr}</div>
+                    <div className="text-xs text-gray-500 mb-0.5">
+                      NDVI: <span className="font-semibold" style={{ color: ndviColor(selectedField.indices.ndvi ?? 0) }}>
+                        {(selectedField.indices.ndvi ?? 0).toFixed(2)}
+                      </span>
                     </div>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${getHealthColor(field.healthStatus)}`}
+                    <div className="text-xs text-gray-500">{selectedField.area.toFixed(1)} هكتار</div>
+                    <Link
+                      href={`/satellite-monitor/field/${selectedField.id}`}
+                      className="inline-block mt-1.5 text-xs text-green-600 font-semibold hover:underline"
                     >
-                      {getHealthLabel(field.healthStatus)}
-                    </span>
+                      عرض التفاصيل ←
+                    </Link>
                   </div>
+                </InfoWindow>
+              )}
+            </GoogleMap>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gray-100">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600" />
+            </div>
+          )}
+        </div>
 
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div>
-                      <span className="text-gray-500">{activeConfig.label}:</span>
-                      <span
-                        className={`font-medium mr-1 ${getIndexColor(getIndexValue(field)).bgClass}`}
-                      >
-                        {getIndexValue(field).toFixed(2)}
-                      </span>
-                      {selectedIndex === 'ndvi' && (
-                        <span
-                          className={
-                            field.indices.ndviChange >= 0 ? 'text-green-600' : 'text-red-600'
-                          }
-                        >
-                          ({field.indices.ndviChange >= 0 ? '+' : ''}
-                          {field.indices.ndviChange.toFixed(2)})
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-gray-500">{field.area} هكتار</div>
-                  </div>
+        {/* Right: fields panel */}
+        <div className="flex flex-col gap-3">
 
-                  <div className="mt-2">
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div
-                        className={`h-2 rounded-full ${getIndexColor(getIndexValue(field)).barColor}`}
-                        style={{ width: `${getBarWidth(getIndexValue(field))}%` }}
-                      />
-                    </div>
-                  </div>
+          {/* Panel header */}
+          <div className="bg-white rounded-xl border border-gray-200 px-4 py-3 flex items-center justify-between">
+            <span className="font-bold text-gray-800 text-sm">الحقول</span>
+            <span className="text-xs text-gray-400">{fields.length} حقل</span>
+          </div>
 
-                  <div className="mt-2 flex items-center gap-3 text-xs text-gray-400">
-                    {field.cloudCoverage != null && (
-                      <span className="flex items-center gap-1">
-                        <Cloud className="w-3 h-3" />
-                        {field.cloudCoverage}%
-                      </span>
-                    )}
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      {field.lastCapture}
-                    </span>
-                    {selectedField !== field.id && (
-                      <span className="mr-auto flex items-center gap-0.5 text-sahool-green-600">
-                        تفاصيل <ChevronRight className="w-3 h-3" />
-                      </span>
-                    )}
-                  </div>
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute top-1/2 -translate-y-1/2 right-3 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="بحث في الحقول..."
+              className="w-full bg-white border border-gray-200 rounded-xl pr-9 pl-3 py-2 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:border-green-400"
+            />
+          </div>
 
-                  {field.alerts && field.alerts.length > 0 && (
-                    <div className="mt-2 flex flex-wrap gap-1">
-                      {field.alerts.map((alert, i) => (
-                        <span
-                          key={i}
-                          className="px-1.5 py-0.5 bg-red-50 text-red-600 text-xs rounded border border-red-100"
-                        >
-                          {alert}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
+          {/* Field cards */}
+          <div className="flex flex-col gap-2 overflow-y-auto" style={{ maxHeight: 400 }}>
+            {filteredFields.length === 0 ? (
+              <div className="text-center text-sm text-gray-400 py-8">لا توجد حقول</div>
+            ) : (
+              filteredFields.map(field => (
+                <FieldCard
+                  key={field.id}
+                  field={field}
+                  selected={selectedField?.id === field.id}
+                  onClick={() => setSelectedField(prev => prev?.id === field.id ? null : field)}
+                />
               ))
             )}
           </div>
         </div>
       </div>
-
-      {/* Selected Field Detail Panel */}
-      {selectedField && (
-        <FieldDetailPanel fieldId={selectedField} onClose={() => setSelectedField(null)} />
-      )}
-
-      {/* Water Stress Alerts (NDWI-based) */}
-      {waterStressFields.length > 0 && (
-        <div className="bg-white rounded-lg border border-orange-200 overflow-hidden">
-          <div className="p-4 border-b bg-orange-50 flex items-center gap-2">
-            <Droplets className="w-5 h-5 text-orange-600" />
-            <h2 className="font-semibold text-orange-800">تنبيهات الإجهاد المائي (NDWI)</h2>
-            <span className="px-2 py-0.5 bg-orange-200 text-orange-800 text-xs font-medium rounded-full">
-              {waterStressFields.length}
-            </span>
-          </div>
-          <div className="divide-y divide-orange-100">
-            {waterStressFields.map((field) => (
-              <div
-                key={field.id}
-                className="p-3 flex items-center justify-between hover:bg-orange-50/50 cursor-pointer"
-                onClick={() => setSelectedField(field.id)}
-              >
-                <div>
-                  <h3 className="font-medium text-gray-900 text-sm">{field.fieldNameAr}</h3>
-                  <p className="text-xs text-gray-500">
-                    {field.fieldName} — {field.area} هكتار
-                  </p>
-                </div>
-                <div>
-                  <span className="text-sm font-bold text-orange-600">
-                    NDWI: {(field.indices.ndwi ?? 0).toFixed(2)}
-                  </span>
-                  <p className="text-xs text-orange-500">إجهاد مائي — يُنصح بزيادة الري</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

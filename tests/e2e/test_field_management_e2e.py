@@ -676,3 +676,126 @@ class TestFieldUnauthorizedAccess:
         """Listing fields without auth token should fail or return public data."""
         resp = await http_client.get(FIELDS_API)
         assert resp.status_code in (200, 401, 403)
+
+
+# ============================================================================
+# Field Health Endpoint Tests
+# اختبارات نقطة نهاية صحة الحقل
+# ============================================================================
+
+
+class TestFieldHealth:
+    """
+    Tests for GET /api/v1/fields/:id/health endpoint.
+    اختبارات نقطة نهاية GET /api/v1/fields/:id/health
+
+    Regression: Previously returned 404 because the Docker container was built
+    before @Get(":id/health") was added to fields.controller.ts. After rebuilding
+    the container, the route must be reachable and return a structured response.
+    الانحدار: كان يُرجع 404 لأن حاوية Docker تم بناؤها قبل إضافة المسار.
+    """
+
+    async def test_field_health_returns_structured_response(
+        self,
+        http_client: httpx.AsyncClient,
+        auth_headers: dict[str, str],
+        created_field: dict[str, Any],
+    ):
+        """
+        GET /api/v1/fields/:id/health must return fieldId, status, lastUpdated.
+        يجب أن يُرجع معرف الحقل والحالة وآخر تحديث
+        """
+        field_id = created_field["id"]
+        resp = await http_client.get(
+            f"{FIELDS_API}/{field_id}/health",
+            headers=auth_headers,
+        )
+        # 401 = auth not available in this env, skip gracefully
+        assert resp.status_code in (200, 401), (
+            f"GET /fields/:id/health returned {resp.status_code} — "
+            "if 404, the container was not rebuilt after adding the route"
+        )
+
+        if resp.status_code == 200:
+            body = resp.json()
+            assert body.get("success") is True, "Response must have success: true"
+            data = body.get("data", {})
+            assert data.get("fieldId") == field_id, "fieldId must match requested ID"
+            assert data.get("status") is not None, "status field must be present"
+            assert data.get("lastUpdated") is not None, "lastUpdated field must be present"
+
+    async def test_field_health_not_found_returns_404(
+        self,
+        http_client: httpx.AsyncClient,
+        auth_headers: dict[str, str],
+    ):
+        """
+        Health check for a nonexistent field must return 404, not 200.
+        يجب أن يُرجع 404 للحقل غير الموجود
+        """
+        fake_id = str(uuid.uuid4())
+        resp = await http_client.get(
+            f"{FIELDS_API}/{fake_id}/health",
+            headers=auth_headers,
+        )
+        assert resp.status_code in (401, 404), (
+            f"Expected 404 for unknown field, got {resp.status_code}"
+        )
+
+    async def test_field_health_route_not_shadowed_by_get_by_id(
+        self,
+        http_client: httpx.AsyncClient,
+        auth_headers: dict[str, str],
+        created_field: dict[str, Any],
+    ):
+        """
+        /fields/:id/health must not be swallowed by the /fields/:id route.
+        يجب ألا يُخفي مسار /:id المسار /:id/health
+        This verifies NestJS route ordering is correct in the compiled output.
+        """
+        field_id = created_field["id"]
+        health_resp = await http_client.get(
+            f"{FIELDS_API}/{field_id}/health",
+            headers=auth_headers,
+        )
+        id_resp = await http_client.get(
+            f"{FIELDS_API}/{field_id}",
+            headers=auth_headers,
+        )
+
+        # If both succeed, the health response must NOT look like a field record
+        if health_resp.status_code == 200 and id_resp.status_code == 200:
+            health_body = health_resp.json()
+            field_body = id_resp.json()
+
+            health_data = health_body.get("data", {})
+            field_data = field_body.get("data", {})
+
+            # health endpoint returns {fieldId, status, lastUpdated}
+            # field endpoint returns {id, name, cropType, ...}
+            assert "fieldId" in health_data, (
+                "Health response must have fieldId, not a full field record"
+            )
+            assert "name" not in health_data, (
+                "Health response must not contain field name — route ordering bug"
+            )
+            assert "name" in field_data or "id" in field_data, (
+                "Field-by-ID response must contain field record"
+            )
+
+    async def test_field_health_invalid_uuid_returns_400(
+        self,
+        http_client: httpx.AsyncClient,
+        auth_headers: dict[str, str],
+    ):
+        """
+        Calling /fields/not-a-uuid/health must return 400 (ParseUUIDPipe).
+        يجب أن يُرجع 400 لمعرف UUID غير صالح
+        """
+        resp = await http_client.get(
+            f"{FIELDS_API}/not-a-uuid/health",
+            headers=auth_headers,
+        )
+        assert resp.status_code in (400, 401, 422), (
+            f"Invalid UUID should return 400, got {resp.status_code}"
+        )

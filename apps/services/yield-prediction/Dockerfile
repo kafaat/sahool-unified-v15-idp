@@ -45,7 +45,7 @@ RUN --mount=type=cache,target=/root/.npm \
     npm install --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
 
 # Build the application
-RUN npx nest build
+RUN chmod -R +x node_modules/.bin/ && npx nest build
 
 # Production stage
 FROM node:${NODE_VERSION}-bookworm-slim AS production

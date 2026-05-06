@@ -35,15 +35,15 @@ export function Input({
   return (
     <div className="w-full">
       {(label || labelAr) && (
-        <label htmlFor={inputId} className="block text-sm font-medium text-gray-700 mb-1.5">
-          <span className="text-gray-900 font-semibold">{labelAr}</span>
+        <label htmlFor={inputId} className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">
+          <span className="text-gray-900 dark:text-slate-100 font-semibold">{labelAr}</span>
           {labelAr && label && <span className="mx-1">•</span>}
-          {label && <span className="text-gray-600 text-xs">{label}</span>}
+          {label && <span className="text-gray-600 dark:text-slate-400 text-xs">{label}</span>}
         </label>
       )}
       <div className="relative">
         {leftIcon && (
-          <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none text-gray-400">
+          <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none text-gray-400 dark:text-slate-500">
             {leftIcon}
           </div>
         )}
@@ -54,10 +54,10 @@ export function Input({
           aria-invalid={error ? true : undefined}
           aria-describedby={describedBy}
           className={clsx(
-            'block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900',
-            'placeholder:text-gray-400',
+            'block w-full rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-2.5 text-gray-900 dark:text-gray-900',
+            'placeholder:text-gray-400 dark:placeholder:text-slate-500',
             'focus:outline-none focus:ring-2 focus:ring-sahool-green-500 focus:border-transparent',
-            'disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed',
+            'disabled:bg-gray-50 disabled:text-gray-500 dark:disabled:bg-slate-700 dark:disabled:text-slate-400 disabled:cursor-not-allowed',
             'transition-colors',
             error && 'border-red-500 focus:ring-red-500',
             leftIcon && 'ps-10',
@@ -67,7 +67,7 @@ export function Input({
           {...props}
         />
         {rightIcon && (
-          <div className="absolute inset-y-0 end-0 flex items-center pe-3 pointer-events-none text-gray-400">
+          <div className="absolute inset-y-0 end-0 flex items-center pe-3 pointer-events-none text-gray-400 dark:text-slate-500">
             {rightIcon}
           </div>
         )}
@@ -78,7 +78,7 @@ export function Input({
         </p>
       )}
       {helperText && !error && (
-        <p id={helperId} className="mt-1.5 text-sm text-gray-500">
+        <p id={helperId} className="mt-1.5 text-sm text-gray-500 dark:text-slate-400">
           {helperText}
         </p>
       )}

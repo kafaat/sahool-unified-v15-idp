@@ -2,19 +2,31 @@
 CREATE EXTENSION IF NOT EXISTS "postgis";
 
 -- CreateEnum
-CREATE TYPE "disaster_type" AS ENUM ('flood', 'drought', 'frost', 'hail', 'storm', 'pest', 'disease', 'locust', 'wildfire');
+DO $$ BEGIN
+    CREATE TYPE "disaster_type" AS ENUM ('flood', 'drought', 'frost', 'hail', 'storm', 'pest', 'disease', 'locust', 'wildfire');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- CreateEnum
-CREATE TYPE "disaster_severity" AS ENUM ('low', 'medium', 'high', 'critical');
+DO $$ BEGIN
+    CREATE TYPE "disaster_severity" AS ENUM ('low', 'medium', 'high', 'critical');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- CreateEnum
-CREATE TYPE "disaster_status" AS ENUM ('reported', 'verified', 'active', 'monitoring', 'resolved', 'archived');
+DO $$ BEGIN
+    CREATE TYPE "disaster_status" AS ENUM ('reported', 'verified', 'active', 'monitoring', 'resolved', 'archived');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- CreateEnum
-CREATE TYPE "disaster_alert_type" AS ENUM ('weather', 'pest', 'disease', 'flood', 'drought', 'frost', 'locust', 'general');
+DO $$ BEGIN
+    CREATE TYPE "disaster_alert_type" AS ENUM ('weather', 'pest', 'disease', 'flood', 'drought', 'frost', 'locust', 'general');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- CreateTable
-CREATE TABLE "disaster_reports" (
+CREATE TABLE IF NOT EXISTS "disaster_reports" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "type" "disaster_type" NOT NULL DEFAULT 'flood',
     "severity" "disaster_severity" NOT NULL DEFAULT 'medium',
@@ -45,7 +57,7 @@ CREATE TABLE "disaster_reports" (
 );
 
 -- CreateTable
-CREATE TABLE "disaster_alerts" (
+CREATE TABLE IF NOT EXISTS "disaster_alerts" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "alert_type" "disaster_alert_type" NOT NULL DEFAULT 'weather',
     "severity" "disaster_severity" NOT NULL DEFAULT 'medium',
@@ -72,7 +84,7 @@ CREATE TABLE "disaster_alerts" (
 );
 
 -- CreateTable
-CREATE TABLE "field_assessments" (
+CREATE TABLE IF NOT EXISTS "field_assessments" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "field_id" VARCHAR(100) NOT NULL,
     "disaster_id" UUID NOT NULL,
@@ -98,7 +110,7 @@ CREATE TABLE "field_assessments" (
 );
 
 -- CreateTable
-CREATE TABLE "alert_subscriptions" (
+CREATE TABLE IF NOT EXISTS "alert_subscriptions" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "user_id" VARCHAR(255) NOT NULL,
     "tenant_id" VARCHAR(100) NOT NULL DEFAULT 'unassigned',
@@ -114,76 +126,85 @@ CREATE TABLE "alert_subscriptions" (
 );
 
 -- CreateIndex
-CREATE INDEX "idx_disaster_tenant" ON "disaster_reports"("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_disaster_tenant" ON "disaster_reports"("tenant_id");
 
 -- CreateIndex
-CREATE INDEX "idx_disaster_governorate" ON "disaster_reports"("governorate");
+CREATE INDEX IF NOT EXISTS "idx_disaster_governorate" ON "disaster_reports"("governorate");
 
 -- CreateIndex
-CREATE INDEX "idx_disaster_type" ON "disaster_reports"("type");
+CREATE INDEX IF NOT EXISTS "idx_disaster_type" ON "disaster_reports"("type");
 
 -- CreateIndex
-CREATE INDEX "idx_disaster_status" ON "disaster_reports"("status");
+CREATE INDEX IF NOT EXISTS "idx_disaster_status" ON "disaster_reports"("status");
 
 -- CreateIndex
-CREATE INDEX "idx_disaster_severity" ON "disaster_reports"("severity");
+CREATE INDEX IF NOT EXISTS "idx_disaster_severity" ON "disaster_reports"("severity");
 
 -- CreateIndex
-CREATE INDEX "idx_disaster_created" ON "disaster_reports"("created_at");
+CREATE INDEX IF NOT EXISTS "idx_disaster_created" ON "disaster_reports"("created_at");
 
 -- CreateIndex
-CREATE INDEX "idx_disaster_tenant_type" ON "disaster_reports"("tenant_id", "type");
+CREATE INDEX IF NOT EXISTS "idx_disaster_tenant_type" ON "disaster_reports"("tenant_id", "type");
 
 -- CreateIndex
-CREATE INDEX "idx_disaster_tenant_status" ON "disaster_reports"("tenant_id", "status");
+CREATE INDEX IF NOT EXISTS "idx_disaster_tenant_status" ON "disaster_reports"("tenant_id", "status");
 
 -- CreateIndex
-CREATE INDEX "idx_disaster_type_severity" ON "disaster_reports"("type", "severity");
+CREATE INDEX IF NOT EXISTS "idx_disaster_type_severity" ON "disaster_reports"("type", "severity");
 
 -- CreateIndex
-CREATE INDEX "idx_disaster_dates" ON "disaster_reports"("start_date", "end_date");
+CREATE INDEX IF NOT EXISTS "idx_disaster_dates" ON "disaster_reports"("start_date", "end_date");
 
 -- CreateIndex
-CREATE INDEX "idx_alert_tenant" ON "disaster_alerts"("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_alert_tenant" ON "disaster_alerts"("tenant_id");
 
 -- CreateIndex
-CREATE INDEX "idx_alert_governorate" ON "disaster_alerts"("governorate");
+CREATE INDEX IF NOT EXISTS "idx_alert_governorate" ON "disaster_alerts"("governorate");
 
 -- CreateIndex
-CREATE INDEX "idx_alert_type" ON "disaster_alerts"("alert_type");
+CREATE INDEX IF NOT EXISTS "idx_alert_type" ON "disaster_alerts"("alert_type");
 
 -- CreateIndex
-CREATE INDEX "idx_alert_active" ON "disaster_alerts"("is_active");
+CREATE INDEX IF NOT EXISTS "idx_alert_active" ON "disaster_alerts"("is_active");
 
 -- CreateIndex
-CREATE INDEX "idx_alert_severity" ON "disaster_alerts"("severity");
+CREATE INDEX IF NOT EXISTS "idx_alert_severity" ON "disaster_alerts"("severity");
 
 -- CreateIndex
-CREATE INDEX "idx_alert_report" ON "disaster_alerts"("report_id");
+CREATE INDEX IF NOT EXISTS "idx_alert_report" ON "disaster_alerts"("report_id");
 
 -- CreateIndex
-CREATE INDEX "idx_assessment_field" ON "field_assessments"("field_id");
+CREATE INDEX IF NOT EXISTS "idx_assessment_field" ON "field_assessments"("field_id");
 
 -- CreateIndex
-CREATE INDEX "idx_assessment_disaster" ON "field_assessments"("disaster_id");
+CREATE INDEX IF NOT EXISTS "idx_assessment_disaster" ON "field_assessments"("disaster_id");
 
 -- CreateIndex
-CREATE INDEX "idx_assessment_tenant" ON "field_assessments"("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_assessment_tenant" ON "field_assessments"("tenant_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "idx_subscription_user_gov" ON "alert_subscriptions"("user_id", "governorate");
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_subscription_user_gov" ON "alert_subscriptions"("user_id", "governorate");
 
 -- CreateIndex
-CREATE INDEX "idx_subscription_tenant" ON "alert_subscriptions"("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_subscription_tenant" ON "alert_subscriptions"("tenant_id");
 
 -- CreateIndex
-CREATE INDEX "idx_subscription_alert" ON "alert_subscriptions"("alert_id");
+CREATE INDEX IF NOT EXISTS "idx_subscription_alert" ON "alert_subscriptions"("alert_id");
 
 -- AddForeignKey
-ALTER TABLE "disaster_alerts" ADD CONSTRAINT "disaster_alerts_report_id_fkey" FOREIGN KEY ("report_id") REFERENCES "disaster_reports"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+DO $$ BEGIN
+    ALTER TABLE "disaster_alerts" ADD CONSTRAINT "disaster_alerts_report_id_fkey" FOREIGN KEY ("report_id") REFERENCES "disaster_reports"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- AddForeignKey
-ALTER TABLE "field_assessments" ADD CONSTRAINT "field_assessments_disaster_id_fkey" FOREIGN KEY ("disaster_id") REFERENCES "disaster_reports"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+DO $$ BEGIN
+    ALTER TABLE "field_assessments" ADD CONSTRAINT "field_assessments_disaster_id_fkey" FOREIGN KEY ("disaster_id") REFERENCES "disaster_reports"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- AddForeignKey
-ALTER TABLE "alert_subscriptions" ADD CONSTRAINT "alert_subscriptions_alert_id_fkey" FOREIGN KEY ("alert_id") REFERENCES "disaster_alerts"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+DO $$ BEGIN
+    ALTER TABLE "alert_subscriptions" ADD CONSTRAINT "alert_subscriptions_alert_id_fkey" FOREIGN KEY ("alert_id") REFERENCES "disaster_alerts"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;

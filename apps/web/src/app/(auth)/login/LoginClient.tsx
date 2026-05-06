@@ -135,7 +135,7 @@ export default function LoginClient() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sahool-green-50 to-white p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sahool-green-50 to-white dark:from-slate-900 dark:to-slate-800 p-4">
       <Card className="w-full max-w-md" variant="elevated">
         <CardHeader className="text-center">
           <div className="mx-auto w-16 h-16 bg-sahool-green-100 rounded-full flex items-center justify-center mb-4">
@@ -143,17 +143,17 @@ export default function LoginClient() {
           </div>
           <CardTitle className="text-2xl">
             <span className="block">تسجيل الدخول إلى سهول</span>
-            <span className="block text-base text-gray-600 mt-1">Login to SAHOOL</span>
+            <span className="block text-base text-gray-600 dark:text-slate-400 mt-1">Login to SAHOOL</span>
           </CardTitle>
           <CardDescription>
-            <span className="block text-gray-600">منصة الإدارة الزراعية المتكاملة</span>
-            <span className="block text-xs text-gray-500">Integrated Agricultural Management Platform</span>
+            <span className="block text-gray-600 dark:text-slate-400">منصة الإدارة الزراعية المتكاملة</span>
+            <span className="block text-xs text-gray-500 dark:text-slate-500">Integrated Agricultural Management Platform</span>
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Login method toggle */}
-            <div className="flex rounded-lg border border-gray-200 p-1 bg-gray-50" role="radiogroup" aria-label="طريقة تسجيل الدخول - Login method">
+            <div className="flex rounded-lg border border-gray-200 dark:border-slate-700 p-1 bg-gray-50 dark:bg-slate-900" role="radiogroup" aria-label="طريقة تسجيل الدخول - Login method">
               <button
                 type="button"
                 onClick={() => setLoginMethod('phone')}
@@ -163,7 +163,7 @@ export default function LoginClient() {
                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-md text-sm font-medium transition-all ${
                   loginMethod === 'phone'
                     ? 'bg-sahool-green-600 text-white shadow-sm'
-                    : 'text-gray-600 hover:text-gray-800'
+                    : 'text-gray-600 hover:text-gray-800 dark:text-slate-400 dark:hover:text-slate-200'
                 }`}
               >
                 <Smartphone className="w-4 h-4" aria-hidden="true" />
@@ -178,7 +178,7 @@ export default function LoginClient() {
                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-md text-sm font-medium transition-all ${
                   loginMethod === 'email'
                     ? 'bg-sahool-green-600 text-white shadow-sm'
-                    : 'text-gray-600 hover:text-gray-800'
+                    : 'text-gray-600 hover:text-gray-800 dark:text-slate-400 dark:hover:text-slate-200'
                 }`}
               >
                 <Mail className="w-4 h-4" aria-hidden="true" />
@@ -232,10 +232,10 @@ export default function LoginClient() {
             <div className="mt-3">
               <div className="relative my-3">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-200" />
+                  <div className="w-full border-t border-gray-200 dark:border-slate-700" />
                 </div>
                 <div className="relative flex justify-center text-xs">
-                  <span className="bg-white px-2 text-gray-500">أو • or</span>
+                  <span className="bg-white dark:bg-slate-800 px-2 text-gray-500 dark:text-slate-400">أو • or</span>
                 </div>
               </div>
               <Button
@@ -259,8 +259,8 @@ export default function LoginClient() {
             >
               نسيت كلمة المرور؟ • Forgot Password?
             </Link>
-            <div className="border-t pt-3">
-              <p className="text-sm text-gray-600 mb-1">
+            <div className="border-t dark:border-slate-700 pt-3">
+              <p className="text-sm text-gray-600 dark:text-slate-400 mb-1">
                 <span>ليس لديك حساب؟</span>
                 <span className="mx-1">•</span>
                 <span className="text-xs">Don&apos;t have an account?</span>

@@ -38,7 +38,7 @@ CREATE INDEX IF NOT EXISTS idx_farm_owner ON farms(owner_id);
 CREATE INDEX IF NOT EXISTS idx_farm_created ON farms(created_at);
 
 -- Triggers for Farms
-CREATE TRIGGER update_farms_updated_at
+CREATE OR REPLACE TRIGGER update_farms_updated_at
     BEFORE UPDATE ON farms
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
@@ -53,8 +53,11 @@ ALTER TABLE fields ADD COLUMN IF NOT EXISTS farm_id UUID;
 
 -- Add FK constraint (NOT VALID to avoid full table scan, validated in 20260303 remediation)
 -- drift:safe reason=not-valid-pattern remediated_by=20260303000000_safe_index_remediation
-ALTER TABLE fields ADD CONSTRAINT fk_fields_farm_id
-    FOREIGN KEY (farm_id) REFERENCES farms(id) ON DELETE SET NULL NOT VALID;
+DO $$ BEGIN
+    ALTER TABLE fields ADD CONSTRAINT fk_fields_farm_id
+        FOREIGN KEY (farm_id) REFERENCES farms(id) ON DELETE SET NULL NOT VALID;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- Add index (on existing table; remediated in 20260303)
 -- drift:safe reason=remediated remediated_by=20260303000000_safe_index_remediation

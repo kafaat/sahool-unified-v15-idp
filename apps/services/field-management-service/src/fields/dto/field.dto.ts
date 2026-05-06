@@ -524,6 +524,12 @@ export class FieldResponseDto {
   })
   bbox?: [number, number, number, number];
 
+  @ApiPropertyOptional({
+    description: 'GeoJSON Polygon geometry of the field boundary. Derived from `boundary` via PostGIS `ST_AsGeoJSON` at read time.',
+    example: { type: 'Polygon', coordinates: [[[46.71, 24.71], [46.79, 24.71], [46.79, 24.79], [46.71, 24.79], [46.71, 24.71]]] },
+  })
+  polygon?: { type: 'Polygon'; coordinates: number[][][] };
+
   @ApiPropertyOptional()
   irrigationType?: string;
 

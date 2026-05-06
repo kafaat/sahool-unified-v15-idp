@@ -30,25 +30,61 @@
 
 :root {
   --font-tajawal: 'Tajawal', 'Arial', sans-serif;
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 250, 250, 250;
+
+  /* Backgrounds - warm white */
+  --bg-base: 249, 250, 251;          /* gray-50 */
+  --bg-surface: 255, 255, 255;       /* white */
+  --bg-surface-2: 243, 244, 246;     /* gray-100 */
+  --bg-surface-3: 229, 231, 235;     /* gray-200 */
+
+  /* Text */
+  --text-primary: 17, 24, 39;        /* gray-900 */
+  --text-secondary: 75, 85, 99;      /* gray-600 */
+  --text-muted: 156, 163, 175;       /* gray-400 */
+
+  /* Borders */
+  --border-default: 229, 231, 235;   /* gray-200 */
+  --border-strong: 209, 213, 219;    /* gray-300 */
+
+  /* Brand accents */
+  --accent-green: 76, 175, 80;       /* sahool-green-500 */
+  --accent-green-subtle: 240, 253, 244; /* green-50 */
+
+  /* Legacy aliases (keep old vars working) */
+  --foreground-rgb: 17, 24, 39;
+  --background-start-rgb: 249, 250, 251;
   --background-end-rgb: 255, 255, 255;
 }
 
 .dark {
-  --foreground-rgb: 229, 231, 235;
-  --background-start-rgb: 17, 24, 39;
-  --background-end-rgb: 31, 41, 55;
+  /* Backgrounds - deep navy/charcoal */
+  --bg-base: 3, 7, 18;               /* near black */
+  --bg-surface: 15, 23, 42;          /* slate-900 */
+  --bg-surface-2: 30, 41, 59;        /* slate-800 */
+  --bg-surface-3: 51, 65, 85;        /* slate-700 */
+
+  /* Text */
+  --text-primary: 248, 250, 252;     /* slate-50 */
+  --text-secondary: 148, 163, 184;   /* slate-400 */
+  --text-muted: 100, 116, 139;       /* slate-500 */
+
+  /* Borders */
+  --border-default: 51, 65, 85;      /* slate-700 */
+  --border-strong: 71, 85, 105;      /* slate-600 */
+
+  /* Brand accents */
+  --accent-green: 74, 222, 128;      /* green-400 (brighter for dark bg) */
+  --accent-green-subtle: 5, 46, 22;  /* green-950 */
+
+  /* Legacy aliases */
+  --foreground-rgb: 248, 250, 252;
+  --background-start-rgb: 3, 7, 18;
+  --background-end-rgb: 15, 23, 42;
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  color: rgb(var(--text-primary));
+  background-color: rgb(var(--bg-base));
 }
 
 /* RTL Support */
@@ -78,15 +114,125 @@ body {
 
 /* Custom scrollbar - Dark */
 .dark ::-webkit-scrollbar-track {
-  background: #374151;
+  background: #0f172a;
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: #6b7280;
+  background: #334155;
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+  background: #475569;
+}
+
+/* =====================================================================
+   GLOBAL DARK MODE OVERRIDES
+   These rules automatically flip any hardcoded light-mode Tailwind
+   utility class to its dark equivalent when .dark is on <html>.
+   Higher specificity (.dark .class) wins over the bare Tailwind rule.
+   ===================================================================== */
+
+/* --- Backgrounds --- */
+.dark .bg-white       { background-color: rgb(15, 23, 42)  !important; }  /* slate-900  */
+.dark .bg-gray-50     { background-color: rgb(3, 7, 18)    !important; }  /* near-black */
+.dark .bg-gray-100    { background-color: rgb(30, 41, 59)  !important; }  /* slate-800  */
+.dark .bg-gray-200    { background-color: rgb(51, 65, 85)  !important; }  /* slate-700  */
+
+/* Skeleton / pulse placeholders */
+.dark .animate-pulse .bg-gray-200,
+.dark .animate-pulse .bg-gray-100 { background-color: rgb(51, 65, 85) !important; }
+
+/* --- Text --- */
+.dark .text-gray-900  { color: rgb(248, 250, 252) !important; }  /* slate-50  */
+.dark .text-gray-800  { color: rgb(241, 245, 249) !important; }  /* slate-100 */
+.dark .text-gray-700  { color: rgb(203, 213, 225) !important; }  /* slate-300 */
+.dark .text-gray-600  { color: rgb(148, 163, 184) !important; }  /* slate-400 */
+.dark .text-gray-500  { color: rgb(100, 116, 139) !important; }  /* slate-500 */
+.dark .text-gray-400  { color: rgb(71, 85, 105)   !important; }  /* slate-600 */
+.dark .text-gray-300  { color: rgb(51, 65, 85)    !important; }  /* slate-700 */
+
+/* --- Borders --- */
+.dark .border-gray-100 { border-color: rgb(30, 41, 59)  !important; }  /* slate-800 */
+.dark .border-gray-200 { border-color: rgb(51, 65, 85)  !important; }  /* slate-700 */
+.dark .border-gray-300 { border-color: rgb(71, 85, 105) !important; }  /* slate-600 */
+
+/* --- Hover states --- */
+.dark .hover\:bg-gray-50:hover  { background-color: rgb(30, 41, 59)  !important; }
+.dark .hover\:bg-gray-100:hover { background-color: rgb(51, 65, 85)  !important; }
+.dark .hover\:bg-white:hover    { background-color: rgb(30, 41, 59)  !important; }
+
+/* --- Divide (divider lines between flex/grid children) --- */
+.dark .divide-gray-100 > * + * { border-color: rgb(30, 41, 59)  !important; }
+.dark .divide-gray-200 > * + * { border-color: rgb(51, 65, 85)  !important; }
+
+/* --- Ring (focus outlines) --- */
+.dark .ring-gray-200 { --tw-ring-color: rgb(51, 65, 85) !important; }
+
+/* =====================================================================
+   FORM FIELD TEXT — typed text color, always readable
+   Uses html.dark / html:not(.dark) scoping so there is zero ambiguity
+   about which rule wins. No specificity fights.
+   ===================================================================== */
+
+/* ── Light mode ── black text on white inputs */
+html:not(.dark) input,
+html:not(.dark) textarea,
+html:not(.dark) select {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  caret-color: #000000;
+}
+
+/* ── Dark mode ── black text on dark inputs */
+html.dark input,
+html.dark textarea,
+html.dark select {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  caret-color: #000000;
+}
+
+/* Autofill (Chrome/Safari) — reclaim text + background */
+html:not(.dark) input:-webkit-autofill,
+html:not(.dark) input:-webkit-autofill:hover,
+html:not(.dark) input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #000000 !important;
+  box-shadow: 0 0 0 1000px #ffffff inset !important;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+html.dark input:-webkit-autofill,
+html.dark input:-webkit-autofill:hover,
+html.dark input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #000000 !important;
+  box-shadow: 0 0 0 1000px #1e293b inset !important;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+/* Placeholder — muted but visible in both modes */
+html:not(.dark) input::placeholder,
+html:not(.dark) textarea::placeholder {
+  color: #6b7280 !important;
+  -webkit-text-fill-color: #6b7280 !important;
+  opacity: 1;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1;
+}
+
+/* Select option text (native OS dropdown) */
+select option {
+  color: #111827;
+  background-color: #ffffff;
+}
+
+.dark select option {
+  color: #f8fafc;
+  background-color: #1e293b;
 }
 
 /* Leaflet map fixes for RTL */

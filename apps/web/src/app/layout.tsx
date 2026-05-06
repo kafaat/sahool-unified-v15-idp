@@ -31,8 +31,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const direction = getDirection(locale);
 
   return (
-    <html lang={locale} dir={direction} className={`${tajawal.variable} dark`} suppressHydrationWarning>
+    <html lang={locale} dir={direction} className={`${tajawal.variable}`} suppressHydrationWarning>
       <head>
+        {/* Theme initializer — runs synchronously before first paint to prevent FOUC */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('sahool-web-theme');if(t==='light'){document.documentElement.classList.add('light')}else if(t==='system'){if(window.matchMedia('(prefers-color-scheme: dark)').matches){document.documentElement.classList.add('dark')}else{document.documentElement.classList.add('light')}}else{document.documentElement.classList.add('dark')}}catch(e){}})();`,
+          }}
+        />
         {/*
           Tajawal Arabic font is self-hosted via @font-face in globals.css
           with Google Fonts CDN as fallback source. No external stylesheet

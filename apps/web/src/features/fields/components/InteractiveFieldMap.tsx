@@ -15,7 +15,7 @@
  * - Interactive click handlers / معالجات النقر التفاعلية
  */
 
-import React, { useState, useCallback, useMemo, useRef } from 'react';
+import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import {
   MapContainer,
   TileLayer,
@@ -105,6 +105,10 @@ export interface InteractiveFieldMapProps {
   onMapClick?: (lat: number, lng: number) => void;
   /** Custom class name / اسم الفئة المخصص */
   className?: string;
+  /** Fly the map to this [lat, lng] with zoom 14 when it changes */
+  flyToField?: [number, number] | null;
+  /** Extra react-leaflet layers (Marker, Circle, etc.) rendered inside MapContainer */
+  children?: React.ReactNode;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -236,6 +240,20 @@ const createTaskIcon = (priority: Priority, status: TaskStatus): L.DivIcon => {
     iconAnchor: [15, 15],
     popupAnchor: [0, -15],
   });
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FlyTo Controller — smooth pan+zoom to a field centroid
+// ═══════════════════════════════════════════════════════════════════════════
+
+const FlyToController: React.FC<{ target: [number, number] | null | undefined }> = ({ target }) => {
+  const map = useMap();
+  useEffect(() => {
+    if (target) {
+      map.flyTo(target, 14, { duration: 1.2 });
+    }
+  }, [target, map]);
+  return null;
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -431,12 +449,21 @@ export const InteractiveFieldMap: React.FC<InteractiveFieldMapProps> = ({
   onHealthZoneClick,
   onMapClick,
   className = '',
+  flyToField,
+  children,
 }) => {
   // ─────────────────────────────────────────────────────────────────────────
   // State Management / إدارة الحالة
   // ─────────────────────────────────────────────────────────────────────────
 
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Guard against Leaflet "Map container is already initialized" in React
+  // StrictMode (Next.js 15). MapContainer is only rendered after useEffect
+  // fires, which is client-only and runs after the first real mount, so
+  // Leaflet never sees the same DOM element twice without a proper cleanup.
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => { setIsMounted(true); }, []);
 
   const [activeLayers, setActiveLayers] = useState<LayerConfig>({
     fields: true,
@@ -523,6 +550,19 @@ export const InteractiveFieldMap: React.FC<InteractiveFieldMapProps> = ({
   // Render / العرض
   // ─────────────────────────────────────────────────────────────────────────
 
+  // Render a placeholder until client-side mount is confirmed.
+  // This prevents Leaflet from trying to init on a server-rendered or
+  // double-mounted React StrictMode container.
+  if (!isMounted) {
+    return (
+      <div
+        ref={containerRef}
+        className={`relative rounded-xl overflow-hidden border-2 border-gray-200 shadow-lg ${className}`}
+        style={{ height }}
+      />
+    );
+  }
+
   return (
     <div
       ref={containerRef}
@@ -559,6 +599,9 @@ export const InteractiveFieldMap: React.FC<InteractiveFieldMapProps> = ({
 
         {/* Fullscreen Control / التحكم في ملء الشاشة */}
         <FullscreenControl containerRef={containerRef} />
+
+        {/* Smooth fly-to on field select */}
+        <FlyToController target={flyToField} />
 
         {/* Map Click Events / أحداث النقر على الخريطة */}
         <MapEventsHandler onMapClick={onMapClick} />
@@ -746,6 +789,9 @@ export const InteractiveFieldMap: React.FC<InteractiveFieldMapProps> = ({
               </Marker>
             );
           })}
+
+        {/* Extra layers passed by parent (e.g. KPI badge markers) */}
+        {children}
       </MapContainer>
 
       {/* Weather Overlay / طبقة الطقس */}

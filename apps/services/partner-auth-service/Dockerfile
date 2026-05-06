@@ -70,7 +70,7 @@ RUN npx prisma@5 generate --schema=./prisma/schema.prisma && \
      test -f prisma/generated/client/index.js) || \
     (echo "Prisma generate failed" && exit 1)
 
-RUN npx nest build
+RUN chmod -R +x node_modules/.bin/ && npx nest build
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Production stage

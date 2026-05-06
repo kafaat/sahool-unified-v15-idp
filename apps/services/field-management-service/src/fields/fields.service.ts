@@ -61,6 +61,7 @@ function serializeField(
     centroidLat?: number;
     centroidLng?: number;
     bbox?: [number, number, number, number];
+    polygon?: { type: 'Polygon'; coordinates: number[][][] };
   } = {},
 ): FieldResponseDto {
   const etag = generateETag(f.id, f.version);
@@ -78,6 +79,7 @@ function serializeField(
     centroidLat: extras.centroidLat,
     centroidLng: extras.centroidLng,
     bbox: extras.bbox,
+    polygon: extras.polygon,
     irrigationType: f.irrigationType ?? undefined,
     soilType: f.soilType ?? undefined,
     plantingDate: f.plantingDate ?? undefined,
@@ -300,6 +302,7 @@ export class FieldsService {
     let centroidLat: number | undefined;
     let centroidLng: number | undefined;
     let bbox: [number, number, number, number] | undefined;
+    let polygon: { type: 'Polygon'; coordinates: number[][][] } | undefined;
     try {
       const geomRows = await this.prisma.$queryRawUnsafe<
         Array<{
@@ -309,6 +312,7 @@ export class FieldsService {
           min_lat: number | null;
           max_lng: number | null;
           max_lat: number | null;
+          polygon_geojson: string | null;
         }>
       >(
         `SELECT
@@ -317,7 +321,8 @@ export class FieldsService {
            ST_XMin(boundary::geometry) AS min_lng,
            ST_YMin(boundary::geometry) AS min_lat,
            ST_XMax(boundary::geometry) AS max_lng,
-           ST_YMax(boundary::geometry) AS max_lat
+           ST_YMax(boundary::geometry) AS max_lat,
+           ST_AsGeoJSON(boundary::geometry) AS polygon_geojson
          FROM fields
          WHERE id = $1::uuid
            AND boundary IS NOT NULL`,
@@ -342,6 +347,11 @@ export class FieldsService {
             Number(row.max_lat),
           ];
         }
+        if (row.polygon_geojson) {
+          try {
+            polygon = JSON.parse(row.polygon_geojson);
+          } catch { /* ignore parse errors */ }
+        }
       }
     } catch {
       // centroid / boundary columns may not exist on older DB schemas — ignore
@@ -351,6 +361,7 @@ export class FieldsService {
       centroidLat,
       centroidLng,
       bbox,
+      polygon,
     });
 
     // Cache the result
@@ -412,6 +423,7 @@ export class FieldsService {
         centroidLat?: number;
         centroidLng?: number;
         bbox?: [number, number, number, number];
+        polygon?: { type: 'Polygon'; coordinates: number[][][] };
       }
     >();
     if (fields.length > 0) {
@@ -426,6 +438,7 @@ export class FieldsService {
             min_lat: number | null;
             max_lng: number | null;
             max_lat: number | null;
+            polygon_geojson: string | null;
           }>
         >(
           `SELECT
@@ -435,7 +448,8 @@ export class FieldsService {
              ST_XMin(boundary::geometry) AS min_lng,
              ST_YMin(boundary::geometry) AS min_lat,
              ST_XMax(boundary::geometry) AS max_lng,
-             ST_YMax(boundary::geometry) AS max_lat
+             ST_YMax(boundary::geometry) AS max_lat,
+             ST_AsGeoJSON(boundary::geometry) AS polygon_geojson
            FROM fields
            WHERE id = ANY($1::uuid[])
              AND boundary IS NOT NULL`,
@@ -446,6 +460,7 @@ export class FieldsService {
             centroidLat?: number;
             centroidLng?: number;
             bbox?: [number, number, number, number];
+            polygon?: { type: 'Polygon'; coordinates: number[][][] };
           } = {};
           if (row.centroid_lat != null && row.centroid_lng != null) {
             entry.centroidLat = Number(row.centroid_lat);
@@ -464,6 +479,11 @@ export class FieldsService {
               Number(row.max_lat),
             ];
           }
+          if (row.polygon_geojson) {
+            try {
+              entry.polygon = JSON.parse(row.polygon_geojson);
+            } catch { /* ignore parse errors */ }
+          }
           geomByFieldId.set(row.id, entry);
         }
       } catch {
@@ -479,6 +499,7 @@ export class FieldsService {
         centroidLat: geom?.centroidLat,
         centroidLng: geom?.centroidLng,
         bbox: geom?.bbox,
+        polygon: geom?.polygon,
       });
     });
 

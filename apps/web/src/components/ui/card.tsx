@@ -24,9 +24,9 @@ export function Card({
   ...props
 }: CardProps) {
   const variants = {
-    default: 'bg-white border border-gray-200',
-    bordered: 'bg-white border-2 border-sahool-green-200',
-    elevated: 'bg-white shadow-lg border border-gray-100',
+    default: 'bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700',
+    bordered: 'bg-white dark:bg-slate-800 border-2 border-sahool-green-200 dark:border-green-800',
+    elevated: 'bg-white dark:bg-slate-800 shadow-lg dark:shadow-slate-900/50 border border-gray-100 dark:border-slate-700',
   };
 
   const paddings = {
@@ -37,7 +37,7 @@ export function Card({
   };
 
   const interactiveStyles = interactive
-    ? 'cursor-pointer hover:shadow-md transition-shadow focus:outline-none focus:ring-2 focus:ring-sahool-green-500 focus:ring-offset-2'
+    ? 'cursor-pointer hover:shadow-md dark:hover:shadow-slate-900/50 transition-shadow focus:outline-none focus:ring-2 focus:ring-sahool-green-500 dark:focus:ring-green-400 focus:ring-offset-2 dark:focus:ring-offset-slate-800'
     : '';
 
   return (
@@ -76,7 +76,7 @@ export interface CardTitleProps extends React.HTMLAttributes<HTMLHeadingElement>
 }
 
 export function CardTitle({ className, ref, ...props }: CardTitleProps) {
-  return <h3 ref={ref} className={clsx('text-xl font-bold text-gray-900', className)} {...props} />;
+  return <h3 ref={ref} className={clsx('text-xl font-bold text-gray-900 dark:text-slate-100', className)} {...props} />;
 }
 
 CardTitle.displayName = 'CardTitle';
@@ -86,7 +86,7 @@ export interface CardDescriptionProps extends React.HTMLAttributes<HTMLParagraph
 }
 
 export function CardDescription({ className, ref, ...props }: CardDescriptionProps) {
-  return <p ref={ref} className={clsx('text-sm text-gray-600 mt-1', className)} {...props} />;
+  return <p ref={ref} className={clsx('text-sm text-gray-600 dark:text-slate-400 mt-1', className)} {...props} />;
 }
 
 CardDescription.displayName = 'CardDescription';
@@ -107,7 +107,7 @@ export interface CardFooterProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export function CardFooter({ className, ref, ...props }: CardFooterProps) {
   return (
-    <div ref={ref} className={clsx('mt-4 pt-4 border-t border-gray-200', className)} {...props} />
+    <div ref={ref} className={clsx('mt-4 pt-4 border-t border-gray-200 dark:border-slate-700', className)} {...props} />
   );
 }
 

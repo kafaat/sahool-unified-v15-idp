@@ -29,7 +29,12 @@ const withNextIntl = createNextIntlPlugin("./src/i18n.ts");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
+  // react-leaflet 4.2.1 is incompatible with React 19 StrictMode:
+  // StrictMode's double-mount causes "Map container is already initialized."
+  // The Leaflet map ref callback fires twice before the internal state commits,
+  // resulting in L.map() being called on an already-initialized container.
+  // Disable StrictMode globally until react-leaflet ships a React 19 fix.
+  reactStrictMode: false,
 
   // Allow cross-origin requests from local network in development
   // (prevents "Cross origin request detected" warning)
@@ -81,6 +86,14 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "sentinel-hub.com",
+      },
+      {
+        protocol: "https",
+        hostname: "sh.dataspace.copernicus.eu",
+      },
+      {
+        protocol: "https",
+        hostname: "identity.dataspace.copernicus.eu",
       },
       {
         protocol: "https",

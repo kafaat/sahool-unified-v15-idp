@@ -7,36 +7,14 @@
 -- Created: 2026-02-07
 -- Description: Adds composite indexes for common query patterns to improve performance
 
--- ═══════════════════════════════════════════════════════════════════════════════
--- Farm Table Indexes
--- فهارس جدول المزارع
--- ═══════════════════════════════════════════════════════════════════════════════
-
--- Composite index for filtering active farms by tenant
--- فهرس مركب لتصفية المزارع النشطة حسب المستأجر
--- drift:safe reason=CREATE INDEX inside a Prisma-managed transaction cannot use CONCURRENTLY; zero-downtime index creation must be run manually outside Prisma migrate on large production tables.
-CREATE INDEX IF NOT EXISTS "idx_farm_tenant_active"
-    ON "farms" ("tenant_id", "is_deleted");
-
--- Index for owner queries
--- فهرس لاستعلامات المالك
-CREATE INDEX IF NOT EXISTS "idx_farm_owner"
-    ON "farms" ("owner_id");
-
--- Index for time-based queries
--- فهرس للاستعلامات الزمنية
-CREATE INDEX IF NOT EXISTS "idx_farm_created"
-    ON "farms" ("created_at");
+-- NOTE: Farm table indexes (idx_farm_tenant_active, idx_farm_owner, idx_farm_created)
+-- and idx_field_farm are created in 20260214000000_add_farms_table, which runs after
+-- this migration. They are intentionally omitted here to avoid dependency ordering errors.
 
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Field Table Indexes
 -- فهارس جدول الحقول
 -- ═══════════════════════════════════════════════════════════════════════════════
-
--- Index for farm relationship
--- فهرس لعلاقة المزرعة
-CREATE INDEX IF NOT EXISTS "idx_field_farm"
-    ON "fields" ("farm_id");
 
 -- Composite index for tenant + status filtering (most common query pattern)
 -- فهرس مركب لتصفية المستأجر + الحالة (نمط الاستعلام الأكثر شيوعًا)

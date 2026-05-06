@@ -7,6 +7,7 @@ import type { Field, FieldFormData, FieldFilters, GeoPolygon } from './types';
 import { createApiClient } from '@/lib/api/factory';
 import { safeFetch } from '@/lib/api/safe-fetch';
 import { FIELD_ENDPOINTS, SATELLITE_ENDPOINTS, buildUrl } from '@sahool/shared-types/contracts';
+import Cookies from 'js-cookie';
 
 /**
  * API Field Response Type
@@ -48,21 +49,85 @@ export interface FieldKpiSnapshot {
   fieldId: string;
   tenantId: string;
   fetchedAt: string;
-  // Sentinel Hub vegetation indices
-  ndvi?: number | null;
-  evi?: number | null;
-  ndwi?: number | null;
-  savi?: number | null;
-  lai?: number | null;
-  ndmi?: number | null;
-  // OpenWeather data
+
+  // ── Sentinel Hub: Vegetation ──────────────────────────────────────────────
+  ndvi?: number | null;   // Normalized Difference Vegetation Index
+  evi?: number | null;    // Enhanced Vegetation Index
+  lai?: number | null;    // Leaf Area Index
+  savi?: number | null;   // Soil-Adjusted Vegetation Index
+  ndmi?: number | null;   // Normalized Difference Moisture Index
+  gndvi?: number | null;  // Green NDVI
+  ndre?: number | null;   // Red-Edge NDVI
+  msavi?: number | null;  // Modified SAVI
+  osavi?: number | null;  // Optimised SAVI
+  evi2?: number | null;   // Two-band EVI
+  cvi?: number | null;    // Chlorophyll Vegetation Index
+  mcari?: number | null;  // Modified Chlorophyll Absorption Ratio Index
+  tcari?: number | null;  // Transformed Chlorophyll Absorption Ratio Index
+  wdrvi?: number | null;  // Wide Dynamic Range Vegetation Index
+  vari?: number | null;   // Visible Atmospherically Resistant Index
+
+  // ── Sentinel Hub: Water ───────────────────────────────────────────────────
+  ndwi?: number | null;        // Normalized Difference Water Index
+  mndwi?: number | null;       // Modified NDWI
+  turbidity?: number | null;   // Water turbidity
+  chlorophyll?: number | null; // Chlorophyll-a concentration
+  phycocyanin?: number | null; // Phycocyanin (algal bloom)
+
+  // ── Sentinel Hub: Soil / Bare land ───────────────────────────────────────
+  bsi?: number | null;   // Bare Soil Index
+  nbsi?: number | null;  // Normalized Bare Soil Index
+
+  // ── Sentinel Hub: Fire / Burn ─────────────────────────────────────────────
+  nbr?: number | null;   // Normalized Burn Ratio
+  nbr2?: number | null;  // NBR2
+  bais2?: number | null; // Burned Area Index for Sentinel-2
+
+  // ── Sentinel Hub: Urban / Built-up ───────────────────────────────────────
+  ndbi?: number | null;  // Normalized Difference Built-up Index
+  ibi?: number | null;   // Index-based Built-up Index
+
+  // ── Sentinel Hub: Snow / Ice ──────────────────────────────────────────────
+  ndsi?: number | null;  // Normalized Difference Snow Index
+  ndgi?: number | null;  // Normalized Difference Glacier Index
+
+  // ── Sentinel Hub: Atmosphere ─────────────────────────────────────────────
+  lst?: number | null;              // Land Surface Temperature (°C)
+  cloudProbability?: number | null; // Cloud probability (0-100)
+  arvi?: number | null;             // Atmospherically Resistant Vegetation Index
+
+  // ── OpenWeatherMap: Current conditions ───────────────────────────────────
   temperature?: number | null;
   humidity?: number | null;
   windSpeed?: number | null;
+  windDirection?: number | null;
   precipitation?: number | null;
+  pressure?: number | null;
+  cloudCover?: number | null;
+  visibility?: number | null;
   uvIndex?: number | null;
   weatherCondition?: string | null;
   weatherConditionAr?: string | null;
+
+  // ── OpenWeatherMap: Air pollution ─────────────────────────────────────────
+  aqi?: number | null;   // Air Quality Index (1=Good … 5=Very Poor)
+  co?: number | null;    // Carbon monoxide (μg/m³)
+  no?: number | null;    // Nitric oxide
+  no2?: number | null;   // Nitrogen dioxide
+  o3?: number | null;    // Ozone
+  so2?: number | null;   // Sulphur dioxide
+  nh3?: number | null;   // Ammonia
+  pm25?: number | null;  // PM2.5
+  pm10?: number | null;  // PM10
+
+  // ── Solar irradiance (Open-Meteo) ─────────────────────────────────────────
+  ghiClearSky?: number | null; // Global Horizontal Irradiance — clear sky (W/m²)
+  dniClearSky?: number | null; // Direct Normal Irradiance — clear sky
+  dhiClearSky?: number | null; // Diffuse Horizontal Irradiance — clear sky
+  ghiCloudy?: number | null;   // GHI — actual (cloudy)
+  dniCloudy?: number | null;   // DNI — actual
+  dhiCloudy?: number | null;   // DHI — actual
+
   satelliteSource?: string | null;
   weatherSource?: string | null;
 }
@@ -221,19 +286,21 @@ interface ApiFieldRequest {
 /**
  * Map feature field to API field.
  *
- * Throws if tenantId is missing — never silently falls back to a shared tenant,
- * which would cause cross-tenant writes when the auth store is transiently empty.
+ * Falls back to the tenant_id cookie when the auth store is transiently empty.
+ * The backend always overrides tenantId from the JWT `tid` claim, so the
+ * client-supplied value only needs to be non-empty to pass DTO validation.
  */
 function mapFieldToApiField(field: FieldFormData, tenantId?: string): ApiFieldRequest {
-  if (!tenantId) {
+  const resolvedTenantId = tenantId || (typeof window !== 'undefined' ? Cookies.get('tenant_id') : undefined);
+  if (!resolvedTenantId) {
     throw new Error(
-      'tenantId is required for field mutations. Ensure the user is authenticated before submitting.',
+      'يجب تسجيل الدخول أولاً | Authentication required before saving a field.',
     );
   }
   return {
     name: field.name,
     nameAr: field.nameAr,
-    tenantId,
+    tenantId: resolvedTenantId,
     cropType: field.crop || 'unknown',
     cropTypeAr: field.cropAr,
     // Send flat ring as coordinates (service handles GeoJSON wrapping internally)
@@ -470,8 +537,8 @@ export const fieldsApi = {
   },
 
   /**
-   * Trigger KPI refresh: calls satellite + weather Next.js proxies then saves snapshot
-   * تحديث KPI: استدعاء وكيل الأقمار الصناعية والطقس ثم حفظ اللقطة
+   * Trigger KPI refresh — fetches 35+ Sentinel Hub indices, weather, air quality, and solar
+   * تحديث KPI: جلب 35+ مؤشر من Sentinel Hub والطقس وجودة الهواء والطاقة الشمسية
    */
   triggerKpiRefresh: async (
     fieldId: string,
@@ -480,11 +547,15 @@ export const fieldsApi = {
     _tenantId?: string,
     polygonCoordinates?: number[][]
   ): Promise<FieldKpiSnapshot> => {
-    // 1. Fetch vegetation indices via Next.js proxy at /api/satellite
-    //    (proxy handles tenant auth server-side from httpOnly cookie)
-    let satelliteData: Record<string, number | string> = {};
+    type AnyRecord = Record<string, unknown>;
+    const n = (v: unknown): number | undefined =>
+      typeof v === 'number' && Number.isFinite(v) ? v : undefined;
+
+    // ── 1. Satellite indices (GET /api/satellite?action=indices gets all themed indices) ──
+    let satIndices: AnyRecord = {};
     try {
-      const satRes = await fetch('/api/satellite', {
+      // First trigger analysis so the service computes fresh values
+      await fetch('/api/satellite', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin',
@@ -493,56 +564,107 @@ export const fieldsApi = {
           fieldId,
           latitude: lat,
           longitude: lng,
+          analysisType: 'all',
           ...(polygonCoordinates ? { coordinates: polygonCoordinates } : {}),
         }),
       });
-      if (satRes.ok) {
-        const satBody = await satRes.json();
-        satelliteData = satBody.indices || satBody.vegetation_indices || satBody || {};
+      // Then fetch all computed indices
+      const idxRes = await fetch(
+        `/api/satellite?action=indices&fieldId=${encodeURIComponent(fieldId)}&lat=${lat}&lon=${lng}`,
+        { credentials: 'same-origin' }
+      );
+      if (idxRes.ok) {
+        const idxBody = await idxRes.json() as AnyRecord;
+        // Backend may nest under indices, vegetation_indices, or return flat
+        satIndices = (idxBody.indices ?? idxBody.vegetation_indices ?? idxBody) as AnyRecord;
       }
-    } catch {
-      // Non-fatal: satellite may not be configured; proceed with weather only
-    }
+    } catch { /* non-fatal */ }
 
-    // 2. Fetch weather via Next.js proxy at /api/weather
-    //    (proxy handles tenant auth server-side from httpOnly cookie)
-    let weatherData: Record<string, number | string> = {};
+    // ── 2. Current weather ────────────────────────────────────────────────────
+    let wxData: AnyRecord = {};
     try {
       const wxRes = await fetch('/api/weather', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin',
-        body: JSON.stringify({
-          action: 'current',
-          lat,
-          lon: lng,
-          field_id: fieldId,
-        }),
+        body: JSON.stringify({ action: 'current', lat, lon: lng, field_id: fieldId }),
       });
       if (wxRes.ok) {
-        const wxBody = await wxRes.json();
-        weatherData = wxBody.current || wxBody || {};
+        const wxBody = await wxRes.json() as AnyRecord;
+        wxData = (wxBody.current ?? wxBody) as AnyRecord;
       }
-    } catch {
-      // Non-fatal: proceed with satellite data only
-    }
+    } catch { /* non-fatal */ }
 
-    // 3. Persist snapshot via field-management-service
+    // ── 3. Air quality (OpenWeatherMap Air Pollution API) ─────────────────────
+    let aqData: AnyRecord = {};
+    try {
+      const aqRes = await fetch(
+        `/api/airquality?lat=${lat}&lon=${lng}`,
+        { credentials: 'same-origin' }
+      );
+      if (aqRes.ok) {
+        aqData = await aqRes.json() as AnyRecord;
+      }
+    } catch { /* non-fatal */ }
+
+    // ── 4. Solar irradiance (Open-Meteo) ──────────────────────────────────────
+    let solarData: AnyRecord = {};
+    try {
+      const solRes = await fetch(
+        `/api/solar?lat=${lat}&lon=${lng}`,
+        { credentials: 'same-origin' }
+      );
+      if (solRes.ok) {
+        solarData = await solRes.json() as AnyRecord;
+      }
+    } catch { /* non-fatal */ }
+
+    // ── 5. Build and persist the full snapshot ────────────────────────────────
     const payload = {
-      ndvi: typeof satelliteData.ndvi === 'number' ? satelliteData.ndvi : undefined,
-      evi: typeof satelliteData.evi === 'number' ? satelliteData.evi : undefined,
-      ndwi: typeof satelliteData.ndwi === 'number' ? satelliteData.ndwi : undefined,
-      savi: typeof satelliteData.savi === 'number' ? satelliteData.savi : undefined,
-      lai: typeof satelliteData.lai === 'number' ? satelliteData.lai : undefined,
-      ndmi: typeof satelliteData.ndmi === 'number' ? satelliteData.ndmi : undefined,
-      temperature: weatherData.temperature_c ?? weatherData.temperature,
-      humidity: weatherData.humidity_pct ?? weatherData.humidity,
-      windSpeed: weatherData.wind_speed_kmh ?? weatherData.windSpeed ?? weatherData.wind_speed,
-      precipitation: weatherData.precipitation_mm ?? weatherData.precipitation ?? 0,
-      uvIndex: weatherData.uv_index ?? weatherData.uvIndex,
-      weatherCondition: typeof weatherData.condition === 'string' ? weatherData.condition : undefined,
-      weatherConditionAr: typeof weatherData.condition_ar === 'string' ? weatherData.condition_ar : undefined,
-      satelliteSource: typeof satelliteData.data_source === 'string' ? satelliteData.data_source : 'sentinel-hub',
+      // Vegetation
+      ndvi: n(satIndices.ndvi), evi: n(satIndices.evi), lai: n(satIndices.lai),
+      savi: n(satIndices.savi), ndmi: n(satIndices.ndmi), gndvi: n(satIndices.gndvi),
+      ndre: n(satIndices.ndre), msavi: n(satIndices.msavi), osavi: n(satIndices.osavi),
+      evi2: n(satIndices.evi2), cvi: n(satIndices.cvi), mcari: n(satIndices.mcari),
+      tcari: n(satIndices.tcari), wdrvi: n(satIndices.wdrvi), vari: n(satIndices.vari),
+      // Water
+      ndwi: n(satIndices.ndwi), mndwi: n(satIndices.mndwi),
+      turbidity: n(satIndices.turbidity), chlorophyll: n(satIndices.chlorophyll_a ?? satIndices.chlorophyll),
+      phycocyanin: n(satIndices.phycocyanin),
+      // Soil
+      bsi: n(satIndices.bsi), nbsi: n(satIndices.nbsi),
+      // Fire
+      nbr: n(satIndices.nbr), nbr2: n(satIndices.nbr2), bais2: n(satIndices.bais2),
+      // Urban
+      ndbi: n(satIndices.ndbi), ibi: n(satIndices.ibi),
+      // Snow
+      ndsi: n(satIndices.ndsi), ndgi: n(satIndices.ndgi),
+      // Atmosphere
+      lst: n(satIndices.lst), cloudProbability: n(satIndices.cloud_probability ?? satIndices.cloudProbability),
+      arvi: n(satIndices.arvi),
+      // Weather
+      temperature: n(wxData.temperature_c ?? wxData.temperature),
+      humidity: n(wxData.humidity_pct ?? wxData.humidity),
+      windSpeed: n(wxData.wind_speed_kmh ?? wxData.wind_speed),
+      windDirection: n(wxData.wind_direction_deg ?? wxData.wind_direction),
+      precipitation: n(wxData.precipitation_mm ?? wxData.precipitation) ?? 0,
+      pressure: n(wxData.pressure_hpa ?? wxData.pressure),
+      cloudCover: n(wxData.cloud_cover_pct ?? wxData.cloud_cover),
+      visibility: n(wxData.visibility_m ?? wxData.visibility),
+      uvIndex: n(wxData.uv_index ?? wxData.uvIndex),
+      weatherCondition: typeof wxData.condition === 'string' ? wxData.condition : undefined,
+      weatherConditionAr: typeof wxData.condition_ar === 'string' ? wxData.condition_ar : undefined,
+      // Air quality
+      aqi: typeof aqData.aqi === 'number' ? aqData.aqi : undefined,
+      co: n(aqData.co), no: n(aqData.no), no2: n(aqData.no2), o3: n(aqData.o3),
+      so2: n(aqData.so2), nh3: n(aqData.nh3), pm25: n(aqData.pm2_5 ?? aqData.pm25),
+      pm10: n(aqData.pm10),
+      // Solar
+      ghiClearSky: n(solarData.ghi_clear_sky), dniClearSky: n(solarData.dni_clear_sky),
+      dhiClearSky: n(solarData.dhi_clear_sky), ghiCloudy: n(solarData.ghi_cloudy),
+      dniCloudy: n(solarData.dni_cloudy), dhiCloudy: n(solarData.dhi_cloudy),
+      // Metadata
+      satelliteSource: typeof satIndices.data_source === 'string' ? satIndices.data_source : 'sentinel-hub',
       weatherSource: 'openweather',
     };
 

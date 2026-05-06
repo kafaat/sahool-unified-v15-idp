@@ -143,7 +143,7 @@ export default function ForgotPasswordClient() {
   const channelIcon = selectedChannel?.icon || <Mail className="w-8 h-8 text-sahool-green-600" />;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sahool-green-50 to-white p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sahool-green-50 to-white dark:from-slate-900 dark:to-slate-800 p-4">
       <Card className="w-full max-w-md" variant="elevated">
         <CardHeader className="text-center">
           <div className="mx-auto w-16 h-16 bg-sahool-green-100 rounded-full flex items-center justify-center mb-4">
@@ -155,19 +155,19 @@ export default function ForgotPasswordClient() {
           </div>
           <CardTitle className="text-2xl">
             <span className="block">{isSuccess ? 'تم الإرسال' : 'نسيت كلمة المرور؟'}</span>
-            <span className="block text-base text-gray-600 mt-1">
+            <span className="block text-base text-gray-600 dark:text-slate-400 mt-1">
               {isSuccess ? 'Sent Successfully' : 'Forgot Password?'}
             </span>
           </CardTitle>
           <CardDescription>
             {isSuccess ? (
               <>
-                <span className="block text-gray-600">
+                <span className="block text-gray-600 dark:text-slate-400">
                   {isEmailChannel
                     ? 'إذا كان هناك حساب مرتبط بهذا البريد، فسيتم إرسال رابط إعادة التعيين'
                     : 'تم إرسال رمز التحقق إلى رقمك'}
                 </span>
-                <span className="block text-xs text-gray-500 mt-1">
+                <span className="block text-xs text-gray-500 dark:text-slate-500 mt-1">
                   {isEmailChannel
                     ? 'If an account exists with this email, a reset link has been sent'
                     : 'OTP has been sent to your phone number'}
@@ -175,8 +175,8 @@ export default function ForgotPasswordClient() {
               </>
             ) : (
               <>
-                <span className="block text-gray-600">اختر طريقة استرداد الحساب</span>
-                <span className="block text-xs text-gray-500 mt-1">
+                <span className="block text-gray-600 dark:text-slate-400">اختر طريقة استرداد الحساب</span>
+                <span className="block text-xs text-gray-500 dark:text-slate-500 mt-1">
                   Choose your recovery method
                 </span>
               </>
@@ -186,7 +186,7 @@ export default function ForgotPasswordClient() {
         <CardContent>
           {isSuccess ? (
             <div className="text-center space-y-4">
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 dark:text-slate-400">
                 {isEmailChannel
                   ? 'الرابط صالح لمدة ساعة واحدة فقط'
                   : 'رمز التحقق صالح لمدة 10 دقائق'}
@@ -209,9 +209,9 @@ export default function ForgotPasswordClient() {
             <>
               {/* Channel Selector */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-3">
+                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-3">
                   طريقة الاسترداد
-                  <span className="text-xs text-gray-500 mr-2">Recovery Method</span>
+                  <span className="text-xs text-gray-500 dark:text-slate-500 mr-2">Recovery Method</span>
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   {CHANNEL_OPTIONS.map((option) => (
@@ -221,14 +221,14 @@ export default function ForgotPasswordClient() {
                       onClick={() => setChannel(option.id)}
                       className={`flex items-center justify-center gap-2 p-3 rounded-lg border-2 transition-all ${
                         channel === option.id
-                          ? 'border-sahool-green-600 bg-sahool-green-50 text-sahool-green-700'
-                          : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                          ? 'border-sahool-green-600 bg-sahool-green-50 dark:bg-slate-700 text-sahool-green-700 dark:text-green-400'
+                          : 'border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-600 dark:text-slate-400 hover:border-gray-300 dark:hover:border-slate-500'
                       }`}
                     >
                       {option.icon}
                       <div className="flex flex-col items-start">
                         <span className="text-sm font-medium">{option.labelAr}</span>
-                        <span className="text-xs text-gray-500">{option.labelEn}</span>
+                        <span className="text-xs text-gray-500 dark:text-slate-500">{option.labelEn}</span>
                       </div>
                     </button>
                   ))}
@@ -264,10 +264,10 @@ export default function ForgotPasswordClient() {
                 )}
 
                 {/* Channel-specific description */}
-                <p className="text-xs text-gray-500 text-center">
+                <p className="text-xs text-gray-500 dark:text-slate-500 text-center">
                   {getChannelDescription().ar}
                   <br />
-                  <span className="text-gray-400">{getChannelDescription().en}</span>
+                  <span className="text-gray-400 dark:text-slate-600">{getChannelDescription().en}</span>
                 </p>
 
                 <Button type="submit" fullWidth isLoading={isLoading} size="lg">

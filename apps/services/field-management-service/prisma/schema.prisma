@@ -376,23 +376,85 @@ model FieldKpiSnapshot {
   tenantId  String   @map("tenant_id") @db.VarChar(100)
   fetchedAt DateTime @default(now()) @map("fetched_at") @db.Timestamptz
 
-  // Sentinel Hub vegetation indices
-  ndvi Decimal? @db.Decimal(5, 4)
-  evi  Decimal? @db.Decimal(5, 4)
-  ndwi Decimal? @db.Decimal(5, 4)
-  savi Decimal? @db.Decimal(5, 4)
-  lai  Decimal? @db.Decimal(6, 4)
-  ndmi Decimal? @db.Decimal(5, 4)
+  // ── Sentinel Hub: Vegetation (NDVI, EVI, LAI, GNDVI, NDRE, MSAVI, OSAVI, ARVI …)
+  ndvi  Decimal? @db.Decimal(6, 4)
+  evi   Decimal? @db.Decimal(6, 4)
+  lai   Decimal? @db.Decimal(7, 4)
+  savi  Decimal? @db.Decimal(6, 4)
+  ndmi  Decimal? @db.Decimal(6, 4)
+  gndvi Decimal? @db.Decimal(6, 4)
+  ndre  Decimal? @db.Decimal(6, 4)
+  msavi Decimal? @db.Decimal(6, 4)
+  osavi Decimal? @db.Decimal(6, 4)
+  evi2  Decimal? @db.Decimal(6, 4)
+  cvi   Decimal? @db.Decimal(7, 4)
+  mcari Decimal? @db.Decimal(6, 4)
+  tcari Decimal? @db.Decimal(6, 4)
+  wdrvi Decimal? @db.Decimal(6, 4)
+  vari  Decimal? @db.Decimal(6, 4)
 
-  // OpenWeather / weather service data
+  // ── Sentinel Hub: Water (NDWI, MNDWI, NDMI, turbidity, chlorophyll-a …)
+  ndwi        Decimal? @db.Decimal(6, 4)
+  mndwi       Decimal? @db.Decimal(6, 4)
+  turbidity   Decimal? @db.Decimal(8, 4)
+  chlorophyll Decimal? @map("chlorophyll_a") @db.Decimal(8, 4)
+  phycocyanin Decimal? @db.Decimal(8, 4)
+
+  // ── Sentinel Hub: Soil / Bare land (BSI, NBSI)
+  bsi  Decimal? @db.Decimal(6, 4)
+  nbsi Decimal? @db.Decimal(6, 4)
+
+  // ── Sentinel Hub: Fire / Burn (NBR, NBR2, BAIS2)
+  nbr   Decimal? @db.Decimal(6, 4)
+  nbr2  Decimal? @db.Decimal(6, 4)
+  bais2 Decimal? @db.Decimal(6, 4)
+
+  // ── Sentinel Hub: Urban / Built-up (NDBI, IBI)
+  ndbi Decimal? @db.Decimal(6, 4)
+  ibi  Decimal? @db.Decimal(6, 4)
+
+  // ── Sentinel Hub: Snow / Ice (NDSI, NDGI)
+  ndsi Decimal? @db.Decimal(6, 4)
+  ndgi Decimal? @db.Decimal(6, 4)
+
+  // ── Sentinel Hub: Atmosphere (LST °C, cloud probability 0-100, ARVI)
+  lst              Decimal? @db.Decimal(6, 2)
+  cloudProbability Decimal? @map("cloud_probability") @db.Decimal(5, 2)
+  arvi             Decimal? @db.Decimal(6, 4)
+
+  // ── OpenWeather: Current weather conditions
   temperature        Decimal? @map("temperature_c") @db.Decimal(5, 2)
   humidity           Decimal? @map("humidity_pct") @db.Decimal(5, 2)
   windSpeed          Decimal? @map("wind_speed_kmh") @db.Decimal(6, 2)
+  windDirection      Decimal? @map("wind_direction_deg") @db.Decimal(5, 1)
   precipitation      Decimal? @map("precipitation_mm") @db.Decimal(6, 2)
+  pressure           Decimal? @map("pressure_hpa") @db.Decimal(7, 2)
+  cloudCover         Decimal? @map("cloud_cover_pct") @db.Decimal(5, 2)
+  visibility         Decimal? @map("visibility_m") @db.Decimal(8, 1)
   uvIndex            Decimal? @map("uv_index") @db.Decimal(4, 2)
   weatherCondition   String?  @map("weather_condition") @db.VarChar(100)
   weatherConditionAr String?  @map("weather_condition_ar") @db.VarChar(100)
 
+  // ── OpenWeather: Air pollution
+  aqi  Int?
+  co   Decimal? @db.Decimal(8, 2)
+  no   Decimal? @db.Decimal(8, 2)
+  no2  Decimal? @db.Decimal(8, 2)
+  o3   Decimal? @db.Decimal(8, 2)
+  so2  Decimal? @db.Decimal(8, 2)
+  nh3  Decimal? @db.Decimal(8, 2)
+  pm25 Decimal? @map("pm2_5") @db.Decimal(8, 2)
+  pm10 Decimal? @db.Decimal(8, 2)
+
+  // ── Solar irradiance (Open-Meteo)
+  ghiClearSky Decimal? @map("ghi_clear_sky_wm2") @db.Decimal(8, 2)
+  dniClearSky Decimal? @map("dni_clear_sky_wm2") @db.Decimal(8, 2)
+  dhiClearSky Decimal? @map("dhi_clear_sky_wm2") @db.Decimal(8, 2)
+  ghiCloudy   Decimal? @map("ghi_cloudy_wm2") @db.Decimal(8, 2)
+  dniCloudy   Decimal? @map("dni_cloudy_wm2") @db.Decimal(8, 2)
+  dhiCloudy   Decimal? @map("dhi_cloudy_wm2") @db.Decimal(8, 2)
+
+  // ── Metadata
   satelliteSource String? @map("satellite_source") @db.VarChar(50)
   weatherSource   String? @map("weather_source") @db.VarChar(50)
 

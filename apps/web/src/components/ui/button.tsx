@@ -34,15 +34,15 @@ export function Button({
   ...props
 }: ButtonProps) {
   const baseStyles =
-    'inline-flex items-center justify-center rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+    'inline-flex items-center justify-center rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-slate-900 disabled:opacity-50 disabled:cursor-not-allowed';
 
   const variants = {
     primary: 'bg-sahool-green-600 text-white hover:bg-sahool-green-700 focus:ring-sahool-green-500',
     secondary:
       'bg-sahool-brown-500 text-white hover:bg-sahool-brown-600 focus:ring-sahool-brown-400',
     outline:
-      'border-2 border-sahool-green-600 text-sahool-green-600 hover:bg-sahool-green-50 focus:ring-sahool-green-500',
-    ghost: 'text-gray-700 hover:bg-gray-100 focus:ring-gray-500',
+      'border-2 border-sahool-green-600 dark:border-green-500 text-sahool-green-600 dark:text-green-400 hover:bg-sahool-green-50 dark:hover:bg-green-950 focus:ring-sahool-green-500',
+    ghost: 'text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 focus:ring-gray-500 dark:focus:ring-slate-400',
     danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
   };
 

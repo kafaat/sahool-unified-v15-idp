@@ -113,7 +113,7 @@ services:
       RESERVE_POOL_SIZE: 10 # Increased reserve pool for maintenance
       MAX_CLIENT_CONN: 800 # Increased to match pgbouncer.ini
       # Timeouts - OPTIMIZED
-      CLIENT_IDLE_TIMEOUT: 900 # Added: 15 min (was 0/disabled)
+      CLIENT_IDLE_TIMEOUT: 0   # Disabled: transaction-pool mode must not kill idle client connections
       SERVER_IDLE_TIMEOUT: 600 # 10 min
       QUERY_TIMEOUT: 120
       QUERY_WAIT_TIMEOUT: 30
@@ -1404,6 +1404,11 @@ asyncio.run(main())
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      # Run Prisma migrations on startup (entrypoint uses DATABASE_URL_DIRECT to bypass PgBouncer)
+      - SKIP_DB_INIT=false
+      # Self-heal: if _prisma_migrations has records but the 'fields' table is missing
+      # (false-baselined state), the entrypoint clears records and re-runs all migrations
+      - MIGRATION_SENTINEL_TABLE=fields
     ports:
       - "127.0.0.1:3000:3000"
     depends_on:
@@ -1454,6 +1459,10 @@ asyncio.run(main())
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-https://sahool.com,https://app.sahool.com}
+      # Run Prisma migrations on startup (entrypoint uses DATABASE_URL_DIRECT to bypass PgBouncer)
+      - SKIP_DB_INIT=false
+      # Self-heal: clear stale _prisma_migrations rows if the 'products' table is missing
+      - MIGRATION_SENTINEL_TABLE=products
     ports:
       - "127.0.0.1:3010:3010"
     depends_on:
@@ -1505,6 +1514,10 @@ asyncio.run(main())
       - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:8080}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
+      # Run Prisma migrations on startup (entrypoint uses DATABASE_URL_DIRECT to bypass PgBouncer)
+      - SKIP_DB_INIT=false
+      # Self-heal: clear stale _prisma_migrations rows if the 'germplasm' table is missing
+      - MIGRATION_SENTINEL_TABLE=germplasm
     ports:
       - "127.0.0.1:3015:3015"
     depends_on:
@@ -1556,6 +1569,10 @@ asyncio.run(main())
       - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-https://sahool.com,https://app.sahool.com}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
+      # Run Prisma migrations on startup (entrypoint uses DATABASE_URL_DIRECT to bypass PgBouncer)
+      - SKIP_DB_INIT=false
+      # Self-heal: clear stale _prisma_migrations rows if the 'disaster_reports' table is missing
+      - MIGRATION_SENTINEL_TABLE=disaster_reports
     ports:
       - "127.0.0.1:3020:3020"
     depends_on:
@@ -1760,6 +1777,10 @@ asyncio.run(main())
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      # Run Prisma migrations on startup (entrypoint uses DATABASE_URL_DIRECT to bypass PgBouncer)
+      - SKIP_DB_INIT=false
+      # Self-heal: clear stale _prisma_migrations rows if the 'conversations' table is missing
+      - MIGRATION_SENTINEL_TABLE=conversations
     ports:
       - "127.0.0.1:8115:8115"
     depends_on:
@@ -1801,6 +1822,10 @@ asyncio.run(main())
       - PORT=8117
       - NODE_ENV=production
       - ENVIRONMENT=${ENVIRONMENT:-development}  # Set to 'production' in prod for CORS origins
+      # Run Prisma migrations on startup (entrypoint uses DATABASE_URL_DIRECT to bypass PgBouncer)
+      - SKIP_DB_INIT=false
+      # Self-heal: clear stale _prisma_migrations rows if the 'devices' table is missing
+      - MIGRATION_SENTINEL_TABLE=devices
       # sslmode=disable: PgBouncer TLS is disabled in dev (use docker-compose.tls.yml for TLS)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       # FIX: Direct connection for Prisma migrations (PgBouncer transaction mode breaks advisory locks)
@@ -1927,11 +1952,15 @@ asyncio.run(main())
       - NODE_ENV=production
       - ENVIRONMENT=${ENVIRONMENT:-development}  # Set to 'production' in prod for CORS origins
       - PORT=3025
+      # Run migrations on startup via the entrypoint (uses DATABASE_URL_DIRECT to bypass PgBouncer)
+      - SKIP_DB_INIT=false
+      # Self-heal: if 'users' table is absent despite migration records, clear and re-apply
+      - MIGRATION_SENTINEL_TABLE=users
       # sslmode=disable: PgBouncer TLS is disabled in dev (use docker-compose.tls.yml for TLS)
       # FIX: Added connection_limit=10, pool_timeout=20, connect_timeout=10 to prevent
       # Prisma pool exhaustion and handle PgBouncer idle connection drops
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true&connection_limit=10&pool_timeout=20&connect_timeout=10
-      # FIX: Direct connection for Prisma migrations (PgBouncer transaction mode breaks advisory locks)
+      # Direct connection for Prisma migrations (PgBouncer transaction mode breaks advisory locks)
       - DATABASE_URL_DIRECT=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
@@ -2003,6 +2032,10 @@ asyncio.run(main())
       - CSRF_SECRET=${PARTNER_AUTH_CSRF_SECRET:?PARTNER_AUTH_CSRF_SECRET is required}
       # OIDC issuer — baked into every id_token and the discovery doc
       - PARTNER_AUTH_ISSUER=${PARTNER_AUTH_ISSUER:-https://api.sahool.com}
+      # Run Prisma migrations on startup (entrypoint uses DATABASE_URL_DIRECT to bypass PgBouncer)
+      - SKIP_DB_INIT=false
+      # Self-heal: clear stale _prisma_migrations rows if the 'oauth_clients' table is missing
+      - MIGRATION_SENTINEL_TABLE=oauth_clients
       # Where /authorize redirects unauthenticated users
       - SAHOOL_LOGIN_URL=${SAHOOL_LOGIN_URL:-https://app.sahool.com/login}
       - SAHOOL_SIGNOUT_URL=${SAHOOL_SIGNOUT_URL:-https://app.sahool.com/logout}
@@ -2297,7 +2330,10 @@ asyncio.run(main())
 
   # Advisory Service - Unified Agricultural Advisory
   # Consolidates: agro-advisor, fertilizer-advisor
+  # DISABLED: Use `--profile ai` to enable
   advisory-service:
+    profiles:
+      - ai
     build:
       context: .
       dockerfile: apps/services/advisory-service/Dockerfile
@@ -2387,7 +2423,10 @@ asyncio.run(main())
 
   # Crop Intelligence Service - Unified Crop Analysis
   # Consolidates: crop-health, crop-health-ai, crop-growth-model
+  # DISABLED: Use `--profile ai` to enable
   crop-intelligence-service:
+    profiles:
+      - ai
     build:
       context: .
       dockerfile: apps/services/crop-intelligence-service/Dockerfile
@@ -2908,7 +2947,10 @@ asyncio.run(main())
       - sahool-network
 
   # AI Advisor Service
+  # DISABLED: Use `--profile ai` to enable
   ai-advisor:
+    profiles:
+      - ai
     build:
       context: .
       dockerfile: apps/services/ai-advisor/Dockerfile
@@ -3214,7 +3256,10 @@ asyncio.run(main())
   # Skills Service - AI model skill compression and memory management
   # خدمة المهارات - ضغط نماذج الذكاء الاصطناعي وإدارة الذاكرة
   # ─────────────────────────────────────────────────────────────────────────────
+  # DISABLED: Use `--profile ai` to enable
   skills-service:
+    profiles:
+      - ai
     build:
       context: .
       dockerfile: apps/services/skills-service/Dockerfile
@@ -3311,7 +3356,10 @@ asyncio.run(main())
   # AI Agents Service - خدمة الوكلاء الذكية
   # Autonomous AI agents for agricultural intelligence
   # ─────────────────────────────────────────────────────────────────────────────
+  # DISABLED: Use `--profile ai` to enable
   ai-agents-service:
+    profiles:
+      - ai
     build:
       context: .
       dockerfile: apps/services/ai-agents-service/Dockerfile
@@ -3571,7 +3619,10 @@ asyncio.run(main())
 
   # Agent Registry Service - سجل الوكلاء
   # Centralized registry for AI agents
+  # DISABLED: Use `--profile ai` to enable
   agent-registry:
+    profiles:
+      - ai
     build:
       context: .
       dockerfile: apps/services/agent-registry/Dockerfile
@@ -3616,7 +3667,10 @@ asyncio.run(main())
 
   # AI Agents Core Service - خدمة نواة الوكلاء الذكية
   # Core AI agent orchestration and management
+  # DISABLED: Use `--profile ai` to enable
   ai-agents-core:
+    profiles:
+      - ai
     build:
       context: .
       dockerfile: apps/services/ai-agents-core/Dockerfile
@@ -3665,7 +3719,10 @@ asyncio.run(main())
 
   # Code Fix Agent Service - وكيل إصلاح الكود
   # Automated code diagnostics and fixing agent
+  # DISABLED: Use `--profile ai` to enable
   code-fix-agent:
+    profiles:
+      - ai
     build:
       context: .
       dockerfile: apps/services/code-fix-agent/Dockerfile
@@ -3714,7 +3771,10 @@ asyncio.run(main())
 
   # Copilot API Service - واجهة برمجة المساعد الذكي
   # AI copilot API for developer assistance
+  # DISABLED: Use `--profile ai` to enable
   copilot-api:
+    profiles:
+      - ai
     build:
       context: .
       dockerfile: apps/services/copilot-api/Dockerfile
@@ -3772,7 +3832,10 @@ asyncio.run(main())
 
   # LLM Orchestrator Service - خدمة تنسيق نماذج اللغة الكبيرة
   # Multi-provider LLM orchestration and management
+  # DISABLED: Use `--profile ai` to enable
   llm-orchestrator-service:
+    profiles:
+      - ai
     build:
       context: .
       dockerfile: apps/services/llm-orchestrator-service/Dockerfile
@@ -3833,7 +3896,10 @@ asyncio.run(main())
   # Knowledge Graph Service - خدمة الرسم البياني المعرفي
   # Agricultural knowledge graph and semantic search
   # FIX: Changed port from 8165 to 8140 to avoid conflict with hydrology-service
+  # DISABLED: Use `--profile ai` to enable
   knowledge-graph:
+    profiles:
+      - ai
     build:
       context: .
       dockerfile: apps/services/knowledge-graph/Dockerfile
@@ -4084,7 +4150,10 @@ asyncio.run(main())
 
   # Pest Detection Service - خدمة اكتشاف الآفات
   # AI-powered pest detection and management with Middle East pest database
+  # DISABLED: Use `--profile ai` to enable
   pest-detection-service:
+    profiles:
+      - ai
     build:
       context: .
       dockerfile: apps/services/pest-detection-service/Dockerfile
@@ -4131,7 +4200,10 @@ asyncio.run(main())
 
   # Drone Service - خدمة الطائرات بدون طيار
   # Drone integration for aerial surveys and spraying
+  # DISABLED: Use `--profile drone` to enable
   drone-service:
+    profiles:
+      - drone
     build:
       context: .
       dockerfile: apps/services/drone-service/Dockerfile
@@ -4329,7 +4401,10 @@ asyncio.run(main())
 
   # YOLO26 Vision Service - خدمة الرؤية الحاسوبية
   # Real-time object detection using YOLO26m model with GPU acceleration
+  # DISABLED: Use `--profile ai` to enable
   yolo26-vision-service:
+    profiles:
+      - ai
     build:
       context: .
       dockerfile: apps/services/yolo26-vision-service/Dockerfile
@@ -4711,8 +4786,10 @@ asyncio.run(main())
 
   # AI Chat Assistant - LLM-powered conversational interface
   # مساعد الشات الذكي - واجهة محادثة مدعومة بالذكاء الاصطناعي
-  # ACTIVATED: Removed from optional profile (Phase 0 improvement plan)
+  # DISABLED: Use `--profile ai` to enable
   ai-chat-assistant:
+    profiles:
+      - ai
     build:
       context: .
       dockerfile: apps/services/ai-chat-assistant/Dockerfile
@@ -4848,8 +4925,10 @@ asyncio.run(main())
 
   # WhatsApp Bot Service - WhatsApp messaging integration
   # خدمة روبوت واتساب - تكامل رسائل واتساب
-  # ACTIVATED: Removed from optional profile (Phase 0 improvement plan)
+  # DISABLED: Use `--profile whatsapp` to enable
   whatsapp-bot-service:
+    profiles:
+      - whatsapp
     build:
       context: .
       dockerfile: apps/services/whatsapp-bot-service/Dockerfile

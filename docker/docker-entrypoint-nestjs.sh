@@ -6,7 +6,7 @@ set -e
 # Handles P3009/P3018 (failed migrations) by marking them as rolled back and retrying
 # Includes wait-for-db, self-healing sentinel check, and retry logic
 
-MAX_MIGRATION_ATTEMPTS=3
+MAX_MIGRATION_ATTEMPTS=8
 DB_WAIT_TIMEOUT=${DB_WAIT_TIMEOUT:-30}
 DB_WAIT_INTERVAL=2
 
@@ -120,6 +120,14 @@ handle_p3018() {
   fi
   echo "Marking migration as rolled back: $failed_migration"
   if ! $PRISMA_CLI migrate resolve --rolled-back "$failed_migration" >>/tmp/prisma_migrate.log 2>&1; then
+    # P3011 means the migration was never recorded in _prisma_migrations (the
+    # transaction that failed also rolled back the tracking row). This is safe
+    # to ignore — Prisma will re-apply the migration from scratch on the next
+    # `migrate deploy` call.
+    if grep -q 'P3011' /tmp/prisma_migrate.log; then
+      echo "Migration '$failed_migration' was never recorded (P3011 - transaction rollback). Continuing..."
+      return 0
+    fi
     echo 'ERROR: Failed to mark migration as rolled back.'
     cat /tmp/prisma_migrate.log
     return 1
@@ -155,6 +163,13 @@ handle_p3009() {
 # run_migrations: deploy with retry loop and error handling
 # ---------------------------------------------------------------------------
 run_migrations() {
+  # Use direct connection for migrations when available (PgBouncer transaction
+  # mode breaks advisory locks that Prisma migrate requires).
+  if [ -n "$DATABASE_URL_DIRECT" ]; then
+    echo "Using DATABASE_URL_DIRECT for migrations (bypasses PgBouncer)."
+    export DATABASE_URL="$DATABASE_URL_DIRECT"
+  fi
+
   attempt=1
   while [ "$attempt" -le "$MAX_MIGRATION_ATTEMPTS" ]; do
     echo "Migration attempt ${attempt}/${MAX_MIGRATION_ATTEMPTS}..."

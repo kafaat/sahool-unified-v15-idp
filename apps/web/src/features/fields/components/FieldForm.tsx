@@ -59,9 +59,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
     }
 
     const trimmedName = formData.name.trim();
-    if (!trimmedName) {
-      newErrors.name = 'Field name in English is required';
-    } else if (trimmedName.length < MIN_NAME_LENGTH) {
+    if (trimmedName && trimmedName.length < MIN_NAME_LENGTH) {
       newErrors.name = `Name too short (minimum ${MIN_NAME_LENGTH} characters)`;
     } else if (trimmedName.length > MAX_NAME_LENGTH) {
       newErrors.name = `Name too long (maximum ${MAX_NAME_LENGTH} characters)`;
@@ -76,10 +74,10 @@ export const FieldForm: React.FC<FieldFormProps> = ({
     setErrors(newErrors);
 
     // Switch to the tab that has the first error
-    if (newErrors.polygon && !newErrors.nameAr && !newErrors.name) {
-      setTab('boundary');
-    } else if ((newErrors.nameAr || newErrors.name) && !newErrors.polygon) {
+    if (newErrors.nameAr || newErrors.name) {
       setTab('info');
+    } else if (newErrors.polygon) {
+      setTab('boundary');
     }
 
     return Object.keys(newErrors).length === 0;
@@ -88,11 +86,10 @@ export const FieldForm: React.FC<FieldFormProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-    await onSubmit({
-      ...formData,
-      name: formData.name.trim(),
-      nameAr: formData.nameAr.trim(),
-    });
+    const nameAr = formData.nameAr.trim();
+    // Auto-fill English name from Arabic name if left empty
+    const name = formData.name.trim() || nameAr;
+    await onSubmit({ ...formData, name, nameAr });
   };
 
   const handleChange = <K extends keyof FieldFormData>(key: K, value: FieldFormData[K]) => {
@@ -171,10 +168,9 @@ export const FieldForm: React.FC<FieldFormProps> = ({
 
           {/* Name (English) */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Name (English) *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Name (English)</label>
             <input
               type="text"
-              required
               maxLength={MAX_NAME_LENGTH}
               value={formData.name}
               onChange={(e) => handleChange('name', e.target.value)}

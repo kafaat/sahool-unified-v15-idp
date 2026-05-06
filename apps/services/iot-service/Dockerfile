@@ -68,7 +68,8 @@ RUN npx prisma@5 generate && \
 
 # Build NestJS application using nest build directly (skip prebuild to avoid
 # re-running prisma generate which can resolve paths differently in Docker)
-RUN npx nest build
+# chmod required: npm cache mount can restore .bin/ symlinks without execute bits
+RUN chmod -R +x node_modules/.bin/ && npx nest build
 
 # ───────────────────────────────────────────
 # Stage 2: Production

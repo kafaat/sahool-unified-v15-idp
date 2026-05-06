@@ -153,9 +153,11 @@ export function getCSPDirectives(nonce?: string): CSPDirectives {
       // OpenStreetMap tiles
       'https://tile.openstreetmap.org',
       'https://*.tile.openstreetmap.org',
-      // Sentinel Hub satellite imagery
+      // Sentinel Hub / Copernicus CDSE satellite imagery (server-side proxy, kept for completeness)
       'https://sentinel-hub.com',
       'https://*.sentinel-hub.com',
+      'https://sh.dataspace.copernicus.eu',
+      'https://identity.dataspace.copernicus.eu',
       // SAHOOL CDN
       'https://*.sahool.ye',
       // Google Maps tiles and icons
@@ -198,6 +200,8 @@ export function getCSPDirectives(nonce?: string): CSPDirectives {
       'https://*.tile.openstreetmap.org',
       'https://sentinel-hub.com',
       'https://*.sentinel-hub.com',
+      'https://sh.dataspace.copernicus.eu',
+      'https://identity.dataspace.copernicus.eu',
       'https://*.sahool.ye',
       // ESRI satellite tiles (loaded via fetch by maplibre-gl in MapView)
       'https://server.arcgisonline.com',

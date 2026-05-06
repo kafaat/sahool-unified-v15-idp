@@ -71,7 +71,7 @@ RUN npx prisma@5 generate && \
 
 # Build the application using nest build directly (skip prebuild to avoid
 # re-running prisma generate which can resolve paths differently in Docker)
-RUN npx nest build
+RUN chmod -R +x node_modules/.bin/ && npx nest build
 
 # Production stage
 FROM node:${NODE_VERSION}-bookworm-slim AS production

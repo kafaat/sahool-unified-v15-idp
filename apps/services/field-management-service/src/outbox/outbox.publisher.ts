@@ -46,7 +46,23 @@ export class OutboxPublisher implements OnModuleInit, OnModuleDestroy {
       return;
     }
     this.timer = setInterval(
-      () => this.tick().catch((e) => this.logger.error(`Tick error: ${e}`)),
+      () => this.tick().catch((e) => {
+        const msg = e instanceof Error ? e.message : String(e);
+        // PgBouncer transaction-pool mode kills idle client connections.
+        // Prisma auto-reconnects on the next tick — treat as transient warn.
+        if (
+          msg.includes('Server has closed the connection') ||
+          msg.includes('client_idle_timeout') ||
+          msg.includes("Can't reach database server") ||
+          (e as { code?: string })?.code === 'P1017'
+        ) {
+          this.logger.warn(
+            `OutboxPublisher: transient DB connection drop (PgBouncer idle timeout) — will reconnect on next tick`,
+          );
+        } else {
+          this.logger.error(`Tick error: ${e}`);
+        }
+      }),
       POLL_INTERVAL_MS,
     );
     this.logger.log(

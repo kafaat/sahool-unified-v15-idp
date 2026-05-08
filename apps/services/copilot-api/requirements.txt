@@ -31,7 +31,7 @@ PyJWT[crypto]>=2.8.0,<3.0.0
 passlib[bcrypt]>=1.7.4
 # Utilities
 python-dotenv>=1.0.0
-python-multipart>=0.0.6
+python-multipart>=0.0.27
 # Testing (dev)
 pytest>=7.4.0
 pytest-asyncio==1.3.0

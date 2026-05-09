@@ -36,9 +36,9 @@ import type { FieldFormData } from '@/features/fields/types';
 import { logger } from '@/lib/logger';
 import { useAuth } from '@/stores/auth.store';
 
-// Dynamic import — no SSR for Google Maps
+// Dynamic import — no SSR for Leaflet
 const GoogleMapsFieldDrawer = dynamic(
-  () => import('@/components/maps/GoogleMapsFieldDrawer'),
+  () => import('@/components/maps/LeafletFieldDrawer'),
   {
     ssr: false,
     loading: () => (

@@ -111,7 +111,8 @@ export const cropProtectionApi = {
     const endpoint = `${ADVISORY_ENDPOINTS.SPRAY_WINDOWS}${params}`;
     return safeFetch(endpoint, async () => {
       const response = await api.get(endpoint);
-      return response.data.data ?? response.data;
+      const data = response.data?.data ?? response.data;
+      return Array.isArray(data) ? data : [];
     });
   },
 };

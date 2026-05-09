@@ -154,22 +154,184 @@ const SWIR = rgbScript('B12', 'B8A', 'B04');
  */
 const FALSE_COLOR_URBAN = rgbScript('B12', 'B11', 'B04');
 
-/**
- * Red-Edge False Color: B8A(R) B05(G) B03(B)
- * Uses the red-edge bands (705–783 nm) that are highly sensitive to
- * chlorophyll content, canopy structure, and early stress signals.
- * Best for chlorophyll, pigment, and red-edge position indices.
- */
-const RED_EDGE_FC = rgbScript('B8A', 'B05', 'B03');
+// ---------------------------------------------------------------------------
+// Computed index evalscript factory
+// Generates evalscript strings that compute the actual index formula and
+// apply a colour ramp via colorBlend() — standard CDSE/SentinelHub JS utility.
+// colorBlend(value, domain, colorStops) where stops are [R,G,B,A] in 0–1.
+// ---------------------------------------------------------------------------
+
+function mkIndexScript(
+  bands: string[],
+  formula: string,
+  domain: number[],
+  stops: [number, number, number, number][],
+): string {
+  const bl = bands.map((b) => `"${b}"`).join(',');
+  return (
+    `//VERSION=3\n` +
+    `function setup(){return{input:[{bands:[${bl}]}],output:{bands:4}}}\n` +
+    `function evaluatePixel(s){var v=${formula};return colorBlend(v,${JSON.stringify(domain)},${JSON.stringify(stops)});}`
+  );
+}
+
+// ── Shared colour stop arrays ────────────────────────────────────────────────
+
+/** Standard vegetation ramp: dark-red → orange → yellow → light-green → dark-green
+ *  Matches the classic NDVI palette used in the reference mobile app (images 11–13). */
+const VEG_DOM  = [-0.5, 0, 0.1, 0.25, 0.45, 0.65, 1.0];
+const VEG_STOPS: [number,number,number,number][] = [
+  [0.40,0.00,0.00,1],   // -0.5  deep maroon (water/urban)
+  [0.90,0.00,0.00,1],   //  0.0  bright blood red (bare/stressed)
+  [0.95,0.15,0.05,1],   //  0.1  deep red-orange (still clearly "problem")
+  [0.93,0.82,0.08,1],   //  0.25 yellow (sparse/transitional vegetation)
+  [0.38,0.80,0.18,1],   //  0.45 yellow-green (moderate vegetation)
+  [0.08,0.52,0.08,1],   //  0.65 medium green (good vegetation)
+  [0.02,0.25,0.02,1],   //  1.0  dark forest green
+];
+
+/** Moisture ramp: brown/orange → pale → dark-blue
+ *  Matches NDMI reference image (image 18). */
+const MOIST_DOM  = [-1, -0.5, -0.2, 0, 0.2, 0.5, 1];
+const MOIST_STOPS: [number,number,number,number][] = [
+  [0.55,0.36,0.15,1],[0.80,0.60,0.35,1],[0.95,0.85,0.65,1],
+  [0.90,0.95,0.99,1],[0.60,0.80,0.95,1],[0.20,0.55,0.90,1],[0.00,0.25,0.65,1],
+];
+
+/** Diverging pink → white → blue for NDWI/water indices
+ *  Matches NDWI reference image (image 19). */
+const NDWI_DOM  = [-1, -0.3, 0, 0.3, 1];
+const NDWI_STOPS: [number,number,number,number][] = [
+  [0.85,0.10,0.55,1],[0.95,0.60,0.80,1],[0.98,0.98,0.98,1],
+  [0.40,0.70,0.95,1],[0.05,0.30,0.75,1],
+];
+
+// ── Vegetation indices ────────────────────────────────────────────────────────
+const NDVI_COMPUTED   = mkIndexScript(['B08','B04'],
+  '(s.B08-s.B04)/(s.B08+s.B04+1e-9)', VEG_DOM, VEG_STOPS);
+const EVI_COMPUTED    = mkIndexScript(['B08','B04','B02'],
+  '2.5*(s.B08-s.B04)/(s.B08+6*s.B04-7.5*s.B02+1+1e-9)', VEG_DOM, VEG_STOPS);
+const EVI2_COMPUTED   = mkIndexScript(['B08','B04'],
+  '2.5*(s.B08-s.B04)/(s.B08+2.4*s.B04+1+1e-9)', VEG_DOM, VEG_STOPS);
+const GNDVI_COMPUTED  = mkIndexScript(['B08','B03'],
+  '(s.B08-s.B03)/(s.B08+s.B03+1e-9)', VEG_DOM, VEG_STOPS);
+const KNDVI_COMPUTED  = mkIndexScript(['B08','B04'],
+  'Math.tanh(Math.pow((s.B08-s.B04)/(s.B08+s.B04+1e-9),2))', VEG_DOM, VEG_STOPS);
+const SAVI_COMPUTED   = mkIndexScript(['B08','B04'],
+  '1.5*(s.B08-s.B04)/(s.B08+s.B04+0.5+1e-9)', VEG_DOM, VEG_STOPS);
+const MSAVI_COMPUTED  = mkIndexScript(['B08','B04'],
+  '(2*s.B08+1-Math.sqrt(Math.max(0,(2*s.B08+1)*(2*s.B08+1)-8*(s.B08-s.B04))))/2',
+  VEG_DOM, VEG_STOPS);
+const OSAVI_COMPUTED  = mkIndexScript(['B08','B04'],
+  '(s.B08-s.B04)/(s.B08+s.B04+0.16+1e-9)', VEG_DOM, VEG_STOPS);
+const ARVI_COMPUTED   = mkIndexScript(['B08','B04','B02'],
+  '(s.B08-(2*s.B04-s.B02))/(s.B08+(2*s.B04-s.B02)+1e-9)', VEG_DOM, VEG_STOPS);
+const NDRE_COMPUTED   = mkIndexScript(['B8A','B05'],
+  '(s.B8A-s.B05)/(s.B8A+s.B05+1e-9)', VEG_DOM, VEG_STOPS);
+const LAI_COMPUTED    = mkIndexScript(['B08','B04'],
+  'Math.max(0,Math.min(1,(3.618*(s.B08-s.B04)/(s.B08+s.B04+1e-9)-0.118)/6))',
+  [0,0.1,0.2,0.4,0.6,0.8,1], VEG_STOPS);
+const FAPAR_COMPUTED  = mkIndexScript(['B08','B04'],
+  'Math.max(0,Math.min(1,0.95*(s.B08-s.B04)/(s.B08+s.B04+1e-9)+0.026))',
+  [0,0.1,0.2,0.4,0.6,0.8,1], VEG_STOPS);
+const FCOVER_COMPUTED = mkIndexScript(['B08','B04'],
+  'Math.max(0,Math.min(1,1.0457*(s.B08-s.B04)/(s.B08+s.B04+1e-9)-0.1))',
+  [0,0.1,0.2,0.4,0.6,0.8,1], VEG_STOPS);
+const NDYI_COMPUTED   = mkIndexScript(['B11','B08'],
+  '(s.B11-s.B08)/(s.B11+s.B08+1e-9)',
+  [-0.5,-0.2,0,0.2,0.5],
+  [[0.10,0.55,0.10,1],[0.60,0.85,0.30,1],[0.95,0.95,0.20,1],
+   [0.95,0.65,0.10,1],[0.70,0.10,0.05,1]]);
+const PSRI_COMPUTED   = mkIndexScript(['B04','B02','B06'],
+  '(s.B04-s.B02)/(s.B06+1e-9)',
+  [-0.3,0,0.1,0.2,0.5],
+  [[0.15,0.60,0.15,1],[0.85,0.90,0.25,1],[0.95,0.75,0.15,1],
+   [0.85,0.40,0.10,1],[0.55,0.10,0.05,1]]);
+
+// ── Red-edge chlorophyll index (RECI) ─────────────────────────────────────────
+// RECI = B07/B05 − 1  (range 0–12; high = high chlorophyll)
+// Matches reference images 16–17: vivid red → orange → yellow → dark green.
+const RECI_COMPUTED = mkIndexScript(['B07','B05'],
+  'Math.max(0,s.B07/(s.B05+1e-9)-1)',
+  [0,1,2,4,8,12],
+  [[0.75,0.05,0.05,1],[0.90,0.50,0.05,1],[0.90,0.85,0.20,1],
+   [0.40,0.75,0.15,1],[0.10,0.55,0.10,1],[0.00,0.35,0.05,1]]);
+
+// ── Water / Moisture indices ──────────────────────────────────────────────────
+const NDWI_COMPUTED        = mkIndexScript(['B03','B08'],
+  '(s.B03-s.B08)/(s.B03+s.B08+1e-9)', NDWI_DOM, NDWI_STOPS);
+const MNDWI_COMPUTED       = mkIndexScript(['B03','B11'],
+  '(s.B03-s.B11)/(s.B03+s.B11+1e-9)', NDWI_DOM, NDWI_STOPS);
+const NDMI_COMPUTED        = mkIndexScript(['B08','B11'],
+  '(s.B08-s.B11)/(s.B08+s.B11+1e-9)', MOIST_DOM, MOIST_STOPS);
+const NDMI_STRESS_COMPUTED = mkIndexScript(['B08','B11'],
+  '-(s.B08-s.B11)/(s.B08+s.B11+1e-9)',
+  [-1,-0.5,0,0.5,1],
+  [[0.10,0.55,0.10,1],[0.70,0.90,0.40,1],[0.98,0.95,0.65,1],
+   [0.95,0.50,0.15,1],[0.70,0.05,0.05,1]]);
+const MSI_COMPUTED         = mkIndexScript(['B11','B08'],
+  's.B11/(s.B08+1e-9)',
+  [0,0.4,0.8,1.2,2.0,3.0],
+  [[0.00,0.40,0.80,1],[0.40,0.75,0.95,1],[0.90,0.95,0.85,1],
+   [0.95,0.85,0.45,1],[0.90,0.45,0.10,1],[0.60,0.05,0.05,1]]);
+const NDII_COMPUTED        = mkIndexScript(['B08','B11'],
+  '(s.B08-s.B11)/(s.B08+s.B11+1e-9)', MOIST_DOM, MOIST_STOPS);
+
+// ── Soil / Urban indices ──────────────────────────────────────────────────────
+const BSI_COMPUTED  = mkIndexScript(['B11','B04','B08','B02'],
+  '((s.B11+s.B04)-(s.B08+s.B02))/((s.B11+s.B04)+(s.B08+s.B02)+1e-9)',
+  [-0.5,-0.2,0,0.1,0.3,0.5],
+  [[0.10,0.45,0.10,1],[0.55,0.80,0.35,1],[0.90,0.95,0.65,1],
+   [0.95,0.85,0.50,1],[0.80,0.55,0.25,1],[0.60,0.30,0.10,1]]);
+const NDBI_COMPUTED = mkIndexScript(['B11','B08'],
+  '(s.B11-s.B08)/(s.B11+s.B08+1e-9)',
+  [-0.5,-0.2,0,0.2,0.4,0.6],
+  [[0.10,0.45,0.10,1],[0.70,0.90,0.55,1],[0.95,0.95,0.75,1],
+   [0.85,0.75,0.65,1],[0.65,0.50,0.50,1],[0.45,0.35,0.55,1]]);
+
+// ── Fire / Burn indices ───────────────────────────────────────────────────────
+const NBR_COMPUTED   = mkIndexScript(['B08','B12'],
+  '(s.B08-s.B12)/(s.B08+s.B12+1e-9)', VEG_DOM, VEG_STOPS);
+const NBR2_COMPUTED  = mkIndexScript(['B8A','B12'],
+  '(s.B8A-s.B12)/(s.B8A+s.B12+1e-9)', VEG_DOM, VEG_STOPS);
+const BAIS2_COMPUTED = mkIndexScript(['B06','B07','B8A','B04','B12'],
+  '(1-Math.sqrt((s.B06*s.B07*s.B8A)/(s.B04+1e-9)))*((s.B12-s.B8A)/(Math.sqrt(s.B12+s.B8A+1e-9))+1)',
+  [0,0.5,1.0,1.5,2.0,3.0],
+  [[0.10,0.45,0.10,1],[0.65,0.90,0.40,1],[0.95,0.95,0.65,1],
+   [0.95,0.70,0.20,1],[0.85,0.20,0.05,1],[0.50,0.05,0.05,1]]);
+const NDSI_COMPUTED  = mkIndexScript(['B03','B11'],
+  '(s.B03-s.B11)/(s.B03+s.B11+1e-9)',
+  [-0.5,-0.2,0,0.3,0.6,1.0],
+  [[0.40,0.30,0.20,1],[0.65,0.65,0.55,1],[0.80,0.85,0.90,1],
+   [0.90,0.95,0.98,1],[0.95,0.98,1.00,1],[1.00,1.00,1.00,1]]);
+
+// ── Chlorophyll / Pigment indices ─────────────────────────────────────────────
+const NDCI_COMPUTED    = mkIndexScript(['B07','B05'],
+  '(s.B07-s.B05)/(s.B07+s.B05+1e-9)', VEG_DOM, VEG_STOPS);
+const MCARI_COMPUTED   = mkIndexScript(['B05','B04','B03'],
+  '((s.B05-s.B04)-0.2*(s.B05-s.B03))*(s.B05/(s.B04+1e-9))',
+  [0,0.05,0.1,0.2,0.4,0.6],
+  [[0.80,0.10,0.10,1],[0.90,0.55,0.15,1],[0.90,0.85,0.20,1],
+   [0.45,0.80,0.20,1],[0.10,0.55,0.10,1],[0.00,0.35,0.05,1]]);
+const ARI_COMPUTED     = mkIndexScript(['B03','B05'],
+  'Math.max(0,Math.min(1,(1/(s.B03+1e-9)-1/(s.B05+1e-9))/20))',
+  [0,0.2,0.4,0.6,0.8,1],
+  [[0.10,0.55,0.10,1],[0.55,0.80,0.30,1],[0.90,0.95,0.20,1],
+   [0.95,0.65,0.15,1],[0.85,0.25,0.25,1],[0.60,0.05,0.15,1]]);
+const SIPI1_COMPUTED   = mkIndexScript(['B08','B02','B04'],
+  '(s.B08-s.B02)/(s.B08+s.B04+1e-9)', VEG_DOM, VEG_STOPS);
+const PSSRB1_COMPUTED  = mkIndexScript(['B08','B05'],
+  'Math.max(0,Math.min(1,s.B08/(s.B05+1e-9)/10))',
+  [0,0.1,0.2,0.4,0.6,0.8,1], VEG_STOPS);
 
 // ---------------------------------------------------------------------------
 // Index → evalscript routing
-// Each entry maps a layer/index ID to the most informative real-imagery composite.
-// No synthetic colour ramps — every response is actual Sentinel-2 reflectance data.
+// Vegetation/water/fire/chlorophyll indices now compute the actual formula
+// and apply a colour ramp (colorBlend). RGB composites remain unchanged.
 // ---------------------------------------------------------------------------
 
-export const EVALSCRIPTS: Record<string, string> = {
-  // ── RGB composites — direct band imagery ───────────────────────────────────
+const EVALSCRIPTS: Record<string, string> = {
+  // ── RGB composites — direct band imagery (unchanged) ────────────────────────
   TRUE_COLOR,
   TRUE_COLOR_L1C,
   TRUE_COLOR_L2A,
@@ -177,86 +339,66 @@ export const EVALSCRIPTS: Record<string, string> = {
   SWIR,
   FALSE_COLOR_URBAN,
 
-  // ── Vegetation indices → False Color IR ────────────────────────────────────
-  // NIR reflectance is the primary driver for all these indices.
-  // Healthy dense vegetation appears vivid red/magenta; stressed → pale; bare → dark.
-  NDVI:   FALSE_COLOR_IR,
-  EVI:    FALSE_COLOR_IR,
-  EVI2:   FALSE_COLOR_IR,
-  GNDVI:  FALSE_COLOR_IR,
-  KNDVI:  FALSE_COLOR_IR,
-  SAVI:   FALSE_COLOR_IR,
-  MSAVI:  FALSE_COLOR_IR,
-  OSAVI:  FALSE_COLOR_IR,
-  ARVI:   FALSE_COLOR_IR,
-  LAI:    FALSE_COLOR_IR,
-  FAPAR:  FALSE_COLOR_IR,
-  FCOVER: FALSE_COLOR_IR,
+  // ── Vegetation indices — computed colourmap ─────────────────────────────────
+  NDVI:              NDVI_COMPUTED,
+  EVI:               EVI_COMPUTED,
+  EVI2:              EVI2_COMPUTED,
+  GNDVI:             GNDVI_COMPUTED,
+  KNDVI:             KNDVI_COMPUTED,
+  SAVI:              SAVI_COMPUTED,
+  MSAVI:             MSAVI_COMPUTED,
+  OSAVI:             OSAVI_COMPUTED,
+  ARVI:              ARVI_COMPUTED,
+  NDRE:              NDRE_COMPUTED,
+  RECI:              RECI_COMPUTED,
+  LAI:               LAI_COMPUTED,
+  FAPAR:             FAPAR_COMPUTED,
+  FCOVER:            FCOVER_COMPUTED,
+  NDYI:              NDYI_COMPUTED,
+  PSRI:              PSRI_COMPUTED,
+  REDEDGE_POSITION:  NDRE_COMPUTED,
 
-  // Red-edge indices → Red-Edge False Color (more sensitive to early stress)
-  NDRE:              RED_EDGE_FC,
-  REDEDGE_POSITION:  RED_EDGE_FC,
+  // ── Water / Moisture indices — computed colourmap ───────────────────────────
+  NDWI:        NDWI_COMPUTED,
+  MNDWI:       MNDWI_COMPUTED,
+  NDMI:        NDMI_COMPUTED,
+  NDMI_STRESS: NDMI_STRESS_COMPUTED,
+  MSI:         MSI_COMPUTED,
+  NDII:        NDII_COMPUTED,
 
-  // Yellowing / senescence — visible naturally in True Color
-  NDYI: TRUE_COLOR,
-  PSRI: TRUE_COLOR,
+  // ── Soil / Urban indices — computed ────────────────────────────────────────
+  BSI:  BSI_COMPUTED,
+  NBSI: BSI_COMPUTED,
+  NDBI: NDBI_COMPUTED,
+  IBI:  NDBI_COMPUTED,
 
-  // ── Water / Moisture indices → SWIR ────────────────────────────────────────
-  // Water absorbs strongly in SWIR; wet features appear dark vs. dry bright.
-  NDWI:        SWIR,
-  MNDWI:       SWIR,
-  NDMI:        SWIR,
-  NDMI_STRESS: SWIR,
-  MSI:         SWIR,
-  NDII:        SWIR,
+  // ── Fire / Burn / Snow indices — computed ──────────────────────────────────
+  NBR:   NBR_COMPUTED,
+  NBR2:  NBR2_COMPUTED,
+  BAIS2: BAIS2_COMPUTED,
+  NDSI:  NDSI_COMPUTED,
+  NDGI:  NDSI_COMPUTED,
 
-  // ── Soil / Bare-soil indices → False Color Urban ────────────────────────────
-  // B11/B12 differentiate soil moisture and mineral composition well.
-  BSI:  FALSE_COLOR_URBAN,
-  NBSI: FALSE_COLOR_URBAN,
-
-  // ── Snow / Ice indices → True Color ────────────────────────────────────────
-  // Snow appears naturally white; ice/snow boundaries clearly visible.
-  NDSI: TRUE_COLOR,
-  NDGI: TRUE_COLOR,
-
-  // ── Fire / Burn indices → SWIR ─────────────────────────────────────────────
-  // Burn scars appear red/pink in B12; active fires glow orange.
-  NBR:   SWIR,
-  NBR2:  SWIR,
-  BAIS2: SWIR,
-
-  // ── Urban indices → False Color Urban ──────────────────────────────────────
-  NDBI: FALSE_COLOR_URBAN,
-  IBI:  FALSE_COLOR_URBAN,
-
-  // ── Chlorophyll / Pigment indices → Red-Edge False Color ───────────────────
-  // Red-edge bands (B05 705nm, B8A 783nm) are chlorophyll-diagnostic wavelengths.
-  NDCI:             RED_EDGE_FC,
-  CHL_REDEDGE:      RED_EDGE_FC,
-  MCARI:            RED_EDGE_FC,
-  ARI:              RED_EDGE_FC,
-  MARI:             RED_EDGE_FC,
-  SIPI1:            FALSE_COLOR_IR,
-  PSSRB1:           FALSE_COLOR_IR,
+  // ── Chlorophyll / Pigment indices — computed ────────────────────────────────
+  NDCI:             NDCI_COMPUTED,
+  CHL_REDEDGE:      RECI_COMPUTED,
+  MCARI:            MCARI_COMPUTED,
+  ARI:              ARI_COMPUTED,
+  MARI:             ARI_COMPUTED,
+  SIPI1:            SIPI1_COMPUTED,
+  PSSRB1:           PSSRB1_COMPUTED,
 };
 
 // ---------------------------------------------------------------------------
-// Human-readable label for each composite (shown in the status badge)
+// Human-readable label shown in the status badge and response headers
 // ---------------------------------------------------------------------------
-const COMPOSITE_LABEL: Record<string, string> = {
-  [TRUE_COLOR]:         'True Color',
-  [TRUE_COLOR_L1C]:     'True Color L1C',
-  [TRUE_COLOR_L2A]:     'True Color L2A',
-  [FALSE_COLOR_IR]:     'False Color IR',
-  [SWIR]:               'SWIR',
-  [FALSE_COLOR_URBAN]:  'False Color Urban',
-  [RED_EDGE_FC]:        'Red-Edge False Color',
+const BASE_COMPOSITE_LABELS: Record<string, string> = {
+  TRUE_COLOR: 'True Color', TRUE_COLOR_L1C: 'True Color L1C', TRUE_COLOR_L2A: 'True Color L2A',
+  FALSE_COLOR: 'False Color IR', SWIR: 'SWIR', FALSE_COLOR_URBAN: 'False Color Urban',
 };
 
-export function getCompositeLabel(index: string): string {
-  const script = EVALSCRIPTS[index];
-  return script ? (COMPOSITE_LABEL[script] ?? 'Sentinel-2') : 'Sentinel-2';
+function getCompositeLabel(index: string): string {
+  return BASE_COMPOSITE_LABELS[index.toUpperCase()] ?? index.toUpperCase();
 }
 
 // ---------------------------------------------------------------------------
@@ -332,11 +474,10 @@ export async function GET(req: NextRequest) {
     mosaickingOrder = 'leastCC';
   }
 
-  // Cache key — includes all request dimensions.
-  // Use composite label (not index) so NDVI and EVI share the same cached False Color IR tile.
+  // Cache key — unique per index (computed scripts differ per formula).
   const compositeKey = getCompositeLabel(index);
   const cacheKey = [
-    compositeKey, west, south, east, north,
+    index, west, south, east, north,
     fromDate.toISOString().split('T')[0],
     toDate.toISOString().split('T')[0],
     `${width}x${height}`,

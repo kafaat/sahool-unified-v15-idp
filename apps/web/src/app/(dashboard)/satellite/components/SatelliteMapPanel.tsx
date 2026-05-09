@@ -67,7 +67,9 @@ export function SatelliteMapPanel({
       const ring = selectedField.polygon.coordinates[0];
       if (ring && ring.length > 0) {
         let n = -Infinity, s = Infinity, e = -Infinity, w = Infinity;
-        ring.forEach(([lng, lat]) => {
+        ring.forEach((coord) => {
+          const lng = coord[0] as number;
+          const lat = coord[1] as number;
           if (lat > n) n = lat; if (lat < s) s = lat;
           if (lng > e) e = lng; if (lng < w) w = lng;
         });

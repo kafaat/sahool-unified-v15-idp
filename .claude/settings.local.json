@@ -143,7 +143,17 @@
       "Bash(xargs -I {} bash -c 'echo \"---\" && dirname {}')",
       "Bash([ -f \"$dir/package.json\" ])",
       "Bash([ -f \"$dir/pyproject.toml\" ])",
-      "Bash(npx --yes @mermaid-js/mermaid-cli --version)"
+      "Bash(npx --yes @mermaid-js/mermaid-cli --version)",
+      "Bash(sed -n '300,320p' D:/projects/v91/sahoo-adel-full/packages/shared-types/src/contracts/api-endpoints.ts)",
+      "Bash(sed -n '724,740p' D:/projects/v91/sahoo-adel-full/packages/shared-types/src/contracts/api-endpoints.ts)",
+      "Bash(sed -n '1184,1200p' D:/projects/v91/sahoo-adel-full/packages/shared-types/src/contracts/api-endpoints.ts)",
+      "Bash(sort docker:*)",
+      "Bash(sort comm:*)",
+      "Bash(docker start:*)",
+      "Bash(docker builder prune:*)",
+      "Bash(docker inspect:*)",
+      "Bash(node:*)",
+      "Bash(docker update:*)"
     ]
   }
 }

@@ -83,19 +83,31 @@ handle_p3005() {
 verify_migration_state() {
   [ -z "$MIGRATION_SENTINEL_TABLE" ] && return 0
 
+  # Use direct connection (bypasses PgBouncer) so the sentinel check is reliable
+  # even if PgBouncer is slow to accept connections at startup.
+  local sentinel_url="${DATABASE_URL_DIRECT:-$DATABASE_URL}"
+
   # Try to SELECT from the sentinel table. If it fails, the table does not exist.
   if printf 'SELECT 1 FROM "%s" LIMIT 1;' "$MIGRATION_SENTINEL_TABLE" | \
-       $PRISMA_CLI db execute --stdin >/dev/null 2>&1; then
+       DATABASE_URL="$sentinel_url" $PRISMA_CLI db execute --stdin >/dev/null 2>&1; then
     return 0  # table exists — migrations are correct
   fi
 
-  # Sentinel table missing. Check if _prisma_migrations has (false) records.
+  # Before assuming the sentinel table is missing, verify the DB is reachable.
+  # A connection error must not trigger a migration-table wipe.
+  if ! printf 'SELECT 1;' | DATABASE_URL="$sentinel_url" $PRISMA_CLI db execute --stdin >/dev/null 2>&1; then
+    echo "WARNING: Cannot reach DB during sentinel check. Skipping migration state verification."
+    return 0
+  fi
+
+  # Sentinel table is confirmed missing (DB is reachable). Check if _prisma_migrations
+  # has (false) records — i.e. someone baselined migrations without ever running the SQL.
   if printf 'SELECT 1 FROM "_prisma_migrations" LIMIT 1;' | \
-       $PRISMA_CLI db execute --stdin >/dev/null 2>&1; then
+       DATABASE_URL="$sentinel_url" $PRISMA_CLI db execute --stdin >/dev/null 2>&1; then
     echo "WARNING: sentinel table '${MIGRATION_SENTINEL_TABLE}' is absent but _prisma_migrations has records."
     echo "Clearing false migration records so Prisma will re-apply all SQL..."
     printf 'DELETE FROM "_prisma_migrations";' | \
-      $PRISMA_CLI db execute --stdin >>/tmp/prisma_migrate.log 2>&1 || true
+      DATABASE_URL="$sentinel_url" $PRISMA_CLI db execute --stdin >>/tmp/prisma_migrate.log 2>&1 || true
     echo 'Migration records cleared.'
   fi
 }
@@ -151,12 +163,64 @@ handle_p3009() {
   fi
   echo "Marking migration as rolled back: $failed_migration"
   if ! $PRISMA_CLI migrate resolve --rolled-back "$failed_migration" >>/tmp/prisma_migrate.log 2>&1; then
+    # P3011: migration was never applied — the record exists but has no corresponding
+    # migration file (ghost record). Delete it directly so deploys can proceed.
+    if grep -q 'P3011' /tmp/prisma_migrate.log; then
+      echo "Migration '$failed_migration' has no migration file (P3011). Deleting ghost record..."
+      printf 'DELETE FROM "_prisma_migrations" WHERE migration_name = '"'"'%s'"'"' AND finished_at IS NULL AND rolled_back_at IS NULL;' "$failed_migration" | \
+        $PRISMA_CLI db execute --stdin >>/tmp/prisma_migrate.log 2>&1 || true
+      echo "Ghost record removed. Continuing..."
+      return 0
+    fi
+    # P3012: migration is already applied — not actually failed, safe to continue.
+    if grep -q 'P3012' /tmp/prisma_migrate.log; then
+      echo "Migration '$failed_migration' is already applied (P3012). Continuing..."
+      return 0
+    fi
     echo 'ERROR: Failed to mark migration as rolled back.'
     cat /tmp/prisma_migrate.log
     return 1
   fi
   echo "Migration '$failed_migration' marked as rolled back."
   return 0
+}
+
+# ---------------------------------------------------------------------------
+# is_own_migration: return 0 if the migration name belongs to this service
+# (i.e. prisma/migrations/<name>/migration.sql exists), else return 1.
+# ---------------------------------------------------------------------------
+is_own_migration() {
+  [ -f "prisma/migrations/${1}/migration.sql" ]
+}
+
+# ---------------------------------------------------------------------------
+# purge_foreign_failed_migrations: remove failed records from
+# _prisma_migrations that have NO corresponding local migration file.
+# These records are written by OTHER NestJS services that share this
+# PostgreSQL database.  When multiple services share one
+# _prisma_migrations table a failing sibling service creates "failed"
+# rows that cause this service's `migrate deploy` to report P3009 and
+# enter an infinite restart loop.
+# ---------------------------------------------------------------------------
+purge_foreign_failed_migrations() {
+  # Collect names of failed records that have NO local file
+  failed_names=$(printf 'SELECT migration_name FROM "_prisma_migrations" WHERE finished_at IS NULL AND rolled_back_at IS NULL;' | \
+    $PRISMA_CLI db execute --stdin 2>/dev/null | \
+    grep -v 'migration_name\|^\s*$\|^---\|rows\|SELECT' || true)
+
+  if [ -z "$failed_names" ]; then
+    return 0
+  fi
+
+  for name in $failed_names; do
+    name=$(echo "$name" | tr -d '[:space:]')
+    [ -z "$name" ] && continue
+    if ! is_own_migration "$name"; then
+      echo "Removing foreign failed migration record: '$name' (no local file — belongs to another service)"
+      printf 'DELETE FROM "_prisma_migrations" WHERE migration_name = '"'"'%s'"'"' AND finished_at IS NULL AND rolled_back_at IS NULL;' "$name" | \
+        $PRISMA_CLI db execute --stdin >>/tmp/prisma_migrate.log 2>&1 || true
+    fi
+  done
 }
 
 # ---------------------------------------------------------------------------
@@ -169,6 +233,11 @@ run_migrations() {
     echo "Using DATABASE_URL_DIRECT for migrations (bypasses PgBouncer)."
     export DATABASE_URL="$DATABASE_URL_DIRECT"
   fi
+
+  # Remove failed records from sibling services before attempting deploy.
+  # Multiple NestJS services can share one _prisma_migrations table; a
+  # sibling's failed migration causes spurious P3009 errors here.
+  purge_foreign_failed_migrations
 
   attempt=1
   while [ "$attempt" -le "$MAX_MIGRATION_ATTEMPTS" ]; do
@@ -188,6 +257,15 @@ run_migrations() {
 
     # ---- P3009: failed migration ----
     if grep -q 'P3009' /tmp/prisma_migrate.log; then
+      # Extract the failed migration name from the error log
+      p3009_name=$(sed -n "s/.*The \`\([^\`]*\)\` migration.*/\1/p" /tmp/prisma_migrate.log | head -n1)
+      if [ -n "$p3009_name" ] && ! is_own_migration "$p3009_name"; then
+        # Belongs to another service — purge it and retry without counting
+        echo "P3009 for foreign migration '$p3009_name' (no local file). Purging and retrying..."
+        printf 'DELETE FROM "_prisma_migrations" WHERE migration_name = '"'"'%s'"'"' AND finished_at IS NULL AND rolled_back_at IS NULL;' "$p3009_name" | \
+          $PRISMA_CLI db execute --stdin >>/tmp/prisma_migrate.log 2>&1 || true
+        continue  # don't increment attempt for foreign-migration purges
+      fi
       if ! handle_p3009; then
         exit 1
       fi
@@ -197,6 +275,17 @@ run_migrations() {
 
     # ---- P3018: mid-migration SQL failure ----
     if grep -q 'P3018' /tmp/prisma_migrate.log; then
+      # If this is a foreign migration (no local file) just purge it
+      p3018_name=$(grep -oP 'Migration name: \K\S+' /tmp/prisma_migrate.log | head -n1)
+      if [ -z "$p3018_name" ]; then
+        p3018_name=$(sed -n "s/.*The \`\([^\`]*\)\` migration.*/\1/p" /tmp/prisma_migrate.log | head -n1)
+      fi
+      if [ -n "$p3018_name" ] && ! is_own_migration "$p3018_name"; then
+        echo "P3018 for foreign migration '$p3018_name' (no local file). Purging and retrying..."
+        printf 'DELETE FROM "_prisma_migrations" WHERE migration_name = '"'"'%s'"'"';' "$p3018_name" | \
+          $PRISMA_CLI db execute --stdin >>/tmp/prisma_migrate.log 2>&1 || true
+        continue
+      fi
       if ! handle_p3018; then
         exit 1
       fi

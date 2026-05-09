@@ -83,25 +83,24 @@ const DEV_ADMIN_PORT = process.env.DEV_ADMIN_PORT || '3001';
  * Get CSP directives based on environment
  * الحصول على توجيهات CSP بناءً على البيئة
  */
-export function getCSPDirectives(nonce?: string): CSPDirectives {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function getCSPDirectives(_nonce?: string): CSPDirectives {
   const directives: CSPDirectives = {
     'default-src': ["'self'"],
 
-    // Script sources - Use nonce in production, allow unsafe-eval only in dev
+    // Script sources
     //
-    // NOTE: 'strict-dynamic' is intentionally NOT used here because the
-    // middleware sets the nonce in the X-Nonce header but Next.js does not
-    // inject it into its inline <script> tags. With 'strict-dynamic',
-    // browsers ignore 'self' and 'unsafe-inline', causing Next.js hydration
-    // scripts to be blocked by CSP.
+    // NOTE: The nonce is intentionally NOT included here. Next.js does not
+    // inject a nonce into its inline hydration <script> tags. In CSP Level 3,
+    // when a nonce IS present in script-src, browsers ignore 'unsafe-inline'
+    // for script-src-elem — blocking all un-nonced inline scripts (everything
+    // Next.js emits). Since the nonce provides no actual security here, omit
+    // it so 'unsafe-inline' is honoured for inline scripts as intended.
     //
     // 'unsafe-inline' is required because Next.js injects inline scripts for
-    // data serialization and hydration. In CSP Level 3 browsers, when a nonce
-    // is present, 'unsafe-inline' is ignored — so the nonce provides the
-    // actual security guarantee for browsers that support it.
+    // data serialization and hydration.
     'script-src': [
       "'self'",
-      ...(nonce ? [`'nonce-${nonce}'`] : []),
       "'unsafe-inline'",
       // Next.js requires 'unsafe-eval' for hot reloading in development
       ...(isDevelopment ? ["'unsafe-eval'"] : []),

@@ -30,7 +30,7 @@ import { buildInitialFieldAlerts } from '@/features/fields/components/FieldAlert
 // rectangle, and this page needs the circle tool the native Google
 // Maps DrawingManager provides (see commit history).
 const GoogleMapsFieldDrawer = dynamic(
-  () => import('@/components/maps/GoogleMapsFieldDrawer'),
+  () => import('@/components/maps/LeafletFieldDrawer'),
   {
     ssr: false,
     loading: () => (

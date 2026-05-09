@@ -29,11 +29,13 @@ export const SATELLITE_LAYERS: SatelliteLayer[] = [
 
   // ── Vegetation ─────────────────────────────────────────────────────────────
   { id: 'NDVI',              label: 'NDVI',                labelAr: 'مؤشر الغطاء النباتي',                  group: 'vegetation',  ringClass: 'ring-green-500',   fillColor: '#1A7A1A' },
+  { id: 'NDRE',              label: 'NDRE',                labelAr: 'مؤشر الحافة الحمراء',                 group: 'vegetation',  ringClass: 'ring-red-400',     fillColor: '#8B2200' },
+  { id: 'MSAVI',             label: 'MSAVI',               labelAr: 'مؤشر SAVI المعدّل',                   group: 'vegetation',  ringClass: 'ring-lime-500',    fillColor: '#3A8A3A' },
   { id: 'EVI',               label: 'EVI',                 labelAr: 'مؤشر النباتات المحسّن',                group: 'vegetation',  ringClass: 'ring-green-400',   fillColor: '#1A7A1A' },
   { id: 'EVI2',              label: 'EVI2',                labelAr: 'EVI ثنائي النطاق',                     group: 'vegetation',  ringClass: 'ring-green-300',   fillColor: '#1A7A1A' },
   { id: 'GNDVI',             label: 'GNDVI',               labelAr: 'NDVI الأخضر',                          group: 'vegetation',  ringClass: 'ring-emerald-500', fillColor: '#228B22' },
   { id: 'KNDVI',             label: 'kNDVI',               labelAr: 'NDVI النواة',                          group: 'vegetation',  ringClass: 'ring-lime-600',    fillColor: '#1A5A1A' },
-  { id: 'SAVI',              label: 'SAVI',                labelAr: 'مؤشر معدّل للتربة',                   group: 'vegetation',  ringClass: 'ring-lime-500',    fillColor: '#3A8A3A' },
+  { id: 'SAVI',              label: 'SAVI',                labelAr: 'مؤشر معدّل للتربة',                   group: 'vegetation',  ringClass: 'ring-lime-400',    fillColor: '#3A8A3A' },
   { id: 'NDYI',              label: 'NDYI',                labelAr: 'مؤشر الاصفرار',                        group: 'vegetation',  ringClass: 'ring-yellow-400',  fillColor: '#E8C800' },
   { id: 'LAI',               label: 'LAI',                 labelAr: 'مؤشر مساحة الأوراق',                  group: 'vegetation',  ringClass: 'ring-cyan-500',    fillColor: '#1A5A1A' },
   { id: 'FAPAR',             label: 'FAPAR',               labelAr: 'جزء الإشعاع الممتص',                  group: 'vegetation',  ringClass: 'ring-teal-400',    fillColor: '#006600' },
@@ -56,6 +58,7 @@ export const SATELLITE_LAYERS: SatelliteLayer[] = [
   { id: 'BAIS2',             label: 'BAIS2',               labelAr: 'مؤشر المناطق المحروقة',               group: 'fire',        ringClass: 'ring-orange-600',  fillColor: '#AA1100' },
 
   // ── Chlorophyll ────────────────────────────────────────────────────────────
+  { id: 'RECI',              label: 'RECI',                labelAr: 'مؤشر كلوروفيل الحافة الحمراء',         group: 'chlorophyll', ringClass: 'ring-red-500',     fillColor: '#AA0000' },
   { id: 'NDCI',              label: 'NDCI',                labelAr: 'مؤشر الكلوروفيل المعياري',             group: 'chlorophyll', ringClass: 'ring-teal-600',    fillColor: '#00AA44' },
   { id: 'CHL_REDEDGE',       label: 'CHL RedEdge',         labelAr: 'كلوروفيل الحافة الحمراء',             group: 'chlorophyll', ringClass: 'ring-emerald-600', fillColor: '#005500' },
   { id: 'MCARI',             label: 'MCARI',               labelAr: 'مؤشر امتصاص الكلوروفيل',              group: 'chlorophyll', ringClass: 'ring-green-700',   fillColor: '#005500' },

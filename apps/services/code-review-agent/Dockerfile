@@ -24,18 +24,19 @@ COPY apps/services/code-review-agent/tsconfig.json ./
 RUN node -e "JSON.parse(require('fs').readFileSync('package.json','utf8'))" || \
     (echo 'ERROR: package.json is invalid JSON. Check for merge conflict markers (<<<<<<< HEAD).' && exit 1)
 
-# Install dependencies with resilient retry loop and npm cache
+# Install dependencies — use npm install (not npm ci) so the solver can
+# pick zod@4 to satisfy @anthropic-ai/claude-agent-sdk's peer dep requirement.
 RUN --mount=type=cache,target=/root/.npm \
     npm config set registry https://registry.npmmirror.com && \
     install_ok=false; \
     for i in 1 2 3; do \
         echo "Attempt $i: Installing dependencies..."; \
-        if npm ci --ignore-scripts \
+        if npm install --ignore-scripts \
+            --legacy-peer-deps \
             --fetch-retries=5 \
             --fetch-retry-mintimeout=30000 \
             --fetch-retry-maxtimeout=300000 \
             --fetch-timeout=600000 \
-            --prefer-offline \
             --no-audit \
             --no-fund; then install_ok=true; break; fi; \
         if [ "$i" != "3" ]; then \
@@ -45,7 +46,7 @@ RUN --mount=type=cache,target=/root/.npm \
     done; \
     if [ "$install_ok" = "false" ]; then \
         npm config set registry https://registry.npmjs.org && \
-        npm ci --ignore-scripts --fetch-retries=5 --no-audit --no-fund; \
+        npm install --ignore-scripts --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund; \
     fi
 
 # Copy source code

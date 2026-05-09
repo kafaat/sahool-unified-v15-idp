@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { useSoilTests, useSoilRecommendations } from '@/features/soil-analysis';
 import type { SoilTest, SoilRecommendation } from '@/features/soil-analysis';
+import { useFieldsList } from '@/features/fields';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -121,18 +122,13 @@ export default function SoilAnalysisClient() {
   const [showAllNutrients, setShowAllNutrients] = useState(false);
 
   const { data: soilTests, isLoading: testsLoading, error: testsError } = useSoilTests();
+  const { data: allFields } = useFieldsList();
 
-  // Derive unique fields from soil tests
+  // Use all user-created fields for the dropdown
   const fields = useMemo(() => {
-    if (!soilTests) return [];
-    const fieldMap = new Map<string, { id: string; nameAr: string }>();
-    soilTests.forEach((t: SoilTest) => {
-      if (!fieldMap.has(t.fieldId)) {
-        fieldMap.set(t.fieldId, { id: t.fieldId, nameAr: t.fieldNameAr || t.fieldName });
-      }
-    });
-    return Array.from(fieldMap.values());
-  }, [soilTests]);
+    if (!allFields || allFields.length === 0) return [];
+    return allFields.map((f) => ({ id: f.id, nameAr: f.nameAr || f.name }));
+  }, [allFields]);
 
   // Auto-select first field when data loads
   const effectiveFieldId = selectedFieldId || (fields.length > 0 ? fields[0]!.id : '');
@@ -210,8 +206,11 @@ export default function SoilAnalysisClient() {
             onChange={(e) => { setSelectedFieldId(e.target.value); setShowAllNutrients(false); }}
             className="w-full sm:w-80 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
           >
+            {fields.length === 0 && (
+              <option value="" disabled>لا توجد حقول — أضف حقلاً أولاً</option>
+            )}
             {fields.map((f) => (
-              <option key={f.id} value={f.id}>{f.nameAr} ({f.id})</option>
+              <option key={f.id} value={f.id}>{f.nameAr}</option>
             ))}
           </select>
         </div>

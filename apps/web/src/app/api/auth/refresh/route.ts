@@ -68,10 +68,15 @@ export async function POST(request: NextRequest) {
     });
 
     if (!backendResponse.ok) {
-      // Refresh failed — clear cookies
-      cookieStore.delete('access_token');
-      cookieStore.delete('refresh_token');
-      return NextResponse.json({ success: false, error: 'Token refresh failed' }, { status: 401 });
+      // Refresh failed — clear cookies directly on the response object so the
+      // browser receives the Set-Cookie headers that expire the old tokens.
+      const failResponse = NextResponse.json(
+        { success: false, error: 'Token refresh failed' },
+        { status: 401 }
+      );
+      failResponse.cookies.delete('access_token');
+      failResponse.cookies.delete('refresh_token');
+      return failResponse;
     }
 
     const data = await backendResponse.json();
@@ -95,8 +100,16 @@ export async function POST(request: NextRequest) {
       10
     );
 
-    // Set new httpOnly access_token cookie
-    cookieStore.set('access_token', newAccessToken, {
+    // Set new httpOnly tokens directly on the NextResponse so the Set-Cookie
+    // headers are guaranteed to be present. Using cookies().set() in a Route
+    // Handler does NOT automatically merge into a NextResponse object returned
+    // from the same handler — they are different response objects.
+    const response = NextResponse.json({
+      success: true,
+      access_token: newAccessToken,
+    });
+
+    response.cookies.set('access_token', newAccessToken, {
       httpOnly: true,
       secure: isProduction,
       sameSite: 'strict',
@@ -104,12 +117,10 @@ export async function POST(request: NextRequest) {
       path: '/',
     });
 
-    // Set new httpOnly refresh_token cookie — this is the critical step.
-    // The backend rotates the refresh token on every use; if we don't persist
-    // the new token here the old (now-invalidated) token stays in the cookie
-    // and the next refresh attempt triggers "token reuse detected".
+    // Persist the rotated refresh token; if omitted the old (now-invalidated)
+    // token stays in the cookie and the next refresh triggers "token reuse detected".
     if (newRefreshToken) {
-      cookieStore.set('refresh_token', newRefreshToken, {
+      response.cookies.set('refresh_token', newRefreshToken, {
         httpOnly: true,
         secure: isProduction,
         sameSite: 'strict',
@@ -118,10 +129,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    return NextResponse.json({
-      success: true,
-      access_token: newAccessToken,
-    });
+    return response;
   } catch (error) {
     logger.error('[Auth Refresh API] Error refreshing token:', error);
     return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });

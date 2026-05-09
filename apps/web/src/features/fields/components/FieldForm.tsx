@@ -10,9 +10,9 @@ import dynamic from 'next/dynamic';
 import { Save, X, MapPin, Info } from 'lucide-react';
 import type { Field, FieldFormData, GeoPolygon } from '../types';
 
-// Dynamic import – no SSR for Google Maps
+// Dynamic import – no SSR for Leaflet
 const GoogleMapsFieldDrawer = dynamic(
-  () => import('@/components/maps/GoogleMapsFieldDrawer'),
+  () => import('@/components/maps/LeafletFieldDrawer'),
   { ssr: false, loading: () => <div className="h-[calc(100vh-320px)] min-h-[400px] bg-gray-100 rounded-lg animate-pulse" /> }
 );
 

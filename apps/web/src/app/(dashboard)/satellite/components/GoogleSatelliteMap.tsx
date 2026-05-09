@@ -1,84 +1,200 @@
 'use client';
 
 /**
- * GoogleSatelliteMap — Google Maps satellite view for the satellite intelligence page
+ * GoogleSatelliteMap — Leaflet satellite view for the satellite intelligence page.
+ * Uses ESRI World Imagery tiles (no API key, no watermark).
  * Shows real Copernicus CDSE Sentinel-2 imagery inside the selected field boundary.
  *
  * How it works:
  *  1. User selects a field + index (NDVI, EVI, TRUE_COLOR, …) + optional date.
  *  2. A GET is made via /api/sentinel to the Copernicus CDSE Process API — returns a PNG
  *     of the actual Sentinel-2 band composite for the field's bounding box and chosen date.
- *     Each index maps to the most informative actual band composite (e.g. NDVI → False
- *     Color IR; NDWI → SWIR; chlorophyll indices → Red-Edge False Color).
  *  3. The PNG is clipped to the field polygon via an HTML5 canvas (destination-in
  *     compositing) so the imagery only appears inside the field boundary.
- *  4. The clipped PNG is displayed as a Google Maps GroundOverlay at the bbox coords.
+ *  4. The clipped PNG is displayed as a Leaflet ImageOverlay at the bbox coords.
  */
 
-import React, { useEffect, useRef, useCallback, useMemo, useState } from 'react';
-import { GoogleMap, useJsApiLoader, Polygon, OverlayView, GroundOverlay } from '@react-google-maps/api';
+import React, { useEffect, useRef, useMemo, useState } from 'react';
+import dynamic from 'next/dynamic';
+import type * as L from 'leaflet';
 import type { Field, GeoPolygon } from '@/features/fields/types';
 import type { FieldKpiSnapshot } from '@/features/fields/api';
-import { BADGE_CONFIGS, ndviToFillColor } from '../types';
+import { ndviToFillColor } from '../types';
+import { KpiBadgeMarkers } from './KpiBadgeMarkers';
 
-/** Index → human-readable composite label (mirrors route.ts getCompositeLabel) */
-const INDEX_COMPOSITE: Record<string, string> = {
-  TRUE_COLOR: 'True Color', TRUE_COLOR_L1C: 'True Color L1C', TRUE_COLOR_L2A: 'True Color L2A',
-  FALSE_COLOR: 'False Color IR', SWIR: 'SWIR', FALSE_COLOR_URBAN: 'False Color Urban',
-  // Vegetation → False Color IR
-  NDVI: 'False Color IR', EVI: 'False Color IR', EVI2: 'False Color IR',
-  GNDVI: 'False Color IR', KNDVI: 'False Color IR', SAVI: 'False Color IR',
-  MSAVI: 'False Color IR', OSAVI: 'False Color IR', ARVI: 'False Color IR',
-  LAI: 'False Color IR', FAPAR: 'False Color IR', FCOVER: 'False Color IR',
-  // Red-edge
-  NDRE: 'Red-Edge FC', REDEDGE_POSITION: 'Red-Edge FC',
-  // Natural color
-  NDYI: 'True Color', PSRI: 'True Color',
-  // Water → SWIR
-  NDWI: 'SWIR', MNDWI: 'SWIR', NDMI: 'SWIR', NDMI_STRESS: 'SWIR', MSI: 'SWIR', NDII: 'SWIR',
-  // Soil → False Color Urban
-  BSI: 'False Color Urban', NBSI: 'False Color Urban',
-  // Snow → True Color
-  NDSI: 'True Color', NDGI: 'True Color',
-  // Fire → SWIR
-  NBR: 'SWIR', NBR2: 'SWIR', BAIS2: 'SWIR',
-  // Urban → False Color Urban
-  NDBI: 'False Color Urban', IBI: 'False Color Urban',
-  // Chlorophyll → Red-Edge FC
-  NDCI: 'Red-Edge FC', CHL_REDEDGE: 'Red-Edge FC', MCARI: 'Red-Edge FC',
-  ARI: 'Red-Edge FC', MARI: 'Red-Edge FC',
-  SIPI1: 'False Color IR', PSSRB1: 'False Color IR',
-};
+// ── Dynamic imports — Leaflet requires browser (no SSR) ──────────────────────
 
-function compositeLabel(layerId: string): string {
-  return INDEX_COMPOSITE[layerId.toUpperCase()] ?? 'Sentinel-2';
+const dynamicLeaflet = (loader: () => Promise<unknown>) =>
+  dynamic(loader as any, { ssr: false }) as any;
+
+const MapContainer   = dynamicLeaflet(() => import('react-leaflet').then((m) => m.MapContainer));
+const TileLayer      = dynamicLeaflet(() => import('react-leaflet').then((m) => m.TileLayer));
+const LeafletPolygon = dynamicLeaflet(() => import('react-leaflet').then((m) => m.Polygon));
+const ImageOverlay   = dynamicLeaflet(() => import('react-leaflet').then((m) => m.ImageOverlay));
+
+/** Inner component that uses useMap() to handle flyTo without remounting MapContainer */
+function MapController({
+  flyToTarget,
+  fields,
+  selectedFieldId,
+  selectedField,
+}: {
+  flyToTarget: [number, number] | null;
+  fields: Field[];
+  selectedFieldId: string | null;
+  selectedField?: Field | null;
+}) {
+  const [useMap, setUseMap] = useState<(() => L.Map) | null>(null);
+
+  useEffect(() => {
+    import('react-leaflet').then((mod) => {
+      // useMap is a hook — store a wrapper so React doesn't call it immediately
+      setUseMap(() => mod.useMap);
+    });
+  }, []);
+
+  if (!useMap) return null;
+  return (
+    <MapControllerInner
+      flyToTarget={flyToTarget}
+      fields={fields}
+      selectedFieldId={selectedFieldId}
+      selectedField={selectedField}
+      useMap={useMap}
+    />
+  );
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+function MapControllerInner({
+  flyToTarget,
+  fields,
+  selectedFieldId,
+  selectedField,
+  useMap,
+}: {
+  flyToTarget: [number, number] | null;
+  fields: Field[];
+  selectedFieldId: string | null;
+  selectedField?: Field | null;
+  useMap: () => L.Map;
+}) {
+  const map = useMap();
 
-/** Build a rectangular GeoJSON polygon from a lat/lng bounds literal */
-function boundsToPolygon(bounds: google.maps.LatLngBoundsLiteral): GeoPolygon {
+  useEffect(() => {
+    if (!flyToTarget) return;
+    const sel = selectedField ?? fields.find((f) => f.id === selectedFieldId);
+    const bounds = sel ? getEffectiveBounds(sel) : null;
+    if (bounds) {
+      map.fitBounds(
+        [[bounds.south, bounds.west], [bounds.north, bounds.east]],
+        { paddingTopLeft: [60, 80], paddingBottomRight: [60, 130] },
+      );
+    } else {
+      const [lat, lng] = flyToTarget;
+      map.setView([lat, lng], 17);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [flyToTarget]);
+
+  return null;
+}
+
+// ── Base composites ───────────────────────────────────────────────────────────
+
+/** Base RGB composites — everything else is a computed index */
+const BASE_COMPOSITES = new Set([
+  'TRUE_COLOR', 'TRUE_COLOR_L1C', 'TRUE_COLOR_L2A', 'FALSE_COLOR', 'SWIR', 'FALSE_COLOR_URBAN',
+]);
+
+function compositeLabel(layerId: string): string {
+  const id = layerId.toUpperCase();
+  if (BASE_COMPOSITES.has(id)) {
+    const LABELS: Record<string, string> = {
+      TRUE_COLOR: 'True Color', TRUE_COLOR_L1C: 'True Color L1C', TRUE_COLOR_L2A: 'True Color L2A',
+      FALSE_COLOR: 'False Color IR', SWIR: 'SWIR', FALSE_COLOR_URBAN: 'False Color Urban',
+    };
+    return LABELS[id] ?? id;
+  }
+  return id;
+}
+
+// ── Colour-scale legend config ────────────────────────────────────────────────
+
+interface LegendCfg { gradient: string; minLabel: string; maxLabel: string }
+
+/** CSS gradient strings (bottom→top = low→high value) matching the evalscript colourBlend ramps. */
+const LAYER_LEGENDS: Record<string, LegendCfg> = {
+  // Vegetation — deep-red→yellow→green ramp (NDVI < 0.1 stays red for bare/stressed areas)
+  NDVI:   { gradient: 'linear-gradient(to top,#660000,#e60000,#f22600,#edd213,#60cc2d,#0d8514,#04400a)', minLabel: '−0.5', maxLabel: '1.0' },
+  NDRE:   { gradient: 'linear-gradient(to top,#660000,#e60000,#f22600,#edd213,#60cc2d,#0d8514,#04400a)', minLabel: '−0.5', maxLabel: '1.0' },
+  MSAVI:  { gradient: 'linear-gradient(to top,#660000,#e60000,#f22600,#edd213,#60cc2d,#0d8514,#04400a)', minLabel: '−0.5', maxLabel: '1.0' },
+  EVI:    { gradient: 'linear-gradient(to top,#660000,#e60000,#f22600,#edd213,#60cc2d,#0d8514,#04400a)', minLabel: '−0.5', maxLabel: '1.0' },
+  EVI2:   { gradient: 'linear-gradient(to top,#660000,#e60000,#f22600,#edd213,#60cc2d,#0d8514,#04400a)', minLabel: '−0.5', maxLabel: '1.0' },
+  GNDVI:  { gradient: 'linear-gradient(to top,#660000,#e60000,#f22600,#edd213,#60cc2d,#0d8514,#04400a)', minLabel: '−0.5', maxLabel: '1.0' },
+  KNDVI:  { gradient: 'linear-gradient(to top,#660000,#e60000,#f22600,#edd213,#60cc2d,#0d8514,#04400a)', minLabel: '0',    maxLabel: '1.0' },
+  SAVI:   { gradient: 'linear-gradient(to top,#660000,#e60000,#f22600,#edd213,#60cc2d,#0d8514,#04400a)', minLabel: '−0.5', maxLabel: '1.0' },
+  OSAVI:  { gradient: 'linear-gradient(to top,#660000,#e60000,#f22600,#edd213,#60cc2d,#0d8514,#04400a)', minLabel: '−0.5', maxLabel: '1.0' },
+  ARVI:   { gradient: 'linear-gradient(to top,#660000,#e60000,#f22600,#edd213,#60cc2d,#0d8514,#04400a)', minLabel: '−0.5', maxLabel: '1.0' },
+  LAI:    { gradient: 'linear-gradient(to top,#660000,#e60000,#f22600,#edd213,#60cc2d,#0d8514,#04400a)', minLabel: '0',    maxLabel: '6' },
+  FAPAR:  { gradient: 'linear-gradient(to top,#660000,#e60000,#f22600,#edd213,#60cc2d,#0d8514,#04400a)', minLabel: '0',    maxLabel: '1.0' },
+  FCOVER: { gradient: 'linear-gradient(to top,#660000,#e60000,#f22600,#edd213,#60cc2d,#0d8514,#04400a)', minLabel: '0',    maxLabel: '1.0' },
+  // RECI — red→green with large range
+  RECI:        { gradient: 'linear-gradient(to top,#bf0d0d,#e6800d,#e6d933,#66bf26,#1a8c1a,#00590d)', minLabel: '0',    maxLabel: '12' },
+  CHL_REDEDGE: { gradient: 'linear-gradient(to top,#bf0d0d,#e6800d,#e6d933,#66bf26,#1a8c1a,#00590d)', minLabel: '0',    maxLabel: '12' },
+  NDCI:  { gradient: 'linear-gradient(to top,#660000,#e60000,#f22600,#edd213,#60cc2d,#0d8514,#04400a)', minLabel: '−0.5', maxLabel: '1.0' },
+  MCARI: { gradient: 'linear-gradient(to top,#cc1a1a,#e68c0d,#e6d933,#73cc26,#1a8c1a,#00590d)',         minLabel: '0',    maxLabel: '0.6' },
+  // Water — pink→white→blue (NDWI) and brown→blue (NDMI)
+  NDWI:       { gradient: 'linear-gradient(to top,#d91a8c,#f299cc,#fafafa,#66b3f2,#0d4dbf)',                    minLabel: '−1', maxLabel: '1' },
+  MNDWI:      { gradient: 'linear-gradient(to top,#d91a8c,#f299cc,#fafafa,#66b3f2,#0d4dbf)',                    minLabel: '−1', maxLabel: '1' },
+  NDMI:       { gradient: 'linear-gradient(to top,#8c5c26,#cc9959,#f2d9a6,#e6f2fc,#99ccf2,#338ce6,#0040a6)',   minLabel: '−1', maxLabel: '1' },
+  NDII:       { gradient: 'linear-gradient(to top,#8c5c26,#cc9959,#f2d9a6,#e6f2fc,#99ccf2,#338ce6,#0040a6)',   minLabel: '−1', maxLabel: '1' },
+  NDMI_STRESS:{ gradient: 'linear-gradient(to top,#1a8c1a,#b3e640,#f7f299,#f2800d,#b30d0d)',                    minLabel: '−1', maxLabel: '1' },
+  MSI:        { gradient: 'linear-gradient(to top,#0066cc,#66b3f2,#e6f2fc,#f2d9a6,#cc9959,#993300)',            minLabel: '0',  maxLabel: '3' },
+  // Soil
+  BSI:  { gradient: 'linear-gradient(to top,#1a7326,#8cd95c,#f2f299,#f2c166,#b37833,#663300)', minLabel: '−0.5', maxLabel: '0.5' },
+  NBSI: { gradient: 'linear-gradient(to top,#1a7326,#8cd95c,#f2f299,#f2c166,#b37833,#663300)', minLabel: '−0.5', maxLabel: '0.5' },
+  NDBI: { gradient: 'linear-gradient(to top,#1a7326,#8cd95c,#f2f299,#e0d9bf,#a69980,#706654)', minLabel: '−0.5', maxLabel: '0.6' },
+  // Fire/burn
+  NBR:   { gradient: 'linear-gradient(to top,#660000,#e60000,#f22600,#edd213,#60cc2d,#0d8514,#04400a)', minLabel: '−0.5', maxLabel: '1.0' },
+  NBR2:  { gradient: 'linear-gradient(to top,#660000,#e60000,#f22600,#edd213,#60cc2d,#0d8514,#04400a)', minLabel: '−0.5', maxLabel: '1.0' },
+  BAIS2: { gradient: 'linear-gradient(to top,#1a7326,#66cc40,#f2f299,#f29933,#cc1a1a,#660808)',          minLabel: '0',    maxLabel: '3' },
+  // Snow
+  NDSI: { gradient: 'linear-gradient(to top,#6b5533,#a6a695,#ccd9e0,#e6f0f5,#f2fafc,#ffffff)', minLabel: '−0.5', maxLabel: '1.0' },
+  NDGI: { gradient: 'linear-gradient(to top,#6b5533,#a6a695,#ccd9e0,#e6f0f5,#f2fafc,#ffffff)', minLabel: '−0.5', maxLabel: '1.0' },
+  // Yellowing/senescence
+  NDYI: { gradient: 'linear-gradient(to top,#1a8c1a,#99d93a,#f2f24d,#f2a61a,#b30d0d)', minLabel: '−0.5', maxLabel: '0.5' },
+  PSRI: { gradient: 'linear-gradient(to top,#26991a,#e6f24d,#f2bf1a,#cc660d,#8c1a08)', minLabel: '−0.3', maxLabel: '0.5' },
+};
+
+// ── Bounds types ──────────────────────────────────────────────────────────────
+
+interface LatLngBounds { north: number; south: number; east: number; west: number }
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+/** Build a rectangular GeoJSON polygon from a lat/lng bounds object */
+function boundsToPolygon(bounds: LatLngBounds): GeoPolygon {
   const { north, south, east, west } = bounds;
   return {
     type: 'Polygon',
     coordinates: [[
-      [west, south] as [number, number],
-      [east, south] as [number, number],
-      [east, north] as [number, number],
-      [west, north] as [number, number],
-      [west, south] as [number, number],
+      [west,  south] as [number, number],
+      [east,  south] as [number, number],
+      [east,  north] as [number, number],
+      [west,  north] as [number, number],
+      [west,  south] as [number, number],
     ]],
   };
 }
 
 /**
  * Clips a satellite PNG to the field polygon using canvas compositing.
- * Without this the GroundOverlay covers the entire bounding rectangle.
+ * Without this the ImageOverlay covers the entire bounding rectangle.
  */
 async function clipImageToPolygon(
   dataUrl: string,
   polygon: GeoPolygon,
-  bounds: google.maps.LatLngBoundsLiteral,
+  bounds: LatLngBounds,
   W = 512,
   H = 512,
 ): Promise<string> {
@@ -117,7 +233,7 @@ async function clipImageToPolygon(
 }
 
 /** Bounding box from GeoJSON polygon coordinates */
-function getFieldBounds(polygon: GeoPolygon): google.maps.LatLngBoundsLiteral | null {
+function getFieldBounds(polygon: GeoPolygon): LatLngBounds | null {
   const ring = polygon?.coordinates?.[0];
   if (!ring?.length) return null;
   let n = -Infinity, s = Infinity, e = -Infinity, w = Infinity;
@@ -134,7 +250,7 @@ function getFieldBounds(polygon: GeoPolygon): google.maps.LatLngBoundsLiteral | 
  * Returns effective bounds for a field.
  * Uses polygon bbox if available; falls back to ~800 m box around centroid.
  */
-function getEffectiveBounds(field: Field): google.maps.LatLngBoundsLiteral | null {
+function getEffectiveBounds(field: Field): LatLngBounds | null {
   if (field.polygon) {
     const b = getFieldBounds(field.polygon);
     if (b) return b;
@@ -148,51 +264,24 @@ function getEffectiveBounds(field: Field): google.maps.LatLngBoundsLiteral | nul
   return null;
 }
 
-// ─── Map constants ────────────────────────────────────────────────────────────
+// ── Map constants ─────────────────────────────────────────────────────────────
 
-const LIBRARIES: ['drawing'] = ['drawing'];
-const CONTAINER_STYLE: React.CSSProperties = { width: '100%', height: '100%' };
-const DEFAULT_CENTER = { lat: 15.5527, lng: 48.5164 };
+const DEFAULT_CENTER: [number, number] = [15.5527, 48.5164];
 
-const MAP_OPTIONS: google.maps.MapOptions = {
-  mapTypeId: 'hybrid',
-  streetViewControl: false,
-  rotateControl: false,
-  fullscreenControl: true,
-  zoomControl: true,
-  mapTypeControl: true,
-  mapTypeControlOptions: {
-    mapTypeIds: ['hybrid', 'satellite', 'roadmap', 'terrain'],
-  },
-  tilt: 0,
-};
-
-// ─── Loading / error states ───────────────────────────────────────────────────
+// ── Loading state ─────────────────────────────────────────────────────────────
 
 function LoadingState() {
   return (
     <div className="w-full h-full bg-gray-900 flex items-center justify-center rounded-xl">
       <div className="text-center text-gray-400">
         <div className="text-5xl mb-3">🛰️</div>
-        <p className="text-sm font-medium">جاري تحميل خرائط Google…</p>
+        <p className="text-sm font-medium">جاري تحميل الخريطة…</p>
       </div>
     </div>
   );
 }
 
-function ErrorState({ message }: { message: string }) {
-  return (
-    <div className="w-full h-full bg-gray-100 flex items-center justify-center rounded-xl">
-      <div className="text-center text-red-500 px-4">
-        <div className="text-3xl mb-2">⚠️</div>
-        <p className="font-semibold text-sm">فشل تحميل خرائط Google</p>
-        <p className="text-xs text-gray-500 mt-1">{message}</p>
-      </div>
-    </div>
-  );
-}
-
-// ─── Component props ──────────────────────────────────────────────────────────
+// ── Component props ───────────────────────────────────────────────────────────
 
 interface Props {
   fields: Field[];
@@ -206,7 +295,7 @@ interface Props {
   layerOpacity?: number;
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
+// ── Main component ────────────────────────────────────────────────────────────
 
 export function GoogleSatelliteMap({
   fields,
@@ -219,13 +308,13 @@ export function GoogleSatelliteMap({
   activeDate = null,
   layerOpacity = 0.90,
 }: Props) {
-  const mapRef = useRef<google.maps.Map | null>(null);
+  const [isClient, setIsClient] = useState(false);
 
   // Real Sentinel imagery state
   const [sentinelOverlay, setSentinelOverlay] = useState<{
     key: string;
     url: string;
-    bounds: google.maps.LatLngBoundsLiteral;
+    bounds: LatLngBounds;
   } | null>(null);
   const [sentinelLoading, setSentinelLoading] = useState(false);
   const [sentinelUnavailable, setSentinelUnavailable] = useState(false);
@@ -233,33 +322,12 @@ export function GoogleSatelliteMap({
   // In-flight key guard — discards stale responses when field/layer/date changes
   const _fetchKey = useRef<string | null>(null);
 
-  const { isLoaded, loadError } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? '',
-    libraries: LIBRARIES,
-  });
-
-  // ── Fit map to selected field ──────────────────────────────────────────────
-  useEffect(() => {
-    if (!mapRef.current || !flyToTarget) return;
-    const sel = selectedFieldProp ?? fields.find((f) => f.id === selectedFieldId);
-    const rawBounds = sel ? getEffectiveBounds(sel) : null;
-    if (rawBounds) {
-      const gmBounds = new google.maps.LatLngBounds(
-        { lat: rawBounds.south, lng: rawBounds.west },
-        { lat: rawBounds.north, lng: rawBounds.east },
-      );
-      mapRef.current.fitBounds(gmBounds, { top: 80, right: 60, bottom: 130, left: 60 });
-    } else {
-      const [lat, lng] = flyToTarget;
-      mapRef.current.panTo({ lat, lng });
-      mapRef.current.setZoom(17);
-    }
-  }, [flyToTarget, selectedFieldId, fields, selectedFieldProp]);
+  // SSR guard
+  useEffect(() => { setIsClient(true); }, []);
 
   // ── Fetch real Copernicus CDSE satellite imagery ───────────────────────────
   useEffect(() => {
-    if (!selectedFieldId || !isLoaded) return;
+    if (!isClient || !selectedFieldId) return;
 
     const sel = selectedFieldProp ?? fields.find((f) => f.id === selectedFieldId);
     const bounds = sel ? getEffectiveBounds(sel) : null;
@@ -269,12 +337,11 @@ export function GoogleSatelliteMap({
     const key = `${selectedFieldId}::${activeLayerId}::${activeDate ?? 'latest'}`;
     _fetchKey.current = key;
 
-    // Clear stale overlay immediately so no old image shows for the new key
+    // Clear stale overlay immediately
     setSentinelOverlay((prev) => (prev?.key === key ? prev : null));
     setSentinelLoading(true);
     setSentinelUnavailable(false);
 
-    // Build query params for /api/sentinel (Process API proxy)
     const params = new URLSearchParams({
       index:  activeLayerId,
       west:   String(bounds.west),
@@ -286,7 +353,6 @@ export function GoogleSatelliteMap({
     });
 
     if (activeDate) {
-      // Timeline date selected — send ±5-day window; server widens to ±10 days
       const nominal = new Date(activeDate + 'T00:00:00Z');
       const from = new Date(nominal); from.setUTCDate(from.getUTCDate() - 5);
       const to   = new Date(nominal); to.setUTCDate(to.getUTCDate() + 5);
@@ -294,7 +360,6 @@ export function GoogleSatelliteMap({
       params.set('from', from.toISOString());
       params.set('to',   to.toISOString());
     }
-    // No from/to → server uses 18-month rolling window with leastCC mosaicking
 
     fetch(`/api/sentinel?${params}`)
       .then(async (res) => {
@@ -311,7 +376,6 @@ export function GoogleSatelliteMap({
           reader.onload = async () => {
             if (_fetchKey.current !== key) { resolve(); return; }
             const rawDataUrl = reader.result as string;
-            // Clip the imagery to the exact field polygon shape
             const clippedUrl = await clipImageToPolygon(rawDataUrl, fieldPolygon, bounds);
             if (_fetchKey.current !== key) { resolve(); return; }
             setSentinelOverlay({ key, url: clippedUrl, bounds });
@@ -329,12 +393,9 @@ export function GoogleSatelliteMap({
           setSentinelUnavailable(true);
         }
       });
-  }, [selectedFieldId, activeLayerId, activeDate, fields, isLoaded, selectedFieldProp]);
+  }, [selectedFieldId, activeLayerId, activeDate, fields, isClient, selectedFieldProp]);
 
-  const onLoad = useCallback((map: google.maps.Map) => { mapRef.current = map; }, []);
-  const onUnmount = useCallback(() => { mapRef.current = null; }, []);
-
-  // ── Field polygons ─────────────────────────────────────────────────────────
+  // ── Field polygons (memoised) ──────────────────────────────────────────────
   const fieldPolygons = useMemo(
     () =>
       fields
@@ -343,107 +404,105 @@ export function GoogleSatelliteMap({
           const isSelected = f.id === selectedFieldId;
           const fill = ndviToFillColor(f.ndviValue);
           const baseKey = `${f.id}::${activeLayerId}::${activeDate ?? 'latest'}`;
-          // Hide polygon fill once real imagery is showing
           const imageryVisible = isSelected && sentinelOverlay?.key === baseKey;
           const fillOpacity = isSelected ? (imageryVisible ? 0.0 : 0.15) : 0.20;
-          const paths = f.polygon!.coordinates.map((ring) =>
-            ring.map((coord) => ({ lat: coord[1] as number, lng: coord[0] as number }))
+          // Convert GeoJSON [lng, lat] → Leaflet [lat, lng]
+          const positions = f.polygon!.coordinates.map((ring) =>
+            ring.map((coord) => [coord[1] as number, coord[0] as number] as [number, number])
           );
-          return { field: f, paths, isSelected, fill, fillOpacity };
+          return { field: f, positions, isSelected, fill, fillOpacity };
         }),
-    [fields, selectedFieldId, activeLayerId, activeDate, sentinelOverlay]
+    [fields, selectedFieldId, activeLayerId, activeDate, sentinelOverlay],
   );
 
-  if (loadError) return <ErrorState message={loadError.message} />;
-  if (!isLoaded) return <LoadingState />;
+  if (!isClient) return <LoadingState />;
+
+  // Sentinel overlay for the currently selected field
+  const baseKey = selectedFieldId
+    ? `${selectedFieldId}::${activeLayerId}::${activeDate ?? 'latest'}`
+    : null;
+  const activeOverlay =
+    baseKey && sentinelOverlay?.key === baseKey ? sentinelOverlay : null;
 
   return (
     <div className="relative w-full h-full">
-      <GoogleMap
-        mapContainerStyle={CONTAINER_STYLE}
+      {/* ── Leaflet map ── */}
+      <MapContainer
         center={DEFAULT_CENTER}
         zoom={7}
-        options={MAP_OPTIONS}
-        onLoad={onLoad}
-        onUnmount={onUnmount}
+        style={{ width: '100%', height: '100%' }}
+        className="z-0"
       >
+        {/* ESRI World Imagery — free, no key, no watermark */}
+        <TileLayer
+          url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+          attribution="Tiles &copy; Esri"
+          maxNativeZoom={19}
+          maxZoom={21}
+        />
+
         {/* ── Field boundary polygons ── */}
-        {fieldPolygons.map(({ field, paths, isSelected, fill, fillOpacity }) => (
-          <Polygon
+        {fieldPolygons.map(({ field, positions, isSelected, fill, fillOpacity }) => (
+          <LeafletPolygon
             key={field.id}
-            paths={paths}
-            options={{
+            positions={positions}
+            pathOptions={{
               fillColor: fill,
               fillOpacity,
-              strokeColor: isSelected ? '#ffffff' : fill,
-              strokeWeight: isSelected ? 2.5 : 1.5,
-              strokeOpacity: isSelected ? 1 : 0.85,
-              zIndex: isSelected ? 10 : 1,
-              clickable: true,
+              color: isSelected ? '#ffffff' : fill,
+              weight: isSelected ? 2.5 : 1.5,
+              opacity: isSelected ? 1 : 0.85,
             }}
-            onClick={() => onFieldClick?.(field)}
+            eventHandlers={{ click: () => onFieldClick?.(field) }}
           />
         ))}
 
         {/* ── Copernicus CDSE Sentinel-2 raster overlay, clipped to field polygon ──
-             Rendered once the Process API returns a PNG and it has been polygon-clipped.
-             Key change forces GroundOverlay remount (it has no setUrl method). */}
-        {(() => {
-          if (!selectedFieldId) return null;
-          const baseKey = `${selectedFieldId}::${activeLayerId}::${activeDate ?? 'latest'}`;
-          if (sentinelOverlay?.key !== baseKey) return null;
-          return (
-            <GroundOverlay
-              key={`${baseKey}::cdse`}
-              url={sentinelOverlay.url}
-              bounds={sentinelOverlay.bounds}
-              opacity={layerOpacity}
-            />
-          );
-        })()}
+             Key change forces ImageOverlay remount when the image changes. */}
+        {activeOverlay && (
+          <ImageOverlay
+            key={`${baseKey}::cdse`}
+            url={activeOverlay.url}
+            bounds={[
+              [activeOverlay.bounds.south, activeOverlay.bounds.west],
+              [activeOverlay.bounds.north, activeOverlay.bounds.east],
+            ]}
+            opacity={layerOpacity}
+          />
+        )}
 
-        {/* ── KPI badge overlays ── */}
-        {fields.map((field) => {
-          if (!field.centroid) return null;
-          if (selectedFieldId && field.id !== selectedFieldId) return null;
-          const [lng, lat] = field.centroid.coordinates;
-          const kpi = kpiMap[field.id];
-          const badges = BADGE_CONFIGS.map((cfg) => {
-            const raw = kpi ? (kpi as unknown as Record<string, unknown>)[cfg.key] : null;
-            const num = typeof raw === 'number' ? raw : null;
-            return {
-              icon: cfg.icon,
-              label: cfg.labelAr,
-              value: num != null ? `${cfg.format(num)}${cfg.unit ?? ''}` : '—',
-              color: num != null ? cfg.color(num) : '#94a3b8',
-            };
-          });
-          return (
-            <OverlayView
-              key={`badge-${field.id}`}
-              position={{ lat, lng }}
-              mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
-              getPixelPositionOffset={(w, h) => ({ x: -(w / 2), y: -(h + 12) })}
-            >
-              <div className="flex flex-col gap-1 items-center pointer-events-none select-none">
-                {badges.map(({ icon, label, value, color }) => (
-                  <div
-                    key={icon}
-                    title={label}
-                    style={{ backgroundColor: color }}
-                    className="inline-flex items-center gap-1 text-white text-[11px] font-bold px-2 py-0.5 rounded-full shadow-lg border border-white/70 whitespace-nowrap"
-                  >
-                    {icon} {value}
-                  </div>
-                ))}
-                <div className="mt-0.5 bg-black/70 text-white text-[10px] px-2 py-0.5 rounded-full whitespace-nowrap shadow">
-                  {field.nameAr || field.name}
-                </div>
-              </div>
-            </OverlayView>
-          );
-        })}
-      </GoogleMap>
+        {/* ── KPI badge markers ── */}
+        <KpiBadgeMarkers
+          fields={fields}
+          kpiMap={kpiMap}
+          selectedFieldId={selectedFieldId}
+        />
+
+        {/* ── Map pan/zoom controller ── */}
+        <MapController
+          flyToTarget={flyToTarget}
+          fields={fields}
+          selectedFieldId={selectedFieldId}
+          selectedField={selectedFieldProp}
+        />
+      </MapContainer>
+
+      {/* ── Colour-scale legend (right side, vertically centred) ── */}
+      {selectedFieldId && (() => {
+        const legend = LAYER_LEGENDS[activeLayerId.toUpperCase()];
+        if (!legend) return null;
+        return (
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 z-[1000] flex flex-col items-center gap-1 pointer-events-none select-none">
+            <span className="text-white text-[10px] font-bold px-1 rounded bg-black/50 leading-tight">{legend.maxLabel}</span>
+            <div
+              className="w-4 rounded shadow border border-white/40"
+              style={{ height: 110, background: legend.gradient }}
+            />
+            <span className="text-white text-[10px] font-bold px-1 rounded bg-black/50 leading-tight">{legend.minLabel}</span>
+            <span className="text-white text-[9px] font-semibold bg-black/60 px-1.5 py-0.5 rounded mt-0.5 leading-tight">{activeLayerId}</span>
+          </div>
+        );
+      })()}
 
       {/* ── Imagery source badge (top-left) ── */}
       {selectedFieldId && (

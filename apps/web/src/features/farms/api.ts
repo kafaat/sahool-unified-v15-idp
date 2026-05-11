@@ -18,8 +18,10 @@ export const farmsApi = {
       if (filters?.region) params.set('region', filters.region);
       if (filters?.search) params.set('search', filters.search);
       const response = await api.get(`${FARM_ENDPOINTS.LIST}?${params.toString()}`);
-      const data = extractData<Farm[]>(response);
+      // Backend returns { success, farms: [...], total, page, limit }
+      const data = extractData<{ farms: Farm[] } | Farm[]>(response);
       if (Array.isArray(data)) return data;
+      if (data && Array.isArray((data as { farms: Farm[] }).farms)) return (data as { farms: Farm[] }).farms;
       return [];
     });
   },
@@ -34,7 +36,10 @@ export const farmsApi = {
 
   createFarm: async (data: FarmFormData): Promise<Farm> => {
     return safeFetch(FARM_ENDPOINTS.CREATE, async () => {
-      const response = await api.post(FARM_ENDPOINTS.CREATE, data);
+      // Map frontend field names → backend DTO field names
+      const { totalAreaHa, ...rest } = data as FarmFormData & { totalAreaHa?: number };
+      const payload = { ...rest, ...(totalAreaHa != null ? { totalAreaHectares: totalAreaHa } : {}) };
+      const response = await api.post(FARM_ENDPOINTS.CREATE, payload);
       return extractData<Farm>(response);
     });
   },
@@ -42,7 +47,10 @@ export const farmsApi = {
   updateFarm: async (id: string, data: Partial<FarmFormData>): Promise<Farm> => {
     const url = buildUrl(FARM_ENDPOINTS.UPDATE, { farmId: id });
     return safeFetch(url, async () => {
-      const response = await api.put(url, data);
+      // Map frontend field names → backend DTO field names
+      const { totalAreaHa, ...rest } = data as Partial<FarmFormData> & { totalAreaHa?: number };
+      const payload = { ...rest, ...(totalAreaHa != null ? { totalAreaHectares: totalAreaHa } : {}) };
+      const response = await api.put(url, payload);
       return extractData<Farm>(response);
     });
   },

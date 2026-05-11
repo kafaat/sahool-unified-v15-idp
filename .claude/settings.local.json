@@ -153,7 +153,19 @@
       "Bash(docker builder prune:*)",
       "Bash(docker inspect:*)",
       "Bash(node:*)",
-      "Bash(docker update:*)"
+      "Bash(docker update:*)",
+      "WebFetch(domain:data.humdata.org)",
+      "WebFetch(domain:gist.github.com)",
+      "WebFetch(domain:en.wikipedia.org)",
+      "WebFetch(domain:simplemaps.com)",
+      "WebFetch(domain:media.githubusercontent.com)",
+      "WebFetch(domain:geokeo.com)",
+      "WebFetch(domain:www.mapsofworld.com)",
+      "Bash(node_modules/.bin/prisma db:*)",
+      "Bash(node_modules/.bin/prisma generate:*)",
+      "Bash(npx --yes prisma@5.22.0 generate --schema=/d/projects/v91/sahoo-adel-full/apps/services/field-management-service/prisma/schema.prisma)",
+      "Bash(DATABASE_URL=\"postgresql://sahool:sahool@localhost:5432/sahool\" DATABASE_URL_DIRECT=\"postgresql://sahool:sahool@localhost:5432/sahool\" npx prisma@5.22.0 generate --schema=prisma/schema.prisma)",
+      "Bash(DATABASE_URL=\"postgresql://sahool:sahool@localhost:5432/sahool\" DATABASE_URL_DIRECT=\"postgresql://sahool:sahool@localhost:5432/sahool\" npx prisma@5.22.0 generate --schema=./prisma/schema.prisma)"
     ]
   }
 }

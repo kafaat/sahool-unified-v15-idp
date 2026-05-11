@@ -49,6 +49,9 @@ export interface FarmResponse {
   phone: string | null;
   email: string | null;
   bbox?: [number, number, number, number] | null;
+  centerLat?: number | null;
+  centerLng?: number | null;
+  zoom?: number | null;
   isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -94,6 +97,9 @@ const FARM_SELECT = {
   phone: true,
   email: true,
   bbox: true,
+  centerLat: true,
+  centerLng: true,
+  zoom: true,
   isDeleted: true,
   createdAt: true,
   updatedAt: true,
@@ -122,6 +128,9 @@ function serializeFarm(f: any): FarmResponse {
     phone: f.phone ?? null,
     email: f.email ?? null,
     bbox: Array.isArray(f.bbox) ? f.bbox as [number, number, number, number] : null,
+    centerLat: toNumber(f.centerLat) ?? null,
+    centerLng: toNumber(f.centerLng) ?? null,
+    zoom: typeof f.zoom === 'number' ? f.zoom : null,
     isDeleted: !!f.isDeleted,
     createdAt: f.createdAt,
     updatedAt: f.updatedAt,
@@ -160,6 +169,9 @@ export class FarmsService {
         phone: dto.phone,
         email: dto.email,
         ...(dto.bbox && { bbox: dto.bbox }),
+        ...(dto.centerLat !== undefined && { centerLat: dto.centerLat }),
+        ...(dto.centerLng !== undefined && { centerLng: dto.centerLng }),
+        ...(dto.zoom !== undefined && { zoom: dto.zoom }),
       },
       select: FARM_SELECT,
     });
@@ -291,6 +303,9 @@ export class FarmsService {
         ...(dto.phone !== undefined && { phone: dto.phone }),
         ...(dto.email !== undefined && { email: dto.email }),
         ...(dto.bbox !== undefined && { bbox: dto.bbox ?? null }),
+        ...(dto.centerLat !== undefined && { centerLat: dto.centerLat ?? null }),
+        ...(dto.centerLng !== undefined && { centerLng: dto.centerLng ?? null }),
+        ...(dto.zoom !== undefined && { zoom: dto.zoom ?? null }),
       },
       select: FARM_SELECT,
     });

@@ -3,31 +3,12 @@ export const runtime = 'nodejs';
 import { NextRequest, NextResponse } from 'next/server';
 
 // ---------------------------------------------------------------------------
-// In-process LRU image cache — avoids re-fetching identical Sentinel images
-// within the same worker process (survives hot-reload in dev, TTL in prod).
-// Key: "${index}::${west}::${south}::${east}::${north}::${from}::${to}::${w}x${h}"
+// In-process LRU image cache — DISABLED
 // ---------------------------------------------------------------------------
-const IMAGE_CACHE_MAX = 200;
-const IMAGE_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours — historical scenes are immutable
-
-interface CacheEntry { buf: ArrayBuffer; expiresAt: number }
-const _imageCache = new Map<string, CacheEntry>();
-
-function imageCacheGet(key: string): ArrayBuffer | null {
-  const entry = _imageCache.get(key);
-  if (!entry) return null;
-  if (entry.expiresAt <= Date.now()) { _imageCache.delete(key); return null; }
-  return entry.buf;
-}
-
-function imageCacheSet(key: string, buf: ArrayBuffer): void {
-  // Evict oldest entry when at capacity
-  if (_imageCache.size >= IMAGE_CACHE_MAX) {
-    const oldest = _imageCache.keys().next().value;
-    if (oldest) _imageCache.delete(oldest);
-  }
-  _imageCache.set(key, { buf, expiresAt: Date.now() + IMAGE_CACHE_TTL_MS });
-}
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function imageCacheGet(_key: string): ArrayBuffer | null { return null; }
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function imageCacheSet(_key: string, _buf: ArrayBuffer): void { /* no-op */ }
 
 // ---------------------------------------------------------------------------
 // OAuth2 token cache (module-level, shared across requests in the same worker)
@@ -489,7 +470,7 @@ export async function GET(req: NextRequest) {
       status: 200,
       headers: {
         'Content-Type': 'image/png',
-        'Cache-Control': 'public, max-age=3600',
+        'Cache-Control': 'no-store',
         'X-Cache': 'HIT',
         'X-Composite': compositeKey,
         'Content-Length': String(cached.byteLength),
@@ -567,7 +548,7 @@ export async function GET(req: NextRequest) {
       status: 200,
       headers: {
         'Content-Type': 'image/png',
-        'Cache-Control': 'public, max-age=3600',
+        'Cache-Control': 'no-store',
         'X-Cache': 'MISS',
         'X-Composite': compositeKey,
         'Content-Length': String(imageBuffer.byteLength),

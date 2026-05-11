@@ -24,6 +24,9 @@ export interface Farm {
   status: FarmStatus;
   coordinates?: { lat: number; lng: number };
   bbox?: [number, number, number, number];
+  centerLat?: number | null;
+  centerLng?: number | null;
+  zoom?: number | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -46,6 +49,9 @@ export interface FarmFormData {
   waterSourceAr: string;
   coordinates?: { lat: number; lng: number };
   bbox?: [number, number, number, number];
+  centerLat?: number;
+  centerLng?: number;
+  zoom?: number;
 }
 
 export interface FarmStats {

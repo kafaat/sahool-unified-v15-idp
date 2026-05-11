@@ -1,12 +1,56 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Building2, Plus, Search, MapPin, Droplets, Users, AlertTriangle, X } from 'lucide-react';
+import { Building2, Plus, Search, MapPin, Droplets, Users, AlertTriangle, X, Loader2 } from 'lucide-react';
 import { useLocale } from 'next-intl';
 import { useFarms, useFarmStats, useUpdateFarm, useCreateFarm } from '@/features/farms';
 import type { Farm, FarmStatus, FarmFormData } from '@/features/farms';
-import FarmBoundaryMap from '@/features/farms/components/FarmBoundaryMap';
+import dynamic from 'next/dynamic';
 import { logger } from '@/lib/logger';
+import { YEMEN_GOVERNORATES } from '@/data/yemen-locations';
+
+const FarmDrawer = dynamic(
+  () => import('@/components/maps/LeafletFieldDrawer'),
+  { ssr: false, loading: () => <div className="h-[500px] bg-gray-100 rounded-lg animate-pulse flex items-center justify-center"><span className="text-gray-500 text-sm">جاري تحميل الخريطة...</span></div> }
+);
+
+/** Derive [minLng, minLat, maxLng, maxLat] from a GeoJSON Polygon. */
+function polygonToBbox(polygon: GeoJSON.Polygon | null): [number, number, number, number] | null {
+  if (!polygon) return null;
+  const coords = polygon.coordinates[0];
+  if (!coords || coords.length === 0) return null;
+  const lngs = coords.map((c) => c[0]!);
+  const lats = coords.map((c) => c[1]!);
+  return [Math.min(...lngs), Math.min(...lats), Math.max(...lngs), Math.max(...lats)];
+}
+
+/** Compute area in hectares from a GeoJSON Polygon using the spherical excess formula. */
+function computeAreaHa(polygon: GeoJSON.Polygon | null): number {
+  if (!polygon) return 0;
+  const ring = polygon.coordinates[0];
+  if (!ring || ring.length < 4) return 0;
+  const R = 6371000; // Earth radius in metres
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  let area = 0;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const xi = toRad(ring[i]![0]!);
+    const yi = toRad(ring[i]![1]!);
+    const xj = toRad(ring[j]![0]!);
+    const yj = toRad(ring[j]![1]!);
+    area += (xj - xi) * (2 + Math.sin(yi) + Math.sin(yj));
+  }
+  const areaM2 = Math.abs((area * R * R) / 2);
+  return Math.round((areaM2 / 10000) * 100) / 100; // m² → hectares, 2 decimals
+}
+
+const WATER_SOURCES = [
+  { value: 'آبار',  labelAr: 'آبار',  labelEn: 'Wells' },
+  { value: 'امطار', labelAr: 'امطار', labelEn: 'Rain' },
+  { value: 'سدود',  labelAr: 'سدود',  labelEn: 'Dams' },
+  { value: 'سيول',  labelAr: 'سيول',  labelEn: 'Floods' },
+  { value: 'غيول',  labelAr: 'غيول',  labelEn: 'Springs' },
+  { value: 'أنهار', labelAr: 'أنهار', labelEn: 'Rivers' },
+] as const;
 
 const statusConfig: Record<FarmStatus, { color: string; labelAr: string }> = {
   active: { color: 'bg-green-100 text-green-800', labelAr: 'نشطة' },
@@ -22,21 +66,86 @@ export default function FarmsClient() {
   const [editingFarm, setEditingFarm] = useState<Farm | null>(null);
   const [editName, setEditName] = useState('');
   const [editNameAr, setEditNameAr] = useState('');
+  const [editWaterSource, setEditWaterSource] = useState('');
   const [editBbox, setEditBbox] = useState<[number, number, number, number] | null>(null);
+  const [editCenterLat, setEditCenterLat] = useState<number | null>(null);
+  const [editCenterLng, setEditCenterLng] = useState<number | null>(null);
+  const [createZoom, setCreateZoom] = useState<number>(10);
+  const [editZoom, setEditZoom] = useState<number>(10);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [newFarm, setNewFarm] = useState<Omit<FarmFormData, 'region' | 'regionAr'>>({ name: '', nameAr: '', location: '', locationAr: '', totalAreaHa: 0, waterSource: '', waterSourceAr: '' });
+
+  // Create dialog — location dropdowns
+  const [createGov, setCreateGov] = useState('');
+  const [createDist, setCreateDist] = useState('');
+  const [createFlyTo, setCreateFlyTo] = useState<[number, number] | null>(null);
+
+  // Edit dialog — location dropdowns
+  const [editGov, setEditGov] = useState('');
+  const [editDist, setEditDist] = useState('');
+  const [editFlyTo, setEditFlyTo] = useState<[number, number] | null>(null);
+
   const { data: farms = [], isLoading, error } = useFarms();
   const { data: stats } = useFarmStats();
   const updateFarm = useUpdateFarm();
   const createFarm = useCreateFarm();
 
+  const createGovData = YEMEN_GOVERNORATES.find((g) => g.nameAr === createGov) ?? null;
+  const editGovData   = YEMEN_GOVERNORATES.find((g) => g.nameAr === editGov)   ?? null;
+
+  const handleCreateGovChange = (govAr: string) => {
+    setCreateGov(govAr);
+    setCreateDist('');
+    setCreateFlyTo(null);
+    const gov = YEMEN_GOVERNORATES.find((g) => g.nameAr === govAr);
+    if (gov) {
+      setCreateFlyTo(gov.center);
+      setNewFarm((prev) => ({ ...prev, location: gov.nameEn, locationAr: gov.nameAr }));
+    } else {
+      setNewFarm((prev) => ({ ...prev, location: '', locationAr: '' }));
+    }
+  };
+
+  const handleCreateDistChange = (distAr: string) => {
+    setCreateDist(distAr);
+    const gov = YEMEN_GOVERNORATES.find((g) => g.nameAr === createGov);
+    const dist = gov?.districts.find((d) => d.nameAr === distAr);
+    if (dist) {
+      setCreateFlyTo(dist.center);
+      setNewFarm((prev) => ({
+        ...prev,
+        location: `${dist.nameEn}, ${gov!.nameEn}`,
+        locationAr: `${dist.nameAr}، ${gov!.nameAr}`,
+      }));
+    }
+  };
+
+  const handleEditGovChange = (govAr: string) => {
+    setEditGov(govAr);
+    setEditDist('');
+    setEditFlyTo(null);
+    const gov = YEMEN_GOVERNORATES.find((g) => g.nameAr === govAr);
+    if (gov) setEditFlyTo(gov.center);
+  };
+
+  const handleEditDistChange = (distAr: string) => {
+    setEditDist(distAr);
+    const gov = YEMEN_GOVERNORATES.find((g) => g.nameAr === editGov);
+    const dist = gov?.districts.find((d) => d.nameAr === distAr);
+    if (dist) setEditFlyTo(dist.center);
+  };
+
   const handleCreateFarm = () => {
     createFarm.mutate(
-      { ...newFarm, region: '', regionAr: '' },
+      { ...newFarm, region: '', regionAr: '', zoom: createZoom },
       {
         onSuccess: () => {
           setShowCreateDialog(false);
-          setNewFarm({ name: '', nameAr: '', location: '', locationAr: '', totalAreaHa: 0, waterSource: '', waterSourceAr: '' });
+          setNewFarm({ name: '', nameAr: '', location: '', locationAr: '', totalAreaHa: 0, waterSource: '', waterSourceAr: '', centerLat: undefined, centerLng: undefined });
+          setCreateZoom(10);
+          setCreateGov('');
+          setCreateDist('');
+          setCreateFlyTo(null);
         },
       }
     );
@@ -53,22 +162,10 @@ export default function FarmsClient() {
     );
   }, [farms, searchTerm]);
 
-  if (isLoading) {
+  if (isLoading && farms.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sahool-green-600" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <p className="text-red-600">فشل في تحميل بيانات المزارع</p>
-          <p className="text-gray-500 text-sm">Failed to load farms data</p>
-        </div>
       </div>
     );
   }
@@ -77,13 +174,56 @@ export default function FarmsClient() {
     setEditingFarm(farm);
     setEditName(farm.name);
     setEditNameAr(farm.nameAr);
+    setEditWaterSource(farm.waterSource ?? '');
+    // Pre-fill governorate/district from saved locationAr (best-effort match)
+    const matchedGov = YEMEN_GOVERNORATES.find(
+      (g) => farm.locationAr?.includes(g.nameAr)
+    );
+    if (matchedGov) {
+      setEditGov(matchedGov.nameAr);
+      setEditFlyTo(matchedGov.center);
+      const matchedDist = matchedGov.districts.find(
+        (d) => farm.locationAr?.includes(d.nameAr)
+      );
+      if (matchedDist) {
+        setEditDist(matchedDist.nameAr);
+        setEditFlyTo(matchedDist.center);
+      }
+    }
   };
 
   const handleSaveEdit = () => {
     if (!editingFarm) return;
+    const editGovObj  = YEMEN_GOVERNORATES.find((g) => g.nameAr === editGov);
+    const editDistObj = editGovObj?.districts.find((d) => d.nameAr === editDist);
+    const locationEn = editDistObj
+      ? `${editDistObj.nameEn}, ${editGovObj!.nameEn}`
+      : editGovObj?.nameEn ?? editingFarm.location;
+    const locationAr = editDistObj
+      ? `${editDistObj.nameAr}، ${editGovObj!.nameAr}`
+      : editGovObj?.nameAr ?? editingFarm.locationAr;
     updateFarm.mutate(
-      { id: editingFarm.id, data: { name: editName, nameAr: editNameAr, ...(editBbox ? { bbox: editBbox } : {}) } },
-      { onSuccess: () => { setEditingFarm(null); setEditBbox(null); } }
+      {
+        id: editingFarm.id,
+        data: {
+          name: editName, nameAr: editNameAr,
+          waterSource: editWaterSource, waterSourceAr: editWaterSource,
+          location: locationEn, locationAr,
+          zoom: editZoom,
+          ...(editBbox ? { bbox: editBbox } : {}),
+          ...(editCenterLat !== null ? { centerLat: editCenterLat } : {}),
+          ...(editCenterLng !== null ? { centerLng: editCenterLng } : {}),
+          ...(editingFarm.totalAreaHa ? { totalAreaHa: editingFarm.totalAreaHa } : {}),
+        },
+      },
+      {
+        onSuccess: () => {
+          setEditingFarm(null); setEditBbox(null);
+          setEditCenterLat(null); setEditCenterLng(null);
+          setEditZoom(10);
+          setEditWaterSource(''); setEditGov(''); setEditDist(''); setEditFlyTo(null);
+        },
+      }
     );
   };
 
@@ -91,64 +231,187 @@ export default function FarmsClient() {
     <div className="space-y-6">
       {/* Create Dialog */}
       {showCreateDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative max-h-[90vh] overflow-y-auto">
-            <button onClick={() => setShowCreateDialog(false)} className="absolute top-3 left-3 text-gray-400 hover:text-gray-600">
-              <X className="w-5 h-5" />
-            </button>
-            <h2 className="text-lg font-bold text-gray-900 mb-4">إضافة مزرعة جديدة</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {isRtl ? 'اسم المزرعة' : 'Farm Name'}
-                </label>
-                <input
-                  value={newFarm.name}
-                  onChange={(e) => setNewFarm({ ...newFarm, name: e.target.value, nameAr: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
-                  dir={isRtl ? 'rtl' : 'ltr'}
-                />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl flex flex-col max-h-[95vh]">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b shrink-0">
+              <h2 className="text-lg font-bold text-gray-900">إضافة مزرعة جديدة</h2>
+              <button onClick={() => setShowCreateDialog(false)} disabled={createFarm.isPending} className="text-gray-400 hover:text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Body — scrollable */}
+            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+              {/* Fields row */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {isRtl ? 'اسم المزرعة' : 'Farm Name'}
+                  </label>
+                  <input
+                    value={newFarm.name}
+                    onChange={(e) => setNewFarm({ ...newFarm, name: e.target.value, nameAr: e.target.value })}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
+                    dir={isRtl ? 'rtl' : 'ltr'}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {isRtl ? 'المحافظة' : 'Governorate'}
+                  </label>
+                  <select
+                    value={createGov}
+                    onChange={(e) => handleCreateGovChange(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500 bg-white"
+                    dir="rtl"
+                  >
+                    <option value="">{isRtl ? '— اختر المحافظة —' : '— Select Governorate —'}</option>
+                    {YEMEN_GOVERNORATES.map((g) => (
+                      <option key={g.nameAr} value={g.nameAr}>
+                        {isRtl ? g.nameAr : g.nameEn}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {isRtl ? 'المديرية' : 'District'}
+                  </label>
+                  <select
+                    value={createDist}
+                    onChange={(e) => handleCreateDistChange(e.target.value)}
+                    disabled={!createGovData}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500 bg-white disabled:opacity-50"
+                    dir="rtl"
+                  >
+                    <option value="">{isRtl ? '— اختر المديرية —' : '— Select District —'}</option>
+                    {(createGovData?.districts ?? []).map((d) => (
+                      <option key={d.nameAr} value={d.nameAr}>
+                        {isRtl ? d.nameAr : d.nameEn}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {isRtl ? 'المساحة الكلية (هكتار)' : 'Total Area (ha)'}
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={newFarm.totalAreaHa}
+                    onChange={(e) => setNewFarm({ ...newFarm, totalAreaHa: Number(e.target.value) })}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {isRtl ? 'مصدر المياه' : 'Water Source'}
+                  </label>
+                  <select
+                    value={newFarm.waterSource}
+                    onChange={(e) => setNewFarm({ ...newFarm, waterSource: e.target.value, waterSourceAr: e.target.value })}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500 bg-white"
+                    dir={isRtl ? 'rtl' : 'ltr'}
+                  >
+                    <option value="">{isRtl ? '— اختر مصدر المياه —' : '— Select water source —'}</option>
+                    {WATER_SOURCES.map((ws) => (
+                      <option key={ws.value} value={ws.value}>
+                        {isRtl ? ws.labelAr : ws.labelEn}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
+
+              {/* Map */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {isRtl ? 'الموقع' : 'Location'}
-                </label>
-                <input
-                  value={newFarm.location}
-                  onChange={(e) => setNewFarm({ ...newFarm, location: e.target.value, locationAr: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
-                  dir={isRtl ? 'rtl' : 'ltr'}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">المساحة الكلية (هكتار)</label>
-                <input type="number" min={0} value={newFarm.totalAreaHa} onChange={(e) => setNewFarm({ ...newFarm, totalAreaHa: Number(e.target.value) })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {isRtl ? 'مصدر المياه' : 'Water Source'}
-                </label>
-                <input
-                  value={newFarm.waterSource}
-                  onChange={(e) => setNewFarm({ ...newFarm, waterSource: e.target.value, waterSourceAr: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
-                  dir={isRtl ? 'rtl' : 'ltr'}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   {isRtl ? 'حدود المزرعة (اختياري)' : 'Farm Boundary (optional)'}
                 </label>
-                <FarmBoundaryMap
-                  onBboxChange={(bbox) => setNewFarm((prev) => ({ ...prev, bbox: bbox ?? undefined }))}
-                  height="300px"
+                <FarmDrawer
+                  height="500px"
+                  initialCenter={[15.5527, 48.5164]}
+                  initialZoom={6}
+                  externalFlyTo={createFlyTo}
+                  externalFlyZoom={createDist ? 11 : 8}
+                  onZoomChange={setCreateZoom}
+                  onBoundaryChange={(polygon) => {
+                    const bbox = polygonToBbox(polygon);
+                    const area = computeAreaHa(polygon);
+                    const centerLat = bbox ? (bbox[1] + bbox[3]) / 2 : undefined;
+                    const centerLng = bbox ? (bbox[0] + bbox[2]) / 2 : undefined;
+                    setNewFarm((prev) => ({
+                      ...prev,
+                      bbox: bbox ?? undefined,
+                      centerLat,
+                      centerLng,
+                      ...(area > 0 ? { totalAreaHa: area } : {}),
+                    }));
+                  }}
                 />
               </div>
+
+              {/* احداثيات المزرعة — auto-filled from bbox + zoom */}
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">
+                    {isRtl ? 'خط العرض (Lat)' : 'Latitude'}
+                  </label>
+                  <input
+                    type="text"
+                    disabled
+                    value={newFarm.centerLat != null ? newFarm.centerLat.toFixed(6) : ''}
+                    placeholder={isRtl ? 'تلقائي' : 'Auto'}
+                    className="w-full px-3 py-2 border rounded-lg bg-gray-50 text-gray-600 text-sm cursor-not-allowed"
+                    dir="ltr"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">
+                    {isRtl ? 'خط الطول (Lng)' : 'Longitude'}
+                  </label>
+                  <input
+                    type="text"
+                    disabled
+                    value={newFarm.centerLng != null ? newFarm.centerLng.toFixed(6) : ''}
+                    placeholder={isRtl ? 'تلقائي' : 'Auto'}
+                    className="w-full px-3 py-2 border rounded-lg bg-gray-50 text-gray-600 text-sm cursor-not-allowed"
+                    dir="ltr"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">
+                    {isRtl ? 'مستوى التكبير' : 'Zoom'}
+                  </label>
+                  <input
+                    type="text"
+                    disabled
+                    value={createZoom}
+                    className="w-full px-3 py-2 border rounded-lg bg-gray-50 text-gray-600 text-sm cursor-not-allowed"
+                    dir="ltr"
+                  />
+                </div>
+              </div>
             </div>
-            <div className="flex justify-end gap-3 mt-6">
-              <button onClick={() => setShowCreateDialog(false)} className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50">إلغاء</button>
-              <button onClick={handleCreateFarm} disabled={createFarm.isPending || !newFarm.name} className="px-4 py-2 text-sm text-white bg-sahool-green-600 rounded-lg hover:bg-sahool-green-700 disabled:opacity-50">
-                {createFarm.isPending ? 'جاري الإنشاء...' : 'إنشاء'}
+
+            {/* Footer */}
+            <div className="flex justify-end gap-3 px-6 py-4 border-t shrink-0">
+              <button
+                onClick={() => setShowCreateDialog(false)}
+                disabled={createFarm.isPending}
+                className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isRtl ? 'إلغاء' : 'Cancel'}
+              </button>
+              <button
+                onClick={handleCreateFarm}
+                disabled={createFarm.isPending || !newFarm.name}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm text-white bg-sahool-green-600 rounded-lg hover:bg-sahool-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {createFarm.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
+                {createFarm.isPending ? (isRtl ? 'جاري الإنشاء...' : 'Creating...') : (isRtl ? 'إنشاء' : 'Create')}
               </button>
             </div>
           </div>
@@ -157,38 +420,171 @@ export default function FarmsClient() {
 
       {/* Edit Dialog */}
       {editingFarm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative">
-            <button onClick={() => setEditingFarm(null)} className="absolute top-3 left-3 text-gray-400 hover:text-gray-600">
-              <X className="w-5 h-5" />
-            </button>
-            <h2 className="text-lg font-bold text-gray-900 mb-4">تعديل المزرعة</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {isRtl ? 'اسم المزرعة' : 'Farm Name'}
-                </label>
-                <input
-                  value={editName}
-                  onChange={(e) => { setEditName(e.target.value); setEditNameAr(e.target.value); }}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
-                  dir={isRtl ? 'rtl' : 'ltr'}
-                />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl flex flex-col max-h-[95vh]">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b shrink-0">
+              <h2 className="text-lg font-bold text-gray-900">تعديل المزرعة</h2>
+              <button onClick={() => { setEditingFarm(null); setEditGov(''); setEditDist(''); setEditFlyTo(null); }} disabled={updateFarm.isPending} className="text-gray-400 hover:text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {isRtl ? 'اسم المزرعة' : 'Farm Name'}
+                  </label>
+                  <input
+                    value={editName}
+                    onChange={(e) => { setEditName(e.target.value); setEditNameAr(e.target.value); }}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
+                    dir={isRtl ? 'rtl' : 'ltr'}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {isRtl ? 'مصدر المياه' : 'Water Source'}
+                  </label>
+                  <select
+                    value={editWaterSource}
+                    onChange={(e) => setEditWaterSource(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500 bg-white"
+                    dir={isRtl ? 'rtl' : 'ltr'}
+                  >
+                    <option value="">{isRtl ? '— اختر مصدر المياه —' : '— Select water source —'}</option>
+                    {WATER_SOURCES.map((ws) => (
+                      <option key={ws.value} value={ws.value}>
+                        {isRtl ? ws.labelAr : ws.labelEn}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {isRtl ? 'المحافظة' : 'Governorate'}
+                  </label>
+                  <select
+                    value={editGov}
+                    onChange={(e) => handleEditGovChange(e.target.value)}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500 bg-white"
+                    dir="rtl"
+                  >
+                    <option value="">{isRtl ? '— اختر المحافظة —' : '— Select Governorate —'}</option>
+                    {YEMEN_GOVERNORATES.map((g) => (
+                      <option key={g.nameAr} value={g.nameAr}>
+                        {isRtl ? g.nameAr : g.nameEn}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {isRtl ? 'المديرية' : 'District'}
+                  </label>
+                  <select
+                    value={editDist}
+                    onChange={(e) => handleEditDistChange(e.target.value)}
+                    disabled={!editGovData}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500 bg-white disabled:opacity-50"
+                    dir="rtl"
+                  >
+                    <option value="">{isRtl ? '— اختر المديرية —' : '— Select District —'}</option>
+                    {(editGovData?.districts ?? []).map((d) => (
+                      <option key={d.nameAr} value={d.nameAr}>
+                        {isRtl ? d.nameAr : d.nameEn}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
+
+              {/* Map */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   {isRtl ? 'حدود المزرعة (اختياري)' : 'Farm Boundary (optional)'}
                 </label>
-                <FarmBoundaryMap
-                  onBboxChange={(bbox) => setEditBbox(bbox)}
-                  height="300px"
+                <FarmDrawer
+                  height="500px"
+                  initialCenter={[15.5527, 48.5164]}
+                  initialZoom={6}
+                  externalFlyTo={editFlyTo}
+                  externalFlyZoom={editDist ? 11 : 8}
+                  onZoomChange={setEditZoom}
+                  onBoundaryChange={(polygon) => {
+                    const bbox = polygonToBbox(polygon);
+                    setEditBbox(bbox);
+                    setEditCenterLat(bbox ? (bbox[1] + bbox[3]) / 2 : null);
+                    setEditCenterLng(bbox ? (bbox[0] + bbox[2]) / 2 : null);
+                    const area = computeAreaHa(polygon);
+                    if (area > 0 && editingFarm) {
+                      setEditingFarm((prev) => prev ? { ...prev, totalAreaHa: area } : prev);
+                    }
+                  }}
                 />
               </div>
+
+              {/* احداثيات المزرعة — auto-filled from bbox + zoom */}
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">
+                    {isRtl ? 'خط العرض (Lat)' : 'Latitude'}
+                  </label>
+                  <input
+                    type="text"
+                    disabled
+                    value={editCenterLat != null ? editCenterLat.toFixed(6) : (editingFarm?.centerLat != null ? Number(editingFarm.centerLat).toFixed(6) : '')}
+                    placeholder={isRtl ? 'تلقائي' : 'Auto'}
+                    className="w-full px-3 py-2 border rounded-lg bg-gray-50 text-gray-600 text-sm cursor-not-allowed"
+                    dir="ltr"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">
+                    {isRtl ? 'خط الطول (Lng)' : 'Longitude'}
+                  </label>
+                  <input
+                    type="text"
+                    disabled
+                    value={editCenterLng != null ? editCenterLng.toFixed(6) : (editingFarm?.centerLng != null ? Number(editingFarm.centerLng).toFixed(6) : '')}
+                    placeholder={isRtl ? 'تلقائي' : 'Auto'}
+                    className="w-full px-3 py-2 border rounded-lg bg-gray-50 text-gray-600 text-sm cursor-not-allowed"
+                    dir="ltr"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">
+                    {isRtl ? 'مستوى التكبير' : 'Zoom'}
+                  </label>
+                  <input
+                    type="text"
+                    disabled
+                    value={editZoom}
+                    className="w-full px-3 py-2 border rounded-lg bg-gray-50 text-gray-600 text-sm cursor-not-allowed"
+                    dir="ltr"
+                  />
+                </div>
+              </div>
             </div>
-            <div className="flex justify-end gap-3 mt-6">
-              <button onClick={() => setEditingFarm(null)} className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50">إلغاء</button>
-              <button onClick={handleSaveEdit} disabled={updateFarm.isPending} className="px-4 py-2 text-sm text-white bg-sahool-green-600 rounded-lg hover:bg-sahool-green-700 disabled:opacity-50">
-                {updateFarm.isPending ? 'جاري الحفظ...' : 'حفظ'}
+
+            {/* Footer */}
+            <div className="flex justify-end gap-3 px-6 py-4 border-t shrink-0">
+              <button
+                onClick={() => { setEditingFarm(null); setEditGov(''); setEditDist(''); setEditFlyTo(null); }}
+                disabled={updateFarm.isPending}
+                className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isRtl ? 'إلغاء' : 'Cancel'}
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                disabled={updateFarm.isPending}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm text-white bg-sahool-green-600 rounded-lg hover:bg-sahool-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {updateFarm.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
+                {updateFarm.isPending ? (isRtl ? 'جاري الحفظ...' : 'Saving...') : (isRtl ? 'حفظ' : 'Save')}
               </button>
             </div>
           </div>

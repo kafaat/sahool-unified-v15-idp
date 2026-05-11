@@ -23,6 +23,10 @@ export interface GoogleMapsFieldDrawerProps {
   height?: string;
   readOnly?: boolean;
   initialPolygon?: GeoJSON.Polygon | null;
+  /** External flyTo target — when set the map animates to these coords. */
+  externalFlyTo?: [number, number] | null;
+  externalFlyZoom?: number;
+  onZoomChange?: (zoom: number) => void;
 }
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -355,6 +359,27 @@ function MapFlyToInner({ target, zoom, useMap }: { target: [number, number]; zoo
   return null;
 }
 
+// ─── MapZoomTracker ───────────────────────────────────────────────────────────
+
+function MapZoomTracker({ onZoomChange }: { onZoomChange?: (zoom: number) => void }) {
+  const [hook, setHook] = useState<(() => L.Map) | null>(null);
+  useEffect(() => { import('react-leaflet').then((m) => setHook(() => m.useMap)); }, []);
+  if (!hook || !onZoomChange) return null;
+  return <MapZoomTrackerInner onZoomChange={onZoomChange} useMap={hook} />;
+}
+
+function MapZoomTrackerInner({ onZoomChange, useMap }: { onZoomChange: (zoom: number) => void; useMap: () => L.Map }) {
+  const map = useMap();
+  useEffect(() => {
+    // Fire immediately so the parent gets the actual initial zoom, not the state default.
+    onZoomChange(map.getZoom());
+    const handler = () => onZoomChange(map.getZoom());
+    map.on('zoomend', handler);
+    return () => { map.off('zoomend', handler); };
+  }, [map, onZoomChange]);
+  return null;
+}
+
 // ─── Inner component ──────────────────────────────────────────────────────────
 
 function Inner({
@@ -364,6 +389,9 @@ function Inner({
   height = '500px',
   readOnly = false,
   initialPolygon,
+  externalFlyTo,
+  externalFlyZoom = 11,
+  onZoomChange,
 }: GoogleMapsFieldDrawerProps) {
   const [leafletLib, setLeafletLib] = useState<typeof import('leaflet') | null>(null);
   useEffect(() => { import('leaflet').then((L) => setLeafletLib(L)); }, []);
@@ -400,6 +428,15 @@ function Inner({
   const [searchErr, setSearchErr] = useState('');
   const [flyTarget, setFlyTarget] = useState<[number, number] | null>(null);
   const [flyZoom,   setFlyZoom]   = useState(14);
+
+  // When the parent passes a new externalFlyTo, forward it to the map
+  useEffect(() => {
+    if (externalFlyTo) {
+      setFlyTarget(externalFlyTo);
+      setFlyZoom(externalFlyZoom);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [externalFlyTo?.[0], externalFlyTo?.[1], externalFlyZoom]);
 
   // ── Emit ──────────────────────────────────────────────────────────────────
   const emit = useCallback((vs: Vertex[]) => {
@@ -705,6 +742,7 @@ function Inner({
         />
 
         <MapFlyTo target={flyTarget} zoom={flyZoom} />
+        <MapZoomTracker onZoomChange={onZoomChange} />
 
         {!readOnly && (
           <EventLayer

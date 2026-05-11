@@ -174,7 +174,7 @@ export async function GET(req: NextRequest) {
       generatedAt: now.toISOString(),
     },
     {
-      headers: { 'Cache-Control': 'public, max-age=1800' }, // 30-min cache for catalog results
+      headers: { 'Cache-Control': 'no-store' },
     },
   );
 }

@@ -63,6 +63,11 @@ const LayersControl = dynamic(
   { ssr: false, loading: () => null }
 ) as any;
 
+const BaseLayer = dynamic(
+  () => import('react-leaflet').then((mod) => mod.LayersControl.BaseLayer),
+  { ssr: false, loading: () => null }
+) as any;
+
 const Marker = dynamic(
   () => import('react-leaflet').then((mod) => mod.Marker),
   { ssr: false, loading: () => null }
@@ -471,22 +476,22 @@ export default function FieldBoundaryMap({
         className="z-0"
       >
         <LayersControl position="topleft">
-          <LayersControl.BaseLayer checked name="خريطة الشوارع">
+          <BaseLayer checked name="خريطة الشوارع">
             <TileLayer
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               attribution="&copy; OpenStreetMap contributors"
               maxZoom={19}
               errorTileUrl="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN88P/BfwAJhAPk3KErzgAAAABJRU5ErkJggg=="
             />
-          </LayersControl.BaseLayer>
-          <LayersControl.BaseLayer name="صور فضائية">
+          </BaseLayer>
+          <BaseLayer name="صور فضائية">
             <TileLayer
               url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
               attribution="&copy; Esri, Maxar, Earthstar Geographics"
               maxZoom={18}
               errorTileUrl="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN88P/BfwAJhAPk3KErzgAAAABJRU5ErkJggg=="
             />
-          </LayersControl.BaseLayer>
+          </BaseLayer>
         </LayersControl>
 
         <DrawingLayer

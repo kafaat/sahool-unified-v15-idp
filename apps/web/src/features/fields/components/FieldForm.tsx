@@ -8,6 +8,9 @@
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { Save, X, MapPin, Info } from 'lucide-react';
+import { useLocale } from 'next-intl';
+import { useFarms } from '@/features/farms';
+import { YEMEN_GOVERNORATES } from '@/data/yemen-locations';
 import type { Field, FieldFormData, GeoPolygon } from '../types';
 
 // Dynamic import – no SSR for Leaflet
@@ -32,53 +35,54 @@ export const FieldForm: React.FC<FieldFormProps> = ({
   onCancel,
   isSubmitting = false,
 }) => {
+  const locale = useLocale();
+  const isRtl = locale === 'ar';
+
+  const { data: farms = [] } = useFarms();
+
   const [tab, setTab] = useState<'info' | 'boundary'>('info');
+  const [mapFlyTo, setMapFlyTo] = useState<[number, number] | null>(null);
+  const [mapFlyZoom, setMapFlyZoom] = useState(11);
   const [formData, setFormData] = useState<FieldFormData>({
-    name: field?.name || '',
-    nameAr: field?.nameAr || '',
-    area: field?.area || 0,
-    crop: field?.crop || '',
-    cropAr: field?.cropAr || '',
-    description: field?.description || '',
+    name:          field?.name          || '',
+    nameAr:        field?.nameAr        || '',
+    area:          field?.area          || 0,
+    crop:          field?.crop          || '',
+    cropAr:        field?.cropAr        || '',
+    description:   field?.description   || '',
     descriptionAr: field?.descriptionAr || '',
-    farmId: field?.farmId || '',
-    polygon: field?.polygon,
+    farmId:        field?.farmId        || '',
+    polygon:       field?.polygon,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    const trimmedNameAr = formData.nameAr.trim();
-    if (!trimmedNameAr) {
-      newErrors.nameAr = 'اسم الحقل بالعربية مطلوب';
-    } else if (trimmedNameAr.length < MIN_NAME_LENGTH) {
-      newErrors.nameAr = `الاسم قصير جداً (الحد الأدنى ${MIN_NAME_LENGTH} أحرف)`;
-    } else if (trimmedNameAr.length > MAX_NAME_LENGTH) {
-      newErrors.nameAr = `الاسم طويل جداً (الحد الأقصى ${MAX_NAME_LENGTH} حرف)`;
-    }
-
-    const trimmedName = formData.name.trim();
-    if (trimmedName && trimmedName.length < MIN_NAME_LENGTH) {
-      newErrors.name = `Name too short (minimum ${MIN_NAME_LENGTH} characters)`;
+    const trimmedName = (formData.nameAr || formData.name).trim();
+    if (!trimmedName) {
+      newErrors.nameAr = isRtl ? 'اسم الحقل مطلوب' : 'Field name is required';
+    } else if (trimmedName.length < MIN_NAME_LENGTH) {
+      newErrors.nameAr = isRtl
+        ? `الاسم قصير جداً (الحد الأدنى ${MIN_NAME_LENGTH} أحرف)`
+        : `Name too short (min ${MIN_NAME_LENGTH} chars)`;
     } else if (trimmedName.length > MAX_NAME_LENGTH) {
-      newErrors.name = `Name too long (maximum ${MAX_NAME_LENGTH} characters)`;
+      newErrors.nameAr = isRtl
+        ? `الاسم طويل جداً (الحد الأقصى ${MAX_NAME_LENGTH} حرف)`
+        : `Name too long (max ${MAX_NAME_LENGTH} chars)`;
     }
 
-    // Polygon must have at least 3 vertices (4 coords including closing point)
     const coords = formData.polygon?.coordinates?.[0];
     if (!coords || coords.length < 4) {
-      newErrors.polygon = 'يجب رسم حدود الحقل (3 نقاط على الأقل)';
+      newErrors.polygon = isRtl
+        ? 'يجب رسم حدود الحقل (3 نقاط على الأقل)'
+        : 'Field boundary required (at least 3 points)';
     }
 
     setErrors(newErrors);
 
-    // Switch to the tab that has the first error
-    if (newErrors.nameAr || newErrors.name) {
-      setTab('info');
-    } else if (newErrors.polygon) {
-      setTab('boundary');
-    }
+    if (newErrors.nameAr) setTab('info');
+    else if (newErrors.polygon) setTab('boundary');
 
     return Object.keys(newErrors).length === 0;
   };
@@ -86,10 +90,9 @@ export const FieldForm: React.FC<FieldFormProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-    const nameAr = formData.nameAr.trim();
-    // Auto-fill English name from Arabic name if left empty
-    const name = formData.name.trim() || nameAr;
-    await onSubmit({ ...formData, name, nameAr });
+    const name = (formData.nameAr || formData.name).trim();
+    // Both name fields carry the same value — the backend stores both columns
+    await onSubmit({ ...formData, name, nameAr: name });
   };
 
   const handleChange = <K extends keyof FieldFormData>(key: K, value: FieldFormData[K]) => {
@@ -99,9 +102,76 @@ export const FieldForm: React.FC<FieldFormProps> = ({
     }
   };
 
+  /** Single name input writes to both name and nameAr */
+  const handleNameChange = (val: string) => {
+    setFormData((prev) => ({ ...prev, name: val, nameAr: val }));
+    if (errors.nameAr) setErrors((prev) => { const e = { ...prev }; delete e.nameAr; return e; });
+  };
+
+  /** Single crop input writes to both crop and cropAr */
+  const handleCropChange = (val: string) => {
+    setFormData((prev) => ({ ...prev, crop: val, cropAr: val }));
+  };
+
+  /** Single description input writes to both description and descriptionAr */
+  const handleDescChange = (val: string) => {
+    setFormData((prev) => ({ ...prev, description: val, descriptionAr: val }));
+  };
+
+  /** When a farm is selected, resolve its center so the boundary tab opens there */
+  const handleFarmChange = (farmId: string) => {
+    handleChange('farmId', farmId);
+    if (!farmId) { setMapFlyTo(null); return; }
+
+    const farm = farms.find((f) => f.id === farmId);
+    if (!farm) { setMapFlyTo(null); return; }
+
+    // Priority 1 — explicitly stored center (set when farm boundary was drawn)
+    if (farm.centerLat != null && farm.centerLng != null) {
+      setMapFlyTo([farm.centerLat, farm.centerLng]);
+      setMapFlyZoom(farm.zoom ?? 12);
+      return;
+    }
+
+    // Priority 2 — derive center from stored bbox
+    if (farm.bbox) {
+      const [minLng, minLat, maxLng, maxLat] = farm.bbox;
+      setMapFlyTo([(minLat + maxLat) / 2, (minLng + maxLng) / 2]);
+      setMapFlyZoom(farm.zoom ?? 12);
+      return;
+    }
+
+    // Priority 3 — stored point coordinates
+    if (farm.coordinates) {
+      setMapFlyTo([farm.coordinates.lat, farm.coordinates.lng]);
+      setMapFlyZoom(12);
+      return;
+    }
+
+    // Priority 4 — match locationAr against Yemen districts/governorates
+    const locationAr = farm.locationAr ?? '';
+    if (locationAr) {
+      for (const gov of YEMEN_GOVERNORATES) {
+        const dist = gov.districts.find((d) => locationAr.includes(d.nameAr));
+        if (dist) {
+          setMapFlyTo(dist.center);
+          setMapFlyZoom(11);
+          return;
+        }
+        if (locationAr.includes(gov.nameAr)) {
+          setMapFlyTo(gov.center);
+          setMapFlyZoom(9);
+          return;
+        }
+      }
+    }
+
+    // No geometry — clear so map stays at Yemen overview
+    setMapFlyTo(null);
+  };
+
   const handleBoundaryChange = (geojson: GeoPolygon | null) => {
     if (geojson) {
-      // Compute area from polygon using Haversine
       const coords = geojson.coordinates[0] ?? [];
       const area = computeAreaHectares(coords);
       setFormData((prev) => ({ ...prev, polygon: geojson, area }));
@@ -111,11 +181,18 @@ export const FieldForm: React.FC<FieldFormProps> = ({
     }
   };
 
+  // Display value for the name input (prefer nameAr as canonical)
+  const nameValue = formData.nameAr || formData.name;
+  const cropValue = formData.cropAr || formData.crop;
+  const descValue = formData.descriptionAr || formData.description;
+
   return (
     <form onSubmit={handleSubmit} className="bg-white flex flex-col h-full">
       <div className="px-6 pt-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">
-          {field ? 'تعديل الحقل' : 'إضافة حقل جديد'}
+          {field
+            ? (isRtl ? 'تعديل الحقل' : 'Edit Field')
+            : (isRtl ? 'إضافة حقل جديد' : 'Add New Field')}
         </h2>
 
         {/* Tabs */}
@@ -130,7 +207,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
             }`}
           >
             <Info className="w-4 h-4" />
-            المعلومات الأساسية
+            {isRtl ? 'المعلومات الأساسية' : 'Basic Info'}
           </button>
           <button
             type="button"
@@ -142,7 +219,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
             } ${errors.polygon ? 'text-red-500' : ''}`}
           >
             <MapPin className="w-4 h-4" />
-            حدود الحقل
+            {isRtl ? 'حدود الحقل' : 'Field Boundary'}
             {errors.polygon && <span className="w-2 h-2 rounded-full bg-red-500 inline-block" />}
           </button>
         </div>
@@ -150,94 +227,91 @@ export const FieldForm: React.FC<FieldFormProps> = ({
 
       {/* Tab: Basic Info */}
       {tab === 'info' && (
-        <div className="px-6 space-y-6">
-          {/* Name (Arabic) */}
+        <div className="px-6 space-y-5">
+
+          {/* ── Farm selector ──────────────────────────────────────────────── */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">الاسم (بالعربية) *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {isRtl ? 'المزرعة' : 'Farm'}
+            </label>
+            <select
+              value={formData.farmId ?? ''}
+              onChange={(e) => handleFarmChange(e.target.value)}
+              className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 bg-white"
+              dir={isRtl ? 'rtl' : 'ltr'}
+            >
+              <option value="">
+                {isRtl ? '— اختر المزرعة —' : '— Select a farm —'}
+              </option>
+              {farms.map((farm) => (
+                <option key={farm.id} value={farm.id}>
+                  {isRtl ? (farm.nameAr || farm.name) : (farm.name || farm.nameAr)}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* ── Field name ─────────────────────────────────────────────────── */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {isRtl ? 'اسم الحقل *' : 'Field Name *'}
+            </label>
             <input
               type="text"
               required
               maxLength={MAX_NAME_LENGTH}
-              value={formData.nameAr}
-              onChange={(e) => handleChange('nameAr', e.target.value)}
-              className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:border-blue-500 ${errors.nameAr ? 'border-red-400' : 'border-gray-200'}`}
-              placeholder="أدخل اسم الحقل"
+              value={nameValue}
+              onChange={(e) => handleNameChange(e.target.value)}
+              className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:border-blue-500 ${
+                errors.nameAr ? 'border-red-400' : 'border-gray-200'
+              }`}
+              placeholder={isRtl ? 'أدخل اسم الحقل' : 'Enter field name'}
+              dir={isRtl ? 'rtl' : 'ltr'}
             />
             {errors.nameAr && <p className="mt-1 text-sm text-red-600">{errors.nameAr}</p>}
           </div>
 
-          {/* Name (English) */}
+          {/* ── Computed area (read-only) ───────────────────────────────────── */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Name (English)</label>
-            <input
-              type="text"
-              maxLength={MAX_NAME_LENGTH}
-              value={formData.name}
-              onChange={(e) => handleChange('name', e.target.value)}
-              className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:border-blue-500 ${errors.name ? 'border-red-400' : 'border-gray-200'}`}
-              placeholder="Enter field name"
-              dir="ltr"
-            />
-            {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
-          </div>
-
-          {/* Area — read-only, computed from polygon */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">المساحة المحسوبة</label>
-            <div className={`w-full px-4 py-2 border-2 rounded-lg bg-gray-50 text-gray-600 ${formData.area > 0 ? 'border-green-300' : 'border-gray-200'}`}>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {isRtl ? 'المساحة المحسوبة' : 'Computed Area'}
+            </label>
+            <div className={`w-full px-4 py-2 border-2 rounded-lg bg-gray-50 text-gray-600 ${
+              formData.area > 0 ? 'border-green-300' : 'border-gray-200'
+            }`}>
               {formData.area > 0
-                ? `${formData.area.toFixed(2)} هكتار`
-                : 'ستُحسب تلقائياً عند رسم الحدود'}
+                ? `${formData.area.toFixed(2)} ${isRtl ? 'هكتار' : 'ha'}`
+                : (isRtl ? 'ستُحسب تلقائياً عند رسم الحدود' : 'Auto-calculated from boundary')}
             </div>
           </div>
 
-          {/* Crop (Arabic) */}
+          {/* ── Crop ───────────────────────────────────────────────────────── */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">المحصول (بالعربية)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {isRtl ? 'نوع المحصول' : 'Crop Type'}
+            </label>
             <input
               type="text"
-              value={formData.cropAr}
-              onChange={(e) => handleChange('cropAr', e.target.value)}
+              value={cropValue}
+              onChange={(e) => handleCropChange(e.target.value)}
               className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
-              placeholder="نوع المحصول"
+              placeholder={isRtl ? 'نوع المحصول' : 'Crop type'}
+              dir={isRtl ? 'rtl' : 'ltr'}
             />
           </div>
 
-          {/* Crop (English) */}
+          {/* ── Description ────────────────────────────────────────────────── */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Crop (English)</label>
-            <input
-              type="text"
-              value={formData.crop}
-              onChange={(e) => handleChange('crop', e.target.value)}
-              className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
-              placeholder="Crop type"
-              dir="ltr"
-            />
-          </div>
-
-          {/* Description (Arabic) */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">الوصف (بالعربية)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              {isRtl ? 'الوصف' : 'Description'}
+            </label>
             <textarea
-              value={formData.descriptionAr}
-              onChange={(e) => handleChange('descriptionAr', e.target.value)}
+              value={descValue}
+              onChange={(e) => handleDescChange(e.target.value)}
               rows={3}
               className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
-              placeholder="وصف الحقل"
-            />
-          </div>
-
-          {/* Description (English) */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Description (English)</label>
-            <textarea
-              value={formData.description}
-              onChange={(e) => handleChange('description', e.target.value)}
-              rows={3}
-              className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
-              placeholder="Field description"
-              dir="ltr"
+              placeholder={isRtl ? 'وصف الحقل' : 'Field description'}
+              dir={isRtl ? 'rtl' : 'ltr'}
             />
           </div>
         </div>
@@ -248,14 +322,16 @@ export const FieldForm: React.FC<FieldFormProps> = ({
         <div className="px-6 flex flex-col flex-1 min-h-0">
           <GoogleMapsFieldDrawer
             height="calc(100vh - 320px)"
-            initialCenter={[15.5527, 48.5164]}
-            initialZoom={7}
+            initialCenter={mapFlyTo ?? [15.5527, 48.5164]}
+            initialZoom={mapFlyTo ? mapFlyZoom : 7}
             initialPolygon={formData.polygon}
             onBoundaryChange={handleBoundaryChange}
           />
           {formData.area > 0 && (
             <p className="mt-3 text-sm font-medium text-green-700">
-              المساحة المحسوبة: {formData.area.toFixed(2)} هكتار
+              {isRtl
+                ? `المساحة المحسوبة: ${formData.area.toFixed(2)} هكتار`
+                : `Computed area: ${formData.area.toFixed(2)} ha`}
             </p>
           )}
           {errors.polygon && (
@@ -274,7 +350,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
             disabled={isSubmitting}
           >
             <X className="w-4 h-4" />
-            <span>إلغاء</span>
+            <span>{isRtl ? 'إلغاء' : 'Cancel'}</span>
           </button>
         )}
         <button
@@ -283,7 +359,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
           className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Save className="w-4 h-4" />
-          <span>{isSubmitting ? 'جاري الحفظ...' : 'حفظ'}</span>
+          <span>{isSubmitting ? (isRtl ? 'جاري الحفظ...' : 'Saving...') : (isRtl ? 'حفظ' : 'Save')}</span>
         </button>
       </div>
     </form>
@@ -292,7 +368,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
 
 export default FieldForm;
 
-// ─── Haversine area helper (runs client-side) ───────────────────────────────
+// ─── Haversine area helper (runs client-side) ────────────────────────────────
 
 function toRad(deg: number) {
   return (deg * Math.PI) / 180;
@@ -300,8 +376,7 @@ function toRad(deg: number) {
 
 function computeAreaHectares(coords: number[][]): number {
   if (coords.length < 4) return 0;
-  // Spherical excess formula (Gauss's area formula on a sphere)
-  const R = 6371000; // Earth radius in meters
+  const R = 6371000;
   let area = 0;
   for (let i = 0; i < coords.length - 1; i++) {
     const c1 = coords[i] as [number, number];
@@ -309,5 +384,5 @@ function computeAreaHectares(coords: number[][]): number {
     area += toRad(c2[0] - c1[0]) * (2 + Math.sin(toRad(c1[1])) + Math.sin(toRad(c2[1])));
   }
   area = Math.abs((area * R * R) / 2);
-  return area / 10000; // m² → hectares
+  return area / 10000;
 }

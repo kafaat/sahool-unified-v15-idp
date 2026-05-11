@@ -17,6 +17,7 @@ import {
   ArrayMinSize,
   ArrayMaxSize,
   Min,
+  Max,
   MaxLength,
 } from "class-validator";
 import { Transform, Type } from "class-transformer";
@@ -139,4 +140,28 @@ export class UpdateFarmDto {
   @ArrayMaxSize(4)
   @IsNumber({}, { each: true })
   bbox?: [number, number, number, number];
+
+  @ApiPropertyOptional({ description: 'Map center latitude (WGS84)', example: 15.25 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(-90)
+  @Max(90)
+  centerLat?: number;
+
+  @ApiPropertyOptional({ description: 'Map center longitude (WGS84)', example: 44.25 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(-180)
+  @Max(180)
+  centerLng?: number;
+
+  @ApiPropertyOptional({ description: 'Map zoom level when boundary was drawn', example: 12 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(22)
+  zoom?: number;
 }

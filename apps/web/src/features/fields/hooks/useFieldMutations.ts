@@ -19,10 +19,13 @@ export function useCreateField() {
   return useMutation({
     mutationFn: ({ data, tenantId }: { data: FieldFormData; tenantId?: string }) =>
       fieldsApi.createField(data, tenantId),
-    onSuccess: () => {
-      // Invalidate all field queries to refetch
-      queryClient.invalidateQueries({ queryKey: fieldKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: fieldKeys.stats() });
+    onSuccess: (newField) => {
+      // Patch the list cache immediately, then sync from server
+      queryClient.setQueriesData<any[]>(
+        { queryKey: fieldKeys.lists() },
+        (old) => (old ? [newField, ...old] : [newField]),
+      );
+      queryClient.invalidateQueries({ queryKey: fieldKeys.all });
     },
     onError: (error: Error) => {
       // Parse error message

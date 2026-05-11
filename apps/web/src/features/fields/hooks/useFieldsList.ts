@@ -16,7 +16,7 @@ export function useFieldsList(filters?: FieldFilters) {
   return useQuery({
     queryKey: fieldKeys.list(filters),
     queryFn: () => fieldsApi.getFields(filters),
-    staleTime: 2 * 60 * 1000, // 2 minutes
+    staleTime: 0,
     retry: 1, // Retry once before falling back to mock data
   });
 }

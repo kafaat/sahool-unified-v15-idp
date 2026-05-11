@@ -48,6 +48,7 @@ export interface FarmResponse {
   address: string | null;
   phone: string | null;
   email: string | null;
+  bbox?: [number, number, number, number] | null;
   isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -92,6 +93,7 @@ const FARM_SELECT = {
   address: true,
   phone: true,
   email: true,
+  bbox: true,
   isDeleted: true,
   createdAt: true,
   updatedAt: true,
@@ -119,6 +121,7 @@ function serializeFarm(f: any): FarmResponse {
     address: f.address ?? null,
     phone: f.phone ?? null,
     email: f.email ?? null,
+    bbox: Array.isArray(f.bbox) ? f.bbox as [number, number, number, number] : null,
     isDeleted: !!f.isDeleted,
     createdAt: f.createdAt,
     updatedAt: f.updatedAt,
@@ -156,6 +159,7 @@ export class FarmsService {
         address: dto.address,
         phone: dto.phone,
         email: dto.email,
+        ...(dto.bbox && { bbox: dto.bbox }),
       },
       select: FARM_SELECT,
     });
@@ -286,6 +290,7 @@ export class FarmsService {
         ...(dto.address !== undefined && { address: dto.address }),
         ...(dto.phone !== undefined && { phone: dto.phone }),
         ...(dto.email !== undefined && { email: dto.email }),
+        ...(dto.bbox !== undefined && { bbox: dto.bbox ?? null }),
       },
       select: FARM_SELECT,
     });

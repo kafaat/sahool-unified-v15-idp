@@ -2,8 +2,10 @@
 
 import React, { useState, useMemo } from 'react';
 import { Building2, Plus, Search, MapPin, Droplets, Users, AlertTriangle, X } from 'lucide-react';
+import { useLocale } from 'next-intl';
 import { useFarms, useFarmStats, useUpdateFarm, useCreateFarm } from '@/features/farms';
 import type { Farm, FarmStatus, FarmFormData } from '@/features/farms';
+import FarmBoundaryMap from '@/features/farms/components/FarmBoundaryMap';
 import { logger } from '@/lib/logger';
 
 const statusConfig: Record<FarmStatus, { color: string; labelAr: string }> = {
@@ -13,10 +15,14 @@ const statusConfig: Record<FarmStatus, { color: string; labelAr: string }> = {
 };
 
 export default function FarmsClient() {
+  const locale = useLocale();
+  const isRtl = locale === 'ar';
+
   const [searchTerm, setSearchTerm] = useState('');
   const [editingFarm, setEditingFarm] = useState<Farm | null>(null);
   const [editName, setEditName] = useState('');
   const [editNameAr, setEditNameAr] = useState('');
+  const [editBbox, setEditBbox] = useState<[number, number, number, number] | null>(null);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [newFarm, setNewFarm] = useState<Omit<FarmFormData, 'region' | 'regionAr'>>({ name: '', nameAr: '', location: '', locationAr: '', totalAreaHa: 0, waterSource: '', waterSourceAr: '' });
   const { data: farms = [], isLoading, error } = useFarms();
@@ -76,8 +82,8 @@ export default function FarmsClient() {
   const handleSaveEdit = () => {
     if (!editingFarm) return;
     updateFarm.mutate(
-      { id: editingFarm.id, data: { name: editName, nameAr: editNameAr } },
-      { onSuccess: () => setEditingFarm(null) }
+      { id: editingFarm.id, data: { name: editName, nameAr: editNameAr, ...(editBbox ? { bbox: editBbox } : {}) } },
+      { onSuccess: () => { setEditingFarm(null); setEditBbox(null); } }
     );
   };
 
@@ -93,37 +99,55 @@ export default function FarmsClient() {
             <h2 className="text-lg font-bold text-gray-900 mb-4">إضافة مزرعة جديدة</h2>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">اسم المزرعة (EN)</label>
-                <input value={newFarm.name} onChange={(e) => setNewFarm({ ...newFarm, name: e.target.value })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {isRtl ? 'اسم المزرعة' : 'Farm Name'}
+                </label>
+                <input
+                  value={newFarm.name}
+                  onChange={(e) => setNewFarm({ ...newFarm, name: e.target.value, nameAr: e.target.value })}
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
+                  dir={isRtl ? 'rtl' : 'ltr'}
+                />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">اسم المزرعة (AR)</label>
-                <input value={newFarm.nameAr} onChange={(e) => setNewFarm({ ...newFarm, nameAr: e.target.value })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" dir="rtl" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">الموقع (EN)</label>
-                <input value={newFarm.location} onChange={(e) => setNewFarm({ ...newFarm, location: e.target.value })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">الموقع (AR)</label>
-                <input value={newFarm.locationAr} onChange={(e) => setNewFarm({ ...newFarm, locationAr: e.target.value })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" dir="rtl" />
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {isRtl ? 'الموقع' : 'Location'}
+                </label>
+                <input
+                  value={newFarm.location}
+                  onChange={(e) => setNewFarm({ ...newFarm, location: e.target.value, locationAr: e.target.value })}
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
+                  dir={isRtl ? 'rtl' : 'ltr'}
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">المساحة الكلية (هكتار)</label>
                 <input type="number" min={0} value={newFarm.totalAreaHa} onChange={(e) => setNewFarm({ ...newFarm, totalAreaHa: Number(e.target.value) })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">مصدر المياه (EN)</label>
-                <input value={newFarm.waterSource} onChange={(e) => setNewFarm({ ...newFarm, waterSource: e.target.value })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {isRtl ? 'مصدر المياه' : 'Water Source'}
+                </label>
+                <input
+                  value={newFarm.waterSource}
+                  onChange={(e) => setNewFarm({ ...newFarm, waterSource: e.target.value, waterSourceAr: e.target.value })}
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
+                  dir={isRtl ? 'rtl' : 'ltr'}
+                />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">مصدر المياه (AR)</label>
-                <input value={newFarm.waterSourceAr} onChange={(e) => setNewFarm({ ...newFarm, waterSourceAr: e.target.value })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" dir="rtl" />
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {isRtl ? 'حدود المزرعة (اختياري)' : 'Farm Boundary (optional)'}
+                </label>
+                <FarmBoundaryMap
+                  onBboxChange={(bbox) => setNewFarm((prev) => ({ ...prev, bbox: bbox ?? undefined }))}
+                  height="300px"
+                />
               </div>
             </div>
             <div className="flex justify-end gap-3 mt-6">
               <button onClick={() => setShowCreateDialog(false)} className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50">إلغاء</button>
-              <button onClick={handleCreateFarm} disabled={createFarm.isPending || !newFarm.name || !newFarm.nameAr} className="px-4 py-2 text-sm text-white bg-sahool-green-600 rounded-lg hover:bg-sahool-green-700 disabled:opacity-50">
+              <button onClick={handleCreateFarm} disabled={createFarm.isPending || !newFarm.name} className="px-4 py-2 text-sm text-white bg-sahool-green-600 rounded-lg hover:bg-sahool-green-700 disabled:opacity-50">
                 {createFarm.isPending ? 'جاري الإنشاء...' : 'إنشاء'}
               </button>
             </div>
@@ -141,12 +165,24 @@ export default function FarmsClient() {
             <h2 className="text-lg font-bold text-gray-900 mb-4">تعديل المزرعة</h2>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">الاسم (EN)</label>
-                <input value={editName} onChange={(e) => setEditName(e.target.value)} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {isRtl ? 'اسم المزرعة' : 'Farm Name'}
+                </label>
+                <input
+                  value={editName}
+                  onChange={(e) => { setEditName(e.target.value); setEditNameAr(e.target.value); }}
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
+                  dir={isRtl ? 'rtl' : 'ltr'}
+                />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">الاسم (AR)</label>
-                <input value={editNameAr} onChange={(e) => setEditNameAr(e.target.value)} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" dir="rtl" />
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {isRtl ? 'حدود المزرعة (اختياري)' : 'Farm Boundary (optional)'}
+                </label>
+                <FarmBoundaryMap
+                  onBboxChange={(bbox) => setEditBbox(bbox)}
+                  height="300px"
+                />
               </div>
             </div>
             <div className="flex justify-end gap-3 mt-6">

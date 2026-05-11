@@ -70,6 +70,9 @@ model Farm {
   phone             String?  @db.VarChar(20)
   email             String?  @db.VarChar(255)
 
+  // Bounding box [minLng, minLat, maxLng, maxLat] — saved from map selection
+  bbox Json? @map("bbox") @db.JsonB
+
   // Status
   isDeleted Boolean @default(false) @map("is_deleted")
 

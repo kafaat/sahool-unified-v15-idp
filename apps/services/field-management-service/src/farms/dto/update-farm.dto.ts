@@ -13,6 +13,9 @@ import {
   IsEmail,
   IsEnum,
   IsUUID,
+  IsArray,
+  ArrayMinSize,
+  ArrayMaxSize,
   Min,
   MaxLength,
 } from "class-validator";
@@ -124,4 +127,16 @@ export class UpdateFarmDto {
   @IsEmail()
   @MaxLength(255)
   email?: string;
+
+  @ApiPropertyOptional({
+    description: 'Bounding box [minLng, minLat, maxLng, maxLat]',
+    type: [Number],
+    example: [44.0, 15.0, 44.5, 15.5],
+  })
+  @IsOptional()
+  @IsArray()
+  @ArrayMinSize(4)
+  @ArrayMaxSize(4)
+  @IsNumber({}, { each: true })
+  bbox?: [number, number, number, number];
 }

@@ -23,6 +23,7 @@ export interface Farm {
   waterSourceAr: string;
   status: FarmStatus;
   coordinates?: { lat: number; lng: number };
+  bbox?: [number, number, number, number];
   createdAt: string;
   updatedAt: string;
 }
@@ -44,6 +45,7 @@ export interface FarmFormData {
   waterSource: string;
   waterSourceAr: string;
   coordinates?: { lat: number; lng: number };
+  bbox?: [number, number, number, number];
 }
 
 export interface FarmStats {

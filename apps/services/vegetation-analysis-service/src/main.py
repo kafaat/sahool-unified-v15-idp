@@ -1152,7 +1152,7 @@ def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
 @app.post("/v1/imagery/request", response_model=SatelliteImagery)
 async def request_imagery(
     request: ImageryRequest,
-    response: Response = None,
+    response: Response,
     user: User = Depends(get_current_user),
 ):
     """طلب صور الأقمار الصناعية لحقل معين"""
@@ -1213,8 +1213,8 @@ async def analyze_field(request: ImageryRequest, user: User = Depends(get_curren
     """تحليل شامل للحقل باستخدام بيانات الأقمار الصناعية"""
     _validate_field_id(request.field_id)
 
-    # Get imagery first
-    imagery = await request_imagery(request)
+    # Get imagery first (response=None: not invoked as HTTP handler here)
+    imagery = await request_imagery(request, response=None)
 
     # Extract band values for calculations
     bands_dict = {b.band_name: b.value for b in imagery.bands}

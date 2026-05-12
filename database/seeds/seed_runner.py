@@ -39,7 +39,10 @@ SEED_FILES = [
 # ``SELECT ... FROM ...`` form) and captures the trailing ``;`` so we can
 # inject ``ON CONFLICT DO NOTHING`` before the semicolon. The negative
 # lookahead on ``$$`` keeps us outside of ``CREATE FUNCTION ... $$ ... $$``
-# bodies (where an INSERT inside plpgsql would not be a top-level statement).
+# bodies: without it, a ``$$``-delimited plpgsql block containing
+# ``INSERT INTO`` could be matched and we would corrupt the function body.
+# All seed INSERTs in this directory are top-level statements, so the
+# lookahead simply guards against future seed files that add function bodies.
 _INSERT_RE = re.compile(
     r"(INSERT\s+INTO\s+(?:(?!\$\$|;).)+?)(\s*;)",
     re.IGNORECASE | re.DOTALL,
@@ -57,7 +60,7 @@ def _make_inserts_idempotent(sql: str) -> str:
     left untouched.
     """
 
-    def _inject(match: "re.Match[str]") -> str:
+    def _inject(match: re.Match[str]) -> str:
         body, terminator = match.group(1), match.group(2)
         if "on conflict" in body.lower():
             return match.group(0)

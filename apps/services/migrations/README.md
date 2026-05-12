@@ -42,8 +42,24 @@ annotation to suppress false positives. See
 
 ## Execution
 
-These files are executed by the SAHOOL migration runner inside a single
-transaction. They are **not** picked up by per-service Prisma or Alembic
+The header comment of `V20260131__add_integration_tables.sql` references
+"the SAHOOL migration runner" and assumes a single-transaction execution
+model (which is why `CREATE INDEX CONCURRENTLY` is intentionally avoided —
+see the `-- drift:safe reason=…` annotation on that file).
+
+In practice, no central runner is wired up in `Makefile` for this
+directory today (`make db-migrate` only invokes per-service
+`npx prisma migrate deploy`, and `make db-migrate-all` additionally calls
+`alembic upgrade head` when `alembic.ini` is present). Until a dedicated
+runner target is added, apply these files manually inside a single
+transaction:
+
+```bash
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 --single-transaction \
+  -f apps/services/migrations/V20260131__add_integration_tables.sql
+```
+
+These files are **not** picked up by per-service Prisma or Alembic
 migration tools.
 
 ## See also

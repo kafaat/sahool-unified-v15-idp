@@ -1257,7 +1257,7 @@ docker-compose --profile legacy up
 
 **Platform Totals**: 76 microservices (active service directories) + 4 applications (admin, web, mobile, kernel), 15 archived
 
-> Counted as: `ls -d apps/services/*/ | wc -l` minus 1 (`apps/services/migrations/` is a platform-wide migrations folder, not a service — see `apps/services/migrations/README.md`) minus 1 (`apps/services/shared/` is shared scaffolding).
+> Verified count: `ls -d apps/services/*/ | wc -l` returns **78**; subtract `apps/services/migrations/` (platform-wide SQL migrations folder — see its README) and `apps/services/shared/` (shared scaffolding, not a service) ⇒ **78 − 2 = 76** active services.
 
 ### Service Status Summary
 

@@ -651,10 +651,15 @@ Full OpenAPI 3.0 specification: [openapi.json](./openapi.json)
 >
 > ```bash
 > cd docs/api
-> python openapi-aggregator.py    # writes openapi-unified.{yaml,json}
+> pip install -r requirements.txt   # PyYAML + requests (see requirements.txt)
+> python openapi-aggregator.py      # polls each service's /openapi.json
 > mv openapi-unified.json openapi.json   # commit the refreshed snapshot
 > ```
 >
+> Prerequisites: Python ≥ 3.10, all referenced services reachable on
+> `localhost` at the ports listed in `openapi-aggregator.py`'s
+> `ServiceConfig` block, and `docs/api/requirements.txt` installed. Run
+> `make infra-up && make dev` first if any service is not running.
 > The aggregator polls each service's `/openapi.json` endpoint, so missing
 > services are simply skipped (and their endpoints will be absent from the
 > snapshot).

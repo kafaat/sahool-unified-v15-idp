@@ -110,7 +110,7 @@ sahool-unified-v15-idp/
 │   │   ├── edge-orchestrator-service/  # Edge device management (Jetson Orin)
 │   ├── services-docs/           # Service documentation & API specs
 │   └── web/                    # Web dashboard (Next.js/React)
-├── packages/                   # Shared packages (27 npm workspaces)
+├── packages/                   # Shared packages (16 npm workspaces under packages/*)
 │   ├── shared-utils/           # Common utilities
 │   ├── shared-ui/              # UI components
 │   ├── shared-types/           # TypeScript types
@@ -135,7 +135,7 @@ sahool-unified-v15-idp/
 │   ├── starter/                # Starter package config
 │   ├── professional/           # Professional package config
 │   └── enterprise/             # Enterprise package config
-├── shared/                     # Python shared modules (80 modules)
+├── shared/                     # Python shared modules (83 subdirectories)
 │   ├── auth/                   # Authentication (JWT, 2FA, token revocation)
 │   ├── cache/                  # Caching layer (Redis Sentinel HA)
 │   ├── contracts/              # API contracts & event schemas
@@ -240,10 +240,10 @@ sahool-unified-v15-idp/
 ├── database/                   # Database utilities & configs
 ├── dev/                        # Development tools (k3d local K8s)
 ├── docker/                     # Docker configurations
-├── docs/                       # Technical documentation (537 docs)
+├── docs/                       # Technical documentation (603 .md files)
 ├── gitops/                     # ArgoCD applications
 ├── governance/                 # Security policies & service registry
-├── helm/                       # Kubernetes Helm charts (24 charts)
+├── helm/                       # Kubernetes Helm charts (28 unique charts)
 ├── idp/                        # Internal Developer Platform (Backstage)
 ├── infrastructure/             # IaC, monitoring, Terraform
 ├── legacy/                     # Legacy code storage
@@ -289,7 +289,7 @@ sahool-unified-v15-idp/
 | **Node.js Version**    | >= 20.0.0 (npm >= 10.0.0)                                             |
 | **Database**           | PostgreSQL 16+ with PostGIS 3.4 (geospatial)                          |
 | **Message Queue**      | NATS 2.10.x with JetStream (event-driven architecture)               |
-| **API Gateway**        | Kong 3.x (authentication, rate limiting, 105 routes)                  |
+| **API Gateway**        | Kong 3.x (authentication, rate limiting, 128 routes across 97 upstream services) |
 | **Caching**            | Redis 7.x (sessions, rate limiting)                                   |
 | **Connection Pooling** | PgBouncer (transaction mode, 250 max connections)                     |
 
@@ -320,8 +320,8 @@ sahool-unified-v15-idp/
 | Layer            | Technology                                        |
 | ---------------- | ------------------------------------------------- |
 | **Container**    | Docker, Kubernetes (K8s)                          |
-| **IaC**          | Terraform (AWS me-south-1), Helm Charts (24)      |
-| **CI/CD**        | GitHub Actions (55 workflows), Argo CD (18 apps)  |
+| **IaC**          | Terraform (AWS me-south-1), Helm Charts (28 unique)      |
+| **CI/CD**        | GitHub Actions (79 workflows), Argo CD (15 Application resources)  |
 | **Monitoring**   | Prometheus, Grafana (4 dashboards), OpenTelemetry  |
 | **Tracing**      | Jaeger, OpenTelemetry Collector                    |
 | **Secrets**      | HashiCorp Vault 1.17                               |
@@ -508,7 +508,7 @@ make deps-audit           # Security audit of dependencies
 
 ### Dockerfiles Overview
 
-The platform contains **113 Dockerfiles** across Python, Node.js, and infrastructure services.
+The platform contains **116 `Dockerfile` files plus 9 `Dockerfile.*` variants** (125 total) across Python, Node.js, and infrastructure services.
 
 | File | Purpose |
 | ---- | ------- |
@@ -1109,7 +1109,7 @@ The project uses Ruff for Python linting and formatting (configured in `pyprojec
 | `docker/docker-compose.infra.yml` | Infrastructure-only services               |
 | `docker/docker-compose.logging.yml` | Logging stack                             |
 | `pyproject.toml`                | Python config, Ruff, pytest, MyPy            |
-| `package.json`                  | Node.js root workspace (27 packages + 13 services) |
+| `package.json`                  | Node.js root workspace (16 packages under `packages/*` + 16 service workspaces) |
 | `.env.example`                  | Environment template (copy of `.env.development.template`) |
 | `governance/services.yaml`      | Service registry v3.3.0 (source of truth)    |
 | `governance/agents.yaml`        | AI agent definitions (11 categories)         |

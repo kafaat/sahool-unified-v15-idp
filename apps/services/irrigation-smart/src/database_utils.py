@@ -340,10 +340,12 @@ async def create_pool(database_url: str, config: PoolConfig | None = None):
     try:
         import asyncpg
 
+        from shared.db.ssl import enforce_ssl_mode
+
         config = config or PoolConfig.from_env()
 
         pool = await asyncpg.create_pool(
-            database_url,
+            enforce_ssl_mode(database_url),
             min_size=config.min_connections,
             max_size=config.max_connections,
             command_timeout=config.command_timeout,

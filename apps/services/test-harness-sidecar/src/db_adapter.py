@@ -34,7 +34,9 @@ async def init_pool(dsn: str) -> None:
     global _pool
     if _pool is not None:
         return
-    _pool = await asyncpg.create_pool(dsn, min_size=1, max_size=4)
+    from shared.db.ssl import enforce_ssl_mode
+
+    _pool = await asyncpg.create_pool(enforce_ssl_mode(dsn), min_size=1, max_size=4)
 
 
 async def close_pool() -> None:

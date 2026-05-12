@@ -53,6 +53,7 @@ except ImportError:  # pragma: no cover - defensive fallback for partial install
             return requested_tenant_id
         return user_tenant
 
+
 from shared.logging_config import setup_logging
 from shared.observability.tracing import setup_tracing
 

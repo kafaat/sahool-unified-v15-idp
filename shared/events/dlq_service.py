@@ -556,9 +556,9 @@ try:
     app = create_app()
 except RuntimeError as _dlq_init_err:
     import logging as _logging
+
     _logging.getLogger(__name__).warning(
-        "DLQ standalone app not initialized: %s — "
-        "event subject imports will still work normally.", _dlq_init_err
+        "DLQ standalone app not initialized: %s — event subject imports will still work normally.", _dlq_init_err
     )
     app = None  # type: ignore[assignment]
 

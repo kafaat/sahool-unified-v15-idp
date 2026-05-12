@@ -740,7 +740,9 @@ async def delete_rule(
 
 @app.post("/alerts", response_model=AlertResponse, tags=["Alerts"])
 async def create_alert_endpoint(
-    alert_data: AlertCreate, tenant_id: str = Depends(validated_tenant_id), current_user: User = Depends(get_current_user)
+    alert_data: AlertCreate,
+    tenant_id: str = Depends(validated_tenant_id),
+    current_user: User = Depends(get_current_user),
 ):
     """
     إنشاء تنبيه جديد

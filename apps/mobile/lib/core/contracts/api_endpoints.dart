@@ -72,6 +72,9 @@ abstract final class AdvisoryEndpoints {
   static const String advice = '\$apiPrefix/advisory/advice';
   static const String disease = '\$apiPrefix/advisory/disease';
   static const String nutrients = '\$apiPrefix/advisory/nutrients';
+  static const String agroAdvice = '\$apiPrefix/agro-advisor/advice';
+  static const String agroDisease = '\$apiPrefix/agro-advisor/disease';
+  static const String agroNutrients = '\$apiPrefix/agro-advisor/nutrients';
   static String comprehensive(String fieldId) => '\$apiPrefix/advisory/comprehensive/${Uri.encodeComponent(fieldId)}';
   static String recommendationsByField(String fieldId) => '\$apiPrefix/advisory/recommendations/${Uri.encodeComponent(fieldId)}';
   static String diseaseAssess(String fieldId) => '\$apiPrefix/advisory/disease-assess/${Uri.encodeComponent(fieldId)}';
@@ -197,6 +200,9 @@ abstract final class ChatEndpoints {
   static String markRead(String conversationId) => '\$apiPrefix/chat/conversations/${Uri.encodeComponent(conversationId)}/read';
   static const String createConversation = '\$apiPrefix/chat/conversations';
   static const String unreadCount = '\$apiPrefix/chat/conversations/unread-count';
+  static String fieldMessages(String fieldId) => '\$apiPrefix/field-chat/fields/${Uri.encodeComponent(fieldId)}/messages';
+  static String fieldSend(String fieldId) => '\$apiPrefix/field-chat/fields/${Uri.encodeComponent(fieldId)}/messages';
+  static String fieldParticipants(String fieldId) => '\$apiPrefix/field-chat/fields/${Uri.encodeComponent(fieldId)}/participants';
   static String fieldMessagesV2(String fieldId) => '\$apiPrefix/chat/fields/${Uri.encodeComponent(fieldId)}/messages';
   static String fieldSendV2(String fieldId) => '\$apiPrefix/chat/fields/${Uri.encodeComponent(fieldId)}/messages';
   static String fieldParticipantsV2(String fieldId) => '\$apiPrefix/chat/fields/${Uri.encodeComponent(fieldId)}/participants';
@@ -1043,6 +1049,9 @@ abstract final class WeatherEndpoints {
   static String kongCurrentByLocation(String locationId) => '\$apiPrefix/weather/v1/current/${Uri.encodeComponent(locationId)}';
   static String kongForecastByLocation(String locationId) => '\$apiPrefix/weather/v1/forecast/${Uri.encodeComponent(locationId)}';
   static const String kongLocations = '\$apiPrefix/weather/v1/locations';
+  static const String weatherCoreCurrent = '\$apiPrefix/weather-core/weather/current';
+  static const String weatherCoreForecast = '\$apiPrefix/weather-core/weather/forecast';
+  static const String weatherCoreAgReport = '\$apiPrefix/weather-core/weather/agricultural-report';
   static const String gdd = '\$apiPrefix/weather/gdd';
   static const String sprayWindows = '\$apiPrefix/weather/spray-windows';
 }

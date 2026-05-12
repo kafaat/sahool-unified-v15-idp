@@ -332,9 +332,28 @@ async def create_category(
 def _get_tenant_id(user, tenant_id_param: str | None) -> str:
     """Extract tenant_id from JWT user or validated query param.
     استخراج معرف المستأجر من JWT أو معلمة الاستعلام الموثقة
+
+    Security: When the auth module is available, this fails closed if the
+    caller is unauthenticated or if their JWT tenant differs from the
+    requested ``tenant_id_param`` (and they are not super_admin). The
+    bare-query-param fallback is only used when auth is not installed
+    (development / standalone runs).
     """
-    if AUTH_AVAILABLE and user is not None:
-        return str(getattr(user, "tenant_id", "")) or tenant_id_param or ""
+    if AUTH_AVAILABLE:
+        if user is None:
+            raise HTTPException(
+                status_code=401,
+                detail="Authentication required for tenant-scoped inventory access",
+            )
+        user_tenant = str(getattr(user, "tenant_id", "") or "")
+        if not user_tenant:
+            raise HTTPException(status_code=400, detail="Tenant context is required but not available")
+        if tenant_id_param and tenant_id_param != user_tenant:
+            roles = getattr(user, "roles", None) or []
+            if "super_admin" not in roles:
+                raise HTTPException(status_code=403, detail="Access denied: tenant mismatch")
+            return tenant_id_param
+        return user_tenant
     return tenant_id_param or ""
 
 

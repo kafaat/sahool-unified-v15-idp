@@ -320,4 +320,10 @@ else
   run_migrations
 fi
 
+# MIGRATE_ONLY mode: exit cleanly after migrations (used by init containers).
+if [ "$MIGRATE_ONLY" = "true" ]; then
+  echo 'MIGRATE_ONLY=true — migrations complete, exiting.'
+  exit 0
+fi
+
 exec node dist/main.js

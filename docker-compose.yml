@@ -1381,6 +1381,27 @@ asyncio.run(main())
   # Node.js Services (10)
   # ─────────────────────────────────────────────────────────────────────────────
 
+  # Migration-only init container: runs `prisma migrate deploy` once then exits.
+  # field-management-service keeps SKIP_DB_INIT=true to avoid concurrent
+  # migration races with other NestJS services sharing the same DB.
+  field-management-migrate:
+    build:
+      context: .
+      dockerfile: apps/services/field-management-service/Dockerfile
+    container_name: sahool-field-management-migrate
+    environment:
+      - MIGRATE_ONLY=true
+      - SKIP_DB_INIT=false
+      - MIGRATION_SENTINEL_TABLE=fields
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - DATABASE_URL_DIRECT=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: no
+    networks:
+      - sahool-network
+
   # Field Management Service - Unified Field Operations
   # Consolidates: field-core, field-service, field-ops
   field-management-service:
@@ -1413,6 +1434,8 @@ asyncio.run(main())
     ports:
       - "127.0.0.1:3000:3000"
     depends_on:
+      field-management-migrate:
+        condition: service_completed_successfully
       # FIX: Use pgbouncer instead of postgres for proper connection pooling
       pgbouncer:
         condition: service_healthy

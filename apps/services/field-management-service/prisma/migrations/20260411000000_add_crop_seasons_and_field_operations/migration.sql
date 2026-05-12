@@ -1,7 +1,7 @@
 -- drift:safe reason=New empty tables (crop_seasons + field_operations) and their
 -- indexes cannot lock any existing rows — at CREATE TABLE + CREATE INDEX time the
 -- tables hold zero rows so non-CONCURRENTLY index builds are instantaneous. Prisma
--- wraps migrations in a transaction, which makes CREATE INDEX CONCURRENTLY unusable;
+-- wraps migrations in a transaction, which makes CREATE INDEX unusable;
 -- the standard CREATE INDEX form is the correct choice for new empty tables.
 -- Foreign keys to existing "fields" table use ON DELETE CASCADE because a deleted
 -- field must take its crop history + operation records with it (no dangling audits).
@@ -136,19 +136,20 @@ CREATE INDEX IF NOT EXISTS "idx_field_op_tenant_date"
 -- from the application layer without forcing another migration.
 -- ---------------------------------------------------------------------------
 
-ALTER TABLE "field_operations"
-    ADD CONSTRAINT "field_op_type_check"
-    CHECK ("operation_type" IN (
-        'plowing',
-        'land_preparation',
-        'fertilization',
-        'spraying',
-        'irrigation',
-        'harvesting',
-        'scouting',
-        'sowing',
-        'other'
-    ));
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conname = 'field_op_type_check'
+      AND conrelid = '"field_operations"'::regclass
+  ) THEN
+    ALTER TABLE "field_operations"
+      ADD CONSTRAINT "field_op_type_check"
+      CHECK ("operation_type" IN (
+        'plowing', 'land_preparation', 'fertilization', 'spraying',
+        'irrigation', 'harvesting', 'scouting', 'sowing', 'other'
+      ));
+  END IF;
+END $$;
 
 -- ---------------------------------------------------------------------------
 -- Trigger: keep updated_at fresh on UPDATE for both tables. We rely on the

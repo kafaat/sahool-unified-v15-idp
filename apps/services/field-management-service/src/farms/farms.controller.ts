@@ -34,10 +34,7 @@ import { FarmsService } from "./farms.service";
 import { CreateFarmDto } from "./dto/create-farm.dto";
 import { UpdateFarmDto } from "./dto/update-farm.dto";
 import { QueryFarmsDto } from "./dto/query-farms.dto";
-import {
-  assertTenantOwnership,
-  getRequestTenantId,
-} from "../auth/tenant.utils";
+import { getRequestTenantId } from "../auth/tenant.utils";
 
 @ApiTags("Farms - المزارع")
 @Controller("api/v1/farms")
@@ -75,22 +72,16 @@ export class FarmsController {
    * Get aggregate stats for the authenticated tenant.
    *
    * NOTE: Declared BEFORE `@Get(":id")` so that NestJS matches the literal
-   * `stats/` prefix first (same route-ordering lesson as the Fields controller).
+   * "stats" segment first (tenantId comes from the JWT, not the path).
    */
-  @Get("stats/:tenantId")
+  @Get("stats")
   @ApiOperation({
     summary: "Get farm statistics",
     description: "جلب إحصائيات المزارع للمستأجر",
   })
-  @ApiParam({ name: "tenantId", type: String })
   @ApiResponse({ status: 200, description: "Statistics retrieved" })
-  async getStats(
-    @Req() req: any,
-    @Param("tenantId") pathTenantId: string,
-  ) {
+  async getStats(@Req() req: any) {
     const tenantId = getRequestTenantId(req);
-    // Reject if the path param doesn't match the authenticated tenant.
-    assertTenantOwnership(pathTenantId, tenantId, "farm stats");
     const stats = await this.farmsService.getStats(tenantId);
     return {
       success: true,

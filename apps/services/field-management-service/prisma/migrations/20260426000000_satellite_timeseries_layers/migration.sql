@@ -6,7 +6,7 @@
 -- Stores per-field, per-index, per-date Sentinel Hub imagery metadata and cache URLs
 -- Created: 2026-04-26
 
-CREATE TABLE "satellite_timeseries_layers" (
+CREATE TABLE IF NOT EXISTS "satellite_timeseries_layers" (
   "id"           UUID        NOT NULL DEFAULT gen_random_uuid(),
   "field_id"     UUID        NOT NULL,
   "tenant_id"    VARCHAR(100) NOT NULL,
@@ -34,19 +34,19 @@ CREATE TABLE "satellite_timeseries_layers" (
 );
 
 -- Idempotency: one row per (field, index, scene_date)
-CREATE UNIQUE INDEX "uq_sat_tl_field_index_date"
+CREATE UNIQUE INDEX IF NOT EXISTS "uq_sat_tl_field_index_date"
   ON "satellite_timeseries_layers" ("field_id", "index_type", "scene_date");
 
 -- Fast range queries: "give me NDVI imagery for this field in the last 30 days"
-CREATE INDEX "idx_sat_tl_field_index_date"
+CREATE INDEX IF NOT EXISTS "idx_sat_tl_field_index_date"
   ON "satellite_timeseries_layers" ("field_id", "index_type", "scene_date" DESC);
 
 -- Tenant-scoped queries for admin / billing
-CREATE INDEX "idx_sat_tl_tenant"
+CREATE INDEX IF NOT EXISTS "idx_sat_tl_tenant"
   ON "satellite_timeseries_layers" ("tenant_id", "scene_date" DESC);
 
 -- Change-detection queries: scan fields with new imagery since a given timestamp
-CREATE INDEX "idx_sat_tl_created"
+CREATE INDEX IF NOT EXISTS "idx_sat_tl_created"
   ON "satellite_timeseries_layers" ("created_at" DESC);
 
 COMMENT ON TABLE  "satellite_timeseries_layers" IS

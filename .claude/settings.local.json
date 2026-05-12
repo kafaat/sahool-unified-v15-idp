@@ -165,7 +165,12 @@
       "Bash(node_modules/.bin/prisma generate:*)",
       "Bash(npx --yes prisma@5.22.0 generate --schema=/d/projects/v91/sahoo-adel-full/apps/services/field-management-service/prisma/schema.prisma)",
       "Bash(DATABASE_URL=\"postgresql://sahool:sahool@localhost:5432/sahool\" DATABASE_URL_DIRECT=\"postgresql://sahool:sahool@localhost:5432/sahool\" npx prisma@5.22.0 generate --schema=prisma/schema.prisma)",
-      "Bash(DATABASE_URL=\"postgresql://sahool:sahool@localhost:5432/sahool\" DATABASE_URL_DIRECT=\"postgresql://sahool:sahool@localhost:5432/sahool\" npx prisma@5.22.0 generate --schema=./prisma/schema.prisma)"
+      "Bash(DATABASE_URL=\"postgresql://sahool:sahool@localhost:5432/sahool\" DATABASE_URL_DIRECT=\"postgresql://sahool:sahool@localhost:5432/sahool\" npx prisma@5.22.0 generate --schema=./prisma/schema.prisma)",
+      "Bash(mv D:/projects/v91/sahoo-adel-full/apps/services/field-management-service/prisma/migrations/20260511000000_farm_bbox D:/projects/v91/sahoo-adel-full/apps/services/field-management-service/prisma/migrations/20260511100000_farm_bbox)",
+      "Bash(echo \"Renamed: $?\")",
+      "Bash(docker wait:*)",
+      "Bash(xargs -I {} sh -c 'echo \"=== {} ===\" && cat \"{}\"')",
+      "Bash(xargs basename:*)"
     ]
   }
 }

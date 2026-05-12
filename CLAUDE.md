@@ -102,7 +102,7 @@ sahool-unified-v15-idp/
 │   │   ├── sahool_field_app/   # Main field app (standalone Android config)
 │   │   ├── lib/                # Core Flutter code (708 Dart files)
 │   │   └── integration_test/   # Integration tests
-│   ├── services/               # 72 microservices (Python FastAPI & Node.js NestJS)
+│   ├── services/               # 76 microservices (Python FastAPI & Node.js NestJS)
 │   │   ├── yolo26-vision-service/      # YOLO26 computer vision
 │   │   ├── terrain-core-service/       # DEM processing & terrain analysis
 │   │   ├── hydrology-service/          # Hydrology & drainage analysis
@@ -1255,13 +1255,15 @@ docker-compose --profile legacy up
 
 ## Key Services Overview
 
-**Platform Totals**: 72 microservices (active service directories) + 4 applications (admin, web, mobile, kernel), 15 archived
+**Platform Totals**: 76 microservices (active service directories) + 4 applications (admin, web, mobile, kernel), 15 archived
+
+> Counted as: `ls -d apps/services/*/ | wc -l` minus 1 (`apps/services/migrations/` is a platform-wide migrations folder, not a service — see `apps/services/migrations/README.md`) minus 1 (`apps/services/shared/` is shared scaffolding).
 
 ### Service Status Summary
 
 | Status | Count | Description |
 | ------ | ----- | ----------- |
-| Active | 72 | Service directories in apps/services/ |
+| Active | 76 | Service directories in apps/services/ |
 | Archived | 15 | Deprecated and moved to archive (see Deprecated Services) |
 
 ### Applications

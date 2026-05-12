@@ -1,0 +1,53 @@
+# Platform-wide Migrations | الترحيلات المشتركة للمنصة
+
+> **This is not a service.** This directory holds SQL migrations whose tables
+> are shared across multiple SAHOOL services (typically because the tables
+> back data flows that no single service owns end-to-end).
+>
+> هذا المجلد **ليس خدمة**. يحتوي على ترحيلات SQL مشتركة بين أكثر من
+> خدمة سهول واحدة (عندما يكون الجدول يخدم تدفّقًا لا تملكه خدمة بعينها).
+
+## When to add a migration here
+
+Add a file here only when **all** of the following apply:
+
+1. The new tables are read or written by **two or more services**.
+2. No single service can be considered the "owner" of the schema.
+3. The migration must run before the dependent services start.
+
+If the tables belong to one service, put the migration under that service's
+own `migrations/` (or `prisma/migrations/`) directory instead.
+
+## File naming convention
+
+Files follow Flyway-style naming so they sort lexicographically:
+
+```
+V{YYYYMMDD}[__{N}]__{snake_case_description}.sql
+```
+
+Examples already in this directory:
+
+| File | Description |
+| ---- | ----------- |
+| `V20260131__add_integration_tables.sql` | YOLO26 detections, terrain analyses, hydrology results, leveling plans, edge device registrations |
+
+## Drift annotation
+
+Each file should begin with a `-- drift:safe reason=…` comment when it uses
+`CREATE INDEX` without `CONCURRENTLY` inside the same transaction that
+creates the table. The repository's drift-detection check parses this
+annotation to suppress false positives. See
+`V20260131__add_integration_tables.sql` lines 1–7 for the canonical example.
+
+## Execution
+
+These files are executed by the SAHOOL migration runner inside a single
+transaction. They are **not** picked up by per-service Prisma or Alembic
+migration tools.
+
+## See also
+
+- `database/seeds/` — sample data loaders (run **after** migrations).
+- `docs/database/` — database audit summaries and ERDs.
+- `docs/migrations/` — migration guides for deprecated-service moves.

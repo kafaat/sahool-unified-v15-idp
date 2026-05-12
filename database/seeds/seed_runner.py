@@ -35,14 +35,18 @@ SEED_FILES = [
 ]
 
 
-# Matches a complete INSERT statement (either ``VALUES (...)`` or
-# ``SELECT ... FROM ...`` form) and captures the trailing ``;`` so we can
-# inject ``ON CONFLICT DO NOTHING`` before the semicolon. The negative
-# lookahead on ``$$`` keeps us outside of ``CREATE FUNCTION ... $$ ... $$``
-# bodies: without it, a ``$$``-delimited plpgsql block containing
-# ``INSERT INTO`` could be matched and we would corrupt the function body.
-# All seed INSERTs in this directory are top-level statements, so the
-# lookahead simply guards against future seed files that add function bodies.
+# Matches a complete top-level INSERT statement and captures the trailing
+# ``;`` so we can inject ``ON CONFLICT DO NOTHING`` before the semicolon.
+#
+# Limitation: this regex matches any ``INSERT INTO ... ;`` regardless of
+# whether the statement appears inside a ``$$...$$`` PL/pgSQL function body
+# (the negative lookahead on ``$$`` only stops matching when ``$$`` appears
+# *between* ``INSERT INTO`` and the next ``;``, which is not how dollar-quoted
+# blocks are structured). All seed SQL files under ``database/seeds/`` are
+# currently plain top-level INSERTs with no ``CREATE FUNCTION`` bodies, so
+# this is safe today. If a future seed file adds dollar-quoted function
+# bodies that contain INSERTs, this rewriter must be reworked to skip over
+# dollar-quoted regions before applying the substitution.
 _INSERT_RE = re.compile(
     r"(INSERT\s+INTO\s+(?:(?!\$\$|;).)+?)(\s*;)",
     re.IGNORECASE | re.DOTALL,

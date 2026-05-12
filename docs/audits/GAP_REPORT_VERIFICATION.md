@@ -1,6 +1,6 @@
 # Gap Report Verification — تقرير التحقق من فجوات منظومة "سهول"
 
-> **Status**: ✅ Complete · Verified against repository at commit reachable from `copilot/update-documentation-for-sohol` branch
+> **Status**: ✅ Complete · Verified against repository at commit `7198bf3fa3056878020d7e3b2c02699a3946a6f7`
 > **Date**: 2026-05-12
 > **Scope**: 64 claimed gaps across CI/CD, Security, Operations, IDP, Seeds, Helm/Infra, Docker, API/Docs
 > **Method**: Direct file/configuration inspection with line-level citations

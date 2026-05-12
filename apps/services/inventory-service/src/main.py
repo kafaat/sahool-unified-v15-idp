@@ -346,13 +346,22 @@ def _get_tenant_id(user, tenant_id_param: str | None) -> str:
                 detail="Authentication required for tenant-scoped inventory access",
             )
         user_tenant = str(getattr(user, "tenant_id", "") or "")
+        roles = getattr(user, "roles", None) or []
+        is_super_admin = "super_admin" in roles
+        # super_admin is allowed to act on any tenant_id_param, including when
+        # their own JWT tenant is unset (matches shared.auth.enforce_tenant
+        # semantics in shared/auth/dependencies.py:299-345).
+        if tenant_id_param:
+            if is_super_admin:
+                return tenant_id_param
+            if not user_tenant:
+                raise HTTPException(status_code=400, detail="Tenant context is required but not available")
+            if tenant_id_param != user_tenant:
+                raise HTTPException(status_code=403, detail="Access denied: tenant mismatch")
+            return user_tenant
+        # No tenant_id_param: must derive from JWT.
         if not user_tenant:
             raise HTTPException(status_code=400, detail="Tenant context is required but not available")
-        if tenant_id_param and tenant_id_param != user_tenant:
-            roles = getattr(user, "roles", None) or []
-            if "super_admin" not in roles:
-                raise HTTPException(status_code=403, detail="Access denied: tenant mismatch")
-            return tenant_id_param
         return user_tenant
     return tenant_id_param or ""
 

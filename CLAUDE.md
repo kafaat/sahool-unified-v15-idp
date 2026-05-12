@@ -2825,37 +2825,37 @@ The `shared/` directory contains 80 Python modules organized by domain. Below is
 
 ## Platform Documentation Map
 
-The platform contains **537+ documentation files** spread across multiple directories. Here is the complete reference:
+The platform contains **603+ documentation files** spread across multiple directories. Here is the complete reference:
 
-### Main Documentation (`docs/` - 537+ files)
+### Main Documentation (`docs/` - 603+ files)
 
 | Directory | Files | Purpose |
 | --------- | ----- | ------- |
-| `docs/` (root) | 145 | Core platform docs (API, architecture, deployment, security, operations) |
-| `docs/adr/` | 10 | Architectural Decision Records (ADR-001 through ADR-008, including AI architecture) |
+| `docs/` (root) | 163 | Core platform docs (API, architecture, deployment, security, operations) |
+| `docs/adr/` | 12 | Architectural Decision Records (template + ADR-001 through ADR-010, including AI architecture, Claude Code workflow, and skill runtime) |
 | `docs/api/` | 35 | API endpoint documentation (AI, auth, fields, sensors, weather, vision, terrain) |
 | `docs/architecture/` | 11 | Architecture proposals, principles, service activation maps |
-| `docs/audits/` | 4 | Audit reports (security, rate limiting, secrets) |
+| `docs/audits/` | 7 | Audit reports (security, rate limiting, secrets) |
 | `docs/compliance/` | 2 | Compliance checklists |
 | `docs/configs/` | 2 | Configuration examples |
 | `docs/database/` | 3 | Database audit summaries |
 | `docs/disaster-recovery/` | 3 | DR runbook and implementation guide |
 | `docs/engineering/` | 3 | Engineering recovery plans |
-| `docs/examples/` | 5 | Code examples and tutorials |
+| `docs/examples/` | 1 | Code examples and tutorials |
 | `docs/fixes/` | 2 | Fix documentation |
 | `docs/governance/` | 2 | Governance documentation |
-| `docs/guides/` | 21 | Quick start guides (2FA, build, deployment, MCP, testing) |
-| `docs/implementations/` | 38 | Implementation summaries (caching, DLQ, encryption, NATS, etc.) |
+| `docs/guides/` | 23 | Quick start guides (2FA, build, deployment, MCP, testing) |
+| `docs/implementations/` | 39 | Implementation summaries (caching, DLQ, encryption, NATS, etc.) |
 | `docs/infrastructure/` | 4 | Circuit breaker, Kong HA, PostGIS optimization |
-| `docs/knowledge-base/` | 91 | Agricultural knowledge (19 crops, 7 soils, 8 irrigation, 8 fertilization, 6 weather, 5 remote sensing, 13 AI+Smart Agriculture, best practices) |
-| `docs/migrations/` | 6 | Service migration summaries |
+| `docs/knowledge-base/` | 105 | Agricultural knowledge (33 crops, 7 soils, 11 irrigation, 8 fertilization, 6 weather, 7 remote sensing, 15 AI+Smart Agriculture, 6 diseases, 4 digital-twin, 4 precision-farming, 1 monitoring, best practices) |
+| `docs/migrations/` | 8 | Service migration summaries |
 | `docs/mobile-apps-audit/` | 1 | Mobile app comprehensive audit |
-| `docs/operations/` | 4 | Operational runbooks |
+| `docs/operations/` | 5 | Operational runbooks |
 | `docs/proposals/` | 2 | Architecture proposals |
-| `docs/reports/` | 82 | Comprehensive audit and analysis reports |
+| `docs/reports/` | 120 | Comprehensive audit and analysis reports |
 | `docs/research/` | 5 | AI landscape, open source exploration, vision integration |
 | `docs/security/` | 3 | Data classification, STRIDE threat model |
-| `docs/summaries/` | 46 | Work summaries (API fixes, CI/CD, security, rate limiting) |
+| `docs/summaries/` | 52 | Work summaries (API fixes, CI/CD, security, rate limiting) |
 | `docs/tools/` | 2 | Platform tools reference |
 
 ### Key Documents Quick Reference
@@ -2876,7 +2876,7 @@ The platform contains **537+ documentation files** spread across multiple direct
 | Future Roadmap | `docs/FUTURE_ROADMAP.md` |
 | Mobile Architecture | `docs/MOBILE_ARCHITECTURE_ANALYSIS.md` |
 
-### Service Documentation (`apps/services-docs/` - 83 files)
+### Service Documentation (`apps/services-docs/` - 84 files)
 
 Detailed per-service documentation with API endpoints, architecture, and admin integration guides.
 

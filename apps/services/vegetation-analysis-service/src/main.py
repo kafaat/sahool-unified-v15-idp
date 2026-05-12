@@ -24,7 +24,7 @@ from enum import Enum, StrEnum
 from typing import Any
 
 import structlog
-from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 # Shared middleware imports
@@ -1150,8 +1150,21 @@ def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
 
 
 @app.post("/v1/imagery/request", response_model=SatelliteImagery)
-async def request_imagery(request: ImageryRequest, user: User = Depends(get_current_user)):
+async def request_imagery(
+    request: ImageryRequest,
+    response: Response = None,
+    user: User = Depends(get_current_user),
+):
     """طلب صور الأقمار الصناعية لحقل معين"""
+
+    from shared.libs.simulated_data import guard_simulated_response, mark_simulated
+
+    # Band reflectance, cloud cover, sun elevation, scene/tile IDs are all
+    # randomly generated. Block in production unless ALLOW_SIMULATED_DATA=true.
+    # /v1/analyze/* call this function directly (response defaults to None).
+    guard_simulated_response("vegetation-analysis-service", "imagery_request")
+    if response is not None:
+        mark_simulated(response, source="random_sampling")
 
     config = SATELLITE_CONFIGS[request.satellite]
 

@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from uuid import UUID, uuid4
 
 import structlog
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 
 from ...core.config import settings
 from ...suppliers.finder import SupplierFinder
@@ -65,9 +65,16 @@ def _init_mock_recommendations() -> None:
 )
 async def auto_purchase(
     request: AutoPurchaseRequest,
+    response: Response,
     farmer_id: UUID = Depends(_get_current_farmer_id),
 ) -> Order:
     """Create order from recommendation."""
+    from shared.libs.simulated_data import guard_simulated_response, mark_simulated
+
+    # Pricing here is random and suppliers come from a hard-coded mock list.
+    guard_simulated_response("supply-chain-service", "auto_purchase")
+    mark_simulated(response, source="mock_suppliers")
+
     _init_mock_recommendations()
 
     if not settings.AUTO_PURCHASE_ENABLED:
@@ -190,8 +197,15 @@ async def auto_purchase(
 async def compare_suppliers(
     product_id: UUID,
     quantity: float,
+    response: Response,
 ) -> SupplierComparison:
     """Compare suppliers for a product."""
+    from shared.libs.simulated_data import guard_simulated_response, mark_simulated
+
+    # Quotes come from random price/availability generation over a mock supplier list.
+    guard_simulated_response("supply-chain-service", "compare_suppliers")
+    mark_simulated(response, source="mock_suppliers")
+
     logger.info(
         "comparing_suppliers",
         product_id=str(product_id),
@@ -255,9 +269,16 @@ async def compare_suppliers(
 )
 async def bulk_purchase(
     request: BulkPurchaseRequest,
+    response: Response,
     farmer_id: UUID = Depends(_get_current_farmer_id),
 ) -> BulkPurchaseResult:
     """Create bulk purchase orders."""
+    from shared.libs.simulated_data import guard_simulated_response, mark_simulated
+
+    # Bulk pricing and supplier selection both rely on random data + mock list.
+    guard_simulated_response("supply-chain-service", "bulk_purchase")
+    mark_simulated(response, source="mock_suppliers")
+
     if not settings.AUTO_PURCHASE_ENABLED:
         raise HTTPException(
             status_code=503,

@@ -15,7 +15,7 @@ from typing import Any
 
 import nats
 import structlog
-from fastapi import Depends, FastAPI, Request
+from fastapi import Depends, FastAPI, Request, Response
 from pydantic import BaseModel, Field
 
 # Add shared modules to path
@@ -455,6 +455,7 @@ async def recall_from_memory(
 async def evaluate_skill(
     request: EvaluateRequest,
     http_request: Request,
+    response: Response,
     user: User | None = Depends(get_current_user),
 ):
     """
@@ -462,6 +463,12 @@ async def evaluate_skill(
     Measures accuracy, latency, and other performance indicators
     """
     import random
+
+    from shared.libs.simulated_data import guard_simulated_response, mark_simulated
+
+    # Refuse to serve fabricated metrics in production unless explicitly allowed.
+    guard_simulated_response("skills-service", "evaluate")
+    mark_simulated(response, source="random_sampling")
 
     # Validate input
     if not request.skill_id:
@@ -523,6 +530,7 @@ async def evaluate_skill(
 async def assess_skill(
     request: SkillAssessmentRequest,
     http_request: Request,
+    response: Response,
     user: User | None = Depends(get_current_user),
 ):
     """
@@ -530,6 +538,12 @@ async def assess_skill(
     Publishes assessment results to NATS for downstream processing.
     """
     import random
+
+    from shared.libs.simulated_data import guard_simulated_response, mark_simulated
+
+    # Refuse to serve a fabricated assessment score in production unless explicitly allowed.
+    guard_simulated_response("skills-service", "assess")
+    mark_simulated(response, source="random_sampling")
 
     # Validate input
     if not request.farmer_id:

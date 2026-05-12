@@ -16,7 +16,7 @@ from typing import Any
 import asyncpg
 import nats
 import structlog
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query, Response
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -1064,6 +1064,7 @@ def get_indicator_definitions():
 @app.get("/v1/field/{field_id}/indicators", response_model=FieldIndicators)
 async def get_field_indicators(
     field_id: str,
+    response: Response = None,
     category: IndicatorCategory | None = None,
     force_refresh: bool = False,
     user: Any = Depends(get_current_user),
@@ -1079,6 +1080,15 @@ async def get_field_indicators(
     tenant_id = getattr(user, "tenant_id", None) or ""
     _enforce_tenant(user, tenant_id)
     import random
+
+    from shared.libs.simulated_data import guard_simulated_response, mark_simulated
+
+    # Indicator values fall back to random generation when no real data is stored,
+    # and area_hectares/crop_type are always fabricated. Refuse in production
+    # unless explicitly opted-in.
+    guard_simulated_response("indicators-service", "field_indicators")
+    if response is not None:
+        mark_simulated(response, source="random_sampling")
 
     indicators = []
     alerts = []
@@ -1375,11 +1385,18 @@ async def delete_field_indicators_endpoint(field_id: str, user=Depends(get_curre
 @app.get("/v1/dashboard/{tenant_id}", response_model=DashboardSummary)
 async def get_dashboard_summary(
     tenant_id: str,
+    response: Response,
     num_fields: int = Query(default=10, ge=1, le=100),
     user: Any = Depends(get_current_user),
 ):
     """لوحة المعلومات الرئيسية للمستأجر"""
     _enforce_tenant(user, tenant_id)
+
+    from shared.libs.simulated_data import guard_simulated_response, mark_simulated
+
+    # Dashboard aggregates fabricated per-field indicators. Block in production.
+    guard_simulated_response("indicators-service", "dashboard")
+    mark_simulated(response, source="random_sampling")
 
     # Generate mock data for multiple fields
     fields_data = []
@@ -1467,6 +1484,7 @@ async def get_dashboard_summary(
 @app.get("/v1/alerts/{tenant_id}")
 async def get_tenant_alerts(
     tenant_id: str,
+    response: Response,
     severity: AlertSeverity | None = None,
     limit: int = Query(default=50, ge=1, le=200),
     user: Any = Depends(get_current_user),
@@ -1474,6 +1492,12 @@ async def get_tenant_alerts(
     """الحصول على تنبيهات المستأجر"""
     _enforce_tenant(user, tenant_id)
     import random
+
+    from shared.libs.simulated_data import guard_simulated_response, mark_simulated
+
+    # Alerts here are entirely fabricated and published to NATS. Block in production.
+    guard_simulated_response("indicators-service", "alerts")
+    mark_simulated(response, source="random_sampling")
 
     # Generate mock alerts
     alerts = []
@@ -1518,6 +1542,7 @@ async def get_tenant_alerts(
 async def get_indicator_trends(
     field_id: str,
     indicator_id: str,
+    response: Response,
     days: int = Query(default=30, ge=7, le=365),
     user: Any = Depends(get_current_user),
 ):
@@ -1525,8 +1550,14 @@ async def get_indicator_trends(
     _validate_field_id(field_id)
     import random
 
+    from shared.libs.simulated_data import guard_simulated_response, mark_simulated
+
     tenant_id = getattr(user, "tenant_id", None) or ""
     _enforce_tenant(user, tenant_id)
+
+    # Trends are random-walk synthetic series; ignore DB history. Block in production.
+    guard_simulated_response("indicators-service", "trends")
+    mark_simulated(response, source="random_walk")
 
     if indicator_id not in INDICATOR_DEFINITIONS:
         raise HTTPException(status_code=404, detail=f"Indicator {indicator_id} not found")

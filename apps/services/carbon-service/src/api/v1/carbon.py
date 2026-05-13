@@ -24,7 +24,7 @@ from __future__ import annotations
 from typing import Any
 
 import structlog
-from fastapi import APIRouter, Depends, Header, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from src.engine import IpccTier1Engine, OperationInput
@@ -33,10 +33,10 @@ from src.engine import IpccTier1Engine, OperationInput
 # Authentication dependency (shared.auth when available, safe stub otherwise)
 # -------------------------------------------------------------------------
 try:
-    from shared.auth.dependencies import get_current_user
+    from shared.auth.dependencies import get_current_user, validated_tenant_id
     from shared.auth.models import User
 except ImportError:  # pragma: no cover - only hit in minimal local dev
-    from fastapi import HTTPException as _HTTPException
+    from fastapi import Header, HTTPException as _HTTPException
 
     class User:  # type: ignore[no-redef]
         """Stub user model used only when shared.auth isn't installed."""
@@ -52,6 +52,14 @@ except ImportError:  # pragma: no cover - only hit in minimal local dev
                 "message_ar": "خدمة المصادقة غير متاحة",
             },
         )
+
+    async def validated_tenant_id(  # type: ignore[no-redef]
+        x_tenant_id: str | None = Header(None, alias="X-Tenant-Id"),
+        _user: User = Depends(get_current_user),
+    ) -> str:
+        if not x_tenant_id:
+            raise _HTTPException(status_code=400, detail="X-Tenant-Id header is required")
+        return x_tenant_id
 
 
 logger = structlog.get_logger()
@@ -137,23 +145,6 @@ class CropSeasonCarbonSummary(BaseModel):
 
 
 # ---------------------------------------------------------------------------
-# Tenant helper
-# ---------------------------------------------------------------------------
-
-
-def _require_tenant(x_tenant_id: str | None) -> str:
-    if not x_tenant_id:
-        raise HTTPException(
-            status_code=400,
-            detail={
-                "message": "X-Tenant-Id header is required",
-                "message_ar": "رأس X-Tenant-Id مطلوب",
-            },
-        )
-    return x_tenant_id
-
-
-# ---------------------------------------------------------------------------
 # Endpoints
 # ---------------------------------------------------------------------------
 
@@ -161,7 +152,7 @@ def _require_tenant(x_tenant_id: str | None) -> str:
 @router.post("/compute", response_model=ComputeResponse)
 async def compute_stateless(
     body: ComputeRequest,
-    current_user: User = Depends(get_current_user),
+    _current_user: User = Depends(get_current_user),
 ) -> ComputeResponse:
     """
     Stateless compute — runs the engine on a fully-populated request
@@ -218,8 +209,7 @@ async def compute_stateless(
 async def compute_for_operation(
     operation_id: str,
     request: Request,
-    x_tenant_id: str | None = Header(default=None),
-    current_user: User = Depends(get_current_user),
+    tenant_id: str = Depends(validated_tenant_id),
 ) -> ComputeResponse:
     """
     DB-backed compute — reads the FieldOperation row from the
@@ -232,7 +222,6 @@ async def compute_for_operation(
       - The admin API for re-computing after formula updates
       - Batch backfill jobs
     """
-    tenant_id = _require_tenant(x_tenant_id)
     pool = getattr(request.app.state, "db_pool", None)
     if pool is None:
         raise HTTPException(
@@ -322,11 +311,9 @@ async def compute_for_operation(
 async def field_summary(
     field_id: str,
     request: Request,
-    x_tenant_id: str | None = Header(default=None),
-    current_user: User = Depends(get_current_user),
+    tenant_id: str = Depends(validated_tenant_id),
 ) -> FieldCarbonSummary:
     """Aggregate carbon data for a single field across all operations."""
-    tenant_id = _require_tenant(x_tenant_id)
     pool = getattr(request.app.state, "db_pool", None)
     if pool is None:
         raise HTTPException(status_code=503, detail="Database unavailable")
@@ -406,11 +393,9 @@ async def field_summary(
 async def crop_season_summary(
     crop_season_id: str,
     request: Request,
-    x_tenant_id: str | None = Header(default=None),
-    current_user: User = Depends(get_current_user),
+    tenant_id: str = Depends(validated_tenant_id),
 ) -> CropSeasonCarbonSummary:
     """Aggregate carbon data for all operations in a crop season."""
-    tenant_id = _require_tenant(x_tenant_id)
     pool = getattr(request.app.state, "db_pool", None)
     if pool is None:
         raise HTTPException(status_code=503, detail="Database unavailable")

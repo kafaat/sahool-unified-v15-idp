@@ -23,7 +23,7 @@ from shared.events.subjects import (
 
 # Authentication dependency
 try:
-    from shared.auth.dependencies import get_current_user
+    from shared.auth.dependencies import get_current_user, validated_tenant_id
     from shared.auth.models import User
 except ImportError:
     from fastapi import HTTPException as _HTTPException
@@ -35,30 +35,22 @@ except ImportError:
     async def get_current_user():  # type: ignore[misc]
         raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
+    async def validated_tenant_id(  # type: ignore[misc]
+        x_tenant_id: str | None = Header(None, alias="X-Tenant-Id"),
+        _user: User = Depends(get_current_user),
+    ) -> str:
+        if not x_tenant_id:
+            raise _HTTPException(status_code=400, detail="X-Tenant-Id header is required")
+        try:
+            uuid.UUID(x_tenant_id)
+        except ValueError as exc:
+            raise _HTTPException(status_code=400, detail="X-Tenant-Id must be a valid UUID") from exc
+        return x_tenant_id
+
 
 logger = structlog.get_logger()
 
 router = APIRouter(prefix="/api/v1/cooperatives", tags=["cooperatives"])
-
-
-# === Tenant Extraction ===
-
-
-def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -> str:
-    """Extract and validate tenant ID from X-Tenant-Id header."""
-    if not x_tenant_id:
-        raise HTTPException(
-            status_code=400,
-            detail={"error": "X-Tenant-Id header is required", "error_ar": "ترويسة معرّف المستأجر مطلوبة"},
-        )
-    try:
-        uuid.UUID(x_tenant_id)
-    except ValueError:
-        raise HTTPException(
-            status_code=400,
-            detail={"error": "X-Tenant-Id must be a valid UUID", "error_ar": "معرّف المستأجر يجب أن يكون UUID صالح"},
-        )
-    return x_tenant_id
 
 
 # === Database Helpers ===
@@ -163,7 +155,7 @@ async def create_cooperative(
     request: CooperativeCreateRequest,
     req: Request,
     current_user: User = Depends(get_current_user),
-    tenant_id: str = Depends(get_tenant_id),
+    tenant_id: str = Depends(validated_tenant_id),
 ):
     """Create a new cooperative - إنشاء تعاونية جديدة"""
     pool = await _get_db(req)
@@ -198,7 +190,7 @@ async def create_cooperative(
 @router.get("/")
 async def list_cooperatives(
     req: Request,
-    tenant_id: str = Depends(get_tenant_id),
+    tenant_id: str = Depends(validated_tenant_id),
     current_user: User = Depends(get_current_user),
 ):
     """List cooperatives - قائمة التعاونيات"""
@@ -211,7 +203,7 @@ async def list_cooperatives(
 
 
 @router.get("/{coop_id}")
-async def get_cooperative(coop_id: str, req: Request, tenant_id: str = Depends(get_tenant_id)):
+async def get_cooperative(coop_id: str, req: Request, tenant_id: str = Depends(validated_tenant_id)):
     """Get cooperative details - تفاصيل التعاونية"""
     pool = await _get_db(req)
     coop = _row_to_dict(await _get_coop_or_404(pool, coop_id, tenant_id))
@@ -235,7 +227,7 @@ async def update_cooperative(
     coop_id: str,
     request: CooperativeUpdateRequest,
     req: Request,
-    tenant_id: str = Depends(get_tenant_id),
+    tenant_id: str = Depends(validated_tenant_id),
     _user=Depends(get_current_user),
 ):
     """Update cooperative - تحديث التعاونية"""
@@ -267,7 +259,7 @@ async def update_cooperative(
 
 @router.delete("/{coop_id}", status_code=204)
 async def delete_cooperative(
-    coop_id: str, req: Request, tenant_id: str = Depends(get_tenant_id), _user=Depends(get_current_user)
+    coop_id: str, req: Request, tenant_id: str = Depends(validated_tenant_id), _user=Depends(get_current_user)
 ):
     """Delete cooperative - حذف التعاونية"""
     pool = await _get_db(req)
@@ -289,7 +281,7 @@ async def add_member(
     request: MemberCreateRequest,
     req: Request,
     current_user: User = Depends(get_current_user),
-    tenant_id: str = Depends(get_tenant_id),
+    tenant_id: str = Depends(validated_tenant_id),
 ):
     """Add member to cooperative - إضافة عضو للتعاونية"""
     pool = await _get_db(req)
@@ -336,7 +328,7 @@ async def add_member(
 async def list_members(
     coop_id: str,
     req: Request,
-    tenant_id: str = Depends(get_tenant_id),
+    tenant_id: str = Depends(validated_tenant_id),
     current_user: User = Depends(get_current_user),
 ):
     """List cooperative members - قائمة أعضاء التعاونية"""
@@ -357,7 +349,7 @@ async def list_members(
 
 @router.delete("/{coop_id}/members/{member_id}", status_code=204)
 async def remove_member(
-    coop_id: str, member_id: str, req: Request, tenant_id: str = Depends(get_tenant_id), _user=Depends(get_current_user)
+    coop_id: str, member_id: str, req: Request, tenant_id: str = Depends(validated_tenant_id), _user=Depends(get_current_user)
 ):
     """Remove member from cooperative - إزالة عضو من التعاونية"""
     pool = await _get_db(req)
@@ -404,7 +396,7 @@ async def register_resource(
     request: ResourceCreateRequest,
     req: Request,
     current_user: User = Depends(get_current_user),
-    tenant_id: str = Depends(get_tenant_id),
+    tenant_id: str = Depends(validated_tenant_id),
 ):
     """Register shared resource - تسجيل مورد مشترك"""
     pool = await _get_db(req)
@@ -433,7 +425,7 @@ async def register_resource(
 async def list_resources(
     coop_id: str,
     req: Request,
-    tenant_id: str = Depends(get_tenant_id),
+    tenant_id: str = Depends(validated_tenant_id),
     current_user: User = Depends(get_current_user),
 ):
     """List cooperative resources - قائمة موارد التعاونية"""
@@ -516,7 +508,7 @@ async def distribute_revenue(
     request: RevenueDistributionRequest,
     req: Request,
     current_user: User = Depends(get_current_user),
-    tenant_id: str = Depends(get_tenant_id),
+    tenant_id: str = Depends(validated_tenant_id),
 ):
     """Distribute revenue among members - توزيع الإيرادات بين الأعضاء"""
     pool = await _get_db(req)
@@ -587,7 +579,7 @@ async def distribute_revenue(
 
 
 @router.get("/{coop_id}/stats")
-async def get_cooperative_stats(coop_id: str, req: Request, tenant_id: str = Depends(get_tenant_id)):
+async def get_cooperative_stats(coop_id: str, req: Request, tenant_id: str = Depends(validated_tenant_id)):
     """Get cooperative statistics - إحصائيات التعاونية"""
     pool = await _get_db(req)
     coop = _row_to_dict(await _get_coop_or_404(pool, coop_id, tenant_id))

@@ -64,6 +64,7 @@ from persistence import (
 )
 
 from shared.auth.dependencies import get_current_user
+from shared.db.ssl import enforce_ssl_mode
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from shared.middleware.tenant_context import TenantContextMiddleware
 
@@ -358,11 +359,8 @@ async def lifespan(app: FastAPI):
     # Database connection pool
     app.state.db_pool = None
     try:
-        db_url = os.getenv("DATABASE_URL")
+        db_url = enforce_ssl_mode(os.getenv("DATABASE_URL"), environment=environment)
         if db_url and asyncpg:
-            # Enforce SSL for non-test environments
-            if not is_ci_or_test and "sslmode" not in db_url:
-                db_url = f"{db_url}{'&' if '?' in db_url else '?'}sslmode=require"
             app.state.db_pool = await asyncpg.create_pool(
                 db_url,
                 min_size=2,

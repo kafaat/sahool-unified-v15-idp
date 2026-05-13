@@ -22,6 +22,7 @@ import structlog
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from shared.db.ssl import enforce_ssl_mode
 from shared.logging_config import setup_logging
 from shared.observability.tracing import setup_tracing
 
@@ -40,12 +41,7 @@ async def lifespan(app: FastAPI):
     logger.info(f"Starting {SERVICE_NAME}...", version=SERVICE_VERSION)
 
     # ── Database ──────────────────────────────────────────────────────
-    db_url = os.getenv("DATABASE_URL")
-    if db_url and os.getenv("ENVIRONMENT", "development") != "development":
-        if "sslmode" not in db_url:
-            ssl_mode = "disable" if ":6432" in db_url else "require"
-            sep = "&" if "?" in db_url else "?"
-            db_url = f"{db_url}{sep}sslmode={ssl_mode}"
+    db_url = enforce_ssl_mode(os.getenv("DATABASE_URL"))
     app.state.db_pool = None
     app.state.db_connected = False
     if db_url:

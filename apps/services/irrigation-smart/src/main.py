@@ -155,7 +155,7 @@ except ImportError:
 
     def guard_simulated_response(service: str, endpoint: str) -> None:
         """No-op fallback used in mocked test environments."""
-        return None
+        pass
 
     def mark_simulated(
         response: Response,
@@ -164,7 +164,7 @@ except ImportError:
         message: str = "Response contains simulated (non-authoritative) data.",
     ) -> None:
         """No-op fallback used in mocked test environments."""
-        return None
+        pass
 
 
 # =============================================================================

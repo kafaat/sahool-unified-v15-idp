@@ -266,28 +266,20 @@ All 17 deprecated/archived services have been analyzed. **No service is left wit
 ## المجموعة 4: تغيير المنصة
 ## Group 4: Platform Change
 
-### 15. `wechat-service` → `community-service`
+### 15. `wechat-service` — أُعيد تفعيلها (Reactivated)
 
-| البند | القديم | الجديد |
-|-------|--------|--------|
-| المنفذ | 8135 (كان 8133) | **8133** |
-| الحالة | deprecated (profiles: [deprecated]) | active |
-| المنصة | WeChat (خاص/مدفوع) | **Rocket.Chat (مفتوح المصدر)** |
-| تاريخ التقادم | 2026-03-13 | — |
+> **ملاحظة:** تقرر إعادة تفعيل wechat-service كخدمة نشطة بدلاً من استبدالها. الخدمة تعمل الآن على المنفذ 8135 مع تحسينات أمنية.
 
-**سبب الاستبدال:**
-- التحرر من منصة WeChat الخاصة وقيودها الجغرافية
-- Rocket.Chat self-hosted يوفر خصوصية كاملة للبيانات
-- دعم بوتات الاستشارة الزراعية
+| البند | القديم (مهملة) | الحالي (نشطة) |
+|-------|----------------|--------------|
+| المنفذ | 8135 | **8135** |
+| الحالة | deprecated (profiles: [deprecated]) | **active** |
+| Dockerfile | `archive/deprecated-services/wechat-service/` | **`apps/services/wechat-service/`** |
+| التحقق من التوقيع | ❌ غير مطبّق | ✅ SHA1 HMAC (`WECHAT_CALLBACK_TOKEN`) |
+| SSL database | `sslmode=disable` مُشفّر | `enforce_ssl_mode()` تلقائي |
+| Tenant isolation | تسامح مع غياب tenant_id | fail-closed إلزامي |
 
-**الميزات المضافة في البديل:**
-- أحداث NATS: `CommunityChannelCreated.v1`, `CommunityUserJoined.v1`, `CommunityMessagePosted.v1`, `CommunityAdvisoryPosted.v1`, `CommunityAlertPosted.v1`, `CommunityTenantSetup.v1`
-- يستهلك: أحداث الإشعارات والاستشارات والتنبيهات
-- قنوات موضوعية (topic channels) لمجتمعات المزارعين
-- مجموعات التعاونيات
-- بوتات إرشاد زراعي
-
-**مرجع:** `archive/deprecated-services/wechat-service/DEPRECATION_NOTICE.md`
+**مرجع:** `apps/services/wechat-service/src/main.py`
 
 ---
 
@@ -333,7 +325,7 @@ All 17 deprecated/archived services have been analyzed. **No service is left wit
 
 ```bash
 # لتشغيلها للاختبار فقط:
-docker compose --profile deprecated up yield-prediction lai-estimation crop-growth-model ndvi-processor wechat-service
+docker compose --profile deprecated up yield-prediction lai-estimation crop-growth-model ndvi-processor
 ```
 
 | الخدمة | المنفذ | docker-compose.yml |
@@ -342,7 +334,6 @@ docker compose --profile deprecated up yield-prediction lai-estimation crop-grow
 | `lai-estimation` | 3022 | `profiles: [deprecated]` — السطر 1644 |
 | `crop-growth-model` | 3023 | `profiles: [deprecated]` — السطر 1695 |
 | `ndvi-processor` | 8118 | `profiles: [deprecated]` — السطر 3071 |
-| `wechat-service` | 8135 | `profiles: [deprecated]` — السطر 3512 |
 
 ### تبعية حرجة تستدعي الانتباه
 
@@ -376,7 +367,7 @@ yield-prediction-service (نشط) → يعتمد على → crop-growth-model (�
 | yield-engine | yield-prediction-service | 8098 | 8152 | archived ✅ | 3 |
 | lai-estimation | vegetation-analysis-service | 3022 | 8090 | deprecated 🔒 | 3 |
 | crop-growth-model | advisory-service | 3023 | 8093 | deprecated 🔒 ⚠️ تبعية | 3 |
-| wechat-service | community-service | 8135 | 8133 | deprecated 🔒 | 4 |
+| wechat-service | — (reactivated) | 8135 | 8135 | active ✅ | 4 |
 | community-chat | chat-service | 8097 | 8115 | archived ✅ | 4 |
 | field-chat | chat-service | 8099 | 8115 | archived ✅ | 4 |
 
@@ -399,8 +390,7 @@ yield-prediction-service (نشط) → يعتمد على → crop-growth-model (�
 3. **yield-prediction, lai-estimation**: التأكد من ترحيل جميع المستهلكين، ثم حذفها من compose.
 
 ### الأولوية المنخفضة — خلال الإصدار التالي
-4. **wechat-service**: استكمال ترحيل جميع مستخدمي WeChat إلى community-service، ثم الحذف النهائي.
-5. **ndvi-processor**: (موجودة في apps/services وليس في archive فقط) — تأكيد الأرشفة الكاملة.
+4. **ndvi-processor**: (موجودة في apps/services وليس في archive فقط) — تأكيد الأرشفة الكاملة.
 
 ---
 

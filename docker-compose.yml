@@ -1595,6 +1595,8 @@ asyncio.run(main())
       context: .
       dockerfile: apps/services/yield-prediction/Dockerfile
     container_name: sahool-yield-prediction
+    profiles:
+      - deprecated
     environment:
       - PORT=3021
       - NODE_ENV=production
@@ -1646,6 +1648,8 @@ asyncio.run(main())
       context: .
       dockerfile: apps/services/lai-estimation/Dockerfile
     container_name: sahool-lai-estimation
+    profiles:
+      - deprecated
     environment:
       - PORT=3022
       - NODE_ENV=production
@@ -1697,6 +1701,8 @@ asyncio.run(main())
       context: .
       dockerfile: apps/services/crop-growth-model/Dockerfile
     container_name: sahool-crop-growth-model
+    profiles:
+      - deprecated
     environment:
       - TZ=Asia/Aden
       - PORT=3023
@@ -3073,6 +3079,8 @@ asyncio.run(main())
       context: .
       dockerfile: apps/services/ndvi-processor/Dockerfile
     container_name: sahool-ndvi-processor
+    profiles:
+      - deprecated
     environment:
       - PORT=8118
       - LOG_LEVEL=${LOG_LEVEL:-INFO}

@@ -112,9 +112,10 @@ def mark_simulated(
     """
     response.headers["X-Data-Source"] = "simulated"
     response.headers["X-Data-Source-Detail"] = source
-    existing = response.headers.get("Warning")
     advisory = f'199 sahool "{message}"'
-    response.headers["Warning"] = f"{existing}, {advisory}" if existing else advisory
+    existing = response.headers.get("Warning")
+    if not existing or advisory not in existing:
+        response.headers["Warning"] = f"{existing}, {advisory}" if existing else advisory
 
 
 __all__ = ["guard_simulated_response", "mark_simulated"]

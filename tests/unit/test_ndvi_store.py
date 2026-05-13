@@ -27,6 +27,9 @@ _REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")
 _SRC = os.path.join(_REPO_ROOT, "apps", "services", "ndvi-processor", "src")
 _PKG = "_ndvi_svc_test"
 
+if not os.path.exists(_SRC):
+    pytest.skip("ndvi-processor service has been removed from this repository", allow_module_level=True)
+
 
 def _bootstrap_ndvi_pkg() -> None:
     if _PKG in sys.modules:

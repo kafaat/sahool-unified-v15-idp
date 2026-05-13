@@ -34,6 +34,8 @@ class _NoopMiddleware:
 # Pre-populate sys.modules with mocks for shared packages
 for _mod in [
     "shared",
+    "shared.db",
+    "shared.db.ssl",
     "shared.errors_py",
     "shared.middleware",
     "shared.middleware.tenant_context",
@@ -54,6 +56,7 @@ for _mod in [
 # Wire up callables that are invoked at import time
 sys.modules["shared.errors_py"].setup_exception_handlers = lambda app: None
 sys.modules["shared.errors_py"].add_request_id_middleware = lambda app: None
+sys.modules["shared.db.ssl"].enforce_ssl_mode = lambda dsn: dsn
 sys.modules["shared.middleware.tenant_context"].TenantContextMiddleware = _NoopMiddleware
 sys.modules["shared.events.subjects"].get_tenant_subject = lambda tenant_id, domain, action: (
     f"sahool.tenant.{tenant_id}.{domain}.{action}"

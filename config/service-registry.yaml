@@ -322,20 +322,6 @@ services:
       health: "/healthz"
       forecast: "/v1/weather/forecast"
 
-  lai_estimation:
-    layer: analysis
-    port: 3022
-    path: "apps/services/lai-estimation"
-    language: nodejs
-    framework: nestjs
-    description: "تقدير مؤشر مساحة الأوراق LAI"
-    description_en: "Leaf Area Index estimation"
-    async: true
-    cache_ttl: "24h"
-    endpoints:
-      health: "/api/v1/lai/health"
-      estimate: "/api/v1/lai/estimate"
-
   crop_growth_model:
     layer: analysis
     port: 3023
@@ -349,20 +335,6 @@ services:
     endpoints:
       health: "/api/v1/simulation/health"
       simulate: "/api/v1/simulation/run"
-
-  yield_prediction:
-    layer: analysis
-    port: 3021
-    path: "apps/services/yield-prediction"
-    language: nodejs
-    framework: nestjs
-    description: "التنبؤ بالإنتاجية"
-    description_en: "Yield prediction"
-    async: true
-    cache_ttl: "24h"
-    endpoints:
-      health: "/api/v1/yield/health"
-      predict: "/api/v1/yield/predict"
 
   research_core:
     layer: analysis
@@ -553,19 +525,6 @@ legacy_services:
     reason: "دمج عمليات الحقل مع إدارة الحقول"
     deprecation_date: "2025-12"
     removal_date: "2026-03"
-
-  ndvi_engine:
-    status: deprecated
-    port: 8107
-    path: "apps/services/ndvi-processor"
-    replacement: "satellite-service"
-    replacement_port: 8090
-    reason: "توسيع لدعم NDWI, EVI, SAVI"
-    deprecation_date: "2025-12"
-    removal_date: "2026-03"
-    migration:
-      old_endpoint: "/ndvi/{field_id}"
-      new_endpoint: "/v1/satellite/analyze"
 
   weather_core:
     status: deprecated

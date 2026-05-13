@@ -570,7 +570,6 @@ jobs:
         service:
           - apps/services/field-management-service
           - apps/services/marketplace-service
-          - apps/services/lai-estimation
           - apps/services/yield-prediction-service
           - apps/services/crop-growth-model
     steps:
@@ -614,7 +613,7 @@ jobs:
       - name: Build workspace packages
         run: |
           # Build shared workspace packages that services depend on
-          # nestjs-auth MUST succeed — lai-estimation & crop-growth-model import from it
+          # nestjs-auth MUST succeed — crop-growth-model imports from it
           for pkg in packages/nestjs-auth packages/field-shared packages/shared-types; do
             if [ -f "$GITHUB_WORKSPACE/$pkg/package.json" ] && grep -q '"build"' "$GITHUB_WORKSPACE/$pkg/package.json"; then
               echo "Building $pkg..."

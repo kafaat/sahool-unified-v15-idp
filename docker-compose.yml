@@ -2273,7 +2273,7 @@ asyncio.run(main())
       - sahool-network
 
   # Crop Intelligence Service - Unified Crop Analysis
-  # Consolidates: crop-health, crop-health-ai, crop-growth-model
+  # Consolidates: crop-health, crop-health-ai
   crop-intelligence-service:
     build:
       context: .

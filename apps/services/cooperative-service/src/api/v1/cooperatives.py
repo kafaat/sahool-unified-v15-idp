@@ -36,10 +36,8 @@ except ImportError:
         raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
     async def validated_tenant_id(  # type: ignore[misc]
-        x_tenant_id: str | None = Header(None, alias="X-Tenant-Id"),
-        _current_user: User = Depends(get_current_user),
+        x_tenant_id: str | None = Header(None, alias="X-Tenant-Id"),  # noqa: ARG001
     ) -> str:
-        _ = x_tenant_id
         raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 

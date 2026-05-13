@@ -12,7 +12,7 @@ import structlog
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 
-from shared.auth.dependencies import validated_tenant_id
+from shared.auth.dependencies import get_current_user, validated_tenant_id
 
 from ...training import (
     AGLTrainer,

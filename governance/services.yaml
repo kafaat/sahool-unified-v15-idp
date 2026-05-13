@@ -870,6 +870,7 @@ services:
       produces:
         - CropHealthAssessed.v1
         - DiseaseDetected.v1
+        - GrowthStageEstimated.v1
       consumes:
         - IndexTileReady.v1
         - SatelliteSceneIngested.v1
@@ -1060,6 +1061,7 @@ services:
         - VegetationIndexCalculated.v1
         - NDVITimeseriesReady.v1
         - FieldBoundaryDetected.v1
+        - NDVIProcessed.v1
       consumes:
         - SatelliteSceneIngested.v1
         - WeatherDataReady.v1
@@ -3307,7 +3309,8 @@ services:
         - FieldIndicatorsComputed.v1
         - WeatherForecastReady.v1
     dependencies:
-      - crop-growth-model
+      - crop-intelligence-service
+      - vegetation-analysis-service
       - weather-service
       - redis
     resources:

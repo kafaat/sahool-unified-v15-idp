@@ -1407,8 +1407,18 @@ async def analyze_field_with_action(
                 farmer_id=request.farmer_id,
                 tenant_id=request.tenant_id,
             )
+            publish_analysis_completed_sync(
+                event_type="satellite.ndvi.processed.v1",
+                source_service="vegetation-analysis-service",
+                field_id=request.field_id,
+                data=action_template.get("data", {}),
+                action_template=action_template,
+                priority=action_template.get("urgency", "medium"),
+                farmer_id=request.farmer_id,
+                tenant_id=request.tenant_id,
+            )
             logger.info(
-                f"NATS: Published satellite.ndvi.computed event for field {request.field_id} tenant={request.tenant_id}"
+                f"NATS: Published satellite.ndvi.computed + satellite.ndvi.processed.v1 events for field {request.field_id} tenant={request.tenant_id}"
             )
         except Exception as e:
             logger.error(f"Failed to publish NATS event: {e}")

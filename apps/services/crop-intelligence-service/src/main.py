@@ -1181,6 +1181,42 @@ async def publish_health_assessed(
     return await publish_event(subject, data)
 
 
+async def publish_growth_stage_estimated(
+    field_id: str,
+    zone_id: str,
+    growth_stage: str,
+    source: str,
+    observed_at: str,
+    tenant_id: str | None = None,
+) -> bool:
+    """
+    Publish growth stage estimation event.
+    نشر حدث تقدير مرحلة النمو.
+
+    Event name: GrowthStageEstimated.v1
+    Subject (global): sahool.crop.growth_stage_estimated.v1
+    Subject (tenant): sahool.tenant.{tenant_id}.crop.growth_stage_estimated.v1
+    """
+    data = {
+        "event_name": "GrowthStageEstimated.v1",
+        "field_id": field_id,
+        "zone_id": zone_id,
+        "growth_stage": growth_stage,
+        "source": source,
+        "observed_at": observed_at,
+        "tenant_id": tenant_id,
+        "timestamp": datetime.now(UTC).isoformat() + "Z",
+    }
+    if tenant_id:
+        from shared.events.subjects import get_tenant_subject
+
+        subject = get_tenant_subject(tenant_id, "crop", "growth_stage_estimated.v1")
+    else:
+        logger.warning("Publishing growth_stage_estimated event without tenant_id - tenant isolation gap")
+        subject = "sahool.crop.growth_stage_estimated.v1"
+    return await publish_event(subject, data)
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Helper to get observations (from DB or memory)
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1361,6 +1397,16 @@ async def ingest_observation(
     OBSERVATIONS[field_id][zone_id].append(obs)
 
     observation_id = db_obs_id or f"obs_{field_id}_{zone_id}_{int(body.captured_at.timestamp())}"
+
+    # Publish GrowthStageEstimated.v1 event for downstream decision services
+    await publish_growth_stage_estimated(
+        field_id=field_id,
+        zone_id=zone_id,
+        growth_stage=body.growth_stage.value,
+        source=body.source.value,
+        observed_at=body.captured_at.isoformat(),
+        tenant_id=tenant_id,
+    )
 
     return ObservationOut(
         observation_id=observation_id,

@@ -29,6 +29,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 # Configure structured logging (replaces stdlib logging init)
+from shared.db.ssl import enforce_ssl_mode
 from shared.logging_config import setup_logging
 
 from .agents.executor import AgentExecutor
@@ -286,8 +287,9 @@ async def lifespan(app: FastAPI):
     # Initialize PostgreSQL database connection
     if ASYNCPG_AVAILABLE and settings.database_url:
         try:
+            database_url = enforce_ssl_mode(settings.database_url)
             app.state.db_pool = await asyncpg.create_pool(
-                settings.database_url,
+                database_url,
                 min_size=settings.db_pool_min_size,
                 max_size=settings.db_pool_max_size,
                 statement_cache_size=0,  # PgBouncer transaction mode

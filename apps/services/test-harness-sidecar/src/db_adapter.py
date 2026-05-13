@@ -24,6 +24,7 @@ from contextlib import asynccontextmanager
 
 import asyncpg
 
+from shared.db.ssl import enforce_ssl_mode
 from shared.db.tenant_connection import tenant_connection as _shared_tenant_connection
 
 _pool: asyncpg.Pool | None = None
@@ -34,7 +35,7 @@ async def init_pool(dsn: str) -> None:
     global _pool
     if _pool is not None:
         return
-    _pool = await asyncpg.create_pool(dsn, min_size=1, max_size=4)
+    _pool = await asyncpg.create_pool(enforce_ssl_mode(dsn), min_size=1, max_size=4)
 
 
 async def close_pool() -> None:

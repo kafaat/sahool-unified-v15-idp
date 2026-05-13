@@ -18,6 +18,7 @@ from typing import Any
 
 import structlog
 from fastapi import APIRouter, Depends, Header, HTTPException, Request, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from ...agents.executor import AgentExecutor
 from ...agents.quick_responses import QuickResponse
@@ -43,17 +44,23 @@ logger = structlog.get_logger(__name__)
 
 router = APIRouter(prefix="/api/v1", tags=["orchestrator"])
 
+try:
+    from shared.auth.dependencies import validated_tenant_id
+except ImportError:
+    _bearer_scheme = HTTPBearer(auto_error=False)
+    _UUID_RE = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", re.IGNORECASE)
 
-_UUID_RE = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", re.IGNORECASE)
-
-
-def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -> str:
-    """Extract and validate tenant ID from X-Tenant-Id header - استخراج معرف المستأجر من الهيدر"""
-    if not x_tenant_id:
-        raise HTTPException(status_code=400, detail="X-Tenant-Id header is required")
-    if not _UUID_RE.match(x_tenant_id):
-        raise HTTPException(status_code=400, detail="X-Tenant-Id must be a valid UUID")
-    return x_tenant_id
+    async def validated_tenant_id(
+        x_tenant_id: str | None = Header(None, alias="X-Tenant-Id"),
+        credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
+    ) -> str:
+        if not credentials:
+            raise HTTPException(status_code=401, detail="Authentication required")
+        if not x_tenant_id:
+            raise HTTPException(status_code=400, detail="X-Tenant-Id header is required")
+        if not _UUID_RE.match(x_tenant_id):
+            raise HTTPException(status_code=400, detail="X-Tenant-Id must be a valid UUID")
+        return x_tenant_id
 
 
 def get_executor(request: Request) -> AgentExecutor:
@@ -89,7 +96,7 @@ async def orchestrate(
     request: Request,
     registry: AgentRegistry = Depends(get_agent_registry),
     executor: AgentExecutor = Depends(get_executor),
-    tenant_id: str = Depends(get_tenant_id),
+    tenant_id: str = Depends(validated_tenant_id),
 ) -> OrchestratorResponse:
     """Main orchestration endpoint."""
     start_time = time.time()
@@ -229,7 +236,7 @@ async def orchestrate_with_image(
     request: Request,
     registry: AgentRegistry = Depends(get_agent_registry),
     executor: AgentExecutor = Depends(get_executor),
-    tenant_id: str = Depends(get_tenant_id),
+    tenant_id: str = Depends(validated_tenant_id),
 ) -> OrchestratorResponse:
     """Orchestration endpoint for image-based queries."""
     # Validate image is provided
@@ -305,7 +312,7 @@ async def execute_action(
     action_request: ExecuteActionRequest,
     request: Request,
     executor: AgentExecutor = Depends(get_executor),
-    tenant_id: str = Depends(get_tenant_id),
+    tenant_id: str = Depends(validated_tenant_id),
 ) -> ExecuteActionResponse:
     """Execute a recommended action."""
     action = action_request.action
@@ -645,7 +652,7 @@ async def orchestrate_simple(
     request: Request,
     registry: AgentRegistry = Depends(get_agent_registry),
     executor: AgentExecutor = Depends(get_executor),
-    tenant_id: str = Depends(get_tenant_id),
+    tenant_id: str = Depends(validated_tenant_id),
 ) -> OrchestratorResponse:
     """Simplified orchestration with quick responses and rule-based routing."""
     start_time = time.time()

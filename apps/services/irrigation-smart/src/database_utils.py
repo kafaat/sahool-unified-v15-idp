@@ -20,6 +20,8 @@ from dataclasses import dataclass
 from datetime import UTC, date, datetime, timedelta
 from typing import Any
 
+from shared.db.ssl import enforce_ssl_mode
+
 logger = logging.getLogger(__name__)
 
 
@@ -341,9 +343,10 @@ async def create_pool(database_url: str, config: PoolConfig | None = None):
         import asyncpg
 
         config = config or PoolConfig.from_env()
+        db_url = enforce_ssl_mode(database_url)
 
         pool = await asyncpg.create_pool(
-            database_url,
+            db_url,
             min_size=config.min_connections,
             max_size=config.max_connections,
             command_timeout=config.command_timeout,

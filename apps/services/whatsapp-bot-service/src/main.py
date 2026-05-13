@@ -32,6 +32,7 @@ from fastapi.middleware.cors import CORSMiddleware
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
+from shared.db.ssl import enforce_ssl_mode
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 from .api.endpoints import router as webhook_router
@@ -171,8 +172,9 @@ async def lifespan(app: FastAPI):
     # Initialize PostgreSQL database connection
     if ASYNCPG_AVAILABLE and settings.database_url:
         try:
+            database_url = enforce_ssl_mode(settings.database_url)
             app.state.db_pool = await asyncpg.create_pool(
-                settings.database_url,
+                database_url,
                 min_size=settings.db_pool_min_size,
                 max_size=settings.db_pool_max_size,
                 statement_cache_size=0,  # PgBouncer transaction mode

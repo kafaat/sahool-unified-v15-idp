@@ -8,8 +8,9 @@ import threading
 import time
 from collections import defaultdict
 from collections.abc import Callable
+from uuid import UUID
 
-from fastapi import Depends, HTTPException, Request, status
+from fastapi import Depends, HTTPException, Header, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from .config import config
@@ -348,6 +349,22 @@ def enforce_tenant(user: User, requested_tenant_id: str | None = None) -> str:
     # (the case where both are empty raises HTTPException above)
     assert user_tenant is not None  # guaranteed by the guard above
     return user_tenant
+
+
+async def validated_tenant_id(
+    x_tenant_id: str | None = Header(None, alias="X-Tenant-Id"),
+    current_user: User = Depends(get_current_user),
+) -> str:
+    """Validate X-Tenant-Id format and enforce JWT tenant isolation."""
+    if not x_tenant_id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="X-Tenant-Id header is required")
+
+    try:
+        UUID(str(x_tenant_id))
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid tenant ID format") from exc
+
+    return enforce_tenant(current_user, x_tenant_id)
 
 
 def require_roles(*required_roles: str) -> Callable:

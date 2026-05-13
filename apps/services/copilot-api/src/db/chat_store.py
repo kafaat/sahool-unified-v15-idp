@@ -21,6 +21,7 @@ import uuid
 from typing import Any
 
 import structlog
+from shared.db.ssl import enforce_ssl_mode
 
 logger = structlog.get_logger(__name__)
 
@@ -100,8 +101,9 @@ async def init_db(database_url: str | None) -> bool:
     try:
         import asyncpg
 
+        db_url = enforce_ssl_mode(database_url)
         _pool = await asyncpg.create_pool(
-            database_url,
+            db_url,
             min_size=2,
             statement_cache_size=0,  # PgBouncer transaction mode compatibility,
             max_size=10,

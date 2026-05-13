@@ -25,6 +25,7 @@ from fastapi import FastAPI, Query, WebSocket, WebSocketDisconnect, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from shared.db.ssl import enforce_ssl_mode
 from src.api.endpoints import devices, jobs, sync
 from src.api.schemas import HealthStatus, ReadinessStatus
 from src.core.config import settings
@@ -82,8 +83,9 @@ async def lifespan(app: FastAPI):
         try:
             import asyncpg
 
+            database_url = enforce_ssl_mode(settings.database_url)
             app.state.db_pool = await asyncpg.create_pool(
-                settings.database_url,
+                database_url,
                 min_size=settings.db_pool_min_size,
                 max_size=settings.db_pool_max_size,
                 statement_cache_size=0,  # PgBouncer transaction mode

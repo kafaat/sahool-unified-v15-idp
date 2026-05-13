@@ -23,7 +23,7 @@ from ...training.feedback_collector import FeedbackType, OutcomeStatus
 
 # Authentication dependency
 try:
-    from shared.auth.dependencies import get_current_user
+    from shared.auth.dependencies import get_current_user, validated_tenant_id
 except ImportError:
     from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
@@ -37,6 +37,11 @@ except ImportError:
             raise HTTPException(status_code=401, detail="Authentication required")
         return {"token": credentials.credentials}
 
+    async def validated_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -> str:
+        if not x_tenant_id:
+            raise HTTPException(status_code=400, detail="X-Tenant-Id header is required")
+        return x_tenant_id
+
 
 logger = structlog.get_logger()
 
@@ -44,14 +49,6 @@ router = APIRouter(
     prefix="/api/v1/training",
     tags=["Training | التدريب"],
 )
-
-
-def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -> str:
-    """Extract and validate tenant ID from X-Tenant-Id header - استخراج معرف المستأجر من الهيدر"""
-    if not x_tenant_id:
-        raise HTTPException(status_code=400, detail="X-Tenant-Id header is required")
-    return x_tenant_id
-
 
 # Global instances (initialized in main.py lifespan)
 trainer: AGLTrainer | None = None
@@ -366,7 +363,7 @@ async def get_optimized_prompt(agent_name: str) -> dict[str, Any]:
 
 
 @router.post("/feedback", response_model=FeedbackResponse)
-async def record_feedback(request: FeedbackRequest, tenant_id: str = Depends(get_tenant_id)) -> FeedbackResponse:
+async def record_feedback(request: FeedbackRequest, tenant_id: str = Depends(validated_tenant_id)) -> FeedbackResponse:
     """
     Record feedback on an agent's response.
     تسجيل تغذية راجعة على استجابة الوكيل

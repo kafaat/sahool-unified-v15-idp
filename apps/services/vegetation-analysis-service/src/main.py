@@ -1152,7 +1152,7 @@ def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
 @app.post("/v1/imagery/request", response_model=SatelliteImagery)
 async def request_imagery(
     request: ImageryRequest,
-    response: Response | None = None,
+    response: Response,
     user: User = Depends(get_current_user),
 ):
     """طلب صور الأقمار الصناعية لحقل معين"""
@@ -1161,10 +1161,8 @@ async def request_imagery(
 
     # Band reflectance, cloud cover, sun elevation, scene/tile IDs are all
     # randomly generated. Block in production unless ALLOW_SIMULATED_DATA=true.
-    # /v1/analyze/* call this function directly (response defaults to None).
     guard_simulated_response("vegetation-analysis-service", "imagery_request")
-    if response is not None:
-        mark_simulated(response, source="random_sampling")
+    mark_simulated(response, source="random_sampling")
 
     config = SATELLITE_CONFIGS[request.satellite]
 
@@ -1213,8 +1211,8 @@ async def analyze_field(request: ImageryRequest, user: User = Depends(get_curren
     """تحليل شامل للحقل باستخدام بيانات الأقمار الصناعية"""
     _validate_field_id(request.field_id)
 
-    # Get imagery first (response=None: not invoked as HTTP handler here)
-    imagery = await request_imagery(request, response=None)
+    # Get imagery first with explicit Response object for internal call path.
+    imagery = await request_imagery(request, response=Response(), user=user)
 
     # Extract band values for calculations
     bands_dict = {b.band_name: b.value for b in imagery.bands}

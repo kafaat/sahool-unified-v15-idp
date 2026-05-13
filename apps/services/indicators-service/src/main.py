@@ -1061,7 +1061,7 @@ def get_indicator_definitions():
 @app.get("/v1/field/{field_id}/indicators", response_model=FieldIndicators)
 async def get_field_indicators(
     field_id: str,
-    response: Response | None = None,
+    response: Response,
     category: IndicatorCategory | None = None,
     force_refresh: bool = False,
     user: Any = Depends(get_current_user),
@@ -1084,8 +1084,7 @@ async def get_field_indicators(
     # and area_hectares/crop_type are always fabricated. Refuse in production
     # unless explicitly opted-in.
     guard_simulated_response("indicators-service", "field_indicators")
-    if response is not None:
-        mark_simulated(response, source="random_sampling")
+    mark_simulated(response, source="random_sampling")
 
     indicators = []
     alerts = []
@@ -1403,7 +1402,7 @@ async def get_dashboard_summary(
 
     for _i in range(num_fields):
         field_id = f"field_{uuid.uuid4().hex[:8]}"
-        field_indicators = await get_field_indicators(field_id, response=None)
+        field_indicators = await get_field_indicators(field_id, response=Response(), user=user)
         fields_data.append(field_indicators)
         total_area += field_indicators.area_hectares
         total_health_score += field_indicators.overall_score

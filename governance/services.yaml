@@ -22,7 +22,7 @@ event_architecture:
 
     intelligence:
       description: "Feature extraction & AI layer - طبقة الذكاء"
-      services: [vegetation-analysis-service, indicators-service, lai-estimation, crop-intelligence-service, disaster-assessment, agro-rules, ndvi-processor, field-intelligence, skills-service, ai-agents-service, ai-agents-core, code-fix-agent, code-review-agent, knowledge-graph, yolo26-vision-service, terrain-core-service, hydrology-service, soil-analysis-service, pest-detection-service, digital-twin-engine, vllm-deepseek]  # ndvi-processor is deprecated → vegetation-analysis-service
+      services: [vegetation-analysis-service, indicators-service, crop-intelligence-service, disaster-assessment, agro-rules, field-intelligence, skills-service, ai-agents-service, ai-agents-core, code-fix-agent, code-review-agent, knowledge-graph, yolo26-vision-service, terrain-core-service, hydrology-service, soil-analysis-service, pest-detection-service, digital-twin-engine, vllm-deepseek]
       rules:
         - "Consumes from Acquisition"
         - "Produces computed features/assessments"
@@ -117,7 +117,6 @@ services:
       consumes:
         - FieldIndicatorsComputed.v1
         - WeatherForecastReady.v1
-        - LAIEstimated.v1
 
     modules:
       - id: phenology
@@ -240,73 +239,6 @@ services:
     resources:
       cpu: "300m"
       memory: "256Mi"
-      replicas: 1
-
-  # ═══════════════════════════════════════════════════════════════════════════
-  # LAI ESTIMATION - تقدير مؤشر مساحة الأوراق
-  # ═══════════════════════════════════════════════════════════════════════════
-  lai-estimation:
-    name: "LAI Estimation"
-    name_ar: "تقدير LAI"
-    type: nestjs
-    category: analytics
-    layer: intelligence
-    path: "apps/services/lai-estimation"
-    port: 3022
-    protocol: http
-    health_endpoint: "/healthz"
-    status: deprecated  # Only starts with --profile deprecated in docker-compose; use vegetation-analysis-service for indices
-    owner: "data-team@sahool.io"
-    team: data
-    lifecycle: deprecated
-    tier: tier-2
-    events:
-      produces:
-        - LAIEstimated.v1
-      consumes:
-        - IndexTileReady.v1
-        - FieldIndicatorsComputed.v1
-    dependencies:
-      - vegetation-analysis-service
-      - redis
-    resources:
-      cpu: "400m"
-      memory: "384Mi"
-      replicas: 1
-
-  # ═══════════════════════════════════════════════════════════════════════════
-  # YIELD PREDICTION - تنبؤ الغلة
-  # ═══════════════════════════════════════════════════════════════════════════
-  yield-prediction:
-    name: "Yield Prediction"
-    name_ar: "تنبؤ الغلة"
-    type: nestjs
-    category: analytics
-    layer: decision
-    path: "apps/services/yield-prediction"
-    port: 3021
-    protocol: http
-    health_endpoint: "/healthz"
-    status: deprecated  # Deprecated 2026-02-19 - use yield-prediction-service (port 8152) instead
-    owner: "data-team@sahool.io"
-    team: data
-    lifecycle: deprecated
-    tier: tier-1
-    events:
-      produces:
-        - YieldPredicted.v1
-        - YieldConfidenceUpdated.v1
-      consumes:
-        - YieldEstimated.v1
-        - WeatherForecastReady.v1
-        - FieldIndicatorsComputed.v1
-    dependencies:
-      - crop-growth-model
-      - weather-service
-      - lai-estimation
-    resources:
-      cpu: "500m"
-      memory: "512Mi"
       replicas: 1
 
   # ═══════════════════════════════════════════════════════════════════════════
@@ -851,36 +783,6 @@ services:
       cpu: "300m"
       memory: "256Mi"
       replicas: 2
-
-  # ═══════════════════════════════════════════════════════════════════════════
-  # NDVI PROCESSOR - معالج NDVI
-  # ═══════════════════════════════════════════════════════════════════════════
-  ndvi-processor:
-    name: "NDVI Processor"
-    name_ar: "معالج NDVI"
-    type: python
-    category: analytics
-    layer: intelligence
-    path: "apps/services/ndvi-processor"
-    port: 8118
-    protocol: http
-    health_endpoint: "/healthz"
-    status: deprecated  # Deprecated → vegetation-analysis-service (sunset: 2026-02)
-    owner: "data-team@sahool.io"
-    team: data
-    lifecycle: experimental  # Mock/dev implementation - not yet production-ready
-    tier: tier-2
-    events:
-      produces:
-        - NDVIProcessed.v1
-      consumes:
-        - SatelliteSceneIngested.v1
-    dependencies:
-      - vegetation-analysis-service
-    resources:
-      cpu: "500m"
-      memory: "512Mi"
-      replicas: 1
 
   # ═══════════════════════════════════════════════════════════════════════════
   # FIELD INTELLIGENCE - ذكاء الحقول

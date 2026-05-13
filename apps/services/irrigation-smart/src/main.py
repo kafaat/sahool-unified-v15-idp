@@ -1232,6 +1232,12 @@ def get_water_balance(
     user: dict = Depends(get_current_user),
 ):
     """الميزان المائي للحقل - Protected endpoint"""
+    from fastapi import Response as FastAPIResponse
+
+    from shared.libs.simulated_data import guard_simulated_response, mark_simulated
+
+    guard_simulated_response("irrigation-smart", "water-balance")
+
     import random
 
     _validate_field_id(field_id)
@@ -1270,7 +1276,7 @@ def get_water_balance(
     total_rainfall = sum(b.rainfall_mm for b in balance_data)
     total_irrigation = sum(b.irrigation_mm for b in balance_data)
 
-    return {
+    response_body = {
         "field_id": field_id,
         "crop": crop.value,
         "period_days": days,
@@ -1284,6 +1290,7 @@ def get_water_balance(
         "daily_data": [b.dict() for b in balance_data],
         "recommendation_ar": ("💧 يُنصح بري تعويضي" if cumulative_deficit > 30 else "✅ الميزان المائي متوازن"),
     }
+    return mark_simulated(response_body, source="irrigation-smart/water-balance")
 
 
 @app.post("/v1/sensor-reading")

@@ -50,6 +50,14 @@ elif DATABASE_URL.startswith("postgresql+psycopg2://"):
     # Convert sync driver to async
     DATABASE_URL = DATABASE_URL.replace("postgresql+psycopg2://", "postgresql+asyncpg://", 1)
 
+# Enforce TLS in production/staging (adds ?sslmode=require when not already set)
+try:
+    from shared.db.ssl import enforce_ssl_mode
+
+    DATABASE_URL = enforce_ssl_mode(DATABASE_URL) or DATABASE_URL
+except ImportError:
+    pass  # shared package unavailable; rely on DATABASE_URL containing sslmode
+
 # Environment settings
 ENVIRONMENT = os.getenv("ENVIRONMENT", "production").lower()
 IS_DEV = ENVIRONMENT in ("development", "dev", "test", "testing")

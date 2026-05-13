@@ -31,6 +31,7 @@ from fastapi import FastAPI
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from shared.db.simple_migrations import Migration, SimpleMigrationRunner
+from shared.db.ssl import enforce_ssl_mode
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from shared.middleware.tenant_context import TenantContextMiddleware
 
@@ -116,13 +117,7 @@ async def lifespan(app: FastAPI):
     )
 
     # Database connection
-    # Enforce sslmode for non-development database connections
-    db_url = settings.database_url
-    if db_url and os.getenv("ENVIRONMENT", "development") != "development":
-        if "sslmode" not in db_url:
-            # Use sslmode=disable for PgBouncer (port 6432) which does not support SSL
-            ssl_mode = "disable" if ":6432" in db_url else "require"
-            db_url += f"?sslmode={ssl_mode}" if "?" not in db_url else f"&sslmode={ssl_mode}"
+    db_url = enforce_ssl_mode(settings.database_url)
     if db_url:
         try:
             app.state.db_pool = await asyncpg.create_pool(

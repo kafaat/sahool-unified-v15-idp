@@ -27,6 +27,12 @@ from typing import Any
 import asyncpg
 from asyncpg.pool import Pool
 
+try:
+    from shared.db.ssl import enforce_ssl_mode
+except ImportError:
+    def enforce_ssl_mode(url: str | None) -> str | None:
+        return url
+
 logger = logging.getLogger("field-intelligence")
 
 # =============================================================================
@@ -76,7 +82,7 @@ async def get_pool() -> Pool | None:
     if _pool is None:
         logger.info("Creating new database connection pool")
         _pool = await asyncpg.create_pool(
-            DATABASE_URL,
+            enforce_ssl_mode(DATABASE_URL),
             min_size=MIN_POOL_SIZE,
             max_size=MAX_POOL_SIZE,
             command_timeout=POOL_COMMAND_TIMEOUT,
@@ -85,7 +91,6 @@ async def get_pool() -> Pool | None:
                 "application_name": "sahool-field-intelligence",
             },
         )
-        logger.info(f"Connection pool created: min={MIN_POOL_SIZE}, max={MAX_POOL_SIZE}")
 
     return _pool
 

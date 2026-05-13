@@ -154,9 +154,11 @@ try:
 except ImportError:
 
     def guard_simulated_response(_service: str, _endpoint: str, **kwargs):
+        """No-op fallback used when simulated-data helpers are unavailable."""
         return None
 
     def mark_simulated(_response: Response, _source: str | None = None, **kwargs):
+        """No-op fallback used when simulated-data helpers are unavailable."""
         return None
 
 

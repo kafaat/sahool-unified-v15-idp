@@ -153,10 +153,10 @@ try:
     from shared.libs.simulated_data import guard_simulated_response, mark_simulated
 except ImportError:
 
-    def guard_simulated_response(service: str, endpoint: str):
+    def guard_simulated_response(service: str, endpoint: str, **kwargs):
         return None
 
-    def mark_simulated(response: Response, source: str | None = None):
+    def mark_simulated(response: Response, source: str | None = None, **kwargs):
         return None
 
 

@@ -192,12 +192,12 @@ services:
       health: "/healthz"
       indicators: "/v1/indicators/{field_id}"
 
-  yield_engine:
+  yield_prediction_service:
     layer: bridge
-    port: 8098
-    path: "apps/services/yield-engine"
-    language: python
-    framework: fastapi
+    port: 8152
+    path: "apps/services/yield-prediction-service"
+    language: nodejs
+    framework: nestjs
     description: "توصيات الإنتاجية"
     description_en: "Yield recommendations"
     transforms:
@@ -226,10 +226,10 @@ services:
       health: "/healthz"
       schedule: "/v1/irrigation/schedule"
 
-  fertilizer_advisor:
+  advisory_service:
     layer: bridge
     port: 8093
-    path: "apps/services/fertilizer-advisor"
+    path: "apps/services/advisory-service"
     language: python
     framework: fastapi
     description: "توصيات التسميد"
@@ -277,10 +277,10 @@ services:
   # ANALYSIS LAYER (Priority 3)
   # ═══════════════════════════════════════════════════════════════════════════
 
-  satellite_service:
+  vegetation_analysis_service:
     layer: analysis
     port: 8090
-    path: "apps/services/satellite-service"
+    path: "apps/services/vegetation-analysis-service"
     language: python
     framework: fastapi
     description: "تحليل صور الأقمار الصناعية"
@@ -292,10 +292,10 @@ services:
       health: "/healthz"
       analyze: "/v1/satellite/analyze"
 
-  crop_health_ai:
+  crop_intelligence_service:
     layer: analysis
     port: 8095
-    path: "apps/services/crop-health-ai"
+    path: "apps/services/crop-intelligence-service"
     language: python
     framework: fastapi
     description: "تشخيص أمراض المحاصيل بالذكاء الاصطناعي"
@@ -307,10 +307,10 @@ services:
       health: "/healthz"
       diagnose: "/v1/diagnose"
 
-  weather_advanced:
+  weather_service:
     layer: analysis
     port: 8092
-    path: "apps/services/weather-advanced"
+    path: "apps/services/weather-service"
     language: python
     framework: fastapi
     description: "التنبؤات الجوية المتقدمة"
@@ -352,10 +352,10 @@ services:
   # COMMUNICATION (Priority 2)
   # ═══════════════════════════════════════════════════════════════════════════
 
-  community_chat:
+  chat_service:
     layer: communication
-    port: 8097
-    path: "apps/services/community-chat"
+    port: 8115
+    path: "apps/services/chat-service"
     language: nodejs
     framework: nestjs
     description: "الدردشة المجتمعية الزراعية"
@@ -459,7 +459,7 @@ pipelines:
   ndvi_to_action:
     name: "NDVI to Field Action"
     steps:
-      - service: satellite_service
+      - service: vegetation_analysis_service
         action: analyze
         output: ndvi_result
       - service: indicators_service
@@ -474,7 +474,7 @@ pipelines:
   weather_to_irrigation:
     name: "Weather to Irrigation Schedule"
     steps:
-      - service: weather_advanced
+      - service: weather_service
         action: forecast
         output: weather_data
       - service: virtual_sensors
@@ -489,7 +489,7 @@ pipelines:
   disease_to_treatment:
     name: "Disease Detection to Treatment"
     steps:
-      - service: crop_health_ai
+      - service: crop_intelligence_service
         action: diagnose
         output: diagnosis
       - service: indicators_service
@@ -511,8 +511,8 @@ legacy_services:
   field_core:
     status: deprecated
     port: 3000
-    path: "apps/services/field-service"
-    replacement: "field-service"
+    path: "apps/services/field-management-service"
+    replacement: "field-management-service"
     reason: "دمج إدارة الحقول في خدمة واحدة"
     deprecation_date: "2025-12"
     removal_date: "2026-03"
@@ -520,8 +520,8 @@ legacy_services:
   field_ops:
     status: deprecated
     port: 8080
-    path: "apps/services/field-service"
-    replacement: "field-service"
+    path: "apps/services/field-management-service"
+    replacement: "field-management-service"
     reason: "دمج عمليات الحقل مع إدارة الحقول"
     deprecation_date: "2025-12"
     removal_date: "2026-03"
@@ -529,8 +529,8 @@ legacy_services:
   weather_core:
     status: deprecated
     port: 8108
-    path: "apps/services/weather-advanced"
-    replacement: "weather-advanced"
+    path: "apps/services/weather-service"
+    replacement: "weather-service"
     replacement_port: 8092
     reason: "إضافة تنبؤات متقدمة وتكامل FAO"
     deprecation_date: "2025-12"
@@ -542,9 +542,9 @@ legacy_services:
   field_chat:
     status: deprecated
     port: 8099
-    path: "apps/services/community-chat"
-    replacement: "community-chat"
-    replacement_port: 8097
+    path: "apps/services/chat-service"
+    replacement: "chat-service"
+    replacement_port: 8115
     reason: "إعادة تصميم WebSocket"
     deprecation_date: "2025-12"
     removal_date: "2026-03"
@@ -561,8 +561,8 @@ legacy_services:
   agro_advisor:
     status: deprecated
     port: 8105
-    path: "apps/services/fertilizer-advisor"
-    replacement: "fertilizer-advisor"
+    path: "apps/services/advisory-service"
+    replacement: "advisory-service"
     replacement_port: 8093
     reason: "فصل التسميد عن الاستشارات العامة"
     deprecation_date: "2025-12"
@@ -582,7 +582,7 @@ legacy_services:
   crop_health:
     status: deprecated
     port: null
-    replacement: "crop-health-ai"
+    replacement: "crop-intelligence-service"
     replacement_port: 8095
     reason: "إضافة AI للتشخيص"
     deprecation_date: "2025-12"
@@ -601,7 +601,7 @@ legacy_services:
   task_service:
     status: deprecated
     port: null
-    replacement: "field-service"
+    replacement: "field-management-service"
     reason: "دمج المهام مع الحقول"
     deprecation_date: "2025-12"
     removal_date: "2026-03"
@@ -609,7 +609,7 @@ legacy_services:
   equipment_service:
     status: deprecated
     port: null
-    replacement: "merged into field-service"
+    replacement: "merged into field-management-service"
     reason: "المعدات جزء من الحقل"
     deprecation_date: "2025-12"
     removal_date: "2026-03"
@@ -617,8 +617,8 @@ legacy_services:
   community_service:
     status: deprecated
     port: null
-    replacement: "community-chat"
-    replacement_port: 8097
+    replacement: "chat-service"
+    replacement_port: 8115
     reason: "توحيد خدمات المجتمع"
     deprecation_date: "2025-12"
     removal_date: "2026-03"

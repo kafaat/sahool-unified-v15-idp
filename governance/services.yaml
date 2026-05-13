@@ -105,10 +105,10 @@ services:
     port: 3023
     protocol: http
     health_endpoint: "/healthz"
-    status: deprecated  # Only starts with --profile deprecated in docker-compose; use advisory-service for recommendations
+    status: active
     owner: "agro-team@sahool.io"
     team: agro
-    lifecycle: deprecated
+    lifecycle: stable
     tier: tier-1
     events:
       produces:
@@ -570,91 +570,6 @@ services:
       replicas: 1
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # SATELLITE SERVICE - خدمة الأقمار الصناعية (ARCHIVED)
-  # ═══════════════════════════════════════════════════════════════════════════
-  satellite-service:
-    name: "Satellite Service"
-    name_ar: "خدمة الأقمار الصناعية"
-    type: python
-    category: analytics
-    layer: acquisition
-    path: "archive/deprecated-services/satellite-service"
-    port: 9190  # Changed to avoid conflict with vegetation-analysis-service (9090 reserved for prometheus)
-    protocol: http
-    health_endpoint: "/healthz"
-    status: archived
-    owner: "data-team@sahool.io"
-    team: data
-    lifecycle: production
-    tier: tier-2
-    replaced_by: vegetation-analysis-service
-    deprecation_date: "2026-01-11"
-    archive_date: "2026-01-25"
-    version: "15.4.0"
-    events:
-      produces:
-        - SatelliteSceneIngested.v1
-        - RasterTileReady.v1
-        - IndexTileReady.v1
-        - FieldIndicatorsComputed.v1
-      consumes: []
-    database:
-      type: postgresql
-      name: sahool_satellite
-    dependencies:
-      - sahool-eo  # eo-learn integration package
-    integrations:
-      eo_learn:
-        package: "packages/sahool-eo"
-        credentials: "governance/credentials.yaml"
-        env_vars:
-          - SENTINEL_HUB_CLIENT_ID
-          - SENTINEL_HUB_CLIENT_SECRET
-    resources:
-      cpu: "600m"
-      memory: "768Mi"
-      replicas: 1
-
-  # ═══════════════════════════════════════════════════════════════════════════
-  # WEATHER ADVANCED - خدمة الطقس المتقدمة (ARCHIVED)
-  # ═══════════════════════════════════════════════════════════════════════════
-  weather-advanced:
-    name: "Weather Advanced"
-    name_ar: "خدمة الطقس المتقدمة"
-    type: python
-    category: integration
-    layer: acquisition
-    path: "archive/deprecated-services/weather-advanced"
-    port: 9092  # Changed to avoid conflict with weather-service
-    protocol: http
-    health_endpoint: "/healthz"
-    status: archived
-    owner: "iot-team@sahool.io"
-    team: iot
-    lifecycle: production
-    tier: tier-2
-    replaced_by: weather-service
-    deprecation_date: "2026-01-11"
-    archive_date: "2026-01-25"
-    events:
-      produces:
-        - WeatherObserved.v1
-        - WeatherForecastReady.v1
-        - WeatherAlertIssued.v1
-      consumes: []
-    database:
-      type: postgresql
-      name: sahool_weather
-    external_apis:
-      - openweathermap
-      - weatherapi
-    dependencies: []
-    resources:
-      cpu: "300m"
-      memory: "256Mi"
-      replicas: 1
-
-  # ═══════════════════════════════════════════════════════════════════════════
   # INDICATORS SERVICE - خدمة المؤشرات
   # ═══════════════════════════════════════════════════════════════════════════
   indicators-service:
@@ -687,42 +602,6 @@ services:
     resources:
       cpu: "400m"
       memory: "384Mi"
-      replicas: 1
-
-  # ═══════════════════════════════════════════════════════════════════════════
-  # CROP HEALTH AI - سهول فيجن (ARCHIVED)
-  # ═══════════════════════════════════════════════════════════════════════════
-  crop-health-ai:
-    name: "Crop Health AI"
-    name_ar: "سهول فيجن - كشف الأمراض"
-    type: python
-    category: analytics
-    layer: intelligence
-    path: "archive/deprecated-services/crop-health-ai"
-    port: 9095  # Changed to avoid conflict with crop-intelligence-service
-    protocol: http
-    health_endpoint: "/healthz"
-    status: archived
-    owner: "data-team@sahool.io"
-    team: data
-    lifecycle: production
-    tier: tier-2
-    replaced_by: crop-intelligence-service
-    deprecation_date: "2026-01-11"
-    archive_date: "2026-01-25"
-    events:
-      produces:
-        - CropHealthAssessed.v1
-        - CropStressDetected.v1
-      consumes:
-        - FieldIndicatorsComputed.v1
-        - LAIEstimated.v1
-        - WeatherObserved.v1
-    dependencies:
-      - vegetation-analysis-service
-    resources:
-      cpu: "800m"
-      memory: "1Gi"
       replicas: 1
 
   # ═══════════════════════════════════════════════════════════════════════════

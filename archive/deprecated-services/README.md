@@ -9,9 +9,6 @@ This directory contains services that have been deprecated and replaced by newer
 
 | Deprecated Service | Replacement Service | Port | Archive Date |
 |-------------------|---------------------|------|--------------|
-| `satellite-service` | `vegetation-analysis-service` | 8090 | 2026-01-25 |
-| `weather-advanced` | `weather-service` | 8092 | 2026-01-25 |
-| `crop-health-ai` | `crop-intelligence-service` | 8095 | 2026-01-25 |
 | `crop-health` | `crop-intelligence-service` | 8095 | 2026-01-25 |
 | `fertilizer-advisor` | `advisory-service` | 8093 | 2026-01-25 |
 | `field-ops` | `field-management-service` | 3000 | 2026-01-25 |
@@ -26,16 +23,15 @@ This directory contains services that have been deprecated and replaced by newer
 | `yield-engine` | `yield-prediction-service` | 8152 | 2026-02-16 |
 | `wechat-service` | `community-service` | 8135 | 2026-03-13 |
 
-## Overdue Sunset Notices
+## Removed from Archive (Fully Deleted)
 
-The following archived services have passed their original sunset date (2025-06-01) and are eligible for complete removal from the archive:
+The following services were archived and have since been completely removed as they passed their sunset date:
 
-- `satellite-service` (sunset: 2025-06-01, replaced by `vegetation-analysis-service`)
-- `weather-advanced` (sunset: 2025-06-01, replaced by `weather-service`)
-- `crop-health-ai` (sunset: 2025-06-01, replaced by `crop-intelligence-service`)
-- `fertilizer-advisor` (sunset: 2025-06-01, replaced by `advisory-service`)
-
-> **Warning**: Past sunset date - eligible for complete removal from archive
+| Service | Replacement | Deleted |
+|---------|-------------|---------|
+| `satellite-service` | `vegetation-analysis-service` | 2026-05-13 |
+| `weather-advanced` | `weather-service` | 2026-05-13 |
+| `crop-health-ai` | `crop-intelligence-service` | 2026-05-13 |
 
 ## Why Archived
 

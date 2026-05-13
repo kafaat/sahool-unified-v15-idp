@@ -1693,16 +1693,12 @@ asyncio.run(main())
     networks:
       - sahool-network
 
-  # ⚠️ DEPRECATED: crop_growth_model - Migrating to crop-intelligence-service
-  # This service is being consolidated into crop-intelligence-service (Port 8095)
-  # Kept temporarily for backwards compatibility
+  # crop-growth-model - نموذج نمو المحاصيل (14 unique agricultural modelling modules)
   crop-growth-model:
     build:
       context: .
       dockerfile: apps/services/crop-growth-model/Dockerfile
     container_name: sahool-crop-growth-model
-    profiles:
-      - deprecated
     environment:
       - TZ=Asia/Aden
       - PORT=3023

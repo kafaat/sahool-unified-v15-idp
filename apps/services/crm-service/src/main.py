@@ -476,8 +476,9 @@ async def lifespan(app: FastAPI):
 
             import asyncpg
 
-            from .db import CRMRepository
             from shared.db.ssl import enforce_ssl_mode
+
+            from .db import CRMRepository
 
             app.state.db_pool = await asyncpg.create_pool(
                 enforce_ssl_mode(db_url),

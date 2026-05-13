@@ -111,6 +111,7 @@ async def lifespan(app: FastAPI):
     if db_url:
         try:
             import asyncpg
+
             from shared.db.ssl import enforce_ssl_mode
 
             app.state.db_pool = await asyncpg.create_pool(

@@ -42,8 +42,7 @@ logger = logging.getLogger(__name__)
 _PROD_ENVS = {"production", "prod", "staging"}
 
 _DEFAULT_WARNING_MESSAGE = (
-    "Response contains simulated (non-authoritative) data. "
-    "Production deployments should integrate with real sources."
+    "Response contains simulated (non-authoritative) data. Production deployments should integrate with real sources."
 )
 
 

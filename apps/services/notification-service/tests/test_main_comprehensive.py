@@ -171,7 +171,12 @@ _src_pkg.__spec__ = MagicMock()
 
 
 def _build_models_mock() -> MagicMock:
-    """Build src.models mock with awaitable Notification.filter().count()."""
+    """Build src.models mock with awaitable Notification.filter().count().
+
+    The /stats endpoint does `from .models import Notification as NotificationModel`
+    *inside the function body* at call time, so the mock must live in
+    sys.modules["src.models"] rather than being patched on src.main.
+    """
     _qs = MagicMock()
     _qs.count = AsyncMock(return_value=0)
     _notif_cls = MagicMock()

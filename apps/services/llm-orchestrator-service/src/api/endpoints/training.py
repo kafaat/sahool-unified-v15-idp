@@ -9,8 +9,10 @@ from datetime import UTC, datetime
 from typing import Any
 
 import structlog
-from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
+
+from shared.auth.dependencies import validated_tenant_id
 
 from ...training import (
     AGLTrainer,
@@ -20,27 +22,6 @@ from ...training import (
 )
 from ...training.agl_trainer import OptimizationAlgorithm, TrainingStatus
 from ...training.feedback_collector import FeedbackType, OutcomeStatus
-
-# Authentication dependency
-try:
-    from shared.auth.dependencies import get_current_user, validated_tenant_id
-except ImportError:
-    from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-
-    _bearer_scheme = HTTPBearer(auto_error=False)
-
-    async def get_current_user(
-        credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
-    ):
-        """Lightweight auth - validates Authorization header presence."""
-        if not credentials:
-            raise HTTPException(status_code=401, detail="Authentication required")
-        return {"token": credentials.credentials}
-
-    async def validated_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -> str:
-        if not x_tenant_id:
-            raise HTTPException(status_code=400, detail="X-Tenant-Id header is required")
-        return x_tenant_id
 
 
 logger = structlog.get_logger()

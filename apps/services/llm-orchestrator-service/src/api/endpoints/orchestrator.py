@@ -11,14 +11,14 @@ intent classification, agent execution, and response synthesis.
 تصنيف النوايا، وتنفيذ الوكلاء، وتجميع الاستجابات.
 """
 
-import re
 import time
 import uuid
 from typing import Any
 
 import structlog
-from fastapi import APIRouter, Depends, Header, HTTPException, Request, status
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+
+from shared.auth.dependencies import validated_tenant_id
 
 from ...agents.executor import AgentExecutor
 from ...agents.quick_responses import QuickResponse
@@ -43,24 +43,6 @@ from ..schemas import (
 logger = structlog.get_logger(__name__)
 
 router = APIRouter(prefix="/api/v1", tags=["orchestrator"])
-
-try:
-    from shared.auth.dependencies import validated_tenant_id
-except ImportError:
-    _bearer_scheme = HTTPBearer(auto_error=False)
-    _UUID_RE = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", re.IGNORECASE)
-
-    async def validated_tenant_id(
-        x_tenant_id: str | None = Header(None, alias="X-Tenant-Id"),
-        credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
-    ) -> str:
-        if not credentials:
-            raise HTTPException(status_code=401, detail="Authentication required")
-        if not x_tenant_id:
-            raise HTTPException(status_code=400, detail="X-Tenant-Id header is required")
-        if not _UUID_RE.match(x_tenant_id):
-            raise HTTPException(status_code=400, detail="X-Tenant-Id must be a valid UUID")
-        return x_tenant_id
 
 
 def get_executor(request: Request) -> AgentExecutor:

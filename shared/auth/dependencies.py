@@ -355,12 +355,17 @@ async def validated_tenant_id(
     x_tenant_id: str | None = Header(None, alias="X-Tenant-Id"),
     current_user: User = Depends(get_current_user),
 ) -> str:
-    """Validate X-Tenant-Id format and enforce JWT tenant isolation."""
+    """Return a validated tenant ID from X-Tenant-Id header and JWT tenant scope.
+
+    Raises:
+        HTTPException(400): When X-Tenant-Id is missing or not a valid UUID.
+        HTTPException(403): When tenant in header does not match JWT tenant (except super_admin).
+    """
     if not x_tenant_id:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="X-Tenant-Id header is required")
 
     try:
-        UUID(str(x_tenant_id))
+        UUID(x_tenant_id)
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid tenant ID format") from exc
 

@@ -21,7 +21,7 @@ from typing import Any
 
 import jwt
 import structlog
-from fastapi import Depends, FastAPI, HTTPException, Query, status
+from fastapi import Depends, FastAPI, HTTPException, Query, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
@@ -1230,13 +1230,14 @@ def get_water_balance(
     crop: CropType = Query(default=CropType.TOMATO),
     days: int = Query(default=14, ge=7, le=60),
     user: dict = Depends(get_current_user),
+    response: Response = None,  # type: ignore[assignment]
 ):
     """الميزان المائي للحقل - Protected endpoint"""
-    from fastapi import Response as FastAPIResponse
-
     from shared.libs.simulated_data import guard_simulated_response, mark_simulated
 
     guard_simulated_response("irrigation-smart", "water-balance")
+    if response is not None:
+        mark_simulated(response, source="irrigation-smart/water-balance")
 
     import random
 
@@ -1290,7 +1291,7 @@ def get_water_balance(
         "daily_data": [b.dict() for b in balance_data],
         "recommendation_ar": ("💧 يُنصح بري تعويضي" if cumulative_deficit > 30 else "✅ الميزان المائي متوازن"),
     }
-    return mark_simulated(response_body, source="irrigation-smart/water-balance")
+    return response_body
 
 
 @app.post("/v1/sensor-reading")

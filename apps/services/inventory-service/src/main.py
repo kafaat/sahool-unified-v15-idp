@@ -339,8 +339,8 @@ def _get_tenant_id(user, tenant_id_param: str | None) -> str:
             raise HTTPException(status_code=401, detail="tenant_id missing from JWT")
         if tenant_id_param and tenant_id_param != jwt_tid:
             # Reject cross-tenant access unless super_admin
-            role = str(getattr(user, "role", "") or "")
-            if role != "super_admin":
+            roles = list(getattr(user, "roles", None) or [])
+            if "super_admin" not in roles:
                 raise HTTPException(status_code=403, detail="Tenant ID mismatch")
         return jwt_tid
     # Auth unavailable (e.g. test/dev env) — require explicit param

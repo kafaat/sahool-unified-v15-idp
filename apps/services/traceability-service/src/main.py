@@ -7,7 +7,7 @@ import os
 from contextlib import asynccontextmanager
 
 import structlog
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 try:
@@ -16,6 +16,21 @@ try:
     TENANT_MIDDLEWARE_AVAILABLE = True
 except ImportError:
     TENANT_MIDDLEWARE_AVAILABLE = False
+
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+
+    AUTH_AVAILABLE = True
+except ImportError:
+    AUTH_AVAILABLE = False
+
+    class User:  # type: ignore[no-redef]
+        tenant_id: str | None = None
+
+    async def get_current_user() -> User:  # type: ignore[misc]
+        raise HTTPException(status_code=503, detail="Authentication backend unavailable")
+
 
 from shared.logging_config import setup_logging
 from shared.observability.tracing import setup_tracing
@@ -168,13 +183,20 @@ except ImportError as e:
 
 
 @app.get("/api/v1/traceability/anchors/{tenant_id}/{field_id}")
-async def list_anchors(tenant_id: str, field_id: str):
+async def list_anchors(
+    tenant_id: str,
+    field_id: str,
+    current_user: User = Depends(get_current_user),
+):
     """
     Return the in-memory chain of anchored events for a given
     (tenant, field). Useful for debugging and for the loan-
     verification / export-certificate flows that need to show
     the immutable activity log to auditors.
     """
+    jwt_tid = str(getattr(current_user, "tenant_id", "") or "")
+    if jwt_tid and jwt_tid != tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant ID mismatch")
     subscriber = getattr(app.state, "field_event_subscriber", None)
     if subscriber is None:
         return {
@@ -201,11 +223,18 @@ async def list_anchors(tenant_id: str, field_id: str):
 
 
 @app.get("/api/v1/traceability/anchors/{tenant_id}/{field_id}/verify")
-async def verify_anchors(tenant_id: str, field_id: str):
+async def verify_anchors(
+    tenant_id: str,
+    field_id: str,
+    current_user: User = Depends(get_current_user),
+):
     """
     Re-compute every hash in the field's chain and confirm it
     matches. Returns ``valid: true`` only if the chain is untampered.
     """
+    jwt_tid = str(getattr(current_user, "tenant_id", "") or "")
+    if jwt_tid and jwt_tid != tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant ID mismatch")
     subscriber = getattr(app.state, "field_event_subscriber", None)
     if subscriber is None:
         return {

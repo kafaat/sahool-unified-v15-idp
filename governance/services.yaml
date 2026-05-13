@@ -38,7 +38,7 @@ event_architecture:
 
     business:
       description: "Business operations layer - طبقة الأعمال"
-      services: [notification-service, marketplace-service, billing-core, chat-service, research-core, mcp-server, task-service, equipment-service, ws-gateway, audit-service, crm-service, lowcode-engine, field-management-service, user-service, alert-service, inventory-service, provider-config, agent-registry, code-review-service, globalgap-compliance, logistics-service, cooperative-service, traceability-service, supply-chain-service, whatsapp-bot-service, copilot-api, ai-chat-assistant, ussd-gateway, demo-data]  # community-chat, field-chat, wechat-service removed (deprecated)
+      services: [notification-service, marketplace-service, billing-core, chat-service, research-core, mcp-server, task-service, equipment-service, ws-gateway, audit-service, crm-service, lowcode-engine, field-management-service, user-service, alert-service, inventory-service, provider-config, agent-registry, code-review-service, globalgap-compliance, logistics-service, cooperative-service, traceability-service, supply-chain-service, whatsapp-bot-service, copilot-api, ai-chat-assistant, ussd-gateway, demo-data, wechat-service]  # community-chat, field-chat removed (deprecated)
       rules:
         - "Consumes from Decision"
         - "User-facing operations"
@@ -2128,14 +2128,11 @@ services:
     protocol: http
     health_endpoint: "/healthz"
     readiness_endpoint: "/readyz"
-    status: deprecated
+    status: active
     owner: "frontend-team@sahool.io"
     team: frontend
-    lifecycle: deprecated
+    lifecycle: stable
     tier: tier-1
-    replaced_by: community-service
-    deprecation_date: "2026-03-13"
-    sunset_date: "2026-06-01"
     version: "1.0.0"
     events:
       produces:

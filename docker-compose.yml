@@ -3509,26 +3509,19 @@ asyncio.run(main())
     networks:
       - sahool-network
 
-  # WeChat Service (DEPRECATED) - خدمة ويتشات (مُهملة)
-  # Port 8135 (was 8133, reassigned to community-service)
-  # Replaced by community-service. Use: docker compose --profile deprecated up
+  # WeChat Service - خدمة ويتشات
+  # WeChat messaging and social integration for farmers
+  # Port 8135
   wechat-service:
     build:
       context: .
-      dockerfile: archive/deprecated-services/wechat-service/Dockerfile
+      dockerfile: apps/services/wechat-service/Dockerfile
     container_name: sahool-wechat-service
-    # Opt-in deprecated — match the comment above ("Use: docker compose
-    # --profile deprecated up"). Without this, ``docker compose up`` would
-    # start the retired service by default alongside its replacement
-    # (community-service on port 8133).
-    profiles:
-      - deprecated
     environment:
       - PORT=8135
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
@@ -3536,6 +3529,9 @@ asyncio.run(main())
       - WECHAT_APP_SECRET=${WECHAT_APP_SECRET:-}
       - WECHAT_TOKEN=${WECHAT_TOKEN:-}
       - WECHAT_ENCODING_AES_KEY=${WECHAT_ENCODING_AES_KEY:-}
+      - WECHAT_CALLBACK_TOKEN=${WECHAT_CALLBACK_TOKEN:-}
+    ports:
+      - "127.0.0.1:8135:8135"
     depends_on:
       pgbouncer:
         condition: service_healthy

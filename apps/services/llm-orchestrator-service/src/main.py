@@ -26,10 +26,9 @@ from fastapi.middleware.cors import CORSMiddleware
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
-from shared.errors_py import add_request_id_middleware, setup_exception_handlers
-
 # Configure structured logging (replaces stdlib logging init)
 from shared.db.ssl import enforce_ssl_mode
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from shared.logging_config import setup_logging
 
 from .agents.executor import AgentExecutor

@@ -24,8 +24,8 @@ import uvicorn
 from fastapi import FastAPI, Query, WebSocket, WebSocketDisconnect, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-
 from shared.db.ssl import enforce_ssl_mode
+
 from src.api.endpoints import devices, jobs, sync
 from src.api.schemas import HealthStatus, ReadinessStatus
 from src.core.config import settings

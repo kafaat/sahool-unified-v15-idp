@@ -14,9 +14,9 @@ from fastapi import FastAPI, HTTPException, Query
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
-from shared.db.ssl import enforce_ssl_mode
-
 from pydantic import BaseModel, Field
+
+from shared.db.ssl import enforce_ssl_mode
 
 # Add shared middleware to path
 shared_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "shared"))

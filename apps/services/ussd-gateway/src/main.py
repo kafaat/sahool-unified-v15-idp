@@ -25,12 +25,12 @@ from pydantic import BaseModel, Field, field_validator
 
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
+from shared.db.ssl import enforce_ssl_mode
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from shared.logging_config import setup_logging
 from shared.middleware.tenant_context import TenantContextMiddleware
 from shared.observability.logging import get_logger
 from shared.observability.tracing import setup_tracing
-from shared.db.ssl import enforce_ssl_mode
 
 setup_logging("ussd-gateway")
 logger = get_logger(__name__)

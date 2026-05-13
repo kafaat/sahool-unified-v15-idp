@@ -342,7 +342,11 @@ async def list_members(
 
 @router.delete("/{coop_id}/members/{member_id}", status_code=204)
 async def remove_member(
-    coop_id: str, member_id: str, req: Request, tenant_id: str = Depends(validated_tenant_id), _user=Depends(get_current_user)
+    coop_id: str,
+    member_id: str,
+    req: Request,
+    tenant_id: str = Depends(validated_tenant_id),
+    _user=Depends(get_current_user),
 ):
     """Remove member from cooperative - إزالة عضو من التعاونية"""
     pool = await _get_db(req)

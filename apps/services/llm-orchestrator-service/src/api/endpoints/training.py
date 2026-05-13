@@ -23,7 +23,6 @@ from ...training import (
 from ...training.agl_trainer import OptimizationAlgorithm, TrainingStatus
 from ...training.feedback_collector import FeedbackType, OutcomeStatus
 
-
 logger = structlog.get_logger()
 
 router = APIRouter(

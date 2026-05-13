@@ -36,7 +36,8 @@ try:
     from shared.auth.dependencies import get_current_user, validated_tenant_id
     from shared.auth.models import User
 except ImportError:  # pragma: no cover - only hit in minimal local dev
-    from fastapi import Header, HTTPException as _HTTPException
+    from fastapi import Header
+    from fastapi import HTTPException as _HTTPException
 
     class User:  # type: ignore[no-redef]
         """Stub user model used only when shared.auth isn't installed."""

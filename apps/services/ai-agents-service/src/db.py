@@ -12,6 +12,7 @@ from typing import Any
 from uuid import UUID
 
 import asyncpg
+
 from shared.db.ssl import enforce_ssl_mode
 
 # Database configuration

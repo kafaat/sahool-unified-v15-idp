@@ -10,6 +10,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from shared.db.ssl import enforce_ssl_mode
+
 try:
     from shared.middleware.tenant_context import TenantContextMiddleware
 

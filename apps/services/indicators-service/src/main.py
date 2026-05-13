@@ -23,9 +23,9 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from pydantic import BaseModel, field_validator
 
+from shared.db.ssl import enforce_ssl_mode
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from shared.middleware.tenant_context import TenantContextMiddleware
-from shared.db.ssl import enforce_ssl_mode
 
 try:
     from shared.auth.dependencies import get_current_user

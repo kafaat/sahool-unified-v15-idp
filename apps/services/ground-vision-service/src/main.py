@@ -20,8 +20,8 @@ from fastapi import Depends, FastAPI, Header, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-from shared.middleware.tenant_context import TenantContextMiddleware
 from shared.db.ssl import enforce_ssl_mode
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 # Import authentication
 try:

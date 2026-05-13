@@ -21,6 +21,7 @@ import uuid
 from typing import Any
 
 import structlog
+
 from shared.db.ssl import enforce_ssl_mode
 
 logger = structlog.get_logger(__name__)

@@ -36,10 +36,10 @@ from slowapi.util import get_remote_address
 # Authentication imports
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
+from shared.db.ssl import enforce_ssl_mode
 from shared.errors_py import add_request_id_middleware as shared_add_request_id_middleware
 from shared.errors_py import setup_exception_handlers
 from shared.middleware.tenant_context import TenantContextMiddleware
-from shared.db.ssl import enforce_ssl_mode
 
 # Add project root to path
 sys.path.insert(

@@ -35,10 +35,10 @@ except ImportError:
     SHARED_ERRORS_AVAILABLE = False
 
 # Configure structured logging and tracing
+from shared.db.ssl import enforce_ssl_mode
 from shared.logging_config import setup_logging
 from shared.middleware.tenant_context import TenantContextMiddleware
 from shared.observability.tracing import setup_tracing
-from shared.db.ssl import enforce_ssl_mode
 
 # Local imports
 from .algorithms.dem_processor import DEMProcessor, DEMSource

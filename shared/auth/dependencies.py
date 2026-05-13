@@ -10,7 +10,7 @@ from collections import defaultdict
 from collections.abc import Callable
 from uuid import UUID
 
-from fastapi import Depends, HTTPException, Header, Request, status
+from fastapi import Depends, Header, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from .config import config

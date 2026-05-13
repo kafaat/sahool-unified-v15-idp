@@ -25,8 +25,8 @@ try:
 except ImportError:
     SECURITY_HEADERS_AVAILABLE = False
 
-from shared.logging_config import setup_logging
 from shared.db.ssl import enforce_ssl_mode
+from shared.logging_config import setup_logging
 from shared.observability.tracing import setup_tracing
 
 setup_logging("drone-service")

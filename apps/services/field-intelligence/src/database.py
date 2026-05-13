@@ -30,8 +30,10 @@ from asyncpg.pool import Pool
 try:
     from shared.db.ssl import enforce_ssl_mode
 except ImportError:
+
     def enforce_ssl_mode(url: str | None) -> str | None:
         return url
+
 
 logger = logging.getLogger("field-intelligence")
 

@@ -65,8 +65,8 @@ except ImportError:
         _logger.debug("Request ID middleware not configured (module unavailable)")
 
 
-from shared.middleware.tenant_context import TenantContextMiddleware
 from shared.db.ssl import enforce_ssl_mode
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 # Security headers middleware
 try:

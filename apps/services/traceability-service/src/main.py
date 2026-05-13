@@ -54,9 +54,9 @@ except ImportError:  # pragma: no cover - defensive fallback for partial install
         return user_tenant
 
 
+from shared.db.ssl import enforce_ssl_mode
 from shared.logging_config import setup_logging
 from shared.observability.tracing import setup_tracing
-from shared.db.ssl import enforce_ssl_mode
 
 setup_logging("traceability-service")
 logger = structlog.get_logger()

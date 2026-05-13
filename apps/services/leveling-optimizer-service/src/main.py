@@ -32,9 +32,9 @@ except ImportError:
     TENANT_MIDDLEWARE_AVAILABLE = False
 
 # Configure structured logging and tracing
+from shared.db.ssl import enforce_ssl_mode
 from shared.logging_config import setup_logging
 from shared.observability.tracing import setup_tracing
-from shared.db.ssl import enforce_ssl_mode
 
 from .api.endpoints import leveling
 from .api.schemas import ErrorResponse, HealthResponse, ReadinessResponse

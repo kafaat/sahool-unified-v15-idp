@@ -1060,7 +1060,7 @@ def get_indicator_definitions():
 @app.get("/v1/field/{field_id}/indicators", response_model=FieldIndicators)
 async def get_field_indicators(
     field_id: str,
-    response: Response,
+    response: Response | None = None,
     category: IndicatorCategory | None = None,
     force_refresh: bool = False,
     user: Any = Depends(get_current_user),

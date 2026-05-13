@@ -1152,7 +1152,7 @@ def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
 @app.post("/v1/imagery/request", response_model=SatelliteImagery)
 async def request_imagery(
     request: ImageryRequest,
-    response: Response,
+    response: Response | None = None,
     user: User = Depends(get_current_user),
 ):
     """طلب صور الأقمار الصناعية لحقل معين"""

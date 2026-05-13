@@ -330,12 +330,23 @@ async def create_category(
 
 
 def _get_tenant_id(user, tenant_id_param: str | None) -> str:
-    """Extract tenant_id from JWT user or validated query param.
-    استخراج معرف المستأجر من JWT أو معلمة الاستعلام الموثقة
+    """Extract and enforce tenant_id from JWT user claim.
+    استخراج معرف المستأجر من JWT مع التحقق من الصلاحية
     """
     if AUTH_AVAILABLE and user is not None:
-        return str(getattr(user, "tenant_id", "")) or tenant_id_param or ""
-    return tenant_id_param or ""
+        jwt_tid = str(getattr(user, "tenant_id", "") or "")
+        if not jwt_tid:
+            raise HTTPException(status_code=401, detail="tenant_id missing from JWT")
+        if tenant_id_param and tenant_id_param != jwt_tid:
+            # Reject cross-tenant access unless super_admin
+            role = str(getattr(user, "role", "") or "")
+            if role != "super_admin":
+                raise HTTPException(status_code=403, detail="Tenant ID mismatch")
+        return jwt_tid
+    # Auth unavailable (e.g. test/dev env) — require explicit param
+    if not tenant_id_param:
+        raise HTTPException(status_code=400, detail="tenant_id query parameter is required")
+    return tenant_id_param
 
 
 @app.get("/v1/analytics/forecast/{item_id}")

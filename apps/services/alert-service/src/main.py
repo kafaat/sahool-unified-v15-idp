@@ -131,6 +131,21 @@ def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -
     return x_tenant_id
 
 
+def validated_tenant_id(
+    tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
+) -> str:
+    """Validate tenant_id header against the authenticated user's JWT tenant.
+
+    Raises HTTP 403 if the caller's JWT does not belong to the requested tenant,
+    preventing cross-tenant data access with a valid but foreign JWT.
+    """
+    jwt_tid = str(getattr(current_user, "tenant_id", "") or "")
+    if jwt_tid and jwt_tid != tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant ID mismatch")
+    return tenant_id
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Database Storage
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -536,7 +551,7 @@ _PERIOD_PATTERN = re.compile(r"^\d{1,4}d$")
 async def get_stats(
     field_id: str | None = Query(None, description="تصفية حسب الحقل"),
     period: str = Query("30d", pattern=r"^\d{1,4}d$", description="الفترة الزمنية (7d, 30d, 90d)"),
-    tenant_id: str = Depends(get_tenant_id),
+    tenant_id: str = Depends(validated_tenant_id),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -582,7 +597,7 @@ async def get_stats(
 @app.post("/alerts/rules", response_model=AlertRuleResponse, tags=["Alert Rules"])
 async def create_rule(
     rule_data: AlertRuleCreate,
-    tenant_id: str = Depends(get_tenant_id),
+    tenant_id: str = Depends(validated_tenant_id),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -617,7 +632,7 @@ async def create_rule(
 async def get_rules(
     field_id: str | None = Query(None, description="تصفية حسب الحقل"),
     enabled: bool | None = Query(None, description="تصفية حسب الحالة"),
-    tenant_id: str = Depends(get_tenant_id),
+    tenant_id: str = Depends(validated_tenant_id),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -646,7 +661,7 @@ async def get_rules(
 @app.delete("/alerts/rules/{rule_id}", tags=["Alert Rules"])
 async def delete_rule(
     rule_id: str = Path(..., description="معرف القاعدة"),
-    tenant_id: str = Depends(get_tenant_id),
+    tenant_id: str = Depends(validated_tenant_id),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -692,15 +707,13 @@ async def delete_rule(
 
 @app.post("/alerts", response_model=AlertResponse, tags=["Alerts"])
 async def create_alert_endpoint(
-    alert_data: AlertCreate, tenant_id: str = Depends(get_tenant_id), current_user: User = Depends(get_current_user)
+    alert_data: AlertCreate, tenant_id: str = Depends(validated_tenant_id)
 ):
     """
     إنشاء تنبيه جديد
     Create a new alert
     """
-    # Enforce tenant from JWT - reject header/body mismatch
-    if hasattr(current_user, "tenant_id") and current_user.tenant_id and current_user.tenant_id != tenant_id:
-        raise HTTPException(status_code=403, detail="Tenant ID from JWT does not match request")
+    # Enforce tenant from JWT - already validated by validated_tenant_id dependency
     if alert_data.tenant_id is not None and alert_data.tenant_id != tenant_id:
         raise HTTPException(status_code=403, detail="Tenant ID mismatch")
     alert_data.tenant_id = tenant_id
@@ -717,7 +730,7 @@ async def get_alerts_by_field_endpoint(
     alert_type: AlertType | None = Query(None, alias="type", description="تصفية حسب النوع"),
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=100),
-    tenant_id: str = Depends(get_tenant_id),
+    tenant_id: str = Depends(validated_tenant_id),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -750,7 +763,7 @@ async def get_alerts_by_field_endpoint(
 @app.get("/alerts/{alert_id}", response_model=AlertResponse, tags=["Alerts"])
 async def get_alert_endpoint(
     alert_id: str = Path(..., description="معرف التنبيه"),
-    tenant_id: str = Depends(get_tenant_id),
+    tenant_id: str = Depends(validated_tenant_id),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -775,7 +788,7 @@ async def get_alert_endpoint(
 async def update_alert_endpoint(
     alert_id: str = Path(..., description="معرف التنبيه"),
     update_data: AlertUpdate = None,
-    tenant_id: str = Depends(get_tenant_id),
+    tenant_id: str = Depends(validated_tenant_id),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -839,7 +852,7 @@ async def update_alert_endpoint(
 @app.delete("/alerts/{alert_id}", tags=["Alerts"])
 async def delete_alert_endpoint(
     alert_id: str = Path(..., description="معرف التنبيه"),
-    tenant_id: str = Depends(get_tenant_id),
+    tenant_id: str = Depends(validated_tenant_id),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -881,7 +894,7 @@ async def delete_alert_endpoint(
 )
 async def acknowledge_alert(
     alert_id: str = Path(..., description="معرف التنبيه"),
-    tenant_id: str = Depends(get_tenant_id),
+    tenant_id: str = Depends(validated_tenant_id),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -929,7 +942,7 @@ async def resolve_alert(
     alert_id: str = Path(..., description="معرف التنبيه"),
     user_id: str = Query(..., description="معرف المستخدم"),
     note: str | None = Query(None, description="ملاحظة الحل"),
-    tenant_id: str = Depends(get_tenant_id),
+    tenant_id: str = Depends(validated_tenant_id),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -975,7 +988,7 @@ async def resolve_alert(
 @app.post("/alerts/{alert_id}/dismiss", response_model=AlertResponse, tags=["Alert Actions"])
 async def dismiss_alert(
     alert_id: str = Path(..., description="معرف التنبيه"),
-    tenant_id: str = Depends(get_tenant_id),
+    tenant_id: str = Depends(validated_tenant_id),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):

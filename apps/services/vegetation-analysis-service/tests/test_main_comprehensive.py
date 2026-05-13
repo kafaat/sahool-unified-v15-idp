@@ -903,6 +903,14 @@ class TestTimeseriesEndpoint:
         resp = client.get("/v1/timeseries/FIELD-001?days=3")
         assert resp.status_code == 422
 
+    def test_days_boundary_max_365_ok(self):
+        resp = client.get("/v1/timeseries/FIELD-001?days=365")
+        assert resp.status_code == 200
+
+    def test_days_boundary_min_7_ok(self):
+        resp = client.get("/v1/timeseries/FIELD-001?days=7")
+        assert resp.status_code == 200
+
     def test_satellite_filter_works(self):
         resp = client.get("/v1/timeseries/FIELD-001?satellite=landsat-8")
         assert resp.status_code == 200

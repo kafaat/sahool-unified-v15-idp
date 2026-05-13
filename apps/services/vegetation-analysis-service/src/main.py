@@ -1207,12 +1207,12 @@ async def request_imagery(
 
 
 @app.post("/v1/analyze", response_model=FieldAnalysis)
-async def analyze_field(request: ImageryRequest, user: User = Depends(get_current_user)):
+async def analyze_field(request: ImageryRequest, response: Response, user: User = Depends(get_current_user)):
     """تحليل شامل للحقل باستخدام بيانات الأقمار الصناعية"""
     _validate_field_id(request.field_id)
 
-    # Get imagery first with explicit Response object for internal call path.
-    imagery = await request_imagery(request, response=Response(), user=user)
+    # Get imagery first while preserving simulated-data headers on this response.
+    imagery = await request_imagery(request, response=response, user=user)
 
     # Extract band values for calculations
     bands_dict = {b.band_name: b.value for b in imagery.bands}

@@ -1402,7 +1402,7 @@ async def get_dashboard_summary(
 
     for _i in range(num_fields):
         field_id = f"field_{uuid.uuid4().hex[:8]}"
-        field_indicators = await get_field_indicators(field_id, response=Response(), user=user)
+        field_indicators = await get_field_indicators(field_id, response=response, user=user)
         fields_data.append(field_indicators)
         total_area += field_indicators.area_hectares
         total_health_score += field_indicators.overall_score

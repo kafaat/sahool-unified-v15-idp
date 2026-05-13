@@ -1227,10 +1227,11 @@ async def calculate_irrigation(
 @app.get("/v1/water-balance/{field_id}")
 def get_water_balance(
     field_id: str,
-    response: Response,
     crop: CropType = Query(default=CropType.TOMATO),
     days: int = Query(default=14, ge=7, le=60),
     user: dict = Depends(get_current_user),
+    *,
+    response: Response,
 ):
     """الميزان المائي للحقل - Protected endpoint"""
     from shared.libs.simulated_data import guard_simulated_response, mark_simulated

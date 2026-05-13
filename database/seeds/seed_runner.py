@@ -6,10 +6,12 @@ Runs all SQL seed files in order
 Usage:
     python seed_runner.py --db-url postgresql://user:pass@localhost/sahool
     python seed_runner.py --env production
+    python seed_runner.py --env development --idempotent
 """
 
 import argparse
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -33,11 +35,50 @@ SEED_FILES = [
 ]
 
 
+# Matches a complete top-level INSERT statement and captures the trailing
+# ``;`` so we can inject ``ON CONFLICT DO NOTHING`` before the semicolon.
+#
+# Limitation: this regex matches any ``INSERT INTO ... ;`` regardless of
+# whether the statement appears inside a ``$$...$$`` PL/pgSQL function body
+# (the negative lookahead on ``$$`` only stops matching when ``$$`` appears
+# *between* ``INSERT INTO`` and the next ``;``, which is not how dollar-quoted
+# blocks are structured). All seed SQL files under ``database/seeds/`` are
+# currently plain top-level INSERTs with no ``CREATE FUNCTION`` bodies, so
+# this is safe today. If a future seed file adds dollar-quoted function
+# bodies that contain INSERTs, this rewriter must be reworked to skip over
+# dollar-quoted regions before applying the substitution.
+_INSERT_RE = re.compile(
+    r"(INSERT\s+INTO\s+(?:(?!\$\$|;).)+?)(\s*;)",
+    re.IGNORECASE | re.DOTALL,
+)
+
+
+def _make_inserts_idempotent(sql: str) -> str:
+    """Append ``ON CONFLICT DO NOTHING`` to every ``INSERT ... VALUES (...);``.
+
+    The SQL files under ``database/seeds/`` use plain ``INSERT`` statements,
+    so re-running the runner against an already-seeded database raises
+    duplicate-key errors. When ``--idempotent`` is requested, we rewrite those
+    statements in-memory before execution. ``CREATE TABLE`` / ``CREATE
+    FUNCTION`` blocks and statements that already contain ``ON CONFLICT`` are
+    left untouched.
+    """
+
+    def _inject(match: re.Match[str]) -> str:
+        body, terminator = match.group(1), match.group(2)
+        if "on conflict" in body.lower():
+            return match.group(0)
+        return f"{body} ON CONFLICT DO NOTHING{terminator}"
+
+    return _INSERT_RE.sub(_inject, sql)
+
+
 class SeedRunner:
     """Database seed runner"""
 
-    def __init__(self, db_url: str):
+    def __init__(self, db_url: str, idempotent: bool = False):
         self.db_url = db_url
+        self.idempotent = idempotent
         self.conn = None
         self.cursor = None
 
@@ -71,6 +112,9 @@ class SeedRunner:
         try:
             with open(filepath, encoding="utf-8") as f:
                 sql_content = f.read()
+
+            if self.idempotent:
+                sql_content = _make_inserts_idempotent(sql_content)
 
             # Execute the SQL
             self.cursor.execute(sql_content)
@@ -168,6 +212,14 @@ def main():
         action="store_true",
         help="Only verify database, do not run seeds",
     )
+    parser.add_argument(
+        "--idempotent",
+        action="store_true",
+        help=(
+            "Inject `ON CONFLICT DO NOTHING` into every INSERT before running, "
+            "so re-running against an already-seeded database is safe."
+        ),
+    )
 
     args = parser.parse_args()
 
@@ -187,7 +239,7 @@ def main():
     seeds_dir = Path(__file__).parent
 
     # Run seeding
-    runner = SeedRunner(db_url)
+    runner = SeedRunner(db_url, idempotent=args.idempotent)
 
     try:
         runner.connect()

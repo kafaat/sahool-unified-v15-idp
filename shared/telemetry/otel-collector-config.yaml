@@ -211,6 +211,19 @@ exporters:
     endpoint: jaeger:4317
     tls:
       insecure: ${env:OTEL_EXPORTER_OTLP_INSECURE:-false}
+    # Buffer spans in memory when the downstream is slow / unavailable so a
+    # short Jaeger outage does not drop traces or block the collector.
+    sending_queue:
+      enabled: true
+      num_consumers: 4
+      queue_size: 1000
+    # Retry transient export errors with exponential backoff. Capped so a
+    # multi-hour Jaeger outage eventually drains rather than retrying forever.
+    retry_on_failure:
+      enabled: true
+      initial_interval: 5s
+      max_interval: 30s
+      max_elapsed_time: 300s
 
   # Prometheus exporter - مُصدِّر Prometheus
   prometheus:

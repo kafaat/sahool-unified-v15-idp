@@ -357,6 +357,10 @@ async def validated_tenant_id(
 ) -> str:
     """Return a validated tenant ID from X-Tenant-Id header and JWT tenant scope.
 
+    Delegates JWT tenant authorization to ``enforce_tenant(current_user, x_tenant_id)``,
+    which enforces same-tenant access for regular users and allows cross-tenant access
+    only for ``super_admin``.
+
     Raises:
         HTTPException(400): When X-Tenant-Id is missing or not a valid UUID.
         HTTPException(403): When tenant in header does not match JWT tenant (except super_admin).

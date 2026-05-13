@@ -37,15 +37,10 @@ except ImportError:
 
     async def validated_tenant_id(  # type: ignore[misc]
         x_tenant_id: str | None = Header(None, alias="X-Tenant-Id"),
-        _user: User = Depends(get_current_user),
+        _current_user: User = Depends(get_current_user),
     ) -> str:
-        if not x_tenant_id:
-            raise _HTTPException(status_code=400, detail="X-Tenant-Id header is required")
-        try:
-            uuid.UUID(x_tenant_id)
-        except ValueError as exc:
-            raise _HTTPException(status_code=400, detail="X-Tenant-Id must be a valid UUID") from exc
-        return x_tenant_id
+        _ = x_tenant_id
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 
 logger = structlog.get_logger()

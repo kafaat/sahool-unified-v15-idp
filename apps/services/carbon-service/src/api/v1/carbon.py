@@ -55,11 +55,10 @@ except ImportError:  # pragma: no cover - only hit in minimal local dev
 
     async def validated_tenant_id(  # type: ignore[no-redef]
         x_tenant_id: str | None = Header(None, alias="X-Tenant-Id"),
-        _user: User = Depends(get_current_user),
+        _current_user: User = Depends(get_current_user),
     ) -> str:
-        if not x_tenant_id:
-            raise _HTTPException(status_code=400, detail="X-Tenant-Id header is required")
-        return x_tenant_id
+        _ = x_tenant_id
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 
 logger = structlog.get_logger()
@@ -152,7 +151,7 @@ class CropSeasonCarbonSummary(BaseModel):
 @router.post("/compute", response_model=ComputeResponse)
 async def compute_stateless(
     body: ComputeRequest,
-    _current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> ComputeResponse:
     """
     Stateless compute — runs the engine on a fully-populated request
@@ -162,6 +161,7 @@ async def compute_stateless(
     Requires a valid JWT; does NOT persist anything, so tenant header
     isn't mandatory for this endpoint.
     """
+    _ = current_user
     op = OperationInput(
         operation_id=body.operation_id,
         operation_type=body.operation_type,

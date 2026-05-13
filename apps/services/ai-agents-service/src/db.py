@@ -40,8 +40,10 @@ async def init_pool() -> asyncpg.Pool | None:
         return None
 
     try:
+        from shared.db.ssl import enforce_ssl_mode
+
         _pool = await asyncpg.create_pool(
-            DATABASE_URL,
+            enforce_ssl_mode(DATABASE_URL),
             min_size=2,
             statement_cache_size=0,  # PgBouncer transaction mode compatibility,
             max_size=10,

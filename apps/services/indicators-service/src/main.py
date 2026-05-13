@@ -159,19 +159,15 @@ async def lifespan(app: FastAPI):
     if db_url:
         try:
             import asyncpg
-
-            # Validate SSL mode is present in DATABASE_URL for security
-            ssl_mode = os.getenv("POSTGRES_SSL_MODE", "disable")
-            if ssl_mode != "disable" and "sslmode=" not in db_url:
-                db_url = f"{db_url}{'&' if '?' in db_url else '?'}sslmode={ssl_mode}"
+            from shared.db.ssl import enforce_ssl_mode
 
             app.state.db_pool = await asyncpg.create_pool(
-                db_url,
+                enforce_ssl_mode(db_url),
                 min_size=2,
                 max_size=10,
                 statement_cache_size=0,  # PgBouncer transaction mode compatibility
             )
-            logger.info("database_connected", pool_size=10, ssl_mode=ssl_mode)
+            logger.info("database_connected", pool_size=10)
         except Exception as e:
             logger.warning("database_connection_failed", error=str(e))
             app.state.db_pool = None

@@ -451,4 +451,4 @@ async def mark_message_as_read(
         raise
     except Exception as e:
         logger.error("mark_read_error", error=str(e), message_id=message_id)
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")

@@ -845,9 +845,7 @@ export type ServiceName =
   | 'supply-chain'
   // Communication
   | 'notifications'
-  | 'field-chat' // @deprecated Use "chat-service" instead. Sunset: v17.0.0
   | 'chat-service'
-  | 'community-chat' // @deprecated Use "chat-service" instead. Sunset: v17.0.0
   // Configuration & Misc
   | 'provider-config'
   | 'alerts'

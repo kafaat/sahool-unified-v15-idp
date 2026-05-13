@@ -80,6 +80,21 @@ To continue running remaining seeds even if one fails:
 python seed_runner.py --db-url <url> --continue-on-error
 ```
 
+### Idempotent Re-runs
+
+The SQL files use plain `INSERT` statements, so re-running them against an
+already-seeded database normally raises duplicate-key errors. Pass
+`--idempotent` to rewrite every `INSERT ... ;` to `INSERT ... ON CONFLICT DO
+NOTHING;` in memory before executing — the on-disk SQL files are not
+modified.
+
+```bash
+python seed_runner.py --db-url <url> --idempotent
+```
+
+This makes seeding safe to re-run in CI smoke jobs, ephemeral preview
+environments, and local development loops.
+
 ## Data Details
 
 ### 1. Users (01_users.sql)

@@ -102,7 +102,7 @@ sahool-unified-v15-idp/
 │   │   ├── sahool_field_app/   # Main field app (standalone Android config)
 │   │   ├── lib/                # Core Flutter code (708 Dart files)
 │   │   └── integration_test/   # Integration tests
-│   ├── services/               # 72 microservices (Python FastAPI & Node.js NestJS)
+│   ├── services/               # 76 microservices (Python FastAPI & Node.js NestJS)
 │   │   ├── yolo26-vision-service/      # YOLO26 computer vision
 │   │   ├── terrain-core-service/       # DEM processing & terrain analysis
 │   │   ├── hydrology-service/          # Hydrology & drainage analysis
@@ -110,7 +110,7 @@ sahool-unified-v15-idp/
 │   │   ├── edge-orchestrator-service/  # Edge device management (Jetson Orin)
 │   ├── services-docs/           # Service documentation & API specs
 │   └── web/                    # Web dashboard (Next.js/React)
-├── packages/                   # Shared packages (27 npm workspaces)
+├── packages/                   # Shared packages (16 npm workspaces under packages/*)
 │   ├── shared-utils/           # Common utilities
 │   ├── shared-ui/              # UI components
 │   ├── shared-types/           # TypeScript types
@@ -135,7 +135,7 @@ sahool-unified-v15-idp/
 │   ├── starter/                # Starter package config
 │   ├── professional/           # Professional package config
 │   └── enterprise/             # Enterprise package config
-├── shared/                     # Python shared modules (80 modules)
+├── shared/                     # Python shared modules (83 subdirectories)
 │   ├── auth/                   # Authentication (JWT, 2FA, token revocation)
 │   ├── cache/                  # Caching layer (Redis Sentinel HA)
 │   ├── contracts/              # API contracts & event schemas
@@ -240,10 +240,10 @@ sahool-unified-v15-idp/
 ├── database/                   # Database utilities & configs
 ├── dev/                        # Development tools (k3d local K8s)
 ├── docker/                     # Docker configurations
-├── docs/                       # Technical documentation (537 docs)
+├── docs/                       # Technical documentation (603 .md files)
 ├── gitops/                     # ArgoCD applications
 ├── governance/                 # Security policies & service registry
-├── helm/                       # Kubernetes Helm charts (24 charts)
+├── helm/                       # Kubernetes Helm charts (28 unique charts)
 ├── idp/                        # Internal Developer Platform (Backstage)
 ├── infrastructure/             # IaC, monitoring, Terraform
 ├── legacy/                     # Legacy code storage
@@ -289,7 +289,7 @@ sahool-unified-v15-idp/
 | **Node.js Version**    | >= 20.0.0 (npm >= 10.0.0)                                             |
 | **Database**           | PostgreSQL 16+ with PostGIS 3.4 (geospatial)                          |
 | **Message Queue**      | NATS 2.10.x with JetStream (event-driven architecture)               |
-| **API Gateway**        | Kong 3.x (authentication, rate limiting, 105 routes)                  |
+| **API Gateway**        | Kong 3.x (authentication, rate limiting, 128 routes across 97 upstream services) |
 | **Caching**            | Redis 7.x (sessions, rate limiting)                                   |
 | **Connection Pooling** | PgBouncer (transaction mode, 250 max connections)                     |
 
@@ -320,8 +320,8 @@ sahool-unified-v15-idp/
 | Layer            | Technology                                        |
 | ---------------- | ------------------------------------------------- |
 | **Container**    | Docker, Kubernetes (K8s)                          |
-| **IaC**          | Terraform (AWS me-south-1), Helm Charts (24)      |
-| **CI/CD**        | GitHub Actions (55 workflows), Argo CD (18 apps)  |
+| **IaC**          | Terraform (AWS me-south-1), Helm Charts (28 unique)      |
+| **CI/CD**        | GitHub Actions (79 workflows), Argo CD (15 Application resources)  |
 | **Monitoring**   | Prometheus, Grafana (4 dashboards), OpenTelemetry  |
 | **Tracing**      | Jaeger, OpenTelemetry Collector                    |
 | **Secrets**      | HashiCorp Vault 1.17                               |
@@ -508,7 +508,7 @@ make deps-audit           # Security audit of dependencies
 
 ### Dockerfiles Overview
 
-The platform contains **113 Dockerfiles** across Python, Node.js, and infrastructure services.
+The platform contains **116 `Dockerfile` files plus 9 `Dockerfile.*` variants** (125 total) across Python, Node.js, and infrastructure services.
 
 | File | Purpose |
 | ---- | ------- |
@@ -1109,7 +1109,7 @@ The project uses Ruff for Python linting and formatting (configured in `pyprojec
 | `docker/docker-compose.infra.yml` | Infrastructure-only services               |
 | `docker/docker-compose.logging.yml` | Logging stack                             |
 | `pyproject.toml`                | Python config, Ruff, pytest, MyPy            |
-| `package.json`                  | Node.js root workspace (27 packages + 13 services) |
+| `package.json`                  | Node.js root workspace (16 packages under `packages/*` + 16 service workspaces) |
 | `.env.example`                  | Environment template (copy of `.env.development.template`) |
 | `governance/services.yaml`      | Service registry v3.3.0 (source of truth)    |
 | `governance/agents.yaml`        | AI agent definitions (11 categories)         |
@@ -1255,13 +1255,15 @@ docker-compose --profile legacy up
 
 ## Key Services Overview
 
-**Platform Totals**: 72 microservices (active service directories) + 4 applications (admin, web, mobile, kernel), 15 archived
+**Platform Totals**: 76 microservices (active service directories) + 4 applications (admin, web, mobile, kernel), 15 archived
+
+> Verified count: `ls -d apps/services/*/ | wc -l` returns **78**; subtract `apps/services/migrations/` (platform-wide SQL migrations folder — see its README) and `apps/services/shared/` (shared scaffolding, not a service) ⇒ **78 − 2 = 76** active services.
 
 ### Service Status Summary
 
 | Status | Count | Description |
 | ------ | ----- | ----------- |
-| Active | 72 | Service directories in apps/services/ |
+| Active | 76 | Service directories in apps/services/ |
 | Archived | 15 | Deprecated and moved to archive (see Deprecated Services) |
 
 ### Applications
@@ -2823,37 +2825,37 @@ The `shared/` directory contains 80 Python modules organized by domain. Below is
 
 ## Platform Documentation Map
 
-The platform contains **537+ documentation files** spread across multiple directories. Here is the complete reference:
+The platform contains **603+ documentation files** spread across multiple directories. Here is the complete reference:
 
-### Main Documentation (`docs/` - 537+ files)
+### Main Documentation (`docs/` - 603+ files)
 
 | Directory | Files | Purpose |
 | --------- | ----- | ------- |
-| `docs/` (root) | 145 | Core platform docs (API, architecture, deployment, security, operations) |
-| `docs/adr/` | 10 | Architectural Decision Records (ADR-001 through ADR-008, including AI architecture) |
+| `docs/` (root) | 163 | Core platform docs (API, architecture, deployment, security, operations) |
+| `docs/adr/` | 12 | Architectural Decision Records (template + ADR-001 through ADR-010, including AI architecture, Claude Code workflow, and skill runtime) |
 | `docs/api/` | 35 | API endpoint documentation (AI, auth, fields, sensors, weather, vision, terrain) |
 | `docs/architecture/` | 11 | Architecture proposals, principles, service activation maps |
-| `docs/audits/` | 4 | Audit reports (security, rate limiting, secrets) |
+| `docs/audits/` | 7 | Audit reports (security, rate limiting, secrets) |
 | `docs/compliance/` | 2 | Compliance checklists |
 | `docs/configs/` | 2 | Configuration examples |
 | `docs/database/` | 3 | Database audit summaries |
 | `docs/disaster-recovery/` | 3 | DR runbook and implementation guide |
 | `docs/engineering/` | 3 | Engineering recovery plans |
-| `docs/examples/` | 5 | Code examples and tutorials |
+| `docs/examples/` | 1 | Code examples and tutorials |
 | `docs/fixes/` | 2 | Fix documentation |
 | `docs/governance/` | 2 | Governance documentation |
-| `docs/guides/` | 21 | Quick start guides (2FA, build, deployment, MCP, testing) |
-| `docs/implementations/` | 38 | Implementation summaries (caching, DLQ, encryption, NATS, etc.) |
+| `docs/guides/` | 23 | Quick start guides (2FA, build, deployment, MCP, testing) |
+| `docs/implementations/` | 39 | Implementation summaries (caching, DLQ, encryption, NATS, etc.) |
 | `docs/infrastructure/` | 4 | Circuit breaker, Kong HA, PostGIS optimization |
-| `docs/knowledge-base/` | 91 | Agricultural knowledge (19 crops, 7 soils, 8 irrigation, 8 fertilization, 6 weather, 5 remote sensing, 13 AI+Smart Agriculture, best practices) |
-| `docs/migrations/` | 6 | Service migration summaries |
+| `docs/knowledge-base/` | 105 | Agricultural knowledge (33 crops, 7 soils, 11 irrigation, 8 fertilization, 6 weather, 7 remote sensing, 15 AI+Smart Agriculture, 6 diseases, 4 digital-twin, 4 precision-farming, 1 monitoring, best practices) |
+| `docs/migrations/` | 8 | Service migration summaries |
 | `docs/mobile-apps-audit/` | 1 | Mobile app comprehensive audit |
-| `docs/operations/` | 4 | Operational runbooks |
+| `docs/operations/` | 5 | Operational runbooks |
 | `docs/proposals/` | 2 | Architecture proposals |
-| `docs/reports/` | 82 | Comprehensive audit and analysis reports |
+| `docs/reports/` | 120 | Comprehensive audit and analysis reports |
 | `docs/research/` | 5 | AI landscape, open source exploration, vision integration |
 | `docs/security/` | 3 | Data classification, STRIDE threat model |
-| `docs/summaries/` | 46 | Work summaries (API fixes, CI/CD, security, rate limiting) |
+| `docs/summaries/` | 52 | Work summaries (API fixes, CI/CD, security, rate limiting) |
 | `docs/tools/` | 2 | Platform tools reference |
 
 ### Key Documents Quick Reference
@@ -2874,7 +2876,7 @@ The platform contains **537+ documentation files** spread across multiple direct
 | Future Roadmap | `docs/FUTURE_ROADMAP.md` |
 | Mobile Architecture | `docs/MOBILE_ARCHITECTURE_ANALYSIS.md` |
 
-### Service Documentation (`apps/services-docs/` - 83 files)
+### Service Documentation (`apps/services-docs/` - 84 files)
 
 Detailed per-service documentation with API endpoints, architecture, and admin integration guides.
 

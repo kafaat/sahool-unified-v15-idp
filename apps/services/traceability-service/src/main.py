@@ -7,7 +7,7 @@ import os
 from contextlib import asynccontextmanager
 
 import structlog
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 try:
@@ -18,18 +18,40 @@ except ImportError:
     TENANT_MIDDLEWARE_AVAILABLE = False
 
 try:
-    from shared.auth.dependencies import get_current_user
+    from shared.auth.dependencies import enforce_tenant, get_current_user
     from shared.auth.models import User
 
     AUTH_AVAILABLE = True
-except ImportError:
+except ImportError:  # pragma: no cover - defensive fallback for partial installs
     AUTH_AVAILABLE = False
+    from fastapi import HTTPException, status
 
     class User:  # type: ignore[no-redef]
         tenant_id: str | None = None
+        roles: list[str] = []
 
-    async def get_current_user() -> User:  # type: ignore[misc]
-        raise HTTPException(status_code=503, detail="Authentication backend unavailable")
+    async def get_current_user() -> User:  # type: ignore[no-redef]
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication module unavailable",
+        )
+
+    def enforce_tenant(user, requested_tenant_id=None):  # type: ignore[no-redef]
+        """Fallback enforce_tenant that mirrors shared.auth.enforce_tenant."""
+        user_tenant = getattr(user, "tenant_id", None)
+        if not user_tenant and not requested_tenant_id:
+            raise HTTPException(status_code=400, detail="Tenant context is required but not available")
+        if requested_tenant_id:
+            roles = getattr(user, "roles", None) or []
+            if "super_admin" in roles:
+                return requested_tenant_id
+            if user_tenant and user_tenant != requested_tenant_id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Access denied: tenant mismatch",
+                )
+            return requested_tenant_id
+        return user_tenant
 
 
 from shared.logging_config import setup_logging
@@ -193,27 +215,28 @@ async def list_anchors(
     (tenant, field). Useful for debugging and for the loan-
     verification / export-certificate flows that need to show
     the immutable activity log to auditors.
+
+    Requires authentication. Non-super_admin users can only read their own
+    tenant's chain (enforced via `shared.auth.enforce_tenant`).
     """
-    jwt_tid = str(getattr(current_user, "tenant_id", "") or "")
-    if jwt_tid and jwt_tid != tenant_id:
-        raise HTTPException(status_code=403, detail="Tenant ID mismatch")
+    validated_tenant = enforce_tenant(current_user, tenant_id)
     subscriber = getattr(app.state, "field_event_subscriber", None)
     if subscriber is None:
         return {
             "success": True,
             "data": {
-                "tenant_id": tenant_id,
+                "tenant_id": validated_tenant,
                 "field_id": field_id,
                 "anchors": [],
                 "length": 0,
                 "subscriber_enabled": False,
             },
         }
-    anchors = subscriber.get_chain(tenant_id, field_id)
+    anchors = subscriber.get_chain(validated_tenant, field_id)
     return {
         "success": True,
         "data": {
-            "tenant_id": tenant_id,
+            "tenant_id": validated_tenant,
             "field_id": field_id,
             "anchors": [a.to_dict() for a in anchors],
             "length": len(anchors),
@@ -231,27 +254,27 @@ async def verify_anchors(
     """
     Re-compute every hash in the field's chain and confirm it
     matches. Returns ``valid: true`` only if the chain is untampered.
+
+    Requires authentication and tenant match (or super_admin).
     """
-    jwt_tid = str(getattr(current_user, "tenant_id", "") or "")
-    if jwt_tid and jwt_tid != tenant_id:
-        raise HTTPException(status_code=403, detail="Tenant ID mismatch")
+    validated_tenant = enforce_tenant(current_user, tenant_id)
     subscriber = getattr(app.state, "field_event_subscriber", None)
     if subscriber is None:
         return {
             "success": True,
             "data": {
-                "tenant_id": tenant_id,
+                "tenant_id": validated_tenant,
                 "field_id": field_id,
                 "valid": True,
                 "subscriber_enabled": False,
             },
         }
-    valid = subscriber.verify_chain(tenant_id, field_id)
-    anchors = subscriber.get_chain(tenant_id, field_id)
+    valid = subscriber.verify_chain(validated_tenant, field_id)
+    anchors = subscriber.get_chain(validated_tenant, field_id)
     return {
         "success": True,
         "data": {
-            "tenant_id": tenant_id,
+            "tenant_id": validated_tenant,
             "field_id": field_id,
             "valid": valid,
             "length": len(anchors),
@@ -262,8 +285,8 @@ async def verify_anchors(
 
 
 @app.get("/api/v1/traceability/anchors/stats")
-async def anchor_stats():
-    """Expose subscriber stats for Prometheus scrapers / ops."""
+async def anchor_stats(current_user: User = Depends(get_current_user)):
+    """Expose subscriber stats for Prometheus scrapers / ops. Requires authentication."""
     subscriber = getattr(app.state, "field_event_subscriber", None)
     if subscriber is None:
         return {

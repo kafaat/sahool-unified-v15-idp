@@ -462,6 +462,7 @@ Audit reports, reviews, and analysis documents.
 | Document | الوثيقة | Description | الوصف |
 |----------|---------|-------------|-------|
 | [reports/REPO_MAP.md](./reports/REPO_MAP.md) | خريطة المستودع | Repository map | خريطة المستودع |
+| [audits/GAP_REPORT_VERIFICATION.md](./audits/GAP_REPORT_VERIFICATION.md) | تحقق فجوات التقرير | 64-gap report verification (v16.0.0) | تحقق منهجي من تقرير الـ 64 فجوة |
 | [reports/BACKEND_AUDIT_REPORT_v16.3.md](./reports/BACKEND_AUDIT_REPORT_v16.3.md) | تقرير تدقيق الخلفية | Backend audit report v16.3 | تقرير تدقيق الخلفية v16.3 |
 | [reports/FINAL_REVIEW_REPORT.md](./reports/FINAL_REVIEW_REPORT.md) | التقرير النهائي | Final review report | التقرير النهائي للمراجعة |
 | [reports/COMPREHENSIVE_REVIEW_REPORT_AR.md](./reports/COMPREHENSIVE_REVIEW_REPORT_AR.md) | تقرير المراجعة الشامل | Comprehensive review (Arabic) | تقرير المراجعة الشامل بالعربية |

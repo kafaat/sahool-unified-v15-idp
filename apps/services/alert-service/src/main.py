@@ -43,7 +43,7 @@ from shared.middleware.tenant_context import TenantContextMiddleware
 
 # Import authentication dependencies
 try:
-    from shared.auth.dependencies import get_current_user
+    from shared.auth.dependencies import enforce_tenant, get_current_user
     from shared.auth.models import User
 except ImportError:
     from fastapi import HTTPException
@@ -51,6 +51,7 @@ except ImportError:
     class User:
         id: str = "anonymous"
         tenant_id: str | None = None
+        roles: list[str] = []
 
     async def get_current_user():
         # Fail-secure: reject requests when auth module is unavailable
@@ -58,6 +59,26 @@ except ImportError:
             status_code=503,
             detail="Authentication backend unavailable",
         )
+
+    def enforce_tenant(user, requested_tenant_id=None):  # type: ignore[no-redef]
+        """Fallback tenant enforcement mirroring ``shared.auth.enforce_tenant``.
+
+        Used when ``shared.auth`` is not importable (e.g. lightweight test
+        runs). The fallback ``get_current_user`` above still raises 503, so
+        this function is only reached when callers override
+        ``get_current_user`` with a real/mock user.
+        """
+        user_tenant = getattr(user, "tenant_id", None)
+        if not user_tenant and not requested_tenant_id:
+            raise HTTPException(status_code=400, detail="Tenant context is required but not available")
+        if requested_tenant_id:
+            roles = getattr(user, "roles", None) or []
+            if "super_admin" in roles:
+                return requested_tenant_id
+            if user_tenant and user_tenant != requested_tenant_id:
+                raise HTTPException(status_code=403, detail="Access denied: tenant mismatch")
+            return requested_tenant_id
+        return user_tenant
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -120,7 +141,16 @@ def sanitize_log_input(value: str) -> str:
 
 
 def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -> str:
-    """Extract and validate tenant ID from X-Tenant-Id header"""
+    """Extract and validate tenant ID from X-Tenant-Id header.
+
+    NOTE: This dependency only validates the header format. It does NOT enforce
+    that the caller's JWT has access to the tenant. Routes MUST use
+    :func:`validated_tenant_id` instead, which cross-checks the header against
+    the authenticated user via ``shared.auth.enforce_tenant``.
+
+    Kept exported for backward compatibility with unit tests that call it
+    directly.
+    """
     if not x_tenant_id:
         raise HTTPException(status_code=400, detail="X-Tenant-Id header is required")
     # Validate UUID format to prevent injection of arbitrary strings
@@ -135,15 +165,18 @@ def validated_tenant_id(
     tenant_id: str = Depends(get_tenant_id),
     current_user: User = Depends(get_current_user),
 ) -> str:
-    """Validate tenant_id header against the authenticated user's JWT tenant.
+    """Validate ``X-Tenant-Id`` header AND enforce JWT tenant access.
 
-    Raises HTTP 403 if the caller's JWT does not belong to the requested tenant,
-    preventing cross-tenant data access with a valid but foreign JWT.
+    Combines header-format validation with ``shared.auth.enforce_tenant``,
+    so any route that accepts a tenant from the header is automatically
+    protected against cross-tenant access via a forged header.
+
+    Raises:
+        HTTPException 400: header missing/invalid or no tenant context available.
+        HTTPException 403: caller's JWT tenant differs from ``X-Tenant-Id``
+            and the caller is not ``super_admin``.
     """
-    jwt_tid = str(getattr(current_user, "tenant_id", "") or "")
-    if jwt_tid and jwt_tid != tenant_id:
-        raise HTTPException(status_code=403, detail="Tenant ID mismatch")
-    return tenant_id
+    return enforce_tenant(current_user, tenant_id)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -707,7 +740,9 @@ async def delete_rule(
 
 @app.post("/alerts", response_model=AlertResponse, tags=["Alerts"])
 async def create_alert_endpoint(
-    alert_data: AlertCreate, tenant_id: str = Depends(validated_tenant_id)
+    alert_data: AlertCreate,
+    tenant_id: str = Depends(validated_tenant_id),
+    current_user: User = Depends(get_current_user),
 ):
     """
     إنشاء تنبيه جديد

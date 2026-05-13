@@ -1,1 +1,0 @@
-"""NDVI Engine Tests"""

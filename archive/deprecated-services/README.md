@@ -1,37 +1,37 @@
 # Deprecated Services Archive
 
-This directory contains services that have been deprecated and replaced by newer implementations.
+This directory contains services pending final removal. All others have been fully deleted.
 
-**Archive Date**: 2026-01-25
+**Last Updated**: 2026-05-13
 **Version**: 16.0.0
 
-## Service Migration Map
+## Remaining in Archive
 
-| Deprecated Service | Replacement Service | Port | Archive Date |
-|-------------------|---------------------|------|--------------|
-| `crop-health` | `crop-intelligence-service` | 8095 | 2026-01-25 |
-| `fertilizer-advisor` | `advisory-service` | 8093 | 2026-01-25 |
-| `field-ops` | `field-management-service` | 3000 | 2026-01-25 |
-| `field-core` | `field-management-service` | 3000 | 2026-01-25 |
-| `field-service` | `field-management-service` | 3000 | 2026-01-25 |
-| `agro-advisor` | `advisory-service` | 8093 | 2026-02-14 |
-| `ndvi-engine` | `vegetation-analysis-service` | 8090 | 2026-01-25 |
-| `weather-core` | `weather-service` | 8092 | 2026-02-14 |
-| `community-chat` | `chat-service` | 8115 | 2026-02-16 |
-| `field-chat` | `chat-service` | 8115 | 2026-02-16 |
-| `ndvi-processor` | `vegetation-analysis-service` | 8090 | 2026-02-16 |
-| `yield-engine` | `yield-prediction-service` | 8152 | 2026-02-16 |
-| `wechat-service` | `community-service` | 8135 | 2026-03-13 |
+| Service | Replacement Service | Port | Status |
+|---------|---------------------|------|--------|
+| `ndvi-processor` | `vegetation-analysis-service` | 8090 | Pending Phase 7 removal |
 
-## Removed from Archive (Fully Deleted)
+## Fully Deleted Services
 
-The following services were archived and have since been completely removed as they passed their sunset date:
+The following services were archived and have been completely removed (passed sunset date):
 
 | Service | Replacement | Deleted |
 |---------|-------------|---------|
 | `satellite-service` | `vegetation-analysis-service` | 2026-05-13 |
 | `weather-advanced` | `weather-service` | 2026-05-13 |
 | `crop-health-ai` | `crop-intelligence-service` | 2026-05-13 |
+| `crop-health` | `crop-intelligence-service` | 2026-05-13 |
+| `fertilizer-advisor` | `advisory-service` | 2026-05-13 |
+| `field-ops` | `field-management-service` | 2026-05-13 |
+| `field-core` | `field-management-service` | 2026-05-13 |
+| `field-service` | `field-management-service` | 2026-05-13 |
+| `agro-advisor` | `advisory-service` | 2026-05-13 |
+| `ndvi-engine` | `vegetation-analysis-service` | 2026-05-13 |
+| `weather-core` | `weather-service` | 2026-05-13 |
+| `community-chat` | `chat-service` | 2026-05-13 |
+| `field-chat` | `chat-service` | 2026-05-13 |
+| `yield-engine` | `yield-prediction-service` | 2026-05-13 |
+| `wechat-service` | Reactivated as active service | 2026-05-13 |
 
 ## Why Archived
 

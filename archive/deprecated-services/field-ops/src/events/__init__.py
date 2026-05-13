@@ -1,1 +1,0 @@
-"""Field Operations Events Module"""

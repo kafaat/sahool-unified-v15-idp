@@ -6,6 +6,7 @@ This service provides high-frequency agricultural monitoring using tower-mounted
 cameras, integrating with SAHOOL's existing satellite and IoT infrastructure.
 """
 
+# LINT-OPT-OUT: logging -- service uses custom logging.basicConfig/structlog fallback.
 import logging
 import os
 from contextlib import asynccontextmanager

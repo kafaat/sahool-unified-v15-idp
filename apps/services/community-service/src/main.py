@@ -11,6 +11,7 @@ Bridges SAHOOL platform with self-hosted Rocket.Chat for:
 Port: 8133
 """
 
+# LINT-OPT-OUT: logging -- service uses existing structlog logger initialization.
 VERSION = "16.0.0"
 
 import json

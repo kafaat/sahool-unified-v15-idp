@@ -6,6 +6,7 @@ Multi-agent AI system for agricultural advisory.
 نظام ذكاء اصطناعي متعدد الوكلاء للاستشارات الزراعية.
 """
 
+# LINT-OPT-OUT: logging -- service uses inline structlog.configure() setup.
 # Import shared CORS configuration | استيراد تكوين CORS المشترك
 import os
 import sys

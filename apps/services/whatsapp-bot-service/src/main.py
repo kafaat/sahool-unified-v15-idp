@@ -18,6 +18,7 @@ Features:
 Port: 8240
 """
 
+# LINT-OPT-OUT: logging -- service uses inline structlog.configure() setup.
 # Service version - single source of truth
 VERSION = "16.0.0"
 

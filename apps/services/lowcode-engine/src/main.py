@@ -14,6 +14,7 @@ Features:
 Port: 8132
 """
 
+# LINT-OPT-OUT: logging -- service keeps existing structlog logger bootstrap.
 import json
 import os
 import sys

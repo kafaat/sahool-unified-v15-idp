@@ -13,6 +13,7 @@ Features:
 Port: 8135
 """
 
+# LINT-OPT-OUT: logging -- service defines its own structlog logger usage.
 import hashlib
 import hmac
 import json

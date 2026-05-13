@@ -149,6 +149,16 @@ try:
 except ImportError:
     ACTION_TEMPLATE_AVAILABLE = False
 
+try:
+    from shared.libs.simulated_data import guard_simulated_response, mark_simulated
+except ImportError:
+
+    def guard_simulated_response(service: str, endpoint: str):
+        return None
+
+    def mark_simulated(response: Response, source: str | None = None):
+        return None
+
 
 # =============================================================================
 # Input Validation Helpers
@@ -1234,8 +1244,6 @@ def get_water_balance(
     response: Response,
 ):
     """الميزان المائي للحقل - Protected endpoint"""
-    from shared.libs.simulated_data import guard_simulated_response, mark_simulated
-
     guard_simulated_response("irrigation-smart", "water-balance")
     mark_simulated(response, source="irrigation-smart/water-balance")
 

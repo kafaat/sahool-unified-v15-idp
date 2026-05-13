@@ -62,6 +62,8 @@ try:
 except ImportError:
     ERROR_HANDLING_AVAILABLE = False
 
+from shared.db.ssl import enforce_ssl_mode
+
 # ---------------------------------------------------------------------------
 # Auth (optional import)
 # ---------------------------------------------------------------------------
@@ -636,12 +638,7 @@ async def lifespan(app: FastAPI):
         logger.warning("ROCKETCHAT_ADMIN_USER/PASSWORD not set, Rocket.Chat integration disabled")
 
     # ---- Database -----------------------------------------------------------
-    db_url = os.getenv("DATABASE_URL")
-    if db_url and os.getenv("ENVIRONMENT", "development") != "development":
-        if "sslmode" not in db_url:
-            # Use sslmode=disable for PgBouncer (port 6432) which does not support SSL
-            ssl_mode = "disable" if ":6432" in db_url else "require"
-            db_url += f"?sslmode={ssl_mode}" if "?" not in db_url else f"&sslmode={ssl_mode}"
+    db_url = enforce_ssl_mode(os.getenv("DATABASE_URL"))
     if db_url:
         try:
             import asyncpg

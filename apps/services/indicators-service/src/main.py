@@ -25,6 +25,7 @@ from pydantic import BaseModel, field_validator
 
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from shared.middleware.tenant_context import TenantContextMiddleware
+from shared.db.ssl import enforce_ssl_mode
 
 try:
     from shared.auth.dependencies import get_current_user
@@ -155,15 +156,10 @@ def _validate_tenant_id(tenant_id: str | None) -> None:
 async def lifespan(app: FastAPI):
     """Manage application lifecycle - startup and shutdown."""
     # Database connection
-    db_url = os.getenv("DATABASE_URL")
+    db_url = enforce_ssl_mode(os.getenv("DATABASE_URL"))
     if db_url:
         try:
             import asyncpg
-
-            # Validate SSL mode is present in DATABASE_URL for security
-            ssl_mode = os.getenv("POSTGRES_SSL_MODE", "disable")
-            if ssl_mode != "disable" and "sslmode=" not in db_url:
-                db_url = f"{db_url}{'&' if '?' in db_url else '?'}sslmode={ssl_mode}"
 
             app.state.db_pool = await asyncpg.create_pool(
                 db_url,
@@ -171,7 +167,7 @@ async def lifespan(app: FastAPI):
                 max_size=10,
                 statement_cache_size=0,  # PgBouncer transaction mode compatibility
             )
-            logger.info("database_connected", pool_size=10, ssl_mode=ssl_mode)
+            logger.info("database_connected", pool_size=10)
         except Exception as e:
             logger.warning("database_connection_failed", error=str(e))
             app.state.db_pool = None

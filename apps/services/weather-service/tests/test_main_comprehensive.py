@@ -130,6 +130,8 @@ if _SERVICE_ROOT not in sys.path:
 # Import source under test
 # ---------------------------------------------------------------------------
 
+from fastapi import HTTPException
+from fastapi.testclient import TestClient
 from src.main import app, get_current_user  # noqa: E402
 from src.risks import (  # noqa: E402
     assess_weather,
@@ -143,9 +145,6 @@ from src.risks import (  # noqa: E402
     get_irrigation_adjustment,
     heat_stress_risk,
 )
-
-from fastapi import HTTPException
-from fastapi.testclient import TestClient
 
 # ---------------------------------------------------------------------------
 # Auth override – inject fake user for all authenticated endpoints
@@ -419,18 +418,14 @@ class TestWeatherCurrent:
 
     def test_current_with_multi_provider(self):
         mp = MagicMock()
-        mp.get_current = AsyncMock(
-            return_value=_make_provider_result(data=_make_weather_data())
-        )
+        mp.get_current = AsyncMock(return_value=_make_provider_result(data=_make_weather_data()))
         _set_multi_provider(mp)
         resp = client.post("/weather/current", json=self._body)
         assert resp.status_code == 200
 
     def test_current_response_schema(self):
         mp = MagicMock()
-        mp.get_current = AsyncMock(
-            return_value=_make_provider_result(data=_make_weather_data())
-        )
+        mp.get_current = AsyncMock(return_value=_make_provider_result(data=_make_weather_data()))
         _set_multi_provider(mp)
         resp = client.post("/weather/current", json=self._body)
         body = resp.json()
@@ -442,9 +437,7 @@ class TestWeatherCurrent:
 
     def test_current_provider_failure_returns_error(self):
         mp = MagicMock()
-        mp.get_current = AsyncMock(
-            return_value=_make_provider_result(success=False)
-        )
+        mp.get_current = AsyncMock(return_value=_make_provider_result(success=False))
         _set_multi_provider(mp)
         resp = client.post("/weather/current", json=self._body)
         # Should be 5xx or raise (raise_server_exceptions=False means 500)
@@ -460,9 +453,7 @@ class TestWeatherCurrent:
 
     def test_current_tenant_mismatch_403(self):
         mp = MagicMock()
-        mp.get_current = AsyncMock(
-            return_value=_make_provider_result(data=_make_weather_data())
-        )
+        mp.get_current = AsyncMock(return_value=_make_provider_result(data=_make_weather_data()))
         _set_multi_provider(mp)
         body = dict(self._body)
         body["tenant_id"] = "OTHER"
@@ -494,9 +485,7 @@ class TestWeatherForecast:
 
     def test_forecast_default_7_days(self):
         mp = MagicMock()
-        mp.get_daily_forecast = AsyncMock(
-            return_value=_make_provider_result(data=_make_daily_forecast(7))
-        )
+        mp.get_daily_forecast = AsyncMock(return_value=_make_provider_result(data=_make_daily_forecast(7)))
         _set_multi_provider(mp)
         resp = client.post("/weather/forecast", json=self._body)
         assert resp.status_code == 200
@@ -505,9 +494,7 @@ class TestWeatherForecast:
 
     def test_forecast_custom_days(self):
         mp = MagicMock()
-        mp.get_daily_forecast = AsyncMock(
-            return_value=_make_provider_result(data=_make_daily_forecast(3))
-        )
+        mp.get_daily_forecast = AsyncMock(return_value=_make_provider_result(data=_make_daily_forecast(3)))
         _set_multi_provider(mp)
         resp = client.post("/weather/forecast?days=3", json=self._body)
         assert resp.status_code == 200
@@ -515,18 +502,14 @@ class TestWeatherForecast:
 
     def test_forecast_days_clamped_to_16(self):
         mp = MagicMock()
-        mp.get_daily_forecast = AsyncMock(
-            return_value=_make_provider_result(data=_make_daily_forecast(16))
-        )
+        mp.get_daily_forecast = AsyncMock(return_value=_make_provider_result(data=_make_daily_forecast(16)))
         _set_multi_provider(mp)
         resp = client.post("/weather/forecast?days=100", json=self._body)
         assert resp.status_code == 200
 
     def test_forecast_schema(self):
         mp = MagicMock()
-        mp.get_daily_forecast = AsyncMock(
-            return_value=_make_provider_result(data=_make_daily_forecast(2))
-        )
+        mp.get_daily_forecast = AsyncMock(return_value=_make_provider_result(data=_make_daily_forecast(2)))
         _set_multi_provider(mp)
         resp = client.post("/weather/forecast", json=self._body)
         body = resp.json()
@@ -547,9 +530,7 @@ class TestWeatherForecast:
 
     def test_forecast_tenant_mismatch_403(self):
         mp = MagicMock()
-        mp.get_daily_forecast = AsyncMock(
-            return_value=_make_provider_result(data=_make_daily_forecast(7))
-        )
+        mp.get_daily_forecast = AsyncMock(return_value=_make_provider_result(data=_make_daily_forecast(7)))
         _set_multi_provider(mp)
         body = dict(self._body)
         body["tenant_id"] = "OTHER"
@@ -861,18 +842,14 @@ class TestAgriculturalReport:
 
     def test_report_with_multi_provider(self):
         mp = MagicMock()
-        mp.get_current = AsyncMock(
-            return_value=_make_provider_result(data=_make_weather_data())
-        )
+        mp.get_current = AsyncMock(return_value=_make_provider_result(data=_make_weather_data()))
         _set_multi_provider(mp)
         resp = client.post("/weather/agricultural-report", json=self._body)
         assert resp.status_code == 200
 
     def test_report_schema(self):
         mp = MagicMock()
-        mp.get_current = AsyncMock(
-            return_value=_make_provider_result(data=_make_weather_data())
-        )
+        mp.get_current = AsyncMock(return_value=_make_provider_result(data=_make_weather_data()))
         _set_multi_provider(mp)
         resp = client.post("/weather/agricultural-report", json=self._body)
         body = resp.json()
@@ -891,9 +868,7 @@ class TestAgriculturalReport:
 
     def test_report_tenant_mismatch_403(self):
         mp = MagicMock()
-        mp.get_current = AsyncMock(
-            return_value=_make_provider_result(data=_make_weather_data())
-        )
+        mp.get_current = AsyncMock(return_value=_make_provider_result(data=_make_weather_data()))
         _set_multi_provider(mp)
         body = dict(self._body)
         body["tenant_id"] = "OTHER"
@@ -1166,18 +1141,14 @@ class TestComprehensiveStressReport:
 
     def test_stress_report_200(self):
         mp = MagicMock()
-        mp.get_current = AsyncMock(
-            return_value=_make_provider_result(data=_make_weather_data())
-        )
+        mp.get_current = AsyncMock(return_value=_make_provider_result(data=_make_weather_data()))
         _set_multi_provider(mp)
         resp = client.post("/weather/comprehensive-stress-report", json=self._body)
         assert resp.status_code == 200
 
     def test_stress_report_schema(self):
         mp = MagicMock()
-        mp.get_current = AsyncMock(
-            return_value=_make_provider_result(data=_make_weather_data())
-        )
+        mp.get_current = AsyncMock(return_value=_make_provider_result(data=_make_weather_data()))
         _set_multi_provider(mp)
         resp = client.post("/weather/comprehensive-stress-report", json=self._body)
         body = resp.json()
@@ -1189,9 +1160,7 @@ class TestComprehensiveStressReport:
 
     def test_stress_report_overall_status_valid(self):
         mp = MagicMock()
-        mp.get_current = AsyncMock(
-            return_value=_make_provider_result(data=_make_weather_data())
-        )
+        mp.get_current = AsyncMock(return_value=_make_provider_result(data=_make_weather_data()))
         _set_multi_provider(mp)
         resp = client.post("/weather/comprehensive-stress-report", json=self._body)
         body = resp.json()
@@ -1205,9 +1174,7 @@ class TestComprehensiveStressReport:
         weather.humidity_pct = 65.0
         weather.wind_speed_kmh = 5.0
         weather.cloud_cover_pct = 0.0
-        mp.get_current = AsyncMock(
-            return_value=_make_provider_result(data=weather)
-        )
+        mp.get_current = AsyncMock(return_value=_make_provider_result(data=weather))
         _set_multi_provider(mp)
         resp = client.post("/weather/comprehensive-stress-report", json=self._body)
         body = resp.json()
@@ -1222,9 +1189,7 @@ class TestComprehensiveStressReport:
 
     def test_stress_report_tenant_mismatch_403(self):
         mp = MagicMock()
-        mp.get_current = AsyncMock(
-            return_value=_make_provider_result(data=_make_weather_data())
-        )
+        mp.get_current = AsyncMock(return_value=_make_provider_result(data=_make_weather_data()))
         _set_multi_provider(mp)
         body = dict(self._body)
         body["tenant_id"] = "OTHER"
@@ -1253,16 +1218,12 @@ class TestWeatherGraph:
 
     def test_generate_graph_200(self):
         _reset_state()
-        resp = client.post(
-            "/api/v1/weather/fields/FIELD-001/graph", json=self._gen_body
-        )
+        resp = client.post("/api/v1/weather/fields/FIELD-001/graph", json=self._gen_body)
         assert resp.status_code == 200
 
     def test_generate_graph_schema(self):
         _reset_state()
-        resp = client.post(
-            "/api/v1/weather/fields/FIELD-001/graph", json=self._gen_body
-        )
+        resp = client.post("/api/v1/weather/fields/FIELD-001/graph", json=self._gen_body)
         body = resp.json()
         assert body["success"] is True
         data = body["data"]
@@ -1274,9 +1235,7 @@ class TestWeatherGraph:
 
     def test_fetch_graph_after_generate(self):
         _reset_state()
-        gen_resp = client.post(
-            "/api/v1/weather/fields/FIELD-001/graph", json=self._gen_body
-        )
+        gen_resp = client.post("/api/v1/weather/fields/FIELD-001/graph", json=self._gen_body)
         assert gen_resp.status_code == 200
         graph_data = gen_resp.json()["data"]
         graph_id = graph_data["graph_id"]
@@ -1290,9 +1249,7 @@ class TestWeatherGraph:
         tid = params.get("tid", [""])[0]
         sig = params.get("sig", [""])[0]
 
-        fetch_resp = client.get(
-            f"/api/v1/weather/graphs/{graph_id}?tid={tid}&sig={sig}"
-        )
+        fetch_resp = client.get(f"/api/v1/weather/graphs/{graph_id}?tid={tid}&sig={sig}")
         # Should return SVG or 404 (if store is empty mock)
         assert fetch_resp.status_code in (200, 404)
 
@@ -1300,27 +1257,22 @@ class TestWeatherGraph:
         _reset_state()
         # Ensure graph_store exists but contains nothing
         from src.graph import GraphStore
+
         app.state.graph_store = GraphStore()
-        resp = client.get(
-            "/api/v1/weather/graphs/nonexistent?tid=tenant_001&sig=badsig"
-        )
+        resp = client.get("/api/v1/weather/graphs/nonexistent?tid=tenant_001&sig=badsig")
         assert resp.status_code == 404
 
     def test_fetch_graph_no_store_404(self):
         _reset_state()
         # No graph_store at all
-        resp = client.get(
-            "/api/v1/weather/graphs/missing?tid=t1&sig=s1"
-        )
+        resp = client.get("/api/v1/weather/graphs/missing?tid=t1&sig=s1")
         assert resp.status_code == 404
 
     def test_generate_graph_combined_metric(self):
         _reset_state()
         body = dict(self._gen_body)
         body["metric"] = "combined"
-        resp = client.post(
-            "/api/v1/weather/fields/FIELD-001/graph", json=body
-        )
+        resp = client.post("/api/v1/weather/fields/FIELD-001/graph", json=body)
         assert resp.status_code == 200
         assert resp.json()["data"]["metric"] == "combined"
 
@@ -1328,9 +1280,7 @@ class TestWeatherGraph:
         _reset_state()
         body = dict(self._gen_body)
         body["tenant_id"] = "OTHER"
-        resp = client.post(
-            "/api/v1/weather/fields/FIELD-001/graph", json=body
-        )
+        resp = client.post("/api/v1/weather/fields/FIELD-001/graph", json=body)
         assert resp.status_code == 403
 
     def test_generate_graph_with_historical_provider(self):
@@ -1354,9 +1304,7 @@ class TestWeatherGraph:
         mp.get_historical_daily = AsyncMock(return_value=history_result)
         _set_multi_provider(mp)
 
-        resp = client.post(
-            "/api/v1/weather/fields/FIELD-001/graph", json=self._gen_body
-        )
+        resp = client.post("/api/v1/weather/fields/FIELD-001/graph", json=self._gen_body)
         assert resp.status_code == 200
         assert resp.json()["data"]["points_count"] == 1
 
@@ -1477,7 +1425,9 @@ class TestCalculateEvapotranspirationPure:
         assert result["et0_mm_day"] > 0
 
     def test_et0_clamped_at_15(self):
-        result = calculate_evapotranspiration(temp_c=50.0, humidity_pct=5.0, wind_speed_kmh=200.0, solar_radiation_mj=50.0)
+        result = calculate_evapotranspiration(
+            temp_c=50.0, humidity_pct=5.0, wind_speed_kmh=200.0, solar_radiation_mj=50.0
+        )
         assert result["et0_mm_day"] <= 15.0
 
     def test_higher_temp_gives_higher_et(self):

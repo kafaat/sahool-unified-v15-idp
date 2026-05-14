@@ -79,9 +79,7 @@ sys.modules["shared.auth.revocation_middleware"].TokenRevocationMiddleware = _No
 _revocation_store_mock = MagicMock()
 _revocation_store_mock.initialize = AsyncMock()
 _revocation_store_mock.close = AsyncMock()
-sys.modules["shared.auth.token_revocation"].get_revocation_store = MagicMock(
-    return_value=_revocation_store_mock
-)
+sys.modules["shared.auth.token_revocation"].get_revocation_store = MagicMock(return_value=_revocation_store_mock)
 
 # structlog mock
 _structlog = sys.modules["structlog"]
@@ -110,9 +108,7 @@ _loans_mock.LoanVerificationRequest = MagicMock()
 sys.modules["src.loans"] = _loans_mock
 
 # Ensure the actual service packages (crops, yemen_varieties) are resolvable
-_SVC_SHARED = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "..", "shared")
-)
+_SVC_SHARED = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "shared"))
 _SVC_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 for _p in (_SVC_SHARED, _SVC_ROOT):
@@ -123,6 +119,8 @@ for _p in (_SVC_SHARED, _SVC_ROOT):
 # Import the module under test
 # ---------------------------------------------------------------------------
 
+from fastapi import HTTPException  # noqa: E402
+from fastapi.testclient import TestClient  # noqa: E402
 from src.main import (  # noqa: E402
     CROP_REQUIREMENTS,
     VALID_CROP_VALUES,
@@ -141,13 +139,9 @@ from src.main import (  # noqa: E402
     app,
 )
 
-from fastapi import HTTPException  # noqa: E402
-from fastapi.testclient import TestClient  # noqa: E402
-
 # ---------------------------------------------------------------------------
 # Override the auth dependency so every endpoint gets our fake user
 # ---------------------------------------------------------------------------
-
 from src.main import get_current_user as _real_get_current_user  # noqa: E402
 
 

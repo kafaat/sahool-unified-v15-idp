@@ -135,14 +135,14 @@ if _SERVICE_ROOT not in sys.path:
 # Import source under test
 # ---------------------------------------------------------------------------
 
+from fastapi import HTTPException  # noqa: E402
+from fastapi.testclient import TestClient  # noqa: E402
 from src.main import (  # noqa: E402
     app,
     enforce_tenant_match,
     get_current_user,
     sanitize_log_input,
 )
-from fastapi import HTTPException  # noqa: E402
-from fastapi.testclient import TestClient  # noqa: E402
 
 # Override dependency so every protected endpoint gets our fake user
 app.dependency_overrides[get_current_user] = _fake_get_current_user

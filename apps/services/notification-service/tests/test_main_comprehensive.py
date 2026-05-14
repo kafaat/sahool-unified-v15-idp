@@ -209,9 +209,7 @@ _src_submodules = {
     "src.delivery_tracker": MagicMock(get_delivery_tracker=MagicMock(return_value=_mock_tracker)),
     "src.email_client": MagicMock(get_email_client=MagicMock(return_value=MagicMock(_initialized=False))),
     "src.preferences_service": MagicMock(
-        PreferencesService=MagicMock(
-            check_if_should_send=AsyncMock(return_value=(True, ["in_app"]))
-        )
+        PreferencesService=MagicMock(check_if_should_send=AsyncMock(return_value=(True, ["in_app"])))
     ),
     "src.queue_processor": MagicMock(get_queue_processor=MagicMock(return_value=_mock_queue)),
     "src.repository": MagicMock(
@@ -238,6 +236,7 @@ for _mod_name, _mod_obj in _src_submodules.items():
 # 3. Import the module under test
 # ---------------------------------------------------------------------------
 
+from fastapi.testclient import TestClient  # noqa: E402
 from src.main import (  # noqa: E402
     CROP_AR,
     GOVERNORATE_AR,
@@ -262,8 +261,6 @@ from src.main import (  # noqa: E402
 )
 from src.main import get_current_user as _real_get_current_user  # noqa: E402
 
-from fastapi.testclient import TestClient  # noqa: E402
-
 # ---------------------------------------------------------------------------
 # 4. Wire dependency override and TestClient
 # ---------------------------------------------------------------------------
@@ -276,6 +273,7 @@ client = TestClient(app, raise_server_exceptions=False)
 # ---------------------------------------------------------------------------
 # 5. Helpers
 # ---------------------------------------------------------------------------
+
 
 def _future_date(days: int = 1) -> str:
     return (date.today() + timedelta(days=days)).isoformat()
@@ -319,6 +317,7 @@ def _make_notification_mock(
 # ===========================================================================
 # Tests – Health / Readiness / Metrics
 # ===========================================================================
+
 
 class TestHealthCheck:
     def test_healthz_returns_ok(self):
@@ -612,6 +611,7 @@ class TestIrrigationReminder:
 # Tests – GET /farmer/{farmer_id}
 # ===========================================================================
 
+
 class TestGetFarmerNotifications:
     def test_returns_200_for_own_notifications(self):
         _mock_notif_repo.get_by_user.return_value = []
@@ -684,6 +684,7 @@ class TestGetFarmerNotifications:
 # Tests – PATCH /{notification_id}/read
 # ===========================================================================
 
+
 class TestMarkNotificationRead:
     def _make_notif(self, nid, user_id="farmer-123"):
         n = _make_notification_mock(nid=nid, user_id=user_id)
@@ -749,6 +750,7 @@ class TestMarkNotificationRead:
 # ===========================================================================
 # Tests – GET /broadcast
 # ===========================================================================
+
 
 class TestGetBroadcastNotifications:
     def test_returns_200(self):
@@ -933,6 +935,7 @@ class TestUpdatePreferences:
 # Tests – GET /stats
 # ===========================================================================
 
+
 class TestGetStats:
     """
     /stats imports Notification inline via `from .models import Notification`.
@@ -942,22 +945,32 @@ class TestGetStats:
     """
 
     def test_returns_200(self):
-        with patch("src.main.get_db_stats", new=AsyncMock(return_value={
-            "total_notifications": 100,
-            "pending_notifications": 5,
-            "total_templates": 3,
-            "total_preferences": 15,
-        })):
+        with patch(
+            "src.main.get_db_stats",
+            new=AsyncMock(
+                return_value={
+                    "total_notifications": 100,
+                    "pending_notifications": 5,
+                    "total_templates": 3,
+                    "total_preferences": 15,
+                }
+            ),
+        ):
             r = client.get("/stats")
         assert r.status_code == 200
 
     def test_stats_structure(self):
-        with patch("src.main.get_db_stats", new=AsyncMock(return_value={
-            "total_notifications": 50,
-            "pending_notifications": 2,
-            "total_templates": 5,
-            "total_preferences": 10,
-        })):
+        with patch(
+            "src.main.get_db_stats",
+            new=AsyncMock(
+                return_value={
+                    "total_notifications": 50,
+                    "pending_notifications": 2,
+                    "total_templates": 5,
+                    "total_preferences": 10,
+                }
+            ),
+        ):
             r = client.get("/stats")
         assert r.status_code == 200
         body = r.json()
@@ -968,6 +981,7 @@ class TestGetStats:
 # ===========================================================================
 # Tests – Utility functions
 # ===========================================================================
+
 
 class TestSanitizeLogInput:
     def test_removes_newline(self):
@@ -1035,6 +1049,7 @@ class TestGetWeatherAlertMessage:
 # Tests – Enum and Translation Dicts
 # ===========================================================================
 
+
 class TestEnums:
     def test_notification_type_values(self):
         assert NotificationType.WEATHER_ALERT == "weather_alert"
@@ -1095,6 +1110,7 @@ class TestEnums:
 # ===========================================================================
 # Tests – Pydantic Models
 # ===========================================================================
+
 
 class TestFarmerProfileModel:
     def test_valid_profile(self):

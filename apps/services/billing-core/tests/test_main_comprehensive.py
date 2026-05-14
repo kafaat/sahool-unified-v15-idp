@@ -441,7 +441,9 @@ def _build_repo_mock(
     # Invoices repo
     repo.invoices = MagicMock()
     repo.invoices.get_by_id = AsyncMock(return_value=invoice)
-    repo.invoices.list_by_tenant = AsyncMock(return_value=invoices if invoices is not None else ([invoice] if invoice else []))
+    repo.invoices.list_by_tenant = AsyncMock(
+        return_value=invoices if invoices is not None else ([invoice] if invoice else [])
+    )
     repo.invoices.create = AsyncMock(return_value=invoice or _make_invoice())
     repo.invoices.update = AsyncMock(return_value=invoice or _make_invoice())
     repo.invoices.mark_paid = AsyncMock(return_value=invoice or _make_invoice())
@@ -452,7 +454,9 @@ def _build_repo_mock(
     # Payments repo
     repo.payments = MagicMock()
     repo.payments.get_by_id = AsyncMock(return_value=payment)
-    repo.payments.list_by_tenant = AsyncMock(return_value=payments if payments is not None else ([payment] if payment else []))
+    repo.payments.list_by_tenant = AsyncMock(
+        return_value=payments if payments is not None else ([payment] if payment else [])
+    )
     repo.payments.create = AsyncMock(return_value=payment or _make_payment())
     repo.payments.update = AsyncMock(return_value=payment or _make_payment())
     repo.payments.mark_succeeded = AsyncMock(return_value=payment or _make_payment())
@@ -571,10 +575,12 @@ class TestHealthEndpoints:
 
 class TestMetricsEndpoint:
     def test_metrics_returns_prometheus_data(self, client):
-        with patch("src.main._prometheus_available", True), \
-             patch("src.main.generate_latest", return_value=b"# metrics\n"), \
-             patch("src.main.BILLING_REGISTRY", MagicMock()), \
-             patch("src.main.PROM_CONTENT_TYPE", "text/plain"):
+        with (
+            patch("src.main._prometheus_available", True),
+            patch("src.main.generate_latest", return_value=b"# metrics\n"),
+            patch("src.main.BILLING_REGISTRY", MagicMock()),
+            patch("src.main.PROM_CONTENT_TYPE", "text/plain"),
+        ):
             response = client.get("/metrics")
         assert response.status_code == 200
 
@@ -715,8 +721,10 @@ class TestTenantEndpoints:
         from src.main import get_db
 
         app.dependency_overrides[get_db] = _make_db_dep()
-        with patch("src.main.BillingRepository") as mock_repo_cls, \
-             patch("src.main.publish_event", new_callable=AsyncMock):
+        with (
+            patch("src.main.BillingRepository") as mock_repo_cls,
+            patch("src.main.publish_event", new_callable=AsyncMock),
+        ):
             repo = _build_repo_mock(plan=plan, subscription=sub)
             mock_repo_cls.return_value = repo
             response = client.post(
@@ -787,9 +795,14 @@ class TestTenantEndpoints:
         from src.main import get_db
 
         app.dependency_overrides[get_db] = _make_db_dep()
-        with patch("src.main.BillingRepository") as mock_repo_cls, \
-             patch("src.main.check_usage_limit_db", new_callable=AsyncMock,
-                   return_value={"allowed": True, "used": 3, "limit": 10, "remaining": 7}):
+        with (
+            patch("src.main.BillingRepository") as mock_repo_cls,
+            patch(
+                "src.main.check_usage_limit_db",
+                new_callable=AsyncMock,
+                return_value={"allowed": True, "used": 3, "limit": 10, "remaining": 7},
+            ),
+        ):
             repo = _build_repo_mock(tenant=tenant, subscription=sub, plan=plan)
             mock_repo_cls.return_value = repo
             response = client.get(f"/api/v1/tenants/{_TENANT_ID}")
@@ -869,10 +882,11 @@ class TestSubscriptionEndpoints:
         from src.main import get_db
 
         app.dependency_overrides[get_db] = _make_db_dep()
-        with patch("src.main.BillingRepository") as mock_repo_cls, \
-             patch("src.main.publish_event", new_callable=AsyncMock), \
-             patch("src.main.get_next_invoice_number", new_callable=AsyncMock,
-                   return_value="SAH-2025-0002"):
+        with (
+            patch("src.main.BillingRepository") as mock_repo_cls,
+            patch("src.main.publish_event", new_callable=AsyncMock),
+            patch("src.main.get_next_invoice_number", new_callable=AsyncMock, return_value="SAH-2025-0002"),
+        ):
             repo = _build_repo_mock(subscription=sub, plan=plan, invoice=_make_invoice())
             repo.plans.get_by_plan_id = AsyncMock(side_effect=lambda pid: plan if pid == "starter" else new_plan)
             mock_repo_cls.return_value = repo
@@ -944,9 +958,14 @@ class TestQuotaEndpoints:
         from src.main import get_db
 
         app.dependency_overrides[get_db] = _make_db_dep()
-        with patch("src.main.BillingRepository") as mock_repo_cls, \
-             patch("src.main.check_usage_limit_db", new_callable=AsyncMock,
-                   return_value={"allowed": True, "used": 5, "limit": 10, "remaining": 5}):
+        with (
+            patch("src.main.BillingRepository") as mock_repo_cls,
+            patch(
+                "src.main.check_usage_limit_db",
+                new_callable=AsyncMock,
+                return_value={"allowed": True, "used": 5, "limit": 10, "remaining": 5},
+            ),
+        ):
             repo = _build_repo_mock(tenant=tenant, subscription=sub, plan=plan)
             mock_repo_cls.return_value = repo
             response = client.get(f"/api/v1/tenants/{_TENANT_ID}/quota")
@@ -988,9 +1007,14 @@ class TestQuotaEndpoints:
         from src.main import get_db
 
         app.dependency_overrides[get_db] = _make_db_dep()
-        with patch("src.main.BillingRepository") as mock_repo_cls, \
-             patch("src.main.check_usage_limit_db", new_callable=AsyncMock,
-                   return_value={"allowed": True, "used": 5, "limit": 10, "remaining": 5}):
+        with (
+            patch("src.main.BillingRepository") as mock_repo_cls,
+            patch(
+                "src.main.check_usage_limit_db",
+                new_callable=AsyncMock,
+                return_value={"allowed": True, "used": 5, "limit": 10, "remaining": 5},
+            ),
+        ):
             mock_repo_cls.return_value = _build_repo_mock()
             response = client.get(
                 "/api/v1/enforce?metric=api_calls",
@@ -1006,10 +1030,15 @@ class TestQuotaEndpoints:
         from src.main import get_db
 
         app.dependency_overrides[get_db] = _make_db_dep()
-        with patch("src.main.BillingRepository") as mock_repo_cls, \
-             patch("src.main.check_usage_limit_db", new_callable=AsyncMock,
-                   return_value={"allowed": False, "used": 10, "limit": 10, "remaining": 0}), \
-             patch("src.main.publish_event", new_callable=AsyncMock):
+        with (
+            patch("src.main.BillingRepository") as mock_repo_cls,
+            patch(
+                "src.main.check_usage_limit_db",
+                new_callable=AsyncMock,
+                return_value={"allowed": False, "used": 10, "limit": 10, "remaining": 0},
+            ),
+            patch("src.main.publish_event", new_callable=AsyncMock),
+        ):
             mock_repo_cls.return_value = _build_repo_mock()
             response = client.get("/api/v1/enforce?metric=api_calls")
         app.dependency_overrides.pop(get_db, None)
@@ -1035,9 +1064,14 @@ class TestQuotaEndpoints:
         from src.main import get_db
 
         app.dependency_overrides[get_db] = _make_db_dep()
-        with patch("src.main.BillingRepository") as mock_repo_cls, \
-             patch("src.main.check_usage_limit_db", new_callable=AsyncMock,
-                   return_value={"allowed": True, "used": 3, "limit": 10, "remaining": 7}):
+        with (
+            patch("src.main.BillingRepository") as mock_repo_cls,
+            patch(
+                "src.main.check_usage_limit_db",
+                new_callable=AsyncMock,
+                return_value={"allowed": True, "used": 3, "limit": 10, "remaining": 7},
+            ),
+        ):
             repo = _build_repo_mock(tenant=tenant, subscription=sub)
             repo.usage_records.create = AsyncMock(return_value=usage_record)
             mock_repo_cls.return_value = repo
@@ -1057,9 +1091,14 @@ class TestQuotaEndpoints:
         from src.main import get_db
 
         app.dependency_overrides[get_db] = _make_db_dep()
-        with patch("src.main.BillingRepository") as mock_repo_cls, \
-             patch("src.main.check_usage_limit_db", new_callable=AsyncMock,
-                   return_value={"allowed": False, "used": 10, "limit": 10, "remaining": 0}):
+        with (
+            patch("src.main.BillingRepository") as mock_repo_cls,
+            patch(
+                "src.main.check_usage_limit_db",
+                new_callable=AsyncMock,
+                return_value={"allowed": False, "used": 10, "limit": 10, "remaining": 0},
+            ),
+        ):
             repo = _build_repo_mock(tenant=tenant, subscription=sub)
             mock_repo_cls.return_value = repo
             response = client.post(
@@ -1154,10 +1193,11 @@ class TestInvoiceEndpoints:
         from src.main import get_db
 
         app.dependency_overrides[get_db] = _make_db_dep()
-        with patch("src.main.BillingRepository") as mock_repo_cls, \
-             patch("src.main.get_next_invoice_number", new_callable=AsyncMock,
-                   return_value="SAH-2025-0002"), \
-             patch("src.main.publish_event", new_callable=AsyncMock):
+        with (
+            patch("src.main.BillingRepository") as mock_repo_cls,
+            patch("src.main.get_next_invoice_number", new_callable=AsyncMock, return_value="SAH-2025-0002"),
+            patch("src.main.publish_event", new_callable=AsyncMock),
+        ):
             repo = _build_repo_mock(subscription=sub, plan=plan, invoice=invoice)
             mock_repo_cls.return_value = repo
             response = client.post(f"/api/v1/tenants/{_TENANT_ID}/invoices/generate")
@@ -1209,8 +1249,10 @@ class TestPaymentEndpoints:
         from src.main import get_db
 
         app.dependency_overrides[get_db] = _make_db_dep()
-        with patch("src.main.BillingRepository") as mock_repo_cls, \
-             patch("src.main.publish_event", new_callable=AsyncMock):
+        with (
+            patch("src.main.BillingRepository") as mock_repo_cls,
+            patch("src.main.publish_event", new_callable=AsyncMock),
+        ):
             repo = _build_repo_mock(invoice=invoice, payment=payment)
             repo.invoices.get_by_id = AsyncMock(side_effect=[invoice, refreshed_invoice])
             repo.payments.get_by_id = AsyncMock(return_value=payment)
@@ -1260,8 +1302,7 @@ class TestPaymentEndpoints:
         from src.main import get_db
 
         app.dependency_overrides[get_db] = _make_db_dep()
-        with patch("src.main.BillingRepository") as mock_repo_cls, \
-             patch("src.main.db_models") as mock_db_models:
+        with patch("src.main.BillingRepository") as mock_repo_cls, patch("src.main.db_models") as mock_db_models:
             mock_db_models.InvoiceStatus.PAID = "paid"
             invoice.status = mock_db_models.InvoiceStatus.PAID
             repo = _build_repo_mock(invoice=invoice)
@@ -1347,9 +1388,11 @@ class TestRefundEndpoints:
         from src.main import get_db
 
         app.dependency_overrides[get_db] = _make_db_dep()
-        with patch("src.main.BillingRepository") as mock_repo_cls, \
-             patch("src.main.publish_event", new_callable=AsyncMock), \
-             patch("src.main.db_models") as mock_db_models:
+        with (
+            patch("src.main.BillingRepository") as mock_repo_cls,
+            patch("src.main.publish_event", new_callable=AsyncMock),
+            patch("src.main.db_models") as mock_db_models,
+        ):
             mock_db_models.PaymentStatus.SUCCEEDED = "succeeded"
             mock_db_models.PaymentMethod.CREDIT_CARD = "credit_card"
             mock_db_models.PaymentMethod.THARWATT = "tharwatt"
@@ -1420,18 +1463,22 @@ class TestWebhookEndpoints:
     def test_tharwatt_webhook_invalid_signature(self, client):
         import json
 
-        payload = json.dumps({
-            "transaction_id": "tx-001",
-            "status": "completed",
-            "amount": "100.00",
-            "reference": str(uuid.uuid4()),
-        })
+        payload = json.dumps(
+            {
+                "transaction_id": "tx-001",
+                "status": "completed",
+                "amount": "100.00",
+                "reference": str(uuid.uuid4()),
+            }
+        )
         from src.main import get_db
 
         app.dependency_overrides[get_db] = _make_db_dep()
-        with patch("src.main.BillingRepository") as mock_repo_cls, \
-             patch("src.main.THARWATT_WEBHOOK_SECRET", ""), \
-             patch("src.main.verify_tharwatt_signature", return_value=False):
+        with (
+            patch("src.main.BillingRepository") as mock_repo_cls,
+            patch("src.main.THARWATT_WEBHOOK_SECRET", ""),
+            patch("src.main.verify_tharwatt_signature", return_value=False),
+        ):
             mock_repo_cls.return_value = _build_repo_mock()
             response = client.post(
                 "/api/v1/webhooks/tharwatt",
@@ -1453,18 +1500,22 @@ class TestWebhookEndpoints:
         payment_id = str(payment.id)
         updated_payment = _make_payment(status_val="succeeded")
 
-        payload = json.dumps({
-            "transaction_id": "tx-001",
-            "status": "completed",
-            "amount": "29.00",
-            "reference": payment_id,
-        })
+        payload = json.dumps(
+            {
+                "transaction_id": "tx-001",
+                "status": "completed",
+                "amount": "29.00",
+                "reference": payment_id,
+            }
+        )
         from src.main import get_db
 
         app.dependency_overrides[get_db] = _make_db_dep()
-        with patch("src.main.BillingRepository") as mock_repo_cls, \
-             patch("src.main.verify_tharwatt_signature", return_value=True), \
-             patch("src.main.publish_event", new_callable=AsyncMock):
+        with (
+            patch("src.main.BillingRepository") as mock_repo_cls,
+            patch("src.main.verify_tharwatt_signature", return_value=True),
+            patch("src.main.publish_event", new_callable=AsyncMock),
+        ):
             repo = _build_repo_mock(payment=payment, invoice=invoice)
             repo.payments.get_by_id = AsyncMock(side_effect=[payment, updated_payment])
             mock_repo_cls.return_value = repo
@@ -1489,19 +1540,23 @@ class TestWebhookEndpoints:
         payment_id = str(payment.id)
         failed_payment = _make_payment(status_val="failed")
 
-        payload = json.dumps({
-            "transaction_id": "tx-002",
-            "status": "failed",
-            "amount": "29.00",
-            "reference": payment_id,
-            "error_message": "Insufficient funds",
-        })
+        payload = json.dumps(
+            {
+                "transaction_id": "tx-002",
+                "status": "failed",
+                "amount": "29.00",
+                "reference": payment_id,
+                "error_message": "Insufficient funds",
+            }
+        )
         from src.main import get_db
 
         app.dependency_overrides[get_db] = _make_db_dep()
-        with patch("src.main.BillingRepository") as mock_repo_cls, \
-             patch("src.main.verify_tharwatt_signature", return_value=True), \
-             patch("src.main.publish_event", new_callable=AsyncMock):
+        with (
+            patch("src.main.BillingRepository") as mock_repo_cls,
+            patch("src.main.verify_tharwatt_signature", return_value=True),
+            patch("src.main.publish_event", new_callable=AsyncMock),
+        ):
             repo = _build_repo_mock(payment=payment)
             repo.payments.get_by_id = AsyncMock(side_effect=[payment, failed_payment])
             mock_repo_cls.return_value = repo
@@ -1521,8 +1576,10 @@ class TestWebhookEndpoints:
         from src.main import get_db
 
         app.dependency_overrides[get_db] = _make_db_dep()
-        with patch("src.main.BillingRepository") as mock_repo_cls, \
-             patch("src.main.verify_stripe_signature", return_value=False):
+        with (
+            patch("src.main.BillingRepository") as mock_repo_cls,
+            patch("src.main.verify_stripe_signature", return_value=False),
+        ):
             mock_repo_cls.return_value = _build_repo_mock()
             response = client.post(
                 "/api/v1/webhooks/stripe",
@@ -1539,22 +1596,26 @@ class TestWebhookEndpoints:
         payment_id = str(uuid.uuid4())
         payment = _make_payment(status_val="processing")
         invoice = _make_invoice()
-        payload = json.dumps({
-            "id": "evt_001",
-            "type": "charge.succeeded",
-            "data": {
-                "object": {
-                    "id": "ch_001",
-                    "metadata": {"payment_id": payment_id},
-                }
-            },
-        })
+        payload = json.dumps(
+            {
+                "id": "evt_001",
+                "type": "charge.succeeded",
+                "data": {
+                    "object": {
+                        "id": "ch_001",
+                        "metadata": {"payment_id": payment_id},
+                    }
+                },
+            }
+        )
         from src.main import get_db
 
         app.dependency_overrides[get_db] = _make_db_dep()
-        with patch("src.main.BillingRepository") as mock_repo_cls, \
-             patch("src.main.verify_stripe_signature", return_value=True), \
-             patch("src.main.publish_event", new_callable=AsyncMock):
+        with (
+            patch("src.main.BillingRepository") as mock_repo_cls,
+            patch("src.main.verify_stripe_signature", return_value=True),
+            patch("src.main.publish_event", new_callable=AsyncMock),
+        ):
             repo = _build_repo_mock(payment=payment, invoice=invoice)
             mock_repo_cls.return_value = repo
             response = client.post(
@@ -1572,22 +1633,26 @@ class TestWebhookEndpoints:
 
         payment_id = str(uuid.uuid4())
         payment = _make_payment(status_val="processing")
-        payload = json.dumps({
-            "id": "evt_002",
-            "type": "charge.failed",
-            "data": {
-                "object": {
-                    "failure_message": "Card declined",
-                    "metadata": {"payment_id": payment_id},
-                }
-            },
-        })
+        payload = json.dumps(
+            {
+                "id": "evt_002",
+                "type": "charge.failed",
+                "data": {
+                    "object": {
+                        "failure_message": "Card declined",
+                        "metadata": {"payment_id": payment_id},
+                    }
+                },
+            }
+        )
         from src.main import get_db
 
         app.dependency_overrides[get_db] = _make_db_dep()
-        with patch("src.main.BillingRepository") as mock_repo_cls, \
-             patch("src.main.verify_stripe_signature", return_value=True), \
-             patch("src.main.publish_event", new_callable=AsyncMock):
+        with (
+            patch("src.main.BillingRepository") as mock_repo_cls,
+            patch("src.main.verify_stripe_signature", return_value=True),
+            patch("src.main.publish_event", new_callable=AsyncMock),
+        ):
             repo = _build_repo_mock(payment=payment)
             mock_repo_cls.return_value = repo
             response = client.post(
@@ -1602,16 +1667,20 @@ class TestWebhookEndpoints:
     def test_stripe_webhook_unknown_event_type(self, client):
         import json
 
-        payload = json.dumps({
-            "id": "evt_003",
-            "type": "customer.created",
-            "data": {"object": {}},
-        })
+        payload = json.dumps(
+            {
+                "id": "evt_003",
+                "type": "customer.created",
+                "data": {"object": {}},
+            }
+        )
         from src.main import get_db
 
         app.dependency_overrides[get_db] = _make_db_dep()
-        with patch("src.main.BillingRepository") as mock_repo_cls, \
-             patch("src.main.verify_stripe_signature", return_value=True):
+        with (
+            patch("src.main.BillingRepository") as mock_repo_cls,
+            patch("src.main.verify_stripe_signature", return_value=True),
+        ):
             mock_repo_cls.return_value = _build_repo_mock()
             response = client.post(
                 "/api/v1/webhooks/stripe",
@@ -1773,7 +1842,6 @@ class TestHelperFunctions:
 
     def test_validate_tenant_id_empty_raises(self):
         from fastapi import HTTPException
-
         from src.main import validate_tenant_id
 
         with pytest.raises(HTTPException) as exc_info:
@@ -1782,7 +1850,6 @@ class TestHelperFunctions:
 
     def test_validate_tenant_id_too_long_raises(self):
         from fastapi import HTTPException
-
         from src.main import validate_tenant_id
 
         with pytest.raises(HTTPException) as exc_info:
@@ -1791,7 +1858,6 @@ class TestHelperFunctions:
 
     def test_validate_tenant_id_invalid_chars_raises(self):
         from fastapi import HTTPException
-
         from src.main import validate_tenant_id
 
         with pytest.raises(HTTPException):
@@ -1806,7 +1872,6 @@ class TestHelperFunctions:
 
     def test_validate_currency_code_invalid(self):
         from fastapi import HTTPException
-
         from src.main import _validate_currency_code
 
         with pytest.raises(HTTPException) as exc_info:
@@ -1830,8 +1895,7 @@ class TestHelperFunctions:
     def test_verify_tenant_access_dev_mode(self):
         from src.main import verify_tenant_access
 
-        with patch("src.main.AUTH_AVAILABLE", False), \
-             patch("src.main.os") as mock_os:
+        with patch("src.main.AUTH_AVAILABLE", False), patch("src.main.os") as mock_os:
             mock_os.getenv.return_value = "test"
             result = verify_tenant_access(None, "any-tenant")
             assert result is True
@@ -1882,9 +1946,7 @@ class TestNatsPublishing:
 
         mock_js = AsyncMock()
         with patch("src.main.js", mock_js):
-            asyncio.get_event_loop().run_until_complete(
-                publish_event("sahool.billing.test", {"key": "value"})
-            )
+            asyncio.get_event_loop().run_until_complete(publish_event("sahool.billing.test", {"key": "value"}))
         mock_js.publish.assert_called_once()
 
     def test_publish_event_without_js(self):
@@ -1894,9 +1956,7 @@ class TestNatsPublishing:
 
         with patch("src.main.js", None):
             # Should not raise
-            asyncio.get_event_loop().run_until_complete(
-                publish_event("sahool.billing.test", {"key": "value"})
-            )
+            asyncio.get_event_loop().run_until_complete(publish_event("sahool.billing.test", {"key": "value"}))
 
     def test_publish_event_js_error_does_not_raise(self):
         import asyncio
@@ -1907,9 +1967,7 @@ class TestNatsPublishing:
         mock_js.publish.side_effect = Exception("NATS error")
         with patch("src.main.js", mock_js):
             # Should not propagate exception
-            asyncio.get_event_loop().run_until_complete(
-                publish_event("sahool.billing.test", {"key": "value"})
-            )
+            asyncio.get_event_loop().run_until_complete(publish_event("sahool.billing.test", {"key": "value"}))
 
 
 # ===========================================================================

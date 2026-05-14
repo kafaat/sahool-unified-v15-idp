@@ -109,6 +109,8 @@ if _SERVICE_ROOT not in sys.path:
 # Import source under test
 # ---------------------------------------------------------------------------
 
+from fastapi import HTTPException
+from fastapi.testclient import TestClient
 from src.main import (  # noqa: E402
     SATELLITE_CONFIGS,
     YEMEN_REGIONS,
@@ -134,9 +136,6 @@ from src.main import (  # noqa: E402
     calculate_savi,
     generate_recommendations,
 )
-
-from fastapi import HTTPException
-from fastapi.testclient import TestClient
 
 client = TestClient(app, raise_server_exceptions=True)
 

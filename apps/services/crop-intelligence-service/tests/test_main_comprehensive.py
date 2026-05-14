@@ -99,9 +99,7 @@ sys.modules["shared.middleware.security_headers"].setup_security_headers = lambd
 _migration_runner_mock = MagicMock()
 _migration_runner_mock.run = AsyncMock()
 sys.modules["shared.db.simple_migrations"].Migration = MagicMock(side_effect=lambda **kw: kw)
-sys.modules["shared.db.simple_migrations"].SimpleMigrationRunner = MagicMock(
-    return_value=_migration_runner_mock
-)
+sys.modules["shared.db.simple_migrations"].SimpleMigrationRunner = MagicMock(return_value=_migration_runner_mock)
 
 # CORS settings must be unpackable as **kwargs for CORSMiddleware
 sys.modules["shared.cors_config"].CORS_SETTINGS = {
@@ -148,6 +146,8 @@ _SERVICE_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if _SERVICE_ROOT not in sys.path:
     sys.path.insert(0, _SERVICE_ROOT)
 
+from fastapi import HTTPException  # noqa: E402
+from fastapi.testclient import TestClient  # noqa: E402
 from src.main import (  # noqa: E402
     OBSERVATIONS,
     ZONES,
@@ -155,9 +155,6 @@ from src.main import (  # noqa: E402
     app,
 )
 from src.main import get_current_user as _real_get_current_user  # noqa: E402
-
-from fastapi import HTTPException  # noqa: E402
-from fastapi.testclient import TestClient  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # 5. Override auth dependency and populate sample data
@@ -493,16 +490,12 @@ class TestZoneTimeline:
         assert r.status_code == 400
 
     def test_timeline_unknown_zone_returns_empty_series(self):
-        r = client.get(
-            "/api/v1/fields/field_demo/zones/ghost_zone/timeline?from=2025-01-01&to=2025-12-31"
-        )
+        r = client.get("/api/v1/fields/field_demo/zones/ghost_zone/timeline?from=2025-01-01&to=2025-12-31")
         assert r.status_code == 200
         assert r.json()["series"] == []
 
     def test_timeline_narrow_date_range_may_return_empty(self):
-        r = client.get(
-            "/api/v1/fields/field_demo/zones/zone_a/timeline?from=2024-01-01&to=2024-01-02"
-        )
+        r = client.get("/api/v1/fields/field_demo/zones/zone_a/timeline?from=2024-01-01&to=2024-01-02")
         assert r.status_code == 200
         assert isinstance(r.json()["series"], list)
 
@@ -980,9 +973,7 @@ class TestZoneNutrientAnalysis:
         assert r.status_code == 404
 
     def test_zone_nutrient_analysis_with_area_param(self):
-        r = client.post(
-            "/api/v1/fields/field_demo/zones/zone_c/nutrient-analysis?field_area_hectares=10.0"
-        )
+        r = client.post("/api/v1/fields/field_demo/zones/zone_c/nutrient-analysis?field_area_hectares=10.0")
         assert r.status_code == 200
 
 
@@ -1009,9 +1000,7 @@ class TestZoneYieldPrediction:
         assert r.status_code == 404
 
     def test_zone_yield_prediction_with_crop_param(self):
-        r = client.post(
-            "/api/v1/fields/field_demo/zones/zone_b/yield-prediction?crop_type=tomato"
-        )
+        r = client.post("/api/v1/fields/field_demo/zones/zone_b/yield-prediction?crop_type=tomato")
         assert r.status_code == 200
 
 
@@ -1024,27 +1013,19 @@ class TestZonePestAssessment:
     _QPARAMS = "temp_c=28&humidity_pct=60"
 
     def test_zone_pest_assessment_returns_200(self):
-        r = client.post(
-            f"/api/v1/fields/field_demo/zones/zone_a/pest-assessment?{self._QPARAMS}"
-        )
+        r = client.post(f"/api/v1/fields/field_demo/zones/zone_a/pest-assessment?{self._QPARAMS}")
         assert r.status_code == 200
 
     def test_zone_pest_assessment_has_pest_assessment(self):
-        r = client.post(
-            f"/api/v1/fields/field_demo/zones/zone_a/pest-assessment?{self._QPARAMS}"
-        )
+        r = client.post(f"/api/v1/fields/field_demo/zones/zone_a/pest-assessment?{self._QPARAMS}")
         assert "pest_assessment" in r.json()
 
     def test_zone_pest_assessment_has_field_id(self):
-        r = client.post(
-            f"/api/v1/fields/field_demo/zones/zone_a/pest-assessment?{self._QPARAMS}"
-        )
+        r = client.post(f"/api/v1/fields/field_demo/zones/zone_a/pest-assessment?{self._QPARAMS}")
         assert r.json()["field_id"] == "field_demo"
 
     def test_zone_pest_assessment_unknown_zone_returns_404(self):
-        r = client.post(
-            f"/api/v1/fields/field_demo/zones/nozone/pest-assessment?{self._QPARAMS}"
-        )
+        r = client.post(f"/api/v1/fields/field_demo/zones/nozone/pest-assessment?{self._QPARAMS}")
         assert r.status_code == 404
 
     def test_zone_pest_assessment_with_crop_season_params(self):

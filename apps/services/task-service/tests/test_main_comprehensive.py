@@ -24,6 +24,7 @@ os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key-for-unit-tests-only-32c
 # Noop middleware helper
 # ---------------------------------------------------------------------------
 
+
 class _NoopMiddleware:
     def __init__(self, app):
         self.app = app
@@ -109,9 +110,10 @@ if _SERVICE_ROOT not in sys.path:
 # ---------------------------------------------------------------------------
 try:
     from src.main import app
-    from src.routes.tasks import router as tasks_router
     from src.routes.astronomical import router as astronomical_router
     from src.routes.ndvi import router as ndvi_router
+    from src.routes.tasks import router as tasks_router
+
     _APP_AVAILABLE = True
 except Exception as _import_err:
     _APP_AVAILABLE = False
@@ -125,18 +127,21 @@ from fastapi.testclient import TestClient
 # Override auth dependency
 try:
     from src.routes.tasks import get_current_user as _tasks_get_current_user
+
     app.dependency_overrides[_tasks_get_current_user] = _fake_get_current_user
 except Exception:
     pass
 
 try:
     from src.routes.astronomical import get_current_user as _astro_get_current_user
+
     app.dependency_overrides[_astro_get_current_user] = _fake_get_current_user
 except Exception:
     pass
 
 try:
     from src.routes.ndvi import get_current_user as _ndvi_get_current_user
+
     app.dependency_overrides[_ndvi_get_current_user] = _fake_get_current_user
 except Exception:
     pass
@@ -144,6 +149,7 @@ except Exception:
 # ---------------------------------------------------------------------------
 # DB session mock helper
 # ---------------------------------------------------------------------------
+
 
 def _make_db_mock():
     db = MagicMock()
@@ -172,6 +178,7 @@ TENANT_HEADERS = {"X-Tenant-Id": "tenant-001"}
 # Fixtures
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture
 def client():
     return TestClient(app, raise_server_exceptions=False)
@@ -191,6 +198,7 @@ def mock_db():
 def override_get_db(mock_db):
     try:
         from src.database import get_db
+
         app.dependency_overrides[get_db] = lambda: mock_db
     except Exception:
         pass
@@ -201,6 +209,7 @@ def override_get_db(mock_db):
 # ===========================================================================
 # Health endpoint tests
 # ===========================================================================
+
 
 class TestHealthEndpoints:
     def test_healthz_returns_200(self, client):
@@ -263,6 +272,7 @@ class TestHealthEndpoints:
 # ===========================================================================
 # Tasks router tests (GET /api/v1/tasks)
 # ===========================================================================
+
 
 class TestTasksListEndpoint:
     def test_list_tasks_with_tenant_header(self, client):
@@ -381,6 +391,7 @@ class TestTasksStatusEndpoints:
 # Statistics endpoint
 # ===========================================================================
 
+
 class TestTasksStatsEndpoint:
     def test_stats_endpoint(self, client):
         resp = client.get("/api/v1/tasks/stats", headers=TENANT_HEADERS)
@@ -394,6 +405,7 @@ class TestTasksStatsEndpoint:
 # ===========================================================================
 # Astronomical router tests
 # ===========================================================================
+
 
 class TestAstronomicalEndpoints:
     def test_best_days_endpoint_exists(self, client):
@@ -433,6 +445,7 @@ class TestAstronomicalEndpoints:
 # NDVI router tests
 # ===========================================================================
 
+
 class TestNdviEndpoints:
     def test_ndvi_alert_endpoint_exists(self, client):
         payload = {
@@ -467,6 +480,7 @@ class TestNdviEndpoints:
 # ===========================================================================
 # Misc / edge cases
 # ===========================================================================
+
 
 class TestMiscEndpoints:
     def test_unknown_route_returns_404(self, client):

@@ -39,6 +39,7 @@ from shared.auth.models import User
 from shared.db.ssl import enforce_ssl_mode
 from shared.errors_py import add_request_id_middleware as shared_add_request_id_middleware
 from shared.errors_py import setup_exception_handlers
+from shared.logging_config import setup_logging
 from shared.middleware.tenant_context import TenantContextMiddleware
 
 # Add project root to path
@@ -54,6 +55,7 @@ SERVICE_VERSION = "16.0.0"
 SERVICE_PORT = 8135
 
 # Logger
+setup_logging(service_name=SERVICE_NAME)
 logger = structlog.get_logger()
 
 # ===============================================================================

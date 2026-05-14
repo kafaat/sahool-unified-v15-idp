@@ -37,6 +37,9 @@ if not SHARED_PATH.exists():
 if str(SHARED_PATH) not in sys.path:
     sys.path.insert(0, str(SHARED_PATH))
 
+from shared.logging_config import setup_logging
+
+setup_logging(service_name="community-service")
 logger = structlog.get_logger()
 
 # ---------------------------------------------------------------------------

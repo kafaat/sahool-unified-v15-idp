@@ -36,6 +36,7 @@ from slowapi.util import get_remote_address
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
 from shared.db.ssl import enforce_ssl_mode
+from shared.logging_config import setup_logging
 
 # Add project root to path
 sys.path.insert(
@@ -61,6 +62,7 @@ SERVICE_VERSION = "16.0.0"
 SERVICE_PORT = 8132
 
 # Logger
+setup_logging(service_name=SERVICE_NAME)
 logger = structlog.get_logger()
 
 

@@ -34,6 +34,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from shared.db.ssl import enforce_ssl_mode
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+from shared.logging_config import setup_logging
 
 from .api.endpoints import router as webhook_router
 from .core.config import settings
@@ -51,6 +52,7 @@ structlog.configure(
     ]
 )
 
+setup_logging(service_name="whatsapp-bot-service")
 logger = structlog.get_logger(__name__)
 
 

@@ -21,6 +21,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from shared.db.ssl import enforce_ssl_mode
+from shared.logging_config import setup_logging
 from shared.middleware.tenant_context import TenantContextMiddleware
 
 # Import authentication
@@ -62,6 +63,7 @@ else:
 SERVICE_NAME = "ground-vision-service"
 SERVICE_VERSION = "16.0.0"
 SERVICE_PORT = int(os.getenv("PORT", "8182"))
+setup_logging(service_name=SERVICE_NAME)
 
 
 # Health check response models

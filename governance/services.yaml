@@ -108,7 +108,7 @@ services:
     status: active
     owner: "agro-team@sahool.io"
     team: agro
-    lifecycle: stable
+    lifecycle: production
     tier: tier-1
     events:
       produces:
@@ -1713,7 +1713,7 @@ services:
     status: active
     owner: "frontend-team@sahool.io"
     team: frontend
-    lifecycle: stable
+    lifecycle: production
     tier: tier-1
     version: "1.0.0"
     events:

@@ -363,7 +363,9 @@ def _get_tenant_id(user, tenant_id_param: str | None) -> str:
         if not user_tenant:
             raise HTTPException(status_code=400, detail="Tenant context is required but not available")
         return user_tenant
-    return tenant_id_param or ""
+    if not tenant_id_param:
+        raise HTTPException(status_code=400, detail="tenant_id query parameter is required")
+    return tenant_id_param
 
 
 @app.get("/v1/analytics/forecast/{item_id}")

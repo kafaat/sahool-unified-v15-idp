@@ -342,6 +342,8 @@ async def create_pool(database_url: str, config: PoolConfig | None = None):
     try:
         import asyncpg
 
+        from shared.db.ssl import enforce_ssl_mode
+
         config = config or PoolConfig.from_env()
         db_url = enforce_ssl_mode(database_url)
 

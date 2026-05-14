@@ -83,6 +83,8 @@ async def get_pool() -> Pool | None:
 
     if _pool is None:
         logger.info("Creating new database connection pool")
+        from shared.db.ssl import enforce_ssl_mode
+
         _pool = await asyncpg.create_pool(
             enforce_ssl_mode(DATABASE_URL),
             min_size=MIN_POOL_SIZE,

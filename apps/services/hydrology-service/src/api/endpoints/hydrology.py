@@ -577,7 +577,12 @@ async def get_basins(
 
 def build_drainage_network(analyzer: HydrologyAnalyzer, dem: DEMData, field_id: str) -> DrainageNetwork:
     """Build DrainageNetwork response from analyzer results."""
-    import random
+    import math
+
+    import numpy as np
+
+    # Use computed slope array when available (from flow_data.slope, which is in degrees)
+    slope_array: np.ndarray | None = getattr(getattr(analyzer, "flow_data", None), "slope", None)
 
     segments = []
     total_length = 0
@@ -600,6 +605,18 @@ def build_drainage_network(analyzer: HydrologyAnalyzer, dem: DEMData, field_id: 
         length_m = len(seg.cells) * dem.resolution
         total_length += length_m
 
+        # Derive slope_percent from DEM slope array; fall back to 0 if unavailable
+        if slope_array is not None and seg.cells:
+            cell_slopes_deg = [
+                float(slope_array[r, c])
+                for r, c in seg.cells
+                if 0 <= r < slope_array.shape[0] and 0 <= c < slope_array.shape[1]
+            ]
+            mean_slope_deg = sum(cell_slopes_deg) / len(cell_slopes_deg) if cell_slopes_deg else 0.0
+            slope_pct = round(math.tan(math.radians(mean_slope_deg)) * 100, 1)
+        else:
+            slope_pct = 0.0
+
         segments.append(
             DrainageSegment(
                 segment_id=seg.segment_id,
@@ -607,7 +624,7 @@ def build_drainage_network(analyzer: HydrologyAnalyzer, dem: DEMData, field_id: 
                 stream_order=seg.stream_order,
                 length_m=round(length_m, 1),
                 upstream_area_ha=round(seg.upstream_cells * dem.cell_area / 10000, 2),
-                slope_percent=round(random.uniform(1, 10), 1),
+                slope_percent=slope_pct,
             )
         )
 

@@ -107,8 +107,10 @@ async def lifespan(app: FastAPI):
         try:
             import asyncpg
 
+            from shared.db.ssl import enforce_ssl_mode
+
             app.state.db_pool = await asyncpg.create_pool(
-                db_url,
+                enforce_ssl_mode(db_url),
                 min_size=settings.DB_POOL_MIN_SIZE,
                 max_size=settings.DB_POOL_MAX_SIZE,
                 statement_cache_size=0,  # PgBouncer transaction mode

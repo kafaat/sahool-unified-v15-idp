@@ -21,7 +21,7 @@ from typing import Any
 
 import jwt
 import structlog
-from fastapi import Depends, FastAPI, HTTPException, Query, status
+from fastapi import Depends, FastAPI, HTTPException, Query, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
@@ -148,6 +148,23 @@ try:
     ACTION_TEMPLATE_AVAILABLE = True
 except ImportError:
     ACTION_TEMPLATE_AVAILABLE = False
+
+try:
+    from shared.libs.simulated_data import guard_simulated_response, mark_simulated
+except ImportError:
+
+    def guard_simulated_response(service: str, endpoint: str) -> None:
+        """No-op fallback used in mocked test environments."""
+        pass
+
+    def mark_simulated(
+        response: Response,
+        *,
+        source: str = "random_sampling",
+        message: str = "Response contains simulated (non-authoritative) data.",
+    ) -> None:
+        """No-op fallback used in mocked test environments."""
+        pass
 
 
 # =============================================================================
@@ -1230,8 +1247,13 @@ def get_water_balance(
     crop: CropType = Query(default=CropType.TOMATO),
     days: int = Query(default=14, ge=7, le=60),
     user: dict = Depends(get_current_user),
+    *,
+    response: Response,
 ):
     """الميزان المائي للحقل - Protected endpoint"""
+    guard_simulated_response("irrigation-smart", "water-balance")
+    mark_simulated(response, source="irrigation-smart/water-balance")
+
     import random
 
     _validate_field_id(field_id)
@@ -1270,7 +1292,7 @@ def get_water_balance(
     total_rainfall = sum(b.rainfall_mm for b in balance_data)
     total_irrigation = sum(b.irrigation_mm for b in balance_data)
 
-    return {
+    response_body = {
         "field_id": field_id,
         "crop": crop.value,
         "period_days": days,
@@ -1284,6 +1306,7 @@ def get_water_balance(
         "daily_data": [b.dict() for b in balance_data],
         "recommendation_ar": ("💧 يُنصح بري تعويضي" if cumulative_deficit > 30 else "✅ الميزان المائي متوازن"),
     }
+    return response_body
 
 
 @app.post("/v1/sensor-reading")

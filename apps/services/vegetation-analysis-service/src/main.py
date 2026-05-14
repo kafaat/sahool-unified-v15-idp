@@ -24,7 +24,7 @@ from enum import Enum, StrEnum
 from typing import Any
 
 import structlog
-from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 # Shared middleware imports
@@ -1150,8 +1150,19 @@ def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
 
 
 @app.post("/v1/imagery/request", response_model=SatelliteImagery)
-async def request_imagery(request: ImageryRequest, user: User = Depends(get_current_user)):
+async def request_imagery(
+    request: ImageryRequest,
+    response: Response,
+    user: User = Depends(get_current_user),
+):
     """طلب صور الأقمار الصناعية لحقل معين"""
+
+    from shared.libs.simulated_data import guard_simulated_response, mark_simulated
+
+    # Band reflectance, cloud cover, sun elevation, scene/tile IDs are all
+    # randomly generated. Block in production unless ALLOW_SIMULATED_DATA=true.
+    guard_simulated_response("vegetation-analysis-service", "imagery_request")
+    mark_simulated(response, source="random_sampling")
 
     config = SATELLITE_CONFIGS[request.satellite]
 
@@ -1196,12 +1207,12 @@ async def request_imagery(request: ImageryRequest, user: User = Depends(get_curr
 
 
 @app.post("/v1/analyze", response_model=FieldAnalysis)
-async def analyze_field(request: ImageryRequest, user: User = Depends(get_current_user)):
+async def analyze_field(request: ImageryRequest, response: Response, user: User = Depends(get_current_user)):
     """تحليل شامل للحقل باستخدام بيانات الأقمار الصناعية"""
     _validate_field_id(request.field_id)
 
-    # Get imagery first
-    imagery = await request_imagery(request)
+    # Get imagery first while preserving simulated-data headers on this response.
+    imagery = await request_imagery(request, response=response, user=user)
 
     # Extract band values for calculations
     bands_dict = {b.band_name: b.value for b in imagery.bands}

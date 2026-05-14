@@ -748,9 +748,7 @@ async def create_alert_endpoint(
     إنشاء تنبيه جديد
     Create a new alert
     """
-    # Enforce tenant from JWT - reject header/body mismatch
-    if hasattr(current_user, "tenant_id") and current_user.tenant_id and current_user.tenant_id != tenant_id:
-        raise HTTPException(status_code=403, detail="Tenant ID from JWT does not match request")
+    # Enforce tenant from JWT - already validated by validated_tenant_id dependency
     if alert_data.tenant_id is not None and alert_data.tenant_id != tenant_id:
         raise HTTPException(status_code=403, detail="Tenant ID mismatch")
     alert_data.tenant_id = tenant_id

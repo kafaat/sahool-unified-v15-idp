@@ -6,6 +6,7 @@ Multi-agent AI system for agricultural advisory.
 نظام ذكاء اصطناعي متعدد الوكلاء للاستشارات الزراعية.
 """
 
+# LINT-OPT-OUT: logging -- service uses inline structlog.configure() setup.
 # Import shared CORS configuration | استيراد تكوين CORS المشترك
 import os
 import sys
@@ -555,7 +556,7 @@ async def ask_question(request: QuestionRequest, user: User = Depends(get_curren
 
     except Exception as e:
         logger.error("ask_question_failed", error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
 
 
 @app.post("/v1/advisor/diagnose", response_model=AgentResponse, tags=["Advisor"])
@@ -600,7 +601,7 @@ async def diagnose_disease(request: DiagnoseRequest, user: User = Depends(get_cu
 
     except Exception as e:
         logger.error("diagnose_disease_failed", error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
 
 
 @app.post("/v1/advisor/recommend", response_model=EnhancedAgentResponse, tags=["Advisor"])
@@ -734,7 +735,7 @@ async def get_recommendations(request: RecommendationRequest, user: User = Depen
         raise
     except Exception as e:
         logger.error("get_recommendations_failed", error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
 
 
 @app.post("/v1/advisor/analyze-field", response_model=EnhancedAgentResponse, tags=["Advisor"])
@@ -876,7 +877,7 @@ async def analyze_field(request: FieldAnalysisRequest, user: User = Depends(get_
 
     except Exception as e:
         logger.error("analyze_field_failed", error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
 
 
 @app.get("/v1/advisor/agents", tags=["Advisor"])
@@ -906,7 +907,7 @@ async def list_agents(user: User = Depends(get_current_user)):
 
     except Exception as e:
         logger.error("list_agents_failed", error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
 
 
 @app.get("/v1/advisor/tools", tags=["Advisor"])
@@ -951,7 +952,7 @@ async def get_rag_info(user: User = Depends(get_current_user)):
 
     except Exception as e:
         logger.error("get_rag_info_failed", error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
 
 
 @app.get("/v1/advisor/memory/context", tags=["Memory"])
@@ -1013,7 +1014,7 @@ async def get_memory_context(
         raise
     except Exception as e:
         logger.error("get_memory_context_failed", error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
 
 
 @app.get("/v1/advisor/evaluation/stats", tags=["Evaluation"])
@@ -1045,7 +1046,7 @@ async def get_evaluation_stats(user: User = Depends(get_current_user)):
         raise
     except Exception as e:
         logger.error("get_evaluation_stats_failed", error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
 
 
 @app.get("/v1/advisor/context-engineering/status", tags=["System"])
@@ -1114,7 +1115,7 @@ async def get_cost_usage(user: User = Depends(get_current_user)):
         }
     except Exception as e:
         logger.error("get_cost_usage_failed", error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
 
 
 if __name__ == "__main__":

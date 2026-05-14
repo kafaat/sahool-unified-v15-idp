@@ -42,6 +42,8 @@ async def init_pool() -> asyncpg.Pool | None:
         return None
 
     try:
+        from shared.db.ssl import enforce_ssl_mode
+
         _pool = await asyncpg.create_pool(
             enforce_ssl_mode(DATABASE_URL),
             min_size=2,

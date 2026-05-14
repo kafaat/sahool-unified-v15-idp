@@ -448,7 +448,7 @@ async def lifespan(app: FastAPI):
             if not db_url:
                 logger.warning("outbox_disabled_no_database_url")
             else:
-                app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
+                app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10, statement_cache_size=0)
 
                 # Apply outbox DDL (idempotent)
                 migration_path = (

@@ -196,14 +196,17 @@ def mock_db():
 
 @pytest.fixture(autouse=True)
 def override_get_db(mock_db):
+    _get_db = None
     try:
         from src.database import get_db
 
+        _get_db = get_db
         app.dependency_overrides[get_db] = lambda: mock_db
     except Exception:
         pass
     yield
-    app.dependency_overrides.pop("get_db", None)
+    if _get_db is not None:
+        app.dependency_overrides.pop(_get_db, None)
 
 
 # ===========================================================================
@@ -277,7 +280,7 @@ class TestHealthEndpoints:
 class TestTasksListEndpoint:
     def test_list_tasks_with_tenant_header(self, client):
         resp = client.get("/api/v1/tasks", headers=TENANT_HEADERS)
-        assert resp.status_code in (200, 401, 422, 503)
+        assert resp.status_code == 200
 
     def test_list_tasks_returns_json(self, client):
         resp = client.get("/api/v1/tasks", headers=TENANT_HEADERS)
@@ -286,20 +289,20 @@ class TestTasksListEndpoint:
     def test_list_tasks_empty_db(self, client, mock_db):
         mock_db.query.return_value.filter.return_value.order_by.return_value.offset.return_value.limit.return_value.all.return_value = []
         resp = client.get("/api/v1/tasks", headers=TENANT_HEADERS)
-        assert resp.status_code in (200, 401, 422, 503)
+        assert resp.status_code == 200
 
     def test_list_tasks_without_tenant_header(self, client):
         resp = client.get("/api/v1/tasks")
-        # May succeed or require header
-        assert resp.status_code in (200, 400, 401, 422, 503)
+        # May succeed or require header; auth is bypassed but DB is mocked
+        assert resp.status_code in (200, 400, 422)
 
     def test_list_tasks_with_status_filter(self, client):
         resp = client.get("/api/v1/tasks?status=pending", headers=TENANT_HEADERS)
-        assert resp.status_code in (200, 401, 422, 503)
+        assert resp.status_code == 200
 
     def test_list_tasks_with_priority_filter(self, client):
         resp = client.get("/api/v1/tasks?priority=high", headers=TENANT_HEADERS)
-        assert resp.status_code in (200, 401, 422, 503)
+        assert resp.status_code == 200
 
 
 class TestTasksCreateEndpoint:
@@ -318,7 +321,7 @@ class TestTasksCreateEndpoint:
             json=self._task_payload(),
             headers=TENANT_HEADERS,
         )
-        assert resp.status_code in (200, 201, 400, 401, 422, 503)
+        assert resp.status_code in (200, 201)
 
     def test_create_task_missing_title(self, client):
         payload = self._task_payload()
@@ -340,11 +343,11 @@ class TestTasksGetByIdEndpoint:
         mock_db.query.return_value.filter.return_value.first.return_value = None
         tid = str(uuid.uuid4())
         resp = client.get(f"/api/v1/tasks/{tid}", headers=TENANT_HEADERS)
-        assert resp.status_code in (404, 401, 422, 503)
+        assert resp.status_code == 404
 
     def test_get_task_invalid_id(self, client):
         resp = client.get("/api/v1/tasks/not-a-valid-id", headers=TENANT_HEADERS)
-        assert resp.status_code in (400, 404, 422, 503)
+        assert resp.status_code in (400, 422)
 
 
 class TestTasksUpdateEndpoint:
@@ -356,7 +359,7 @@ class TestTasksUpdateEndpoint:
             json={"title": "Updated"},
             headers=TENANT_HEADERS,
         )
-        assert resp.status_code in (404, 401, 422, 503)
+        assert resp.status_code == 404
 
 
 class TestTasksDeleteEndpoint:
@@ -364,7 +367,7 @@ class TestTasksDeleteEndpoint:
         mock_db.query.return_value.filter.return_value.first.return_value = None
         tid = str(uuid.uuid4())
         resp = client.delete(f"/api/v1/tasks/{tid}", headers=TENANT_HEADERS)
-        assert resp.status_code in (404, 401, 422, 503)
+        assert resp.status_code == 404
 
 
 class TestTasksStatusEndpoints:
@@ -372,19 +375,19 @@ class TestTasksStatusEndpoints:
         mock_db.query.return_value.filter.return_value.first.return_value = None
         tid = str(uuid.uuid4())
         resp = client.post(f"/api/v1/tasks/{tid}/start", headers=TENANT_HEADERS)
-        assert resp.status_code in (404, 401, 422, 503)
+        assert resp.status_code == 404
 
     def test_complete_task_not_found(self, client, mock_db):
         mock_db.query.return_value.filter.return_value.first.return_value = None
         tid = str(uuid.uuid4())
         resp = client.post(f"/api/v1/tasks/{tid}/complete", headers=TENANT_HEADERS)
-        assert resp.status_code in (404, 401, 422, 503)
+        assert resp.status_code == 404
 
     def test_cancel_task_not_found(self, client, mock_db):
         mock_db.query.return_value.filter.return_value.first.return_value = None
         tid = str(uuid.uuid4())
         resp = client.post(f"/api/v1/tasks/{tid}/cancel", headers=TENANT_HEADERS)
-        assert resp.status_code in (404, 401, 422, 503)
+        assert resp.status_code == 404
 
 
 # ===========================================================================
@@ -395,7 +398,7 @@ class TestTasksStatusEndpoints:
 class TestTasksStatsEndpoint:
     def test_stats_endpoint(self, client):
         resp = client.get("/api/v1/tasks/stats", headers=TENANT_HEADERS)
-        assert resp.status_code in (200, 401, 422, 503)
+        assert resp.status_code == 200
 
     def test_stats_returns_json(self, client):
         resp = client.get("/api/v1/tasks/stats", headers=TENANT_HEADERS)
@@ -414,7 +417,7 @@ class TestAstronomicalEndpoints:
             params={"activity": "planting"},
             headers=TENANT_HEADERS,
         )
-        assert resp.status_code in (200, 400, 401, 422, 503)
+        assert resp.status_code in (200, 422)
 
     def test_best_days_returns_json(self, client):
         resp = client.get(
@@ -430,7 +433,7 @@ class TestAstronomicalEndpoints:
             params={"date": "2025-06-01"},
             headers=TENANT_HEADERS,
         )
-        assert resp.status_code in (200, 400, 401, 422, 503)
+        assert resp.status_code in (200, 422)
 
     def test_validate_date_endpoint_exists(self, client):
         resp = client.get(
@@ -438,7 +441,7 @@ class TestAstronomicalEndpoints:
             params={"date": "2025-06-01", "activity": "irrigation"},
             headers=TENANT_HEADERS,
         )
-        assert resp.status_code in (200, 400, 401, 422, 503)
+        assert resp.status_code in (200, 422)
 
 
 # ===========================================================================
@@ -458,7 +461,7 @@ class TestNdviEndpoints:
             json=payload,
             headers=TENANT_HEADERS,
         )
-        assert resp.status_code in (200, 201, 400, 401, 422, 503)
+        assert resp.status_code in (200, 201)
 
     def test_ndvi_suggestions_endpoint_exists(self, client):
         resp = client.get(
@@ -466,7 +469,7 @@ class TestNdviEndpoints:
             params={"field_id": "field-001"},
             headers=TENANT_HEADERS,
         )
-        assert resp.status_code in (200, 400, 401, 422, 503)
+        assert resp.status_code in (200, 422)
 
     def test_ndvi_field_health_endpoint_exists(self, client):
         resp = client.get(
@@ -474,7 +477,7 @@ class TestNdviEndpoints:
             params={"field_id": "field-001"},
             headers=TENANT_HEADERS,
         )
-        assert resp.status_code in (200, 400, 401, 422, 503)
+        assert resp.status_code in (200, 422)
 
 
 # ===========================================================================
@@ -529,4 +532,4 @@ class TestMiscEndpoints:
             json={"type": "photo", "url": "http://example.com/photo.jpg"},
             headers=TENANT_HEADERS,
         )
-        assert resp.status_code in (200, 201, 400, 401, 404, 422, 503)
+        assert resp.status_code in (200, 201, 404)

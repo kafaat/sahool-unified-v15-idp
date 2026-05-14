@@ -30,14 +30,6 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 
 # ---------------------------------------------------------------------------
-# 0. Clean up any previously cached src.* modules (cross-service CI safety)
-# ---------------------------------------------------------------------------
-for _mod in list(sys.modules):
-    if _mod == "src" or _mod.startswith("src."):
-        del sys.modules[_mod]
-
-
-# ---------------------------------------------------------------------------
 # 1. Noop ASGI middleware – replaces TenantContextMiddleware
 # ---------------------------------------------------------------------------
 class _NoopMiddleware:

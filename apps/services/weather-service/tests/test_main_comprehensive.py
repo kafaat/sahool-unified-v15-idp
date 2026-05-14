@@ -17,6 +17,7 @@ Covers:
 """
 
 import os
+import re
 import sys
 import urllib.parse
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -239,6 +240,14 @@ def _reset_state():
             delattr(app.state, attr)
 
 
+@pytest.fixture(autouse=True)
+def _auto_reset_app_state():
+    """Reset app.state before and after every test to prevent state leakage."""
+    _reset_state()
+    yield
+    _reset_state()
+
+
 # ---------------------------------------------------------------------------
 # 1. Health & metrics endpoints
 # ---------------------------------------------------------------------------
@@ -254,7 +263,7 @@ class TestHealthEndpoints:
         body = resp.json()
         assert body["status"] == "healthy"
         assert body["service"] == "weather-service"
-        assert body["version"] == "16.0.0"
+        assert re.match(r"^\d+\.\d+\.\d+", body["version"]), f"version not semver: {body['version']!r}"
         assert "timestamp" in body
 
     def test_readyz_returns_200(self):

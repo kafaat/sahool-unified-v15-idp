@@ -93,7 +93,11 @@ _FakeUser = type(
 )
 _mock_user = _FakeUser()
 
-sys.modules["shared.auth.dependencies"].get_current_user = lambda: _mock_user
+async def _fake_get_current_user():
+    return _mock_user
+
+
+sys.modules["shared.auth.dependencies"].get_current_user = _fake_get_current_user
 sys.modules["shared.auth.models"].User = _FakeUser
 
 # Mock comprehensive and loans modules (import external HTTP deps)

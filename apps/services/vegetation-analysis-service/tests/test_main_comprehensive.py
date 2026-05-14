@@ -671,13 +671,25 @@ class TestCacheEndpoints:
 
 class TestIndicesGuideEndpoint:
     """
-    Note: /v1/indices/guide is shadowed by /v1/indices/{field_id} (registered first).
-    FastAPI matches {field_id}="guide" which requires lat and lon query params.
-    Tests verify the actual routing behaviour rather than the intended route.
+    /v1/indices/guide routing note:
+    The route is currently shadowed by /v1/indices/{field_id} (registered first).
+    FastAPI matches {field_id}="guide", requiring lat and lon query params.
     """
 
-    def test_guide_without_params_returns_422(self):
-        # The route is captured by /v1/indices/{field_id} which needs lat/lon
+    @pytest.mark.xfail(
+        strict=False,
+        reason=(
+            "Route /v1/indices/guide is shadowed by /v1/indices/{field_id}; "
+            "fix route registration order to resolve this routing bug."
+        ),
+    )
+    def test_guide_returns_guide_info(self):
+        # Intended behavior: /v1/indices/guide should return guide info (200)
+        resp = client.get("/v1/indices/guide")
+        assert resp.status_code == 200
+
+    def test_guide_current_behavior_needs_params(self):
+        # Current behavior: route captured by /v1/indices/{field_id}, lat/lon required
         resp = client.get("/v1/indices/guide")
         assert resp.status_code == 422
 

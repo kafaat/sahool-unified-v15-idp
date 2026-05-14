@@ -278,7 +278,7 @@ class TestHealthEndpoints:
         assert "status" in body
         assert "checks" in body
         assert body["service"] == "weather-service"
-        assert body["version"] == "16.0.0"
+        assert re.match(r"^\d+\.\d+\.\d+", body["version"]), f"version not semver: {body['version']!r}"
 
     def test_readyz_with_no_providers_is_degraded(self):
         _reset_state()

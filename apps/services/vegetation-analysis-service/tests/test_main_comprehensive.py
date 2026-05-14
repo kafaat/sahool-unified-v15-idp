@@ -680,7 +680,8 @@ class TestIndicesGuideEndpoint:
         strict=False,
         reason=(
             "Route /v1/indices/guide is shadowed by /v1/indices/{field_id}; "
-            "fix route registration order to resolve this routing bug."
+            "fix route registration order to resolve this routing bug. "
+            "Track fix by searching for TestIndicesGuideEndpoint."
         ),
     )
     def test_guide_returns_guide_info(self):

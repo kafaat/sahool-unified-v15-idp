@@ -59,8 +59,10 @@ _SHARED_MOCKS = [
     # definition time and needs real httpx types to avoid metaclass conflicts.
 ]
 
+_ORIGINAL_SHARED_MODULES = {name: sys.modules.get(name) for name in _SHARED_MOCKS}
+
 for _mod in _SHARED_MOCKS:
-    sys.modules.setdefault(_mod, MagicMock())
+    sys.modules[_mod] = MagicMock()
 
 # Wire callables invoked at module import time
 sys.modules["shared.logging_config"].setup_logging = lambda *a, **kw: None
@@ -105,11 +107,13 @@ sys.modules["shared.auth.models"].User = _FakeUser
 _comp_mock = MagicMock()
 _comp_mock.ComprehensiveAdvisoryOrchestrator = MagicMock()
 _comp_mock.ServiceUrls = MagicMock()
+_ORIGINAL_SRC_COMPREHENSIVE = sys.modules.get("src.comprehensive")
 sys.modules["src.comprehensive"] = _comp_mock
 
 _loans_mock = MagicMock()
 _loans_mock.CropLoanVerificationEngine = MagicMock()
 _loans_mock.LoanVerificationRequest = MagicMock()
+_ORIGINAL_SRC_LOANS = sys.modules.get("src.loans")
 sys.modules["src.loans"] = _loans_mock
 
 # Ensure the actual service packages (crops, yemen_varieties) are resolvable
@@ -155,6 +159,24 @@ async def _fake_get_current_user():
 
 
 app.dependency_overrides[_real_get_current_user] = _fake_get_current_user
+
+
+@pytest.fixture(scope="module", autouse=True)
+def _restore_mocked_modules():
+    yield
+    if _ORIGINAL_SRC_COMPREHENSIVE is None:
+        sys.modules.pop("src.comprehensive", None)
+    else:
+        sys.modules["src.comprehensive"] = _ORIGINAL_SRC_COMPREHENSIVE
+    if _ORIGINAL_SRC_LOANS is None:
+        sys.modules.pop("src.loans", None)
+    else:
+        sys.modules["src.loans"] = _ORIGINAL_SRC_LOANS
+    for name, original in _ORIGINAL_SHARED_MODULES.items():
+        if original is None:
+            sys.modules.pop(name, None)
+        else:
+            sys.modules[name] = original
 
 client = TestClient(app, raise_server_exceptions=False)
 

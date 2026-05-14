@@ -56,8 +56,10 @@ _SHARED_MOCKS = [
     "nats",
 ]
 
+_ORIGINAL_SHARED_MODULES = {name: sys.modules.get(name) for name in _SHARED_MOCKS}
+
 for _mod in _SHARED_MOCKS:
-    sys.modules.setdefault(_mod, MagicMock())
+    sys.modules[_mod] = MagicMock()
 
 # Wire callables invoked at import time
 sys.modules["shared.errors_py"].setup_exception_handlers = lambda app: None
@@ -121,6 +123,7 @@ _persistence_mock.build_store = AsyncMock(return_value=_store_instance)
 _persistence_mock.apply_migrations = AsyncMock()
 _persistence_mock.get_secret = MagicMock(return_value=None)
 
+_ORIGINAL_PERSISTENCE_MODULE = sys.modules.get("persistence")
 sys.modules["persistence"] = _persistence_mock
 
 # ---------------------------------------------------------------------------
@@ -143,6 +146,20 @@ from src.main import (  # noqa: E402
     get_current_user,
     sanitize_log_input,
 )
+
+
+@pytest.fixture(scope="module", autouse=True)
+def _restore_mocked_modules():
+    yield
+    if _ORIGINAL_PERSISTENCE_MODULE is None:
+        sys.modules.pop("persistence", None)
+    else:
+        sys.modules["persistence"] = _ORIGINAL_PERSISTENCE_MODULE
+    for name, original in _ORIGINAL_SHARED_MODULES.items():
+        if original is None:
+            sys.modules.pop(name, None)
+        else:
+            sys.modules[name] = original
 
 # Override dependency so every protected endpoint gets our fake user
 app.dependency_overrides[get_current_user] = _fake_get_current_user

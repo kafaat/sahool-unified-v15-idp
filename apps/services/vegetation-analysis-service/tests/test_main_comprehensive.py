@@ -60,8 +60,10 @@ _SHARED_MOCKS = [
     "redis",
 ]
 
+_ORIGINAL_SYS_MODULES = {name: sys.modules.get(name) for name in _SHARED_MOCKS}
+
 for _mod in _SHARED_MOCKS:
-    sys.modules.setdefault(_mod, MagicMock())
+    sys.modules[_mod] = MagicMock()
 
 # Wire callables invoked at import time
 sys.modules["shared.errors_py"].setup_exception_handlers = lambda app: None
@@ -139,13 +141,32 @@ from src.main import (  # noqa: E402
 
 client = TestClient(app, raise_server_exceptions=True)
 
+
+@pytest.fixture(scope="module", autouse=True)
+def _restore_mocked_sys_modules():
+    yield
+    for name, original in _ORIGINAL_SYS_MODULES.items():
+        if original is None:
+            sys.modules.pop(name, None)
+        else:
+            sys.modules[name] = original
+
 # ---------------------------------------------------------------------------
 # Auth override – inject our fake user for all authenticated endpoints
 # ---------------------------------------------------------------------------
 
 from src.main import get_current_user as _real_get_current_user  # noqa: E402
 
-app.dependency_overrides[_real_get_current_user] = _fake_get_current_user
+
+@pytest.fixture(scope="module", autouse=True)
+def _override_auth_dependency():
+    previous = app.dependency_overrides.get(_real_get_current_user)
+    app.dependency_overrides[_real_get_current_user] = _fake_get_current_user
+    yield
+    if previous is None:
+        app.dependency_overrides.pop(_real_get_current_user, None)
+    else:
+        app.dependency_overrides[_real_get_current_user] = previous
 
 
 # =============================================================================
@@ -677,7 +698,7 @@ class TestIndicesGuideEndpoint:
     """
 
     @pytest.mark.xfail(
-        strict=False,
+        strict=True,
         reason=(
             "Route /v1/indices/guide is shadowed by /v1/indices/{field_id}; "
             "fix route registration order to resolve this routing bug. "

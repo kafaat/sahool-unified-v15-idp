@@ -16,6 +16,7 @@ Covers:
 - Risk assessment: heat_stress_risk, frost_risk, assess_weather
 """
 
+import math
 import os
 import re
 import sys
@@ -60,8 +61,10 @@ _SHARED_MOCKS = [
     "redis",
 ]
 
+_ORIGINAL_SYS_MODULES = {name: sys.modules.get(name) for name in _SHARED_MOCKS}
+
 for _mod in _SHARED_MOCKS:
-    sys.modules.setdefault(_mod, MagicMock())
+    sys.modules[_mod] = MagicMock()
 
 # Wire callables invoked at import time
 _errors_py = sys.modules["shared.errors_py"]
@@ -147,11 +150,29 @@ from src.risks import (  # noqa: E402
     heat_stress_risk,
 )
 
+
+@pytest.fixture(scope="module", autouse=True)
+def _restore_mocked_sys_modules():
+    yield
+    for name, original in _ORIGINAL_SYS_MODULES.items():
+        if original is None:
+            sys.modules.pop(name, None)
+        else:
+            sys.modules[name] = original
+
 # ---------------------------------------------------------------------------
 # Auth override – inject fake user for all authenticated endpoints
 # ---------------------------------------------------------------------------
 
-app.dependency_overrides[get_current_user] = _fake_get_current_user
+@pytest.fixture(scope="module", autouse=True)
+def _override_auth_dependency():
+    previous = app.dependency_overrides.get(get_current_user)
+    app.dependency_overrides[get_current_user] = _fake_get_current_user
+    yield
+    if previous is None:
+        app.dependency_overrides.pop(get_current_user, None)
+    else:
+        app.dependency_overrides[get_current_user] = previous
 
 # ---------------------------------------------------------------------------
 # Mock weather provider factory – set up realistic mock data
@@ -1580,4 +1601,5 @@ class TestCalculateDroughtIndexPure:
 
     def test_aridity_index_zero_et_returns_inf(self):
         result = calculate_drought_index(precipitation_mm=10.0, et0_mm=0.0)
+        assert math.isinf(result["aridity_index"])
         assert result["drought_level"] == "none"

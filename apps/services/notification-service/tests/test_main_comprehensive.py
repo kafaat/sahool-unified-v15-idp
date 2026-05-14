@@ -62,8 +62,10 @@ _SHARED_MOCKS = [
     "middleware.rate_limiter",
 ]
 
+_ORIGINAL_SHARED_MODULES = {name: sys.modules.get(name) for name in _SHARED_MOCKS}
+
 for _mod in _SHARED_MOCKS:
-    sys.modules.setdefault(_mod, MagicMock())
+    sys.modules[_mod] = MagicMock()
 
 # Wire callables that are invoked at import time
 sys.modules["shared.errors_py"].setup_exception_handlers = lambda app: None
@@ -229,8 +231,10 @@ _src_submodules = {
     "src.models": _build_models_mock(),
 }
 
+_ORIGINAL_SRC_MODULES = {name: sys.modules.get(name) for name in _src_submodules}
+
 for _mod_name, _mod_obj in _src_submodules.items():
-    sys.modules.setdefault(_mod_name, _mod_obj)
+    sys.modules[_mod_name] = _mod_obj
 
 # ---------------------------------------------------------------------------
 # 3. Import the module under test
@@ -259,6 +263,21 @@ from src.main import (  # noqa: E402
     sanitize_log_input,
     sanitize_notification_content,
 )
+
+
+@pytest.fixture(scope="module", autouse=True)
+def _restore_mocked_modules():
+    yield
+    for name, original in _ORIGINAL_SRC_MODULES.items():
+        if original is None:
+            sys.modules.pop(name, None)
+        else:
+            sys.modules[name] = original
+    for name, original in _ORIGINAL_SHARED_MODULES.items():
+        if original is None:
+            sys.modules.pop(name, None)
+        else:
+            sys.modules[name] = original
 from src.main import get_current_user as _real_get_current_user  # noqa: E402
 
 # ---------------------------------------------------------------------------

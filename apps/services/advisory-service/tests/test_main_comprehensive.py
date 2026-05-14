@@ -93,6 +93,7 @@ _FakeUser = type(
 )
 _mock_user = _FakeUser()
 
+
 async def _fake_get_current_user():
     return _mock_user
 

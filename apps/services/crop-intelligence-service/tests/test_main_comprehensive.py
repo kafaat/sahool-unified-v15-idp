@@ -29,6 +29,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
+
 # ---------------------------------------------------------------------------
 # 1. Noop ASGI middleware – replaces TenantContextMiddleware
 # ---------------------------------------------------------------------------

@@ -42,6 +42,8 @@ for _mod in [
     "shared.auth.models",
     "shared.events",
     "shared.events.subjects",
+    "shared.libs",
+    "shared.libs.simulated_data",
     "shared.logging_config",
     "shared.observability",
     "shared.observability.tracing",

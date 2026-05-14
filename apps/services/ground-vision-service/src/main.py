@@ -6,6 +6,7 @@ This service provides high-frequency agricultural monitoring using tower-mounted
 cameras, integrating with SAHOOL's existing satellite and IoT infrastructure.
 """
 
+# LINT-OPT-OUT: logging -- service uses custom logging.basicConfig/structlog fallback.
 import logging
 import os
 from contextlib import asynccontextmanager
@@ -114,8 +115,10 @@ async def lifespan(app: FastAPI):
         try:
             import asyncpg
 
+            from shared.db.ssl import enforce_ssl_mode
+
             state.db_pool = await asyncpg.create_pool(
-                database_url,
+                enforce_ssl_mode(database_url),
                 min_size=2,
                 statement_cache_size=0,  # PgBouncer transaction mode compatibility,
                 max_size=10,

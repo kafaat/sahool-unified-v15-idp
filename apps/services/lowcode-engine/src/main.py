@@ -14,6 +14,7 @@ Features:
 Port: 8132
 """
 
+# LINT-OPT-OUT: logging -- service keeps existing structlog logger bootstrap.
 import json
 import os
 import sys
@@ -651,8 +652,10 @@ async def lifespan(app: FastAPI):
         try:
             import asyncpg
 
+            from shared.db.ssl import enforce_ssl_mode
+
             app.state.db_pool = await asyncpg.create_pool(
-                db_url,
+                enforce_ssl_mode(db_url),
                 min_size=2,
                 max_size=10,
                 statement_cache_size=0,  # PgBouncer transaction mode compatibility

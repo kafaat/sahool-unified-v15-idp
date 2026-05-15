@@ -471,7 +471,6 @@ async def lifespan(app: FastAPI):
 
             import asyncpg
 
-
             from .db import CRMRepository
 
             app.state.db_pool = await asyncpg.create_pool(

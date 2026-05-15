@@ -187,7 +187,6 @@ async def lifespan(app: FastAPI):
     db_url = enforce_ssl_mode(os.getenv("DATABASE_URL"))
     if db_url:
         try:
-
             app.state.db_pool = await asyncpg.create_pool(
                 db_url,
                 min_size=2,

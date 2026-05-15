@@ -739,10 +739,9 @@ async def lifespan(app: FastAPI):
     db_url = enforce_ssl_mode(os.getenv("DATABASE_URL"))
     if db_url:
         try:
-            from shared.db.ssl import enforce_ssl_mode
 
             app.state.db_pool = await asyncpg.create_pool(
-                enforce_ssl_mode(db_url),
+                db_url,
                 min_size=2,
                 max_size=10,
                 statement_cache_size=0,  # PgBouncer transaction mode compatibility

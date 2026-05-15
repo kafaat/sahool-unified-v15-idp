@@ -161,6 +161,7 @@ def _restore_mocked_modules():
         else:
             sys.modules[name] = original
 
+
 # Override dependency so every protected endpoint gets our fake user
 app.dependency_overrides[get_current_user] = _fake_get_current_user
 

@@ -160,9 +160,11 @@ def _restore_mocked_sys_modules():
         else:
             sys.modules[name] = original
 
+
 # ---------------------------------------------------------------------------
 # Auth override – inject fake user for all authenticated endpoints
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture(scope="module", autouse=True)
 def _override_auth_dependency():
@@ -173,6 +175,7 @@ def _override_auth_dependency():
         app.dependency_overrides.pop(get_current_user, None)
     else:
         app.dependency_overrides[get_current_user] = previous
+
 
 # ---------------------------------------------------------------------------
 # Mock weather provider factory – set up realistic mock data

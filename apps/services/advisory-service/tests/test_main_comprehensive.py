@@ -178,6 +178,7 @@ def _restore_mocked_modules():
         else:
             sys.modules[name] = original
 
+
 client = TestClient(app, raise_server_exceptions=False)
 
 

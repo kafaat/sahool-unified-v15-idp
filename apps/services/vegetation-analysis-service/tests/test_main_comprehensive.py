@@ -151,6 +151,7 @@ def _restore_mocked_sys_modules():
         else:
             sys.modules[name] = original
 
+
 # ---------------------------------------------------------------------------
 # Auth override – inject our fake user for all authenticated endpoints
 # ---------------------------------------------------------------------------

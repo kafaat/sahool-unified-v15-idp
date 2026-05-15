@@ -278,6 +278,8 @@ def _restore_mocked_modules():
             sys.modules.pop(name, None)
         else:
             sys.modules[name] = original
+
+
 from src.main import get_current_user as _real_get_current_user  # noqa: E402
 
 # ---------------------------------------------------------------------------

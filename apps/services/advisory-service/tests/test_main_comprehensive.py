@@ -158,12 +158,20 @@ async def _fake_get_current_user():
     return _mock_user
 
 
+_PREVIOUS_AUTH_OVERRIDE = app.dependency_overrides.get(_real_get_current_user)
 app.dependency_overrides[_real_get_current_user] = _fake_get_current_user
 
 
 @pytest.fixture(scope="module", autouse=True)
 def _restore_mocked_modules():
     yield
+    # Restore the auth dependency override exactly as it was before this
+    # module was imported, so cross-module test order does not silently keep
+    # this override (or its absence) in place for the next service's tests.
+    if _PREVIOUS_AUTH_OVERRIDE is None:
+        app.dependency_overrides.pop(_real_get_current_user, None)
+    else:
+        app.dependency_overrides[_real_get_current_user] = _PREVIOUS_AUTH_OVERRIDE
     if _ORIGINAL_SRC_COMPREHENSIVE is None:
         sys.modules.pop("src.comprehensive", None)
     else:

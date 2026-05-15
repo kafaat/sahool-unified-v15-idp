@@ -63,8 +63,14 @@ _SHARED_MOCKS = [
     "asyncpg",
     "redis",
     "aiohttp",
-    "httpx",
+    # NOTE: do NOT mock httpx — starlette.testclient imports it at class
+    # definition time and needs real httpx types to avoid metaclass/typing errors.
 ]
+
+# Snapshot pre-existing modules so a module-scoped fixture can restore them
+# after this test file finishes, preventing leakage into other tests sharing
+# the same pytest worker.
+_ORIGINAL_SHARED_MODULES = {name: sys.modules.get(name) for name in _SHARED_MOCKS}
 
 for _mod in _SHARED_MOCKS:
     sys.modules.setdefault(_mod, MagicMock())
@@ -124,27 +130,66 @@ if not _APP_AVAILABLE:
 
 from fastapi.testclient import TestClient
 
-# Override auth dependency
-try:
-    from src.routes.tasks import get_current_user as _tasks_get_current_user
+# ---------------------------------------------------------------------------
+# Module-scoped fixture: snapshot + restore sys.modules and auth overrides
+# ---------------------------------------------------------------------------
+# Setting these at module import time was flagged in PR review as a source of
+# cross-test leakage (app.dependency_overrides and sys.modules are global,
+# shared across all weather/task/etc. test modules in the same pytest worker).
+# A module-scoped autouse fixture keeps the overrides active for every test in
+# this file while guaranteeing they are removed on teardown.
 
-    app.dependency_overrides[_tasks_get_current_user] = _fake_get_current_user
-except Exception:
-    pass
 
-try:
-    from src.routes.astronomical import get_current_user as _astro_get_current_user
+def _resolve_auth_dependencies():
+    """Best-effort import of each router's `get_current_user` callable.
 
-    app.dependency_overrides[_astro_get_current_user] = _fake_get_current_user
-except Exception:
-    pass
+    Each router may or may not exist depending on optional imports in
+    `src.main`; we collect only the callables that resolved successfully.
+    """
+    deps = []
+    try:
+        from src.routes.tasks import get_current_user as _tasks_dep
 
-try:
-    from src.routes.ndvi import get_current_user as _ndvi_get_current_user
+        deps.append(_tasks_dep)
+    except Exception:
+        pass
+    try:
+        from src.routes.astronomical import get_current_user as _astro_dep
 
-    app.dependency_overrides[_ndvi_get_current_user] = _fake_get_current_user
-except Exception:
-    pass
+        deps.append(_astro_dep)
+    except Exception:
+        pass
+    try:
+        from src.routes.ndvi import get_current_user as _ndvi_dep
+
+        deps.append(_ndvi_dep)
+    except Exception:
+        pass
+    return deps
+
+
+@pytest.fixture(scope="module", autouse=True)
+def _override_auth_dependencies():
+    deps = _resolve_auth_dependencies()
+    previous = {dep: app.dependency_overrides.get(dep) for dep in deps}
+    for dep in deps:
+        app.dependency_overrides[dep] = _fake_get_current_user
+    yield
+    for dep, prev in previous.items():
+        if prev is None:
+            app.dependency_overrides.pop(dep, None)
+        else:
+            app.dependency_overrides[dep] = prev
+
+
+@pytest.fixture(scope="module", autouse=True)
+def _restore_mocked_sys_modules():
+    yield
+    for name, original in _ORIGINAL_SHARED_MODULES.items():
+        if original is None:
+            sys.modules.pop(name, None)
+        else:
+            sys.modules[name] = original
 
 # ---------------------------------------------------------------------------
 # DB session mock helper

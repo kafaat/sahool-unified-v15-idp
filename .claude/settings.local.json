@@ -171,7 +171,9 @@
       "Bash(docker wait:*)",
       "Bash(xargs -I {} sh -c 'echo \"=== {} ===\" && cat \"{}\"')",
       "Bash(xargs basename:*)",
-      "Bash(awk '/^  web:/{found=1} found{print NR\": \"$0} found && /^  [a-z-]+:/ && !/^  web:/{found=0}' D:/projects/v91/sahoo-adel-full/docker-compose.yml)"
+      "Bash(awk '/^  web:/{found=1} found{print NR\": \"$0} found && /^  [a-z-]+:/ && !/^  web:/{found=0}' D:/projects/v91/sahoo-adel-full/docker-compose.yml)",
+      "Bash(find /d/projects/v91/sahoo-adel-full/apps/web/src/features/satellite* -type f -name \"*.ts\" -o -name \"*.tsx\")",
+      "Bash(echo \"Build started in background - PID $!\")"
     ]
   }
 }

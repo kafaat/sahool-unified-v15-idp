@@ -43,3 +43,9 @@ pytest-cov>=6.0.0
 # prometheus-client==0.20.0
 
 structlog>=24.1.0
+
+# Anthropic Claude SDK — AI field analysis
+anthropic>=0.40.0,<1.0.0
+
+# HTTP client for internal service calls
+aiohttp>=3.9.0,<4.0.0

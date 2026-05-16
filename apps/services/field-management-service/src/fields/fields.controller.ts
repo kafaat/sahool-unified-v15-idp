@@ -35,6 +35,7 @@ import {
 } from "@nestjs/swagger";
 import { FieldsService } from "./fields.service";
 import { KpiSnapshotService, CreateKpiSnapshotDto } from "./kpi-snapshot.service";
+import { FieldAiDataService } from "./field-ai-data.service";
 import {
   CreateFieldDto,
   UpdateFieldDto,
@@ -53,6 +54,7 @@ export class FieldsController {
   constructor(
     private readonly fieldsService: FieldsService,
     private readonly kpiSnapshotService: KpiSnapshotService,
+    private readonly fieldAiDataService: FieldAiDataService,
   ) {}
 
   /**
@@ -335,6 +337,29 @@ export class FieldsController {
       etag: field.etag,
       message: "تم استرجاع الحدود السابقة بنجاح",
     };
+  }
+
+  /**
+   * Get AI data for a field: CDSE index stats + OpenWeather + OpenMeteo
+   * يُستخدم بواسطة خط أنابيب تحليل الذكاء الاصطناعي في field-intelligence
+   */
+  @Get(":id/ai-data")
+  @ApiOperation({
+    summary: "Get field AI analysis data",
+    description: "جلب إحصائيات مؤشر CDSE + OpenWeather + OpenMeteo لحقل محدد",
+  })
+  @ApiParam({ name: "id", type: String, format: "uuid" })
+  @ApiQuery({ name: "indice", type: String, required: false, description: "CDSE index (e.g. NDVI, EVI, NDWI)" })
+  @ApiResponse({ status: 200, description: "AI data retrieved" })
+  @ApiResponse({ status: 404, description: "Field not found" })
+  async getFieldAiData(
+    @Req() req: any,
+    @Param("id", ParseUUIDPipe) id: string,
+    @Query("indice") indice?: string,
+  ) {
+    const tenantId = getRequestTenantId(req);
+    const data = await this.fieldAiDataService.getFieldAiData(id, tenantId, indice ?? "NDVI");
+    return { success: true, data };
   }
 
   /**

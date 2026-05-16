@@ -1,0 +1,383 @@
+/**
+ * Field AI Data Service
+ * Fetches CDSE (Sentinel Hub) index statistics + OpenWeather + OpenMeteo
+ * for a given field — used by the AI analysis pipeline in field-intelligence.
+ */
+
+import { Injectable, NotFoundException, Logger } from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
+
+interface BBox {
+  west: number;
+  south: number;
+  east: number;
+  north: number;
+}
+
+export interface CdseIndexStats {
+  indice: string;
+  value: number | null;
+  minValue: number | null;
+  maxValue: number | null;
+  stdDev: number | null;
+  date: string;
+  cloudCover: number | null;
+}
+
+export interface OpenWeatherData {
+  temperature: number;
+  feelsLike: number;
+  humidity: number;
+  windSpeed: number;
+  windDirection: number;
+  precipitation: number;
+  description: string;
+  pressure: number;
+  cloudCover: number;
+  visibility: number;
+}
+
+export interface OpenMeteoData {
+  temperature2m: number | null;
+  relativeHumidity2m: number | null;
+  precipitation: number | null;
+  windSpeed10m: number | null;
+  soilMoisture0to1cm: number | null;
+  et0FaoEvapotranspiration: number | null;
+  surfacePressure: number | null;
+  cloudCover: number | null;
+  shortwaveRadiation: number | null;
+}
+
+export interface FieldAiData {
+  field: {
+    id: string;
+    name: string;
+    nameAr: string | null;
+    lat: number;
+    lng: number;
+    areaHa: number | null;
+    cropType: string | null;
+    soilType: string | null;
+  };
+  cdse: CdseIndexStats;
+  weather: OpenWeatherData | null;
+  meteo: OpenMeteoData | null;
+  indice: string;
+  fetchedAt: string;
+}
+
+// Evalscripts for common CDSE indices (Sentinel-2 L2A)
+const EVALSCRIPTS: Record<string, string> = {
+  NDVI: `//VERSION=3
+function setup(){return{input:["B04","B08","dataMask"],output:{bands:1,sampleType:"FLOAT32"}};}
+function evaluatePixel(s){if(s.dataMask===0)return[NaN];return[(s.B08-s.B04)/(s.B08+s.B04+1e-10)];}`,
+
+  EVI: `//VERSION=3
+function setup(){return{input:["B02","B04","B08","dataMask"],output:{bands:1,sampleType:"FLOAT32"}};}
+function evaluatePixel(s){if(s.dataMask===0)return[NaN];return[2.5*(s.B08-s.B04)/(s.B08+6*s.B04-7.5*s.B02+1)];}`,
+
+  NDWI: `//VERSION=3
+function setup(){return{input:["B03","B08","dataMask"],output:{bands:1,sampleType:"FLOAT32"}};}
+function evaluatePixel(s){if(s.dataMask===0)return[NaN];return[(s.B03-s.B08)/(s.B03+s.B08+1e-10)];}`,
+
+  NDMI: `//VERSION=3
+function setup(){return{input:["B08","B11","dataMask"],output:{bands:1,sampleType:"FLOAT32"}};}
+function evaluatePixel(s){if(s.dataMask===0)return[NaN];return[(s.B08-s.B11)/(s.B08+s.B11+1e-10)];}`,
+
+  SAVI: `//VERSION=3
+function setup(){return{input:["B04","B08","dataMask"],output:{bands:1,sampleType:"FLOAT32"}};}
+function evaluatePixel(s){if(s.dataMask===0)return[NaN];return[1.5*(s.B08-s.B04)/(s.B08+s.B04+0.5)];}`,
+
+  NDRE: `//VERSION=3
+function setup(){return{input:["B05","B08","dataMask"],output:{bands:1,sampleType:"FLOAT32"}};}
+function evaluatePixel(s){if(s.dataMask===0)return[NaN];return[(s.B08-s.B05)/(s.B08+s.B05+1e-10)];}`,
+
+  NBR: `//VERSION=3
+function setup(){return{input:["B08","B12","dataMask"],output:{bands:1,sampleType:"FLOAT32"}};}
+function evaluatePixel(s){if(s.dataMask===0)return[NaN];return[(s.B08-s.B12)/(s.B08+s.B12+1e-10)];}`,
+
+  BSI: `//VERSION=3
+function setup(){return{input:["B02","B04","B08","B11","dataMask"],output:{bands:1,sampleType:"FLOAT32"}};}
+function evaluatePixel(s){if(s.dataMask===0)return[NaN];let a=s.B11+s.B04,b=s.B08+s.B02;return[(a-b)/(a+b+1e-10)];}`,
+
+  MSAVI: `//VERSION=3
+function setup(){return{input:["B04","B08","dataMask"],output:{bands:1,sampleType:"FLOAT32"}};}
+function evaluatePixel(s){if(s.dataMask===0)return[NaN];let n=s.B08,r=s.B04;return[(2*n+1-Math.sqrt((2*n+1)**2-8*(n-r)))/2];}`,
+
+  GNDVI: `//VERSION=3
+function setup(){return{input:["B03","B08","dataMask"],output:{bands:1,sampleType:"FLOAT32"}};}
+function evaluatePixel(s){if(s.dataMask===0)return[NaN];return[(s.B08-s.B03)/(s.B08+s.B03+1e-10)];}`,
+
+  LAI: `//VERSION=3
+function setup(){return{input:["B04","B08","dataMask"],output:{bands:1,sampleType:"FLOAT32"}};}
+function evaluatePixel(s){if(s.dataMask===0)return[NaN];let ndvi=(s.B08-s.B04)/(s.B08+s.B04+1e-10);return[Math.max(0,3.618*ndvi-0.118)];}`,
+};
+
+function getEvalscript(indice: string): string {
+  return EVALSCRIPTS[indice.toUpperCase()] ?? EVALSCRIPTS["NDVI"];
+}
+
+@Injectable()
+export class FieldAiDataService {
+  private readonly logger = new Logger(FieldAiDataService.name);
+
+  constructor(private readonly prisma: PrismaService) {}
+
+  async getFieldAiData(
+    fieldId: string,
+    tenantId: string,
+    indice: string,
+  ): Promise<FieldAiData> {
+    const field = await this.prisma.field.findFirst({
+      where: { id: fieldId, tenantId, isDeleted: false },
+      select: {
+        id: true,
+        name: true,
+        nameAr: true,
+        centroid: true,
+        polygon: true,
+        areaHectares: true,
+        cropType: true,
+        soilType: true,
+      },
+    });
+
+    if (!field) throw new NotFoundException(`Field ${fieldId} not found`);
+
+    const centroid = field.centroid as any;
+    const lat: number =
+      centroid?.coordinates?.[1] ?? centroid?.lat ?? centroid?.y;
+    const lng: number =
+      centroid?.coordinates?.[0] ?? centroid?.lng ?? centroid?.x;
+
+    if (lat == null || lng == null) {
+      throw new Error("Field has no centroid coordinates");
+    }
+
+    const bbox = this.extractBbox(field.polygon as any, lat, lng);
+    const upperIndice = indice.toUpperCase();
+
+    const [cdseResult, weatherResult, meteoResult] = await Promise.allSettled([
+      this.fetchCdseStats(upperIndice, bbox),
+      this.fetchOpenWeather(lat, lng),
+      this.fetchOpenMeteo(lat, lng),
+    ]);
+
+    return {
+      field: {
+        id: field.id,
+        name: field.name,
+        nameAr: field.nameAr ?? null,
+        lat,
+        lng,
+        areaHa:
+          field.areaHectares != null ? parseFloat(String(field.areaHectares)) : null,
+        cropType: field.cropType ?? null,
+        soilType: (field as any).soilType ?? null,
+      },
+      cdse:
+        cdseResult.status === "fulfilled"
+          ? cdseResult.value
+          : { indice: upperIndice, value: null, minValue: null, maxValue: null, stdDev: null, date: new Date().toISOString(), cloudCover: null },
+      weather: weatherResult.status === "fulfilled" ? weatherResult.value : null,
+      meteo: meteoResult.status === "fulfilled" ? meteoResult.value : null,
+      indice: upperIndice,
+      fetchedAt: new Date().toISOString(),
+    };
+  }
+
+  private extractBbox(polygon: any, lat: number, lng: number): BBox {
+    const ring = polygon?.coordinates?.[0];
+    if (Array.isArray(ring) && ring.length > 0) {
+      let n = -Infinity, s = Infinity, e = -Infinity, w = Infinity;
+      for (const coord of ring) {
+        const cLng = coord[0] as number;
+        const cLat = coord[1] as number;
+        if (cLng > e) e = cLng;
+        if (cLng < w) w = cLng;
+        if (cLat > n) n = cLat;
+        if (cLat < s) s = cLat;
+      }
+      return { west: w, south: s, east: e, north: n };
+    }
+    // Fallback: ~500 m box around centroid
+    const d = 0.005;
+    return { west: lng - d, south: lat - d, east: lng + d, north: lat + d };
+  }
+
+  private async fetchCdseStats(indice: string, bbox: BBox): Promise<CdseIndexStats> {
+    const clientId = process.env.SENTINEL_HUB_CLIENT_ID;
+    const clientSecret = process.env.SENTINEL_HUB_CLIENT_SECRET;
+
+    if (!clientId || !clientSecret) {
+      this.logger.warn("Sentinel Hub credentials not configured — skipping CDSE fetch");
+      return { indice, value: null, minValue: null, maxValue: null, stdDev: null, date: new Date().toISOString(), cloudCover: null };
+    }
+
+    try {
+      // Obtain OAuth2 token from CDSE identity provider
+      const tokenRes = await fetch(
+        "https://identity.dataspace.copernicus.eu/auth/realms/CDSE/protocol/openid-connect/token",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({
+            grant_type: "client_credentials",
+            client_id: clientId,
+            client_secret: clientSecret,
+          }).toString(),
+          signal: AbortSignal.timeout(15000),
+        },
+      );
+
+      if (!tokenRes.ok) {
+        throw new Error(`Token request failed: ${tokenRes.status}`);
+      }
+      const { access_token } = (await tokenRes.json()) as { access_token: string };
+
+      const today = new Date();
+      const from = new Date(today);
+      from.setDate(from.getDate() - 30);
+      const toStr = today.toISOString().split("T")[0] + "T23:59:59Z";
+      const fromStr = from.toISOString().split("T")[0] + "T00:00:00Z";
+
+      const payload = {
+        input: {
+          bounds: {
+            bbox: [bbox.west, bbox.south, bbox.east, bbox.north],
+            properties: { crs: "http://www.opengis.net/def/crs/OGC/1.3/CRS84" },
+          },
+          data: [
+            {
+              type: "sentinel-2-l2a",
+              dataFilter: { mosaickingOrder: "leastCC", maxCloudCoverage: 50 },
+            },
+          ],
+        },
+        aggregation: {
+          timeRange: { from: fromStr, to: toStr },
+          aggregationInterval: { of: "P30D" },
+          resx: 10,
+          resy: 10,
+          evalscript: getEvalscript(indice),
+        },
+        calculations: {
+          default: {
+            statistics: {
+              default: {
+                percentiles: { k: [25, 50, 75] },
+              },
+            },
+          },
+        },
+      };
+
+      const statsRes = await fetch(
+        "https://services.sentinel-hub.com/api/v1/statistics",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${access_token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+          signal: AbortSignal.timeout(30000),
+        },
+      );
+
+      if (!statsRes.ok) {
+        const errText = await statsRes.text().catch(() => "");
+        throw new Error(`Statistics API ${statsRes.status}: ${errText.slice(0, 200)}`);
+      }
+
+      const statsData = await statsRes.json();
+      const interval = statsData?.data?.[0];
+      const stats = interval?.outputs?.default?.bands?.B0?.stats;
+
+      return {
+        indice,
+        value: stats?.mean != null ? parseFloat(stats.mean.toFixed(4)) : null,
+        minValue: stats?.min != null ? parseFloat(stats.min.toFixed(4)) : null,
+        maxValue: stats?.max != null ? parseFloat(stats.max.toFixed(4)) : null,
+        stdDev: stats?.stDev != null ? parseFloat(stats.stDev.toFixed(4)) : null,
+        date: interval?.interval?.from ?? fromStr,
+        cloudCover: null,
+      };
+    } catch (err) {
+      this.logger.error(`CDSE stats fetch failed for ${indice}: ${String(err)}`);
+      return { indice, value: null, minValue: null, maxValue: null, stdDev: null, date: new Date().toISOString(), cloudCover: null };
+    }
+  }
+
+  private async fetchOpenWeather(lat: number, lng: number): Promise<OpenWeatherData | null> {
+    const apiKey =
+      process.env.OPENWEATHERMAP_API_KEY ?? process.env.OPENWEATHER_API_KEY;
+    if (!apiKey) {
+      this.logger.warn("OpenWeatherMap API key not configured");
+      return null;
+    }
+
+    try {
+      const res = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&appid=${apiKey}&units=metric`,
+        { signal: AbortSignal.timeout(10000) },
+      );
+      if (!res.ok) throw new Error(`OpenWeather ${res.status}`);
+      const d = await res.json();
+      return {
+        temperature: d.main?.temp ?? 0,
+        feelsLike: d.main?.feels_like ?? 0,
+        humidity: d.main?.humidity ?? 0,
+        windSpeed: d.wind?.speed ?? 0,
+        windDirection: d.wind?.deg ?? 0,
+        precipitation: d.rain?.["1h"] ?? d.snow?.["1h"] ?? 0,
+        description: d.weather?.[0]?.description ?? "",
+        pressure: d.main?.pressure ?? 0,
+        cloudCover: d.clouds?.all ?? 0,
+        visibility: Math.round((d.visibility ?? 10000) / 1000),
+      };
+    } catch (err) {
+      this.logger.error(`OpenWeather fetch failed: ${String(err)}`);
+      return null;
+    }
+  }
+
+  private async fetchOpenMeteo(lat: number, lng: number): Promise<OpenMeteoData | null> {
+    const vars = [
+      "temperature_2m",
+      "relative_humidity_2m",
+      "precipitation",
+      "wind_speed_10m",
+      "soil_moisture_0_to_1cm",
+      "et0_fao_evapotranspiration",
+      "surface_pressure",
+      "cloud_cover",
+      "shortwave_radiation",
+    ].join(",");
+
+    try {
+      const res = await fetch(
+        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=${vars}&wind_speed_unit=ms`,
+        { signal: AbortSignal.timeout(10000) },
+      );
+      if (!res.ok) throw new Error(`OpenMeteo ${res.status}`);
+      const d = await res.json();
+      const c = d.current ?? {};
+      return {
+        temperature2m: c.temperature_2m ?? null,
+        relativeHumidity2m: c.relative_humidity_2m ?? null,
+        precipitation: c.precipitation ?? null,
+        windSpeed10m: c.wind_speed_10m ?? null,
+        soilMoisture0to1cm: c.soil_moisture_0_to_1cm ?? null,
+        et0FaoEvapotranspiration: c.et0_fao_evapotranspiration ?? null,
+        surfacePressure: c.surface_pressure ?? null,
+        cloudCover: c.cloud_cover ?? null,
+        shortwaveRadiation: c.shortwave_radiation ?? null,
+      };
+    } catch (err) {
+      this.logger.error(`OpenMeteo fetch failed: ${String(err)}`);
+      return null;
+    }
+  }
+}

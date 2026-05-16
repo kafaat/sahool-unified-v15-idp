@@ -10,6 +10,24 @@ import type { Farm, FarmFilters, FarmFormData, FarmStats } from './types';
 
 const api = createApiClient();
 
+/** Normalise backend response to the frontend Farm shape.
+ *  The backend uses `totalAreaHectares` / `cultivatedAreaHectares`;
+ *  the frontend type uses the shorter `totalAreaHa` / `cultivatedAreaHa`.
+ *  Both names are accepted so the mapping survives future renames. */
+function mapFarm(raw: any): Farm {
+  return {
+    ...raw,
+    totalAreaHa:      raw.totalAreaHa      ?? raw.totalAreaHectares      ?? 0,
+    cultivatedAreaHa: raw.cultivatedAreaHa  ?? raw.cultivatedAreaHectares ?? 0,
+    fieldsCount:      raw.fieldsCount       ?? 0,
+    cropCount:        raw.cropCount         ?? 0,
+    // Ensure nullable string fields are always strings so the UI never crashes
+    locationAr:   raw.locationAr   ?? '',
+    waterSourceAr: raw.waterSourceAr ?? '',
+    nameAr:       raw.nameAr       ?? raw.name ?? '',
+  } as Farm;
+}
+
 export const farmsApi = {
   getFarms: async (filters?: FarmFilters): Promise<Farm[]> => {
     return safeFetch(FARM_ENDPOINTS.LIST, async () => {
@@ -19,10 +37,9 @@ export const farmsApi = {
       if (filters?.search) params.set('search', filters.search);
       const response = await api.get(`${FARM_ENDPOINTS.LIST}?${params.toString()}`);
       // Backend returns { success, farms: [...], total, page, limit }
-      const data = extractData<{ farms: Farm[] } | Farm[]>(response);
-      if (Array.isArray(data)) return data;
-      if (data && Array.isArray((data as { farms: Farm[] }).farms)) return (data as { farms: Farm[] }).farms;
-      return [];
+      const data = extractData<{ farms: unknown[] } | unknown[]>(response);
+      const raw = Array.isArray(data) ? data : (data as { farms: unknown[] }).farms ?? [];
+      return raw.map(mapFarm);
     });
   },
 
@@ -30,7 +47,7 @@ export const farmsApi = {
     const url = buildUrl(FARM_ENDPOINTS.GET, { farmId: id });
     return safeFetch(url, async () => {
       const response = await api.get(url);
-      return extractData<Farm>(response);
+      return mapFarm(extractData<unknown>(response));
     });
   },
 

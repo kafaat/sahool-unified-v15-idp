@@ -43,6 +43,11 @@ export interface FarmResponse {
   status: string;
   totalAreaHectares?: number;
   cultivatedAreaHectares?: number;
+  /** Computed from actual linked fields — used by the web/admin UI cards */
+  fieldsCount: number;
+  cropCount: number;
+  totalAreaHa: number;
+  cultivatedAreaHa: number;
   location: string | null;
   locationAr: string | null;
   address: string | null;
@@ -106,6 +111,21 @@ const FARM_SELECT = {
 } as const;
 
 function serializeFarm(f: any): FarmResponse {
+  // Compute real stats from linked fields when available (findAll / findById
+  // queries include fields + _count; create/update queries do not).
+  const linkedFields: Array<{ areaHectares: any; cropType?: string | null }> = f.fields ?? [];
+  const computedAreaHa = linkedFields.reduce(
+    (sum, field) => sum + (toNumber(field.areaHectares) ?? 0),
+    0,
+  );
+  const fieldsCount: number = f._count?.fields ?? linkedFields.length;
+  // Fall back to the stored totalAreaHectares when no fields are linked yet.
+  const totalAreaHa = computedAreaHa > 0 ? computedAreaHa : (toNumber(f.totalAreaHectares) ?? 0);
+  // Count of distinct crop types planted across this farm's fields.
+  const cropCount = new Set(
+    linkedFields.map((field) => field.cropType).filter(Boolean),
+  ).size;
+
   return {
     id: f.id,
     name: f.name,
@@ -121,6 +141,10 @@ function serializeFarm(f: any): FarmResponse {
     status: f.status ?? "active",
     totalAreaHectares: toNumber(f.totalAreaHectares),
     cultivatedAreaHectares: toNumber(f.cultivatedAreaHectares),
+    fieldsCount,
+    cropCount,
+    totalAreaHa,
+    cultivatedAreaHa: totalAreaHa,
     // Prisma field → DTO field rename (see FARM_SELECT comment above).
     location: f.locationLabel ?? null,
     locationAr: f.locationLabelAr ?? null,
@@ -214,7 +238,11 @@ export class FarmsService {
     const [rows, total] = await Promise.all([
       this.prisma.farm.findMany({
         where,
-        select: FARM_SELECT,
+        select: {
+          ...FARM_SELECT,
+          _count: { select: { fields: { where: { isDeleted: false } } } },
+          fields: { where: { isDeleted: false }, select: { areaHectares: true, cropType: true } },
+        },
         skip,
         take: limit,
         orderBy: { createdAt: "desc" },
@@ -236,7 +264,11 @@ export class FarmsService {
   async findById(id: string, tenantId: string): Promise<FarmResponse> {
     const farm = await this.prisma.farm.findFirst({
       where: { id, tenantId, isDeleted: false },
-      select: FARM_SELECT,
+      select: {
+        ...FARM_SELECT,
+        _count: { select: { fields: { where: { isDeleted: false } } } },
+        fields: { where: { isDeleted: false }, select: { areaHectares: true, cropType: true } },
+      },
     });
 
     if (!farm) {

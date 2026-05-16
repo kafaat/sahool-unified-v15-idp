@@ -18,6 +18,7 @@ export interface Farm {
   totalAreaHa: number;
   cultivatedAreaHa: number;
   fieldsCount: number;
+  cropCount: number;
   workersCount: number;
   waterSource: string;
   waterSourceAr: string;

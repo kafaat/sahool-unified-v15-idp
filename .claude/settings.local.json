@@ -170,7 +170,8 @@
       "Bash(echo \"Renamed: $?\")",
       "Bash(docker wait:*)",
       "Bash(xargs -I {} sh -c 'echo \"=== {} ===\" && cat \"{}\"')",
-      "Bash(xargs basename:*)"
+      "Bash(xargs basename:*)",
+      "Bash(awk '/^  web:/{found=1} found{print NR\": \"$0} found && /^  [a-z-]+:/ && !/^  web:/{found=0}' D:/projects/v91/sahoo-adel-full/docker-compose.yml)"
     ]
   }
 }

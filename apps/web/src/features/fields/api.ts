@@ -275,6 +275,7 @@ interface ApiFieldRequest {
   tenantId: string;
   cropType: string;
   cropTypeAr?: string;
+  farmId?: string;
   coordinates?: number[][];
   areaHectares: number;
   metadata: {
@@ -303,6 +304,7 @@ function mapFieldToApiField(field: FieldFormData, tenantId?: string): ApiFieldRe
     tenantId: resolvedTenantId,
     cropType: field.crop || 'unknown',
     cropTypeAr: field.cropAr,
+    farmId: field.farmId || undefined,
     // Send flat ring as coordinates (service handles GeoJSON wrapping internally)
     // Sending full boundary GeoJSON object causes ST_GeomFromGeoJSON parse errors
     coordinates: field.polygon?.coordinates?.[0],
@@ -323,7 +325,7 @@ export const fieldsApi = {
     return safeFetch(FIELD_ENDPOINTS.LIST, async () => {
       const params = new URLSearchParams();
       if (filters?.search) params.set('search', filters.search);
-      if (filters?.farmId) params.set('tenantId', filters.farmId);
+      if (filters?.farmId) params.set('farmId', filters.farmId);
       if (filters?.crop) params.set('cropType', filters.crop);
       if (filters?.minArea) params.set('minArea', filters.minArea.toString());
       if (filters?.maxArea) params.set('maxArea', filters.maxArea.toString());

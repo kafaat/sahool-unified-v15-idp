@@ -157,8 +157,8 @@ export default function FarmsClient() {
     return farms.filter(
       (f) =>
         f.name.toLowerCase().includes(term) ||
-        f.nameAr.includes(searchTerm) ||
-        f.locationAr.includes(searchTerm)
+        (f.nameAr ?? '').includes(searchTerm) ||
+        (f.locationAr ?? '').includes(searchTerm)
     );
   }, [farms, searchTerm]);
 
@@ -707,18 +707,18 @@ export default function FarmsClient() {
 
                   <div className="mt-4 pt-4 border-t grid grid-cols-3 gap-2 text-center">
                     <div>
-                      <div className="text-lg font-bold text-gray-900">{farm.totalAreaHa}</div>
-                      <div className="text-xs text-gray-500">هكتار كلي</div>
+                      <div className="text-lg font-bold text-blue-600">{farm.fieldsCount}</div>
+                      <div className="text-xs text-gray-500">حقل</div>
                     </div>
                     <div>
-                      <div className="text-lg font-bold text-sahool-green-600">
-                        {farm.cultivatedAreaHa}
-                      </div>
+                      <div className="text-lg font-bold text-sahool-green-600">{farm.cropCount}</div>
                       <div className="text-xs text-gray-500">مزروع</div>
                     </div>
                     <div>
-                      <div className="text-lg font-bold text-blue-600">{farm.fieldsCount}</div>
-                      <div className="text-xs text-gray-500">حقل</div>
+                      <div className="text-lg font-bold text-gray-900">
+                        {farm.totalAreaHa ? farm.totalAreaHa.toFixed(1) : '0'}
+                      </div>
+                      <div className="text-xs text-gray-500">هكتار</div>
                     </div>
                   </div>
                 </div>

@@ -329,6 +329,8 @@ interface Props {
   layerOpacity?: number;
   /** When provided, map flies to this farm center (or fits all field bounds) */
   farmCenter?: { lat: number; lng: number; zoom: number } | null;
+  /** When true, fetch and display Sentinel imagery for ALL fields simultaneously */
+  showAllFieldsImagery?: boolean;
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
@@ -344,10 +346,11 @@ export function GoogleSatelliteMap({
   activeDate = null,
   layerOpacity = 0.90,
   farmCenter,
+  showAllFieldsImagery = false,
 }: Props) {
   const [isClient, setIsClient] = useState(false);
 
-  // Real Sentinel imagery state
+  // Single-field Sentinel imagery state (field-monitor tab)
   const [sentinelOverlay, setSentinelOverlay] = useState<{
     key: string;
     url: string;
@@ -355,9 +358,14 @@ export function GoogleSatelliteMap({
   } | null>(null);
   const [sentinelLoading, setSentinelLoading] = useState(false);
   const [sentinelUnavailable, setSentinelUnavailable] = useState(false);
-
-  // In-flight key guard — discards stale responses when field/layer/date changes
   const _fetchKey = useRef<string | null>(null);
+
+  // Multi-field Sentinel imagery state (farm-monitor tab)
+  const [allOverlays, setAllOverlays] = useState<
+    Record<string, { key: string; url: string; bounds: LatLngBounds }>
+  >({});
+  const [multiLoadingCount, setMultiLoadingCount] = useState(0);
+  const _multiGeneration = useRef<number>(0);
 
   // SSR guard
   useEffect(() => { setIsClient(true); }, []);
@@ -432,6 +440,80 @@ export function GoogleSatelliteMap({
       });
   }, [selectedFieldId, activeLayerId, activeDate, fields, isClient, selectedFieldProp]);
 
+  // ── Fetch Sentinel imagery for ALL fields (farm-monitor mode) ─────────────
+  useEffect(() => {
+    if (!isClient || !showAllFieldsImagery || !fields.length) {
+      if (!showAllFieldsImagery) setAllOverlays({});
+      return;
+    }
+
+    const gen = ++_multiGeneration.current;
+    setAllOverlays({});
+    setMultiLoadingCount(0);
+
+    const eligible = fields.filter((f) => f.polygon || f.centroid);
+    if (!eligible.length) return;
+
+    setMultiLoadingCount(eligible.length);
+
+    eligible.forEach(async (field) => {
+      const bounds = getEffectiveBounds(field);
+      if (!bounds || gen !== _multiGeneration.current) {
+        setMultiLoadingCount((c) => Math.max(0, c - 1));
+        return;
+      }
+
+      const fieldPolygon: GeoPolygon = field.polygon ?? boundsToPolygon(bounds);
+      const key = `${field.id}::${activeLayerId}::${activeDate ?? 'latest'}`;
+
+      const params = new URLSearchParams({
+        index:  activeLayerId,
+        west:   String(bounds.west),
+        south:  String(bounds.south),
+        east:   String(bounds.east),
+        north:  String(bounds.north),
+        width:  '512',
+        height: '512',
+      });
+
+      if (activeDate) {
+        const nominal = new Date(activeDate + 'T00:00:00Z');
+        const from = new Date(nominal); from.setUTCDate(from.getUTCDate() - 5);
+        const to   = new Date(nominal); to.setUTCDate(to.getUTCDate() + 5);
+        to.setUTCHours(23, 59, 59, 999);
+        params.set('from', from.toISOString());
+        params.set('to',   to.toISOString());
+      }
+
+      try {
+        const res = await fetch(`/api/sentinel?${params}`);
+        if (gen !== _multiGeneration.current) return;
+        if (!res.ok) { setMultiLoadingCount((c) => Math.max(0, c - 1)); return; }
+
+        const blob = await res.blob();
+        if (gen !== _multiGeneration.current) return;
+
+        const rawDataUrl = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+
+        if (gen !== _multiGeneration.current) return;
+        const clippedUrl = await clipImageToPolygon(rawDataUrl, fieldPolygon, bounds);
+        if (gen !== _multiGeneration.current) return;
+
+        setAllOverlays((prev) => ({ ...prev, [field.id]: { key, url: clippedUrl, bounds } }));
+      } catch {
+        // Skip fields that fail silently
+      } finally {
+        setMultiLoadingCount((c) => Math.max(0, c - 1));
+      }
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fields, activeLayerId, activeDate, isClient, showAllFieldsImagery]);
+
   // ── Field polygons (memoised) ──────────────────────────────────────────────
   const fieldPolygons = useMemo(
     () =>
@@ -441,25 +523,39 @@ export function GoogleSatelliteMap({
           const isSelected = f.id === selectedFieldId;
           const fill = ndviToFillColor(f.ndviValue);
           const baseKey = `${f.id}::${activeLayerId}::${activeDate ?? 'latest'}`;
-          const imageryVisible = isSelected && sentinelOverlay?.key === baseKey;
-          const fillOpacity = isSelected ? (imageryVisible ? 0.0 : 0.15) : 0.20;
-          // Convert GeoJSON [lng, lat] → Leaflet [lat, lng]
+
+          let fillOpacity: number;
+          if (showAllFieldsImagery) {
+            // Hide fill when imagery is loaded for this field; thin visible border only
+            const hasImagery = allOverlays[f.id]?.key === baseKey;
+            fillOpacity = hasImagery ? 0.0 : 0.12;
+          } else {
+            const imageryVisible = isSelected && sentinelOverlay?.key === baseKey;
+            fillOpacity = isSelected ? (imageryVisible ? 0.0 : 0.15) : 0.20;
+          }
+
           const positions = f.polygon!.coordinates.map((ring) =>
             ring.map((coord) => [coord[1] as number, coord[0] as number] as [number, number])
           );
           return { field: f, positions, isSelected, fill, fillOpacity };
         }),
-    [fields, selectedFieldId, activeLayerId, activeDate, sentinelOverlay],
+    [fields, selectedFieldId, activeLayerId, activeDate, sentinelOverlay, showAllFieldsImagery, allOverlays],
   );
 
   if (!isClient) return <LoadingState />;
 
-  // Sentinel overlay for the currently selected field
+  // Single-field overlay (field-monitor mode)
   const baseKey = selectedFieldId
     ? `${selectedFieldId}::${activeLayerId}::${activeDate ?? 'latest'}`
     : null;
   const activeOverlay =
-    baseKey && sentinelOverlay?.key === baseKey ? sentinelOverlay : null;
+    !showAllFieldsImagery && baseKey && sentinelOverlay?.key === baseKey
+      ? sentinelOverlay
+      : null;
+
+  const showLegend = showAllFieldsImagery
+    ? Object.keys(allOverlays).length > 0
+    : !!selectedFieldId;
 
   return (
     <div className="relative w-full h-full">
@@ -486,17 +582,16 @@ export function GoogleSatelliteMap({
             pathOptions={{
               fillColor: fill,
               fillOpacity,
-              color: isSelected ? '#ffffff' : fill,
-              weight: isSelected ? 2.5 : 1.5,
-              opacity: isSelected ? 1 : 0.85,
+              color: isSelected ? '#ffffff' : '#ffffff',
+              weight: isSelected ? 2.5 : 1.8,
+              opacity: 0.9,
             }}
             eventHandlers={{ click: () => onFieldClick?.(field) }}
           />
         ))}
 
-        {/* ── Copernicus CDSE Sentinel-2 raster overlay, clipped to field polygon ──
-             Key change forces ImageOverlay remount when the image changes. */}
-        {activeOverlay && (
+        {/* ── Copernicus CDSE imagery: single-field mode ── */}
+        {!showAllFieldsImagery && activeOverlay && (
           <ImageOverlay
             key={`${baseKey}::cdse`}
             url={activeOverlay.url}
@@ -507,6 +602,21 @@ export function GoogleSatelliteMap({
             opacity={layerOpacity}
           />
         )}
+
+        {/* ── Copernicus CDSE imagery: all-fields mode ── */}
+        {showAllFieldsImagery &&
+          Object.entries(allOverlays).map(([, overlay]) => (
+            <ImageOverlay
+              key={`${overlay.key}::cdse`}
+              url={overlay.url}
+              bounds={[
+                [overlay.bounds.south, overlay.bounds.west],
+                [overlay.bounds.north, overlay.bounds.east],
+              ]}
+              opacity={layerOpacity}
+            />
+          ))
+        }
 
         {/* ── KPI badge markers ── */}
         <KpiBadgeMarkers
@@ -525,8 +635,8 @@ export function GoogleSatelliteMap({
         />
       </MapContainer>
 
-      {/* ── Colour-scale legend (right side, vertically centred) ── */}
-      {selectedFieldId && (() => {
+      {/* ── Colour-scale legend ── */}
+      {showLegend && (() => {
         const legend = LAYER_LEGENDS[activeLayerId.toUpperCase()];
         if (!legend) return null;
         return (
@@ -543,9 +653,23 @@ export function GoogleSatelliteMap({
       })()}
 
       {/* ── Imagery source badge (top-left) ── */}
-      {selectedFieldId && (
-        <div className="absolute top-3 left-3 z-[1000] flex items-center gap-1.5 pointer-events-none select-none">
-          {sentinelLoading ? (
+      <div className="absolute top-3 left-3 z-[1000] flex items-center gap-1.5 pointer-events-none select-none">
+        {showAllFieldsImagery ? (
+          multiLoadingCount > 0 ? (
+            <span className="inline-flex items-center gap-1.5 bg-blue-600/90 text-white text-[10px] font-semibold px-2.5 py-1 rounded-full shadow">
+              <svg className="w-3 h-3 animate-spin" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z"/>
+              </svg>
+              جاري تحميل {activeLayerId} لـ {multiLoadingCount} حقل…
+            </span>
+          ) : Object.keys(allOverlays).length > 0 ? (
+            <span className="inline-flex items-center gap-1.5 bg-emerald-700/90 text-white text-[10px] font-semibold px-2.5 py-1 rounded-full shadow">
+              🛰 Sentinel-2 · {activeLayerId} · {Object.keys(allOverlays).length} حقل{activeDate ? ` · ${activeDate}` : ' · أحدث صورة متاحة'}
+            </span>
+          ) : null
+        ) : selectedFieldId ? (
+          sentinelLoading ? (
             <span className="inline-flex items-center gap-1.5 bg-blue-600/90 text-white text-[10px] font-semibold px-2.5 py-1 rounded-full shadow">
               <svg className="w-3 h-3 animate-spin" viewBox="0 0 24 24" fill="none">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
@@ -561,9 +685,9 @@ export function GoogleSatelliteMap({
             <span className="inline-flex items-center gap-1.5 bg-emerald-700/90 text-white text-[10px] font-semibold px-2.5 py-1 rounded-full shadow">
               🛰 Sentinel-2 · {compositeLabel(activeLayerId)} · {activeLayerId}{activeDate ? ` · ${activeDate}` : ' · أحدث صورة متاحة'}
             </span>
-          ) : null}
-        </div>
-      )}
+          ) : null
+        ) : null}
+      </div>
     </div>
   );
 }

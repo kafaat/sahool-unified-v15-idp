@@ -33,18 +33,22 @@ const LeafletPolygon = dynamicLeaflet(() => import('react-leaflet').then((m) => 
 const ImageOverlay   = dynamicLeaflet(() => import('react-leaflet').then((m) => m.ImageOverlay));
 
 /** Inner component that uses useMap() to handle flyTo without remounting MapContainer */
+type FarmCenter = { lat: number; lng: number; zoom: number; bbox?: { north: number; south: number; east: number; west: number } };
+
 function MapController({
   flyToTarget,
   fields,
   selectedFieldId,
   selectedField,
   farmCenter,
+  farmId,
 }: {
   flyToTarget: [number, number] | null;
   fields: Field[];
   selectedFieldId: string | null;
   selectedField?: Field | null;
-  farmCenter?: { lat: number; lng: number; zoom: number } | null;
+  farmCenter?: FarmCenter | null;
+  farmId?: string | null;
 }) {
   const [useMap, setUseMap] = useState<(() => L.Map) | null>(null);
 
@@ -64,6 +68,7 @@ function MapController({
       selectedField={selectedField}
       useMap={useMap}
       farmCenter={farmCenter}
+      farmId={farmId}
     />
   );
 }
@@ -75,13 +80,15 @@ function MapControllerInner({
   selectedField,
   useMap,
   farmCenter,
+  farmId,
 }: {
   flyToTarget: [number, number] | null;
   fields: Field[];
   selectedFieldId: string | null;
   selectedField?: Field | null;
   useMap: () => L.Map;
-  farmCenter?: { lat: number; lng: number; zoom: number } | null;
+  farmCenter?: FarmCenter | null;
+  farmId?: string | null;
 }) {
   const map = useMap();
 
@@ -102,33 +109,22 @@ function MapControllerInner({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [flyToTarget]);
 
-  // Fly to farm center / fit all farm field bounds when farmCenter changes
+  // Fly to farm when farm changes (farmId) or farmCenter updates (bbox-derived on field load).
+  // Stored lat/lng/zoom → setView (exact position + zoom the farm was saved at).
+  // bbox fallback (no stored coords) → fitBounds to show all field polygons.
   useEffect(() => {
     if (!farmCenter) return;
-    // Try to fit all visible field polygon bounds first for best zoom
-    const polygonFields = fields.filter((f) => f.polygon);
-    if (polygonFields.length > 0) {
-      let n = -Infinity, s = Infinity, e = -Infinity, w = Infinity;
-      polygonFields.forEach((f) => {
-        const b = getEffectiveBounds(f);
-        if (!b) return;
-        if (b.north > n) n = b.north;
-        if (b.south < s) s = b.south;
-        if (b.east  > e) e = b.east;
-        if (b.west  < w) w = b.west;
-      });
-      if (n > -Infinity) {
-        map.fitBounds(
-          [[s, w], [n, e]],
-          { padding: [40, 40] },
-        );
-        return;
-      }
+    if (farmCenter.bbox) {
+      const { bbox } = farmCenter;
+      map.fitBounds(
+        [[bbox.south, bbox.west], [bbox.north, bbox.east]],
+        { padding: [40, 40] },
+      );
+    } else {
+      map.setView([farmCenter.lat, farmCenter.lng], farmCenter.zoom);
     }
-    // Fallback: use stored farm center + zoom
-    map.setView([farmCenter.lat, farmCenter.lng], farmCenter.zoom);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [farmCenter]);
+  }, [farmId, farmCenter]);
 
   return null;
 }
@@ -328,9 +324,11 @@ interface Props {
   activeDate?: string | null;
   layerOpacity?: number;
   /** When provided, map flies to this farm center (or fits all field bounds) */
-  farmCenter?: { lat: number; lng: number; zoom: number } | null;
+  farmCenter?: FarmCenter | null;
   /** When true, fetch and display Sentinel imagery for ALL fields simultaneously */
   showAllFieldsImagery?: boolean;
+  /** Farm ID — used to ensure fly-to re-triggers on farm change */
+  farmId?: string | null;
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
@@ -347,6 +345,7 @@ export function GoogleSatelliteMap({
   layerOpacity = 0.90,
   farmCenter,
   showAllFieldsImagery = false,
+  farmId,
 }: Props) {
   const [isClient, setIsClient] = useState(false);
 
@@ -632,6 +631,7 @@ export function GoogleSatelliteMap({
           selectedFieldId={selectedFieldId}
           selectedField={selectedFieldProp}
           farmCenter={farmCenter}
+          farmId={farmId}
         />
       </MapContainer>
 

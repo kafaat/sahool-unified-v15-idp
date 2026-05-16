@@ -103,7 +103,7 @@ function evaluatePixel(s){if(s.dataMask===0)return[NaN];let a=s.B11+s.B04,b=s.B0
 
   MSAVI: `//VERSION=3
 function setup(){return{input:["B04","B08","dataMask"],output:{bands:1,sampleType:"FLOAT32"}};}
-function evaluatePixel(s){if(s.dataMask===0)return[NaN];let n=s.B08,r=s.B04;return[(2*n+1-Math.sqrt((2*n+1)**2-8*(n-r)))/2];}`,
+function evaluatePixel(s){if(s.dataMask===0)return[NaN];let n=s.B08,r=s.B04;return[(2*n+1-Math.sqrt(Math.pow(2*n+1,2)-8*(n-r)))/2];}`,
 
   GNDVI: `//VERSION=3
 function setup(){return{input:["B03","B08","dataMask"],output:{bands:1,sampleType:"FLOAT32"}};}
@@ -129,33 +129,65 @@ export class FieldAiDataService {
     tenantId: string,
     indice: string,
   ): Promise<FieldAiData> {
+    // Verify field exists and belongs to tenant
     const field = await this.prisma.field.findFirst({
       where: { id: fieldId, tenantId, isDeleted: false },
       select: {
         id: true,
         name: true,
-        nameAr: true,
-        centroid: true,
-        polygon: true,
-        areaHectares: true,
         cropType: true,
         soilType: true,
+        areaHectares: true,
+        metadata: true,
       },
     });
 
     if (!field) throw new NotFoundException(`Field ${fieldId} not found`);
 
-    const centroid = field.centroid as any;
-    const lat: number =
-      centroid?.coordinates?.[1] ?? centroid?.lat ?? centroid?.y;
-    const lng: number =
-      centroid?.coordinates?.[0] ?? centroid?.lng ?? centroid?.x;
+    // Fetch nameAr from metadata if present
+    const meta = field.metadata as Record<string, unknown> | null;
+    const nameAr = (meta?.nameAr as string | undefined) ?? null;
+
+    // Get centroid + bbox from PostGIS via raw SQL
+    const geomRows = await this.prisma.$queryRawUnsafe<
+      Array<{
+        centroid_lng: number | null;
+        centroid_lat: number | null;
+        min_lng: number | null;
+        min_lat: number | null;
+        max_lng: number | null;
+        max_lat: number | null;
+      }>
+    >(
+      `SELECT
+         ST_X(centroid::geometry) AS centroid_lng,
+         ST_Y(centroid::geometry) AS centroid_lat,
+         ST_XMin(boundary::geometry) AS min_lng,
+         ST_YMin(boundary::geometry) AS min_lat,
+         ST_XMax(boundary::geometry) AS max_lng,
+         ST_YMax(boundary::geometry) AS max_lat
+       FROM fields
+       WHERE id = $1::uuid AND boundary IS NOT NULL`,
+      fieldId,
+    );
+
+    const geom = geomRows[0];
+    const lat = geom?.centroid_lat != null ? Number(geom.centroid_lat) : null;
+    const lng = geom?.centroid_lng != null ? Number(geom.centroid_lng) : null;
 
     if (lat == null || lng == null) {
-      throw new Error("Field has no centroid coordinates");
+      throw new Error(`Field ${fieldId} has no geometry / centroid`);
     }
 
-    const bbox = this.extractBbox(field.polygon as any, lat, lng);
+    const bbox: BBox = geom?.min_lng != null
+      ? {
+          west: Number(geom.min_lng),
+          south: Number(geom.min_lat),
+          east: Number(geom.max_lng),
+          north: Number(geom.max_lat),
+        }
+      : { west: lng - 0.005, south: lat - 0.005, east: lng + 0.005, north: lat + 0.005 };
+
     const upperIndice = indice.toUpperCase();
 
     const [cdseResult, weatherResult, meteoResult] = await Promise.allSettled([
@@ -168,13 +200,12 @@ export class FieldAiDataService {
       field: {
         id: field.id,
         name: field.name,
-        nameAr: field.nameAr ?? null,
+        nameAr,
         lat,
         lng,
-        areaHa:
-          field.areaHectares != null ? parseFloat(String(field.areaHectares)) : null,
+        areaHa: field.areaHectares != null ? parseFloat(String(field.areaHectares)) : null,
         cropType: field.cropType ?? null,
-        soilType: (field as any).soilType ?? null,
+        soilType: field.soilType ?? null,
       },
       cdse:
         cdseResult.status === "fulfilled"
@@ -187,25 +218,6 @@ export class FieldAiDataService {
     };
   }
 
-  private extractBbox(polygon: any, lat: number, lng: number): BBox {
-    const ring = polygon?.coordinates?.[0];
-    if (Array.isArray(ring) && ring.length > 0) {
-      let n = -Infinity, s = Infinity, e = -Infinity, w = Infinity;
-      for (const coord of ring) {
-        const cLng = coord[0] as number;
-        const cLat = coord[1] as number;
-        if (cLng > e) e = cLng;
-        if (cLng < w) w = cLng;
-        if (cLat > n) n = cLat;
-        if (cLat < s) s = cLat;
-      }
-      return { west: w, south: s, east: e, north: n };
-    }
-    // Fallback: ~500 m box around centroid
-    const d = 0.005;
-    return { west: lng - d, south: lat - d, east: lng + d, north: lat + d };
-  }
-
   private async fetchCdseStats(indice: string, bbox: BBox): Promise<CdseIndexStats> {
     const clientId = process.env.SENTINEL_HUB_CLIENT_ID;
     const clientSecret = process.env.SENTINEL_HUB_CLIENT_SECRET;
@@ -216,7 +228,6 @@ export class FieldAiDataService {
     }
 
     try {
-      // Obtain OAuth2 token from CDSE identity provider
       const tokenRes = await fetch(
         "https://identity.dataspace.copernicus.eu/auth/realms/CDSE/protocol/openid-connect/token",
         {
@@ -231,10 +242,11 @@ export class FieldAiDataService {
         },
       );
 
-      if (!tokenRes.ok) {
-        throw new Error(`Token request failed: ${tokenRes.status}`);
-      }
-      const { access_token } = (await tokenRes.json()) as { access_token: string };
+      if (!tokenRes.ok) throw new Error(`Token request failed: ${tokenRes.status}`);
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const tokenBody = (await tokenRes.json()) as any;
+      const access_token: string = tokenBody.access_token;
 
       const today = new Date();
       const from = new Date(today);
@@ -264,11 +276,7 @@ export class FieldAiDataService {
         },
         calculations: {
           default: {
-            statistics: {
-              default: {
-                percentiles: { k: [25, 50, 75] },
-              },
-            },
+            statistics: { default: { percentiles: { k: [25, 50, 75] } } },
           },
         },
       };
@@ -291,16 +299,17 @@ export class FieldAiDataService {
         throw new Error(`Statistics API ${statsRes.status}: ${errText.slice(0, 200)}`);
       }
 
-      const statsData = await statsRes.json();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const statsData = (await statsRes.json()) as any;
       const interval = statsData?.data?.[0];
       const stats = interval?.outputs?.default?.bands?.B0?.stats;
 
       return {
         indice,
-        value: stats?.mean != null ? parseFloat(stats.mean.toFixed(4)) : null,
-        minValue: stats?.min != null ? parseFloat(stats.min.toFixed(4)) : null,
-        maxValue: stats?.max != null ? parseFloat(stats.max.toFixed(4)) : null,
-        stdDev: stats?.stDev != null ? parseFloat(stats.stDev.toFixed(4)) : null,
+        value: stats?.mean != null ? parseFloat(Number(stats.mean).toFixed(4)) : null,
+        minValue: stats?.min != null ? parseFloat(Number(stats.min).toFixed(4)) : null,
+        maxValue: stats?.max != null ? parseFloat(Number(stats.max).toFixed(4)) : null,
+        stdDev: stats?.stDev != null ? parseFloat(Number(stats.stDev).toFixed(4)) : null,
         date: interval?.interval?.from ?? fromStr,
         cloudCover: null,
       };
@@ -311,8 +320,7 @@ export class FieldAiDataService {
   }
 
   private async fetchOpenWeather(lat: number, lng: number): Promise<OpenWeatherData | null> {
-    const apiKey =
-      process.env.OPENWEATHERMAP_API_KEY ?? process.env.OPENWEATHER_API_KEY;
+    const apiKey = process.env.OPENWEATHERMAP_API_KEY ?? process.env.OPENWEATHER_API_KEY;
     if (!apiKey) {
       this.logger.warn("OpenWeatherMap API key not configured");
       return null;
@@ -324,7 +332,8 @@ export class FieldAiDataService {
         { signal: AbortSignal.timeout(10000) },
       );
       if (!res.ok) throw new Error(`OpenWeather ${res.status}`);
-      const d = await res.json();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const d = (await res.json()) as any;
       return {
         temperature: d.main?.temp ?? 0,
         feelsLike: d.main?.feels_like ?? 0,
@@ -362,8 +371,10 @@ export class FieldAiDataService {
         { signal: AbortSignal.timeout(10000) },
       );
       if (!res.ok) throw new Error(`OpenMeteo ${res.status}`);
-      const d = await res.json();
-      const c = d.current ?? {};
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const d = (await res.json()) as any;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const c: any = d.current ?? {};
       return {
         temperature2m: c.temperature_2m ?? null,
         relativeHumidity2m: c.relative_humidity_2m ?? null,

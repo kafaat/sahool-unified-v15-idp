@@ -44,8 +44,11 @@ pytest-cov>=6.0.0
 
 structlog>=24.1.0
 
-# Anthropic Claude SDK — AI field analysis
+# Anthropic Claude SDK — kept for other services that import it
 anthropic>=0.40.0,<1.0.0
+
+# OpenAI-compatible client — used for OpenRouter (Qwen + Claude via OpenRouter)
+openai>=1.0.0,<2.0.0
 
 # HTTP client for internal service calls
 aiohttp>=3.9.0,<4.0.0

@@ -27,7 +27,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
   // Forward auth cookie as Authorization header
   const cookieStore = await cookies();
-  const token = cookieStore.get('auth-token')?.value ?? cookieStore.get('token')?.value;
+  const token = cookieStore.get('access_token')?.value;
 
   const upstream = new URL(`${FIELD_SERVICE_URL}/api/v1/fields/${fieldId}/ai-data`);
   upstream.searchParams.set('indice', indice.toUpperCase());

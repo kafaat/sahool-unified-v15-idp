@@ -2,12 +2,12 @@
 Field AI Analysis — Multi-Agent Agricultural Intelligence
 تحليل الحقول بالذكاء الاصطناعي — وكلاء متعددون متوازيون
 
-Runs three Anthropic Claude agents in parallel:
-  1. Vegetation Analyst  — interprets the CDSE satellite index values
-  2. Weather Analyst      — interprets OpenWeather + OpenMeteo conditions
-  3. Recommendations Agent — synthesizes all raw data into actions
+Runs three agents in parallel via OpenRouter (OpenAI-compatible API):
+  1. مؤشر الغطاء النباتي  — Qwen3.5-122B — يفسر قيم مؤشر CDSE المختار
+  2. محلل الطقس          — Qwen3.5-122B — يفسر بيانات OpenWeather + OpenMeteo الحية
+  3. التوصيات الزراعية   — Qwen3.5-122B — يُجمّع كل البيانات في توصيات قابلة للتنفيذ
 
-Returns structured bullet-point analysis in EN/AR.
+Returns structured bullet-point analysis fully in Arabic.
 """
 
 from __future__ import annotations
@@ -15,9 +15,9 @@ from __future__ import annotations
 import asyncio
 import logging
 import os
-from typing import Any
+import re
 
-import anthropic
+from openai import AsyncOpenAI
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
@@ -25,22 +25,32 @@ logger = logging.getLogger(__name__)
 
 ai_router = APIRouter()
 
-# ── Anthropic client (lazy, shared) ──────────────────────────────────────────
+# ── OpenRouter client (lazy, shared) ─────────────────────────────────────────
 
-_anthropic_client: anthropic.AsyncAnthropic | None = None
+_openrouter_client: AsyncOpenAI | None = None
+
+OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
+
+MODEL_FAST = os.environ.get("OPENROUTER_MODEL_FAST", "qwen/qwen3.5-122b-a10b")
+MODEL_PRIMARY = os.environ.get("OPENROUTER_MODEL_PRIMARY", "qwen/qwen3.5-122b-a10b")
 
 
-def _get_client() -> anthropic.AsyncAnthropic:
-    global _anthropic_client
-    if _anthropic_client is None:
-        api_key = os.environ.get("ANTHROPIC_API_KEY")
+def _get_client() -> AsyncOpenAI:
+    global _openrouter_client
+    if _openrouter_client is None:
+        api_key = os.environ.get("OPENROUTER_API_KEY")
         if not api_key:
-            raise RuntimeError("ANTHROPIC_API_KEY is not set in environment")
-        _anthropic_client = anthropic.AsyncAnthropic(api_key=api_key)
-    return _anthropic_client
+            raise RuntimeError("OPENROUTER_API_KEY is not set in environment")
+        _openrouter_client = AsyncOpenAI(
+            api_key=api_key,
+            base_url=OPENROUTER_BASE_URL,
+            default_headers={
+                "HTTP-Referer": "https://sahool.app",
+                "X-Title": "SAHOOL Field Intelligence",
+            },
+        )
+    return _openrouter_client
 
-
-MODEL = os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-4-20250514")
 
 # ── Request / Response schemas ────────────────────────────────────────────────
 
@@ -103,118 +113,161 @@ class AnalyzeFieldRequest(BaseModel):
 class AnalyzeFieldResponse(BaseModel):
     field_id: str
     indice: str
-    current_status: list[str] = Field(description="Bullet-point current field status")
-    recommendations: list[str] = Field(description="Bullet-point actionable recommendations")
+    current_status: list[str] = Field(description="Bullet-point current field status in Arabic")
+    recommendations: list[str] = Field(description="Bullet-point actionable recommendations in Arabic")
     analyzed_at: str
+
+
+# ── Agricultural specialist persona ──────────────────────────────────────────
+
+SYSTEM_PERSONA = """أنت الدكتور خالد الرشيدي، متخصص زراعي أول بخبرة 25 عامًا في الزراعة الدقيقة والاستشعار عن بُعد وإدارة المحاصيل في منطقة الشرق الأوسط وشمال أفريقيا. حصلت على الدكتوراه في علم الزراعة من جامعة العلوم والتكنولوجيا الأردنية، وعملت مع المزارعين في اليمن والسعودية ومصر والأردن.
+
+━━ مجالات خبرتك ━━
+
+▸ مؤشرات الاستشعار عن بُعد وتفسيرها الزراعي:
+  • NDVI  (مؤشر الغطاء النباتي)          — صحة النبات العامة، الكثافة الخضرية
+  • EVI   (مؤشر الغطاء المُحسَّن)        — دقة أعلى في المناطق الكثيفة
+  • NDWI  (مؤشر محتوى الماء)             — محتوى الماء في النبات والغطاء المائي
+  • NDMI  (مؤشر رطوبة النبات)            — إجهاد مائي في الأوراق والسيقان
+  • SAVI  (مؤشر النبات مع تعديل التربة)  — مناسب للمناطق متفرقة النبات
+  • NDRE  (مؤشر الحافة الحمراء)          — محتوى الكلوروفيل والنيتروجين
+  • NBR   (نسبة الحرق المُعيَّرة)         — تقييم الحرائق والتلف
+  • BSI   (مؤشر التربة العارية)           — الكشف عن التعرية وانكشاف التربة
+  • MSAVI (مؤشر النبات المُعدَّل للتربة) — تحسين دقة المناطق الجافة
+  • GNDVI (مؤشر الغطاء الأخضر)          — كثافة الكلوروفيل، نقص النيتروجين
+  • LAI   (مؤشر مساحة الأوراق)          — كثافة الغطاء وكفاءة الضوء
+
+▸ الكشف عن إجهاد المحاصيل: إجهاد مائي، نقص غذائي، آفات وأمراض، ملوحة، شيخوخة
+▸ تفاعل الطقس مع المحاصيل: التبخر-النتح، الإجهاد الحراري، الصقيع، كفاءة الأمطار
+▸ ديناميكيات رطوبة التربة وجدولة الري وكفاءة استخدام المياه
+▸ الزراعة الذكية مناخيًا في المناطق الجافة وشبه الجافة
+
+━━ قواعد الرد ━━
+• **جميع إجاباتك باللغة العربية حصرًا — لا تكتب أي كلمة أو جملة بالإنجليزية في متن ردودك**
+• اذكر الأرقام والقيم الكمية دائمًا مع وحداتها
+• صنِّف الحالات بمستويات الخطورة: حرج / مجهد / متوسط / صحي / ممتاز
+• أبرز المخاطر الحرجة بوضوح واقترح إجراءات فورية"""
 
 
 # ── Prompt helpers ────────────────────────────────────────────────────────────
 
-SYSTEM_PERSONA = """You are Dr. Khalid Al-Rashidi, a Senior Agricultural Specialist with 25 years of expertise in precision agriculture, remote sensing, and crop management across the Middle East and North Africa. You hold a PhD in Agronomy from Jordan University of Science and Technology and have worked extensively with smallholder farmers across Yemen, Saudi Arabia, and Egypt.
+# Arabic names for each index — shown in prompts for clarity
+_INDICE_AR: dict[str, str] = {
+    "NDVI":  "مؤشر الغطاء النباتي الطبيعي (NDVI)",
+    "EVI":   "مؤشر الغطاء النباتي المُحسَّن (EVI)",
+    "NDWI":  "مؤشر محتوى الماء في النبات (NDWI)",
+    "NDMI":  "مؤشر رطوبة النبات (NDMI)",
+    "SAVI":  "مؤشر الغطاء مع تعديل التربة (SAVI)",
+    "NDRE":  "مؤشر الحافة الحمراء للكلوروفيل (NDRE)",
+    "NBR":   "نسبة الحرق المُعيَّرة (NBR)",
+    "BSI":   "مؤشر التربة العارية (BSI)",
+    "MSAVI": "مؤشر النبات المُعدَّل للتربة (MSAVI)",
+    "GNDVI": "مؤشر الغطاء النباتي الأخضر (GNDVI)",
+    "LAI":   "مؤشر مساحة الأوراق (LAI)",
+}
 
-Your expertise spans:
-- Satellite remote sensing indices (NDVI, EVI, NDWI, NDMI, SAVI, NBR, BSI, etc.) and their agronomic interpretation
-- Crop stress detection: water stress, nutrient deficiency, pest/disease pressure, salinity
-- Weather-crop interaction: evapotranspiration, heat stress, frost risk, precipitation efficiency
-- Soil moisture dynamics, irrigation scheduling, and water use efficiency
-- Climate-smart agriculture practices for arid and semi-arid regions
-- Arabic and English bilingual field communications
 
-You provide precise, actionable, evidence-based analysis. Your tone is professional yet accessible to farmers. You always quantify findings where possible, state confidence levels, and flag critical risks clearly."""
+def _indice_ar(indice: str) -> str:
+    return _INDICE_AR.get(indice.upper(), f"مؤشر {indice}")
 
 
 def _build_vegetation_prompt(req: AnalyzeFieldRequest) -> str:
     cdse = req.cdse
     field = req.field
-    val_str = f"{cdse.value:.4f}" if cdse.value is not None else "unavailable"
+    indice_label = _indice_ar(req.indice)
+    val_str = f"{cdse.value:.4f}" if cdse.value is not None else "غير متوفر"
     range_str = (
-        f"(min={cdse.minValue:.4f}, max={cdse.maxValue:.4f}, σ={cdse.stdDev:.4f})"
+        f" (الحد الأدنى={cdse.minValue:.4f}، الحد الأقصى={cdse.maxValue:.4f}، الانحراف المعياري σ={cdse.stdDev:.4f})"
         if cdse.value is not None and cdse.minValue is not None
         else ""
     )
 
-    return f"""<task>
-Analyze the satellite index data for an agricultural field and produce a concise vegetation/land-cover status report.
+    return f"""<مهمة>
+أنت الدكتور خالد الرشيدي. حلّل بيانات المؤشر الساتلي للحقل الزراعي التالي وأنتج تقريرًا موجزًا عن حالة الغطاء النباتي.
 
-<field_context>
-Field name: {field.name} ({field.nameAr or 'N/A'})
-Location: {field.lat:.4f}°N, {field.lng:.4f}°E
-Area: {field.areaHa or 'unknown'} ha
-Crop type: {field.cropType or 'unknown'}
-Soil type: {field.soilType or 'unknown'}
-</field_context>
+<بيانات_الحقل>
+اسم الحقل : {field.nameAr or field.name}
+الموقع    : {field.lat:.4f}° شمالًا، {field.lng:.4f}° شرقًا
+المساحة   : {field.areaHa or 'غير محدد'} هكتار
+نوع المحصول: {field.cropType or 'غير محدد'}
+نوع التربة : {field.soilType or 'غير محدد'}
+</بيانات_الحقل>
 
-<cdse_data>
-Index: {cdse.indice}
-Mean value: {val_str} {range_str}
-Data date: {cdse.date}
-Cloud cover: {f"{cdse.cloudCover:.1f}%" if cdse.cloudCover is not None else "unknown"}
-</cdse_data>
+<بيانات_المؤشر_الساتلي>
+المؤشر المحدد  : {indice_label}
+القيمة المتوسطة: {val_str}{range_str}
+تاريخ الصورة  : {cdse.date or 'غير محدد'}
+الغطاء السحابي: {f"{cdse.cloudCover:.1f}%" if cdse.cloudCover is not None else "غير محدد"}
+</بيانات_المؤشر_الساتلي>
 
-Produce EXACTLY 4–6 concise bullet points describing:
-1. What the {cdse.indice} value means agronomically for this field RIGHT NOW
-2. Vegetation health category (critical/stressed/moderate/healthy/excellent) with justification
-3. Detected stress signals or anomalies (water, nutrient, disease, senescence)
-4. Spatial variability insight from min/max range if available
-5. Confidence in assessment (factor in cloud cover, data age)
+أنتج بالضبط 4–6 نقاط موجزة باللغة العربية تتناول:
+١. ماذا تعني قيمة {indice_label} ({val_str}) زراعيًا لهذا الحقل الآن
+٢. تصنيف صحة النبات (حرج / مجهد / متوسط / صحي / ممتاز) مع المبرر الكمي
+٣. إشارات الإجهاد أو الشذوذات المكتشفة (مائية، غذائية، أمراض، شيخوخة)
+٤. تحليل التباين المكاني من نطاق الحد الأدنى/الأقصى إن توفر
+٥. مستوى الثقة في التقييم مع مراعاة الغطاء السحابي وعمر البيانات
 
-Format: Plain bullet points starting with "•". Be specific and quantitative. No headers. Max 120 words per bullet.
-</task>"""
+التنسيق: نقاط تبدأ بـ "•". أرقام ووحدات دائمًا. بدون عناوين. باللغة العربية حصرًا. الحد الأقصى 120 كلمة لكل نقطة.
+</مهمة>"""
 
 
 def _build_weather_prompt(req: AnalyzeFieldRequest) -> str:
     w = req.weather
     m = req.meteo
     field = req.field
+    indice_label = _indice_ar(req.indice)
 
     weather_block = ""
     if w:
         weather_block = f"""
-OpenWeather (current):
-  Temperature: {w.temperature}°C (feels like {w.feelsLike}°C)
-  Humidity: {w.humidity}%
-  Wind: {w.windSpeed} m/s at {w.windDirection}°
-  Precipitation (1h): {w.precipitation} mm
-  Cloud cover: {w.cloudCover}%
-  Pressure: {w.pressure} hPa
-  Visibility: {w.visibility} km
-  Conditions: {w.description}"""
+بيانات OpenWeather (الآن):
+  درجة الحرارة    : {w.temperature}°م (تبدو كـ {w.feelsLike}°م)
+  الرطوبة النسبية : {w.humidity}%
+  سرعة الرياح    : {w.windSpeed} م/ث باتجاه {w.windDirection}°
+  هطول الأمطار   : {w.precipitation} مم (الساعة الأخيرة)
+  الغطاء السحابي : {w.cloudCover}%
+  الضغط الجوي    : {w.pressure} هكتوباسكال
+  مدى الرؤية     : {w.visibility} كم
+  الحالة الجوية  : {w.description}"""
 
     meteo_block = ""
     if m:
         meteo_block = f"""
-OpenMeteo (current):
-  Temperature 2m: {m.temperature2m}°C
-  Relative humidity 2m: {m.relativeHumidity2m}%
-  Precipitation: {m.precipitation} mm
-  Wind speed 10m: {m.windSpeed10m} m/s
-  Soil moisture (0–1 cm): {m.soilMoisture0to1cm} m³/m³
-  ET₀ (FAO-56): {m.et0FaoEvapotranspiration} mm/day
-  Surface pressure: {m.surfacePressure} hPa
-  Cloud cover: {m.cloudCover}%
-  Shortwave radiation: {m.shortwaveRadiation} W/m²"""
+بيانات OpenMeteo (الآن):
+  درجة الحرارة (2م)        : {m.temperature2m}°م
+  الرطوبة النسبية (2م)      : {m.relativeHumidity2m}%
+  هطول الأمطار              : {m.precipitation} مم
+  سرعة الرياح (10م)         : {m.windSpeed10m} م/ث
+  رطوبة التربة (0–1 سم)     : {m.soilMoisture0to1cm} م³/م³
+  التبخر-النتح ET₀ (FAO-56) : {m.et0FaoEvapotranspiration} مم/يوم
+  ضغط السطح                 : {m.surfacePressure} هكتوباسكال
+  الغطاء السحابي             : {m.cloudCover}%
+  الإشعاع الشمسي القصير     : {m.shortwaveRadiation} واط/م²"""
 
-    return f"""<task>
-Analyze the weather and agro-meteorological conditions for the following agricultural field.
+    return f"""<مهمة>
+أنت الدكتور خالد الرشيدي. حلّل الظروف الجوية والأرصاد الزراعية الحالية للحقل التالي (بيانات مباشرة الآن).
 
-<field_context>
-Field: {field.name}, Crop: {field.cropType or 'unknown'}, Area: {field.areaHa or '?'} ha
-Location: {field.lat:.4f}°N, {field.lng:.4f}°E
-</field_context>
+<بيانات_الحقل>
+الحقل   : {field.nameAr or field.name}
+المحصول : {field.cropType or 'غير محدد'}
+المساحة : {field.areaHa or '؟'} هكتار
+الموقع  : {field.lat:.4f}° شمالًا، {field.lng:.4f}° شرقًا
+المؤشر الساتلي المحدد: {indice_label}
+</بيانات_الحقل>
 
-<weather_data>{weather_block or '  No OpenWeather data available'}{meteo_block or '  No OpenMeteo data available'}
-</weather_data>
+<بيانات_الطقس_الحالية>{weather_block or chr(10) + '  لا تتوفر بيانات OpenWeather'}{meteo_block or chr(10) + '  لا تتوفر بيانات OpenMeteo'}
+</بيانات_الطقس_الحالية>
 
-Produce EXACTLY 4–6 concise bullet points covering:
-1. Current weather suitability for agricultural operations (field work, spraying, harvesting)
-2. Evapotranspiration load and irrigation urgency based on ET₀
-3. Soil moisture status and implications for root uptake
-4. Heat/cold/wind stress risks for the crop
-5. Precipitation adequacy vs. crop water demand
-6. Any weather-related pest/disease risk (humidity, temperature conducive to fungal/bacterial issues)
+أنتج بالضبط 4–6 نقاط موجزة باللغة العربية تغطي:
+١. مدى ملاءمة الطقس الحالي للعمليات الزراعية (رش، ري، حصاد، خدمة التربة)
+٢. حِمل التبخر-النتح ET₀ وإلحاحية الري بناءً على القيمة الحالية
+٣. حالة رطوبة التربة وتداعياتها على امتصاص الجذور للماء والعناصر
+٤. مخاطر الإجهاد الحراري أو البرودي أو الريحي على المحصول
+٥. مدى كفاية الأمطار مقارنةً باحتياجات المحصول المائية
+٦. مخاطر الآفات والأمراض المرتبطة بالطقس (رطوبة وحرارة ملائمة للفطريات والبكتيريا)
 
-Format: Plain bullet points starting with "•". Quantitative where possible. No headers. Max 120 words per bullet.
-</task>"""
+التنسيق: نقاط تبدأ بـ "•". أرقام ووحدات دائمًا. بدون عناوين. باللغة العربية حصرًا. الحد الأقصى 120 كلمة لكل نقطة.
+</مهمة>"""
 
 
 def _build_recommendations_prompt(req: AnalyzeFieldRequest) -> str:
@@ -222,57 +275,105 @@ def _build_recommendations_prompt(req: AnalyzeFieldRequest) -> str:
     w = req.weather
     m = req.meteo
     field = req.field
+    indice_label = _indice_ar(req.indice)
 
-    data_summary = f"""
-Field: {field.name}, Crop: {field.cropType or 'unknown'}, Area: {field.areaHa or '?'} ha
-Index {cdse.indice}: {f"{cdse.value:.4f}" if cdse.value is not None else 'N/A'}
-Temperature: {w.temperature if w else (m.temperature2m if m else 'N/A')}°C
-Humidity: {w.humidity if w else (m.relativeHumidity2m if m else 'N/A')}%
-Soil moisture (0–1 cm): {m.soilMoisture0to1cm if m else 'N/A'} m³/m³
-ET₀: {m.et0FaoEvapotranspiration if m else 'N/A'} mm/day
-Precipitation (recent): {w.precipitation if w else (m.precipitation if m else 'N/A')} mm
-Wind: {w.windSpeed if w else (m.windSpeed10m if m else 'N/A')} m/s
-Cloud cover: {w.cloudCover if w else (m.cloudCover if m else 'N/A')}%"""
+    val_str = f"{cdse.value:.4f}" if cdse.value is not None else "غير متوفر"
+    range_str = (
+        f" (الأدنى={cdse.minValue:.4f}، الأقصى={cdse.maxValue:.4f}، σ={cdse.stdDev:.4f})"
+        if cdse.value is not None and cdse.minValue is not None
+        else ""
+    )
 
-    return f"""<task>
-You are advising a farmer on immediate and near-term actions for their agricultural field based on satellite index and weather data.
+    weather_lines = ""
+    if w:
+        weather_lines = f"""
+  ── بيانات OpenWeather الحالية ──
+  درجة الحرارة      : {w.temperature}°م (تبدو كـ {w.feelsLike}°م)
+  الرطوبة النسبية   : {w.humidity}%
+  سرعة الرياح       : {w.windSpeed} م/ث | اتجاه {w.windDirection}°
+  هطول الأمطار      : {w.precipitation} مم/ساعة
+  الغطاء السحابي    : {w.cloudCover}%
+  الضغط الجوي       : {w.pressure} هكتوباسكال
+  مدى الرؤية        : {w.visibility} كم
+  الحالة الجوية     : {w.description}"""
 
-<all_field_data>{data_summary}
-</all_field_data>
+    meteo_lines = ""
+    if m:
+        meteo_lines = f"""
+  ── بيانات OpenMeteo الحالية ──
+  درجة الحرارة (2م)         : {m.temperature2m}°م
+  الرطوبة النسبية (2م)       : {m.relativeHumidity2m}%
+  هطول الأمطار               : {m.precipitation} مم
+  سرعة الرياح (10م)          : {m.windSpeed10m} م/ث
+  رطوبة التربة (0–1 سم)      : {m.soilMoisture0to1cm} م³/م³
+  التبخر-النتح ET₀ (FAO-56)  : {m.et0FaoEvapotranspiration} مم/يوم
+  ضغط السطح                  : {m.surfacePressure} هكتوباسكال
+  الغطاء السحابي              : {m.cloudCover}%
+  الإشعاع الشمسي القصير      : {m.shortwaveRadiation} واط/م²"""
 
-Produce EXACTLY 5–7 actionable recommendation bullet points. Each recommendation must be:
-- Specific and immediately executable (within 24–72 hours where critical, 1–2 weeks for planning)
-- Tied directly to at least one data point from the field data above
-- Include timing, quantity/rate, or method where applicable
-- Flagged with priority: [URGENT] [HIGH] [MEDIUM] [LOW]
+    return f"""<مهمة>
+أنت الدكتور خالد الرشيدي. بناءً على بيانات المؤشر الساتلي والطقس الحالية أدناه، قدّم توصيات زراعية فورية وعملية للمزارع.
 
-Cover at minimum: irrigation decision, fertilization/nutrition, crop protection, field operations timing, monitoring actions.
+<بيانات_الحقل_الكاملة>
+  ── معلومات الحقل ──
+  اسم الحقل        : {field.nameAr or field.name}
+  المحصول           : {field.cropType or 'غير محدد'}
+  المساحة           : {field.areaHa or '؟'} هكتار
+  نوع التربة        : {field.soilType or 'غير محدد'}
+  الموقع            : {field.lat:.4f}° شمالًا، {field.lng:.4f}° شرقًا
 
-Format: Plain bullet points starting with "•". No headers. Max 150 words per bullet.
-</task>"""
+  ── المؤشر الساتلي CDSE (تاريخ: {cdse.date or 'غير محدد'}) ──
+  المؤشر المحدد     : {indice_label}
+  القيمة المتوسطة   : {val_str}{range_str}
+  الغطاء السحابي    : {f"{cdse.cloudCover:.1f}%" if cdse.cloudCover is not None else "غير محدد"}
+{weather_lines}
+{meteo_lines}
+</بيانات_الحقل_الكاملة>
+
+أنتج بالضبط 5–7 نقاط توصية قابلة للتطبيق الفوري باللغة العربية. كل توصية يجب أن:
+- تكون محددة وقابلة للتنفيذ (24–72 ساعة للحالات الحرجة، 1–2 أسبوع للتخطيط)
+- ترتبط مباشرةً برقم أو قيمة من البيانات أعلاه
+- تتضمن التوقيت والكمية/المعدل أو الطريقة حيثما أمكن
+- تحمل تصنيف الأولوية: [عاجل] أو [عالٍ] أو [متوسط] أو [منخفض]
+
+تغطي كحد أدنى: قرار الري، التسميد والتغذية، الوقاية من الآفات، توقيت العمليات الميدانية، إجراءات المراقبة.
+
+التنسيق: نقاط تبدأ بـ "•". بدون عناوين. باللغة العربية حصرًا. الحد الأقصى 150 كلمة لكل نقطة.
+</مهمة>"""
 
 
 # ── Agent runners ─────────────────────────────────────────────────────────────
 
 
-async def _run_agent(system: str, user_prompt: str, max_tokens: int = 800) -> str:
-    """Call Claude claude-sonnet with extended thinking disabled for fast parallel execution."""
+async def _run_agent(
+    system: str,
+    user_prompt: str,
+    max_tokens: int = 800,
+    model: str | None = None,
+) -> str:
+    """Call LLM via OpenRouter (OpenAI-compatible). Returns raw text."""
     client = _get_client()
+    _model = model or MODEL_FAST
     try:
-        msg = await client.messages.create(
-            model=MODEL,
+        response = await client.chat.completions.create(
+            model=_model,
             max_tokens=max_tokens,
-            system=system,
-            messages=[{"role": "user", "content": user_prompt}],
+            messages=[
+                {"role": "system", "content": system},
+                {"role": "user", "content": user_prompt},
+            ],
         )
-        return msg.content[0].text if msg.content else ""
+        return response.choices[0].message.content or ""
     except Exception as exc:
-        logger.error("Anthropic API call failed: %s", exc)
+        logger.error("OpenRouter API call failed [model=%s]: %s", _model, exc)
         raise
 
 
 def _parse_bullets(text: str) -> list[str]:
-    """Extract bullet-point lines from Claude response."""
+    """Extract bullet-point lines. Strips <think> blocks from reasoning models."""
+    # Strip reasoning model thinking blocks (Qwen3.5, DeepSeek-R1, etc.)
+    text = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
+
     bullets = []
     for line in text.splitlines():
         stripped = line.strip()
@@ -280,17 +381,19 @@ def _parse_bullets(text: str) -> list[str]:
             bullet = stripped[1:].strip()
             if bullet:
                 bullets.append(bullet)
-        elif stripped.startswith("-") or stripped.startswith("*"):
+        elif stripped.startswith(("-", "*")):
             bullet = stripped[1:].strip()
             if bullet and len(bullet) > 15:
                 bullets.append(bullet)
-    # Fallback: split by double newline paragraphs if no bullets found
+
+    # Fallback: paragraph split when model doesn't use bullet chars
     if not bullets:
         for para in text.split("\n\n"):
             para = para.strip()
             if para and len(para) > 20:
                 bullets.append(para)
-    return bullets[:8]  # cap at 8
+
+    return bullets[:8]
 
 
 # ── Endpoint ─────────────────────────────────────────────────────────────────
@@ -299,33 +402,39 @@ def _parse_bullets(text: str) -> list[str]:
 @ai_router.post(
     "/analyze/field",
     response_model=AnalyzeFieldResponse,
-    summary="AI field analysis",
-    description="Multi-agent Claude analysis: vegetation health + weather impact + recommendations",
+    summary="تحليل الحقل بالذكاء الاصطناعي",
+    description="ثلاثة وكلاء متوازيون: صحة الغطاء النباتي + تأثير الطقس + التوصيات",
     tags=["AI Analysis"],
 )
 async def analyze_field(req: AnalyzeFieldRequest) -> AnalyzeFieldResponse:
     """
-    Run three Claude agents in parallel:
-    - Agent 1: Vegetation/CDSE index analysis → contributes to current_status
-    - Agent 2: Weather/agro-meteorological analysis → contributes to current_status
-    - Agent 3: Actionable recommendations based on all raw data
+    Three agents run in parallel:
+    - Agent 1: CDSE index analysis (selected index) → current_status
+    - Agent 2: Weather (OpenWeather + OpenMeteo live) → current_status
+    - Agent 3: Actionable recommendations from all data → recommendations
     """
-    if not os.environ.get("ANTHROPIC_API_KEY"):
+    if not os.environ.get("OPENROUTER_API_KEY"):
         raise HTTPException(
             status_code=503,
-            detail="AI analysis service not configured: ANTHROPIC_API_KEY missing",
+            detail="AI analysis service not configured: OPENROUTER_API_KEY missing",
         )
 
     veg_prompt = _build_vegetation_prompt(req)
     weather_prompt = _build_weather_prompt(req)
     reco_prompt = _build_recommendations_prompt(req)
 
-    try:
-        veg_task = _run_agent(SYSTEM_PERSONA, veg_prompt, max_tokens=600)
-        weather_task = _run_agent(SYSTEM_PERSONA, weather_prompt, max_tokens=600)
-        reco_task = _run_agent(SYSTEM_PERSONA, reco_prompt, max_tokens=900)
+    logger.info(
+        "AI analysis started — field=%s indice=%s model=%s",
+        req.field.id,
+        req.indice,
+        MODEL_FAST,
+    )
 
-        # Run all three agents in parallel
+    try:
+        veg_task     = _run_agent(SYSTEM_PERSONA, veg_prompt,     max_tokens=700, model=MODEL_FAST)
+        weather_task = _run_agent(SYSTEM_PERSONA, weather_prompt, max_tokens=700, model=MODEL_FAST)
+        reco_task    = _run_agent(SYSTEM_PERSONA, reco_prompt,    max_tokens=1000, model=MODEL_PRIMARY)
+
         veg_text, weather_text, reco_text = await asyncio.gather(
             veg_task, weather_task, reco_task
         )

@@ -293,7 +293,8 @@ setup_cors_middleware(app)
 if SECURITY_HEADERS_AVAILABLE:
     setup_security_headers(app)
 
-app.add_middleware(TenantContextMiddleware)
+# AI analysis endpoint is an internal route — tenant not required for pure AI calls
+app.add_middleware(TenantContextMiddleware, require_tenant=False)
 
 # تضمين المسارات
 app.include_router(router, prefix="/api/v1", tags=["Field Intelligence"])

@@ -173,7 +173,12 @@
       "Bash(xargs basename:*)",
       "Bash(awk '/^  web:/{found=1} found{print NR\": \"$0} found && /^  [a-z-]+:/ && !/^  web:/{found=0}' D:/projects/v91/sahoo-adel-full/docker-compose.yml)",
       "Bash(find /d/projects/v91/sahoo-adel-full/apps/web/src/features/satellite* -type f -name \"*.ts\" -o -name \"*.tsx\")",
-      "Bash(echo \"Build started in background - PID $!\")"
+      "Bash(echo \"Build started in background - PID $!\")",
+      "Bash(npx tsx:*)",
+      "Bash(docker-compose up:*)",
+      "Bash(docker-compose build:*)",
+      "Bash(sed -i 's|OPENROUTER_MODEL_FAST=.*|OPENROUTER_MODEL_FAST=qwen/qwen3.5-122b-a10b|g' /d/projects/v91/sahoo-adel-full/.env /d/projects/v91/sahoo-adel-full/.env.example)",
+      "Bash(sed -i 's|OPENROUTER_MODEL_PRIMARY=.*|OPENROUTER_MODEL_PRIMARY=qwen/qwen3.5-122b-a10b|g' /d/projects/v91/sahoo-adel-full/.env /d/projects/v91/sahoo-adel-full/.env.example)"
     ]
   }
 }

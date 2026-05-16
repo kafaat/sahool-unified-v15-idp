@@ -44,7 +44,7 @@ python-dateutil==2.9.0.post0
 structlog>=24.1.0,<26.0.0
 
 # Background Tasks
-celery==5.6.2
+celery==5.6.3
 kombu>=5.5.0,<6.0.0
 
 # Testing

@@ -38,11 +38,13 @@ function MapController({
   fields,
   selectedFieldId,
   selectedField,
+  farmCenter,
 }: {
   flyToTarget: [number, number] | null;
   fields: Field[];
   selectedFieldId: string | null;
   selectedField?: Field | null;
+  farmCenter?: { lat: number; lng: number; zoom: number } | null;
 }) {
   const [useMap, setUseMap] = useState<(() => L.Map) | null>(null);
 
@@ -61,6 +63,7 @@ function MapController({
       selectedFieldId={selectedFieldId}
       selectedField={selectedField}
       useMap={useMap}
+      farmCenter={farmCenter}
     />
   );
 }
@@ -71,15 +74,18 @@ function MapControllerInner({
   selectedFieldId,
   selectedField,
   useMap,
+  farmCenter,
 }: {
   flyToTarget: [number, number] | null;
   fields: Field[];
   selectedFieldId: string | null;
   selectedField?: Field | null;
   useMap: () => L.Map;
+  farmCenter?: { lat: number; lng: number; zoom: number } | null;
 }) {
   const map = useMap();
 
+  // Fly to selected field when flyToTarget changes
   useEffect(() => {
     if (!flyToTarget) return;
     const sel = selectedField ?? fields.find((f) => f.id === selectedFieldId);
@@ -95,6 +101,34 @@ function MapControllerInner({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [flyToTarget]);
+
+  // Fly to farm center / fit all farm field bounds when farmCenter changes
+  useEffect(() => {
+    if (!farmCenter) return;
+    // Try to fit all visible field polygon bounds first for best zoom
+    const polygonFields = fields.filter((f) => f.polygon);
+    if (polygonFields.length > 0) {
+      let n = -Infinity, s = Infinity, e = -Infinity, w = Infinity;
+      polygonFields.forEach((f) => {
+        const b = getEffectiveBounds(f);
+        if (!b) return;
+        if (b.north > n) n = b.north;
+        if (b.south < s) s = b.south;
+        if (b.east  > e) e = b.east;
+        if (b.west  < w) w = b.west;
+      });
+      if (n > -Infinity) {
+        map.fitBounds(
+          [[s, w], [n, e]],
+          { padding: [40, 40] },
+        );
+        return;
+      }
+    }
+    // Fallback: use stored farm center + zoom
+    map.setView([farmCenter.lat, farmCenter.lng], farmCenter.zoom);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [farmCenter]);
 
   return null;
 }
@@ -293,6 +327,8 @@ interface Props {
   onFieldClick?: (field: Field) => void;
   activeDate?: string | null;
   layerOpacity?: number;
+  /** When provided, map flies to this farm center (or fits all field bounds) */
+  farmCenter?: { lat: number; lng: number; zoom: number } | null;
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
@@ -307,6 +343,7 @@ export function GoogleSatelliteMap({
   onFieldClick,
   activeDate = null,
   layerOpacity = 0.90,
+  farmCenter,
 }: Props) {
   const [isClient, setIsClient] = useState(false);
 
@@ -484,6 +521,7 @@ export function GoogleSatelliteMap({
           fields={fields}
           selectedFieldId={selectedFieldId}
           selectedField={selectedFieldProp}
+          farmCenter={farmCenter}
         />
       </MapContainer>
 

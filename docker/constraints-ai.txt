@@ -20,7 +20,7 @@ uvicorn>=0.30.0,<1.0.0
 pydantic==2.13.1
 pydantic-settings==2.13.1
 httpx==0.28.1
-python-multipart==0.0.26  # CVE-2024-53981 fix
+python-multipart==0.0.27  # CVE-2024-53981 fix
 
 # ─────────────────────────────────────────────────────────────────────────────
 # LangChain Framework (Security Updates)

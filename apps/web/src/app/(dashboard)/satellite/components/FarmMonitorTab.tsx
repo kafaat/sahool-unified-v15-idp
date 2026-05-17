@@ -215,21 +215,21 @@ function AnalysisPanel({
   onClose: () => void;
 }) {
   return (
-    <div className="h-full flex flex-col bg-gray-950/97 backdrop-blur-md overflow-hidden" dir="rtl">
+    <div className="h-full flex flex-col bg-black overflow-hidden" dir="rtl">
       {/* Panel header */}
-      <div className="flex items-start justify-between px-4 py-3 border-b border-gray-800 flex-shrink-0 bg-gradient-to-l from-green-950/60 to-blue-950/60">
+      <div className="flex items-start justify-between px-4 py-3 border-b border-gray-700 flex-shrink-0 bg-gradient-to-l from-green-950 to-blue-950">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <Brain className="w-4 h-4 text-purple-400 flex-shrink-0" />
-            <h2 className="text-sm font-bold text-white truncate">
+            <h2 className="text-sm font-extrabold text-white truncate">
               {field.nameAr || field.name}
             </h2>
           </div>
           <div className="flex items-center gap-2 mt-1">
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-mono font-semibold bg-green-900/60 text-green-400 border border-green-800">
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-mono font-bold bg-green-900 text-green-300 border border-green-700">
               {indice}
             </span>
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-gray-400">
               {new Date(result.analyzed_at).toLocaleTimeString('ar-SA', {
                 hour: '2-digit',
                 minute: '2-digit',
@@ -239,7 +239,7 @@ function AnalysisPanel({
         </div>
         <button
           onClick={onClose}
-          className="p-1.5 rounded-lg hover:bg-gray-800 text-gray-500 hover:text-gray-300 transition-colors flex-shrink-0 mr-auto ml-0"
+          className="p-1.5 rounded-lg hover:bg-gray-800 text-gray-400 hover:text-white transition-colors flex-shrink-0 mr-auto ml-0"
         >
           <X className="w-4 h-4" />
         </button>
@@ -251,28 +251,28 @@ function AnalysisPanel({
         <section className="px-4 pt-4 pb-3">
           <div className="flex items-center gap-2 mb-3">
             <CloudSun className="w-4 h-4 text-blue-400 flex-shrink-0" />
-            <h3 className="text-sm font-bold text-gray-200">الوضع الراهن</h3>
+            <h3 className="text-sm font-extrabold text-white tracking-wide">الوضع الراهن</h3>
           </div>
           <ul className="space-y-2.5">
             {result.current_status.map((bullet, i) => (
-              <li key={i} className="flex gap-2 text-sm text-gray-300 leading-relaxed">
-                <span className="text-green-500 flex-shrink-0 mt-0.5 font-bold">•</span>
+              <li key={i} className="flex gap-2 text-sm text-white leading-relaxed">
+                <span className="text-green-400 flex-shrink-0 mt-0.5 font-bold">•</span>
                 <span>{bullet}</span>
               </li>
             ))}
             {result.current_status.length === 0 && (
-              <li className="text-sm text-gray-600 italic">لا توجد بيانات متاحة</li>
+              <li className="text-sm text-gray-500 italic">لا توجد بيانات متاحة</li>
             )}
           </ul>
         </section>
 
-        <div className="mx-4 border-t border-gray-800" />
+        <div className="mx-4 border-t border-gray-700" />
 
         {/* Recommendations — التوصيات */}
         <section className="px-4 pt-3 pb-6">
           <div className="flex items-center gap-2 mb-3">
             <AlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0" />
-            <h3 className="text-sm font-bold text-gray-200">التوصيات</h3>
+            <h3 className="text-sm font-extrabold text-white tracking-wide">التوصيات</h3>
           </div>
           <ul className="space-y-2.5">
             {result.recommendations.map((rec, i) => {
@@ -286,14 +286,14 @@ function AnalysisPanel({
                   <span className={`flex-shrink-0 mt-0.5 font-bold ${isUrgent ? 'text-red-400' : isHigh ? 'text-amber-400' : 'text-blue-400'}`}>
                     {isUrgent ? '🔴' : isHigh ? '🟠' : '•'}
                   </span>
-                  <span className="text-gray-300">
+                  <span className="text-white">
                     {isUrgent && (
-                      <span className="inline-block ml-1 mb-0.5 px-1.5 py-0.5 text-xs font-bold bg-red-950 text-red-400 border border-red-800 rounded">
+                      <span className="inline-block ml-1 mb-0.5 px-1.5 py-0.5 text-xs font-bold bg-red-900 text-red-300 border border-red-700 rounded">
                         عاجل
                       </span>
                     )}
                     {isHigh && !isUrgent && (
-                      <span className="inline-block ml-1 mb-0.5 px-1.5 py-0.5 text-xs font-bold bg-amber-950 text-amber-400 border border-amber-800 rounded">
+                      <span className="inline-block ml-1 mb-0.5 px-1.5 py-0.5 text-xs font-bold bg-amber-900 text-amber-300 border border-amber-700 rounded">
                         عالٍ
                       </span>
                     )}
@@ -303,15 +303,15 @@ function AnalysisPanel({
               );
             })}
             {result.recommendations.length === 0 && (
-              <li className="text-sm text-gray-600 italic">لا توجد توصيات متاحة</li>
+              <li className="text-sm text-gray-500 italic">لا توجد توصيات متاحة</li>
             )}
           </ul>
         </section>
       </div>
 
       {/* Footer */}
-      <div className="px-4 py-2 border-t border-gray-800 bg-gray-900/80 flex-shrink-0">
-        <p className="text-xs text-center text-gray-600">
+      <div className="px-4 py-2 border-t border-gray-700 bg-gray-950 flex-shrink-0">
+        <p className="text-xs text-center text-gray-500">
           تحليل ذكاء اصطناعي زراعي · Qwen 3.5 via OpenRouter
         </p>
       </div>
@@ -548,6 +548,7 @@ export function FarmMonitorTab({ activeLayerId, setActiveLayerId }: Props) {
                   flyToTarget={null}
                   farmCenter={farmCenter}
                   farmId={selectedFarmId}
+                  farmBbox={farmBbox ?? null}
                   activeLayerId={activeLayerId}
                   kpiMap={{}}
                   onFieldClick={handleFieldClick}

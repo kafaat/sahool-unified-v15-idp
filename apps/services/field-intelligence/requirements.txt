@@ -48,7 +48,8 @@ structlog>=24.1.0
 anthropic>=0.40.0,<1.0.0
 
 # OpenAI-compatible client — used for OpenRouter (Qwen + Claude via OpenRouter)
-openai>=1.0.0,<2.0.0
+# v2.x is required by constraints-ai.txt (langchain-openai dependency)
+openai>=2.26.0,<3.0.0
 
 # HTTP client for internal service calls
 aiohttp>=3.9.0,<4.0.0

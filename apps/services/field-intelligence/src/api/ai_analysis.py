@@ -31,8 +31,8 @@ _openrouter_client: AsyncOpenAI | None = None
 
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 
-MODEL_FAST = os.environ.get("OPENROUTER_MODEL_FAST", "qwen/qwen3.5-122b-a10b")
-MODEL_PRIMARY = os.environ.get("OPENROUTER_MODEL_PRIMARY", "qwen/qwen3.5-122b-a10b")
+MODEL_FAST = os.environ.get("OPENROUTER_MODEL_FAST", "qwen/qwen3-next-80b-a3b-instruct:free")
+MODEL_PRIMARY = os.environ.get("OPENROUTER_MODEL_PRIMARY", "qwen/qwen3-next-80b-a3b-instruct:free")
 
 
 def _get_client() -> AsyncOpenAI:
@@ -151,19 +151,62 @@ SYSTEM_PERSONA = """أنت الدكتور خالد الرشيدي، متخصص �
 
 # ── Prompt helpers ────────────────────────────────────────────────────────────
 
-# Arabic names for each index — shown in prompts for clarity
+# Arabic names for each index
 _INDICE_AR: dict[str, str] = {
-    "NDVI":  "مؤشر الغطاء النباتي الطبيعي (NDVI)",
-    "EVI":   "مؤشر الغطاء النباتي المُحسَّن (EVI)",
-    "NDWI":  "مؤشر محتوى الماء في النبات (NDWI)",
-    "NDMI":  "مؤشر رطوبة النبات (NDMI)",
-    "SAVI":  "مؤشر الغطاء مع تعديل التربة (SAVI)",
-    "NDRE":  "مؤشر الحافة الحمراء للكلوروفيل (NDRE)",
-    "NBR":   "نسبة الحرق المُعيَّرة (NBR)",
-    "BSI":   "مؤشر التربة العارية (BSI)",
-    "MSAVI": "مؤشر النبات المُعدَّل للتربة (MSAVI)",
-    "GNDVI": "مؤشر الغطاء النباتي الأخضر (GNDVI)",
-    "LAI":   "مؤشر مساحة الأوراق (LAI)",
+    "NDVI":        "مؤشر الغطاء النباتي الطبيعي (NDVI)",
+    "EVI":         "مؤشر الغطاء النباتي المُحسَّن (EVI)",
+    "EVI2":        "مؤشر الغطاء النباتي ثنائي النطاق (EVI2)",
+    "NDWI":        "مؤشر محتوى الماء في النبات (NDWI)",
+    "NDMI":        "مؤشر رطوبة النبات (NDMI)",
+    "NDMI_STRESS": "مؤشر إجهاد رطوبة النبات (NDMI Stress)",
+    "SAVI":        "مؤشر الغطاء مع تعديل التربة (SAVI)",
+    "NDRE":        "مؤشر الحافة الحمراء للكلوروفيل (NDRE)",
+    "NBR":         "نسبة الحرق المُعيَّرة (NBR)",
+    "BAIS2":       "مؤشر المناطق المحروقة (BAIS2)",
+    "BSI":         "مؤشر التربة العارية (BSI)",
+    "MSAVI":       "مؤشر النبات المُعدَّل للتربة (MSAVI)",
+    "GNDVI":       "مؤشر الغطاء النباتي الأخضر (GNDVI)",
+    "LAI":         "مؤشر مساحة الأوراق (LAI)",
+    "FAPAR":       "جزء الإشعاع الضوئي الممتص (FAPAR)",
+    "FCOVER":      "كسر الغطاء النباتي (FCOVER)",
+    "ARVI":        "مؤشر مقاومة الغلاف الجوي (ARVI)",
+    "PSRI":        "مؤشر شيخوخة النبات (PSRI)",
+    "RECI":        "مؤشر كلوروفيل الحافة الحمراء (RECI)",
+    "NDCI":        "مؤشر الكلوروفيل المعياري (NDCI)",
+    "MCARI":       "مؤشر امتصاص الكلوروفيل (MCARI)",
+    "NDSI":        "مؤشر الثلج المعياري (NDSI)",
+    "KNDVI":       "مؤشر NDVI النواة (kNDVI)",
+    "NDYI":        "مؤشر الاصفرار (NDYI)",
+    "MSI":         "مؤشر إجهاد الرطوبة (MSI)",
+}
+
+# Per-index interpretation context: ranges + what it measures + key thresholds
+_INDICE_CONTEXT: dict[str, str] = {
+    "NDVI": "النطاق −1 إلى +1. < 0.2 = تربة/غطاء حرج | 0.2–0.4 = نبات مجهد | 0.4–0.6 = نبات متوسط | > 0.6 = نبات صحي. يقيس الكثافة الخضرية العامة.",
+    "EVI":  "النطاق −1 إلى +1. أكثر دقة من NDVI في المناطق الكثيفة وعند تشبع الإشارة. < 0.2 = حرج | 0.2–0.4 = مجهد | > 0.5 = صحي.",
+    "EVI2": "مشابه لـ EVI لكن بدون نطاق أزرق. الحدود ذاتها.",
+    "GNDVI":"النطاق −1 إلى +1. حساس لنقص النيتروجين أكثر من NDVI. < 0.25 = نقص شديد | 0.25–0.45 = نقص متوسط | > 0.5 = كافٍ.",
+    "NDRE": "النطاق −1 إلى +1. مؤشر الكلوروفيل ومحتوى النيتروجين. < 0.1 = نقص حاد | 0.1–0.2 = نقص | > 0.2 = مقبول.",
+    "SAVI": "النطاق −1 إلى +1. مُحسَّن للمناطق متفرقة النبات (جفاف، رعي). < 0.2 = غطاء ضعيف | 0.2–0.5 = متوسط | > 0.5 = جيد.",
+    "MSAVI":"مشابه لـ SAVI مع تكيف ذاتي. مناسب للمناطق الجافة. نفس نطاقات SAVI.",
+    "NDWI": "النطاق −1 إلى +1. يقيس محتوى الماء في النبات. < −0.1 = إجهاد مائي حاد | −0.1–0.1 = جفاف معتدل | > 0.2 = محتوى مائي كافٍ.",
+    "NDMI": "النطاق −1 إلى +1. يقيس رطوبة الأوراق. < −0.2 = إجهاد مائي شديد | −0.2–0.0 = مجهد | > 0.0 = رطوبة مناسبة.",
+    "NDMI_STRESS": "نفس NDMI مع تركيز على قيم الإجهاد السلبية.",
+    "MSI":  "النطاق 0 إلى +3. عكسي: الأعلى = جفاف أشد. < 0.4 = رطوبة عالية | 0.4–1.0 = طبيعي | > 1.0 = إجهاد مائي.",
+    "LAI":  "النطاق 0 إلى 8+ م²/م². 0–1 = غطاء ضعيف | 1–3 = متوسط | 3–6 = جيد | > 6 = كثيف جدًا.",
+    "FAPAR":"النطاق 0–1. نسبة الإشعاع الممتص. < 0.3 = غطاء ضعيف | > 0.6 = غطاء جيد.",
+    "FCOVER":"النطاق 0–1. نسبة تغطية الأرض. < 0.3 = تغطية ضعيفة | > 0.6 = تغطية جيدة.",
+    "NBR":  "النطاق −1 إلى +1. يقيس الحرق والتلف. > 0.1 = نبات سليم | −0.1–0.1 = تلف خفيف | < −0.1 = حريق/تلف شديد.",
+    "BAIS2":"النطاق 0–5+. مؤشر المساحات المحروقة. > 1.0 = حريق مؤكد.",
+    "BSI":  "النطاق −1 إلى +1. يكشف التربة العارية. > 0 = تربة مكشوفة | < 0 = غطاء نباتي.",
+    "ARVI": "مشابه لـ NDVI لكن مُصحَّح للغلاف الجوي. نفس نطاقات NDVI.",
+    "PSRI": "النطاق −1 إلى +1. يقيس شيخوخة النبات. > 0.2 = شيخوخة/نضج متقدم | < 0 = نبات خضراء.",
+    "NDYI": "يقيس الاصفرار. > 0.2 = اصفرار واضح ← نقص N أو مرض.",
+    "RECI": "النطاق 0–15+. يقيس الكلوروفيل الكلي. < 2 = نقص | 2–5 = طبيعي | > 5 = وفير.",
+    "NDCI": "النطاق −1 إلى +1. كلوروفيل في المسطحات المائية. > 0.2 = تركيز عالٍ.",
+    "MCARI":"مشابه لـ RECI للكلوروفيل. القيم الأعلى = كلوروفيل أوفر.",
+    "NDSI": "النطاق −1 إلى +1. يكشف الثلج. > 0.4 = غطاء ثلجي.",
+    "KNDVI":"نسخة منقحة من NDVI. نفس نطاقات NDVI لكن أكثر استقرارًا مع الغطاء الكثيف.",
 }
 
 
@@ -171,44 +214,114 @@ def _indice_ar(indice: str) -> str:
     return _INDICE_AR.get(indice.upper(), f"مؤشر {indice}")
 
 
+def _indice_context(indice: str) -> str:
+    return _INDICE_CONTEXT.get(indice.upper(), f"يُرجى تفسير قيمة {indice} وفق معرفتك الزراعية.")
+
+
+def _fmt(val: float | None, decimals: int = 2, unit: str = "") -> str:
+    """Format a numeric value for prompt, replacing None with Arabic 'unavailable'."""
+    if val is None:
+        return "غير متوفر"
+    formatted = f"{val:.{decimals}f}"
+    return f"{formatted} {unit}".strip() if unit else formatted
+
+
 def _build_vegetation_prompt(req: AnalyzeFieldRequest) -> str:
     cdse = req.cdse
     field = req.field
+    m = req.meteo
+    w = req.weather
     indice_label = _indice_ar(req.indice)
-    val_str = f"{cdse.value:.4f}" if cdse.value is not None else "غير متوفر"
+    ctx = _indice_context(req.indice)
+    has_value = cdse.value is not None
+
+    val_str = f"{cdse.value:.4f}" if has_value else "غير متوفر (تعذّر استرداد صورة الأقمار الاصطناعية)"
     range_str = (
-        f" (الحد الأدنى={cdse.minValue:.4f}، الحد الأقصى={cdse.maxValue:.4f}، الانحراف المعياري σ={cdse.stdDev:.4f})"
-        if cdse.value is not None and cdse.minValue is not None
+        f"\nالحد الأدنى      : {cdse.minValue:.4f}"
+        f"\nالحد الأقصى      : {cdse.maxValue:.4f}"
+        f"\nالانحراف المعياري: σ={cdse.stdDev:.4f}"
+        if has_value and cdse.minValue is not None
         else ""
     )
 
-    return f"""<مهمة>
-أنت الدكتور خالد الرشيدي. حلّل بيانات المؤشر الساتلي للحقل الزراعي التالي وأنتج تقريرًا موجزًا عن حالة الغطاء النباتي.
+    # Build environmental block from all available sources (always include)
+    env_lines: list[str] = []
+    if m:
+        env_lines += [
+            f"  رطوبة التربة (0–1 سم)    : {_fmt(m.soilMoisture0to1cm, 3, 'م³/م³')}",
+            f"  التبخر-النتح ET₀ (FAO-56): {_fmt(m.et0FaoEvapotranspiration, 2, 'مم/يوم')}",
+            f"  درجة الحرارة (2م)          : {_fmt(m.temperature2m, 1, '°م')}",
+            f"  الرطوبة النسبية (2م)        : {_fmt(m.relativeHumidity2m, 0, '%')}",
+            f"  الإشعاع الشمسي القصير      : {_fmt(m.shortwaveRadiation, 1, 'واط/م²')}",
+            f"  الغطاء السحابي              : {_fmt(m.cloudCover, 0, '%')}",
+            f"  هطول الأمطار               : {_fmt(m.precipitation, 2, 'مم')}",
+            f"  سرعة الرياح (10م)          : {_fmt(m.windSpeed10m, 1, 'م/ث')}",
+        ]
+    if w:
+        env_lines += [
+            f"  الحالة الجوية (OpenWeather): {w.description or 'غير متوفر'}",
+            f"  درجة الحرارة الظاهرة       : {_fmt(w.feelsLike, 1, '°م')}",
+            f"  الرطوبة (OpenWeather)       : {_fmt(w.humidity, 0, '%')}",
+        ]
+
+    env_block = "\n".join(env_lines) if env_lines else "  لا تتوفر بيانات بيئية"
+
+    if not has_value:
+        return f"""أنت الدكتور خالد الرشيدي. صورة {indice_label} غير متوفرة حاليًا لهذا الحقل (الأرجح بسبب الغيوم أو عدم اكتمال المعالجة). لديك بيانات بيئية وأرصاد زراعية كاملة — استخدمها لتحليل صحة المحصول وأنتج 4 نقاط دقيقة.
 
 <بيانات_الحقل>
-اسم الحقل : {field.nameAr or field.name}
-الموقع    : {field.lat:.4f}° شمالًا، {field.lng:.4f}° شرقًا
-المساحة   : {field.areaHa or 'غير محدد'} هكتار
-نوع المحصول: {field.cropType or 'غير محدد'}
-نوع التربة : {field.soilType or 'غير محدد'}
+الحقل   : {field.nameAr or field.name}
+الموقع  : {field.lat:.4f}°ش، {field.lng:.4f}°ش
+المحصول : {field.cropType or 'غير محدد'} | المساحة: {_fmt(field.areaHa, 1, 'هـ')} | التربة: {field.soilType or 'غير محدد'}
 </بيانات_الحقل>
 
-<بيانات_المؤشر_الساتلي>
-المؤشر المحدد  : {indice_label}
-القيمة المتوسطة: {val_str}{range_str}
-تاريخ الصورة  : {cdse.date or 'غير محدد'}
-الغطاء السحابي: {f"{cdse.cloudCover:.1f}%" if cdse.cloudCover is not None else "غير محدد"}
-</بيانات_المؤشر_الساتلي>
+<البيانات_البيئية_المتاحة>
+{env_block}
+</البيانات_البيئية_المتاحة>
 
-أنتج بالضبط 4–6 نقاط موجزة باللغة العربية تتناول:
-١. ماذا تعني قيمة {indice_label} ({val_str}) زراعيًا لهذا الحقل الآن
-٢. تصنيف صحة النبات (حرج / مجهد / متوسط / صحي / ممتاز) مع المبرر الكمي
-٣. إشارات الإجهاد أو الشذوذات المكتشفة (مائية، غذائية، أمراض، شيخوخة)
-٤. تحليل التباين المكاني من نطاق الحد الأدنى/الأقصى إن توفر
-٥. مستوى الثقة في التقييم مع مراعاة الغطاء السحابي وعمر البيانات
+<المؤشر_المطلوب>
+المؤشر: {indice_label}
+مرجع التفسير: {ctx}
+قيمة المؤشر: {val_str}
+</المؤشر_المطلوب>
 
-التنسيق: نقاط تبدأ بـ "•". أرقام ووحدات دائمًا. بدون عناوين. باللغة العربية حصرًا. الحد الأقصى 120 كلمة لكل نقطة.
-</مهمة>"""
+اكتب 4 نقاط فقط تبدأ كل منها بـ (•):
+• نقطة 1: وضِّح أن صورة {indice_label} غير متاحة الآن مع ذكر السبب المرجح، ومتى يمكن إعادة المحاولة.
+• نقطة 2: قيّم الإجهاد المائي للمحصول بناءً على رطوبة التربة وET₀ — اذكر الأرقام واتخذ قرارًا.
+• نقطة 3: قيّم الإجهاد الحراري والضوئي بناءً على درجة الحرارة والإشعاع الشمسي والرطوبة.
+• نقطة 4: أعطِ تصنيفًا إجماليًا لصحة المحصول (حرج/مجهد/متوسط/صحي) مع التوصية الميدانية الأعلى أولوية.
+
+⚠️ 4 نقاط فقط — لا أكثر ولا أقل. أرقام ووحدات في كل نقطة. بدون عناوين. باللغة العربية حصرًا."""
+
+    return f"""أنت الدكتور خالد الرشيدي. حلِّل مؤشر {indice_label} للحقل أدناه وأنتج 4 نقاط ساتلية دقيقة.
+
+<بيانات_الحقل>
+الحقل   : {field.nameAr or field.name}
+الموقع  : {field.lat:.4f}°ش، {field.lng:.4f}°ش
+المحصول : {field.cropType or 'غير محدد'} | المساحة: {_fmt(field.areaHa, 1, 'هـ')} | التربة: {field.soilType or 'غير محدد'}
+</بيانات_الحقل>
+
+<قراءة_{req.indice}>
+القيمة المتوسطة : {val_str}{range_str}
+تاريخ الصورة   : {cdse.date or 'غير محدد'}
+الغطاء السحابي : {_fmt(cdse.cloudCover, 1, '%')}
+</قراءة_{req.indice}>
+
+<مرجع_التفسير>
+{ctx}
+</مرجع_التفسير>
+
+<البيانات_البيئية_المصاحبة>
+{env_block}
+</البيانات_البيئية_المصاحبة>
+
+اكتب 4 نقاط فقط تبدأ كل منها بـ (•):
+• نقطة 1: فسِّر قيمة {val_str} لـ {indice_label} زراعيًا بالنسبة للمحصول، مع ذكر الرقم صراحةً وتصنيفه وفق مرجع التفسير.
+• نقطة 2: صنِّف صحة النبات (حرج/مجهد/متوسط/صحي/ممتاز) مستندًا إلى الأرقام والنطاقات المرجعية.
+• نقطة 3: حدِّد إشارات الإجهاد أو الشذوذات (مائية/غذائية/أمراض/شيخوخة) مقارنةً بالبيانات البيئية.
+• نقطة 4: اذكر تباين القيم (أدنى/أقصى) إن توفر، ومستوى الثقة في التقييم مع توصية فورية واحدة.
+
+⚠️ 4 نقاط فقط — لا أكثر. أرقام ووحدات في كل نقطة. بدون عناوين. باللغة العربية حصرًا."""
 
 
 def _build_weather_prompt(req: AnalyzeFieldRequest) -> str:
@@ -216,58 +329,54 @@ def _build_weather_prompt(req: AnalyzeFieldRequest) -> str:
     m = req.meteo
     field = req.field
     indice_label = _indice_ar(req.indice)
+    cdse = req.cdse
 
-    weather_block = ""
+    val_str = f"{cdse.value:.4f}" if cdse.value is not None else "غير متوفر"
+
+    weather_block = "  ── OpenWeather: غير متوفر (مفتاح API غير مُهيَّأ) ──"
     if w:
-        weather_block = f"""
-بيانات OpenWeather (الآن):
-  درجة الحرارة    : {w.temperature}°م (تبدو كـ {w.feelsLike}°م)
-  الرطوبة النسبية : {w.humidity}%
-  سرعة الرياح    : {w.windSpeed} م/ث باتجاه {w.windDirection}°
-  هطول الأمطار   : {w.precipitation} مم (الساعة الأخيرة)
-  الغطاء السحابي : {w.cloudCover}%
-  الضغط الجوي    : {w.pressure} هكتوباسكال
-  مدى الرؤية     : {w.visibility} كم
-  الحالة الجوية  : {w.description}"""
+        weather_block = f"""  ── بيانات OpenWeather الحالية ──
+  درجة الحرارة    : {_fmt(w.temperature, 1, '°م')} (تبدو كـ {_fmt(w.feelsLike, 1, '°م')})
+  الرطوبة النسبية : {_fmt(w.humidity, 0, '%')}
+  سرعة الرياح    : {_fmt(w.windSpeed, 1, 'م/ث')} باتجاه {_fmt(w.windDirection, 0, '°')}
+  هطول الأمطار   : {_fmt(w.precipitation, 2, 'مم')} (الساعة الأخيرة)
+  الغطاء السحابي : {_fmt(w.cloudCover, 0, '%')}
+  الضغط الجوي    : {_fmt(w.pressure, 0, 'هكتوباسكال')}
+  مدى الرؤية     : {_fmt(w.visibility, 0, 'كم')}
+  الحالة الجوية  : {w.description or 'غير متوفر'}"""
 
-    meteo_block = ""
+    meteo_block = "  ── OpenMeteo: غير متوفر ──"
     if m:
-        meteo_block = f"""
-بيانات OpenMeteo (الآن):
-  درجة الحرارة (2م)        : {m.temperature2m}°م
-  الرطوبة النسبية (2م)      : {m.relativeHumidity2m}%
-  هطول الأمطار              : {m.precipitation} مم
-  سرعة الرياح (10م)         : {m.windSpeed10m} م/ث
-  رطوبة التربة (0–1 سم)     : {m.soilMoisture0to1cm} م³/م³
-  التبخر-النتح ET₀ (FAO-56) : {m.et0FaoEvapotranspiration} مم/يوم
-  ضغط السطح                 : {m.surfacePressure} هكتوباسكال
-  الغطاء السحابي             : {m.cloudCover}%
-  الإشعاع الشمسي القصير     : {m.shortwaveRadiation} واط/م²"""
+        meteo_block = f"""  ── بيانات OpenMeteo الحالية ──
+  درجة الحرارة (2م)        : {_fmt(m.temperature2m, 1, '°م')}
+  الرطوبة النسبية (2م)      : {_fmt(m.relativeHumidity2m, 0, '%')}
+  هطول الأمطار              : {_fmt(m.precipitation, 2, 'مم')}
+  سرعة الرياح (10م)         : {_fmt(m.windSpeed10m, 1, 'م/ث')}
+  رطوبة التربة (0–1 سم)     : {_fmt(m.soilMoisture0to1cm, 3, 'م³/م³')}
+  التبخر-النتح ET₀ (FAO-56) : {_fmt(m.et0FaoEvapotranspiration, 2, 'مم/يوم')}
+  ضغط السطح                 : {_fmt(m.surfacePressure, 0, 'هكتوباسكال')}
+  الغطاء السحابي             : {_fmt(m.cloudCover, 0, '%')}
+  الإشعاع الشمسي القصير     : {_fmt(m.shortwaveRadiation, 1, 'واط/م²')}"""
 
-    return f"""<مهمة>
-أنت الدكتور خالد الرشيدي. حلّل الظروف الجوية والأرصاد الزراعية الحالية للحقل التالي (بيانات مباشرة الآن).
+    return f"""أنت الدكتور خالد الرشيدي. حلِّل الطقس والأرصاد الزراعية لهذا الحقل وأنتج 4 نقاط طقسية دقيقة.
 
 <بيانات_الحقل>
-الحقل   : {field.nameAr or field.name}
-المحصول : {field.cropType or 'غير محدد'}
-المساحة : {field.areaHa or '؟'} هكتار
-الموقع  : {field.lat:.4f}° شمالًا، {field.lng:.4f}° شرقًا
-المؤشر الساتلي المحدد: {indice_label}
+الحقل: {field.nameAr or field.name} | المحصول: {field.cropType or 'غير محدد'} | {_fmt(field.areaHa, 1, 'هـ')}
+الموقع: {field.lat:.4f}°ش، {field.lng:.4f}°ش | المؤشر الساتلي: {indice_label} = {val_str}
 </بيانات_الحقل>
 
-<بيانات_الطقس_الحالية>{weather_block or chr(10) + '  لا تتوفر بيانات OpenWeather'}{meteo_block or chr(10) + '  لا تتوفر بيانات OpenMeteo'}
-</بيانات_الطقس_الحالية>
+<الطقس_الحالي>
+{weather_block}
+{meteo_block}
+</الطقس_الحالي>
 
-أنتج بالضبط 4–6 نقاط موجزة باللغة العربية تغطي:
-١. مدى ملاءمة الطقس الحالي للعمليات الزراعية (رش، ري، حصاد، خدمة التربة)
-٢. حِمل التبخر-النتح ET₀ وإلحاحية الري بناءً على القيمة الحالية
-٣. حالة رطوبة التربة وتداعياتها على امتصاص الجذور للماء والعناصر
-٤. مخاطر الإجهاد الحراري أو البرودي أو الريحي على المحصول
-٥. مدى كفاية الأمطار مقارنةً باحتياجات المحصول المائية
-٦. مخاطر الآفات والأمراض المرتبطة بالطقس (رطوبة وحرارة ملائمة للفطريات والبكتيريا)
+اكتب 4 نقاط فقط تبدأ كل منها بـ (•):
+• نقطة 1: ملاءمة الطقس الحالي للعمليات الزراعية (رش، ري، حصاد) بناءً على الأرقام الفعلية المذكورة أعلاه.
+• نقطة 2: إلحاحية الري بناءً على ET₀ ورطوبة التربة — اذكر الأرقام صراحةً واتخذ قرارًا واضحًا (ري الآن / تأجيل N يوم).
+• نقطة 3: مخاطر الإجهاد الحراري أو الريحي على المحصول بناءً على درجة الحرارة والرطوبة والإشعاع.
+• نقطة 4: مخاطر الآفات والأمراض المرتبطة بالظروف الجوية الحالية مع توصية وقائية محددة.
 
-التنسيق: نقاط تبدأ بـ "•". أرقام ووحدات دائمًا. بدون عناوين. باللغة العربية حصرًا. الحد الأقصى 120 كلمة لكل نقطة.
-</مهمة>"""
+⚠️ 4 نقاط فقط — لا أكثر. أرقام ووحدات في كل نقطة. بدون عناوين. باللغة العربية حصرًا."""
 
 
 def _build_recommendations_prompt(req: AnalyzeFieldRequest) -> str:
@@ -284,62 +393,56 @@ def _build_recommendations_prompt(req: AnalyzeFieldRequest) -> str:
         else ""
     )
 
-    weather_lines = ""
+    weather_lines = "  ── OpenWeather: غير متوفر (مفتاح API غير مُهيَّأ) ──"
     if w:
-        weather_lines = f"""
-  ── بيانات OpenWeather الحالية ──
-  درجة الحرارة      : {w.temperature}°م (تبدو كـ {w.feelsLike}°م)
-  الرطوبة النسبية   : {w.humidity}%
-  سرعة الرياح       : {w.windSpeed} م/ث | اتجاه {w.windDirection}°
-  هطول الأمطار      : {w.precipitation} مم/ساعة
-  الغطاء السحابي    : {w.cloudCover}%
-  الضغط الجوي       : {w.pressure} هكتوباسكال
-  مدى الرؤية        : {w.visibility} كم
-  الحالة الجوية     : {w.description}"""
+        weather_lines = f"""  ── بيانات OpenWeather الحالية ──
+  درجة الحرارة      : {_fmt(w.temperature, 1, '°م')} (تبدو كـ {_fmt(w.feelsLike, 1, '°م')})
+  الرطوبة النسبية   : {_fmt(w.humidity, 0, '%')}
+  سرعة الرياح       : {_fmt(w.windSpeed, 1, 'م/ث')} | اتجاه {_fmt(w.windDirection, 0, '°')}
+  هطول الأمطار      : {_fmt(w.precipitation, 2, 'مم/ساعة')}
+  الغطاء السحابي    : {_fmt(w.cloudCover, 0, '%')}
+  الضغط الجوي       : {_fmt(w.pressure, 0, 'هكتوباسكال')}
+  مدى الرؤية        : {_fmt(w.visibility, 0, 'كم')}
+  الحالة الجوية     : {w.description or 'غير متوفر'}"""
 
-    meteo_lines = ""
+    meteo_lines = "  ── OpenMeteo: غير متوفر ──"
     if m:
-        meteo_lines = f"""
-  ── بيانات OpenMeteo الحالية ──
-  درجة الحرارة (2م)         : {m.temperature2m}°م
-  الرطوبة النسبية (2م)       : {m.relativeHumidity2m}%
-  هطول الأمطار               : {m.precipitation} مم
-  سرعة الرياح (10م)          : {m.windSpeed10m} م/ث
-  رطوبة التربة (0–1 سم)      : {m.soilMoisture0to1cm} م³/م³
-  التبخر-النتح ET₀ (FAO-56)  : {m.et0FaoEvapotranspiration} مم/يوم
-  ضغط السطح                  : {m.surfacePressure} هكتوباسكال
-  الغطاء السحابي              : {m.cloudCover}%
-  الإشعاع الشمسي القصير      : {m.shortwaveRadiation} واط/م²"""
+        meteo_lines = f"""  ── بيانات OpenMeteo الحالية ──
+  درجة الحرارة (2م)         : {_fmt(m.temperature2m, 1, '°م')}
+  الرطوبة النسبية (2م)       : {_fmt(m.relativeHumidity2m, 0, '%')}
+  هطول الأمطار               : {_fmt(m.precipitation, 2, 'مم')}
+  سرعة الرياح (10م)          : {_fmt(m.windSpeed10m, 1, 'م/ث')}
+  رطوبة التربة (0–1 سم)      : {_fmt(m.soilMoisture0to1cm, 3, 'م³/م³')}
+  التبخر-النتح ET₀ (FAO-56)  : {_fmt(m.et0FaoEvapotranspiration, 2, 'مم/يوم')}
+  ضغط السطح                  : {_fmt(m.surfacePressure, 0, 'هكتوباسكال')}
+  الغطاء السحابي              : {_fmt(m.cloudCover, 0, '%')}
+  الإشعاع الشمسي القصير      : {_fmt(m.shortwaveRadiation, 1, 'واط/م²')}"""
 
-    return f"""<مهمة>
-أنت الدكتور خالد الرشيدي. بناءً على بيانات المؤشر الساتلي والطقس الحالية أدناه، قدّم توصيات زراعية فورية وعملية للمزارع.
+    ctx = _indice_context(req.indice)
+
+    return f"""أنت الدكتور خالد الرشيدي. بناءً على جميع البيانات أدناه، أنتج 5 توصيات زراعية فورية قابلة للتنفيذ.
 
 <بيانات_الحقل_الكاملة>
-  ── معلومات الحقل ──
-  اسم الحقل        : {field.nameAr or field.name}
-  المحصول           : {field.cropType or 'غير محدد'}
-  المساحة           : {field.areaHa or '؟'} هكتار
-  نوع التربة        : {field.soilType or 'غير محدد'}
-  الموقع            : {field.lat:.4f}° شمالًا، {field.lng:.4f}° شرقًا
+الحقل: {field.nameAr or field.name} | المحصول: {field.cropType or 'غير محدد'} | {_fmt(field.areaHa, 1, 'هـ')} | التربة: {field.soilType or 'غير محدد'}
+الموقع: {field.lat:.4f}°ش، {field.lng:.4f}°ش
 
-  ── المؤشر الساتلي CDSE (تاريخ: {cdse.date or 'غير محدد'}) ──
-  المؤشر المحدد     : {indice_label}
-  القيمة المتوسطة   : {val_str}{range_str}
-  الغطاء السحابي    : {f"{cdse.cloudCover:.1f}%" if cdse.cloudCover is not None else "غير محدد"}
+── {indice_label} (تاريخ: {cdse.date or 'غير محدد'}) ──
+القيمة: {val_str}{range_str}
+مرجع التفسير: {ctx}
+
 {weather_lines}
+
 {meteo_lines}
 </بيانات_الحقل_الكاملة>
 
-أنتج بالضبط 5–7 نقاط توصية قابلة للتطبيق الفوري باللغة العربية. كل توصية يجب أن:
-- تكون محددة وقابلة للتنفيذ (24–72 ساعة للحالات الحرجة، 1–2 أسبوع للتخطيط)
-- ترتبط مباشرةً برقم أو قيمة من البيانات أعلاه
-- تتضمن التوقيت والكمية/المعدل أو الطريقة حيثما أمكن
-- تحمل تصنيف الأولوية: [عاجل] أو [عالٍ] أو [متوسط] أو [منخفض]
+اكتب 5 توصيات فقط تبدأ كل منها بـ (•) وتحمل تصنيف الأولوية في البداية:
+• [عاجل/عالٍ/متوسط/منخفض] التوصية 1: قرار الري — هل يجب الري الآن؟ متى؟ كم مم؟ استند للأرقام الفعلية.
+• [عاجل/عالٍ/متوسط/منخفض] التوصية 2: التسميد والتغذية — ما العنصر المطلوب؟ الكمية؟ التوقيت الأمثل؟
+• [عاجل/عالٍ/متوسط/منخفض] التوصية 3: مكافحة الآفات والأمراض — ما المخاطر بناءً على الطقس؟ ما الإجراء؟
+• [عاجل/عالٍ/متوسط/منخفض] التوصية 4: توقيت العمليات الميدانية — ما الذي يجب تأجيله أو تسريعه بناءً على الظروف؟
+• [عاجل/عالٍ/متوسط/منخفض] التوصية 5: مراقبة {indice_label} — ما الإجراء التالي لتتبع هذا المؤشر تحديدًا؟
 
-تغطي كحد أدنى: قرار الري، التسميد والتغذية، الوقاية من الآفات، توقيت العمليات الميدانية، إجراءات المراقبة.
-
-التنسيق: نقاط تبدأ بـ "•". بدون عناوين. باللغة العربية حصرًا. الحد الأقصى 150 كلمة لكل نقطة.
-</مهمة>"""
+⚠️ 5 نقاط فقط — لا أكثر. كل نقطة تحتوي أرقامًا وتوقيتًا ومعدلًا حيثما أمكن. بدون عناوين إضافية. باللغة العربية حصرًا."""
 
 
 # ── Agent runners ─────────────────────────────────────────────────────────────
@@ -369,9 +472,8 @@ async def _run_agent(
         raise
 
 
-def _parse_bullets(text: str) -> list[str]:
+def _parse_bullets(text: str, max_bullets: int = 8) -> list[str]:
     """Extract bullet-point lines. Strips <think> blocks from reasoning models."""
-    # Strip reasoning model thinking blocks (Qwen3.5, DeepSeek-R1, etc.)
     text = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
 
     bullets = []
@@ -393,7 +495,7 @@ def _parse_bullets(text: str) -> list[str]:
             if para and len(para) > 20:
                 bullets.append(para)
 
-    return bullets[:8]
+    return bullets[:max_bullets]
 
 
 # ── Endpoint ─────────────────────────────────────────────────────────────────
@@ -423,10 +525,16 @@ async def analyze_field(req: AnalyzeFieldRequest) -> AnalyzeFieldResponse:
     weather_prompt = _build_weather_prompt(req)
     reco_prompt = _build_recommendations_prompt(req)
 
+    has_cdse = req.cdse.value is not None
+    has_weather = req.weather is not None
+    has_meteo = req.meteo is not None
     logger.info(
-        "AI analysis started — field=%s indice=%s model=%s",
+        "AI analysis started — field=%s indice=%s cdse_value=%s weather=%s meteo=%s model=%s",
         req.field.id,
         req.indice,
+        f"{req.cdse.value:.4f}" if has_cdse else "null",
+        "yes" if has_weather else "null",
+        "yes" if has_meteo else "null",
         MODEL_FAST,
     )
 
@@ -446,8 +554,10 @@ async def analyze_field(req: AnalyzeFieldRequest) -> AnalyzeFieldResponse:
             detail=f"AI analysis failed: {exc}",
         )
 
-    current_status_bullets = _parse_bullets(veg_text) + _parse_bullets(weather_text)
-    recommendation_bullets = _parse_bullets(reco_text)
+    # Vegetation: 4 bullets always (even when CDSE null — prompt uses meteo data).
+    # Weather: 4. Recommendations: 5.
+    current_status_bullets = _parse_bullets(veg_text, 4) + _parse_bullets(weather_text, 4)
+    recommendation_bullets = _parse_bullets(reco_text, 5)
 
     from datetime import datetime, timezone
 

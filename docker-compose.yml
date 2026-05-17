@@ -2946,7 +2946,7 @@ asyncio.run(main())
       # OpenRouter — Qwen3 (free) + Claude Sonnet (paid) via unified API
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
       - OPENROUTER_MODEL_FAST=${OPENROUTER_MODEL_FAST:-qwen/qwen3-next-80b-a3b-instruct:free}
-      - OPENROUTER_MODEL_PRIMARY=${OPENROUTER_MODEL_PRIMARY:-anthropic/claude-sonnet-4-5}
+      - OPENROUTER_MODEL_PRIMARY=${OPENROUTER_MODEL_PRIMARY:-qwen/qwen3-next-80b-a3b-instruct:free}
       - SENTINEL_HUB_CLIENT_ID=${SENTINEL_HUB_CLIENT_ID:-}
       - SENTINEL_HUB_CLIENT_SECRET=${SENTINEL_HUB_CLIENT_SECRET:-}
       - OPENWEATHERMAP_API_KEY=${OPENWEATHERMAP_API_KEY:-}

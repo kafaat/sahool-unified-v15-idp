@@ -329,6 +329,8 @@ interface Props {
   showAllFieldsImagery?: boolean;
   /** Farm ID — used to ensure fly-to re-triggers on farm change */
   farmId?: string | null;
+  /** When provided, draws a bold no-fill bounding box around the whole farm */
+  farmBbox?: { west: number; south: number; east: number; north: number } | null;
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
@@ -346,6 +348,7 @@ export function GoogleSatelliteMap({
   farmCenter,
   showAllFieldsImagery = false,
   farmId,
+  farmBbox,
 }: Props) {
   const [isClient, setIsClient] = useState(false);
 
@@ -572,6 +575,31 @@ export function GoogleSatelliteMap({
           maxNativeZoom={19}
           maxZoom={21}
         />
+
+        {/* ── Farm bounding box — bold outline, no fill ── */}
+        {farmBbox && (() => {
+          const { west, south, east, north } = farmBbox;
+          const positions: [number, number][] = [
+            [south, west],
+            [south, east],
+            [north, east],
+            [north, west],
+            [south, west],
+          ];
+          return (
+            <LeafletPolygon
+              key="farm-bbox"
+              positions={positions}
+              pathOptions={{
+                fillOpacity: 0,
+                color: '#facc15',
+                weight: 3,
+                opacity: 1,
+                dashArray: undefined,
+              }}
+            />
+          );
+        })()}
 
         {/* ── Field boundary polygons ── */}
         {fieldPolygons.map(({ field, positions, isSelected, fill, fillOpacity }) => (

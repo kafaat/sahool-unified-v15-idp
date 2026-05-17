@@ -196,6 +196,44 @@ export class FieldAiDataService {
       this.fetchOpenMeteo(lat, lng),
     ]);
 
+    let cdse: CdseIndexStats =
+      cdseResult.status === "fulfilled"
+        ? cdseResult.value
+        : { indice: upperIndice, value: null, minValue: null, maxValue: null, stdDev: null, date: new Date().toISOString(), cloudCover: null };
+
+    // ── KPI snapshot fallback: if live CDSE value is null, use the most recent
+    // stored snapshot value for this index so the AI always has a number to work with.
+    if (cdse.value === null) {
+      try {
+        const snapshot = await this.prisma.fieldKpiSnapshot.findFirst({
+          where: { fieldId, tenantId },
+          orderBy: { fetchedAt: "desc" },
+        });
+
+        if (snapshot) {
+          const snapshotValue = this.extractSnapshotValue(snapshot, upperIndice);
+          if (snapshotValue !== null) {
+            this.logger.log(
+              `Using KPI snapshot fallback for ${upperIndice} on field ${fieldId}: ${snapshotValue}`,
+            );
+            cdse = {
+              indice: upperIndice,
+              value: snapshotValue,
+              minValue: null,
+              maxValue: null,
+              stdDev: null,
+              date: snapshot.fetchedAt?.toISOString() ?? new Date().toISOString(),
+              cloudCover: snapshot.cloudProbability != null
+                ? parseFloat(String(snapshot.cloudProbability))
+                : null,
+            };
+          }
+        }
+      } catch (err) {
+        this.logger.warn(`KPI snapshot fallback failed for field ${fieldId}: ${String(err)}`);
+      }
+    }
+
     return {
       field: {
         id: field.id,
@@ -207,15 +245,34 @@ export class FieldAiDataService {
         cropType: field.cropType ?? null,
         soilType: field.soilType ?? null,
       },
-      cdse:
-        cdseResult.status === "fulfilled"
-          ? cdseResult.value
-          : { indice: upperIndice, value: null, minValue: null, maxValue: null, stdDev: null, date: new Date().toISOString(), cloudCover: null },
+      cdse,
       weather: weatherResult.status === "fulfilled" ? weatherResult.value : null,
       meteo: meteoResult.status === "fulfilled" ? meteoResult.value : null,
       indice: upperIndice,
       fetchedAt: new Date().toISOString(),
     };
+  }
+
+  /** Maps an index name (e.g. "NDVI") to its numeric value in a KPI snapshot row */
+  private extractSnapshotValue(
+    snapshot: Record<string, unknown>,
+    indice: string,
+  ): number | null {
+    const map: Record<string, string> = {
+      NDVI: "ndvi", EVI: "evi", EVI2: "evi2",
+      NDWI: "ndwi", NDMI: "ndmi", NDMI_STRESS: "ndmi",
+      SAVI: "savi", LAI: "lai", NDRE: "ndre",
+      NBR: "nbr", NBR2: "nbr2", BSI: "bsi",
+      MSAVI: "msavi", GNDVI: "gndvi", ARVI: "arvi",
+      BAIS2: "bais2", NDBI: "ndbi", NDSI: "ndsi",
+      NDGI: "ndgi", LST: "lst",
+    };
+    const key = map[indice];
+    if (!key) return null;
+    const raw = snapshot[key];
+    if (raw == null) return null;
+    const n = parseFloat(String(raw));
+    return Number.isFinite(n) ? parseFloat(n.toFixed(4)) : null;
   }
 
   private async fetchCdseStats(indice: string, bbox: BBox): Promise<CdseIndexStats> {
@@ -228,8 +285,12 @@ export class FieldAiDataService {
     }
 
     try {
+      const authUrl =
+        process.env.SENTINEL_HUB_AUTH_URL ??
+        "https://services.sentinel-hub.com/auth/realms/main/protocol/openid-connect/token";
+
       const tokenRes = await fetch(
-        "https://identity.dataspace.copernicus.eu/auth/realms/CDSE/protocol/openid-connect/token",
+        authUrl,
         {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -249,68 +310,111 @@ export class FieldAiDataService {
       const access_token: string = tokenBody.access_token;
 
       const today = new Date();
-      const from = new Date(today);
-      from.setDate(from.getDate() - 30);
-      const toStr = today.toISOString().split("T")[0] + "T23:59:59Z";
-      const fromStr = from.toISOString().split("T")[0] + "T00:00:00Z";
 
-      const payload = {
-        input: {
-          bounds: {
-            bbox: [bbox.west, bbox.south, bbox.east, bbox.north],
-            properties: { crs: "http://www.opengis.net/def/crs/OGC/1.3/CRS84" },
-          },
-          data: [
-            {
-              type: "sentinel-2-l2a",
-              dataFilter: { mosaickingOrder: "leastCC", maxCloudCoverage: 50 },
+      // Helper: build a statistics payload for a given lookback window and cloud threshold
+      const buildPayload = (lookbackDays: number, maxCloud: number) => {
+        const from = new Date(today);
+        from.setDate(from.getDate() - lookbackDays);
+        return {
+          payload: {
+            input: {
+              bounds: {
+                bbox: [bbox.west, bbox.south, bbox.east, bbox.north],
+                properties: { crs: "http://www.opengis.net/def/crs/OGC/1.3/CRS84" },
+              },
+              data: [
+                {
+                  type: "sentinel-2-l2a",
+                  dataFilter: { mosaickingOrder: "leastCC", maxCloudCoverage: maxCloud },
+                },
+              ],
             },
-          ],
-        },
-        aggregation: {
-          timeRange: { from: fromStr, to: toStr },
-          aggregationInterval: { of: "P30D" },
-          resx: 10,
-          resy: 10,
-          evalscript: getEvalscript(indice),
-        },
-        calculations: {
-          default: {
-            statistics: { default: { percentiles: { k: [25, 50, 75] } } },
+            aggregation: {
+              timeRange: {
+                from: from.toISOString().split("T")[0] + "T00:00:00Z",
+                to: today.toISOString().split("T")[0] + "T23:59:59Z",
+              },
+              aggregationInterval: { of: `P${lookbackDays}D` },
+              resx: 10,
+              resy: 10,
+              evalscript: getEvalscript(indice),
+            },
+            calculations: {
+              default: {
+                statistics: { default: { percentiles: { k: [25, 50, 75] } } },
+              },
+            },
           },
-        },
+          fromStr: from.toISOString().split("T")[0] + "T00:00:00Z",
+        };
       };
 
-      const statsRes = await fetch(
-        "https://services.sentinel-hub.com/api/v1/statistics",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${access_token}`,
-            "Content-Type": "application/json",
+      // Try 30-day / 50% cloud first, then 90-day / 80% cloud as fallback
+      const attempts = [
+        buildPayload(30, 50),
+        buildPayload(90, 80),
+      ];
+
+      let stats: Record<string, number> | null = null;
+      let usedFromStr = attempts[0].fromStr;
+      let intervalFrom: string | undefined;
+
+      const statsApiBase =
+        process.env.SENTINEL_HUB_API_URL ??
+        "https://services.sentinel-hub.com/api/v1";
+
+      for (const attempt of attempts) {
+        if (stats != null) break;
+        const { payload, fromStr } = attempt;
+        usedFromStr = fromStr;
+
+        const statsRes = await fetch(
+          `${statsApiBase}/statistics`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${access_token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+            signal: AbortSignal.timeout(30000),
           },
-          body: JSON.stringify(payload),
-          signal: AbortSignal.timeout(30000),
-        },
-      );
+        );
 
-      if (!statsRes.ok) {
-        const errText = await statsRes.text().catch(() => "");
-        throw new Error(`Statistics API ${statsRes.status}: ${errText.slice(0, 200)}`);
+        if (!statsRes.ok) {
+          const errText = await statsRes.text().catch(() => "");
+          this.logger.warn(`Statistics API ${statsRes.status} (window=${fromStr}): ${errText.slice(0, 200)}`);
+          continue;
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const statsData = (await statsRes.json()) as any;
+        const interval = statsData?.data?.[0];
+        const candidate = interval?.outputs?.default?.bands?.B0?.stats;
+
+        // Accept only if mean is a finite number (not NaN / null)
+        const mean = candidate?.mean != null ? Number(candidate.mean) : NaN;
+        if (Number.isFinite(mean)) {
+          stats = candidate;
+          intervalFrom = interval?.interval?.from;
+        }
       }
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const statsData = (await statsRes.json()) as any;
-      const interval = statsData?.data?.[0];
-      const stats = interval?.outputs?.default?.bands?.B0?.stats;
 
       return {
         indice,
-        value: stats?.mean != null ? parseFloat(Number(stats.mean).toFixed(4)) : null,
-        minValue: stats?.min != null ? parseFloat(Number(stats.min).toFixed(4)) : null,
-        maxValue: stats?.max != null ? parseFloat(Number(stats.max).toFixed(4)) : null,
-        stdDev: stats?.stDev != null ? parseFloat(Number(stats.stDev).toFixed(4)) : null,
-        date: interval?.interval?.from ?? fromStr,
+        value: stats?.mean != null && Number.isFinite(Number(stats.mean))
+          ? parseFloat(Number(stats.mean).toFixed(4))
+          : null,
+        minValue: stats?.min != null && Number.isFinite(Number(stats.min))
+          ? parseFloat(Number(stats.min).toFixed(4))
+          : null,
+        maxValue: stats?.max != null && Number.isFinite(Number(stats.max))
+          ? parseFloat(Number(stats.max).toFixed(4))
+          : null,
+        stdDev: stats?.stDev != null && Number.isFinite(Number(stats.stDev))
+          ? parseFloat(Number(stats.stDev).toFixed(4))
+          : null,
+        date: intervalFrom ?? usedFromStr,
         cloudCover: null,
       };
     } catch (err) {

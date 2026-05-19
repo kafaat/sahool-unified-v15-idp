@@ -160,6 +160,16 @@ export class CreateFarmDto {
   @IsNumber({}, { each: true })
   bbox?: [number, number, number, number];
 
+  @ApiPropertyOptional({
+    description: 'Boundary polygon ring — array of [lng, lat] coordinate pairs (closed or open ring)',
+    type: [[Number]],
+    example: [[44.0, 15.0], [44.5, 15.0], [44.5, 15.5], [44.0, 15.5]],
+  })
+  @IsOptional()
+  @IsArray()
+  @ArrayMinSize(3)
+  boundaryPolygon?: number[][];
+
   @ApiPropertyOptional({ description: 'Map center latitude (WGS84)', example: 15.25 })
   @IsOptional()
   @Type(() => Number)

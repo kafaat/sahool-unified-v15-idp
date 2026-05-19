@@ -319,6 +319,50 @@ function AnalysisPanel({
   );
 }
 
+/** Brief panel when no satellite imagery is available — no AI call made */
+function NoSatellitePanel({
+  field,
+  indice,
+  onClose,
+}: {
+  field: Field;
+  indice: string;
+  onClose: () => void;
+}) {
+  return (
+    <div className="h-full flex flex-col bg-black overflow-hidden" dir="rtl">
+      <div className="flex items-start justify-between px-4 py-3 border-b border-gray-700 flex-shrink-0 bg-gradient-to-l from-gray-900 to-gray-950">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <Satellite className="w-4 h-4 text-gray-400 flex-shrink-0" />
+            <h2 className="text-sm font-extrabold text-white truncate">
+              {field.nameAr || field.name}
+            </h2>
+          </div>
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-mono font-bold bg-gray-800 text-gray-400 border border-gray-700 mt-1">
+            {indice}
+          </span>
+        </div>
+        <button
+          onClick={onClose}
+          className="p-1.5 rounded-lg hover:bg-gray-800 text-gray-400 hover:text-white transition-colors flex-shrink-0 mr-auto ml-0"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+      <div className="flex-1 flex flex-col items-center justify-center px-6 text-center gap-4">
+        <div className="w-14 h-14 rounded-full bg-gray-800/80 flex items-center justify-center">
+          <Satellite className="w-7 h-7 text-gray-500" />
+        </div>
+        <p className="text-sm text-gray-300 leading-relaxed">
+          لا تتوفر صور أقمار اصطناعية لهذا الحقل حاليًا
+        </p>
+        <p className="text-xs text-gray-600">جرّب مؤشرًا آخر أو أعد المحاولة لاحقًا</p>
+      </div>
+    </div>
+  );
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
 
 interface Props {
@@ -336,6 +380,7 @@ export function FarmMonitorTab({ activeLayerId, setActiveLayerId }: Props) {
   const [loadingStep, setLoadingStep] = useState<LoadingStep>('idle');
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [noSatellite, setNoSatellite] = useState(false);
 
   const { data: farms = [], isLoading: farmsLoading } = useFarms();
   const { data: farmFields = [], isLoading: fieldsLoading } = useFieldsList(
@@ -351,6 +396,7 @@ export function FarmMonitorTab({ activeLayerId, setActiveLayerId }: Props) {
       setLoadingStep('idle');
       setAnalysisResult(null);
       setAnalysisError(null);
+      setNoSatellite(false);
       if (farmId) setActiveLayerId('NDVI');
     },
     [setActiveLayerId]
@@ -362,6 +408,7 @@ export function FarmMonitorTab({ activeLayerId, setActiveLayerId }: Props) {
     setSelectedIndice(indice);
     setAnalysisError(null);
     setAnalysisResult(null);
+    setNoSatellite(false);
 
     // Phase 1: Fetch field AI data (CDSE + OpenWeather + OpenMeteo)
     setLoadingStep('fetching');
@@ -384,7 +431,15 @@ export function FarmMonitorTab({ activeLayerId, setActiveLayerId }: Props) {
       return;
     }
 
-    // Phase 2: multi-agent AI analysis
+    // Guard: if no satellite value found across all fallbacks, skip AI and show brief message
+    const cdseValue = (aiData as any)?.cdse?.value;
+    if (cdseValue === null || cdseValue === undefined) {
+      setNoSatellite(true);
+      setLoadingStep('idle');
+      return;
+    }
+
+    // Phase 2: multi-agent AI analysis (3 agents in parallel)
     setLoadingStep('analyzing');
     try {
       const res = await fetch('/api/field-analyze', {
@@ -425,6 +480,7 @@ export function FarmMonitorTab({ activeLayerId, setActiveLayerId }: Props) {
     setSelectedIndice(null);
     setLoadingStep('idle');
     setAnalysisError(null);
+    setNoSatellite(false);
   }, []);
 
   const selectedFarm = farms.find((f) => f.id === selectedFarmId);
@@ -460,20 +516,25 @@ export function FarmMonitorTab({ activeLayerId, setActiveLayerId }: Props) {
   }, [farmFields]);
 
   // Primary: use the farm's stored centerLat/centerLng/zoom.
-  // Fallback: derive center from field polygon bbox after fields load.
+  // Fallback: derive center from the farm's registered bbox, then from computed field extents.
+  // Always use the stored zoom — never fitBounds.
   const farmCenter = useMemo(() => {
     if (!selectedFarm) return null;
     const lat = selectedFarm.centerLat ?? selectedFarm.coordinates?.lat;
     const lng = selectedFarm.centerLng ?? selectedFarm.coordinates?.lng;
+    const zoom = selectedFarm.zoom ?? 14;
     if (lat != null && lng != null) {
-      return { lat: Number(lat), lng: Number(lng), zoom: selectedFarm.zoom ?? 14 };
+      return { lat: Number(lat), lng: Number(lng), zoom };
     }
-    if (farmBbox) {
+    // Derive center from registered bbox first, then from computed field extents
+    const bboxSrc = selectedFarm.bbox
+      ? { west: selectedFarm.bbox[0], south: selectedFarm.bbox[1], east: selectedFarm.bbox[2], north: selectedFarm.bbox[3] }
+      : farmBbox;
+    if (bboxSrc) {
       return {
-        lat: (farmBbox.north + farmBbox.south) / 2,
-        lng: (farmBbox.east + farmBbox.west) / 2,
-        zoom: 14,
-        bbox: farmBbox,
+        lat: (bboxSrc.north + bboxSrc.south) / 2,
+        lng: (bboxSrc.east + bboxSrc.west) / 2,
+        zoom,
       };
     }
     return null;
@@ -487,7 +548,7 @@ export function FarmMonitorTab({ activeLayerId, setActiveLayerId }: Props) {
 
   const isAnalyzing = loadingStep === 'fetching' || loadingStep === 'analyzing';
   const hasResult = !!analysisResult && loadingStep === 'idle';
-  const showSidePanel = !!clickedField && (isAnalyzing || hasResult || !!analysisError);
+  const showSidePanel = !!clickedField && (isAnalyzing || hasResult || !!analysisError || noSatellite);
 
   // Trigger Leaflet invalidateSize after panel visibility changes
   useEffect(() => {
@@ -548,7 +609,6 @@ export function FarmMonitorTab({ activeLayerId, setActiveLayerId }: Props) {
                   flyToTarget={null}
                   farmCenter={farmCenter}
                   farmId={selectedFarmId}
-                  farmBbox={farmBbox ?? null}
                   activeLayerId={activeLayerId}
                   kpiMap={{}}
                   onFieldClick={handleFieldClick}
@@ -591,7 +651,7 @@ export function FarmMonitorTab({ activeLayerId, setActiveLayerId }: Props) {
             )}
 
             {/* ── Click-a-field hint ── */}
-            {!fieldsLoading && !clickedField && !isAnalyzing && !hasResult && farmFields.length > 0 && (
+            {!fieldsLoading && !clickedField && !isAnalyzing && !hasResult && !noSatellite && farmFields.length > 0 && (
               <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[1001]">
                 <div className="bg-black/60 backdrop-blur-sm text-white text-xs px-3 py-1.5 rounded-full">
                   انقر على حقل لبدء التحليل بالذكاء الاصطناعي
@@ -638,6 +698,15 @@ export function FarmMonitorTab({ activeLayerId, setActiveLayerId }: Props) {
                     </div>
                     <AnalysisLoadingPanel step={loadingStep} />
                   </>
+                )}
+
+                {/* No satellite imagery available */}
+                {noSatellite && clickedField && (
+                  <NoSatellitePanel
+                    field={clickedField}
+                    indice={selectedIndice ?? activeLayerId}
+                    onClose={handleCloseAnalysis}
+                  />
                 )}
 
                 {/* Results */}

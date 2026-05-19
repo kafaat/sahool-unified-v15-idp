@@ -28,6 +28,7 @@ export interface Farm {
   centerLat?: number | null;
   centerLng?: number | null;
   zoom?: number | null;
+  boundaryPolygon?: [number, number][] | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -53,6 +54,7 @@ export interface FarmFormData {
   centerLat?: number;
   centerLng?: number;
   zoom?: number;
+  boundaryPolygon?: [number, number][];
 }
 
 export interface FarmStats {

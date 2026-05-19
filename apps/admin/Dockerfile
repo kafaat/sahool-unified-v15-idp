@@ -46,6 +46,29 @@ COPY apps/services/yield-prediction/package.json ./apps/services/yield-predictio
 COPY apps/services/yield-prediction-service/package.json ./apps/services/yield-prediction-service/
 COPY apps/web/package.json ./apps/web/
 
+# Strip lifecycle scripts that require source files not present in the deps stage:
+# - nestjs-auth: prepare runs tsc (needs tsconfig + src + peer deps)
+# - NestJS services: postinstall runs prisma generate (needs prisma/schema.prisma)
+RUN node -e " \
+  const fs=require('fs'); \
+  const strip=['prepare','postinstall']; \
+  const pkgs=[ \
+    'packages/nestjs-auth/package.json', \
+    'apps/services/disaster-assessment/package.json', \
+    'apps/services/chat-service/package.json', \
+    'apps/services/field-management-service/package.json', \
+    'apps/services/iot-service/package.json', \
+    'apps/services/marketplace-service/package.json', \
+    'apps/services/research-core/package.json' \
+  ]; \
+  pkgs.forEach(p=>{ \
+    if(!fs.existsSync(p))return; \
+    const pkg=JSON.parse(fs.readFileSync(p)); \
+    strip.forEach(s=>delete pkg.scripts[s]); \
+    fs.writeFileSync(p,JSON.stringify(pkg,null,2)); \
+  }); \
+"
+
 # Validate all copied package.json files are valid JSON (fail fast if corrupted by merge conflicts)
 COPY docker/validate-package-json.js /usr/local/bin/
 RUN node /usr/local/bin/validate-package-json.js

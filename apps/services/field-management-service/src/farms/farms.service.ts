@@ -17,6 +17,15 @@ import { CreateFarmDto, FarmStatus } from "./dto/create-farm.dto";
 import { UpdateFarmDto } from "./dto/update-farm.dto";
 import { QueryFarmsDto } from "./dto/query-farms.dto";
 
+/** Build a WKT POLYGON string from a coordinate ring [[lng, lat], ...]. */
+function polygonToWkt(coords: number[][]): string {
+  const ring = [...coords];
+  const first = ring[0]!;
+  const last = ring[ring.length - 1]!;
+  if (first[0] !== last[0] || first[1] !== last[1]) ring.push(first);
+  return `POLYGON((${ring.map(([lng, lat]) => `${lng} ${lat}`).join(', ')}))`;
+}
+
 // Convert Prisma Decimal fields to plain numbers for UI consumption.
 function toNumber(value: any): number | undefined {
   if (value === null || value === undefined) return undefined;
@@ -57,6 +66,7 @@ export interface FarmResponse {
   centerLat?: number | null;
   centerLng?: number | null;
   zoom?: number | null;
+  boundaryPolygon?: [number, number][] | null;
   isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -110,7 +120,7 @@ const FARM_SELECT = {
   updatedAt: true,
 } as const;
 
-function serializeFarm(f: any): FarmResponse {
+function serializeFarm(f: any, boundaryPolygon?: [number, number][] | null): FarmResponse {
   // Compute real stats from linked fields when available (findAll / findById
   // queries include fields + _count; create/update queries do not).
   const linkedFields: Array<{ areaHectares: any; cropType?: string | null }> = f.fields ?? [];
@@ -155,6 +165,7 @@ function serializeFarm(f: any): FarmResponse {
     centerLat: toNumber(f.centerLat) ?? null,
     centerLng: toNumber(f.centerLng) ?? null,
     zoom: typeof f.zoom === 'number' ? f.zoom : null,
+    boundaryPolygon: boundaryPolygon ?? null,
     isDeleted: !!f.isDeleted,
     createdAt: f.createdAt,
     updatedAt: f.updatedAt,
@@ -200,7 +211,15 @@ export class FarmsService {
       select: FARM_SELECT,
     });
     this.logger.log(`Farm created: ${created.id} (tenant=${tenantId})`);
-    return serializeFarm(created);
+    if (dto.boundaryPolygon && dto.boundaryPolygon.length >= 3) {
+      const wkt = polygonToWkt(dto.boundaryPolygon);
+      await this.prisma.$executeRawUnsafe(
+        `UPDATE farms SET boundary = ST_GeomFromText($1, 4326) WHERE id = $2::uuid`,
+        wkt,
+        created.id,
+      );
+    }
+    return serializeFarm(created, dto.boundaryPolygon as [number, number][] | undefined);
   }
 
   /**
@@ -250,8 +269,26 @@ export class FarmsService {
       this.prisma.farm.count({ where }),
     ]);
 
+    // Fetch boundary polygons from PostGIS for all returned farms.
+    const boundaryMap = new Map<string, [number, number][] | null>();
+    if (rows.length > 0) {
+      const placeholders = rows.map((_, i) => `$${i + 1}::uuid`).join(', ');
+      const bRows = await this.prisma.$queryRawUnsafe<{ id: string; polygon_json: string | null }[]>(
+        `SELECT id::text, ST_AsGeoJSON(boundary) AS polygon_json FROM farms WHERE id IN (${placeholders}) AND boundary IS NOT NULL`,
+        ...rows.map((r) => r.id),
+      );
+      for (const br of bRows) {
+        try {
+          const geom = JSON.parse(br.polygon_json ?? '');
+          boundaryMap.set(br.id, geom?.coordinates?.[0] ?? null);
+        } catch {
+          boundaryMap.set(br.id, null);
+        }
+      }
+    }
+
     return {
-      farms: rows.map(serializeFarm),
+      farms: rows.map((r) => serializeFarm(r, boundaryMap.get(r.id) ?? null)),
       total,
       page,
       limit,
@@ -278,7 +315,21 @@ export class FarmsService {
       });
     }
 
-    return serializeFarm(farm);
+    let boundaryPolygon: [number, number][] | null = null;
+    try {
+      const bRows = await this.prisma.$queryRawUnsafe<{ polygon_json: string | null }[]>(
+        `SELECT ST_AsGeoJSON(boundary) AS polygon_json FROM farms WHERE id = $1::uuid AND boundary IS NOT NULL`,
+        id,
+      );
+      if (bRows[0]?.polygon_json) {
+        const geom = JSON.parse(bRows[0].polygon_json);
+        boundaryPolygon = geom?.coordinates?.[0] ?? null;
+      }
+    } catch {
+      // Non-fatal — just return without boundary polygon
+    }
+
+    return serializeFarm(farm, boundaryPolygon);
   }
 
   /**
@@ -343,7 +394,15 @@ export class FarmsService {
     });
 
     this.logger.log(`Farm updated: ${id} (tenant=${tenantId})`);
-    return serializeFarm(updated);
+    if (dto.boundaryPolygon && dto.boundaryPolygon.length >= 3) {
+      const wkt = polygonToWkt(dto.boundaryPolygon);
+      await this.prisma.$executeRawUnsafe(
+        `UPDATE farms SET boundary = ST_GeomFromText($1, 4326) WHERE id = $2::uuid`,
+        wkt,
+        id,
+      );
+    }
+    return serializeFarm(updated, dto.boundaryPolygon as [number, number][] | undefined);
   }
 
   /**

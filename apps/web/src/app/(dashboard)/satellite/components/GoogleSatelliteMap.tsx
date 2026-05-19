@@ -19,7 +19,6 @@ import dynamic from 'next/dynamic';
 import type * as L from 'leaflet';
 import type { Field, GeoPolygon } from '@/features/fields/types';
 import type { FieldKpiSnapshot } from '@/features/fields/api';
-import { ndviToFillColor } from '../types';
 import { KpiBadgeMarkers } from './KpiBadgeMarkers';
 
 // ── Dynamic imports — Leaflet requires browser (no SSR) ──────────────────────
@@ -27,10 +26,9 @@ import { KpiBadgeMarkers } from './KpiBadgeMarkers';
 const dynamicLeaflet = (loader: () => Promise<unknown>) =>
   dynamic(loader as any, { ssr: false }) as any;
 
-const MapContainer   = dynamicLeaflet(() => import('react-leaflet').then((m) => m.MapContainer));
-const TileLayer      = dynamicLeaflet(() => import('react-leaflet').then((m) => m.TileLayer));
-const LeafletPolygon = dynamicLeaflet(() => import('react-leaflet').then((m) => m.Polygon));
-const ImageOverlay   = dynamicLeaflet(() => import('react-leaflet').then((m) => m.ImageOverlay));
+const MapContainer = dynamicLeaflet(() => import('react-leaflet').then((m) => m.MapContainer));
+const TileLayer    = dynamicLeaflet(() => import('react-leaflet').then((m) => m.TileLayer));
+const ImageOverlay = dynamicLeaflet(() => import('react-leaflet').then((m) => m.ImageOverlay));
 
 /** Inner component that uses useMap() to handle flyTo without remounting MapContainer */
 type FarmCenter = { lat: number; lng: number; zoom: number; bbox?: { north: number; south: number; east: number; west: number } };
@@ -329,8 +327,6 @@ interface Props {
   showAllFieldsImagery?: boolean;
   /** Farm ID — used to ensure fly-to re-triggers on farm change */
   farmId?: string | null;
-  /** When provided, draws a bold no-fill bounding box around the whole farm */
-  farmBbox?: { west: number; south: number; east: number; north: number } | null;
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
@@ -348,7 +344,6 @@ export function GoogleSatelliteMap({
   farmCenter,
   showAllFieldsImagery = false,
   farmId,
-  farmBbox,
 }: Props) {
   const [isClient, setIsClient] = useState(false);
 
@@ -516,34 +511,6 @@ export function GoogleSatelliteMap({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fields, activeLayerId, activeDate, isClient, showAllFieldsImagery]);
 
-  // ── Field polygons (memoised) ──────────────────────────────────────────────
-  const fieldPolygons = useMemo(
-    () =>
-      fields
-        .filter((f) => f.polygon)
-        .map((f) => {
-          const isSelected = f.id === selectedFieldId;
-          const fill = ndviToFillColor(f.ndviValue);
-          const baseKey = `${f.id}::${activeLayerId}::${activeDate ?? 'latest'}`;
-
-          let fillOpacity: number;
-          if (showAllFieldsImagery) {
-            // Hide fill when imagery is loaded for this field; thin visible border only
-            const hasImagery = allOverlays[f.id]?.key === baseKey;
-            fillOpacity = hasImagery ? 0.0 : 0.12;
-          } else {
-            const imageryVisible = isSelected && sentinelOverlay?.key === baseKey;
-            fillOpacity = isSelected ? (imageryVisible ? 0.0 : 0.15) : 0.20;
-          }
-
-          const positions = f.polygon!.coordinates.map((ring) =>
-            ring.map((coord) => [coord[1] as number, coord[0] as number] as [number, number])
-          );
-          return { field: f, positions, isSelected, fill, fillOpacity };
-        }),
-    [fields, selectedFieldId, activeLayerId, activeDate, sentinelOverlay, showAllFieldsImagery, allOverlays],
-  );
-
   if (!isClient) return <LoadingState />;
 
   // Single-field overlay (field-monitor mode)
@@ -575,47 +542,6 @@ export function GoogleSatelliteMap({
           maxNativeZoom={19}
           maxZoom={21}
         />
-
-        {/* ── Farm bounding box — bold outline, no fill ── */}
-        {farmBbox && (() => {
-          const { west, south, east, north } = farmBbox;
-          const positions: [number, number][] = [
-            [south, west],
-            [south, east],
-            [north, east],
-            [north, west],
-            [south, west],
-          ];
-          return (
-            <LeafletPolygon
-              key="farm-bbox"
-              positions={positions}
-              pathOptions={{
-                fillOpacity: 0,
-                color: '#facc15',
-                weight: 3,
-                opacity: 1,
-                dashArray: undefined,
-              }}
-            />
-          );
-        })()}
-
-        {/* ── Field boundary polygons ── */}
-        {fieldPolygons.map(({ field, positions, isSelected, fill, fillOpacity }) => (
-          <LeafletPolygon
-            key={field.id}
-            positions={positions}
-            pathOptions={{
-              fillColor: fill,
-              fillOpacity,
-              color: isSelected ? '#ffffff' : '#ffffff',
-              weight: isSelected ? 2.5 : 1.8,
-              opacity: 0.9,
-            }}
-            eventHandlers={{ click: () => onFieldClick?.(field) }}
-          />
-        ))}
 
         {/* ── Copernicus CDSE imagery: single-field mode ── */}
         {!showAllFieldsImagery && activeOverlay && (

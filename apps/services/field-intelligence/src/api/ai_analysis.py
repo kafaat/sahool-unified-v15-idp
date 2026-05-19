@@ -267,7 +267,7 @@ def _build_vegetation_prompt(req: AnalyzeFieldRequest) -> str:
     env_block = "\n".join(env_lines) if env_lines else "  لا تتوفر بيانات بيئية"
 
     if not has_value:
-        return f"""أنت الدكتور خالد الرشيدي. صورة {indice_label} غير متوفرة حاليًا لهذا الحقل (الأرجح بسبب الغيوم أو عدم اكتمال المعالجة). لديك بيانات بيئية وأرصاد زراعية كاملة — استخدمها لتحليل صحة المحصول وأنتج 4 نقاط دقيقة.
+        return f"""أنت الدكتور خالد الرشيدي. حلِّل صحة المحصول لهذا الحقل بناءً على بيانات الأرصاد الزراعية الكاملة المتاحة وأنتج 4 نقاط دقيقة.
 
 <بيانات_الحقل>
 الحقل   : {field.nameAr or field.name}
@@ -282,13 +282,12 @@ def _build_vegetation_prompt(req: AnalyzeFieldRequest) -> str:
 <المؤشر_المطلوب>
 المؤشر: {indice_label}
 مرجع التفسير: {ctx}
-قيمة المؤشر: {val_str}
 </المؤشر_المطلوب>
 
 اكتب 4 نقاط فقط تبدأ كل منها بـ (•):
-• نقطة 1: وضِّح أن صورة {indice_label} غير متاحة الآن مع ذكر السبب المرجح، ومتى يمكن إعادة المحاولة.
-• نقطة 2: قيّم الإجهاد المائي للمحصول بناءً على رطوبة التربة وET₀ — اذكر الأرقام واتخذ قرارًا.
-• نقطة 3: قيّم الإجهاد الحراري والضوئي بناءً على درجة الحرارة والإشعاع الشمسي والرطوبة.
+• نقطة 1: قيّم الإجهاد المائي للمحصول بناءً على رطوبة التربة وET₀ — اذكر الأرقام واتخذ قرارًا واضحًا (يحتاج ري/لا يحتاج).
+• نقطة 2: قيّم الإجهاد الحراري والضوئي بناءً على درجة الحرارة والإشعاع الشمسي والرطوبة النسبية.
+• نقطة 3: استنتج الحالة المحتملة لـ {indice_label} تقديريًا من المؤشرات البيئية مع بيان نطاق القيمة المتوقعة.
 • نقطة 4: أعطِ تصنيفًا إجماليًا لصحة المحصول (حرج/مجهد/متوسط/صحي) مع التوصية الميدانية الأعلى أولوية.
 
 ⚠️ 4 نقاط فقط — لا أكثر ولا أقل. أرقام ووحدات في كل نقطة. بدون عناوين. باللغة العربية حصرًا."""
@@ -538,16 +537,27 @@ async def analyze_field(req: AnalyzeFieldRequest) -> AnalyzeFieldResponse:
         MODEL_FAST,
     )
 
+    # Launch all three agents as concurrent tasks immediately
+    tasks = [
+        asyncio.create_task(
+            _run_agent(SYSTEM_PERSONA, veg_prompt,     max_tokens=700,  model=MODEL_FAST),
+            name="vegetation",
+        ),
+        asyncio.create_task(
+            _run_agent(SYSTEM_PERSONA, weather_prompt, max_tokens=700,  model=MODEL_FAST),
+            name="weather",
+        ),
+        asyncio.create_task(
+            _run_agent(SYSTEM_PERSONA, reco_prompt,    max_tokens=1000, model=MODEL_PRIMARY),
+            name="recommendations",
+        ),
+    ]
     try:
-        veg_task     = _run_agent(SYSTEM_PERSONA, veg_prompt,     max_tokens=700, model=MODEL_FAST)
-        weather_task = _run_agent(SYSTEM_PERSONA, weather_prompt, max_tokens=700, model=MODEL_FAST)
-        reco_task    = _run_agent(SYSTEM_PERSONA, reco_prompt,    max_tokens=1000, model=MODEL_PRIMARY)
-
-        veg_text, weather_text, reco_text = await asyncio.gather(
-            veg_task, weather_task, reco_task
-        )
-
+        veg_text, weather_text, reco_text = await asyncio.gather(*tasks)
     except Exception as exc:
+        for t in tasks:
+            if not t.done():
+                t.cancel()
         logger.error("Multi-agent analysis failed: %s", exc)
         raise HTTPException(
             status_code=502,

@@ -139,6 +139,7 @@ export class FieldAiDataService {
         soilType: true,
         areaHectares: true,
         metadata: true,
+        ndviValue: true,
       },
     });
 
@@ -231,6 +232,62 @@ export class FieldAiDataService {
         }
       } catch (err) {
         this.logger.warn(`KPI snapshot fallback failed for field ${fieldId}: ${String(err)}`);
+      }
+    }
+
+    // ── NdviReading fallback: query the historical timeseries table (same data
+    // that powers the satellite map timeline). Pick the most recent reading
+    // regardless of cloud cover — the date is shown to the AI so it knows the
+    // imagery age (e.g. "last captured in May").
+    if (cdse.value === null) {
+      try {
+        const reading = await this.prisma.ndviReading.findFirst({
+          where: { fieldId, tenantId, isDeleted: false },
+          orderBy: { capturedAt: "desc" },
+          select: { value: true, capturedAt: true, cloudCover: true },
+        });
+
+        if (reading?.value != null) {
+          const val = parseFloat(Number(reading.value).toFixed(4));
+          if (Number.isFinite(val)) {
+            this.logger.log(
+              `Using NdviReading fallback for field ${fieldId}: NDVI=${val} captured at ${reading.capturedAt.toISOString()}`,
+            );
+            cdse = {
+              // NdviReading only stores NDVI. For other indices we keep value null
+              // but record the capture date so the AI has temporal context.
+              indice: upperIndice,
+              value: upperIndice === "NDVI" ? val : null,
+              minValue: null,
+              maxValue: null,
+              stdDev: null,
+              date: reading.capturedAt.toISOString(),
+              cloudCover: reading.cloudCover != null
+                ? parseFloat(String(reading.cloudCover))
+                : null,
+            };
+          }
+        }
+      } catch (err) {
+        this.logger.warn(`NdviReading fallback failed for field ${fieldId}: ${String(err)}`);
+      }
+    }
+
+    // ── field.ndviValue fallback: the cached NDVI value stored on the field row
+    // itself (written by updateFieldNdvi). Absolute last resort for NDVI.
+    if (cdse.value === null && upperIndice === "NDVI" && field.ndviValue != null) {
+      const val = parseFloat(Number(field.ndviValue).toFixed(4));
+      if (Number.isFinite(val)) {
+        this.logger.log(`Using field.ndviValue for field ${fieldId}: ${val}`);
+        cdse = {
+          indice: "NDVI",
+          value: val,
+          minValue: null,
+          maxValue: null,
+          stdDev: null,
+          date: cdse.date,
+          cloudCover: cdse.cloudCover,
+        };
       }
     }
 
@@ -349,10 +406,12 @@ export class FieldAiDataService {
         };
       };
 
-      // Try 30-day / 50% cloud first, then 90-day / 80% cloud as fallback
+      // Try progressively wider windows to always find the latest available imagery
       const attempts = [
         buildPayload(30, 50),
         buildPayload(90, 80),
+        buildPayload(180, 90),
+        buildPayload(365, 100),
       ];
 
       let stats: Record<string, number> | null = null;

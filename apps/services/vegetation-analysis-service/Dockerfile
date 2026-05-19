@@ -80,6 +80,9 @@ COPY apps/services/shared/ ./services_shared/
 # Copy source code
 COPY apps/services/vegetation-analysis-service/src/ ./src/
 
+# Copy DB migrations
+COPY apps/services/vegetation-analysis-service/migrations/ ./migrations/
+
 # Set ownership and switch to non-root user
 RUN chown -R sahool:sahool /app
 USER sahool

@@ -39,3 +39,25 @@ sentinelhub>=3.10.0,<4.0.0
 # Local EO package for SAHOOL satellite workflows
 # Installed from packages/sahool-eo/ via pip install -e ../../packages/sahool-eo
 # sahool-eo>=1.0.0  # uncomment in Dockerfile or install via: pip install -e ../../packages/sahool-eo
+
+# Database (async PostgreSQL driver for scheduler)
+asyncpg>=0.29.0,<0.32.0
+
+# NATS (direct connection for field.created subscription)
+nats-py>=2.6.0,<3.0.0
+
+# Scheduler
+apscheduler==3.11.2
+
+# MinIO / S3-compatible object store (GeoTIFF + PNG asset upload)
+boto3>=1.35.0,<2.0.0
+
+# Retry with backoff for CDSE rate limits
+tenacity>=8.2.0,<10.0.0
+
+# Optional: faster TIFF parsing (falls back to tifffile if rasterio unavailable)
+# rasterio>=1.3.0,<2.0.0
+tifffile>=2023.1.1,<2025.0.0
+
+# Optional: PNG thumbnail generation
+Pillow>=10.0.0,<13.0.0

@@ -276,8 +276,9 @@ export class FieldAiDataService {
   }
 
   private async fetchCdseStats(indice: string, bbox: BBox): Promise<CdseIndexStats> {
-    const clientId = process.env.SENTINEL_HUB_CLIENT_ID;
-    const clientSecret = process.env.SENTINEL_HUB_CLIENT_SECRET;
+    // Prefer CDSE credentials (sh-e8ea9e3d-… style) over legacy Sentinel Hub credentials
+    const clientId = process.env.CDSE_CLIENT_ID ?? process.env.SENTINEL_HUB_CLIENT_ID;
+    const clientSecret = process.env.CDSE_CLIENT_SECRET ?? process.env.SENTINEL_HUB_CLIENT_SECRET;
 
     if (!clientId || !clientSecret) {
       this.logger.warn("Sentinel Hub credentials not configured — skipping CDSE fetch");
@@ -285,9 +286,11 @@ export class FieldAiDataService {
     }
 
     try {
+      // Use CDSE token URL when available (SH_TOKEN_URL), fall back to legacy Sentinel Hub
       const authUrl =
+        process.env.SH_TOKEN_URL ??
         process.env.SENTINEL_HUB_AUTH_URL ??
-        "https://services.sentinel-hub.com/auth/realms/main/protocol/openid-connect/token";
+        "https://identity.dataspace.copernicus.eu/auth/realms/CDSE/protocol/openid-connect/token";
 
       const tokenRes = await fetch(
         authUrl,
@@ -359,9 +362,10 @@ export class FieldAiDataService {
       let usedFromStr = attempts[0].fromStr;
       let intervalFrom: string | undefined;
 
-      const statsApiBase =
-        process.env.SENTINEL_HUB_API_URL ??
-        "https://services.sentinel-hub.com/api/v1";
+      // Use CDSE API base when SH_BASE_URL is set, fall back to legacy Sentinel Hub
+      const statsApiBase = process.env.SH_BASE_URL
+        ? `${process.env.SH_BASE_URL}/api/v1`
+        : (process.env.SENTINEL_HUB_API_URL ?? "https://sh.dataspace.copernicus.eu/api/v1");
 
       for (const attempt of attempts) {
         if (stats != null) break;

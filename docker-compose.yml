@@ -2212,6 +2212,15 @@ asyncio.run(main())
       - NASA_EARTHDATA_USERNAME=${NASA_EARTHDATA_USERNAME:-}
       - NASA_EARTHDATA_PASSWORD=${NASA_EARTHDATA_PASSWORD:-}
       # NOTE: Planet provider not implemented - env vars removed (see vegetation-analysis-service docs)
+      # CDSE satellite scheduler
+      - CDSE_CLIENT_ID=${CDSE_CLIENT_ID:-}
+      - CDSE_CLIENT_SECRET=${CDSE_CLIENT_SECRET:-}
+      - SH_BASE_URL=${SH_BASE_URL:-https://sh.dataspace.copernicus.eu}
+      - SH_TOKEN_URL=${SH_TOKEN_URL:-https://identity.dataspace.copernicus.eu/auth/realms/CDSE/protocol/openid-connect/token}
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT:-}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-}
+      - MINIO_SATELLITE_BUCKET=${MINIO_SATELLITE_BUCKET:-sahool-satellite}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable

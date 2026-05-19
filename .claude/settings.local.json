@@ -178,7 +178,9 @@
       "Bash(docker-compose up:*)",
       "Bash(docker-compose build:*)",
       "Bash(sed -i 's|OPENROUTER_MODEL_FAST=.*|OPENROUTER_MODEL_FAST=qwen/qwen3.5-122b-a10b|g' /d/projects/v91/sahoo-adel-full/.env /d/projects/v91/sahoo-adel-full/.env.example)",
-      "Bash(sed -i 's|OPENROUTER_MODEL_PRIMARY=.*|OPENROUTER_MODEL_PRIMARY=qwen/qwen3.5-122b-a10b|g' /d/projects/v91/sahoo-adel-full/.env /d/projects/v91/sahoo-adel-full/.env.example)"
+      "Bash(sed -i 's|OPENROUTER_MODEL_PRIMARY=.*|OPENROUTER_MODEL_PRIMARY=qwen/qwen3.5-122b-a10b|g' /d/projects/v91/sahoo-adel-full/.env /d/projects/v91/sahoo-adel-full/.env.example)",
+      "WebFetch(domain:sentinels.copernicus.eu)",
+      "WebFetch(domain:sentinelhub-py.readthedocs.io)"
     ]
   }
 }

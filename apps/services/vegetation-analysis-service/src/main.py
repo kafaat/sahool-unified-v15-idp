@@ -142,6 +142,10 @@ _phenology_detector = None
 _boundary_detector = None
 _change_detector = None
 
+# Satellite scheduler (initialised in lifespan)
+_satellite_scheduler = None
+_satellite_storage = None
+
 try:
     from .multi_provider import (
         MultiSatelliteService,
@@ -391,7 +395,9 @@ async def lifespan(app: FastAPI):
         _change_detector, \
         _vra_generator, \
         _land_detector, \
-        _boundary_detector
+        _boundary_detector, \
+        _satellite_scheduler, \
+        _satellite_storage
 
     logger.info("service_starting", service="vegetation-analysis-service")
 
@@ -460,12 +466,123 @@ async def lifespan(app: FastAPI):
     if _nats_available:
         logger.info("nats_publisher_available_via_shared_module")
 
+    # ------------------------------------------------------------------ #
+    # Satellite Acquisition Scheduler                                     #
+    # ------------------------------------------------------------------ #
+    _db_pool = None
+    _nats_conn = None
+    _minio_client = None
+
+    # DB pool (optional — scheduler gracefully skips if not configured)
+    _db_url = os.getenv("DATABASE_URL")
+    if _db_url:
+        try:
+            import asyncpg
+            _db_pool = await asyncpg.create_pool(_db_url, min_size=2, max_size=5)
+            # Run migration to ensure tables exist
+            try:
+                import pathlib
+                _migration_path = pathlib.Path(__file__).parent.parent / "migrations" / "001_satellite_scheduler_tables.sql"
+                if _migration_path.exists():
+                    _sql = _migration_path.read_text()
+                    async with _db_pool.acquire() as _conn:
+                        await _conn.execute(_sql)
+                    logger.info("satellite_scheduler_migration_applied")
+            except Exception as _me:
+                logger.warning("satellite_scheduler_migration_error", error=str(_me))
+        except Exception as _e:
+            logger.warning("satellite_scheduler_db_unavailable", error=str(_e))
+
+    # Direct NATS connection for field.created subscription
+    _nats_url = os.getenv("NATS_URL")
+    if _nats_url:
+        try:
+            import nats
+            _nats_conn = await nats.connect(_nats_url)
+            logger.info("satellite_scheduler_nats_connected")
+        except Exception as _e:
+            logger.warning("satellite_scheduler_nats_unavailable", error=str(_e))
+
+    # MinIO client (optional — stores GeoTIFF/PNG if configured)
+    _minio_endpoint = os.getenv("MINIO_ENDPOINT")
+    _minio_access = os.getenv("MINIO_ACCESS_KEY")
+    _minio_secret = os.getenv("MINIO_SECRET_KEY")
+    if _minio_endpoint and _minio_access and _minio_secret:
+        try:
+            import boto3
+            _minio_client = boto3.client(
+                "s3",
+                endpoint_url=f"http://{_minio_endpoint}",
+                aws_access_key_id=_minio_access,
+                aws_secret_access_key=_minio_secret,
+            )
+            logger.info("satellite_scheduler_minio_connected", endpoint=_minio_endpoint)
+        except Exception as _e:
+            logger.warning("satellite_scheduler_minio_unavailable", error=str(_e))
+
+    # CDSE client + scheduler (only when DB is available)
+    if _db_pool:
+        _cdse_client_id = os.getenv("CDSE_CLIENT_ID", "")
+        _cdse_client_secret = os.getenv("CDSE_CLIENT_SECRET", "")
+
+        from .cdse_client import CdseClient
+        from .satellite_storage import SatelliteStorage
+        from .scheduler import SatelliteScheduler
+
+        _cdse = CdseClient(_cdse_client_id, _cdse_client_secret)
+        await _cdse.init()
+
+        _satellite_storage = SatelliteStorage(
+            _db_pool,
+            _minio_client,
+            os.getenv("MINIO_SATELLITE_BUCKET", "sahool-satellite"),
+        )
+
+        _satellite_scheduler = SatelliteScheduler(
+            db_pool=_db_pool,
+            cdse_client=_cdse,
+            minio_client=_minio_client,
+            nats_conn=_nats_conn,
+            bucket_name=os.getenv("MINIO_SATELLITE_BUCKET", "sahool-satellite"),
+        )
+
+        if _cdse_client_id:
+            await _satellite_scheduler.start()
+            logger.info("satellite_scheduler_started")
+        else:
+            logger.warning(
+                "satellite_scheduler_no_cdse_credentials",
+                hint="Set CDSE_CLIENT_ID and CDSE_CLIENT_SECRET to enable scheduler",
+            )
+    else:
+        logger.info("satellite_scheduler_skipped", reason="no DATABASE_URL configured")
+
     logger.info("service_ready", service="vegetation-analysis-service", port=8090)
 
     yield
 
     # Cleanup
     logger.info("service_shutting_down", service="vegetation-analysis-service")
+
+    # Stop satellite scheduler first
+    if _satellite_scheduler:
+        try:
+            await _satellite_scheduler.stop()
+        except Exception as _e:
+            logger.warning("satellite_scheduler_shutdown_error", error=str(_e))
+
+    if _nats_conn:
+        try:
+            await _nats_conn.close()
+        except Exception:
+            pass
+
+    if _db_pool:
+        try:
+            await _db_pool.close()
+        except Exception:
+            pass
+
     for name, resource in [
         ("multi_provider", _multi_provider),
         ("sar_processor", _sar_processor),
@@ -4382,6 +4499,143 @@ async def _fetch_single_ndvi(
     except Exception as e:
         logger.warning(f"Error fetching NDVI for date: {str(e)}")
         return (0.5, 0.2)  # Default values
+
+
+# =============================================================================
+# Satellite Scheduler — Stored-data endpoints
+# نقاط نهاية بيانات الأقمار الصناعية المخزنة
+# =============================================================================
+
+
+@app.get("/v1/satellite/fields/{field_id}/timeseries")
+async def get_stored_satellite_timeseries(
+    field_id: str,
+    index_type: str = Query(default="ndvi", regex="^(ndvi|evi|lai|ndwi)$"),
+    date_from: date | None = Query(default=None),
+    date_to: date | None = Query(default=None),
+    user: User | None = Depends(get_current_user),
+):
+    """
+    Return stored satellite time-series for a field.
+    Only returns dates that have actual data (gaps = missing acquisitions).
+    Falls back to legacy simulated endpoint if no DB data is available.
+    """
+    tenant_id = _require_tenant_id(user)
+    _validate_field_id(field_id)
+
+    if _satellite_storage is None:
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "error": "Satellite storage not initialised",
+                "error_ar": "تخزين الأقمار الصناعية غير مهيأ",
+            },
+        )
+
+    try:
+        rows = await _satellite_storage.get_timeseries(
+            tenant_id=tenant_id,
+            field_id=field_id,
+            index_type=index_type,
+            date_from=date_from,
+            date_to=date_to,
+        )
+    except Exception as exc:
+        logger.error("stored_timeseries_error", field_id=field_id, error=str(exc))
+        raise HTTPException(status_code=500, detail="Failed to retrieve satellite data")
+
+    return {
+        "field_id": field_id,
+        "index_type": index_type,
+        "data_points": len(rows),
+        "timeseries": rows,
+    }
+
+
+@app.get("/v1/satellite/fields/{field_id}/acquisition-plan")
+async def get_field_acquisition_plan(
+    field_id: str,
+    date_from: date | None = Query(default=None),
+    date_to: date | None = Query(default=None),
+    user: User | None = Depends(get_current_user),
+):
+    """
+    Return planned/completed/missed satellite acquisition dates for a field.
+    """
+    tenant_id = _require_tenant_id(user)
+    _validate_field_id(field_id)
+
+    if _satellite_storage is None:
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "error": "Satellite storage not initialised",
+                "error_ar": "تخزين الأقمار الصناعية غير مهيأ",
+            },
+        )
+
+    try:
+        plan = await _satellite_storage.get_acquisition_plan(
+            tenant_id=tenant_id,
+            field_id=field_id,
+            date_from=date_from,
+            date_to=date_to,
+        )
+    except Exception as exc:
+        logger.error("acquisition_plan_error", field_id=field_id, error=str(exc))
+        raise HTTPException(status_code=500, detail="Failed to retrieve acquisition plan")
+
+    return {
+        "field_id": field_id,
+        "plan": plan,
+        "total": len(plan),
+    }
+
+
+@app.get("/v1/satellite/fields/{field_id}/data")
+async def get_field_satellite_data(
+    field_id: str,
+    limit: int = Query(default=50, ge=1, le=500),
+    offset: int = Query(default=0, ge=0),
+    date_from: date | None = Query(default=None),
+    date_to: date | None = Query(default=None),
+    user: User | None = Depends(get_current_user),
+):
+    """
+    Return paginated satellite data rows (all indices) for a field.
+    """
+    tenant_id = _require_tenant_id(user)
+    _validate_field_id(field_id)
+
+    if _satellite_storage is None:
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "error": "Satellite storage not initialised",
+                "error_ar": "تخزين الأقمار الصناعية غير مهيأ",
+            },
+        )
+
+    try:
+        rows = await _satellite_storage.get_timeseries(
+            tenant_id=tenant_id,
+            field_id=field_id,
+            index_type="ndvi",
+            date_from=date_from,
+            date_to=date_to,
+        )
+    except Exception as exc:
+        logger.error("satellite_data_error", field_id=field_id, error=str(exc))
+        raise HTTPException(status_code=500, detail="Failed to retrieve satellite data")
+
+    page = rows[offset : offset + limit]
+    return {
+        "field_id": field_id,
+        "total": len(rows),
+        "limit": limit,
+        "offset": offset,
+        "data": page,
+    }
 
 
 if __name__ == "__main__":

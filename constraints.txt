@@ -33,10 +33,10 @@ httpx==0.28.1
 aiohttp>=3.13.3,<4.0.0  # Security fixes for CVE-2025-53643 and CVE-2025-69223
 
 # Transitive dependencies - minimum secure versions for OWASP/CVE compliance
-requests>=2.32.0  # CVE-2024-35195: session credential leak
-urllib3>=2.2.2  # CVE-2024-37891: proxy auth header leak
+requests>=2.33.0  # CVE-2024-35195: session credential leak
+urllib3>=2.7.0  # CVE-2024-37891: proxy auth header leak
 certifi>=2024.7.4  # CVE-2024-39689: revoked root certificate removal
-idna>=3.7  # CVE-2024-3651: ReDoS in IDNA codec
+idna>=3.15  # CVE-2024-3651: ReDoS in IDNA codec
 jinja2>=3.1.5  # CVE-2024-56201: sandbox escape, CVE-2024-34064: XSS in xmlattr
 werkzeug>=3.0.6  # CVE-2024-34069: debugger arbitrary code execution
 
@@ -121,7 +121,7 @@ isort==5.13.2
 # Utilities
 # ─────────────────────────────────────────────────────────────────────────────
 python-dotenv==1.2.2
-python-multipart==0.0.26
+python-multipart==0.0.27
 python-dateutil==2.9.0.post0
 jsonschema==4.26.0
 tenacity==8.5.0

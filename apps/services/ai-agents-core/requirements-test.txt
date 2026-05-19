@@ -14,7 +14,7 @@ pytest-xdist>=3.3.1  # For parallel test execution
 
 # HTTP Testing
 httpx>=0.25.0
-requests>=2.31.0
+requests>=2.34.2
 requests-mock>=1.11.0
 
 # Mocking and Fixtures

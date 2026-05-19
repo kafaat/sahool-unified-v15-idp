@@ -52,4 +52,4 @@ anthropic>=0.40.0,<1.0.0
 openai>=2.26.0,<3.0.0
 
 # HTTP client for internal service calls
-aiohttp>=3.9.0,<4.0.0
+aiohttp>=3.13.5,<4.0.0

@@ -11,7 +11,6 @@ import type { Field } from '@/features/fields/types';
 import type { FieldKpiSnapshot } from '@/features/fields/api';
 import { SatelliteLayerSwitcher } from './SatelliteLayerSwitcher';
 import { SatelliteTimeline } from './SatelliteTimeline';
-import { SATELLITE_LAYERS } from '../types';
 import { useTimeseriesLayers } from '../hooks/useTimeseriesLayers';
 
 // Dynamic import — uses Google Maps API (browser-only)
@@ -132,6 +131,13 @@ export function SatelliteMapPanel({
         />
       </div>
 
+      {/* Layer switcher — full-width bar between map and timeline */}
+      <SatelliteLayerSwitcher
+        activeLayerId={activeLayerId}
+        onLayerChange={onLayerChange}
+        activeDate={activeDate}
+      />
+
       {/* Timeline slider — shown only when a field is selected */}
       <SatelliteTimeline
         dates={timeseriesDates}
@@ -140,19 +146,6 @@ export function SatelliteMapPanel({
         loading={timeseriesLoading}
         hidden={!selectedFieldId}
       />
-
-      {/* Layer switcher — floating panel, raised above the timeline strip (~44px) */}
-      <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-[1001] bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg px-4 py-3 max-w-[95%]">
-        <SatelliteLayerSwitcher
-          activeLayerId={activeLayerId}
-          onLayerChange={onLayerChange}
-        />
-        <p className="text-center text-xs text-gray-400 mt-2">
-          {selectedFieldId
-            ? `طبقة ${SATELLITE_LAYERS.find(l => l.id === activeLayerId)?.labelAr ?? activeLayerId} — انقر على المؤشر لتغيير الطبقة`
-            : 'اختر حقلاً من القائمة أعلاه لعرض خريطة الحرارة'}
-        </p>
-      </div>
     </div>
   );
 }

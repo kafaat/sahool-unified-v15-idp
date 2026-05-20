@@ -35,7 +35,6 @@ import { useFieldsList } from '@/features/fields/hooks/useFieldsList';
 import { SatelliteLayerSwitcher } from './SatelliteLayerSwitcher';
 import { SatelliteTimeline } from './SatelliteTimeline';
 import { useTimeseriesLayers } from '../hooks/useTimeseriesLayers';
-import { SATELLITE_LAYERS } from '../types';
 import type { Farm } from '@/features/farms/types';
 import type { Field } from '@/features/fields/types';
 
@@ -575,18 +574,14 @@ export function FarmMonitorTab({ activeLayerId, setActiveLayerId }: Props) {
               />
             )}
 
-            {/* ── Layer switcher (centered bottom) ── */}
+            {/* ── Layer switcher — full-width bottom bar ── */}
             {!fieldsLoading && (
-              <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-[1001] bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg px-4 py-3 max-w-[95%]">
+              <div className="absolute bottom-0 left-0 right-0 z-[1001]">
                 <SatelliteLayerSwitcher
                   activeLayerId={activeLayerId}
                   onLayerChange={setActiveLayerId}
+                  activeDate={activeDate}
                 />
-                <p className="text-center text-xs text-gray-400 mt-2">
-                  {selectedFarm
-                    ? `طبقة ${SATELLITE_LAYERS.find((l) => l.id === activeLayerId)?.labelAr ?? activeLayerId} — ${selectedFarm.nameAr || selectedFarm.name}`
-                    : 'اختر مزرعة'}
-                </p>
               </div>
             )}
 

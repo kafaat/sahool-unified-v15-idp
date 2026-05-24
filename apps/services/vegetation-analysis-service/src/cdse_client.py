@@ -151,11 +151,8 @@ class CdseClient:
             "datetime": f"{dt_from}/{dt_to}",
             "collections": ["sentinel-2-l2a"],
             "limit": limit,
-            "filter": {
-                "op": "lte",
-                "args": [{"property": "eo:cloud_cover"}, cloud_max],
-            },
-            "filter-lang": "cql2-json",
+            # Note: CQL2-json filter is not supported by Sentinel Hub STAC;
+            # cloud cover filtering is applied client-side after the search.
         }
 
         features: list[dict] = []
@@ -199,6 +196,10 @@ class CdseClient:
 
             if not next_token:
                 break
+
+        # Client-side cloud cover filter (STAC endpoint doesn't support cql2-json filter)
+        if cloud_max < 100.0:
+            features = [f for f in features if self.scene_cloud_cover(f) <= cloud_max]
 
         logger.info(
             "cdse_search_complete",

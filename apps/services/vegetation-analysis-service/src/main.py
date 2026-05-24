@@ -13,6 +13,7 @@ Field-First Architecture:
 - ActionTemplate output for mobile app task cards
 """
 
+import asyncio
 import io
 import logging
 import os
@@ -145,6 +146,7 @@ _change_detector = None
 # Satellite scheduler (initialised in lifespan)
 _satellite_scheduler = None
 _satellite_storage = None
+_db_pool = None
 
 try:
     from .multi_provider import (
@@ -397,7 +399,8 @@ async def lifespan(app: FastAPI):
         _land_detector, \
         _boundary_detector, \
         _satellite_scheduler, \
-        _satellite_storage
+        _satellite_storage, \
+        _db_pool
 
     logger.info("service_starting", service="vegetation-analysis-service")
 
@@ -478,7 +481,9 @@ async def lifespan(app: FastAPI):
     if _db_url:
         try:
             import asyncpg
-            _db_pool = await asyncpg.create_pool(_db_url, min_size=2, max_size=5)
+            _db_pool = await asyncpg.create_pool(
+                _db_url, min_size=2, max_size=5, statement_cache_size=0
+            )
             # Run migration to ensure tables exist
             try:
                 import pathlib
@@ -4510,7 +4515,7 @@ async def _fetch_single_ndvi(
 @app.get("/v1/satellite/fields/{field_id}/timeseries")
 async def get_stored_satellite_timeseries(
     field_id: str,
-    index_type: str = Query(default="ndvi", regex="^(ndvi|evi|lai|ndwi)$"),
+    index_type: str = Query(default="ndvi", pattern="^(ndvi|evi|lai|ndwi)$"),
     date_from: date | None = Query(default=None),
     date_to: date | None = Query(default=None),
     user: User | None = Depends(get_current_user),
@@ -4635,6 +4640,215 @@ async def get_field_satellite_data(
         "limit": limit,
         "offset": offset,
         "data": page,
+    }
+
+
+@app.get("/v1/scheduler/logs")
+async def get_scheduler_logs(
+    period: str = Query(default="30d", pattern="^(7d|30d|90d)$"),
+    status: str | None = Query(default=None),
+    search: str | None = Query(default=None),
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=50, ge=1, le=200),
+    user: User | None = Depends(get_current_user),
+):
+    """
+    Return paginated scheduler log entries from satellite_field_data joined with fields.
+    Maps satellite_field_data rows to SchedulerLogEntry shape expected by the web UI.
+    """
+    if _db_pool is None:
+        return {"logs": [], "total": 0, "page": page, "limit": limit, "hasMore": False}
+
+    days = period[:-1]  # keep as str for ($1 || ' days')::INTERVAL
+    offset = (page - 1) * limit
+
+    # Build dynamic WHERE clauses
+    conditions = ["sfd.created_at >= NOW() - ($1 || ' days')::INTERVAL"]
+    args: list = [days]
+    arg_idx = 2
+
+    valid_statuses = {"completed", "missed", "skipped", "retry_pending", "failed"}
+    if status and status in valid_statuses:
+        conditions.append(f"sfd.processing_status = ${arg_idx}")
+        args.append(status)
+        arg_idx += 1
+
+    if search:
+        conditions.append(
+            f"f.name ILIKE ${arg_idx}"
+        )
+        args.append(f"%{search}%")
+        arg_idx += 1
+
+    where = " AND ".join(conditions)
+
+    count_sql = f"""
+        SELECT COUNT(*) FROM satellite_field_data sfd
+        LEFT JOIN fields f ON f.id = sfd.field_id
+        WHERE {where}
+    """
+    rows_sql = f"""
+        SELECT
+            sfd.id, sfd.field_id, sfd.acquisition_date, sfd.created_at,
+            sfd.satellite, sfd.cloud_cover_percent,
+            sfd.processing_status AS status,
+            sfd.ndvi_mean, sfd.ndvi_min, sfd.ndvi_max, sfd.ndvi_std,
+            sfd.evi_mean,  sfd.evi_min,  sfd.evi_max,  sfd.evi_std,
+            sfd.lai_mean,  sfd.lai_min,  sfd.lai_max,  sfd.lai_std,
+            sfd.ndwi_mean, sfd.ndwi_min, sfd.ndwi_max, sfd.ndwi_std,
+            sfd.geotiff_url, sfd.png_url,
+            COALESCE(f.name, sfd.field_id::text) AS field_name,
+            COALESCE(f.name, '') AS field_name_ar
+        FROM satellite_field_data sfd
+        LEFT JOIN fields f ON f.id = sfd.field_id
+        WHERE {where}
+        ORDER BY sfd.acquisition_date DESC, sfd.created_at DESC
+        LIMIT ${arg_idx} OFFSET ${arg_idx + 1}
+    """
+
+    try:
+        async with _db_pool.acquire() as conn:
+            total = await conn.fetchval(count_sql, *args)
+            rows = await conn.fetch(rows_sql, *args, limit, offset)
+    except Exception as exc:
+        logger.error("scheduler_logs_query_error", error=str(exc))
+        return {"logs": [], "total": 0, "page": page, "limit": limit, "hasMore": False}
+
+    def _index(mean, mn, mx, std):
+        if mean is None:
+            return None
+        return {"mean": mean, "min": mn, "max": mx, "std": std}
+
+    logs = [
+        {
+            "id": str(r["id"]),
+            "fieldId": str(r["field_id"]),
+            "fieldName": r["field_name"],
+            "fieldNameAr": r["field_name_ar"],
+            "acquisitionDate": r["acquisition_date"].isoformat() if r["acquisition_date"] else None,
+            "processedAt": r["created_at"].isoformat() if r["created_at"] else None,
+            "satellite": r["satellite"],
+            "cloudCoverPercent": r["cloud_cover_percent"] or 0.0,
+            "status": r["status"],
+            "indices": {
+                "ndvi": _index(r["ndvi_mean"], r["ndvi_min"], r["ndvi_max"], r["ndvi_std"]),
+                "evi":  _index(r["evi_mean"],  r["evi_min"],  r["evi_max"],  r["evi_std"]),
+                "lai":  _index(r["lai_mean"],  r["lai_min"],  r["lai_max"],  r["lai_std"]),
+                "ndwi": _index(r["ndwi_mean"], r["ndwi_min"], r["ndwi_max"], r["ndwi_std"]),
+            },
+            "errorMessage": None,
+            "retryCount": 0,
+            "geotiffUrl": r["geotiff_url"],
+            "pngUrl": r["png_url"],
+        }
+        for r in rows
+    ]
+
+    return {"logs": logs, "total": total, "page": page, "limit": limit, "hasMore": (offset + len(logs)) < total}
+
+
+@app.get("/v1/scheduler/stats")
+async def get_scheduler_stats(
+    period: str = Query(default="30d", pattern="^(7d|30d|90d)$"),
+    user: User | None = Depends(get_current_user),
+):
+    """
+    Return scheduler statistics for the given period from satellite_field_data.
+    """
+    if _db_pool is None:
+        return {
+            "totalRuns": 0, "successfulRuns": 0, "failedRuns": 0, "missedRuns": 0,
+            "successRate": 0, "lastRunAt": None, "nextRunAt": None,
+            "totalFieldsProcessed": 0, "averageCloudCover": 0, "period": period,
+        }
+
+    days = period[:-1]  # keep as str for ($1 || ' days')::INTERVAL
+    sql = """
+        SELECT
+            COUNT(*) FILTER (WHERE processing_status = 'completed') AS successful,
+            COUNT(*) FILTER (WHERE processing_status = 'failed')    AS failed,
+            COUNT(*) FILTER (WHERE processing_status = 'missed')    AS missed,
+            COUNT(*) FILTER (WHERE processing_status = 'skipped')   AS skipped,
+            COUNT(*)                                                 AS total,
+            COUNT(DISTINCT field_id)                                 AS fields_processed,
+            AVG(cloud_cover_percent)                                 AS avg_cloud,
+            MAX(created_at)                                          AS last_run
+        FROM satellite_field_data
+        WHERE created_at >= NOW() - ($1 || ' days')::INTERVAL
+    """
+
+    try:
+        async with _db_pool.acquire() as conn:
+            row = await conn.fetchrow(sql, days)
+    except Exception as exc:
+        logger.error("scheduler_stats_query_error", error=str(exc))
+        row = None
+
+    if not row or row["total"] == 0:
+        return {
+            "totalRuns": 0, "successfulRuns": 0, "failedRuns": 0, "missedRuns": 0,
+            "successRate": 0, "lastRunAt": None, "nextRunAt": None,
+            "totalFieldsProcessed": 0, "averageCloudCover": 0, "period": period,
+        }
+
+    total = row["total"] or 0
+    successful = row["successful"] or 0
+
+    return {
+        "totalRuns": total,
+        "successfulRuns": successful,
+        "failedRuns": row["failed"] or 0,
+        "missedRuns": row["missed"] or 0,
+        "successRate": round(successful / total, 4) if total > 0 else 0,
+        "lastRunAt": row["last_run"].isoformat() if row["last_run"] else None,
+        "nextRunAt": None,
+        "totalFieldsProcessed": row["fields_processed"] or 0,
+        "averageCloudCover": round(row["avg_cloud"] or 0, 2),
+        "period": period,
+    }
+
+
+@app.post("/v1/scheduler/trigger")
+async def trigger_scheduler_now(user: User | None = Depends(get_current_user)):
+    """
+    Manually trigger a full satellite grab cycle for all fields:
+    1. Sync acquisition plan (CDSE STAC lookup for all fields)
+    2. Run daily imagery update (download + process today's scenes)
+    """
+    if _satellite_scheduler is None:
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "error": "Scheduler not initialised. Check DATABASE_URL and CDSE credentials.",
+                "error_ar": "المجدول غير مهيأ. تحقق من DATABASE_URL وبيانات CDSE.",
+            },
+        )
+
+    async def _full_run():
+        import traceback
+        try:
+            logger.info("scheduler_manual_trigger_start")
+            # Step 1: direct grab for all fields (bypasses acquisition plan)
+            await _satellite_scheduler.run_now_for_all_fields()
+            logger.info("scheduler_manual_trigger_run_now_done")
+            # Step 2: refresh the acquisition plan for future scheduled runs
+            await _satellite_scheduler._job_sync_acquisition_plan()
+            logger.info("scheduler_manual_trigger_done")
+        except Exception as exc:
+            logger.error(
+                "scheduler_manual_trigger_failed",
+                error=str(exc),
+                traceback=traceback.format_exc(),
+            )
+
+    asyncio.ensure_future(_full_run())
+    logger.info("scheduler_manual_trigger_queued", user_id=getattr(user, "id", "unknown"))
+
+    return {
+        "status": "triggered",
+        "status_ar": "تم التشغيل",
+        "message": "Full grab cycle started: plan sync → imagery download. Check logs for progress.",
+        "message_ar": "بدأ دورة الجلب الكاملة: مزامنة الخطة → تنزيل الصور. تابع السجلات.",
     }
 
 

@@ -106,6 +106,7 @@
     "fieldCompare": "Field Compare",
     "seasonalReports": "Seasonal Reports",
     "audit": "Audit Log",
+    "schedulerLogs": "Scheduler Logs",
     "seedCatalog": "Seed Catalog"
   },
   "pivotIrrigation": {

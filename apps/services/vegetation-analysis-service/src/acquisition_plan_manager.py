@@ -198,12 +198,47 @@ class AcquisitionPlanManager:
         """
         Returns distinct (tenant_id, field_id, bbox) rows.
 
-        bbox is stored as a JSONB array [min_lon, min_lat, max_lon, max_lat]
-        in the satellite_field_data.stac_metadata->>'bbox' column.
-        Falls back to a dedicated field_bboxes table if it exists.
+        Primary source: fields table geometry (ST_Envelope → bbox).
+        Fallback: stac_metadata from satellite_field_data for already-processed fields.
         """
+        import json
+
         async with self._pool.acquire() as conn:
-            # Try the dedicated bbox registry first (populated by backfill / scheduler)
+            # Primary: derive bbox from the canonical fields table geometry
+            try:
+                rows = await conn.fetch(
+                    """
+                    SELECT
+                        tenant_id::text,
+                        id::text AS field_id,
+                        ST_XMin(ST_Envelope(boundary))::float AS min_lon,
+                        ST_YMin(ST_Envelope(boundary))::float AS min_lat,
+                        ST_XMax(ST_Envelope(boundary))::float AS max_lon,
+                        ST_YMax(ST_Envelope(boundary))::float AS max_lat
+                    FROM fields
+                    WHERE is_deleted = false
+                      AND boundary IS NOT NULL
+                    """
+                )
+                if rows:
+                    result = []
+                    for row in rows:
+                        bbox = [row["min_lon"], row["min_lat"], row["max_lon"], row["max_lat"]]
+                        if all(v is not None for v in bbox):
+                            result.append(
+                                {
+                                    "tenant_id": row["tenant_id"],
+                                    "field_id": row["field_id"],
+                                    "bbox": bbox,
+                                }
+                            )
+                    if result:
+                        logger.info("acquisition_plan_fields_from_geometry", count=len(result))
+                        return result
+            except Exception as exc:
+                logger.warning("acquisition_plan_fields_geometry_error", error=str(exc))
+
+            # Fallback: fields that already have satellite data with stac bbox
             try:
                 rows = await conn.fetch(
                     """
@@ -220,8 +255,6 @@ class AcquisitionPlanManager:
 
         result = []
         for row in rows:
-            import json
-
             bbox_raw = row["bbox_json"]
             if isinstance(bbox_raw, str):
                 try:

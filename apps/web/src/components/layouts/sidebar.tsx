@@ -69,6 +69,7 @@ import {
   Award,
   GitCompare,
   CalendarRange,
+  DatabaseZap,
 } from 'lucide-react';
 
 interface NavItem {
@@ -192,6 +193,7 @@ const navGroups: NavGroup[] = [
       { labelKey: 'support', href: '/support', icon: HelpCircle },
       { labelKey: 'settings', href: '/settings', icon: Settings },
       { labelKey: 'audit', href: '/audit', icon: FileText },
+      { labelKey: 'schedulerLogs', href: '/scheduler-logs', icon: DatabaseZap },
       { labelKey: 'seedCatalog', href: '/seeds', icon: Sprout },
     ],
   },

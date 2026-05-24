@@ -160,6 +160,134 @@ class SatelliteScheduler:
 
         logger.info("job_daily_imagery_done", date=str(today))
 
+    async def run_now_for_all_fields(self) -> None:
+        """
+        Manual trigger: grab the most recent available scene for every registered
+        field regardless of the acquisition plan.  Used by the API trigger endpoint.
+
+        Tries today first, then falls back up to 14 days back to find the most
+        recent scene with acceptable cloud cover.
+        """
+        from datetime import timedelta
+
+        # Load all fields directly from the fields table
+        try:
+            async with self._pool.acquire() as conn:
+                rows = await conn.fetch(
+                    """
+                    SELECT
+                        tenant_id::text,
+                        id::text AS field_id,
+                        ST_XMin(ST_Envelope(boundary))::float AS min_lon,
+                        ST_YMin(ST_Envelope(boundary))::float AS min_lat,
+                        ST_XMax(ST_Envelope(boundary))::float AS max_lon,
+                        ST_YMax(ST_Envelope(boundary))::float AS max_lat
+                    FROM fields
+                    WHERE is_deleted = false
+                      AND boundary IS NOT NULL
+                    """
+                )
+        except Exception as exc:
+            logger.error("run_now_get_fields_error", error=str(exc))
+            return
+
+        if not rows:
+            logger.warning("run_now_no_fields_found")
+            return
+
+        logger.info("run_now_fields_found", count=len(rows))
+
+        today = date.today()
+        # Try up to 14 days back to find a scene
+        lookback_dates = [today - timedelta(days=d) for d in range(15)]
+
+        for row in rows:
+            tenant_id = row["tenant_id"]
+            field_id = row["field_id"]
+            bbox = [row["min_lon"], row["min_lat"], row["max_lon"], row["max_lat"]]
+
+            if not all(v is not None for v in bbox):
+                logger.warning("run_now_field_no_bbox", field_id=field_id)
+                continue
+
+            logger.info("run_now_processing_field", field_id=field_id, bbox=bbox)
+
+            # Search for scenes in the lookback window
+            try:
+                features = await self._cdse.search_scenes(
+                    bbox=bbox,
+                    date_from=today - timedelta(days=14),
+                    date_to=today,
+                    cloud_max=80.0,
+                )
+            except Exception as exc:
+                logger.error("run_now_search_error", field_id=field_id, error=str(exc))
+                continue
+
+            if not features:
+                logger.warning("run_now_no_scenes", field_id=field_id, days_back=14)
+                continue
+
+            # Pick the most recent scene
+            best_feature = features[0]
+            acq_date = self._cdse.scene_date(best_feature)
+            if acq_date is None:
+                # Fall back to today
+                acq_date = today
+
+            logger.info(
+                "run_now_scene_found",
+                field_id=field_id,
+                acq_date=str(acq_date),
+                total_scenes=len(features),
+            )
+
+            # Download + process
+            tiff_bytes = await self._cdse.download_bands(
+                bbox=bbox,
+                acquisition_date=acq_date,
+            )
+
+            if tiff_bytes is None:
+                logger.warning("run_now_download_failed", field_id=field_id, acq_date=str(acq_date))
+                continue
+
+            result = self._processor.process(
+                field_id=field_id,
+                tenant_id=tenant_id,
+                acquisition_date=acq_date,
+                tiff_bytes=tiff_bytes,
+            )
+
+            if result is None:
+                logger.warning("run_now_process_failed", field_id=field_id)
+                continue
+
+            # Store — build a stac_metadata that includes the bbox for future lookups
+            stac_metadata = {"bbox": bbox, "acq_date": str(acq_date), "source": "manual_trigger"}
+
+            try:
+                await self._storage.save_field_data(
+                    tenant_id=tenant_id,
+                    field_id=field_id,
+                    acquisition_date=acq_date,
+                    stats=result.to_dict(),
+                    geotiff_bytes=result.geotiff_bytes,
+                    png_bytes=result.png_bytes,
+                    stac_metadata=stac_metadata,
+                    bbox=bbox,
+                )
+                logger.info(
+                    "run_now_stored",
+                    field_id=field_id,
+                    acq_date=str(acq_date),
+                    ndvi_mean=result.ndvi.mean,
+                )
+            except Exception as exc:
+                logger.error("run_now_store_error", field_id=field_id, error=str(exc))
+
+        logger.info("run_now_complete")
+
     async def _job_retry_missed(self) -> None:
         from datetime import datetime
 
@@ -342,9 +470,33 @@ class SatelliteScheduler:
     async def _get_field_bbox(
         self, tenant_id: str, field_id: str
     ) -> list[float] | None:
-        """Retrieve bbox from existing satellite_field_data stac_metadata."""
+        """
+        Retrieve bbox for the field.
+
+        1. Primary: fields table geometry (always available for registered fields).
+        2. Fallback: stac_metadata stored in satellite_field_data from prior runs.
+        """
         try:
             async with self._pool.acquire() as conn:
+                # Primary: compute bbox from the canonical fields table geometry
+                row = await conn.fetchrow(
+                    """
+                    SELECT
+                        ST_XMin(ST_Envelope(boundary))::float AS min_lon,
+                        ST_YMin(ST_Envelope(boundary))::float AS min_lat,
+                        ST_XMax(ST_Envelope(boundary))::float AS max_lon,
+                        ST_YMax(ST_Envelope(boundary))::float AS max_lat
+                    FROM fields
+                    WHERE id = $1::uuid
+                      AND is_deleted = false
+                      AND boundary IS NOT NULL
+                    """,
+                    field_id,
+                )
+                if row and all(row[k] is not None for k in ("min_lon", "min_lat", "max_lon", "max_lat")):
+                    return [row["min_lon"], row["min_lat"], row["max_lon"], row["max_lat"]]
+
+                # Fallback: prior satellite data stac bbox
                 row = await conn.fetchrow(
                     """
                     SELECT stac_metadata->'bbox' AS bbox
@@ -356,12 +508,12 @@ class SatelliteScheduler:
                     tenant_id,
                     field_id,
                 )
-            if row and row["bbox"]:
-                raw = row["bbox"]
-                if isinstance(raw, str):
-                    raw = json.loads(raw)
-                if isinstance(raw, list) and len(raw) == 4:
-                    return [float(v) for v in raw]
+                if row and row["bbox"]:
+                    raw = row["bbox"]
+                    if isinstance(raw, str):
+                        raw = json.loads(raw)
+                    if isinstance(raw, list) and len(raw) == 4:
+                        return [float(v) for v in raw]
         except Exception as exc:
             logger.warning("get_field_bbox_error", field_id=field_id, error=str(exc))
         return None

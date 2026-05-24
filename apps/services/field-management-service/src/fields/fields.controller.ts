@@ -77,8 +77,11 @@ export class FieldsController {
     @Body(new ValidationPipe({ transform: true })) dto: CreateFieldDto,
   ) {
     const tenantId = getRequestTenantId(req);
+    const userId = req.user?.id as string | undefined;
     // Override DTO tenantId with authenticated tenant to prevent spoofing
     dto.tenantId = tenantId;
+    // Set ownerId from the authenticated user's UUID if not explicitly provided
+    if (!dto.ownerId && userId) dto.ownerId = userId;
     const field = await this.fieldsService.create(dto);
     return {
       success: true,

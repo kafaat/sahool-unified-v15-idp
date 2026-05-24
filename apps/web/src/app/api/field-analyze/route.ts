@@ -18,6 +18,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 
   try {
+    // eslint-disable-next-line no-restricted-syntax
     const res = await fetch(`${FIELD_INTELLIGENCE_URL}/api/v1/analyze/field`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

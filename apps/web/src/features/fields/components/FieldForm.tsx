@@ -108,7 +108,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
     if (errors.nameAr) setErrors((prev) => { const e = { ...prev }; delete e.nameAr; return e; });
   };
 
-  /** Single crop input writes to both crop and cropAr */
+  /** Single crop selection writes to both crop and cropAr */
   const handleCropChange = (val: string) => {
     setFormData((prev) => ({ ...prev, crop: val, cropAr: val }));
   };
@@ -290,14 +290,140 @@ export const FieldForm: React.FC<FieldFormProps> = ({
             <label className="block text-sm font-medium text-gray-700 mb-2">
               {isRtl ? 'نوع المحصول' : 'Crop Type'}
             </label>
-            <input
-              type="text"
+            <select
               value={cropValue}
               onChange={(e) => handleCropChange(e.target.value)}
-              className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
-              placeholder={isRtl ? 'نوع المحصول' : 'Crop type'}
-              dir={isRtl ? 'rtl' : 'ltr'}
-            />
+              className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 bg-white"
+              dir="rtl"
+            >
+              <option value="">{isRtl ? '— اختر نوع المحصول —' : '— Select crop type —'}</option>
+
+              <optgroup label="🍎 الفواكه (Fruits)" style={{ color: 'white', backgroundColor: '#374151' }}>
+                <option value="تفاح">تفاح</option>
+                <option value="أفوكادو">أفوكادو</option>
+                <option value="موز">موز</option>
+                <option value="توت">توت</option>
+                <option value="توت أسود">توت أسود</option>
+                <option value="توت أزرق">توت أزرق</option>
+                <option value="كرز">كرز</option>
+                <option value="حمضيات">حمضيات</option>
+                <option value="توت بري">توت بري</option>
+                <option value="قشطة">قشطة</option>
+                <option value="تمر">تمر</option>
+                <option value="تين">تين</option>
+                <option value="عنب زبيب">عنب زبيب</option>
+                <option value="عنب نبيذ">عنب نبيذ</option>
+                <option value="عنب مائدة">عنب مائدة</option>
+                <option value="كيوي">كيوي</option>
+                <option value="ليمون">ليمون</option>
+                <option value="ليتشي">ليتشي</option>
+                <option value="مانجو">مانجو</option>
+                <option value="شمام">شمام</option>
+                <option value="نكتارين">نكتارين</option>
+                <option value="زيتون">زيتون</option>
+                <option value="برتقال">برتقال</option>
+                <option value="خوخ">خوخ</option>
+                <option value="كمثرى">كمثرى</option>
+                <option value="أناناس">أناناس</option>
+                <option value="برقوق">برقوق</option>
+                <option value="رمان">رمان</option>
+                <option value="توت العليق">توت العليق</option>
+                <option value="فراولة">فراولة</option>
+                <option value="سوجاربي">سوجاربي</option>
+                <option value="بطيخ">بطيخ</option>
+              </optgroup>
+
+              <optgroup label="🥬 الخضروات (Vegetables)" style={{ color: 'white', backgroundColor: '#374151' }}>
+                <option value="فلفل أناهايم">فلفل أناهايم</option>
+                <option value="خرشوف">خرشوف</option>
+                <option value="هليون">هليون</option>
+                <option value="فاصوليا طازجة">فاصوليا طازجة</option>
+                <option value="فلفل رومي">فلفل رومي</option>
+                <option value="فول طازج">فول طازج</option>
+                <option value="بروكلي">بروكلي</option>
+                <option value="كرنب بروكسل">كرنب بروكسل</option>
+                <option value="ملفوف">ملفوف</option>
+                <option value="جزر">جزر</option>
+                <option value="قرنبيط">قرنبيط</option>
+                <option value="كرفس">كرفس</option>
+                <option value="هندباء ورقي">هندباء ورقي</option>
+                <option value="هندباء جذر">هندباء جذر</option>
+                <option value="ملفوف صيني">ملفوف صيني</option>
+                <option value="خيار مخلل">خيار مخلل</option>
+                <option value="خيار تقطيع">خيار تقطيع</option>
+                <option value="باذنجان">باذنجان</option>
+                <option value="أنديف">أنديف</option>
+                <option value="ثوم">ثوم</option>
+                <option value="بصل أخضر">بصل أخضر</option>
+                <option value="خس رأس">خس رأس</option>
+                <option value="فلفل هالابينيو">فلفل هالابينيو</option>
+                <option value="كيل">كيل</option>
+                <option value="خس ورقي">خس ورقي</option>
+                <option value="كراث">كراث</option>
+                <option value="نعناع">نعناع</option>
+                <option value="بصل">بصل</option>
+                <option value="بازلاء طازجة">بازلاء طازجة</option>
+                <option value="فلفل بوبلانو">فلفل بوبلانو</option>
+                <option value="بطاطس">بطاطس</option>
+                <option value="قرع">قرع</option>
+                <option value="فجل">فجل</option>
+                <option value="فلفل سيرانو">فلفل سيرانو</option>
+                <option value="سبانخ">سبانخ</option>
+                <option value="ذرة حلوة">ذرة حلوة</option>
+                <option value="بطاطا حلوة">بطاطا حلوة</option>
+                <option value="طماطم مكسيكية">طماطم مكسيكية</option>
+                <option value="طماطم">طماطم</option>
+              </optgroup>
+
+              <optgroup label="🌾 الحبوب والبقوليات (Grains & Legumes)" style={{ color: 'white', backgroundColor: '#374151' }}>
+                <option value="شعير">شعير</option>
+                <option value="فاصوليا جافة">فاصوليا جافة</option>
+                <option value="فول جاف">فول جاف</option>
+                <option value="ذرة">ذرة</option>
+                <option value="عدس">عدس</option>
+                <option value="دخن">دخن</option>
+                <option value="شوفان">شوفان</option>
+                <option value="فول سوداني">فول سوداني</option>
+                <option value="بازلاء جافة">بازلاء جافة</option>
+                <option value="فشار">فشار</option>
+                <option value="كينوا">كينوا</option>
+                <option value="أرز">أرز</option>
+                <option value="ذرة بذور">ذرة بذور</option>
+                <option value="ذرة رفيعة">ذرة رفيعة</option>
+                <option value="فول الصويا">فول الصويا</option>
+                <option value="تيف">تيف</option>
+                <option value="قمح">قمح</option>
+                <option value="قمح شتوي">قمح شتوي</option>
+              </optgroup>
+
+              <optgroup label="📌 محاصيل أخرى" style={{ color: 'white', backgroundColor: '#374151' }}>
+                <option value="برسيم / فصة">برسيم / فصة</option>
+                <option value="لوز">لوز</option>
+                <option value="كاكاو">كاكاو</option>
+                <option value="قهوة">قهوة</option>
+                <option value="كزبرة">كزبرة</option>
+                <option value="قطن">قطن</option>
+                <option value="أوكالبتوس">أوكالبتوس</option>
+                <option value="عشب">عشب</option>
+                <option value="عشب المراعي">عشب المراعي</option>
+                <option value="بندق">بندق</option>
+                <option value="قنب">قنب</option>
+                <option value="جنجل">جنجل</option>
+                <option value="مكاديميا">مكاديميا</option>
+                <option value="خردل">خردل</option>
+                <option value="بيكان">بيكان</option>
+                <option value="فستق">فستق</option>
+                <option value="حور">حور</option>
+                <option value="كانولا">كانولا</option>
+                <option value="ورد">ورد</option>
+                <option value="قصب السكر">قصب السكر</option>
+                <option value="دوار الشمس">دوار الشمس</option>
+                <option value="تبغ">تبغ</option>
+                <option value="توليب">توليب</option>
+                <option value="عشب الملاعب">عشب الملاعب</option>
+                <option value="جوز">جوز</option>
+              </optgroup>
+            </select>
           </div>
 
           {/* ── Description ────────────────────────────────────────────────── */}

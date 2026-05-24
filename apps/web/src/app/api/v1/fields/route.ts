@@ -20,6 +20,7 @@ const FIELD_SERVICE_URL =
   process.env.FIELD_MANAGEMENT_SERVICE_URL ||
   'http://localhost:3000';
 
+// eslint-disable-next-line no-restricted-syntax
 const UPSTREAM = `${FIELD_SERVICE_URL}/api/v1/fields`;
 
 // ─── helpers ─────────────────────────────────────────────────────────────────

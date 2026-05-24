@@ -11,7 +11,7 @@
  */
 
 import React, { useRef } from 'react';
-import { Calendar, Cloud, Loader2 } from 'lucide-react';
+import { Calendar, Loader2 } from 'lucide-react';
 import type { TimeseriesEntry } from '../hooks/useTimeseriesLayers';
 
 interface Props {

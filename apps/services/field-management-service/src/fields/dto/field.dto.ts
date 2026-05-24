@@ -407,6 +407,11 @@ export class QueryFieldsDto {
   @IsString()
   tenantId?: string;
 
+  @ApiPropertyOptional({ description: "Owner user ID (set server-side from JWT, not from client)" })
+  @IsOptional()
+  @IsString()
+  ownerId?: string;
+
   @ApiPropertyOptional({ enum: FieldStatus })
   @IsOptional()
   @IsEnum(FieldStatus)

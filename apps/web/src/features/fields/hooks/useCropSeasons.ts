@@ -161,7 +161,9 @@ export function useFieldOperations(
     queryKey: fieldOperationKeys.byField(fieldId ?? ''),
     queryFn: () => fieldOperationsApi.listByField(fieldId!),
     enabled: !!fieldId && (options?.enabled ?? true),
-    staleTime: 1000 * 60 * 2,
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: 'always',
   });
 }
 

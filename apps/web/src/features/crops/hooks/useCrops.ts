@@ -20,7 +20,9 @@ export function useCrops(filters?: CropFilters) {
   return useQuery({
     queryKey: cropKeys.list(filters),
     queryFn: () => cropsApi.getCrops(filters),
-    staleTime: 1000 * 60 * 5,
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: 'always',
   });
 }
 

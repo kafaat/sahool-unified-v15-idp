@@ -50,7 +50,7 @@ export class FieldOperationsService {
    * by field, crop season, operation type, equipment, and date range.
    * Returns rows ordered newest-first by performedAt.
    */
-  async list(tenantId: string, q: QueryFieldOperationsDto) {
+  async list(tenantId: string, q: QueryFieldOperationsDto, userEmail?: string) {
     if (q.fieldId) {
       await this.assertFieldOwnership(q.fieldId, tenantId);
     }
@@ -59,6 +59,7 @@ export class FieldOperationsService {
     if (q.cropSeasonId) where.cropSeasonId = q.cropSeasonId;
     if (q.operationType) where.operationType = q.operationType;
     if (q.equipmentId) where.equipmentId = q.equipmentId;
+    if (userEmail) where.createdBy = userEmail;
     if (q.fromDate || q.toDate) {
       const range: { gte?: Date; lte?: Date } = {};
       if (q.fromDate) range.gte = new Date(q.fromDate);

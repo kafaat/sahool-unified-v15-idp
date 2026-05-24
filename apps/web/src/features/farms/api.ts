@@ -57,7 +57,7 @@ export const farmsApi = {
       const { totalAreaHa, ...rest } = data as FarmFormData & { totalAreaHa?: number };
       const payload = { ...rest, ...(totalAreaHa != null ? { totalAreaHectares: totalAreaHa } : {}) };
       const response = await api.post(FARM_ENDPOINTS.CREATE, payload);
-      return extractData<Farm>(response);
+      return mapFarm(extractData<unknown>(response));
     });
   },
 
@@ -68,7 +68,7 @@ export const farmsApi = {
       const { totalAreaHa, ...rest } = data as Partial<FarmFormData> & { totalAreaHa?: number };
       const payload = { ...rest, ...(totalAreaHa != null ? { totalAreaHectares: totalAreaHa } : {}) };
       const response = await api.put(url, payload);
-      return extractData<Farm>(response);
+      return mapFarm(extractData<unknown>(response));
     });
   },
 

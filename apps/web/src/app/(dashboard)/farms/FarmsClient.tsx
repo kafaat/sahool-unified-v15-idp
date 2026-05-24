@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Building2, Plus, Search, MapPin, Droplets, Users, AlertTriangle, X, Loader2 } from 'lucide-react';
+import { Building2, Plus, Search, MapPin, Droplets, Users, X, Loader2 } from 'lucide-react';
 import { useLocale } from 'next-intl';
 import { useFarms, useFarmStats, useUpdateFarm, useCreateFarm } from '@/features/farms';
 import type { Farm, FarmStatus, FarmFormData } from '@/features/farms';
@@ -85,7 +85,7 @@ export default function FarmsClient() {
   const [editDist, setEditDist] = useState('');
   const [editFlyTo, setEditFlyTo] = useState<[number, number] | null>(null);
 
-  const { data: farms = [], isLoading, error } = useFarms();
+  const { data: farms = [], isLoading } = useFarms();
   const { data: stats } = useFarmStats();
   const updateFarm = useUpdateFarm();
   const createFarm = useCreateFarm();

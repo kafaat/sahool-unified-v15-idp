@@ -56,7 +56,8 @@ export class FieldOperationsController {
     q: QueryFieldOperationsDto,
   ) {
     const tenantId = getRequestTenantId(req);
-    const result = await this.service.list(tenantId, q);
+    const userEmail: string | undefined = req.user?.email;
+    const result = await this.service.list(tenantId, q, userEmail);
     return { success: true, ...result };
   }
 
@@ -73,7 +74,8 @@ export class FieldOperationsController {
     q: QueryFieldOperationsDto,
   ) {
     const tenantId = getRequestTenantId(req);
-    const result = await this.service.list(tenantId, { ...q, fieldId });
+    const userEmail: string | undefined = req.user?.email;
+    const result = await this.service.list(tenantId, { ...q, fieldId }, userEmail);
     return { success: true, ...result };
   }
 
@@ -94,8 +96,8 @@ export class FieldOperationsController {
     dto: CreateFieldOperationDto,
   ) {
     const tenantId = getRequestTenantId(req);
-    const userId: string | undefined = req.user?.sub ?? req.user?.id;
-    const row = await this.service.create(fieldId, tenantId, dto, userId);
+    const userEmail: string | undefined = req.user?.email;
+    const row = await this.service.create(fieldId, tenantId, dto, userEmail);
     return {
       success: true,
       data: row,
@@ -150,8 +152,8 @@ export class FieldOperationsController {
     @Param("id", ParseUUIDPipe) id: string,
   ) {
     const tenantId = getRequestTenantId(req);
-    const userId: string | undefined = req.user?.sub ?? req.user?.id;
-    await this.service.remove(id, tenantId, userId);
+    const userEmail: string | undefined = req.user?.email;
+    await this.service.remove(id, tenantId, userEmail);
   }
 
   /**
@@ -172,8 +174,8 @@ export class FieldOperationsController {
     _dto: ApproveFieldOperationDto,
   ) {
     const tenantId = getRequestTenantId(req);
-    const userId: string | undefined = req.user?.sub ?? req.user?.id;
-    const row = await this.service.approve(id, tenantId, userId);
+    const userEmail: string | undefined = req.user?.email;
+    const row = await this.service.approve(id, tenantId, userEmail);
     return { success: true, data: row };
   }
 
@@ -194,8 +196,8 @@ export class FieldOperationsController {
     dto: RejectFieldOperationDto,
   ) {
     const tenantId = getRequestTenantId(req);
-    const userId: string | undefined = req.user?.sub ?? req.user?.id;
-    const row = await this.service.reject(id, tenantId, dto.reason, userId);
+    const userEmail: string | undefined = req.user?.email;
+    const row = await this.service.reject(id, tenantId, dto.reason, userEmail);
     return { success: true, data: row };
   }
 }

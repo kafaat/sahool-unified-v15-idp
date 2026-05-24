@@ -23,7 +23,7 @@
     "apps/services/yield-prediction-service"
   ],
   "scripts": {
-    "postinstall": "npm run prisma:generate",
+    "postinstall": "echo 'prisma generate handled per-service in Dockerfiles'",
     "prisma:generate": "node scripts/prisma-generate.js",
     "dev:web": "npm run dev --workspace=apps/web",
     "dev:admin": "npm run dev --workspace=apps/admin",

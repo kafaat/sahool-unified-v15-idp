@@ -22,6 +22,9 @@ export function useFarms(filters?: FarmFilters) {
     queryKey: farmKeys.list(filters),
     queryFn: () => farmsApi.getFarms(filters),
     staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -46,16 +49,14 @@ export function useCreateFarm() {
   return useMutation({
     mutationFn: (data: FarmFormData) => farmsApi.createFarm(data),
     onSuccess: async (newFarm: Farm) => {
-      // Cancel any in-flight fetches so they don't overwrite the optimistic update.
-      await qc.cancelQueries({ queryKey: farmKeys.all });
-      // Patch the cache immediately so the new farm appears without a round-trip.
+      // Patch cache immediately so the new farm appears without waiting for a round-trip.
       qc.setQueriesData<Farm[]>(
         { queryKey: farmKeys.lists() },
         (old) => (old ? [newFarm, ...old] : [newFarm]),
       );
-      // Force an immediate refetch (not just mark stale) so the list is confirmed
-      // from the server. refetchQueries triggers even if no background fetch is pending.
-      await qc.refetchQueries({ queryKey: farmKeys.all });
+      // Invalidate all farm queries — triggers a background refetch on active observers
+      // (the mounted useFarms hook), confirming the list with server truth.
+      await qc.invalidateQueries({ queryKey: farmKeys.all });
     },
   });
 }
@@ -66,13 +67,12 @@ export function useUpdateFarm() {
     mutationFn: ({ id, data }: { id: string; data: Partial<FarmFormData> }) =>
       farmsApi.updateFarm(id, data),
     onSuccess: async (updatedFarm: Farm) => {
-      await qc.cancelQueries({ queryKey: farmKeys.all });
       qc.setQueriesData<Farm[]>(
         { queryKey: farmKeys.lists() },
         (old) => old?.map((f) => (f.id === updatedFarm.id ? updatedFarm : f)),
       );
       qc.setQueryData(farmKeys.detail(updatedFarm.id), updatedFarm);
-      await qc.refetchQueries({ queryKey: farmKeys.all });
+      await qc.invalidateQueries({ queryKey: farmKeys.all });
     },
   });
 }
@@ -82,13 +82,12 @@ export function useDeleteFarm() {
   return useMutation({
     mutationFn: (id: string) => farmsApi.deleteFarm(id),
     onSuccess: async (_, id) => {
-      await qc.cancelQueries({ queryKey: farmKeys.all });
       qc.setQueriesData<Farm[]>(
         { queryKey: farmKeys.lists() },
         (old) => old?.filter((f) => f.id !== id),
       );
       qc.removeQueries({ queryKey: farmKeys.detail(id) });
-      await qc.refetchQueries({ queryKey: farmKeys.all });
+      await qc.invalidateQueries({ queryKey: farmKeys.all });
     },
   });
 }

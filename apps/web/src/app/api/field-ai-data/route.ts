@@ -29,6 +29,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   const cookieStore = await cookies();
   const token = cookieStore.get('access_token')?.value;
 
+  // eslint-disable-next-line no-restricted-syntax
   const upstream = new URL(`${FIELD_SERVICE_URL}/api/v1/fields/${fieldId}/ai-data`);
   upstream.searchParams.set('indice', indice.toUpperCase());
 

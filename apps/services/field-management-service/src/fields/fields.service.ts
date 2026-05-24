@@ -380,6 +380,8 @@ export class FieldsService {
 
     // Build where clause - tenantId is always required for isolation
     const where: any = { tenantId: query.tenantId };
+    // Scope to the authenticated user: each user only sees their own fields.
+    if (query.ownerId) where.ownerId = query.ownerId;
     if (query.status) where.status = query.status;
     if (query.cropType) where.cropType = query.cropType;
 

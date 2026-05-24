@@ -17,7 +17,7 @@ import CommandPalette from '@/components/common/CommandPalette';
  */
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { isAuthenticated, isLoading, checkAuth } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const [commandPaletteOpen, setCommandPaletteOpen] = React.useState(false);
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
 

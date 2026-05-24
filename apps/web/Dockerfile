@@ -86,6 +86,12 @@ ENV NEXT_PUBLIC_WS_URL=$NEXT_PUBLIC_WS_URL
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV DOCKER_BUILD=true
 
+# Re-run install with full source so npm properly hoists workspace binaries (next, tsup, etc.)
+RUN --mount=type=cache,target=/root/.npm \
+    npm install --legacy-peer-deps --prefer-offline --no-audit --no-fund --ignore-scripts || true
+
+ENV PATH=/app/node_modules/.bin:$PATH
+
 # Build shared packages first
 RUN npm run build --workspace=packages/shared-utils --if-present || true
 RUN npm run build --workspace=packages/shared-ui --if-present || true
@@ -135,7 +141,7 @@ LABEL org.opencontainers.image.title="SAHOOL Web Dashboard" \
 
 # Health check to ensure the application is running
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://127.0.0.1:3000/api/health || exit 1
 
 # Use tini as init system for proper signal handling and zombie reaping
 ENTRYPOINT ["/sbin/tini", "--"]

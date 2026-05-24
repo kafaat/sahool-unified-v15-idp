@@ -64,7 +64,8 @@ export class CropSeasonsController {
     q: QueryCropSeasonsDto,
   ) {
     const tenantId = getRequestTenantId(req);
-    const result = await this.service.list(tenantId, q);
+    const userId: string | undefined = req.user?.sub ?? req.user?.id;
+    const result = await this.service.list(tenantId, q, userId);
     return { success: true, ...result };
   }
 
@@ -85,7 +86,8 @@ export class CropSeasonsController {
     q: QueryCropSeasonsDto,
   ) {
     const tenantId = getRequestTenantId(req);
-    const result = await this.service.list(tenantId, { ...q, fieldId });
+    const userId: string | undefined = req.user?.sub ?? req.user?.id;
+    const result = await this.service.list(tenantId, { ...q, fieldId }, userId);
     return { success: true, ...result };
   }
 
@@ -143,7 +145,8 @@ export class CropSeasonsController {
     dto: UpdateCropSeasonDto,
   ) {
     const tenantId = getRequestTenantId(req);
-    const row = await this.service.update(id, tenantId, dto);
+    const userId: string | undefined = req.user?.sub ?? req.user?.id;
+    const row = await this.service.update(id, tenantId, dto, userId);
     return { success: true, data: row };
   }
 
@@ -163,7 +166,8 @@ export class CropSeasonsController {
     dto: EndCropSeasonDto,
   ) {
     const tenantId = getRequestTenantId(req);
-    const row = await this.service.end(id, tenantId, dto);
+    const userId: string | undefined = req.user?.sub ?? req.user?.id;
+    const row = await this.service.end(id, tenantId, dto, userId);
     return { success: true, data: row };
   }
 

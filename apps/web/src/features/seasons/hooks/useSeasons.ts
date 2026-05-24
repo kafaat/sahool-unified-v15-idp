@@ -20,7 +20,9 @@ export function useSeasons(filters?: SeasonFilters) {
   return useQuery({
     queryKey: seasonKeys.list(filters),
     queryFn: () => seasonsApi.getSeasons(filters),
-    staleTime: 1000 * 60 * 5,
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: 'always',
   });
 }
 

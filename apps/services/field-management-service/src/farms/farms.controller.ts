@@ -61,7 +61,8 @@ export class FarmsController {
     query: QueryFarmsDto,
   ) {
     const tenantId = getRequestTenantId(req);
-    const result = await this.farmsService.findAll(tenantId, query);
+    const userId = req.user?.id as string | undefined;
+    const result = await this.farmsService.findAll(tenantId, query, userId);
     return {
       success: true,
       ...result,
@@ -130,7 +131,9 @@ export class FarmsController {
     dto: CreateFarmDto,
   ) {
     const tenantId = getRequestTenantId(req);
-    const farm = await this.farmsService.create(tenantId, dto);
+    const userId = req.user?.id as string | undefined;
+    const userEmail = req.user?.email as string | undefined;
+    const farm = await this.farmsService.create(tenantId, dto, userId, userEmail);
     return {
       success: true,
       data: farm,

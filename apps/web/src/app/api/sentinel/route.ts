@@ -490,11 +490,13 @@ export async function GET(req: NextRequest) {
   //      services.sentinel-hub.com (commercial), so we must not fall through to it.
   //   3. Legacy SENTINEL_HUB_PROCESS_URL (commercial SH with its own credentials)
   //   4. CDSE default
+  /* eslint-disable no-restricted-syntax */
   const processUrl =
     (process.env.SH_BASE_URL ? `${process.env.SH_BASE_URL}/api/v1/process` : null) ||
     (process.env.CDSE_CLIENT_ID ? 'https://sh.dataspace.copernicus.eu/api/v1/process' : null) ||
     process.env.SENTINEL_HUB_PROCESS_URL ||
     'https://sh.dataspace.copernicus.eu/api/v1/process';
+  /* eslint-enable no-restricted-syntax */
 
   const requestBody = {
     input: {

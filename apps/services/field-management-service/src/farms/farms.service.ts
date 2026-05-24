@@ -170,14 +170,14 @@ export class FarmsService {
   /**
    * Create a new farm for the authenticated tenant.
    */
-  async create(tenantId: string, dto: CreateFarmDto): Promise<FarmResponse> {
+  async create(tenantId: string, dto: CreateFarmDto, userId?: string, userEmail?: string): Promise<FarmResponse> {
     const created = await this.prisma.farm.create({
       data: {
         tenantId,
         name: dto.name,
         nameAr: dto.nameAr,
-        ownerId: dto.ownerId,
-        owner: dto.owner,
+        ownerId: dto.ownerId ?? userId,
+        owner: userEmail ?? dto.owner,
         region: dto.region,
         regionAr: dto.regionAr,
         waterSource: dto.waterSource,
@@ -210,6 +210,7 @@ export class FarmsService {
   async findAll(
     tenantId: string,
     query: QueryFarmsDto,
+    userId?: string,
   ): Promise<{
     farms: FarmResponse[];
     total: number;
@@ -224,6 +225,7 @@ export class FarmsService {
       tenantId,
       isDeleted: false,
     };
+    if (userId) where.ownerId = userId;
     if (query.status) where.status = query.status;
     if (query.region) where.region = query.region;
     if (query.search) {

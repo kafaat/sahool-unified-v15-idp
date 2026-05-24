@@ -20,11 +20,11 @@ export class TasksService {
   /**
    * Get tasks for a field with tenant isolation
    */
-  async getTasksForField(fieldId: string, tenantId: string, status?: TaskState) {
+  async getTasksForField(fieldId: string, tenantId: string, status?: TaskState, userId?: string) {
     const cacheKey = CACHE_KEYS.TASK_LIST(fieldId);
 
-    // Try cache if no status filter
-    if (!status) {
+    // Try cache only when there are no user-scoping filters
+    if (!status && !userId) {
       const cached = await this.cacheService.get<any[]>(cacheKey);
       if (cached) return cached;
     }
@@ -35,6 +35,7 @@ export class TasksService {
       field: { tenantId },
     };
     if (status) where.status = status;
+    if (userId) where.createdBy = userId;
 
     const tasks = await this.prisma.task.findMany({
       where,
@@ -62,8 +63,8 @@ export class TasksService {
       },
     });
 
-    // Cache if no filter
-    if (!status) {
+    // Cache only when there are no user-scoping filters
+    if (!status && !userId) {
       await this.cacheService.set(cacheKey, tasks, CACHE_TTL.SHORT);
     }
 
@@ -73,20 +74,22 @@ export class TasksService {
   /**
    * Create a new task
    */
-  async createTask(data: {
-    fieldId?: string;
-    tenantId?: string;
-    title: string;
-    titleAr?: string;
-    description?: string;
-    taskType: TaskType;
-    priority?: Priority;
-    dueDate?: Date;
-    scheduledTime?: string;
-    assignedTo?: string;
-    createdBy: string;
-    estimatedMinutes?: number;
-  }) {
+  async createTask(
+    data: {
+      fieldId?: string;
+      tenantId?: string;
+      title: string;
+      titleAr?: string;
+      description?: string;
+      taskType: TaskType;
+      priority?: Priority;
+      dueDate?: Date;
+      scheduledTime?: string;
+      assignedTo?: string;
+      estimatedMinutes?: number;
+    },
+    userId: string,
+  ) {
     const task = await this.prisma.task.create({
       data: {
         tenantId: data.tenantId,
@@ -100,7 +103,7 @@ export class TasksService {
         dueDate: data.dueDate,
         scheduledTime: data.scheduledTime,
         assignedTo: data.assignedTo,
-        createdBy: data.createdBy,
+        createdBy: userId,
         estimatedMinutes: data.estimatedMinutes,
       },
     });
@@ -114,7 +117,7 @@ export class TasksService {
   }
 
   /**
-   * Update task status with tenant isolation
+   * Update task status with tenant and user isolation
    */
   async updateTaskStatus(
     id: string,
@@ -122,10 +125,11 @@ export class TasksService {
     status: TaskState,
     completionNotes?: string,
     actualMinutes?: number,
+    userId?: string,
   ) {
     const task = await this.prisma.task.findUnique({
       where: { id },
-      select: { fieldId: true, tenantId: true },
+      select: { fieldId: true, tenantId: true, createdBy: true },
     });
 
     if (!task) {
@@ -135,6 +139,11 @@ export class TasksService {
     // Enforce tenant isolation
     if (task.tenantId) {
       assertTenantOwnership(task.tenantId, tenantId, "task");
+    }
+
+    // Enforce user isolation
+    if (userId && task.createdBy && task.createdBy !== userId) {
+      throw new NotFoundException("Task not found - المهمة غير موجودة");
     }
 
     const updated = await this.prisma.task.update({
@@ -156,9 +165,9 @@ export class TasksService {
   }
 
   /**
-   * Get overdue tasks - always scoped to tenant
+   * Get overdue tasks - always scoped to tenant and user
    */
-  async getOverdueTasks(tenantId: string) {
+  async getOverdueTasks(tenantId: string, userId?: string) {
     const now = new Date();
 
     const where: Prisma.TaskWhereInput = {
@@ -167,6 +176,7 @@ export class TasksService {
       // Always filter by tenant for isolation
       field: { tenantId },
     };
+    if (userId) where.createdBy = userId;
 
     return this.prisma.task.findMany({
       where,

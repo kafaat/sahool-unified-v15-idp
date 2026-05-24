@@ -115,12 +115,14 @@ export class CacheInterceptor implements NestInterceptor {
       return this.interpolateKey(customKey, request);
     }
 
-    // Generate default key from URL and query params
+    // Generate default key from URL and query params — must be user-scoped
+    // so that two users in the same tenant never share a cached response.
     const tenantId = request.headers["x-tenant-id"] || "default";
+    const userId = request.user?.id ?? request.user?.sub ?? "anon";
     const path = request.path;
     const query = JSON.stringify(request.query || {});
 
-    return `${tenantId}:${path}:${this.hashString(query)}`;
+    return `${tenantId}:${userId}:${path}:${this.hashString(query)}`;
   }
 
   /**

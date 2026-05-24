@@ -553,6 +553,9 @@ model CropSeason {
   deletedBy     String?   @map("deleted_by") @db.VarChar(100)
   deletedReason String?   @map("deleted_reason") @db.Text
 
+  // Ownership
+  createdBy String? @map("created_by") @db.VarChar(100)
+
   // Sync / audit
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
@@ -567,6 +570,7 @@ model CropSeason {
   @@index([fieldId, sowingDate(sort: Desc)], name: "idx_crop_season_field_sown")
   @@index([tenantId, cropType], name: "idx_crop_season_tenant_crop")
   @@index([tenantId, sowingDate], name: "idx_crop_season_tenant_sown")
+  @@index([createdBy], name: "idx_crop_season_creator")
   @@map("crop_seasons")
 }
 

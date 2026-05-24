@@ -84,7 +84,7 @@ export class FieldSubZonesService {
    * List all sub-zones for a field. Always filters out soft-deleted rows
    * and always returns in display_order (stable UI ordering).
    */
-  async listByField(fieldId: string, tenantId: string) {
+  async listByField(fieldId: string, tenantId: string, userEmail?: string) {
     await this.assertFieldOwnership(fieldId, tenantId);
 
     // Raw SQL so we can return the boundary as GeoJSON in one round-trip
@@ -113,6 +113,7 @@ export class FieldSubZonesService {
       WHERE tenant_id = ${tenantId}
         AND field_id = ${fieldId}::uuid
         AND deleted_at IS NULL
+        AND (${userEmail ?? null}::text IS NULL OR created_by = ${userEmail ?? null})
       ORDER BY display_order ASC, created_at ASC
     `;
 

@@ -17,6 +17,9 @@ export function useFieldsList(filters?: FieldFilters) {
     queryKey: fieldKeys.list(filters),
     queryFn: () => fieldsApi.getFields(filters),
     staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: 'always' as const,
+    refetchOnWindowFocus: true,
     retry: 1, // Retry once before falling back to mock data
   });
 }

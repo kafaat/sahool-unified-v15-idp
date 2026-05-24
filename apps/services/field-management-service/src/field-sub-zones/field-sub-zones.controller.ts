@@ -53,7 +53,8 @@ export class FieldSubZonesController {
     @Param("fieldId", ParseUUIDPipe) fieldId: string,
   ) {
     const tenantId = getRequestTenantId(req);
-    const items = await this.service.listByField(fieldId, tenantId);
+    const userEmail: string | undefined = req.user?.email;
+    const items = await this.service.listByField(fieldId, tenantId, userEmail);
     return { success: true, items, total: items.length };
   }
 
@@ -76,8 +77,8 @@ export class FieldSubZonesController {
     dto: CreateFieldSubZoneDto,
   ) {
     const tenantId = getRequestTenantId(req);
-    const userId: string | undefined = req.user?.sub ?? req.user?.id;
-    const row = await this.service.create(fieldId, tenantId, dto, userId);
+    const userEmail: string | undefined = req.user?.email;
+    const row = await this.service.create(fieldId, tenantId, dto, userEmail);
     return {
       success: true,
       data: row,
@@ -117,7 +118,7 @@ export class FieldSubZonesController {
     @Param("id", ParseUUIDPipe) id: string,
   ) {
     const tenantId = getRequestTenantId(req);
-    const userId: string | undefined = req.user?.sub ?? req.user?.id;
-    await this.service.remove(id, tenantId, userId);
+    const userEmail: string | undefined = req.user?.email;
+    await this.service.remove(id, tenantId, userEmail);
   }
 }

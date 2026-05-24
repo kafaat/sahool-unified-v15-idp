@@ -39,6 +39,7 @@ export async function GET(_req: NextRequest, { params }: Params): Promise<NextRe
   const { fieldId } = await params;
   try {
     const token = await getAuthToken();
+    // eslint-disable-next-line no-restricted-syntax
     const res = await fetch(`${FIELD_SERVICE_URL}/api/v1/fields/${fieldId}`, {
       method: 'GET',
       headers: buildHeaders(token),
@@ -63,6 +64,7 @@ export async function PUT(req: NextRequest, { params }: Params): Promise<NextRes
   try {
     const token = await getAuthToken();
     const body = await req.text();
+    // eslint-disable-next-line no-restricted-syntax
     const res = await fetch(`${FIELD_SERVICE_URL}/api/v1/fields/${fieldId}`, {
       method: 'PUT',
       headers: buildHeaders(token, true),
@@ -86,6 +88,7 @@ export async function DELETE(_req: NextRequest, { params }: Params): Promise<Nex
   const { fieldId } = await params;
   try {
     const token = await getAuthToken();
+    // eslint-disable-next-line no-restricted-syntax
     const res = await fetch(`${FIELD_SERVICE_URL}/api/v1/fields/${fieldId}`, {
       method: 'DELETE',
       headers: buildHeaders(token),

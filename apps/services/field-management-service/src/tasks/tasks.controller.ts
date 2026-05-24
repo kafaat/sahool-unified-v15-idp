@@ -66,9 +66,6 @@ class CreateTaskDto {
   @IsString()
   assignedTo?: string;
 
-  @IsString()
-  createdBy: string;
-
   @IsOptional()
   @IsNumber()
   @Min(1)
@@ -108,7 +105,8 @@ export class TasksController {
     @Query("status") status?: TaskState,
   ) {
     const tenantId = getRequestTenantId(req);
-    const tasks = await this.tasksService.getTasksForField(fieldId, tenantId, status as TaskState | undefined);
+    const userId: string | undefined = req.user?.sub ?? req.user?.id;
+    const tasks = await this.tasksService.getTasksForField(fieldId, tenantId, status as TaskState | undefined, userId);
     return {
       success: true,
       data: tasks,
@@ -128,13 +126,17 @@ export class TasksController {
     @Body(new ValidationPipe({ transform: true })) dto: CreateTaskDto,
   ) {
     const tenantId = getRequestTenantId(req);
-    const task = await this.tasksService.createTask({
-      ...dto,
-      tenantId,
-      taskType: dto.taskType as TaskType,
-      priority: dto.priority as Priority | undefined,
-      dueDate: dto.dueDate ? new Date(dto.dueDate) : undefined,
-    });
+    const userId: string = req.user?.sub ?? req.user?.id ?? "system";
+    const task = await this.tasksService.createTask(
+      {
+        ...dto,
+        tenantId,
+        taskType: dto.taskType as TaskType,
+        priority: dto.priority as Priority | undefined,
+        dueDate: dto.dueDate ? new Date(dto.dueDate) : undefined,
+      },
+      userId,
+    );
     return {
       success: true,
       data: task,
@@ -155,12 +157,14 @@ export class TasksController {
     @Body(new ValidationPipe({ transform: true })) dto: UpdateTaskStatusDto,
   ) {
     const tenantId = getRequestTenantId(req);
+    const userId: string | undefined = req.user?.sub ?? req.user?.id;
     const task = await this.tasksService.updateTaskStatus(
       id,
       tenantId,
       dto.status as TaskState,
       dto.completionNotes,
       dto.actualMinutes,
+      userId,
     );
     return {
       success: true,
@@ -176,9 +180,10 @@ export class TasksController {
   @ApiOperation({ summary: "Get overdue tasks" })
   @ApiResponse({ status: 200, description: "Overdue tasks retrieved" })
   async getOverdueTasks(@Req() req: any) {
-    // Always use authenticated tenant
+    // Always use authenticated tenant and user
     const tenantId = getRequestTenantId(req);
-    const tasks = await this.tasksService.getOverdueTasks(tenantId);
+    const userId: string | undefined = req.user?.sub ?? req.user?.id;
+    const tasks = await this.tasksService.getOverdueTasks(tenantId, userId);
     return {
       success: true,
       data: tasks,

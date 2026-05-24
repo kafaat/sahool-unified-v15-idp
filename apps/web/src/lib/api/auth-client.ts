@@ -81,7 +81,7 @@ class AuthApiClient {
   // Core request (auth-only, no CSRF, no domain types)
   // -------------------------------------------------------------------------
 
-  private async request<T>(
+  protected async request<T>(
     endpoint: string,
     options: RequestInit & { timeout?: number } = {}
   ): Promise<ApiResponse<T>> {

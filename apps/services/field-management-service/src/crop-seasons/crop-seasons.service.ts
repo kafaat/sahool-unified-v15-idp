@@ -18,6 +18,7 @@ import {
   Logger,
   NotFoundException,
   BadRequestException,
+  ForbiddenException,
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { FieldEventsService } from "../events/field-events.service";
@@ -43,7 +44,7 @@ export class CropSeasonsService {
    * List crop seasons scoped to the authenticated tenant. If fieldId is
    * provided, also verifies that field exists and belongs to the tenant.
    */
-  async list(tenantId: string, q: QueryCropSeasonsDto) {
+  async list(tenantId: string, q: QueryCropSeasonsDto, userId?: string) {
     if (q.fieldId) {
       await this.assertFieldOwnership(q.fieldId, tenantId);
     }
@@ -53,6 +54,7 @@ export class CropSeasonsService {
       tenantId,
       deletedAt: null,
     };
+    if (userId) where.createdBy = userId;
     if (q.fieldId) where.fieldId = q.fieldId;
     if (q.cropType) where.cropType = q.cropType;
     if (typeof q.isCurrent === "boolean") where.isCurrent = q.isCurrent;
@@ -172,7 +174,7 @@ export class CropSeasonsService {
           plantingDensityKgHa: dto.plantingDensityKgHa as any,
           irrigationType: dto.irrigationType,
           notes: dto.notes,
-          metadata: (createdBy ? { createdBy } : undefined) as any,
+          createdBy: createdBy ?? null,
         },
       });
 
@@ -233,8 +235,14 @@ export class CropSeasonsService {
   /**
    * Patch an existing crop season (partial update).
    */
-  async update(id: string, tenantId: string, dto: UpdateCropSeasonDto) {
+  async update(id: string, tenantId: string, dto: UpdateCropSeasonDto, userId?: string) {
     const existing = await this.getById(id, tenantId);
+    if (userId && existing.createdBy && existing.createdBy !== userId) {
+      throw new ForbiddenException({
+        message: "You do not have permission to update this crop season",
+        messageAr: "ليس لديك صلاحية تعديل هذا الموسم المحصولي",
+      });
+    }
 
     // Guard against flipping isCurrent=true on a season that has already
     // been superseded. The DB partial-unique index would already reject
@@ -301,8 +309,14 @@ export class CropSeasonsService {
   /**
    * End an active crop season (isCurrent=false + endedAt stamp).
    */
-  async end(id: string, tenantId: string, dto: EndCropSeasonDto) {
+  async end(id: string, tenantId: string, dto: EndCropSeasonDto, userId?: string) {
     const existing = await this.getById(id, tenantId);
+    if (userId && existing.createdBy && existing.createdBy !== userId) {
+      throw new ForbiddenException({
+        message: "You do not have permission to end this crop season",
+        messageAr: "ليس لديك صلاحية إنهاء هذا الموسم المحصولي",
+      });
+    }
     if (!existing.isCurrent) {
       throw new BadRequestException({
         message: "Season is already ended",
@@ -360,6 +374,12 @@ export class CropSeasonsService {
     reason?: string,
   ) {
     const existing = await this.getById(id, tenantId);
+    if (deletedBy && existing.createdBy && existing.createdBy !== deletedBy) {
+      throw new ForbiddenException({
+        message: "You do not have permission to delete this crop season",
+        messageAr: "ليس لديك صلاحية حذف هذا الموسم المحصولي",
+      });
+    }
     await this.prisma.$transaction(async (tx) => {
       await tx.cropSeason.update({
         where: { id },

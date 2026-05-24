@@ -174,6 +174,7 @@ export class CropSeasonsService {
           plantingDensityKgHa: dto.plantingDensityKgHa as any,
           irrigationType: dto.irrigationType,
           notes: dto.notes,
+          metadata: dto.metadata ? (dto.metadata as object) : undefined,
           createdBy: createdBy ?? null,
         },
       });

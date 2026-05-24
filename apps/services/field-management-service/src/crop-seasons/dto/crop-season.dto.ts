@@ -11,6 +11,7 @@ import {
   IsNumber,
   IsBoolean,
   IsIn,
+  IsObject,
   Min,
   Max,
   MaxLength,
@@ -83,6 +84,10 @@ export class CreateCropSeasonDto {
   @IsString()
   @MaxLength(2000)
   notes?: string;
+
+  @IsOptional()
+  @IsObject()
+  metadata?: Record<string, unknown>;
 }
 
 /**

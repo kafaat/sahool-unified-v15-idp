@@ -69,6 +69,7 @@ export interface CreateCropSeasonPayload {
   plantingDensityKgHa?: number;
   irrigationType?: string;
   notes?: string;
+  metadata?: Record<string, unknown>;
 }
 
 export interface UpdateCropSeasonPayload {

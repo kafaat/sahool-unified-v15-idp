@@ -26,7 +26,6 @@ from pathlib import Path
 
 from shared.knowledge_layer.manifest import ModuleManifest
 
-
 _SAFE_SEGMENT = re.compile(r"^[a-z0-9_]+$")
 _ALLOWED_TOP_LEVEL = frozenset({"shared"})
 

@@ -116,8 +116,11 @@ class TestAlgorithmConfusion:
             "iss": config.JWT_ISSUER,
             "aud": config.JWT_AUDIENCE,
         }
-        # Create token with 'none' algorithm
-        token = jwt.encode(payload, "", algorithm="HS256")
+        # Create a real HS256-signed token then tamper its header to 'none'.
+        # (PyJWT 2.10+ refuses to encode with an empty key, so use SECRET_KEY
+        # — the actual signature is irrelevant; the test exercises the
+        # verifier's rejection of the tampered 'none' algorithm.)
+        token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
         # Manually tamper header to 'none'
         parts = token.split(".")
         import base64

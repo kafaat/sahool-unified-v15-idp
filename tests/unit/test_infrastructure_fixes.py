@@ -298,6 +298,14 @@ class TestDockerComposePortUniqueness:
             "mlflow",
             "mongo",
             "mongo-init-replica",
+            # Init / migration / one-shot containers — no HTTP surface by design
+            "nats-stream-init",
+            "mongo-keyfile-init",
+            "field-management-migrate",
+            "demo-data",
+            # NATS-only workers — talk to the bus, no HTTP listener
+            "agro-rules",
+            "code-review-agent",
         }
         # Deprecated services may not have host port mappings to avoid conflicts
         deprecated_services = {

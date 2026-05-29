@@ -63,6 +63,8 @@ from shared.digital_twin.models import (
 from shared.digital_twin.pesticide_gate import (
     PesticideGateResult,
     PesticideGateStatus,
+)
+from shared.digital_twin.pesticide_gate import (
     evaluate as evaluate_pesticide_gate,
 )
 from shared.digital_twin.pipeline import TwinPipeline

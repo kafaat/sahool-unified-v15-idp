@@ -1,0 +1,14 @@
+module_path: shared.process_models.units
+purpose_ar: مُحقّق وحدات حدودي — يَرفض الوحدات الغامضة ويوحّد إلى الوحدات القانونية.
+purpose_en: Unit normalisation boundary validator — rejects ambiguous units and normalises to canonical SI.
+business_meaning_ar: رفض الوحدات الغامضة خير من تخمين صامت. تخمين كثافة منتج بلا بيانات تكلفته أعلى من رفض المُدخَل وطلب توضيح.
+business_meaning_en: Rejecting ambiguous units beats silent guessing. Guessing a product density without data is more costly than rejecting the input and asking for clarification.
+decision_role: adapter
+inputs:
+  - {name: value_with_unit, kind: string_pair, source_type: user_or_sensor}
+outputs:
+  - {name: normalised_measurement, kind: dataclass, consumed_by: [shared.digital_twin.decisions, shared.salinity, shared.process_models.nutrient_management]}
+depends_on: []
+governs_decisions:
+  - measurement_validity
+version: "1.0.0"

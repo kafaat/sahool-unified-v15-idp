@@ -1,0 +1,15 @@
+module_path: shared.digital_twin.decision_chain
+purpose_ar: التقاط سلسلة القرار وقت التشغيل لكل توصية — خطوات، ثقة قبل/بعد، تكلفة إدراكية.
+purpose_en: Capture runtime decision chain per recommendation — steps, confidence before/after, cognitive cost.
+business_meaning_ar: كل توصية قابلة للتتبّع خطوة بخطوة. التفسير ليس خياراً — هو شرط للقبول الزراعي والمساءلة.
+business_meaning_en: Every recommendation is traceable step by step. Explainability is not optional — it is a precondition for agronomic acceptance and accountability.
+decision_role: registry
+inputs:
+  - {name: chain_step, kind: dataclass, source_type: runtime}
+outputs:
+  - {name: decision_chain, kind: dataclass, consumed_by: [shared.knowledge_layer.introspect, shared.digital_twin.models]}
+depends_on: []
+governs_decisions:
+  - traceability
+  - cost_accounting
+version: "1.0.0"

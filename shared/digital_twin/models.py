@@ -15,6 +15,8 @@ from uuid import UUID, uuid4
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from shared.digital_twin.decision_chain import DecisionChain
+
 # ---------------------------------------------------------------------------
 # Enumerations
 # ---------------------------------------------------------------------------
@@ -192,4 +194,60 @@ class IrrigationRecommendation(BaseModel):
     """Bilingual explanation (en/ar) | الشرح ثنائي اللغة"""
     confidence: float = Field(default=0.7, ge=0.0, le=1.0)
 
+    # ── Decision Kernel additions (additive, backward-compatible) ─────────
+    farmer_view: FarmerView | None = None
+    """Farmer-facing slice (suggestion not command). | شريحة المزارع — اقتراح لا أمر."""
+    backend_detail: BackendDetail | None = None
+    """Engineering detail (raw inputs, calibration, cognitive accounting). | تفاصيل هندسية."""
+    decision_chain: DecisionChain | None = None
+    """Knowledge-layer trace: every step that produced this recommendation. | سلسلة القرار."""
+
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+
+
+# ---------------------------------------------------------------------------
+# Decision Kernel views (farmer-facing vs engineering-facing)
+# ---------------------------------------------------------------------------
+
+
+class FarmerView(BaseModel):
+    """
+    Farmer-facing slice of a recommendation. Mechanically forbids fields not
+    in the schema (``extra="forbid"``) so the farmer surface stays simple.
+    شريحة المزارع — تَفرض schema بسيطاً ولا تقبل حقولاً غير معروفة.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    signal: str = Field(pattern="^(green|yellow|red|gray)$")
+    headline_ar: str = Field(min_length=1)
+    headline_en: str = Field(min_length=1)
+    next_action_ar: str = Field(min_length=1)
+    next_action_en: str = Field(min_length=1)
+    prompt_style: str = Field(default="suggestion", pattern="^(suggestion|command)$")
+    """Default 'suggestion' — the platform assists, it does not command."""
+    confidence_label: str = Field(default="low", pattern="^(low|medium|high)$")
+
+
+class BackendDetail(BaseModel):
+    """
+    Engineering-facing detail. ``extra="allow"`` so services may attach
+    domain-specific raw fields without schema bloat.
+    تفاصيل هندسية — تَقبل حقولاً إضافية للخدمات.
+    """
+
+    model_config = ConfigDict(extra="allow")
+
+    engines_used: list[str] = Field(default_factory=list)
+    zone_factor: float | None = None
+    zone_factor_status: str = Field(default="uncalibrated", pattern="^(uncalibrated|pending|calibrated)$")
+    raw_inputs: dict[str, Any] = Field(default_factory=dict)
+    workspace_key: str | None = None
+    """Cognitive isolation key (tenant/farm/season). | مفتاح فضاء العمل."""
+    compute_cost_summary: dict[str, float] = Field(default_factory=dict)
+    """Cognitive accounting: {"total_ms": ..., "per_engine": {...}}. | محاسبة إدراكية."""
+
+
+# Resolve forward references for IrrigationRecommendation (FarmerView/BackendDetail
+# are declared after it for narrative flow).
+IrrigationRecommendation.model_rebuild()

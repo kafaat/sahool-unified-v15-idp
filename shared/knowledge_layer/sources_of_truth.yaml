@@ -1,0 +1,73 @@
+# SPDX-License-Identifier: Proprietary
+# Copyright (c) 2026 KAFAAT - SAHOOL Platform
+# Source-of-Truth Registry — resolves "which source wins?" for each key
+# observable. Prevents the classic agricultural-platform failure mode of
+# combine-harvester vs. ERP vs. user-edits diverging silently.
+observables:
+  yield_kg_ha:
+    authoritative_source: apps.services.task-service.harvest_record
+    acceptable_sources:
+      - combine_harvester_telemetry
+      - manual_entry
+      - lab_certified_sample
+    tie_breaker: "lab_certified > combine > manual"
+  soil_ec_dsm:
+    authoritative_source: lab_analysis
+    acceptable_sources:
+      - lab_analysis
+      - iot_soil_sensor
+      - field_estimate
+    tie_breaker: "lab > calibrated_sensor > estimate"
+  soil_ph:
+    authoritative_source: lab_analysis
+    acceptable_sources:
+      - lab_analysis
+      - portable_meter
+    tie_breaker: "lab > portable"
+  ndvi:
+    authoritative_source: packages.sahool-eo
+    acceptable_sources:
+      - sentinel-2
+      - landsat
+      - planet
+      - uav
+    tie_breaker: "uav > planet > sentinel-2 > landsat"
+  irrigation_volume_mm:
+    authoritative_source: apps.services.irrigation-smart.applied_record
+    acceptable_sources:
+      - flow_meter
+      - pump_runtime_estimate
+      - manual_entry
+    tie_breaker: "flow_meter > pump_runtime > manual"
+  fertilizer_applied_kg_ha:
+    authoritative_source: apps.services.task-service.application_record
+    acceptable_sources:
+      - vra_controller_log
+      - manual_entry
+    tie_breaker: "vra_controller > manual"
+  harvest_date:
+    authoritative_source: apps.services.task-service.harvest_record
+    acceptable_sources:
+      - combine_harvester_telemetry
+      - manual_entry
+    tie_breaker: "combine > manual"
+  field_boundary:
+    authoritative_source: shared.field_boundaries
+    acceptable_sources:
+      - rtk_gnss_survey
+      - drone_orthophoto
+      - manual_polygon
+    tie_breaker: "rtk > drone > manual"
+  weather_today:
+    authoritative_source: apps.services.weather-service
+    acceptable_sources:
+      - on_farm_station
+      - regional_forecast
+      - reanalysis
+    tie_breaker: "on_farm > regional > reanalysis"
+  water_ec:
+    authoritative_source: lab_analysis
+    acceptable_sources:
+      - lab_analysis
+      - portable_meter
+    tie_breaker: "lab > portable"

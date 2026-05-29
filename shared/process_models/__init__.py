@@ -30,6 +30,13 @@ from shared.process_models.nutrient_management import QueftsNutrientModel
 from shared.process_models.pest_epidemiology import PestEpidemiologyEngine
 from shared.process_models.radiative_transfer import RadiativeTransferModel
 from shared.process_models.soil_carbon import SoilCarbonModel
+from shared.process_models.units import (
+    NormalisedMeasurement,
+    UnitError,
+    to_ds_per_m,
+    to_kg_per_ha,
+    to_mm,
+)
 
 __all__ = [
     "CropGrowthEngine",
@@ -40,4 +47,9 @@ __all__ = [
     "QueftsNutrientModel",
     "HydrologyEngine",
     "EnsembleModelFramework",
+    "UnitError",
+    "NormalisedMeasurement",
+    "to_ds_per_m",
+    "to_kg_per_ha",
+    "to_mm",
 ]

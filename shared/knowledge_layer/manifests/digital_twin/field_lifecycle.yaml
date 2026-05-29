@@ -1,0 +1,17 @@
+module_path: shared.digital_twin.field_lifecycle
+purpose_ar: بوابة جودة الحقل — تَفرض دورة حياة (BLOCKED→LIMITED→PENDING_LAB→READY) قبل أيّ توصية دقيقة.
+purpose_en: Field quality gate — enforces a lifecycle (BLOCKED→LIMITED→PENDING_LAB→READY) before any precise recommendation.
+business_meaning_ar: لا توصية دقيقة قبل توفّر القياسات الحاكمة (تحاليل التربة المخبرية، EC ماء الريّ). الانتظار خير من تخمين خاطئ.
+business_meaning_en: No precise recommendation before governing measurements (lab soil analyses, irrigation-water EC). Waiting beats wrong guessing.
+decision_role: guard
+inputs:
+  - {name: soil_choice, kind: enum, source_type: user}
+  - {name: provided_governors, kind: set, source_type: lab}
+outputs:
+  - {name: lifecycle_assessment, kind: state, consumed_by: [shared.digital_twin.decisions]}
+depends_on: []
+governs_decisions:
+  - irrigation
+  - fertilizer
+  - pesticide
+version: "1.0.0"

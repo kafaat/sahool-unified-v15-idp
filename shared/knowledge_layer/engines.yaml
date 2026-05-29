@@ -1,0 +1,40 @@
+# SPDX-License-Identifier: Proprietary
+# Copyright (c) 2026 KAFAAT - SAHOOL Platform
+# Five-Engines Registry — classifies every module participating in the
+# Decision Kernel into one of five operational roles. Used by EngineRegistry
+# to answer "what is module X for?" — prevents layer explosion by forcing
+# every new module to declare which engine it belongs to.
+engines:
+  spatial:
+    - shared.field_boundaries
+    - shared.vra_maps
+    - shared.geospatial_metadata
+    - shared.digital_twin
+    - packages.sahool-eo
+  operations:
+    - shared.irrigation
+    - shared.equipment_maintenance
+    - shared.labor_management
+    - shared.batch_operations
+    - apps.services.task-service
+    - apps.services.irrigation-smart
+    - apps.services.equipment-service
+  decision:
+    - shared.digital_twin.decisions
+    - shared.digital_twin.field_lifecycle
+    - shared.digital_twin.evidence_class
+    - shared.digital_twin.pesticide_gate
+    - shared.crop_cards
+    - shared.process_models.units
+    - apps.services.advisory-service
+  memory:
+    - shared.calibration
+    - shared.audit_trail
+    - shared.digital_twin.decision_chain
+    - shared.digital_twin.feedback_loop
+    - shared.workspace
+  connectivity:
+    - apps.services.iot-service
+    - apps.services.iot-gateway
+    - apps.services.edge-orchestrator-service
+    - apps.services.ws-gateway

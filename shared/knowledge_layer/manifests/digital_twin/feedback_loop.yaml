@@ -1,0 +1,18 @@
+module_path: shared.digital_twin.feedback_loop
+purpose_ar: حساب MAPE من نتائج التنفيذ وإصدار إشارة إعادة معايرة عند الانحراف المستمرّ.
+purpose_en: Compute MAPE from execution outcomes and emit a recalibration signal under persistent drift.
+business_meaning_ar: بدون حلقة مغلقة، النصائح لا تتعلّم من النتائج — Garbage in = expensive garbage out. هذا الملف يَفرض أن يكون التعلّم نظامياً لا قصصياً.
+business_meaning_en: Without a closed loop, advice does not learn from outcomes — Garbage in = expensive garbage out. This module makes learning systematic, not anecdotal.
+decision_role: registry
+inputs:
+  - {name: recommendation_id, kind: uuid, source_type: runtime}
+  - {name: observed_value, kind: float, source_type: field_measurement}
+  - {name: expected_value, kind: float, source_type: model_output}
+outputs:
+  - {name: outcome_record, kind: pydantic, consumed_by: [shared.calibration]}
+  - {name: recalibration_signal, kind: nats_event, consumed_by: [shared.calibration.worker]}
+depends_on: []
+governs_decisions:
+  - closed_loop_learning
+  - calibration_trigger
+version: "1.0.0"

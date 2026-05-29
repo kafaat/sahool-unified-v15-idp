@@ -1,0 +1,18 @@
+module_path: shared.workspace.models
+purpose_ar: عزل إدراكي ثلاثي المفتاح (tenant × farm × season). كل قرار له فضاء عمل واحد.
+purpose_en: Triple-key cognitive isolation (tenant × farm × season). Every decision belongs to exactly one workspace.
+business_meaning_ar: يَمنع تسرّب القرارات والذاكرة عبر المزارع والمواسم. لا يمكن لتوصية مزرعة A تَلوّث قرارات مزرعة B بالخطأ.
+business_meaning_en: Prevents decision and memory leakage across farms and seasons. A recommendation for farm A cannot accidentally contaminate decisions for farm B.
+decision_role: guard
+inputs:
+  - {name: tenant_id, kind: uuid, source_type: auth}
+  - {name: farm_id, kind: uuid, source_type: user}
+  - {name: season_id, kind: string, source_type: agri_calendar}
+outputs:
+  - {name: workspace_key, kind: string, consumed_by: [shared.digital_twin.decision_chain, shared.digital_twin.feedback_loop]}
+depends_on:
+  - shared.digital_twin.errors
+governs_decisions:
+  - cognitive_isolation
+  - scope_validation
+version: "1.0.0"

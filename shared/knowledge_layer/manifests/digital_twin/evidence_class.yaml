@@ -1,0 +1,16 @@
+module_path: shared.digital_twin.evidence_class
+purpose_ar: تصنيف الأدلّة إلى قرينة (INDICATION) أو دليل (EVIDENCE) وفرض سقف الثقة المناسب.
+purpose_en: Classify signals as INDICATION (guides) vs EVIDENCE (governs) and enforce the appropriate confidence ceiling.
+business_meaning_ar: الاستشعار يوجّه، المختبر يحكم. قرينة واحدة لا تبلغ ثقة عالية مهما تكرّرت من نفس المصدر؛ ثلاثة مصادر مستقلّة متّفقة تبلغ ثقة متوسّطة.
+business_meaning_en: Remote sensing guides, the lab governs. A single indication never reaches high confidence; three independent agreeing sources can reach medium.
+decision_role: guard
+inputs:
+  - {name: quality_flag, kind: enum, source_type: process_models}
+  - {name: indication_signals, kind: list, source_type: mixed}
+outputs:
+  - {name: confidence, kind: category, consumed_by: [shared.digital_twin.decisions]}
+depends_on:
+  - shared.process_models.uncertainty
+governs_decisions:
+  - all_recommendations
+version: "1.0.0"

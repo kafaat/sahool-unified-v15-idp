@@ -1,0 +1,19 @@
+module_path: shared.digital_twin.models
+purpose_ar: نماذج التوأم الرقمي — IrrigationRecommendation وشريحتاه FarmerView (للمزارع) وBackendDetail (للهندسي).
+purpose_en: Digital-twin domain models — IrrigationRecommendation with its FarmerView (farmer-facing) and BackendDetail (engineering) slices.
+business_meaning_ar: فصل العَرض. المزارع يحصل على اقتراح ينتهي بقراره؛ المهندس يحصل على التفاصيل الخام والمحاسبة الإدراكية. لا إغراق معرفي للمزارع، لا تبسيط مُضِلّ للمهندس.
+business_meaning_en: View separation. The farmer gets a suggestion ending in their decision; the engineer gets raw detail and cognitive accounting. No information overload for the farmer; no misleading simplification for the engineer.
+decision_role: view
+inputs:
+  - {name: decision_chain, kind: dataclass, source_type: runtime}
+  - {name: confidence_label, kind: category, source_type: evidence_class}
+outputs:
+  - {name: farmer_view, kind: pydantic, consumed_by: [apps.services.advisory-service, apps.web, apps.mobile]}
+  - {name: backend_detail, kind: pydantic, consumed_by: [apps.services.crop-intelligence-service]}
+depends_on:
+  - shared.digital_twin.decision_chain
+governs_decisions:
+  - ui_advice
+  - farmer_agency
+  - engineering_inspection
+version: "1.0.0"

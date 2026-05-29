@@ -1,0 +1,36 @@
+# SPDX-License-Identifier: Proprietary
+# Copyright (c) 2026 KAFAAT - SAHOOL Platform
+# Cranberry — anti-example. Card encodes the truth; suitability for arid
+# saline regions is decided by data, NOT by programmed bias. A region with
+# soil pH > 6 or EC > 1 dS/m or insufficient chilling will be rejected by
+# the engine because the CARD says so — there is no special case.
+crop_id: cranberry
+name_ar: التوت البري
+name_en: Cranberry
+family: ericaceae_fruit
+
+# Kc profile (Sandler et al. — Vaccinium macrocarpon)
+kc_initial: 0.50
+kc_mid: 1.00
+kc_end: 0.80
+growth_stage_days: [30, 60, 80, 40]
+
+# Very salinity-sensitive
+salinity_threshold_dsm: 1.0
+salinity_slope_pct: 25.0
+
+# Acidic-soil obligate
+ph_min: 4.0
+ph_max: 6.0
+
+# Substantial chilling requirement — fails most arid climates
+chilling_hours_required: 800
+
+# Cool-season GDD
+base_temp_c: 4.0
+max_temp_cap_c: 28.0
+
+sources:
+  - "USDA ARS — Vaccinium macrocarpon agronomy"
+  - "ECOCROP database — Vaccinium macrocarpon"
+  - "Sandler H. (2004) — Cranberry cultivation manual"

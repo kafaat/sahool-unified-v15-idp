@@ -1,0 +1,33 @@
+# SPDX-License-Identifier: Proprietary
+# Copyright (c) 2026 KAFAAT - SAHOOL Platform
+# Wheat — location-neutral card. Physics + thresholds only.
+crop_id: wheat
+name_ar: قمح
+name_en: Wheat
+family: cereal_c3
+
+# FAO-56 Kc profile (Allen et al. 1998, Table 12)
+kc_initial: 0.30
+kc_mid: 1.15
+kc_end: 0.40
+growth_stage_days: [20, 25, 60, 30]
+
+# Maas-Hoffman salinity tolerance (1977 tables)
+salinity_threshold_dsm: 6.0
+salinity_slope_pct: 7.1
+
+# Soil pH band (ECOCROP)
+ph_min: 6.0
+ph_max: 8.5
+
+# Chilling requirement for vernalisation (winter wheat varies by cultivar)
+chilling_hours_required: 0
+
+# GDD base / cap (Zadoks growth scale)
+base_temp_c: 0.0
+max_temp_cap_c: 35.0
+
+sources:
+  - "FAO-56 (Allen et al. 1998) — Crop evapotranspiration guidelines"
+  - "Maas & Hoffman (1977) — Crop salt tolerance"
+  - "ECOCROP database — Triticum aestivum"

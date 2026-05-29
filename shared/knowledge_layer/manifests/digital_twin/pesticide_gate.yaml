@@ -1,0 +1,17 @@
+module_path: shared.digital_twin.pesticide_gate
+purpose_ar: بوّابة سلامة المبيدات بثلاث طبقات بترتيب صلب — PHI حاكم، RRI قرينة، Economic تحذير.
+purpose_en: Three-layer pesticide safety gate in a fixed order — PHI governs, RRI is an indication, Economic is a warning.
+business_meaning_ar: السلامة لا تُساوَم. PHI لم ينقضِ → حصار صلب. RRI لا تأذن بالحصاد منفردة — المختبر يحكم النهائي.
+business_meaning_en: Safety is not negotiable. PHI not elapsed → hard block. RRI never authorises harvest alone — the lab governs the final clearance.
+decision_role: gate
+inputs:
+  - {name: last_application_date, kind: date, source_type: user}
+  - {name: phi_days, kind: int, source_type: product_label}
+  - {name: half_life_days, kind: float, source_type: literature}
+outputs:
+  - {name: gate_result, kind: status, consumed_by: [shared.digital_twin.decisions]}
+depends_on: []
+governs_decisions:
+  - pesticide
+  - harvest
+version: "1.0.0"

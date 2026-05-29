@@ -189,6 +189,20 @@ SAHOOL_CALIBRATION_RUN_ALL = "sahool.calibration.run.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Closed Feedback Loop Subjects - موضوعات حلقة التغذية الراجعة
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Emitted by shared.digital_twin.feedback_loop.should_trigger_recalibration
+# when accumulated MAPE exceeds the threshold. Consumed by shared.calibration.worker.
+SAHOOL_FEEDBACK_RECALIBRATION_REQUESTED = "sahool.feedback.recalibration_requested.v1"
+
+# Emitted whenever an OutcomeRecord is written (for audit + future analytics).
+SAHOOL_FEEDBACK_OUTCOME_RECORDED = "sahool.feedback.outcome_recorded.v1"
+
+SAHOOL_FEEDBACK_ALL = "sahool.feedback.>"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Inventory Subjects - موضوعات المخزون
 # ─────────────────────────────────────────────────────────────────────────────
 

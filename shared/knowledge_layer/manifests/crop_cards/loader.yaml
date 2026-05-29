@@ -1,0 +1,17 @@
+module_path: shared.crop_cards.loader
+purpose_ar: محمّل بطاقات المحاصيل المحايدة — قراءة آمنة من cards/ مع حارس مسار وفحص schema.
+purpose_en: Neutral crop-card loader — safe read from cards/ with path-traversal guard and schema check.
+business_meaning_ar: الفيزياء قابلة لإعادة الاستخدام عبر المواقع؛ البيانات وحدها تحكم الملاءمة. بطاقة محصول حسّاس مرفوضة بمعطياتها لا بتحيّز مبرمج — هذا ما يجعل النظام قابلاً للنقل.
+business_meaning_en: Physics is reusable across regions; data alone governs suitability. A sensitive crop is rejected by its own parameters, not by hard-coded bias — this is what makes the platform portable.
+decision_role: registry
+inputs:
+  - {name: crop_id, kind: string, source_type: user}
+outputs:
+  - {name: crop_card, kind: pydantic, consumed_by: [shared.digital_twin.decisions, shared.salinity, shared.process_models.crop_growth]}
+depends_on:
+  - shared.crop_cards.schema
+governs_decisions:
+  - crop_suitability
+  - kc_profile
+  - salinity_thresholds
+version: "1.0.0"

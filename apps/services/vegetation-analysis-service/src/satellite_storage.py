@@ -168,6 +168,9 @@ class SatelliteStorage:
             clauses.append(f"acquisition_date <= ${len(params)}")
 
         where = " AND ".join(clauses)
+        # `idx` is whitelisted to ndvi|evi|lai|ndwi above (line 157); `where`
+        # is a join of $N-placeholder fragments built above. User input enters
+        # only via `params` bound by asyncpg.
         query = f"""
             SELECT
                 acquisition_date,
@@ -181,7 +184,7 @@ class SatelliteStorage:
             FROM satellite_field_data
             WHERE {where}
             ORDER BY acquisition_date ASC
-        """
+        """  # nosec B608
 
         async with self._pool.acquire() as conn:
             rows = await conn.fetch(query, *params)
@@ -234,6 +237,7 @@ class SatelliteStorage:
             clauses.append(f"planned_date <= ${len(params)}")
 
         where = " AND ".join(clauses)
+        # `where` is a join of $N-placeholder fragments built above.
         async with self._pool.acquire() as conn:
             rows = await conn.fetch(
                 f"""
@@ -241,7 +245,7 @@ class SatelliteStorage:
                 FROM satellite_acquisition_plan
                 WHERE {where}
                 ORDER BY planned_date ASC
-                """,
+                """,  # nosec B608
                 *params,
             )
         return [

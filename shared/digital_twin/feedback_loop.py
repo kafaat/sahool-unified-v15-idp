@@ -7,15 +7,18 @@ Closes the agricultural learning loop:
 
     analysis → prescription → execution → outcome collection → evaluation → recalibration
 
-This module owns ONLY the evaluation + recalibration-trigger step. The
-recalibration itself is performed by ``shared/calibration/`` (already complete);
-this module emits a NATS signal (``sahool.feedback.recalibration_requested``)
-that ``calibration/worker.py`` consumes.
+This module owns ONLY the evaluation + recalibration-decision step. It
+DOES NOT publish to NATS — it computes a boolean trigger that the caller
+(typically the crop-intelligence-service) inspects and, when ``True``,
+publishes ``sahool.feedback.recalibration_requested`` (defined in
+``shared/events/subjects.py``) for ``shared/calibration/worker.py`` to
+consume. Keeping the I/O outside this module preserves its pure-function
+character and lets the bus client live with the rest of the service plumbing.
 
 Responsibility boundary (the discipline):
-  • compute outcome metrics (MAPE)
-  • emit a recalibration trigger when drift exceeds a threshold
-  • DO NOT recompute calibration parameters here
+  • compute outcome metrics (MAPE / sMAPE for degenerate expected=0)
+  • return a recalibration trigger when drift exceeds a threshold
+  • DO NOT publish to NATS, DO NOT recompute calibration parameters here
 """
 
 from __future__ import annotations
@@ -54,13 +57,23 @@ def evaluate_outcome(
     note: str | None = None,
 ) -> OutcomeRecord:
     """
-    Compute MAPE for a single outcome and produce an OutcomeRecord.
+    Compute a relative-error metric for a single outcome and produce an OutcomeRecord.
 
-    MAPE is bounded by handling expected_value=0 explicitly (returns 0.0 to
-    avoid division by zero; the caller may interpret this as a degenerate case).
+    Behaviour around the degenerate ``expected_value == 0`` case:
+      • ``observed == 0`` → mape = 0.0 (truly no error)
+      • ``observed != 0`` → mape = 2.0 (maximum sMAPE)
+
+    Returning the maximum sMAPE here is deliberate: silently emitting 0.0 would
+    let a stream of "expected zero but observed nonzero" outcomes never trip
+    ``should_trigger_recalibration``, which is the opposite of conservative for
+    a safety/quality feedback loop.
+
+    For all other cases the value is the classic MAPE
+    ``|observed - expected| / |expected|`` so existing thresholds keep their
+    operational meaning at the working point.
     """
     if expected_value == 0:
-        mape = 0.0
+        mape = 0.0 if observed_value == 0 else 2.0
     else:
         mape = abs(observed_value - expected_value) / abs(expected_value)
     return OutcomeRecord(

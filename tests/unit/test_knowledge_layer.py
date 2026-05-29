@@ -39,6 +39,19 @@ def test_load_manifest_for_unknown_path_raises() -> None:
         load_manifest("shared.digital_twin.does_not_exist")
 
 
+def test_load_manifest_rejects_non_shared_root() -> None:
+    """Loader is a shared.* loader; apps.* / packages.* paths must be refused."""
+    with pytest.raises(ValueError, match="must start with 'shared.'"):
+        load_manifest("apps.services.advisory-service")
+    with pytest.raises(ValueError, match="must start with 'shared.'"):
+        load_manifest("packages.sahool-eo")
+
+
+def test_load_manifest_rejects_bare_shared() -> None:
+    with pytest.raises(ValueError, match="needs a sub-module"):
+        load_manifest("shared")
+
+
 def test_manifest_extra_forbid_rejects_unknown_fields() -> None:
     """Mechanical neutrality: schema rejects undeclared keys."""
     with pytest.raises(ValidationError):

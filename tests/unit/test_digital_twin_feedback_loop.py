@@ -28,10 +28,22 @@ def test_evaluate_outcome_computes_mape() -> None:
     assert o.mape == pytest.approx(0.2)
 
 
-def test_evaluate_outcome_handles_expected_zero() -> None:
-    """expected=0 must not raise; we report mape=0.0 as a degenerate case."""
-    o = evaluate_outcome(recommendation_id=uuid4(), observed_value=5.0, expected_value=0.0)
+def test_evaluate_outcome_handles_expected_zero_with_zero_observed() -> None:
+    """expected=0 AND observed=0 → mape=0.0 (truly no error)."""
+    o = evaluate_outcome(recommendation_id=uuid4(), observed_value=0.0, expected_value=0.0)
     assert o.mape == 0.0
+
+
+def test_evaluate_outcome_expected_zero_observed_nonzero_returns_max() -> None:
+    """
+    expected=0 AND observed!=0 → mape=2.0 (max sMAPE).
+    Regression for the silent-zero bug: returning 0 here would hide drift
+    in exactly the case the feedback loop must detect.
+    """
+    o = evaluate_outcome(recommendation_id=uuid4(), observed_value=5.0, expected_value=0.0)
+    assert o.mape == 2.0
+    # And it must propagate into the recalibration trigger.
+    assert should_trigger_recalibration([o, o, o], threshold_mape=0.20) is True
 
 
 def test_outcome_record_rejects_negative_mape() -> None:

@@ -1,6 +1,6 @@
 module_path: shared.digital_twin.feedback_loop
-purpose_ar: حساب MAPE من نتائج التنفيذ وإصدار إشارة إعادة معايرة عند الانحراف المستمرّ.
-purpose_en: Compute MAPE from execution outcomes and emit a recalibration signal under persistent drift.
+purpose_ar: حساب MAPE من نتائج التنفيذ وإرجاع قرار إعادة المعايرة عند الانحراف المستمرّ (دون نشر على NATS — المستهلِك يَنشر).
+purpose_en: Compute MAPE from execution outcomes and return a recalibration decision under persistent drift (does NOT publish to NATS — the caller publishes).
 business_meaning_ar: بدون حلقة مغلقة، النصائح لا تتعلّم من النتائج — Garbage in = expensive garbage out. هذا الملف يَفرض أن يكون التعلّم نظامياً لا قصصياً.
 business_meaning_en: Without a closed loop, advice does not learn from outcomes — Garbage in = expensive garbage out. This module makes learning systematic, not anecdotal.
 decision_role: registry
@@ -10,7 +10,7 @@ inputs:
   - {name: expected_value, kind: float, source_type: model_output}
 outputs:
   - {name: outcome_record, kind: pydantic, consumed_by: [shared.calibration]}
-  - {name: recalibration_signal, kind: nats_event, consumed_by: [shared.calibration.worker]}
+  - {name: should_recalibrate, kind: bool, consumed_by: [apps.services.crop-intelligence-service]}
 depends_on: []
 governs_decisions:
   - closed_loop_learning

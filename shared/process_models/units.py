@@ -79,18 +79,15 @@ def to_ds_per_m(value: float, unit: str) -> float:
     return value * _lookup(_SALINITY_TO_DS_M, unit)
 
 
-def to_kg_per_ha(
-    value: float,
-    unit: str,
-    *,
-    area_ha: float | None = None,
-) -> float:
+def to_kg_per_ha(value: float, unit: str) -> float:
     """
     Convert a fertiliser dose to kg/ha.
 
     Vague volumetric units like ``litres/feddan`` are REJECTED — they require
     both a product density and a parcel area to be expressed in kg/ha, and
     silently filling in either of those is the most expensive failure mode.
+    A future ``l/ha`` path will need a separate, explicit signature carrying
+    product density; until then we refuse rather than guess.
     """
     key = _norm(unit)
     if key in {"l/feddan", "liter/feddan", "litre/feddan", "litres/feddan"}:

@@ -4684,11 +4684,13 @@ async def get_scheduler_logs(
 
     where = " AND ".join(conditions)
 
+    # `where` is a join of static SQL fragments that all use $N placeholders
+    # (built above); user input enters only via `args` bound by asyncpg.
     count_sql = f"""
         SELECT COUNT(*) FROM satellite_field_data sfd
         LEFT JOIN fields f ON f.id = sfd.field_id
         WHERE {where}
-    """
+    """  # nosec B608
     rows_sql = f"""
         SELECT
             sfd.id, sfd.field_id, sfd.acquisition_date, sfd.created_at,
@@ -4706,7 +4708,7 @@ async def get_scheduler_logs(
         WHERE {where}
         ORDER BY sfd.acquisition_date DESC, sfd.created_at DESC
         LIMIT ${arg_idx} OFFSET ${arg_idx + 1}
-    """
+    """  # nosec B608
 
     try:
         async with _db_pool.acquire() as conn:

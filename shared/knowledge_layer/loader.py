@@ -24,8 +24,14 @@ _VALID_SEGMENT = re.compile(r"^[a-z0-9_]+$")
 
 def _module_path_to_yaml_path(module_path: str) -> Path:
     segments = module_path.split(".")
-    if segments and segments[0] == "shared":
-        segments = segments[1:]
+    if not segments or segments[0] != "shared":
+        # Manifests describe shared.* modules only. Refusing other roots here
+        # prevents callers from coaxing the loader into reading manifests
+        # for paths it doesn't actually represent (e.g. apps.services.X).
+        raise ValueError(f"module_path must start with 'shared.', got {module_path!r}")
+    segments = segments[1:]
+    if not segments:
+        raise ValueError(f"module_path needs a sub-module after 'shared.', got {module_path!r}")
     for seg in segments:
         if not _VALID_SEGMENT.match(seg):
             raise ValueError(f"invalid module path segment {seg!r} in {module_path!r}")

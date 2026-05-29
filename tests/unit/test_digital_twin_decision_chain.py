@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import pytest
 
-from shared.digital_twin.decision_chain import ChainStep, DecisionChain, start_chain
+from shared.digital_twin.decision_chain import ChainStep, start_chain
 
 
 pytestmark = pytest.mark.unit

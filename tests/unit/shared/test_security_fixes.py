@@ -637,12 +637,26 @@ class TestAgMLPathTraversal:
             AgMLDatasetManager(cache_dir="/tmp/../etc/passwd")
 
     def test_accepts_valid_tmp_path(self):
-        """Verify /tmp paths are accepted."""
+        """
+        Verify that paths under the OS temp directory are accepted.
+
+        The production allowlist is ``(tempfile.gettempdir(), "/var/cache/")``,
+        so the test must use whatever the runner's tempdir actually is —
+        GitHub Actions sets TMPDIR to RUNNER_TEMP (not /tmp), and Claude's
+        sandbox uses /tmp/claude-0. Hard-coding "/tmp/..." was the original
+        bug that surfaced as a CI-environment failure.
+        """
+        import tempfile
+
         pytest.importorskip("structlog")
         from shared.ml.agml_integration import AgMLDatasetManager
 
-        manager = AgMLDatasetManager(cache_dir="/tmp/agml-test")
-        assert str(manager.cache_dir).startswith("/tmp/")
+        tmp_root = tempfile.gettempdir()
+        manager = AgMLDatasetManager(cache_dir=f"{tmp_root}/agml-test")
+        # Resolved cache_dir must live under the configured tempdir.
+        from pathlib import Path
+
+        assert Path(manager.cache_dir).is_relative_to(Path(tmp_root).resolve())
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

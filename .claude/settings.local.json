@@ -186,7 +186,9 @@
       "Bash(npx --workspace=apps/web tsc --noEmit)",
       "Bash(awk NR>=84 && NR<=160:*)",
       "Bash(docker history:*)",
-      "Bash(findstr \":5432\")"
+      "Bash(findstr \":5432\")",
+      "Bash(mkdir -p /root/.claude/plans)",
+      "Read(//root/.claude/**)"
     ]
   }
 }

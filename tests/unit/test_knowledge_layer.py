@@ -177,6 +177,39 @@ def test_validate_manifest_against_fake_module_returns_errors() -> None:
     assert any("not importable" in e for e in errors)
 
 
+def test_validator_rejects_non_shared_top_level_for_import() -> None:
+    """
+    Security: importlib.import_module must never be reached with a module
+    path outside the allowlist. A manifest pointing at ``apps.services.X``
+    (or any non-shared top level) is reported as not-importable without
+    actually calling importlib.
+    """
+    bad = ModuleManifest(
+        module_path="apps.services.attacker_controlled",
+        purpose_ar="x",
+        purpose_en="x",
+        business_meaning_ar="x",
+        business_meaning_en="x",
+        decision_role="guard",
+    )
+    errors = validate_manifest_against_module(bad)
+    assert any("not importable" in e for e in errors)
+
+
+def test_validator_rejects_segment_with_unsafe_chars() -> None:
+    """A segment with '/', '-' or path traversal must be refused before import."""
+    bad = ModuleManifest(
+        module_path="shared.evil-pkg.../etc/passwd",
+        purpose_ar="x",
+        purpose_en="x",
+        business_meaning_ar="x",
+        business_meaning_en="x",
+        decision_role="guard",
+    )
+    errors = validate_manifest_against_module(bad)
+    assert any("not importable" in e for e in errors)
+
+
 # ── describe_feedback_loop ──────────────────────────────────────────────
 
 

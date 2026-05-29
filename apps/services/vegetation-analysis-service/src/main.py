@@ -481,13 +481,15 @@ async def lifespan(app: FastAPI):
     if _db_url:
         try:
             import asyncpg
-            _db_pool = await asyncpg.create_pool(
-                _db_url, min_size=2, max_size=5, statement_cache_size=0
-            )
+
+            _db_pool = await asyncpg.create_pool(_db_url, min_size=2, max_size=5, statement_cache_size=0)
             # Run migration to ensure tables exist
             try:
                 import pathlib
-                _migration_path = pathlib.Path(__file__).parent.parent / "migrations" / "001_satellite_scheduler_tables.sql"
+
+                _migration_path = (
+                    pathlib.Path(__file__).parent.parent / "migrations" / "001_satellite_scheduler_tables.sql"
+                )
                 if _migration_path.exists():
                     _sql = _migration_path.read_text()
                     async with _db_pool.acquire() as _conn:
@@ -503,6 +505,7 @@ async def lifespan(app: FastAPI):
     if _nats_url:
         try:
             import nats
+
             _nats_conn = await nats.connect(_nats_url)
             logger.info("satellite_scheduler_nats_connected")
         except Exception as _e:
@@ -515,6 +518,7 @@ async def lifespan(app: FastAPI):
     if _minio_endpoint and _minio_access and _minio_secret:
         try:
             import boto3
+
             _minio_client = boto3.client(
                 "s3",
                 endpoint_url=f"http://{_minio_endpoint}",
@@ -4674,9 +4678,7 @@ async def get_scheduler_logs(
         arg_idx += 1
 
     if search:
-        conditions.append(
-            f"f.name ILIKE ${arg_idx}"
-        )
+        conditions.append(f"f.name ILIKE ${arg_idx}")
         args.append(f"%{search}%")
         arg_idx += 1
 
@@ -4732,8 +4734,8 @@ async def get_scheduler_logs(
             "status": r["status"],
             "indices": {
                 "ndvi": _index(r["ndvi_mean"], r["ndvi_min"], r["ndvi_max"], r["ndvi_std"]),
-                "evi":  _index(r["evi_mean"],  r["evi_min"],  r["evi_max"],  r["evi_std"]),
-                "lai":  _index(r["lai_mean"],  r["lai_min"],  r["lai_max"],  r["lai_std"]),
+                "evi": _index(r["evi_mean"], r["evi_min"], r["evi_max"], r["evi_std"]),
+                "lai": _index(r["lai_mean"], r["lai_min"], r["lai_max"], r["lai_std"]),
                 "ndwi": _index(r["ndwi_mean"], r["ndwi_min"], r["ndwi_max"], r["ndwi_std"]),
             },
             "errorMessage": None,
@@ -4757,9 +4759,16 @@ async def get_scheduler_stats(
     """
     if _db_pool is None:
         return {
-            "totalRuns": 0, "successfulRuns": 0, "failedRuns": 0, "missedRuns": 0,
-            "successRate": 0, "lastRunAt": None, "nextRunAt": None,
-            "totalFieldsProcessed": 0, "averageCloudCover": 0, "period": period,
+            "totalRuns": 0,
+            "successfulRuns": 0,
+            "failedRuns": 0,
+            "missedRuns": 0,
+            "successRate": 0,
+            "lastRunAt": None,
+            "nextRunAt": None,
+            "totalFieldsProcessed": 0,
+            "averageCloudCover": 0,
+            "period": period,
         }
 
     days = period[:-1]  # keep as str for ($1 || ' days')::INTERVAL
@@ -4786,9 +4795,16 @@ async def get_scheduler_stats(
 
     if not row or row["total"] == 0:
         return {
-            "totalRuns": 0, "successfulRuns": 0, "failedRuns": 0, "missedRuns": 0,
-            "successRate": 0, "lastRunAt": None, "nextRunAt": None,
-            "totalFieldsProcessed": 0, "averageCloudCover": 0, "period": period,
+            "totalRuns": 0,
+            "successfulRuns": 0,
+            "failedRuns": 0,
+            "missedRuns": 0,
+            "successRate": 0,
+            "lastRunAt": None,
+            "nextRunAt": None,
+            "totalFieldsProcessed": 0,
+            "averageCloudCover": 0,
+            "period": period,
         }
 
     total = row["total"] or 0
@@ -4826,6 +4842,7 @@ async def trigger_scheduler_now(user: User | None = Depends(get_current_user)):
 
     async def _full_run():
         import traceback
+
         try:
             logger.info("scheduler_manual_trigger_start")
             # Step 1: direct grab for all fields (bypasses acquisition plan)

@@ -15,7 +15,6 @@ import yaml
 
 from shared.knowledge_layer.manifest import ModuleManifest
 
-
 _MANIFESTS_ROOT = Path(__file__).resolve().parent / "manifests"
 
 # A module_path translates to a path segment by replacing dots with slashes.

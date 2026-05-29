@@ -16,9 +16,10 @@ import asyncio
 import logging
 import os
 import re
+from datetime import UTC
 
-from openai import AsyncOpenAI
 from fastapi import APIRouter, HTTPException
+from openai import AsyncOpenAI
 from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
@@ -153,60 +154,60 @@ SYSTEM_PERSONA = """أنت الدكتور خالد الرشيدي، متخصص �
 
 # Arabic names for each index
 _INDICE_AR: dict[str, str] = {
-    "NDVI":        "مؤشر الغطاء النباتي الطبيعي (NDVI)",
-    "EVI":         "مؤشر الغطاء النباتي المُحسَّن (EVI)",
-    "EVI2":        "مؤشر الغطاء النباتي ثنائي النطاق (EVI2)",
-    "NDWI":        "مؤشر محتوى الماء في النبات (NDWI)",
-    "NDMI":        "مؤشر رطوبة النبات (NDMI)",
+    "NDVI": "مؤشر الغطاء النباتي الطبيعي (NDVI)",
+    "EVI": "مؤشر الغطاء النباتي المُحسَّن (EVI)",
+    "EVI2": "مؤشر الغطاء النباتي ثنائي النطاق (EVI2)",
+    "NDWI": "مؤشر محتوى الماء في النبات (NDWI)",
+    "NDMI": "مؤشر رطوبة النبات (NDMI)",
     "NDMI_STRESS": "مؤشر إجهاد رطوبة النبات (NDMI Stress)",
-    "SAVI":        "مؤشر الغطاء مع تعديل التربة (SAVI)",
-    "NDRE":        "مؤشر الحافة الحمراء للكلوروفيل (NDRE)",
-    "NBR":         "نسبة الحرق المُعيَّرة (NBR)",
-    "BAIS2":       "مؤشر المناطق المحروقة (BAIS2)",
-    "BSI":         "مؤشر التربة العارية (BSI)",
-    "MSAVI":       "مؤشر النبات المُعدَّل للتربة (MSAVI)",
-    "GNDVI":       "مؤشر الغطاء النباتي الأخضر (GNDVI)",
-    "LAI":         "مؤشر مساحة الأوراق (LAI)",
-    "FAPAR":       "جزء الإشعاع الضوئي الممتص (FAPAR)",
-    "FCOVER":      "كسر الغطاء النباتي (FCOVER)",
-    "ARVI":        "مؤشر مقاومة الغلاف الجوي (ARVI)",
-    "PSRI":        "مؤشر شيخوخة النبات (PSRI)",
-    "RECI":        "مؤشر كلوروفيل الحافة الحمراء (RECI)",
-    "NDCI":        "مؤشر الكلوروفيل المعياري (NDCI)",
-    "MCARI":       "مؤشر امتصاص الكلوروفيل (MCARI)",
-    "NDSI":        "مؤشر الثلج المعياري (NDSI)",
-    "KNDVI":       "مؤشر NDVI النواة (kNDVI)",
-    "NDYI":        "مؤشر الاصفرار (NDYI)",
-    "MSI":         "مؤشر إجهاد الرطوبة (MSI)",
+    "SAVI": "مؤشر الغطاء مع تعديل التربة (SAVI)",
+    "NDRE": "مؤشر الحافة الحمراء للكلوروفيل (NDRE)",
+    "NBR": "نسبة الحرق المُعيَّرة (NBR)",
+    "BAIS2": "مؤشر المناطق المحروقة (BAIS2)",
+    "BSI": "مؤشر التربة العارية (BSI)",
+    "MSAVI": "مؤشر النبات المُعدَّل للتربة (MSAVI)",
+    "GNDVI": "مؤشر الغطاء النباتي الأخضر (GNDVI)",
+    "LAI": "مؤشر مساحة الأوراق (LAI)",
+    "FAPAR": "جزء الإشعاع الضوئي الممتص (FAPAR)",
+    "FCOVER": "كسر الغطاء النباتي (FCOVER)",
+    "ARVI": "مؤشر مقاومة الغلاف الجوي (ARVI)",
+    "PSRI": "مؤشر شيخوخة النبات (PSRI)",
+    "RECI": "مؤشر كلوروفيل الحافة الحمراء (RECI)",
+    "NDCI": "مؤشر الكلوروفيل المعياري (NDCI)",
+    "MCARI": "مؤشر امتصاص الكلوروفيل (MCARI)",
+    "NDSI": "مؤشر الثلج المعياري (NDSI)",
+    "KNDVI": "مؤشر NDVI النواة (kNDVI)",
+    "NDYI": "مؤشر الاصفرار (NDYI)",
+    "MSI": "مؤشر إجهاد الرطوبة (MSI)",
 }
 
 # Per-index interpretation context: ranges + what it measures + key thresholds
 _INDICE_CONTEXT: dict[str, str] = {
     "NDVI": "النطاق −1 إلى +1. < 0.2 = تربة/غطاء حرج | 0.2–0.4 = نبات مجهد | 0.4–0.6 = نبات متوسط | > 0.6 = نبات صحي. يقيس الكثافة الخضرية العامة.",
-    "EVI":  "النطاق −1 إلى +1. أكثر دقة من NDVI في المناطق الكثيفة وعند تشبع الإشارة. < 0.2 = حرج | 0.2–0.4 = مجهد | > 0.5 = صحي.",
+    "EVI": "النطاق −1 إلى +1. أكثر دقة من NDVI في المناطق الكثيفة وعند تشبع الإشارة. < 0.2 = حرج | 0.2–0.4 = مجهد | > 0.5 = صحي.",
     "EVI2": "مشابه لـ EVI لكن بدون نطاق أزرق. الحدود ذاتها.",
-    "GNDVI":"النطاق −1 إلى +1. حساس لنقص النيتروجين أكثر من NDVI. < 0.25 = نقص شديد | 0.25–0.45 = نقص متوسط | > 0.5 = كافٍ.",
+    "GNDVI": "النطاق −1 إلى +1. حساس لنقص النيتروجين أكثر من NDVI. < 0.25 = نقص شديد | 0.25–0.45 = نقص متوسط | > 0.5 = كافٍ.",
     "NDRE": "النطاق −1 إلى +1. مؤشر الكلوروفيل ومحتوى النيتروجين. < 0.1 = نقص حاد | 0.1–0.2 = نقص | > 0.2 = مقبول.",
     "SAVI": "النطاق −1 إلى +1. مُحسَّن للمناطق متفرقة النبات (جفاف، رعي). < 0.2 = غطاء ضعيف | 0.2–0.5 = متوسط | > 0.5 = جيد.",
-    "MSAVI":"مشابه لـ SAVI مع تكيف ذاتي. مناسب للمناطق الجافة. نفس نطاقات SAVI.",
+    "MSAVI": "مشابه لـ SAVI مع تكيف ذاتي. مناسب للمناطق الجافة. نفس نطاقات SAVI.",
     "NDWI": "النطاق −1 إلى +1. يقيس محتوى الماء في النبات. < −0.1 = إجهاد مائي حاد | −0.1–0.1 = جفاف معتدل | > 0.2 = محتوى مائي كافٍ.",
     "NDMI": "النطاق −1 إلى +1. يقيس رطوبة الأوراق. < −0.2 = إجهاد مائي شديد | −0.2–0.0 = مجهد | > 0.0 = رطوبة مناسبة.",
     "NDMI_STRESS": "نفس NDMI مع تركيز على قيم الإجهاد السلبية.",
-    "MSI":  "النطاق 0 إلى +3. عكسي: الأعلى = جفاف أشد. < 0.4 = رطوبة عالية | 0.4–1.0 = طبيعي | > 1.0 = إجهاد مائي.",
-    "LAI":  "النطاق 0 إلى 8+ م²/م². 0–1 = غطاء ضعيف | 1–3 = متوسط | 3–6 = جيد | > 6 = كثيف جدًا.",
-    "FAPAR":"النطاق 0–1. نسبة الإشعاع الممتص. < 0.3 = غطاء ضعيف | > 0.6 = غطاء جيد.",
-    "FCOVER":"النطاق 0–1. نسبة تغطية الأرض. < 0.3 = تغطية ضعيفة | > 0.6 = تغطية جيدة.",
-    "NBR":  "النطاق −1 إلى +1. يقيس الحرق والتلف. > 0.1 = نبات سليم | −0.1–0.1 = تلف خفيف | < −0.1 = حريق/تلف شديد.",
-    "BAIS2":"النطاق 0–5+. مؤشر المساحات المحروقة. > 1.0 = حريق مؤكد.",
-    "BSI":  "النطاق −1 إلى +1. يكشف التربة العارية. > 0 = تربة مكشوفة | < 0 = غطاء نباتي.",
+    "MSI": "النطاق 0 إلى +3. عكسي: الأعلى = جفاف أشد. < 0.4 = رطوبة عالية | 0.4–1.0 = طبيعي | > 1.0 = إجهاد مائي.",
+    "LAI": "النطاق 0 إلى 8+ م²/م². 0–1 = غطاء ضعيف | 1–3 = متوسط | 3–6 = جيد | > 6 = كثيف جدًا.",
+    "FAPAR": "النطاق 0–1. نسبة الإشعاع الممتص. < 0.3 = غطاء ضعيف | > 0.6 = غطاء جيد.",
+    "FCOVER": "النطاق 0–1. نسبة تغطية الأرض. < 0.3 = تغطية ضعيفة | > 0.6 = تغطية جيدة.",
+    "NBR": "النطاق −1 إلى +1. يقيس الحرق والتلف. > 0.1 = نبات سليم | −0.1–0.1 = تلف خفيف | < −0.1 = حريق/تلف شديد.",
+    "BAIS2": "النطاق 0–5+. مؤشر المساحات المحروقة. > 1.0 = حريق مؤكد.",
+    "BSI": "النطاق −1 إلى +1. يكشف التربة العارية. > 0 = تربة مكشوفة | < 0 = غطاء نباتي.",
     "ARVI": "مشابه لـ NDVI لكن مُصحَّح للغلاف الجوي. نفس نطاقات NDVI.",
     "PSRI": "النطاق −1 إلى +1. يقيس شيخوخة النبات. > 0.2 = شيخوخة/نضج متقدم | < 0 = نبات خضراء.",
     "NDYI": "يقيس الاصفرار. > 0.2 = اصفرار واضح ← نقص N أو مرض.",
     "RECI": "النطاق 0–15+. يقيس الكلوروفيل الكلي. < 2 = نقص | 2–5 = طبيعي | > 5 = وفير.",
     "NDCI": "النطاق −1 إلى +1. كلوروفيل في المسطحات المائية. > 0.2 = تركيز عالٍ.",
-    "MCARI":"مشابه لـ RECI للكلوروفيل. القيم الأعلى = كلوروفيل أوفر.",
+    "MCARI": "مشابه لـ RECI للكلوروفيل. القيم الأعلى = كلوروفيل أوفر.",
     "NDSI": "النطاق −1 إلى +1. يكشف الثلج. > 0.4 = غطاء ثلجي.",
-    "KNDVI":"نسخة منقحة من NDVI. نفس نطاقات NDVI لكن أكثر استقرارًا مع الغطاء الكثيف.",
+    "KNDVI": "نسخة منقحة من NDVI. نفس نطاقات NDVI لكن أكثر استقرارًا مع الغطاء الكثيف.",
 }
 
 
@@ -272,7 +273,7 @@ def _build_vegetation_prompt(req: AnalyzeFieldRequest) -> str:
 <بيانات_الحقل>
 الحقل   : {field.nameAr or field.name}
 الموقع  : {field.lat:.4f}°ش، {field.lng:.4f}°ش
-المحصول : {field.cropType or 'غير محدد'} | المساحة: {_fmt(field.areaHa, 1, 'هـ')} | التربة: {field.soilType or 'غير محدد'}
+المحصول : {field.cropType or "غير محدد"} | المساحة: {_fmt(field.areaHa, 1, "هـ")} | التربة: {field.soilType or "غير محدد"}
 </بيانات_الحقل>
 
 <البيانات_البيئية_المتاحة>
@@ -298,13 +299,13 @@ def _build_vegetation_prompt(req: AnalyzeFieldRequest) -> str:
 <بيانات_الحقل>
 الحقل   : {field.nameAr or field.name}
 الموقع  : {field.lat:.4f}°ش، {field.lng:.4f}°ش
-المحصول : {field.cropType or 'غير محدد'} | المساحة: {_fmt(field.areaHa, 1, 'هـ')} | التربة: {field.soilType or 'غير محدد'}
+المحصول : {field.cropType or "غير محدد"} | المساحة: {_fmt(field.areaHa, 1, "هـ")} | التربة: {field.soilType or "غير محدد"}
 </بيانات_الحقل>
 
 <قراءة_{req.indice}>
 القيمة المتوسطة : {val_str}{range_str}
-تاريخ الصورة   : {cdse.date or 'غير محدد'}
-الغطاء السحابي : {_fmt(cdse.cloudCover, 1, '%')}
+تاريخ الصورة   : {cdse.date or "غير محدد"}
+الغطاء السحابي : {_fmt(cdse.cloudCover, 1, "%")}
 </قراءة_{req.indice}>
 
 <مرجع_التفسير>
@@ -336,32 +337,32 @@ def _build_weather_prompt(req: AnalyzeFieldRequest) -> str:
     weather_block = "  ── OpenWeather: غير متوفر (مفتاح API غير مُهيَّأ) ──"
     if w:
         weather_block = f"""  ── بيانات OpenWeather الحالية ──
-  درجة الحرارة    : {_fmt(w.temperature, 1, '°م')} (تبدو كـ {_fmt(w.feelsLike, 1, '°م')})
-  الرطوبة النسبية : {_fmt(w.humidity, 0, '%')}
-  سرعة الرياح    : {_fmt(w.windSpeed, 1, 'م/ث')} باتجاه {_fmt(w.windDirection, 0, '°')}
-  هطول الأمطار   : {_fmt(w.precipitation, 2, 'مم')} (الساعة الأخيرة)
-  الغطاء السحابي : {_fmt(w.cloudCover, 0, '%')}
-  الضغط الجوي    : {_fmt(w.pressure, 0, 'هكتوباسكال')}
-  مدى الرؤية     : {_fmt(w.visibility, 0, 'كم')}
-  الحالة الجوية  : {w.description or 'غير متوفر'}"""
+  درجة الحرارة    : {_fmt(w.temperature, 1, "°م")} (تبدو كـ {_fmt(w.feelsLike, 1, "°م")})
+  الرطوبة النسبية : {_fmt(w.humidity, 0, "%")}
+  سرعة الرياح    : {_fmt(w.windSpeed, 1, "م/ث")} باتجاه {_fmt(w.windDirection, 0, "°")}
+  هطول الأمطار   : {_fmt(w.precipitation, 2, "مم")} (الساعة الأخيرة)
+  الغطاء السحابي : {_fmt(w.cloudCover, 0, "%")}
+  الضغط الجوي    : {_fmt(w.pressure, 0, "هكتوباسكال")}
+  مدى الرؤية     : {_fmt(w.visibility, 0, "كم")}
+  الحالة الجوية  : {w.description or "غير متوفر"}"""
 
     meteo_block = "  ── OpenMeteo: غير متوفر ──"
     if m:
         meteo_block = f"""  ── بيانات OpenMeteo الحالية ──
-  درجة الحرارة (2م)        : {_fmt(m.temperature2m, 1, '°م')}
-  الرطوبة النسبية (2م)      : {_fmt(m.relativeHumidity2m, 0, '%')}
-  هطول الأمطار              : {_fmt(m.precipitation, 2, 'مم')}
-  سرعة الرياح (10م)         : {_fmt(m.windSpeed10m, 1, 'م/ث')}
-  رطوبة التربة (0–1 سم)     : {_fmt(m.soilMoisture0to1cm, 3, 'م³/م³')}
-  التبخر-النتح ET₀ (FAO-56) : {_fmt(m.et0FaoEvapotranspiration, 2, 'مم/يوم')}
-  ضغط السطح                 : {_fmt(m.surfacePressure, 0, 'هكتوباسكال')}
-  الغطاء السحابي             : {_fmt(m.cloudCover, 0, '%')}
-  الإشعاع الشمسي القصير     : {_fmt(m.shortwaveRadiation, 1, 'واط/م²')}"""
+  درجة الحرارة (2م)        : {_fmt(m.temperature2m, 1, "°م")}
+  الرطوبة النسبية (2م)      : {_fmt(m.relativeHumidity2m, 0, "%")}
+  هطول الأمطار              : {_fmt(m.precipitation, 2, "مم")}
+  سرعة الرياح (10م)         : {_fmt(m.windSpeed10m, 1, "م/ث")}
+  رطوبة التربة (0–1 سم)     : {_fmt(m.soilMoisture0to1cm, 3, "م³/م³")}
+  التبخر-النتح ET₀ (FAO-56) : {_fmt(m.et0FaoEvapotranspiration, 2, "مم/يوم")}
+  ضغط السطح                 : {_fmt(m.surfacePressure, 0, "هكتوباسكال")}
+  الغطاء السحابي             : {_fmt(m.cloudCover, 0, "%")}
+  الإشعاع الشمسي القصير     : {_fmt(m.shortwaveRadiation, 1, "واط/م²")}"""
 
     return f"""أنت الدكتور خالد الرشيدي. حلِّل الطقس والأرصاد الزراعية لهذا الحقل وأنتج 4 نقاط طقسية دقيقة.
 
 <بيانات_الحقل>
-الحقل: {field.nameAr or field.name} | المحصول: {field.cropType or 'غير محدد'} | {_fmt(field.areaHa, 1, 'هـ')}
+الحقل: {field.nameAr or field.name} | المحصول: {field.cropType or "غير محدد"} | {_fmt(field.areaHa, 1, "هـ")}
 الموقع: {field.lat:.4f}°ش، {field.lng:.4f}°ش | المؤشر الساتلي: {indice_label} = {val_str}
 </بيانات_الحقل>
 
@@ -396,37 +397,37 @@ def _build_recommendations_prompt(req: AnalyzeFieldRequest) -> str:
     weather_lines = "  ── OpenWeather: غير متوفر (مفتاح API غير مُهيَّأ) ──"
     if w:
         weather_lines = f"""  ── بيانات OpenWeather الحالية ──
-  درجة الحرارة      : {_fmt(w.temperature, 1, '°م')} (تبدو كـ {_fmt(w.feelsLike, 1, '°م')})
-  الرطوبة النسبية   : {_fmt(w.humidity, 0, '%')}
-  سرعة الرياح       : {_fmt(w.windSpeed, 1, 'م/ث')} | اتجاه {_fmt(w.windDirection, 0, '°')}
-  هطول الأمطار      : {_fmt(w.precipitation, 2, 'مم/ساعة')}
-  الغطاء السحابي    : {_fmt(w.cloudCover, 0, '%')}
-  الضغط الجوي       : {_fmt(w.pressure, 0, 'هكتوباسكال')}
-  مدى الرؤية        : {_fmt(w.visibility, 0, 'كم')}
-  الحالة الجوية     : {w.description or 'غير متوفر'}"""
+  درجة الحرارة      : {_fmt(w.temperature, 1, "°م")} (تبدو كـ {_fmt(w.feelsLike, 1, "°م")})
+  الرطوبة النسبية   : {_fmt(w.humidity, 0, "%")}
+  سرعة الرياح       : {_fmt(w.windSpeed, 1, "م/ث")} | اتجاه {_fmt(w.windDirection, 0, "°")}
+  هطول الأمطار      : {_fmt(w.precipitation, 2, "مم/ساعة")}
+  الغطاء السحابي    : {_fmt(w.cloudCover, 0, "%")}
+  الضغط الجوي       : {_fmt(w.pressure, 0, "هكتوباسكال")}
+  مدى الرؤية        : {_fmt(w.visibility, 0, "كم")}
+  الحالة الجوية     : {w.description or "غير متوفر"}"""
 
     meteo_lines = "  ── OpenMeteo: غير متوفر ──"
     if m:
         meteo_lines = f"""  ── بيانات OpenMeteo الحالية ──
-  درجة الحرارة (2م)         : {_fmt(m.temperature2m, 1, '°م')}
-  الرطوبة النسبية (2م)       : {_fmt(m.relativeHumidity2m, 0, '%')}
-  هطول الأمطار               : {_fmt(m.precipitation, 2, 'مم')}
-  سرعة الرياح (10م)          : {_fmt(m.windSpeed10m, 1, 'م/ث')}
-  رطوبة التربة (0–1 سم)      : {_fmt(m.soilMoisture0to1cm, 3, 'م³/م³')}
-  التبخر-النتح ET₀ (FAO-56)  : {_fmt(m.et0FaoEvapotranspiration, 2, 'مم/يوم')}
-  ضغط السطح                  : {_fmt(m.surfacePressure, 0, 'هكتوباسكال')}
-  الغطاء السحابي              : {_fmt(m.cloudCover, 0, '%')}
-  الإشعاع الشمسي القصير      : {_fmt(m.shortwaveRadiation, 1, 'واط/م²')}"""
+  درجة الحرارة (2م)         : {_fmt(m.temperature2m, 1, "°م")}
+  الرطوبة النسبية (2م)       : {_fmt(m.relativeHumidity2m, 0, "%")}
+  هطول الأمطار               : {_fmt(m.precipitation, 2, "مم")}
+  سرعة الرياح (10م)          : {_fmt(m.windSpeed10m, 1, "م/ث")}
+  رطوبة التربة (0–1 سم)      : {_fmt(m.soilMoisture0to1cm, 3, "م³/م³")}
+  التبخر-النتح ET₀ (FAO-56)  : {_fmt(m.et0FaoEvapotranspiration, 2, "مم/يوم")}
+  ضغط السطح                  : {_fmt(m.surfacePressure, 0, "هكتوباسكال")}
+  الغطاء السحابي              : {_fmt(m.cloudCover, 0, "%")}
+  الإشعاع الشمسي القصير      : {_fmt(m.shortwaveRadiation, 1, "واط/م²")}"""
 
     ctx = _indice_context(req.indice)
 
     return f"""أنت الدكتور خالد الرشيدي. بناءً على جميع البيانات أدناه، أنتج 5 توصيات زراعية فورية قابلة للتنفيذ.
 
 <بيانات_الحقل_الكاملة>
-الحقل: {field.nameAr or field.name} | المحصول: {field.cropType or 'غير محدد'} | {_fmt(field.areaHa, 1, 'هـ')} | التربة: {field.soilType or 'غير محدد'}
+الحقل: {field.nameAr or field.name} | المحصول: {field.cropType or "غير محدد"} | {_fmt(field.areaHa, 1, "هـ")} | التربة: {field.soilType or "غير محدد"}
 الموقع: {field.lat:.4f}°ش، {field.lng:.4f}°ش
 
-── {indice_label} (تاريخ: {cdse.date or 'غير محدد'}) ──
+── {indice_label} (تاريخ: {cdse.date or "غير محدد"}) ──
 القيمة: {val_str}{range_str}
 مرجع التفسير: {ctx}
 
@@ -539,13 +540,11 @@ async def analyze_field(req: AnalyzeFieldRequest) -> AnalyzeFieldResponse:
     )
 
     try:
-        veg_task     = _run_agent(SYSTEM_PERSONA, veg_prompt,     max_tokens=700, model=MODEL_FAST)
+        veg_task = _run_agent(SYSTEM_PERSONA, veg_prompt, max_tokens=700, model=MODEL_FAST)
         weather_task = _run_agent(SYSTEM_PERSONA, weather_prompt, max_tokens=700, model=MODEL_FAST)
-        reco_task    = _run_agent(SYSTEM_PERSONA, reco_prompt,    max_tokens=1000, model=MODEL_PRIMARY)
+        reco_task = _run_agent(SYSTEM_PERSONA, reco_prompt, max_tokens=1000, model=MODEL_PRIMARY)
 
-        veg_text, weather_text, reco_text = await asyncio.gather(
-            veg_task, weather_task, reco_task
-        )
+        veg_text, weather_text, reco_text = await asyncio.gather(veg_task, weather_task, reco_task)
 
     except Exception as exc:
         logger.error("Multi-agent analysis failed: %s", exc)
@@ -566,5 +565,5 @@ async def analyze_field(req: AnalyzeFieldRequest) -> AnalyzeFieldResponse:
         indice=req.indice,
         current_status=current_status_bullets,
         recommendations=recommendation_bullets,
-        analyzed_at=datetime.now(timezone.utc).isoformat(),
+        analyzed_at=datetime.now(UTC).isoformat(),
     )

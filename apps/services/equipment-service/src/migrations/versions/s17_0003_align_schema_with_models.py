@@ -62,10 +62,7 @@ _NEW_INDEXES = [
 
 def _column_exists(conn, table: str, column: str) -> bool:
     result = conn.execute(
-        sa.text(
-            "SELECT 1 FROM information_schema.columns "
-            "WHERE table_name = :t AND column_name = :c"
-        ),
+        sa.text("SELECT 1 FROM information_schema.columns WHERE table_name = :t AND column_name = :c"),
         {"t": table, "c": column},
     )
     return result.fetchone() is not None
@@ -73,9 +70,7 @@ def _column_exists(conn, table: str, column: str) -> bool:
 
 def _index_exists(conn, index: str) -> bool:
     result = conn.execute(
-        sa.text(
-            "SELECT 1 FROM pg_indexes WHERE indexname = :i"
-        ),
+        sa.text("SELECT 1 FROM pg_indexes WHERE indexname = :i"),
         {"i": index},
     )
     return result.fetchone() is not None
@@ -148,9 +143,12 @@ def downgrade() -> None:
     for idx_name, table, cols in _INDEXES_TO_RECREATE:
         if not _index_exists(conn, idx_name):
             # Restore with original column names (pre-rename)
-            orig_cols = [_EQUIPMENT_COLUMN_RENAMES.get(c, c) for c in
-                         {"type": ["equipment_type", "status"],
-                          "assigned_field_id": ["field_id", "status"],
-                          "next_maintenance_date": ["next_maintenance_at"]}
-                         .get(cols[0], cols)]
+            orig_cols = [
+                _EQUIPMENT_COLUMN_RENAMES.get(c, c)
+                for c in {
+                    "type": ["equipment_type", "status"],
+                    "assigned_field_id": ["field_id", "status"],
+                    "next_maintenance_date": ["next_maintenance_at"],
+                }.get(cols[0], cols)
+            ]
             op.create_index(idx_name, table, orig_cols)

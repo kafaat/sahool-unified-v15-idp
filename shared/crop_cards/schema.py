@@ -14,7 +14,6 @@ import re
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-
 _CROP_ID_RE = re.compile(r"^[a-z0-9_]{1,32}$")
 
 

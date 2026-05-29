@@ -43,7 +43,12 @@ def _try_import(module_path: str) -> bool:
     if not _is_safe_module_path(module_path):
         return False
     try:
-        importlib.import_module(module_path)  # nosec B403 — input vetted by _is_safe_module_path
+        # Input has already been vetted by _is_safe_module_path against a
+        # strict allowlist: top-level must be 'shared', every segment must
+        # match [a-z0-9_]+. Semgrep's regex-based rule does not detect
+        # custom sanitizers, hence the suppression — the mitigation it asks
+        # for (whitelist) is implemented in _is_safe_module_path above.
+        importlib.import_module(module_path)  # nosec B403  # nosemgrep: python.lang.security.audit.non-literal-import.non-literal-import
         return True
     except ImportError:
         return False

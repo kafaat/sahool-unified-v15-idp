@@ -1,14 +1,17 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 // Core
 import '../constants/navigation_constants.dart';
+import '../auth/auth_service.dart';
 
 // Features - Auth & Onboarding
 import '../../features/splash/ui/splash_screen.dart';
 import '../../features/auth/ui/role_selection_screen.dart';
 import '../../features/auth/ui/login_screen.dart';
+import '../../features/auth/ui/register_screen.dart';
 import '../../features/auth/ui/forgot_password_screen.dart';
 import '../../features/auth/ui/reset_password_screen.dart';
 import '../../features/auth/ui/biometric_settings_screen.dart';
@@ -22,6 +25,7 @@ import '../../features/fields/domain/entities/field_entity.dart';
 import '../../features/map_home/ui/map_screen.dart';
 import '../../features/fields/presentation/screens/fields_list_screen.dart';
 import '../../features/fields/presentation/screens/field_details_screen.dart';
+import '../../features/fields/presentation/screens/field_creation_screen.dart';
 import '../../features/field_hub/ui/field_dashboard.dart';
 
 // Features - Precision Agriculture
@@ -85,6 +89,7 @@ import '../../features/reports/presentation/screens/reports_dashboard_screen.dar
 import '../../features/settings/presentation/screens/help_screen.dart';
 import '../../features/settings/presentation/screens/about_screen.dart';
 import '../../features/field/ui/field_form_screen.dart';
+import '../../features/field/presentation/screens/field_wizard_screen.dart';
 import '../../features/irrigation/presentation/screens/irrigation_dashboard_screen.dart';
 
 // Features - Astronomical Calendar
@@ -125,6 +130,11 @@ import '../../features/research/ui/experiments_list_screen.dart';
 import '../../features/research/ui/researcher_task_screen.dart';
 import '../../features/research/ui/daily_observation_screen.dart';
 
+// Features - Farm Management
+import '../../features/farm/presentation/screens/farms_list_screen.dart';
+import '../../features/farm/presentation/screens/farm_creation_screen.dart';
+import '../../features/farm/presentation/screens/farm_detail_screen.dart';
+
 /// SAHOOL App Router Configuration
 /// تكوين مسارات التطبيق باستخدام go_router
 class AppRouter {
@@ -132,12 +142,32 @@ class AppRouter {
       GlobalKey<NavigatorState>(debugLabel: 'root');
   static final GlobalKey<NavigatorState> _shellNavigatorKey =
       GlobalKey<NavigatorState>(debugLabel: 'shell');
+}
 
-  static final GoRouter router = GoRouter(
-    navigatorKey: _rootNavigatorKey,
-    initialLocation: '/home',
+final appRouterProvider = Provider<GoRouter>((ref) {
+  final router = GoRouter(
+    navigatorKey: AppRouter._rootNavigatorKey,
+    initialLocation: '/splash',
     debugLogDiagnostics: kDebugMode,
+    redirect: (context, state) {
+      // Splash handles its own navigation after connectivity check — let it through
+      if (state.matchedLocation == '/splash') return null;
 
+      // Read fresh auth state each time redirect runs — do NOT capture from closure
+      final authState = ProviderScope.containerOf(context, listen: false)
+          .read(authStateProvider);
+
+      final isLoading = authState.status == AuthStatus.initial ||
+          authState.status == AuthStatus.loading;
+      final isAuthenticated = authState.isAuthenticated;
+      final isAuthRoute = state.matchedLocation == '/login' ||
+          state.matchedLocation == '/register';
+
+      if (isLoading) return null;
+      if (!isAuthenticated && !isAuthRoute) return '/login';
+      if (isAuthenticated && isAuthRoute) return '/home';
+      return null;
+    },
     routes: [
       // ═══════════════════════════════════════════════════════════════════════
       // Onboarding & Auth Routes
@@ -159,6 +189,12 @@ class AppRouter {
         path: '/login',
         name: 'login',
         builder: (context, state) => const LoginScreen(),
+      ),
+
+      GoRoute(
+        path: '/register',
+        name: 'register',
+        builder: (context, state) => const RegisterScreen(),
       ),
 
       GoRoute(
@@ -190,7 +226,7 @@ class AppRouter {
       // ═══════════════════════════════════════════════════════════════════════
 
       ShellRoute(
-        navigatorKey: _shellNavigatorKey,
+        navigatorKey: AppRouter._shellNavigatorKey,
         builder: (context, state, child) => MainLayout(child: child),
         routes: [
           // Home Dashboard
@@ -226,6 +262,15 @@ class AppRouter {
             name: 'market',
             pageBuilder: (context, state) => const NoTransitionPage(
               child: MarketplaceScreen(),
+            ),
+          ),
+
+          // Farms List
+          GoRoute(
+            path: '/farms',
+            name: 'farms',
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: FarmsListScreen(),
             ),
           ),
 
@@ -772,6 +817,12 @@ class AppRouter {
       ),
 
       GoRoute(
+        path: '/field-wizard',
+        name: 'field-wizard',
+        builder: (context, state) => const FieldWizardScreen(),
+      ),
+
+      GoRoute(
         path: '/irrigation',
         name: 'irrigation',
         builder: (context, state) => const IrrigationDashboardScreen(
@@ -930,6 +981,39 @@ class AppRouter {
           );
         },
       ),
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // Field Creation Route - إنشاء حقل جديد
+      // ═══════════════════════════════════════════════════════════════════════
+
+      GoRoute(
+        path: '/fields/create',
+        name: 'field-create',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final farmId = extra?['farmId'] as String?;
+          return FieldCreationScreen(farmId: farmId);
+        },
+      ),
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // Farm Management Routes - إدارة المزارع
+      // ═══════════════════════════════════════════════════════════════════════
+
+      GoRoute(
+        path: '/farms/create',
+        name: 'farms-create',
+        builder: (context, state) => const FarmCreationScreen(),
+      ),
+
+      GoRoute(
+        path: '/farms/:id',
+        name: 'farm-detail',
+        builder: (context, state) {
+          final farmId = state.pathParameters['id']!;
+          return FarmDetailScreen(farmId: farmId);
+        },
+      ),
     ],
 
     // Error handling
@@ -959,4 +1043,9 @@ class AppRouter {
       ),
     ),
   );
-}
+
+  // Refresh redirects when auth changes — do NOT re-create the router
+  ref.listen(authStateProvider, (_, __) => router.refresh());
+
+  return router;
+});

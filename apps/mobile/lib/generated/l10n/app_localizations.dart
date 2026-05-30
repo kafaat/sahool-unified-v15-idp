@@ -6426,7 +6426,7 @@ abstract class AppLocalizations {
   /// No description provided for @newNotification.
   ///
   /// In en, this message translates to:
-  /// **'New Notification'**
+  /// **'New notification'**
   String get newNotification;
 
   /// No description provided for @notificationList.
@@ -8790,13 +8790,13 @@ abstract class AppLocalizations {
   /// No description provided for @syncFailed.
   ///
   /// In en, this message translates to:
-  /// **'Sync Failed'**
+  /// **'Sync failed'**
   String get syncFailed;
 
   /// No description provided for @syncInProgress.
   ///
   /// In en, this message translates to:
-  /// **'Sync in Progress'**
+  /// **'Syncing...'**
   String get syncInProgress;
 
   /// No description provided for @networkSettings.
@@ -12998,6 +12998,252 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You will be reminded about this update later'**
   String get updateRemindLaterSet;
+
+  /// No description provided for @youAreOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'You are offline'**
+  String get youAreOffline;
+
+  /// No description provided for @changesWillSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes will sync when you\'\'re back online'**
+  String get changesWillSync;
+
+  /// No description provided for @connectedToInternet.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected to internet'**
+  String get connectedToInternet;
+
+  /// No description provided for @usingCachedData.
+  ///
+  /// In en, this message translates to:
+  /// **'Using cached data'**
+  String get usingCachedData;
+
+  /// No description provided for @syncComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync complete'**
+  String get syncComplete;
+
+  /// No description provided for @pendingChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending changes'**
+  String get pendingChanges;
+
+  /// No description provided for @retrySync.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry sync'**
+  String get retrySync;
+
+  /// No description provided for @conflictDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'Conflict detected'**
+  String get conflictDetected;
+
+  /// No description provided for @keepLocal.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep local'**
+  String get keepLocal;
+
+  /// No description provided for @keepRemote.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep remote'**
+  String get keepRemote;
+
+  /// No description provided for @mergeChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge changes'**
+  String get mergeChanges;
+
+  /// No description provided for @localVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Local version'**
+  String get localVersion;
+
+  /// No description provided for @remoteVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Remote version'**
+  String get remoteVersion;
+
+  /// No description provided for @modifiedLocally.
+  ///
+  /// In en, this message translates to:
+  /// **'Modified locally'**
+  String get modifiedLocally;
+
+  /// No description provided for @modifiedRemotely.
+  ///
+  /// In en, this message translates to:
+  /// **'Modified on server'**
+  String get modifiedRemotely;
+
+  /// No description provided for @justNow.
+  ///
+  /// In en, this message translates to:
+  /// **'just now'**
+  String get justNow;
+
+  /// No description provided for @minutesAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} minutes ago'**
+  String minutesAgo(int count);
+
+  /// No description provided for @hoursAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} hours ago'**
+  String hoursAgo(int count);
+
+  /// No description provided for @daysAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} days ago'**
+  String daysAgo(int count);
+
+  /// No description provided for @weeksAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} weeks ago'**
+  String weeksAgo(int count);
+
+  /// No description provided for @alertNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert Notifications'**
+  String get alertNotifications;
+
+  /// No description provided for @taskReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Task Reminders'**
+  String get taskReminders;
+
+  /// No description provided for @marketUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Market Updates'**
+  String get marketUpdates;
+
+  /// No description provided for @soundEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound Enabled'**
+  String get soundEnabled;
+
+  /// No description provided for @vibrationEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Vibration Enabled'**
+  String get vibrationEnabled;
+
+  /// No description provided for @quietHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Quiet Hours'**
+  String get quietHours;
+
+  /// No description provided for @markAllAsRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark all as read'**
+  String get markAllAsRead;
+
+  /// No description provided for @clearAllNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all notifications'**
+  String get clearAllNotifications;
+
+  /// No description provided for @noNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications'**
+  String get noNotifications;
+
+  /// No description provided for @viewNotification.
+  ///
+  /// In en, this message translates to:
+  /// **'View notification'**
+  String get viewNotification;
+
+  /// No description provided for @dismissNotification.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss notification'**
+  String get dismissNotification;
+
+  /// No description provided for @languageSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Language Settings'**
+  String get languageSettings;
+
+  /// No description provided for @switchToArabic.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to Arabic'**
+  String get switchToArabic;
+
+  /// No description provided for @switchToEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to English'**
+  String get switchToEnglish;
+
+  /// No description provided for @languageChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Language changed'**
+  String get languageChanged;
+
+  /// No description provided for @restartRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please restart the app'**
+  String get restartRequired;
+
+  /// No description provided for @performanceSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Performance Settings'**
+  String get performanceSettings;
+
+  /// No description provided for @reducedAnimations.
+  ///
+  /// In en, this message translates to:
+  /// **'Reduced Animations'**
+  String get reducedAnimations;
+
+  /// No description provided for @dataSaverMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Data Saver Mode'**
+  String get dataSaverMode;
+
+  /// No description provided for @offlineMapsCaching.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline Maps Caching'**
+  String get offlineMapsCaching;
+
+  /// No description provided for @cacheCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Cache cleared'**
+  String get cacheCleared;
 }
 
 class _AppLocalizationsDelegate

@@ -95,7 +95,7 @@ class MainLayout extends ConsumerWidget {
                       icon: Icons.add_location_rounded,
                       label: 'حقل جديد',
                       color: SahoolTheme.success,
-                      route: '/field-form',
+                      route: '/field-wizard',
                     ),
                     _buildQuickActionItem(
                       context: context,
@@ -190,9 +190,10 @@ class MainLayout extends ConsumerWidget {
     final location = GoRouterState.of(context).uri.path;
     if (location.startsWith('/home')) return 0;
     if (location.startsWith('/fields')) return 1;
-    if (location.startsWith('/monitor')) return 2;
-    if (location.startsWith('/market')) return 3;
-    if (location.startsWith('/profile')) return 4;
+    if (location.startsWith('/farms')) return 2;
+    if (location.startsWith('/monitor')) return 3;
+    if (location.startsWith('/market')) return 4;
+    if (location.startsWith('/profile')) return 5;
     return 0;
   }
 }

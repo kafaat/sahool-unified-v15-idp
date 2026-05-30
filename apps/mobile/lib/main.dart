@@ -19,6 +19,7 @@ import 'core/crash/crash_reporter.dart';
 import 'core/persistence/app_state_manager.dart';
 import 'core/persistence/preferences_manager.dart';
 import 'core/persistence/draft_manager.dart';
+import 'core/di/database_provider.dart';
 
 // Global crash reporting instance (legacy - kept for compatibility)
 final crashReporting = legacy_crash.CrashReportingService();
@@ -316,14 +317,7 @@ Future<void> _initializeAndRunApp({bool skipSecurityCheck = false}) async {
   );
 }
 
-// Global providers
-final databaseProvider = Provider<AppDatabase>((ref) {
-  throw UnimplementedError('Database not initialized');
-});
-
-final syncEngineProvider = Provider<SyncEngine>((ref) {
-  throw UnimplementedError('SyncEngine not initialized');
-});
+// Global providers defined in core/di/database_provider.dart
 
 final crashReportingProvider =
     Provider<legacy_crash.CrashReportingService>((ref) {

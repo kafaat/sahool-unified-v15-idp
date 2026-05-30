@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../storage/database.dart' hide Field;
 import '../../features/field/data/repo/fields_repo.dart';
 import '../../features/field/data/remote/fields_api.dart';
 import '../../features/field/domain/entities/field.dart';
@@ -7,9 +6,9 @@ import '../http/api_client.dart';
 import '../security/signing_key_service.dart';
 import '../auth/token_manager.dart';
 import '../auth/secure_storage_service.dart';
+import 'database_provider.dart';
 
-// Re-export database provider from main.dart
-// Note: databaseProvider is defined in main.dart and overridden at runtime
+export 'database_provider.dart' show databaseProvider, syncEngineProvider;
 
 /// API Client Provider
 /// Automatically configures certificate pinning, request signing, and token management based on build mode:
@@ -24,6 +23,7 @@ final apiClientProvider = Provider<ApiClient>((ref) {
   final apiClient = ApiClient(
     signingKeyService: signingKeyService,
     enableRequestSigning: true,
+    enableSecurityHeaderValidation: false,  // Backend doesn't send security headers in dev
   );
 
   // Configure advanced token interceptor for:
@@ -77,8 +77,3 @@ final unsyncedFieldsProvider = FutureProvider<List<Field>>((ref) async {
   return repo.getUnsyncedFields();
 });
 
-// Import databaseProvider from main.dart
-// This is a workaround since we can't export from main.dart
-final databaseProvider = Provider<AppDatabase>((ref) {
-  throw UnimplementedError('Database provider must be overridden in main.dart');
-});

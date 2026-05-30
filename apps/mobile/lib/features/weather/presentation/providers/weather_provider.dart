@@ -1,10 +1,18 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/remote/weather_api.dart';
 import '../../domain/entities/weather_entities.dart';
+import '../../../../core/auth/secure_storage_service.dart';
 
-/// Weather API Provider
+/// Weather API Provider (unauthenticated fallback)
 final weatherApiProvider = Provider<WeatherApi>((ref) {
   return WeatherApi();
+});
+
+/// Weather API with token — use this for authenticated requests
+final weatherApiWithTokenProvider = FutureProvider<WeatherApi>((ref) async {
+  final secureStorage = ref.watch(secureStorageProvider);
+  final token = await secureStorage.getAccessToken();
+  return WeatherApi(authToken: token);
 });
 
 /// حالة بيانات الطقس
@@ -71,10 +79,12 @@ class WeatherNotifier extends StateNotifier<WeatherState> {
   }
 }
 
-/// Weather Provider
+/// Weather Provider — uses authenticated API
 final weatherProvider =
     StateNotifierProvider<WeatherNotifier, WeatherState>((ref) {
-  final api = ref.watch(weatherApiProvider);
+  // Watch the async token provider; fall back to unauthenticated until token loads
+  final asyncApi = ref.watch(weatherApiWithTokenProvider);
+  final api = asyncApi.maybeWhen(data: (a) => a, orElse: () => WeatherApi());
   return WeatherNotifier(api);
 });
 
@@ -133,10 +143,11 @@ class AlertsNotifier extends StateNotifier<AlertsState> {
   }
 }
 
-/// Alerts Provider
+/// Alerts Provider — uses authenticated API
 final alertsProvider =
     StateNotifierProvider<AlertsNotifier, AlertsState>((ref) {
-  final api = ref.watch(weatherApiProvider);
+  final asyncApi = ref.watch(weatherApiWithTokenProvider);
+  final api = asyncApi.maybeWhen(data: (a) => a, orElse: () => WeatherApi());
   return AlertsNotifier(api);
 });
 
@@ -186,10 +197,11 @@ class ImpactsNotifier extends StateNotifier<ImpactsState> {
   }
 }
 
-/// Impacts Provider
+/// Impacts Provider — uses authenticated API
 final impactsProvider =
     StateNotifierProvider<ImpactsNotifier, ImpactsState>((ref) {
-  final api = ref.watch(weatherApiProvider);
+  final asyncApi = ref.watch(weatherApiWithTokenProvider);
+  final api = asyncApi.maybeWhen(data: (a) => a, orElse: () => WeatherApi());
   return ImpactsNotifier(api);
 });
 

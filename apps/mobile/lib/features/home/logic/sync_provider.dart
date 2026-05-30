@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../main.dart';
+import '../../../core/di/database_provider.dart';
 
 /// حالة المزامنة للواجهة
 enum SyncStatus {

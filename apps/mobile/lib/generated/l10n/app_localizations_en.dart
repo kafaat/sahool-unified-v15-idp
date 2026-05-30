@@ -3176,7 +3176,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notification => 'Notification';
 
   @override
-  String get newNotification => 'New Notification';
+  String get newNotification => 'New notification';
 
   @override
   String get notificationList => 'Notification List';
@@ -4358,10 +4358,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get syncSuccess => 'Sync Success';
 
   @override
-  String get syncFailed => 'Sync Failed';
+  String get syncFailed => 'Sync failed';
 
   @override
-  String get syncInProgress => 'Sync in Progress';
+  String get syncInProgress => 'Syncing...';
 
   @override
   String get networkSettings => 'Network Settings';
@@ -6495,4 +6495,135 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get updateRemindLaterSet =>
       'You will be reminded about this update later';
+
+  @override
+  String get youAreOffline => 'You are offline';
+
+  @override
+  String get changesWillSync => 'Changes will sync when you\'re back online';
+
+  @override
+  String get connectedToInternet => 'Connected to internet';
+
+  @override
+  String get usingCachedData => 'Using cached data';
+
+  @override
+  String get syncComplete => 'Sync complete';
+
+  @override
+  String get pendingChanges => 'Pending changes';
+
+  @override
+  String get retrySync => 'Retry sync';
+
+  @override
+  String get conflictDetected => 'Conflict detected';
+
+  @override
+  String get keepLocal => 'Keep local';
+
+  @override
+  String get keepRemote => 'Keep remote';
+
+  @override
+  String get mergeChanges => 'Merge changes';
+
+  @override
+  String get localVersion => 'Local version';
+
+  @override
+  String get remoteVersion => 'Remote version';
+
+  @override
+  String get modifiedLocally => 'Modified locally';
+
+  @override
+  String get modifiedRemotely => 'Modified on server';
+
+  @override
+  String get justNow => 'just now';
+
+  @override
+  String minutesAgo(int count) {
+    return '$count minutes ago';
+  }
+
+  @override
+  String hoursAgo(int count) {
+    return '$count hours ago';
+  }
+
+  @override
+  String daysAgo(int count) {
+    return '$count days ago';
+  }
+
+  @override
+  String weeksAgo(int count) {
+    return '$count weeks ago';
+  }
+
+  @override
+  String get alertNotifications => 'Alert Notifications';
+
+  @override
+  String get taskReminders => 'Task Reminders';
+
+  @override
+  String get marketUpdates => 'Market Updates';
+
+  @override
+  String get soundEnabled => 'Sound Enabled';
+
+  @override
+  String get vibrationEnabled => 'Vibration Enabled';
+
+  @override
+  String get quietHours => 'Quiet Hours';
+
+  @override
+  String get markAllAsRead => 'Mark all as read';
+
+  @override
+  String get clearAllNotifications => 'Clear all notifications';
+
+  @override
+  String get noNotifications => 'No notifications';
+
+  @override
+  String get viewNotification => 'View notification';
+
+  @override
+  String get dismissNotification => 'Dismiss notification';
+
+  @override
+  String get languageSettings => 'Language Settings';
+
+  @override
+  String get switchToArabic => 'Switch to Arabic';
+
+  @override
+  String get switchToEnglish => 'Switch to English';
+
+  @override
+  String get languageChanged => 'Language changed';
+
+  @override
+  String get restartRequired => 'Please restart the app';
+
+  @override
+  String get performanceSettings => 'Performance Settings';
+
+  @override
+  String get reducedAnimations => 'Reduced Animations';
+
+  @override
+  String get dataSaverMode => 'Data Saver Mode';
+
+  @override
+  String get offlineMapsCaching => 'Offline Maps Caching';
+
+  @override
+  String get cacheCleared => 'Cache cleared';
 }

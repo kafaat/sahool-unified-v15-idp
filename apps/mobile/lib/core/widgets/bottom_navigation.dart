@@ -67,6 +67,16 @@ class SahoolBottomNavigation extends ConsumerWidget {
         label: NavigationConstants.getLabel('fields'),
       ),
 
+      // Farms
+      NavigationDestination(
+        icon: Icon(NavigationConstants.getIcon('farms')),
+        selectedIcon: Icon(
+          NavigationConstants.getIcon('farms'),
+          color: SahoolTheme.primary,
+        ),
+        label: NavigationConstants.getLabel('farms'),
+      ),
+
       // Monitor
       NavigationDestination(
         icon: Icon(NavigationConstants.getIcon('monitor')),
@@ -124,12 +134,15 @@ class SahoolBottomNavigation extends ConsumerWidget {
         context.go(NavigationConstants.fields);
         break;
       case 2:
-        context.go(NavigationConstants.monitor);
+        context.go(NavigationConstants.farms);
         break;
       case 3:
-        context.go(NavigationConstants.market);
+        context.go(NavigationConstants.monitor);
         break;
       case 4:
+        context.go(NavigationConstants.market);
+        break;
+      case 5:
         context.go(NavigationConstants.profile);
         break;
     }

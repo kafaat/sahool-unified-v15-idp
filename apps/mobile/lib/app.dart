@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/config/theme.dart';
 import 'core/routes/app_router.dart';
-import 'core/auth/auth_service.dart';
 import 'generated/l10n/app_localizations.dart';
 
 /// SAHOOL Field App - تطبيق سهول الميداني
@@ -32,10 +31,7 @@ class _SahoolFieldAppState extends ConsumerState<SahoolFieldApp> {
 
   @override
   Widget build(BuildContext context) {
-    // Watch auth state for reactive redirects
-    ref.listen<AuthState>(authStateProvider, (previous, next) {
-      _handleAuthStateChange(previous, next);
-    });
+    final router = ref.watch(appRouterProvider);
 
     return MaterialApp.router(
       title: 'سهول',
@@ -51,26 +47,8 @@ class _SahoolFieldAppState extends ConsumerState<SahoolFieldApp> {
       darkTheme: SahoolTheme.dark,
       themeMode: ThemeMode.system,
 
-      // GoRouter - centralized routing from app_router.dart
-      routerConfig: AppRouter.router,
+      // GoRouter - centralized routing with auth redirect from app_router.dart
+      routerConfig: router,
     );
-  }
-
-  /// Handles auth state transitions:
-  /// - When user becomes unauthenticated -> redirect to /login
-  /// - When user becomes authenticated from login -> redirect to /home
-  void _handleAuthStateChange(AuthState? previous, AuthState next) {
-    final wasAuthenticated = previous?.isAuthenticated ?? false;
-    final isAuthenticated = next.isAuthenticated;
-
-    if (wasAuthenticated && !isAuthenticated) {
-      // User logged out or session expired - go to login
-      AppRouter.router.go('/login');
-    } else if (!wasAuthenticated &&
-        isAuthenticated &&
-        previous?.status != AuthStatus.initial) {
-      // User just logged in - go to home
-      AppRouter.router.go('/home');
-    }
   }
 }

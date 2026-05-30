@@ -62,7 +62,7 @@ class SahoolProTheme {
       ),
 
       // تصميم الكروت (حواف حادة قليلاً للطابع الصناعي)
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 4,
         color: SahoolProColors.cardWhite,
         shadowColor: Colors.black.withValues(alpha: 0.15),
@@ -170,7 +170,7 @@ class SahoolProTheme {
       ),
 
       // تصميم الـ Dialog
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor: Colors.white,
         elevation: 16,
         shape: RoundedRectangleBorder(
@@ -200,7 +200,7 @@ class SahoolProTheme {
         fontFamily: 'IBMPlexSansArabic',
       ),
 
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 4,
         color: const Color(0xFF2D2D2D),
         shape: RoundedRectangleBorder(

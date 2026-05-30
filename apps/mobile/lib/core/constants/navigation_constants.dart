@@ -17,6 +17,7 @@ class NavigationConstants {
   // Main Tabs
   static const String home = '/home';
   static const String fields = '/fields';
+  static const String farms = '/farms';
   static const String monitor = '/monitor';
   static const String market = '/market';
   static const String profile = '/profile';
@@ -129,6 +130,8 @@ class NavigationConstants {
     // Main Navigation
     'home': 'الرئيسية',
     'fields': 'حقولي',
+    'farms': 'مزارعي',
+    'farms_desc': 'إدارة مزارعك وحقولك',
     'monitor': 'المراقبة',
     'market': 'السوق',
     'profile': 'حسابي',
@@ -243,6 +246,7 @@ class NavigationConstants {
     // Main Navigation
     'home': Icons.home_rounded,
     'fields': Icons.landscape_rounded,
+    'farms': Icons.agriculture_rounded,
     'monitor': Icons.analytics_rounded,
     'market': Icons.storefront_rounded,
     'profile': Icons.person_rounded,
@@ -295,6 +299,7 @@ class NavigationConstants {
   // ═══════════════════════════════════════════════════════════════════════
 
   static const Map<String, Color> featureColors = {
+    'farms': Color(0xFF2E7D32), // Dark Green
     'vra': Color(0xFF4CAF50), // Green
     'gdd': Color(0xFFFF9800), // Orange
     'spray': Color(0xFF2196F3), // Blue

@@ -4,7 +4,7 @@ import '../../../core/storage/database.dart';
 import '../../../core/sync/sync_engine.dart';
 import '../../../core/sync/queue_manager.dart';
 import '../../../core/config/env_config.dart';
-import '../../../main.dart';
+import '../../../core/di/database_provider.dart';
 
 /// Sync Events State
 class SyncEventsState {

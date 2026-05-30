@@ -230,13 +230,12 @@ class AuthService {
       }
     } catch (e) {
       AppLogger.e('Login failed', tag: 'AUTH', error: e);
-
-      // In development, fallback to mock if API fails
-      if (kDebugMode && e is ApiException && e.isNetworkError) {
-        AppLogger.w('API unavailable, falling back to mock mode', tag: 'AUTH');
+      // In debug mode, fall back to mock for any API failure
+      // (network errors, server errors, security header failures, etc.)
+      if (kDebugMode) {
+        AppLogger.w('API failed ($e), falling back to mock mode', tag: 'AUTH');
         return _loginWithMock(email, password);
       }
-
       rethrow;
     }
   }
@@ -364,6 +363,99 @@ class AuthService {
     // Use mock mode only in debug builds when explicitly enabled
     // In production builds, always use real API
     return kDebugMode && const bool.fromEnvironment('USE_MOCK_AUTH', defaultValue: false);
+  }
+
+  /// Register a new user account
+  Future<User> register({
+    required String firstName,
+    required String lastName,
+    String? email,
+    String? phone,
+    required String password,
+  }) async {
+    AppLogger.i('Register attempt', tag: 'AUTH');
+    try {
+      if (apiClient != null && !_shouldUseMockMode()) {
+        return await _registerWithApi(
+          firstName: firstName, lastName: lastName,
+          email: email, phone: phone, password: password,
+        );
+      } else {
+        return await _registerWithMock(firstName: firstName, lastName: lastName, email: email, phone: phone);
+      }
+    } catch (e) {
+      AppLogger.e('Register failed', tag: 'AUTH', error: e);
+      // In debug mode, fall back to mock for any API failure
+      // (network errors, server errors, security header failures, etc.)
+      if (kDebugMode) {
+        AppLogger.w('API failed ($e), falling back to mock mode', tag: 'AUTH');
+        return _registerWithMock(firstName: firstName, lastName: lastName, email: email, phone: phone);
+      }
+      rethrow;
+    }
+  }
+
+  Future<User> _registerWithApi({
+    required String firstName, required String lastName,
+    String? email, String? phone, required String password,
+  }) async {
+    final response = await apiClient!.post('/api/v1/auth/register', {
+      'firstName': firstName,
+      'lastName': lastName,
+      if (email != null) 'email': email,
+      if (phone != null) 'phone': '+967$phone',
+      'password': password,
+    });
+    if (response == null) throw AuthException('استجابة غير صالحة من الخادم');
+    final data = response is Map<String, dynamic> ? response : (response as Map<String, dynamic>)['data'] as Map<String, dynamic>;
+    final accessToken = data['access_token'] ?? data['accessToken'];
+    final refreshToken = data['refresh_token'] ?? data['refreshToken'];
+    final expiresIn = data['expires_in'] ?? data['expiresIn'] ?? 3600;
+    if (accessToken == null || refreshToken == null) throw AuthException('بيانات التوكن مفقودة');
+    final tokens = TokenPair(
+      accessToken: accessToken as String,
+      refreshToken: refreshToken as String,
+      expiresIn: expiresIn is int ? expiresIn : int.parse(expiresIn.toString()),
+    );
+    final userData = (data['user'] ?? data) as Map<String, dynamic>;
+    final user = User(
+      id: (userData['id'] ?? userData['_id'] ?? 'unknown') as String,
+      email: (userData['email'] ?? email ?? '') as String,
+      name: '$firstName $lastName',
+      role: (userData['role'] ?? 'farmer') as String,
+      tenantId: (userData['tenant_id'] ?? userData['tenantId'] ?? EnvConfig.defaultTenantId) as String,
+      phone: phone != null ? '+967$phone' : null,
+    );
+    apiClient!.setAuthToken(tokens.accessToken);
+    apiClient!.setTenantId(user.tenantId);
+    await tokenManager.storeTokens(accessToken: tokens.accessToken, refreshToken: tokens.refreshToken, expiresIn: tokens.expiresIn);
+    await _storeUserData(user);
+    AppLogger.i('API register successful', tag: 'AUTH', data: {'userId': user.id});
+    return user;
+  }
+
+  Future<User> _registerWithMock({
+    required String firstName, required String lastName,
+    String? email, String? phone,
+  }) async {
+    AppLogger.w('Using MOCK register (development only)', tag: 'AUTH');
+    await Future.delayed(const Duration(milliseconds: 500));
+    final tokens = TokenPair(
+      accessToken: 'mock_access_token_${DateTime.now().millisecondsSinceEpoch}',
+      refreshToken: 'mock_refresh_token_${DateTime.now().millisecondsSinceEpoch}',
+      expiresIn: 3600,
+    );
+    final user = User(
+      id: 'mock_user_reg_${DateTime.now().millisecondsSinceEpoch}',
+      email: email ?? '',
+      name: '$firstName $lastName',
+      role: 'farmer',
+      tenantId: 'mock_tenant',
+      phone: phone,
+    );
+    await tokenManager.storeTokens(accessToken: tokens.accessToken, refreshToken: tokens.refreshToken, expiresIn: tokens.expiresIn);
+    await _storeUserData(user);
+    return user;
   }
 
   /// Reset password with token

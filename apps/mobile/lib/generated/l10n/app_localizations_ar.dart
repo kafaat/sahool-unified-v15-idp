@@ -3208,13 +3208,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get notificationVibration => 'اهتزاز الإشعار';
 
   @override
-  String get pushNotifications => 'إشعارات الدفع';
+  String get pushNotifications => 'الإشعارات الفورية';
 
   @override
   String get emailNotifications => 'إشعارات البريد الإلكتروني';
 
   @override
-  String get smsNotifications => 'إشعارات الرسائل القصيرة';
+  String get smsNotifications => 'إشعارات الرسائل النصية';
 
   @override
   String get alert => 'تنبيه';
@@ -4360,7 +4360,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get syncFailed => 'فشلت المزامنة';
 
   @override
-  String get syncInProgress => 'جارٍ المزامنة';
+  String get syncInProgress => 'جاري المزامنة...';
 
   @override
   String get networkSettings => 'إعدادات الشبكة';
@@ -4375,7 +4375,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get mobileData => 'بيانات الجوال';
 
   @override
-  String get offlineMode => 'وضع غير متصل';
+  String get offlineMode => 'وضع عدم الاتصال';
 
   @override
   String get dataUsage => 'استخدام البيانات';
@@ -6490,4 +6490,135 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get updateRemindLaterSet => 'سيتم تذكيرك بهذا التحديث لاحقاً';
+
+  @override
+  String get youAreOffline => 'أنت غير متصل بالإنترنت';
+
+  @override
+  String get changesWillSync => 'التغييرات ستُزامن عند عودة الاتصال';
+
+  @override
+  String get connectedToInternet => 'متصل بالإنترنت';
+
+  @override
+  String get usingCachedData => 'يتم استخدام البيانات المخزنة';
+
+  @override
+  String get syncComplete => 'تمت المزامنة';
+
+  @override
+  String get pendingChanges => 'تغييرات معلقة';
+
+  @override
+  String get retrySync => 'إعادة المزامنة';
+
+  @override
+  String get conflictDetected => 'تم اكتشاف تعارض';
+
+  @override
+  String get keepLocal => 'الاحتفاظ بالمحلية';
+
+  @override
+  String get keepRemote => 'الاحتفاظ بالسحابية';
+
+  @override
+  String get mergeChanges => 'دمج التغييرات';
+
+  @override
+  String get localVersion => 'النسخة المحلية';
+
+  @override
+  String get remoteVersion => 'النسخة السحابية';
+
+  @override
+  String get modifiedLocally => 'تم التعديل محلياً';
+
+  @override
+  String get modifiedRemotely => 'تم التعديل على الخادم';
+
+  @override
+  String get justNow => 'الآن';
+
+  @override
+  String minutesAgo(int count) {
+    return 'منذ $count دقيقة';
+  }
+
+  @override
+  String hoursAgo(int count) {
+    return 'منذ $count ساعة';
+  }
+
+  @override
+  String daysAgo(int count) {
+    return 'منذ $count يوم';
+  }
+
+  @override
+  String weeksAgo(int count) {
+    return 'منذ $count أسبوع';
+  }
+
+  @override
+  String get alertNotifications => 'إشعارات التنبيهات';
+
+  @override
+  String get taskReminders => 'تذكيرات المهام';
+
+  @override
+  String get marketUpdates => 'تحديثات السوق';
+
+  @override
+  String get soundEnabled => 'الصوت مفعّل';
+
+  @override
+  String get vibrationEnabled => 'الاهتزاز مفعّل';
+
+  @override
+  String get quietHours => 'ساعات الهدوء';
+
+  @override
+  String get markAllAsRead => 'تحديد الكل كمقروء';
+
+  @override
+  String get clearAllNotifications => 'مسح جميع الإشعارات';
+
+  @override
+  String get noNotifications => 'لا توجد إشعارات';
+
+  @override
+  String get viewNotification => 'عرض الإشعار';
+
+  @override
+  String get dismissNotification => 'تجاهل الإشعار';
+
+  @override
+  String get languageSettings => 'إعدادات اللغة';
+
+  @override
+  String get switchToArabic => 'التبديل إلى العربية';
+
+  @override
+  String get switchToEnglish => 'Switch to English';
+
+  @override
+  String get languageChanged => 'تم تغيير اللغة';
+
+  @override
+  String get restartRequired => 'يرجى إعادة تشغيل التطبيق';
+
+  @override
+  String get performanceSettings => 'إعدادات الأداء';
+
+  @override
+  String get reducedAnimations => 'تقليل التحريكات';
+
+  @override
+  String get dataSaverMode => 'وضع توفير البيانات';
+
+  @override
+  String get offlineMapsCaching => 'تخزين الخرائط للعمل بدون اتصال';
+
+  @override
+  String get cacheCleared => 'تم مسح الذاكرة المؤقتة';
 }

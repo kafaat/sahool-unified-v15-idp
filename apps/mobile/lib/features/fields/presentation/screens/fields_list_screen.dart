@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/accessibility/semantics_helper.dart';
 import '../../../../core/di/providers.dart';
 import '../../../../core/iam/iam_providers.dart';
@@ -636,9 +637,9 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
   }
 
   Future<void> _addField() async {
-    final result = await Navigator.pushNamed(context, '/field-form');
-    // Reload fields if a field was created
-    if (result == true && mounted) {
+    await context.push('/field-wizard');
+    // Reload fields after wizard closes
+    if (mounted) {
       unawaited(_loadFields());
     }
   }

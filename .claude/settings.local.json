@@ -242,7 +242,15 @@
       "Bash(cmd /c \"cd /d D:\\\\projects\\\\v91\\\\sahoo-adel-full\\\\apps\\\\mobile && flutter analyze lib/core/network/backend_connectivity_provider.dart lib/features/splash/ui/splash_screen.dart 2>&1\")",
       "Bash(cmd:*)",
       "Bash(powershell:*)",
-      "Bash(echo \"---EXIT CODE: $?\")"
+      "Bash(echo \"---EXIT CODE: $?\")",
+      "Bash(netsh interface:*)",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(dart analyze:*)",
+      "Bash(where dart:*)",
+      "Bash(/c/Users/ROG/flutter/bin/dart analyze:*)",
+      "Bash(~/.flutter/bin/dart analyze:*)",
+      "Bash(/c/flutter/bin/flutter.bat analyze:*)",
+      "Bash('C:\\\\flutter\\\\bin\\\\flutter.bat' analyze:*)"
     ]
   }
 }

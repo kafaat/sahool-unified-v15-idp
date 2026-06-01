@@ -35,6 +35,17 @@ class FarmDetailScreen extends ConsumerWidget {
   }
 }
 
+List<LatLng> _bboxToPolygon(List<double> bbox) {
+  final minLng = bbox[0], minLat = bbox[1], maxLng = bbox[2], maxLat = bbox[3];
+  return [
+    LatLng(minLat, minLng),
+    LatLng(minLat, maxLng),
+    LatLng(maxLat, maxLng),
+    LatLng(maxLat, minLng),
+  ];
+}
+
+
 class _FarmDetailView extends ConsumerWidget {
   final FarmEntity farm;
   const _FarmDetailView({required this.farm});
@@ -46,17 +57,31 @@ class _FarmDetailView extends ConsumerWidget {
       farm.centerLng != 0.0 ? farm.centerLng : 44.1910,
     );
 
+    final double initialZoom = (farm.zoom ?? 13).toDouble();
+
+    // Build polygon points from bbox
+    List<LatLng>? polygonPoints;
+    if (farm.bbox != null && farm.bbox!.length == 4) {
+      polygonPoints = _bboxToPolygon(farm.bbox!);
+    }
+
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF5F7F5),
         appBar: AppBar(
           title: Text(farm.name, style: const TextStyle(fontWeight: FontWeight.bold)),
           centerTitle: true,
-          backgroundColor: Colors.white,
-          foregroundColor: const Color(0xFF1A1A1A),
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          foregroundColor: Theme.of(context).colorScheme.onSurface,
           elevation: 0,
           surfaceTintColor: Colors.transparent,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh_rounded),
+              tooltip: 'تحديث',
+              onPressed: () => ref.refresh(farmsListProvider),
+            ),
+          ],
         ),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () => context.push('/fields/create', extra: {'farmId': farm.id}),
@@ -69,13 +94,13 @@ class _FarmDetailView extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Satellite map showing farm location
+              // Satellite map showing farm location + optional polygon
               SizedBox(
                 height: 220,
                 child: FlutterMap(
                   options: MapOptions(
                     initialCenter: center,
-                    initialZoom: 13,
+                    initialZoom: initialZoom,
                     interactionOptions: const InteractionOptions(flags: InteractiveFlag.all),
                   ),
                   children: [
@@ -84,23 +109,35 @@ class _FarmDetailView extends ConsumerWidget {
                       userAgentPackageName: 'com.sahool.app',
                       maxZoom: 19,
                     ),
-                    MarkerLayer(
-                      markers: [
-                        Marker(
-                          point: center,
-                          width: 40,
-                          height: 40,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: SahoolTheme.primary,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 2),
-                            ),
-                            child: const Icon(Icons.agriculture_rounded, color: Colors.white, size: 22),
+                    if (polygonPoints != null)
+                      PolygonLayer(
+                        polygons: [
+                          Polygon(
+                            points: polygonPoints,
+                            color: SahoolTheme.primary.withValues(alpha: 0.20),
+                            borderColor: SahoolTheme.primary,
+                            borderStrokeWidth: 2.5,
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
+                    if (polygonPoints == null)
+                      MarkerLayer(
+                        markers: [
+                          Marker(
+                            point: center,
+                            width: 40,
+                            height: 40,
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                color: SahoolTheme.primary,
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.white, width: 2),
+                              ),
+                              child: const Icon(Icons.agriculture_rounded, color: Colors.white, size: 22),
+                            ),
+                          ),
+                        ],
+                      ),
                   ],
                 ),
               ),
@@ -111,15 +148,43 @@ class _FarmDetailView extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _infoCard(Icons.location_on_rounded, 'الموقع', farm.location.isNotEmpty ? farm.location : '—'),
+                    _infoCard(context, Icons.location_on_rounded, 'الموقع', (farm.location?.isNotEmpty == true) ? farm.location! : '—'),
                     const SizedBox(height: 12),
                     Row(
                       children: [
-                        Expanded(child: _infoCard(Icons.straighten_rounded, 'المساحة', '${farm.totalAreaHa.toStringAsFixed(1)} هـ')),
+                        Expanded(child: _infoCard(context, Icons.straighten_rounded, 'المساحة', '${farm.totalAreaHa.toStringAsFixed(1)} هـ')),
                         const SizedBox(width: 12),
-                        Expanded(child: _infoCard(Icons.water_drop_rounded, 'مصدر المياه', farm.waterSource.isNotEmpty ? farm.waterSource : '—')),
+                        Expanded(child: _infoCard(context, Icons.water_drop_rounded, 'مصدر المياه', (farm.waterSource?.isNotEmpty == true) ? farm.waterSource! : '—')),
                       ],
                     ),
+                    // Second row: zoom + region (shown only when data is available)
+                    if (farm.zoom != null || (farm.region != null && farm.region!.isNotEmpty)) ...[
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          if (farm.zoom != null)
+                            Expanded(
+                              child: _infoCard(
+                                context,
+                                Icons.zoom_in_rounded,
+                                'مستوى التكبير',
+                                '${farm.zoom}',
+                              ),
+                            ),
+                          if (farm.zoom != null && farm.region != null && farm.region!.isNotEmpty)
+                            const SizedBox(width: 12),
+                          if (farm.region != null && farm.region!.isNotEmpty)
+                            Expanded(
+                              child: _infoCard(
+                                context,
+                                Icons.map_rounded,
+                                'المنطقة',
+                                farm.region!,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
                     const SizedBox(height: 24),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -133,19 +198,20 @@ class _FarmDetailView extends ConsumerWidget {
                       ],
                     ),
                     const SizedBox(height: 12),
-                    Container(
+                    Builder(
+                      builder: (context) => Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.grey.shade200),
+                        border: Border.all(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3)),
                       ),
                       child: Column(
                         children: [
-                          Icon(Icons.grass_rounded, size: 48, color: Colors.grey[300]),
+                          Icon(Icons.grass_rounded, size: 48, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3)),
                           const SizedBox(height: 12),
-                          Text('لا توجد حقول بعد', style: TextStyle(fontSize: 15, color: Colors.grey[600])),
+                          Text('لا توجد حقول بعد', style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))),
                           const SizedBox(height: 8),
                           ElevatedButton.icon(
                             onPressed: () => context.push('/fields/create', extra: {'farmId': farm.id}),
@@ -159,6 +225,7 @@ class _FarmDetailView extends ConsumerWidget {
                         ],
                       ),
                     ),
+                    ),
                   ],
                 ),
               ),
@@ -169,13 +236,14 @@ class _FarmDetailView extends ConsumerWidget {
     );
   }
 
-  Widget _infoCard(IconData icon, String label, String value) {
+  Widget _infoCard(BuildContext context, IconData icon, String label, String value) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cs.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: cs.outline.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -185,7 +253,7 @@ class _FarmDetailView extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+                Text(label, style: TextStyle(fontSize: 11, color: cs.onSurface.withValues(alpha: 0.6))),
                 const SizedBox(height: 2),
                 Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
               ],

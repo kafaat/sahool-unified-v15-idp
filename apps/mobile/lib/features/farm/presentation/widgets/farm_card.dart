@@ -17,7 +17,7 @@ class FarmCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: DecoratedBox(
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
@@ -49,7 +49,7 @@ class FarmCard extends StatelessWidget {
                       color: SahoolTheme.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(
+                    child: const Icon(
                       Icons.agriculture_rounded,
                       color: SahoolTheme.primary,
                       size: 24,
@@ -80,7 +80,7 @@ class FarmCard extends StatelessWidget {
                   const SizedBox(width: 3),
                   Expanded(
                     child: Text(
-                      farm.locationAr ?? farm.location,
+                      farm.locationAr ?? farm.location ?? '—',
                       style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -93,11 +93,11 @@ class FarmCard extends StatelessWidget {
               // Area
               Row(
                 children: [
-                  Icon(Icons.straighten_rounded, size: 13, color: SahoolTheme.primaryDark),
+                  const Icon(Icons.straighten_rounded, size: 13, color: SahoolTheme.primaryDark),
                   const SizedBox(width: 4),
                   Text(
                     '${farm.totalAreaHa.toStringAsFixed(1)} هـ',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 13,
                       color: SahoolTheme.primaryDark,
                       fontWeight: FontWeight.w600,
@@ -108,7 +108,8 @@ class FarmCard extends StatelessWidget {
               const SizedBox(height: 6),
 
               // Water source badge
-              _buildWaterSourceBadge(farm.waterSource),
+              if (farm.waterSource != null && farm.waterSource!.isNotEmpty)
+                _buildWaterSourceBadge(farm.waterSource!),
             ],
           ),
         ),

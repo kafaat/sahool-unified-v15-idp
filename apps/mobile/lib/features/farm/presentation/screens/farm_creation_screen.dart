@@ -43,13 +43,13 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
   final List<LatLng> _polygonPoints = [];
   final MapController _mapController = MapController();
   double _computedAreaHa = 0.0;
-
-  // Default center: Yemen
-  static const _defaultCenter = LatLng(15.3694, 44.1910);
+  LatLng _farmCenter = const LatLng(15.3694, 44.1910); // default Yemen
+  bool _mapFlyPending = false;
 
   @override
   void dispose() {
     _nameController.dispose();
+    _mapController.dispose();
     super.dispose();
   }
 
@@ -68,14 +68,32 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
 
     final centerLat = polygon.map((p) => p.latitude).reduce((a, b) => a + b) / n;
     final rawArea = sum.abs() / 2;
-    // Convert from degrees² to hectares using approximate spherical formula
     final areaM2 = rawArea * 111320 * 111320 * cos(centerLat * pi / 180);
     return areaM2 / 10000;
+  }
+
+  List<double> _calculateBbox(List<LatLng> points) {
+    final lngs = points.map((p) => p.longitude).toList();
+    final lats = points.map((p) => p.latitude).toList();
+    return [
+      lngs.reduce(min), // minLng
+      lats.reduce(min), // minLat
+      lngs.reduce(max), // maxLng
+      lats.reduce(max), // maxLat
+    ];
   }
 
   void _addPoint(LatLng point) {
     setState(() {
       _polygonPoints.add(point);
+      _computedAreaHa = _calculateArea(_polygonPoints);
+    });
+  }
+
+  void _removeLastPoint() {
+    if (_polygonPoints.isEmpty) return;
+    setState(() {
+      _polygonPoints.removeLast();
       _computedAreaHa = _calculateArea(_polygonPoints);
     });
   }
@@ -99,6 +117,8 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
         );
         return;
       }
+      // Flag the map to fly to the selected governorate center on step 2 open
+      _mapFlyPending = true;
     }
     if (_currentStep < 2) {
       setState(() => _currentStep++);
@@ -123,37 +143,41 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
     setState(() => _isSubmitting = true);
 
     try {
-      final center = _polygonPoints.isNotEmpty
-          ? LatLng(
-              _polygonPoints.map((p) => p.latitude).reduce((a, b) => a + b) / _polygonPoints.length,
-              _polygonPoints.map((p) => p.longitude).reduce((a, b) => a + b) / _polygonPoints.length,
-            )
-          : (_selectedGovernorate != null
-              ? () {
-                  final c = YemenLocations.getCenter(_selectedGovernorate!);
-                  return c != null ? LatLng(c['lat']!, c['lng']!) : _defaultCenter;
-                }()
-              : _defaultCenter);
+      // Determine center: bbox center if polygon drawn, else governorate center
+      final LatLng center;
+      if (_polygonPoints.length >= 3) {
+        final bbox = _calculateBbox(_polygonPoints);
+        center = LatLng(
+          (bbox[1] + bbox[3]) / 2, // midLat
+          (bbox[0] + bbox[2]) / 2, // midLng
+        );
+      } else {
+        center = _farmCenter;
+      }
 
       final data = <String, dynamic>{
         'name': name,
-        'location': '$_selectedGovernorate${_selectedDistrict != null ? ' - $_selectedDistrict' : ''}',
-        'location_ar': '$_selectedGovernorate${_selectedDistrict != null ? ' - $_selectedDistrict' : ''}',
-        'total_area_ha': _computedAreaHa > 0 ? _computedAreaHa : 1.0,
-        'water_source': _selectedWaterSource,
-        'center_lat': center.latitude,
-        'center_lng': center.longitude,
-        if (_polygonPoints.length >= 3)
-          'polygon_coords': _polygonPoints
-              .map((p) => [p.longitude, p.latitude])
-              .toList(),
+        'nameAr': name,
+        'region': _selectedGovernorate ?? '',
+        'regionAr': _selectedGovernorate ?? '',
+        'location':
+            '$_selectedGovernorate${_selectedDistrict != null ? " - $_selectedDistrict" : ""}',
+        'locationAr':
+            '$_selectedGovernorate${_selectedDistrict != null ? " - $_selectedDistrict" : ""}',
+        'waterSource': _selectedWaterSource,
+        'waterSourceAr': _selectedWaterSource,
+        'totalAreaHectares': _computedAreaHa > 0 ? _computedAreaHa : 0.0,
         'status': 'active',
+        'centerLat': center.latitude,
+        'centerLng': center.longitude,
+        'zoom': _mapController.camera.zoom.round(),
+        if (_polygonPoints.length >= 3) 'bbox': _calculateBbox(_polygonPoints),
       };
 
       final api = ref.read(farmApiProvider);
       await api.createFarm(data);
 
-      ref.refresh(farmsListProvider);
+      ref.invalidate(farmsListProvider);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -185,15 +209,15 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF5F7F5),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: AppBar(
           title: const Text(
             'إضافة مزرعة جديدة',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           centerTitle: true,
-          backgroundColor: Colors.white,
-          foregroundColor: const Color(0xFF1A1A1A),
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          foregroundColor: Theme.of(context).colorScheme.onSurface,
           elevation: 0,
           surfaceTintColor: Colors.transparent,
           leading: IconButton(
@@ -303,7 +327,7 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
                 prefixIcon: const Icon(Icons.agriculture_rounded),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
               ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
@@ -316,13 +340,13 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
 
             // Governorate dropdown
             DropdownButtonFormField<String>(
-              value: _selectedGovernorate,
+              initialValue: _selectedGovernorate,
               decoration: InputDecoration(
                 labelText: 'المحافظة *',
                 prefixIcon: const Icon(Icons.location_city_rounded),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
               ),
               hint: const Text('اختر المحافظة'),
               items: YemenLocations.governorates
@@ -335,14 +359,14 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
                 setState(() {
                   _selectedGovernorate = value;
                   _selectedDistrict = null;
-                  // Pan map to governorate center
                   if (value != null) {
-                    final center = YemenLocations.getCenter(value);
-                    if (center != null) {
-                      _mapController.move(
-                        LatLng(center['lat']!, center['lng']!),
-                        10,
-                      );
+                    final c = YemenLocations.getCenter(value);
+                    if (c != null) {
+                      _farmCenter = LatLng(c['lat']!, c['lng']!);
+                      // If already on step 2, fly the map there immediately
+                      if (_currentStep == 2) {
+                        _mapController.move(_farmCenter, 10);
+                      }
                     }
                   }
                 });
@@ -351,16 +375,16 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
             ),
             const SizedBox(height: 16),
 
-            // District dropdown
+            // District dropdown — only shown after governorate is selected
             if (_selectedGovernorate != null)
               DropdownButtonFormField<String>(
-                value: _selectedDistrict,
+                initialValue: _selectedDistrict,
                 decoration: InputDecoration(
                   labelText: 'المديرية',
                   prefixIcon: const Icon(Icons.place_rounded),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   filled: true,
-                  fillColor: Colors.white,
+                  fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                 ),
                 hint: const Text('اختر المديرية'),
                 items: YemenLocations.getDistricts(_selectedGovernorate!)
@@ -374,7 +398,7 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
     );
   }
 
-  // ── Step 1: Farm Details ──────────────────────────────────────────────────
+  // ── Step 1: Water Source ──────────────────────────────────────────────────
 
   Step _buildStep1() {
     return Step(
@@ -410,10 +434,10 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
                   decoration: BoxDecoration(
                     color: isSelected
                         ? SahoolTheme.primary.withValues(alpha: 0.12)
-                        : Colors.white,
+                        : Theme.of(context).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: isSelected ? SahoolTheme.primary : Colors.grey.shade300,
+                      color: isSelected ? SahoolTheme.primary : Colors.grey.shade600,
                       width: isSelected ? 2 : 1,
                     ),
                   ),
@@ -422,7 +446,7 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
                     children: [
                       Icon(
                         _waterSourceIcons[source] ?? Icons.water_drop_rounded,
-                        color: isSelected ? SahoolTheme.primary : Colors.grey[600],
+                        color: isSelected ? SahoolTheme.primary : Colors.grey[400],
                         size: 28,
                       ),
                       const SizedBox(height: 6),
@@ -431,7 +455,9 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                          color: isSelected ? SahoolTheme.primary : const Color(0xFF1A1A1A),
+                          color: isSelected
+                              ? SahoolTheme.primary
+                              : Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ],
@@ -445,9 +471,19 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
     );
   }
 
-  // ── Step 2: Map Boundary ──────────────────────────────────────────────────
+  // ── Step 2: Map Boundary (satellite) ─────────────────────────────────────
 
   Step _buildStep2() {
+    // Fly to center after map is mounted when transitioning to this step
+    if (_mapFlyPending) {
+      _mapFlyPending = false;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _mapController.move(_farmCenter, 10);
+        }
+      });
+    }
+
     return Step(
       title: const Text('حدود المزرعة على الخريطة'),
       isActive: _currentStep >= 2,
@@ -455,18 +491,18 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Instructions
+          // Instructions banner
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.blue.withValues(alpha: 0.08),
+              color: Colors.blue.withValues(alpha: 0.18),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Row(
+            child: const Row(
               children: [
-                const Icon(Icons.info_outline_rounded, color: Colors.blue, size: 18),
-                const SizedBox(width: 8),
-                const Expanded(
+                Icon(Icons.info_outline_rounded, color: Colors.blue, size: 18),
+                SizedBox(width: 8),
+                Expanded(
                   child: Text(
                     'اضغط على الخريطة لإضافة نقاط حدود المزرعة',
                     style: TextStyle(fontSize: 13, color: Colors.blue),
@@ -484,116 +520,149 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
               height: 380,
               child: Stack(
                 children: [
+                  // ── Map ────────────────────────────────────────────────
                   FlutterMap(
-                      mapController: _mapController,
-                      options: MapOptions(
-                        initialCenter: _selectedGovernorate != null
-                            ? () {
-                                final c = YemenLocations.getCenter(_selectedGovernorate!);
-                                return c != null
-                                    ? LatLng(c['lat']!, c['lng']!)
-                                    : _defaultCenter;
-                              }()
-                            : _defaultCenter,
-                        initialZoom: 10,
-                        onTap: (tapPosition, latLng) => _addPoint(latLng),
+                    mapController: _mapController,
+                    options: MapOptions(
+                      initialCenter: _farmCenter,
+                      initialZoom: 10,
+                      onTap: (_, latLng) => _addPoint(latLng),
+                    ),
+                    children: [
+                      // ESRI satellite tile layer
+                      TileLayer(
+                        urlTemplate:
+                            'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                        userAgentPackageName: 'com.sahool.app',
+                        maxZoom: 19,
                       ),
-                      children: [
-                        TileLayer(
-                          urlTemplate:
-                              'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-                          userAgentPackageName: 'com.sahool.app',
-                          maxZoom: 19,
+
+                      // Outline polyline (closes back to first point when ≥2 pts)
+                      if (_polygonPoints.isNotEmpty)
+                        PolylineLayer(
+                          polylines: [
+                            Polyline(
+                              points: [
+                                ..._polygonPoints,
+                                if (_polygonPoints.length >= 2) _polygonPoints.first,
+                              ],
+                              color: SahoolTheme.primary,
+                              strokeWidth: 2.5,
+                            ),
+                          ],
                         ),
-                        if (_polygonPoints.isNotEmpty)
-                          PolylineLayer(
-                            polylines: [
-                              Polyline(
-                                points: [
-                                  ..._polygonPoints,
-                                  if (_polygonPoints.length >= 2) _polygonPoints.first,
-                                ],
-                                color: SahoolTheme.primary,
-                                strokeWidth: 2.5,
+
+                      // Filled polygon when ≥3 points
+                      if (_polygonPoints.length >= 3)
+                        PolygonLayer(
+                          polygons: [
+                            Polygon(
+                              points: _polygonPoints,
+                              color: SahoolTheme.primary.withValues(alpha: 0.15),
+                              borderColor: SahoolTheme.primary,
+                              borderStrokeWidth: 2,
+                            ),
+                          ],
+                        ),
+
+                      // Vertex markers
+                      MarkerLayer(
+                        markers: _polygonPoints.asMap().entries.map((entry) {
+                          final i = entry.key;
+                          final p = entry.value;
+                          return Marker(
+                            point: p,
+                            width: 24,
+                            height: 24,
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                color: i == 0 ? Colors.orange : SahoolTheme.primary,
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.white, width: 2),
                               ),
-                            ],
-                          ),
-                        if (_polygonPoints.length >= 3)
-                          PolygonLayer(
-                            polygons: [
-                              Polygon(
-                                points: _polygonPoints,
-                                color: SahoolTheme.primary.withValues(alpha: 0.15),
-                                borderColor: SahoolTheme.primary,
-                                borderStrokeWidth: 2,
-                              ),
-                            ],
-                          ),
-                        MarkerLayer(
-                          markers: _polygonPoints.asMap().entries.map((entry) {
-                            final i = entry.key;
-                            final p = entry.value;
-                            return Marker(
-                              point: p,
-                              width: 24,
-                              height: 24,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: i == 0 ? Colors.orange : SahoolTheme.primary,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.white, width: 2),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    '${i + 1}',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                              child: Center(
+                                child: Text(
+                                  '${i + 1}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ),
-                            );
-                          }).toList(),
-                        ),
-                      ],
-                    ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
 
-                  // Clear button
+                  // ── Top-left overlay: Clear + Undo ─────────────────────
                   Positioned(
                     top: 10,
                     left: 10,
-                    child: Material(
-                      borderRadius: BorderRadius.circular(8),
-                      color: Colors.white,
-                      elevation: 2,
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(8),
-                        onTap: _clearPolygon,
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.clear_rounded, size: 18, color: Colors.red),
-                              SizedBox(width: 4),
-                              Text('مسح', style: TextStyle(fontSize: 13, color: Colors.red)),
-                            ],
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Clear all button
+                        Material(
+                          borderRadius: BorderRadius.circular(8),
+                          color: Colors.grey[800],
+                          elevation: 2,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(8),
+                            onTap: _clearPolygon,
+                            child: const Padding(
+                              padding:
+                                  EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.clear_rounded,
+                                      size: 16, color: Colors.red),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    'مسح الكل',
+                                    style:
+                                        TextStyle(fontSize: 12, color: Colors.red),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
-                      ),
+                        const SizedBox(width: 6),
+                        // Undo last point button
+                        Material(
+                          borderRadius: BorderRadius.circular(8),
+                          color: Colors.grey[800],
+                          elevation: 2,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(8),
+                            onTap: _removeLastPoint,
+                            child: const Padding(
+                              padding: EdgeInsets.all(8),
+                              child: Icon(
+                                Icons.undo_rounded,
+                                size: 18,
+                                color: Colors.orange,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
 
-                  // Point count badge
+                  // ── Top-right overlay: Point count badge ───────────────
                   Positioned(
                     top: 10,
                     right: 10,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Colors.black54,
                         borderRadius: BorderRadius.circular(8),
                         boxShadow: [
                           BoxShadow(
@@ -604,32 +673,67 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
                       ),
                       child: Text(
                         '${_polygonPoints.length} نقطة',
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                        style: const TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white),
                       ),
                     ),
                   ),
+
+                  // ── Bottom-center overlay: Area badge (≥3 pts) ─────────
+                  if (_polygonPoints.length >= 3)
+                    Positioned(
+                      bottom: 12,
+                      left: 0,
+                      right: 0,
+                      child: Center(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 7),
+                          decoration: BoxDecoration(
+                            color: SahoolTheme.primary,
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.2),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Text(
+                            '${_computedAreaHa.toStringAsFixed(2)} هـ',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
           ),
           const SizedBox(height: 12),
 
-          // Area display
+          // Area summary card below map
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey.shade200),
+              border: Border.all(color: Colors.grey.shade600),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
+                const Row(
                   children: [
-                    Icon(Icons.straighten_rounded, color: SahoolTheme.primary, size: 20),
-                    const SizedBox(width: 8),
-                    const Text(
+                    Icon(Icons.straighten_rounded,
+                        color: SahoolTheme.primary, size: 20),
+                    SizedBox(width: 8),
+                    Text(
                       'المساحة المحسوبة',
                       style: TextStyle(fontWeight: FontWeight.w500),
                     ),
@@ -639,7 +743,7 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
                   _polygonPoints.length >= 3
                       ? '${_computedAreaHa.toStringAsFixed(2)} هـ'
                       : '— هـ',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
                     color: SahoolTheme.primary,

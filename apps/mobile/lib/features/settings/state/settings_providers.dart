@@ -46,7 +46,7 @@ class AppSettings {
 
   const AppSettings({
     // Appearance
-    this.themeMode = ThemeMode.system,
+    this.themeMode = ThemeMode.dark,
     this.languageCode = 'ar',
     this.fontSize = 1.0,
     this.reduceAnimations = false,
@@ -304,7 +304,7 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
     if (_prefs == null) return;
 
     state = state.copyWith(
-      themeMode: ThemeMode.values[_prefs.getInt('themeMode') ?? 0],
+      themeMode: ThemeMode.values[_prefs.getInt('themeMode') ?? 2], // 2 = dark
       languageCode: _prefs.getString('languageCode') ?? 'ar',
       fontSize: _prefs.getDouble('fontSize') ?? 1.0,
       reduceAnimations: _prefs.getBool('reduceAnimations') ?? false,

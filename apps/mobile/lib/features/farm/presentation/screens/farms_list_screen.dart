@@ -15,15 +15,14 @@ class FarmsListScreen extends ConsumerWidget {
     final farmsAsync = ref.watch(farmsListProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7F5),
       appBar: AppBar(
         title: const Text(
           'مزارعي',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF1A1A1A),
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         actions: [
@@ -35,7 +34,7 @@ class FarmsListScreen extends ConsumerWidget {
                 color: SahoolTheme.primary.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(Icons.add_rounded, color: SahoolTheme.primary, size: 22),
+              child: const Icon(Icons.add_rounded, color: SahoolTheme.primary, size: 22),
             ),
             onPressed: () => context.push('/farms/create'),
             tooltip: 'إضافة مزرعة',
@@ -52,7 +51,7 @@ class FarmsListScreen extends ConsumerWidget {
           }
           return RefreshIndicator(
             onRefresh: () async {
-              ref.refresh(farmsListProvider);
+              ref.invalidate(farmsListProvider);
             },
             color: SahoolTheme.primary,
             child: GridView.builder(
@@ -98,18 +97,18 @@ class FarmsListScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
+            Text(
               'لا توجد مزارع بعد',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF1A1A1A),
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               'أضف مزرعتك الأولى وابدأ إدارة حقولك',
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+              style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 28),
@@ -150,13 +149,13 @@ class FarmsListScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'تحقق من اتصالك بالإنترنت وحاول مجدداً',
-              style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+              error.toString(),
+              style: TextStyle(fontSize: 12, color: Colors.red[400]),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
             OutlinedButton.icon(
-              onPressed: () => ref.refresh(farmsListProvider),
+              onPressed: () => ref.invalidate(farmsListProvider),
               icon: const Icon(Icons.refresh_rounded),
               label: const Text('إعادة المحاولة'),
             ),

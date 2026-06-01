@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../http/api_client.dart';
@@ -329,10 +330,16 @@ class AuthService {
     // Simulate network delay
     await Future.delayed(const Duration(milliseconds: 500));
 
-    // Simulated response for development
+    // Simulated response for development — must be valid JWT structure
+    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    final exp = now + 3600;
+    final header = base64Url.encode(utf8.encode('{"alg":"HS256","typ":"JWT"}'));
+    final payload = base64Url.encode(utf8.encode(
+      '{"sub":"mock-user-001","email":"$email","roles":["FARMER"],"type":"access","iat":$now,"exp":$exp}',
+    ));
     final tokens = TokenPair(
-      accessToken: 'mock_access_token_${DateTime.now().millisecondsSinceEpoch}',
-      refreshToken: 'mock_refresh_token_${DateTime.now().millisecondsSinceEpoch}',
+      accessToken: '$header.$payload.mock_signature',
+      refreshToken: 'mock_refresh_token_$now',
       expiresIn: 3600, // 1 hour
     );
 
@@ -440,13 +447,19 @@ class AuthService {
   }) async {
     AppLogger.w('Using MOCK register (development only)', tag: 'AUTH');
     await Future.delayed(const Duration(milliseconds: 500));
+    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    final exp = now + 3600;
+    final header = base64Url.encode(utf8.encode('{"alg":"HS256","typ":"JWT"}'));
+    final payload = base64Url.encode(utf8.encode(
+      '{"sub":"mock-user-reg-$now","email":"${email ?? ''}","roles":["FARMER"],"type":"access","iat":$now,"exp":$exp}',
+    ));
     final tokens = TokenPair(
-      accessToken: 'mock_access_token_${DateTime.now().millisecondsSinceEpoch}',
-      refreshToken: 'mock_refresh_token_${DateTime.now().millisecondsSinceEpoch}',
+      accessToken: '$header.$payload.mock_signature',
+      refreshToken: 'mock_refresh_token_$now',
       expiresIn: 3600,
     );
     final user = User(
-      id: 'mock_user_reg_${DateTime.now().millisecondsSinceEpoch}',
+      id: 'mock_user_reg_$now',
       email: email ?? '',
       name: '$firstName $lastName',
       role: 'farmer',

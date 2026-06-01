@@ -50,8 +50,13 @@ class ApiClient {
     // Initialize rate limiter
     _rateLimiter = rateLimiter ?? RateLimiter();
 
+    final resolvedBaseUrl = baseUrl ?? EnvConfig.apiBaseUrl;
+    if (kDebugMode) {
+      AppLogger.i('API base URL: $resolvedBaseUrl', tag: 'ApiClient');
+    }
+
     _dio = Dio(BaseOptions(
-      baseUrl: baseUrl ?? EnvConfig.apiBaseUrl,
+      baseUrl: resolvedBaseUrl,
       connectTimeout: EnvConfig.connectTimeout,
       receiveTimeout: config.requestTimeout,
       headers: {

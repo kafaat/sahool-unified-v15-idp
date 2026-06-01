@@ -302,23 +302,31 @@ class FieldsRepo {
       // Fetch GeoJSON FeatureCollection from server
       final features = await _api.fetchFields(tenantId: tenantId);
 
-      // Convert to map format expected by upsertFieldsFromServer
-      final fieldMaps = features.map((feature) {
-        final props = feature['properties'] as Map<String, dynamic>;
+      // Convert to map format expected by upsertFieldsFromServer.
+      // Backend returns flat camelCase objects; GeoJSON features have a 'properties' wrapper.
+      final fieldMaps = features.map((f) {
+        final bool isGeoJson = f['properties'] is Map;
+        final props = isGeoJson
+            ? f['properties'] as Map<String, dynamic>
+            : f;
+        // geometry: prefer GeoJSON feature geometry, then polygon field, then null
+        final geometry = isGeoJson
+            ? f['geometry']
+            : f['polygon'];
         return {
-          'id': feature['id'] ?? props['local_id'],
-          'remote_id': feature['id'],
-          'tenant_id': props['tenant_id'] ?? tenantId,
-          'farm_id': props['farm_id'],
+          'id': f['id'] ?? props['id'],
+          'remote_id': f['id'] ?? props['id'],
+          'tenant_id': props['tenantId'] ?? props['tenant_id'] ?? tenantId,
+          'farm_id': props['farmId'] ?? props['farm_id'],
           'name': props['name'],
-          'crop_type': props['crop_type'],
-          'geometry': feature['geometry'],
-          'area_hectares': props['area_hectares'],
+          'crop_type': props['cropType'] ?? props['crop_type'],
+          'geometry': geometry,
+          'area_hectares': props['areaHectares'] ?? props['area_hectares'],
           'status': props['status'],
-          'ndvi_current': props['ndvi_current'],
+          'ndvi_current': props['ndviValue'] ?? props['ndvi_current'],
           'ndvi_updated_at': props['ndvi_updated_at'],
-          'created_at': props['created_at'] ?? DateTime.now().toIso8601String(),
-          'updated_at': props['updated_at'] ?? DateTime.now().toIso8601String(),
+          'created_at': (props['createdAt'] ?? props['created_at'] ?? DateTime.now().toIso8601String()).toString(),
+          'updated_at': (props['updatedAt'] ?? props['updated_at'] ?? DateTime.now().toIso8601String()).toString(),
         };
       }).toList();
 

@@ -62,7 +62,7 @@ class HomeScreen extends ConsumerWidget {
     );
 
     return Scaffold(
-      backgroundColor: SahoolColors.warmCream,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -104,7 +104,7 @@ class HomeScreen extends ConsumerWidget {
                           bottom: 16,
                           left: 16,
                           right: 16,
-                          child: _buildMapOverlay(fieldsData),
+                          child: _buildMapOverlay(context, fieldsData),
                         ),
                       ],
                     ),
@@ -472,13 +472,14 @@ class HomeScreen extends ConsumerWidget {
             case 1:
               context.go('/monitor');
               break;
+            case -1:
+              // Central + button → create a new farm
+              context.push('/farms/create');
+              break;
             case 2:
-              context.push('/field-form');
+              context.go('/farms');
               break;
             case 3:
-              context.go('/market');
-              break;
-            case 4:
               context.go('/profile');
               break;
           }
@@ -538,9 +539,9 @@ class HomeScreen extends ConsumerWidget {
           child: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
+              border: Border.all(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2)),
             ),
             child: Row(
               children: [
@@ -574,7 +575,7 @@ class HomeScreen extends ConsumerWidget {
                   child: Container(
                     height: 20,
                     width: 1,
-                    color: Colors.grey[300],
+                    color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.4),
                     margin: const EdgeInsets.symmetric(horizontal: 8),
                   ),
                 ),
@@ -607,14 +608,15 @@ class HomeScreen extends ConsumerWidget {
     return 'مساء النور،';
   }
 
-  Widget _buildMapOverlay(AsyncValue<List<Field>> fieldsData) {
+  Widget _buildMapOverlay(BuildContext context, AsyncValue<List<Field>> fieldsData) {
+    final surfaceOverlay = Theme.of(context).colorScheme.surface.withValues(alpha: 0.9);
     return fieldsData.when(
       data: (fields) {
         if (fields.isEmpty) {
           return Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.9),
+              color: surfaceOverlay,
               borderRadius: BorderRadius.circular(20),
             ),
             child: const Text(
@@ -629,7 +631,7 @@ class HomeScreen extends ConsumerWidget {
           child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.9),
+              color: surfaceOverlay,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Row(

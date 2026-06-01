@@ -10,15 +10,9 @@ final farmApiProvider = Provider<FarmApi>((ref) {
 });
 
 /// Farms list provider — fetches all farms from the backend
-/// Falls back to empty list on error (offline-first behavior)
 final farmsListProvider = FutureProvider<List<FarmEntity>>((ref) async {
   final api = ref.watch(farmApiProvider);
-  try {
-    return await api.getFarms();
-  } catch (_) {
-    // Return empty list when offline or backend unavailable
-    return [];
-  }
+  return api.getFarms();
 });
 
 /// Create farm provider — exposes the createFarm function

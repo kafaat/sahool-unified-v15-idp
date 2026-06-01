@@ -259,17 +259,18 @@ class RetryPolicies {
     queueWhenOffline: true,
   );
 
-  /// Authentication endpoints - quick failure, minimal retries
+  /// Authentication endpoints - fail fast, no retries on timeout
+  /// Timeout means server is unreachable; retrying wastes 10s × N before mock fallback
   static const RetryPolicy authentication = RetryPolicy(
-    maxRetries: 2,
+    maxRetries: 0,
     initialDelayMs: 500,
     maxDelayMs: 5000,
     backoffMultiplier: 2.0,
     enableJitter: false,
-    retryableStatusCodes: {408, 429, 502, 503, 504},
-    retryOnTimeout: true,
-    retryOnConnectionError: true,
-    queueWhenOffline: false, // Don't queue auth requests
+    retryableStatusCodes: {429, 502, 503, 504},
+    retryOnTimeout: false,
+    retryOnConnectionError: false,
+    queueWhenOffline: false,
   );
 
   /// Critical operations - more retries, longer delays

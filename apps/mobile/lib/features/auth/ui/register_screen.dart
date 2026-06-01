@@ -223,7 +223,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
                   onPressed: () => context.go('/login'),
                   icon: const Icon(Icons.arrow_back),
                   style: IconButton.styleFrom(
-                    backgroundColor: Colors.grey[100],
+                    backgroundColor: Theme.of(context).colorScheme.surface,
                   ),
                 ),
 
@@ -263,7 +263,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
                 // تبويبات البريد الإلكتروني / رقم الهاتف
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.grey[100],
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: TabBar(
@@ -277,7 +277,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
                       borderRadius: BorderRadius.circular(10),
                     ),
                     labelColor: Colors.white,
-                    unselectedLabelColor: Colors.grey[700],
+                    unselectedLabelColor: Theme.of(context).colorScheme.onSurface,
                     dividerColor: Colors.transparent,
                     tabs: const [
                       Tab(text: 'البريد الإلكتروني'),
@@ -384,9 +384,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.red[50],
+                      color: Colors.red.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.red[200]!),
+                      border: Border.all(color: Colors.red.withValues(alpha: 0.4)),
                     ),
                     child: Text(
                       _generalError!,
@@ -460,7 +460,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
             color: Colors.grey[100],
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: _phoneError != null ? Colors.red : Colors.grey[300]!,
+              color: _phoneError != null ? Colors.red : Colors.grey[400]!,
             ),
           ),
           child: Row(
@@ -485,10 +485,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
                       const SizedBox(width: 8),
                       Text(
                         '+967',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.grey[700],
+                          color: Colors.black87,
                         ),
                       ),
                       const SizedBox(width: 2),
@@ -507,6 +507,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 2,
+                    color: Colors.black87,
                   ),
                   decoration: const InputDecoration(
                     hintText: '7XX XXX XXX',
@@ -549,6 +550,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
           controller: controller,
           keyboardType: keyboardType,
           onChanged: onChanged,
+          style: const TextStyle(color: Colors.black87),
           decoration: InputDecoration(
             labelText: label,
             hintText: hint,
@@ -593,6 +595,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen>
       controller: controller,
       obscureText: obscure,
       onChanged: onChanged,
+      style: const TextStyle(color: Colors.black87),
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,

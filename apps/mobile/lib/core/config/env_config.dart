@@ -360,16 +360,25 @@ class EnvConfig {
   }
 
   static String get apiBaseUrl {
+    // Try both API_URL and API_BASE_URL from dotenv / dart-define
     final url = _getString('API_URL', _getString('API_BASE_URL', ''));
     if (url.isNotEmpty) return url;
 
+    // Fallback: build from DEV_HOST (set in .env.development)
+    final host = developmentHost; // reads DEV_HOST, defaults to 10.0.2.2
     switch (environment) {
       case AppEnvironment.production:
         return 'https://api.sahool.app/api/v1';
       case AppEnvironment.staging:
         return 'https://api-staging.sahool.app/api/v1';
       case AppEnvironment.development:
-        return 'http://$developmentHost:8000/api/v1';
+        // If still using emulator default, warn clearly in logs
+        if (host == '10.0.2.2' && kDebugMode) {
+          // ignore: avoid_print
+          print('[ENV_CONFIG] WARNING: Using emulator host 10.0.2.2. '
+              'Physical device needs DEV_HOST set in .env.development');
+        }
+        return 'http://$host:8000';
     }
   }
 

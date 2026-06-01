@@ -23,13 +23,13 @@ class RateLimiter {
   /// Default endpoint configurations
   static Map<String, EndpointConfig> _getDefaultEndpointConfigs() {
     return {
-      // Auth endpoints - strictest limits
+      // Auth endpoints - zero retries, fail fast so mock fallback triggers immediately
       'auth': const EndpointConfig(
         maxRequests: 5,
         windowDuration: Duration(minutes: 1),
-        maxRetries: 3,
+        maxRetries: 0,
         initialBackoff: Duration(seconds: 2),
-        maxBackoff: Duration(seconds: 30),
+        maxBackoff: Duration(seconds: 10),
       ),
       // Sync endpoints - moderate limits
       'sync': const EndpointConfig(

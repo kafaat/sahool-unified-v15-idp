@@ -270,8 +270,8 @@ class FloatingNavBar extends StatelessWidget {
               ),
             ),
             _NavItem(
-              icon: Icons.chat_bubble_outline,
-              label: 'الرسائل، تبويب',
+              icon: Icons.agriculture_rounded,
+              label: 'مزارعي، تبويب',
               isSelected: currentIndex == 2,
               onTap: () => onTap(2),
             ),

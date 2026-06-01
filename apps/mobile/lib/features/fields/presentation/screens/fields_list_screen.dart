@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/accessibility/semantics_helper.dart';
 import '../../../../core/di/providers.dart';
 import '../../../../core/iam/iam_providers.dart';
+import '../../../../core/utils/app_logger.dart';
 import '../../domain/entities/field_entity.dart';
 import '../widgets/enhanced_field_card.dart';
 import 'field_details_screen.dart';
@@ -54,6 +55,15 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
       final tenant = ref.read(currentTenantProvider);
       final tenantId = tenant?.id ?? 'default';
       final repo = ref.read(fieldsRepoProvider);
+
+      // Always try to sync from server first so we show the latest data.
+      // Errors are logged but don't block showing whatever is in local DB.
+      try {
+        await repo.refreshFromServer(tenantId);
+      } catch (e) {
+        AppLogger.w('Server sync skipped: $e', tag: 'FieldsListScreen');
+      }
+
       final domainFields = await repo.getAllFields(tenantId);
 
       // Map domain Field entities to FieldEntity for the UI
@@ -91,9 +101,10 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
         _isLoading = false;
       });
     } catch (e) {
+      AppLogger.e('Failed to load fields', tag: 'FieldsListScreen', error: e);
       setState(() {
         _isLoading = false;
-        _loadError = 'فشل تحميل الحقول: $e';
+        _loadError = e.toString();
       });
     }
   }
@@ -271,9 +282,9 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.error_outline, size: 48, color: Colors.grey[400]),
+                        Icon(Icons.error_outline, size: 48, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)),
                         const SizedBox(height: 16),
-                        Text(_loadError!, style: TextStyle(color: Colors.grey[600])),
+                        Text(_loadError!, style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))),
                         const SizedBox(height: 16),
                         ElevatedButton.icon(
                           onPressed: _loadFields,
@@ -321,7 +332,7 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withValues(alpha: 0.1),
@@ -359,7 +370,7 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
                   borderSide: BorderSide.none,
                 ),
                 filled: true,
-                fillColor: Colors.grey[100],
+                fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
               ),
               onChanged: (value) {
                 setState(() => _searchQuery = value);
@@ -476,7 +487,7 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      color: Colors.grey[50],
+      color: Theme.of(context).colorScheme.surfaceContainerLowest,
       child: MergeSemantics(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -526,14 +537,14 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 16,
-              color: valueColor ?? Colors.black,
+              color: valueColor ?? Theme.of(context).colorScheme.onSurface,
             ),
           ),
           Text(
             label,
             style: TextStyle(
               fontSize: 11,
-              color: Colors.grey[600],
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
             ),
           ),
         ],

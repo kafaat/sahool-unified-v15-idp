@@ -22,7 +22,7 @@ class RetryInterceptor extends Interceptor {
 
   RetryInterceptor({
     required Dio dio,
-    this.maxRetries = 3,
+    this.maxRetries = 1,
     this.initialDelay = const Duration(seconds: 1),
   }) : _dio = dio;
 
@@ -254,7 +254,7 @@ class RetryConfig {
 
   /// Default configuration for most endpoints
   static const RetryConfig standard = RetryConfig(
-    maxRetries: 3,
+    maxRetries: 1,
     initialDelay: Duration(seconds: 1),
   );
 

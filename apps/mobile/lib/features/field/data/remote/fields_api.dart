@@ -7,29 +7,33 @@ class FieldsApi {
 
   FieldsApi(this._client);
 
-  /// Fetch fields as GeoJSON FeatureCollection
+  /// Fetch fields from backend
   ///
-  /// Returns list of GeoJSON Features with Polygon geometries
+  /// Backend response: {"success": true, "data": [...fields...], "meta": {...}}
   Future<List<Map<String, dynamic>>> fetchFields({
     required String tenantId,
     String? farmId,
   }) async {
     try {
       final response = await _client.get(
-        '/fields',
+        '/api/v1/fields',
         queryParameters: {
-          'tenant_id': tenantId,
-          if (farmId != null) 'farm_id': farmId,
-          'format': 'geojson',
+          if (farmId != null) 'farmId': farmId,
+          'limit': 100,
         },
       );
 
-      // Handle FeatureCollection response
+      // Handle paginated response: {success, data: [...], meta: {...}}
+      if (response is Map && response['data'] is List) {
+        return List<Map<String, dynamic>>.from(response['data'] as Iterable);
+      }
+
+      // Handle legacy GeoJSON FeatureCollection
       if (response is Map && response['type'] == 'FeatureCollection') {
         return List<Map<String, dynamic>>.from((response['features'] ?? []) as Iterable);
       }
 
-      // Handle array of features
+      // Handle bare array
       if (response is List) {
         return List<Map<String, dynamic>>.from(response);
       }

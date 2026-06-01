@@ -73,13 +73,39 @@ class SahoolTheme {
       ),
     ),
 
-    // Bottom Navigation
+    // Bottom Navigation (legacy BottomNavigationBar)
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: Colors.white,
       selectedItemColor: primary,
       unselectedItemColor: Colors.grey,
       type: BottomNavigationBarType.fixed,
       elevation: 8,
+    ),
+
+    // NavigationBar (Material 3) - icons and labels always visible
+    navigationBarTheme: NavigationBarThemeData(
+      backgroundColor: Colors.white,
+      indicatorColor: primary.withValues(alpha: 0.1),
+      labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+      iconTheme: WidgetStateProperty.resolveWith<IconThemeData>((states) {
+        if (states.contains(WidgetState.selected)) {
+          return const IconThemeData(color: primary);
+        }
+        return const IconThemeData(color: Colors.black);
+      }),
+      labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>((states) {
+        if (states.contains(WidgetState.selected)) {
+          return const TextStyle(
+            color: primary,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          );
+        }
+        return const TextStyle(
+          color: Colors.black,
+          fontSize: 12,
+        );
+      }),
     ),
 
     // Card
@@ -251,6 +277,32 @@ class SahoolTheme {
       type: BottomNavigationBarType.fixed,
     ),
 
+    // NavigationBar (Material 3) - icons and labels always visible
+    navigationBarTheme: NavigationBarThemeData(
+      backgroundColor: const Color(0xFF2D2D2D),
+      indicatorColor: primaryLight.withValues(alpha: 0.15),
+      labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+      iconTheme: WidgetStateProperty.resolveWith<IconThemeData>((states) {
+        if (states.contains(WidgetState.selected)) {
+          return const IconThemeData(color: primaryLight);
+        }
+        return const IconThemeData(color: Colors.white);
+      }),
+      labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>((states) {
+        if (states.contains(WidgetState.selected)) {
+          return const TextStyle(
+            color: primaryLight,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          );
+        }
+        return const TextStyle(
+          color: Colors.white,
+          fontSize: 12,
+        );
+      }),
+    ),
+
     cardTheme: CardThemeData(
       elevation: 2,
       color: surfaceDark,
@@ -264,6 +316,33 @@ class SahoolTheme {
         backgroundColor: primaryLight,
         foregroundColor: Colors.white,
       ),
+    ),
+
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: Colors.grey[100],
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Colors.grey[400]!),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFF66BB6A), width: 2),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFFF44336), width: 2),
+      ),
+      labelStyle: const TextStyle(color: Color(0xFF555555)),
+      hintStyle: const TextStyle(color: Color(0xFF888888)),
+      iconColor: Colors.black87,
+      prefixIconColor: Colors.black87,
+      suffixIconColor: Colors.black87,
     ),
   );
 

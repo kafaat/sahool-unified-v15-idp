@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/config/theme.dart';
 import 'core/routes/app_router.dart';
+import 'features/settings/state/settings_providers.dart';
 import 'generated/l10n/app_localizations.dart';
 
 /// SAHOOL Field App - تطبيق سهول الميداني
@@ -42,10 +43,10 @@ class _SahoolFieldAppState extends ConsumerState<SahoolFieldApp> {
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
 
-      // Theme
+      // Theme — reactive to user setting, defaults to dark
       theme: SahoolTheme.light,
       darkTheme: SahoolTheme.dark,
-      themeMode: ThemeMode.system,
+      themeMode: ref.watch(themeModeProvider),
 
       // GoRouter - centralized routing with auth redirect from app_router.dart
       routerConfig: router,

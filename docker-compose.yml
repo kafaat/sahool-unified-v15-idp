@@ -1341,7 +1341,7 @@ asyncio.run(main())
       # Memory and Cache Optimization
       KONG_MEM_CACHE_SIZE: 128m
     ports:
-      - "127.0.0.1:8000:8000"
+      - "0.0.0.0:8000:8000"
       # SSL port (REQUIRED for production - uncomment when SSL is enabled)
       # - "8443:8443"
       - "127.0.0.1:8001:8001" # Admin API - localhost only for security

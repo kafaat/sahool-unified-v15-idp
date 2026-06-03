@@ -3,14 +3,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../../core/di/providers.dart';
-import '../../../core/http/api_client.dart';
+import '../../../core/iam/iam_providers.dart';
+import '../../field/data/repo/fields_repo.dart';
 import 'field_wizard_state.dart';
 
 /// منطق معالج إنشاء الحقل
 class FieldWizardNotifier extends StateNotifier<FieldWizardState> {
-  final ApiClient? _apiClient;
+  final FieldsRepo _fieldsRepo;
+  final String _tenantId;
 
-  FieldWizardNotifier(this._apiClient) : super(const FieldWizardState());
+  FieldWizardNotifier(this._fieldsRepo, this._tenantId) : super(const FieldWizardState());
 
   void updateFarmId(String farmId) {
     state = state.copyWith(farmId: farmId, clearError: true);
@@ -135,48 +137,20 @@ class FieldWizardNotifier extends StateNotifier<FieldWizardState> {
     }
   }
 
-  /// إرسال بيانات الحقل إلى الخادم
+  /// حفظ الحقل محليًا وإضافته لقائمة المزامنة
   Future<bool> submit(BuildContext context) async {
-    if (_apiClient == null) {
-      state = state.copyWith(error: 'خطأ في الاتصال بالخادم');
-      return false;
-    }
-
     state = state.copyWith(isSubmitting: true, clearError: true);
 
     try {
-      // بناء بيانات GeoJSON للإرسال
-      final coordinates = state.polygonPoints
-          .map((p) => [p.longitude, p.latitude])
-          .toList();
-      // إغلاق المضلع
-      if (coordinates.isNotEmpty) {
-        coordinates.add(coordinates.first);
-      }
-
-      final body = {
-        'type': 'Feature',
-        'geometry': {
-          'type': 'Polygon',
-          'coordinates': [coordinates],
-        },
-        'properties': {
-          'name': state.name.trim(),
-          if (state.farmId != null) 'farm_id': state.farmId,
-          'area_hectares': state.area,
-          if (state.cropType.isNotEmpty) 'crop_type': state.cropType,
-          if (state.previousCrop != null) 'previous_crop': state.previousCrop,
-          if (state.soilType.isNotEmpty) 'soil_type': state.soilType,
-          if (state.irrigationType.isNotEmpty) 'irrigation_type': state.irrigationType,
-          if (state.seasonName != null) 'season_name': state.seasonName,
-          if (state.plantingDate != null)
-            'planting_date': state.plantingDate!.toIso8601String(),
-          if (state.harvestDate != null)
-            'expected_harvest': state.harvestDate!.toIso8601String(),
-        },
-      };
-
-      await _apiClient!.post('/api/v1/fields', body);
+      await _fieldsRepo.createField(
+        tenantId: _tenantId,
+        name: state.name.trim(),
+        boundary: state.polygonPoints,
+        cropType: state.cropType.isNotEmpty ? state.cropType : null,
+        farmId: state.farmId,
+        irrigationType: state.irrigationType.isNotEmpty ? state.irrigationType : null,
+        plantingDate: state.plantingDate,
+      );
       state = state.copyWith(isSubmitting: false);
       return true;
     } catch (e) {
@@ -193,7 +167,9 @@ class FieldWizardNotifier extends StateNotifier<FieldWizardState> {
 final fieldWizardProvider =
     StateNotifierProvider.autoDispose<FieldWizardNotifier, FieldWizardState>(
   (ref) {
-    final apiClient = ref.read(apiClientProvider);
-    return FieldWizardNotifier(apiClient);
+    final fieldsRepo = ref.read(fieldsRepoProvider);
+    final tenant = ref.read(currentTenantProvider);
+    final tenantId = tenant?.id ?? 'default';
+    return FieldWizardNotifier(fieldsRepo, tenantId);
   },
 );

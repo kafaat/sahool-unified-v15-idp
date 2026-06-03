@@ -382,6 +382,7 @@ export class FieldsService {
     const where: any = { tenantId: query.tenantId };
     // Scope to the authenticated user: each user only sees their own fields.
     if (query.ownerId) where.ownerId = query.ownerId;
+    if (query.farmId) where.farmId = query.farmId;
     if (query.status) where.status = query.status;
     if (query.cropType) where.cropType = query.cropType;
 

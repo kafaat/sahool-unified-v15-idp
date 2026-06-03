@@ -21,7 +21,7 @@ class SahoolBottomNavigation extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -36,7 +36,7 @@ class SahoolBottomNavigation extends ConsumerWidget {
           elevation: 0,
           selectedIndex: currentIndex,
           onDestinationSelected: (index) => _onItemTapped(context, index),
-          backgroundColor: Colors.white,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           indicatorColor: SahoolTheme.primary.withValues(alpha: 0.1),
           labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
           destinations: _buildDestinations(),

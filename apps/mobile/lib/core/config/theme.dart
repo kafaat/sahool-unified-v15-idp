@@ -216,9 +216,9 @@ class SahoolTheme {
 
     // Tab Bar
     tabBarTheme: const TabBarThemeData(
-      labelColor: Colors.white,
-      unselectedLabelColor: Colors.white70,
-      indicatorColor: Colors.white,
+      labelColor: primary,
+      unselectedLabelColor: Color(0xFF666666),
+      indicatorColor: primary,
       labelStyle: TextStyle(fontFamily: fontFamily, fontWeight: FontWeight.bold),
     ),
 

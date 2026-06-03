@@ -417,6 +417,11 @@ export class QueryFieldsDto {
   @IsEnum(FieldStatus)
   status?: FieldStatus;
 
+  @ApiPropertyOptional({ description: "Filter by farm ID" })
+  @IsOptional()
+  @IsString()
+  farmId?: string;
+
   @ApiPropertyOptional({ description: "Crop type" })
   @IsOptional()
   @IsString()

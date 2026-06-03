@@ -11,7 +11,7 @@ import '../../../farm/domain/farm_providers.dart';
 import '../../domain/field_wizard_notifier.dart';
 import '../../domain/field_wizard_state.dart';
 
-enum _DrawMode { polygon, rectangle, circle }
+enum _DrawMode { polygon, rectangle }
 
 /// معالج إنشاء حقل جديد - 6 خطوات
 class FieldWizardScreen extends ConsumerStatefulWidget {
@@ -48,53 +48,45 @@ class _FieldWizardScreenState extends ConsumerState<FieldWizardScreen> {
   }
 
   void _onMapTap(LatLng point) {
-    switch (_drawMode) {
-      case _DrawMode.polygon:
-        setState(() => _points.add(point));
+    if (_drawMode == _DrawMode.rectangle) {
+      // Rectangle mode: 2-click bbox
+      if (_firstCorner == null) {
+        setState(() => _firstCorner = point);
+      } else {
+        final a = _firstCorner!;
+        final b = point;
+        final pts = [
+          a,
+          LatLng(a.latitude, b.longitude),
+          b,
+          LatLng(b.latitude, a.longitude),
+        ];
+        setState(() {
+          _points..clear()..addAll(pts);
+          _firstCorner = null;
+        });
         final area = _calcAreaHa(_points);
         ref.read(fieldWizardProvider.notifier).updatePolygon(List.from(_points), area);
-      case _DrawMode.rectangle:
-        if (_firstCorner == null) {
-          setState(() => _firstCorner = point);
-        } else {
-          final a = _firstCorner!;
-          final b = point;
-          final pts = [
-            a,
-            LatLng(a.latitude, b.longitude),
-            b,
-            LatLng(b.latitude, a.longitude),
-          ];
-          setState(() {
-            _points..clear()..addAll(pts);
-            _firstCorner = null;
-          });
-          final rectArea = _calcAreaHa(_points);
-          ref.read(fieldWizardProvider.notifier).updatePolygon(List.from(_points), rectArea);
+      }
+    } else {
+      // Polygon mode: click to add vertices
+      if (_points.isNotEmpty && _points.length >= 3) {
+        final first = _points.first;
+        final distDeg = (point.latitude - first.latitude).abs() +
+            (point.longitude - first.longitude).abs();
+        if (distDeg < 0.0003) {
+          // Near first vertex — polygon already live, just ignore (already updating)
+          return;
         }
-      case _DrawMode.circle:
-        if (_firstCorner == null) {
-          setState(() => _firstCorner = point);
-        } else {
-          final center = _firstCorner!;
-          final dLat = point.latitude - center.latitude;
-          final dLng = point.longitude - center.longitude;
-          final radius = sqrt(dLat * dLat + dLng * dLng);
-          const segments = 32;
-          final pts = List.generate(segments, (i) {
-            final angle = 2 * pi * i / segments;
-            return LatLng(
-              center.latitude + radius * sin(angle),
-              center.longitude + radius * cos(angle),
-            );
-          });
-          setState(() {
-            _points..clear()..addAll(pts);
-            _firstCorner = null;
-          });
-          final circleArea = _calcAreaHa(_points);
-          ref.read(fieldWizardProvider.notifier).updatePolygon(List.from(_points), circleArea);
-        }
+      }
+      setState(() {
+        _firstCorner = null;
+        _points.add(point);
+      });
+      if (_points.length >= 3) {
+        final area = _calcAreaHa(_points);
+        ref.read(fieldWizardProvider.notifier).updatePolygon(List.from(_points), area);
+      }
     }
   }
 
@@ -107,13 +99,35 @@ class _FieldWizardScreenState extends ConsumerState<FieldWizardScreen> {
   }
 
   void _removeLastPoint() {
-    if (_points.isEmpty) return;
-    setState(() => _points.removeLast());
-    final area = _calcAreaHa(_points);
-    ref.read(fieldWizardProvider.notifier).updatePolygon(
-          List.from(_points),
-          area,
-        );
+    if (_drawMode == _DrawMode.rectangle) {
+      _clearPoints();
+    } else {
+      if (_points.isEmpty) return;
+      setState(() => _points.removeLast());
+      if (_points.length >= 3) {
+        ref.read(fieldWizardProvider.notifier).updatePolygon(List.from(_points), _calcAreaHa(_points));
+      } else {
+        ref.read(fieldWizardProvider.notifier).updatePolygon([], 0.0);
+      }
+    }
+  }
+
+  void _flyToFarm(FarmEntity farm) {
+    double lat = farm.centerLat;
+    double lng = farm.centerLng;
+    final zoom = (farm.zoom ?? 14).toDouble();
+
+    if (lat == 0.0 && lng == 0.0) {
+      final bbox = farm.bbox;
+      if (bbox != null && bbox.length == 4) {
+        lat = (bbox[1] + bbox[3]) / 2;
+        lng = (bbox[0] + bbox[2]) / 2;
+      }
+    }
+
+    if (lat != 0.0 || lng != 0.0) {
+      _mapController.move(LatLng(lat, lng), zoom);
+    }
   }
 
   void _onNextStep() {
@@ -212,10 +226,10 @@ class _FieldWizardScreenState extends ConsumerState<FieldWizardScreen> {
         backgroundColor: Colors.black,
         body: Stack(
           children: [
-            // ── الخريطة تملأ الشاشة ──────────────────────────
+            // ── Satellite map fills the screen ────────────────────
             Positioned.fill(child: _buildSatelliteMap()),
 
-            // ── الشريط العلوي ─────────────────────────────────
+            // ── Top overlay: back button, status, stepper, farm selector ──
             Positioned(
               top: 0,
               left: 0,
@@ -224,7 +238,6 @@ class _FieldWizardScreenState extends ConsumerState<FieldWizardScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // شريط العنوان
                     Padding(
                       padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
                       child: Row(
@@ -236,14 +249,25 @@ class _FieldWizardScreenState extends ConsumerState<FieldWizardScreen> {
                           const SizedBox(width: 8),
                           Expanded(
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 8),
                               decoration: BoxDecoration(
                                 color: Colors.black.withValues(alpha: 0.65),
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              child: const Text(
-                                'ارسم حدود الحقل',
-                                style: TextStyle(
+                              child: Text(
+                                _drawMode == _DrawMode.rectangle
+                                    ? (_firstCorner == null
+                                        ? 'انقر لتحديد الزاوية الأولى'
+                                        : _points.isNotEmpty
+                                            ? 'المساحة: ${state.area.toStringAsFixed(2)} هـ'
+                                            : 'انقر لتحديد الزاوية المقابلة')
+                                    : (_points.isEmpty
+                                        ? 'انقر لإضافة نقاط حدود الحقل'
+                                        : _points.length < 3
+                                            ? 'أضف نقطتين أخريين على الأقل (${_points.length}/3)'
+                                            : 'المساحة: ${state.area.toStringAsFixed(2)} هـ'),
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 15,
@@ -255,30 +279,26 @@ class _FieldWizardScreenState extends ConsumerState<FieldWizardScreen> {
                         ],
                       ),
                     ),
-                    // شريط الخطوات
                     _buildStepIndicatorOverlay(state.currentStep),
+                    // Farm selector
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
+                      child: farmsAsync.maybeWhen(
+                        data: (farms) => farms.isEmpty
+                            ? const SizedBox.shrink()
+                            : _buildFarmOverlayChip(farms, state),
+                        orElse: () => const SizedBox.shrink(),
+                      ),
+                    ),
                   ],
                 ),
               ),
             ),
 
-            // ── اختيار المزرعة ────────────────────────────────
-            Positioned(
-              top: 130,
-              left: 8,
-              right: 8,
-              child: farmsAsync.maybeWhen(
-                data: (farms) => farms.isEmpty
-                    ? const SizedBox.shrink()
-                    : _buildFarmOverlayChip(farms, state),
-                orElse: () => const SizedBox.shrink(),
-              ),
-            ),
-
-            // ── رسالة الخطأ ───────────────────────────────────
+            // ── Error message ─────────────────────────────────────
             if (state.error != null)
               Positioned(
-                top: 185,
+                top: 230,
                 left: 8,
                 right: 8,
                 child: Container(
@@ -289,12 +309,14 @@ class _FieldWizardScreenState extends ConsumerState<FieldWizardScreen> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.error_outline, color: Colors.white, size: 18),
+                      const Icon(Icons.error_outline,
+                          color: Colors.white, size: 18),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           state.error!,
-                          style: const TextStyle(color: Colors.white, fontSize: 13),
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 13),
                         ),
                       ),
                     ],
@@ -302,15 +324,15 @@ class _FieldWizardScreenState extends ConsumerState<FieldWizardScreen> {
                 ),
               ),
 
-            // ── أدوات الرسم (يمين) ────────────────────────────
+            // ── Drawing toolbar (center-top, below safe area) ─────
             Positioned(
-              right: 8,
-              top: 0,
-              bottom: 0,
-              child: Center(child: _buildDrawingToolsPanel()),
+              top: 210,
+              left: 0,
+              right: 0,
+              child: Center(child: _buildDrawingToolbar()),
             ),
 
-            // ── اللوحة السفلية ────────────────────────────────
+            // ── Bottom panel ──────────────────────────────────────
             Positioned(
               bottom: 0,
               left: 0,
@@ -441,6 +463,7 @@ class _FieldWizardScreenState extends ConsumerState<FieldWizardScreen> {
                   onTap: () {
                     ref.read(fieldWizardProvider.notifier).updateFarmId(f.id);
                     Navigator.pop(context);
+                    _flyToFarm(f);
                   },
                 )),
             const SizedBox(height: 16),
@@ -448,58 +471,119 @@ class _FieldWizardScreenState extends ConsumerState<FieldWizardScreen> {
         ),
       ),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
           color: Colors.black.withValues(alpha: 0.72),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: state.farmId != null ? SahoolColors.primary : Colors.white30,
+            color: state.farmId != null
+                ? SahoolColors.primary
+                : Colors.white30,
+            width: state.farmId != null ? 1.5 : 1.0,
           ),
         ),
         child: Row(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.agriculture, color: SahoolColors.primary, size: 18),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: const TextStyle(color: Colors.white, fontSize: 13),
+            Icon(
+              Icons.agriculture,
+              color: state.farmId != null ? SahoolColors.primary : Colors.white54,
+              size: 20,
             ),
-            const SizedBox(width: 6),
-            const Icon(Icons.expand_more, color: Colors.white54, size: 18),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 15,
+                  fontWeight: state.farmId != null
+                      ? FontWeight.bold
+                      : FontWeight.normal,
+                ),
+              ),
+            ),
+            const Icon(Icons.expand_more, color: Colors.white54, size: 20),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildDrawingToolsPanel() {
+  Widget _buildDrawingToolbar() {
     return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.72),
+        color: Colors.black.withValues(alpha: 0.75),
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white24),
       ),
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-      child: Column(
+      child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           _drawToolButton(
             icon: Icons.polyline_rounded,
-            label: 'متعدد',
+            label: 'مضلع',
             mode: _DrawMode.polygon,
           ),
-          const SizedBox(height: 4),
+          const SizedBox(width: 6),
           _drawToolButton(
             icon: Icons.crop_square_rounded,
             label: 'مستطيل',
             mode: _DrawMode.rectangle,
           ),
-          const SizedBox(height: 4),
-          _drawToolButton(
-            icon: Icons.circle_outlined,
-            label: 'دائرة',
-            mode: _DrawMode.circle,
-          ),
+          if (_points.isNotEmpty || _firstCorner != null) ...[
+            const SizedBox(width: 6),
+            const SizedBox(
+              height: 28,
+              child: VerticalDivider(color: Colors.white24, width: 1),
+            ),
+            const SizedBox(width: 6),
+            GestureDetector(
+              onTap: _removeLastPoint,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.orange.withValues(alpha: 0.5)),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.undo_rounded, color: Colors.orange, size: 16),
+                    SizedBox(width: 4),
+                    Text('تراجع',
+                        style: TextStyle(color: Colors.orange, fontSize: 11)),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(width: 6),
+            GestureDetector(
+              onTap: _clearPoints,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: SahoolColors.danger.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                  border:
+                      Border.all(color: SahoolColors.danger.withValues(alpha: 0.5)),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.delete_outline, color: SahoolColors.danger, size: 16),
+                    SizedBox(width: 4),
+                    Text('مسح',
+                        style: TextStyle(color: SahoolColors.danger, fontSize: 11)),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -512,27 +596,36 @@ class _FieldWizardScreenState extends ConsumerState<FieldWizardScreen> {
   }) {
     final isActive = _drawMode == mode;
     return GestureDetector(
-      onTap: () => setState(() {
-        _drawMode = mode;
-        _firstCorner = null;
-      }),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        width: 52,
-        padding: const EdgeInsets.symmetric(vertical: 8),
+      onTap: () {
+        if (_drawMode != mode) {
+          _clearPoints();
+          setState(() => _drawMode = mode);
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: isActive ? SahoolColors.primary : Colors.transparent,
+          color: isActive
+              ? SahoolColors.primary
+              : Colors.white.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isActive ? SahoolColors.primary : Colors.white30,
+          ),
         ),
-        child: Column(
+        child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: Colors.white, size: 22),
-            const SizedBox(height: 3),
+            Icon(icon,
+                color: isActive ? Colors.white : Colors.white70, size: 16),
+            const SizedBox(width: 4),
             Text(
               label,
-              style: const TextStyle(color: Colors.white, fontSize: 9),
-              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: isActive ? Colors.white : Colors.white70,
+                fontSize: 11,
+                fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+              ),
             ),
           ],
         ),
@@ -541,18 +634,23 @@ class _FieldWizardScreenState extends ConsumerState<FieldWizardScreen> {
   }
 
   Widget _buildMapBottomPanel(FieldWizardState state) {
-    String statusText;
-    if (_drawMode == _DrawMode.rectangle && _firstCorner != null) {
-      statusText = 'انقر لتحديد الزاوية الثانية';
-    } else if (_drawMode == _DrawMode.circle && _firstCorner != null) {
-      statusText = 'انقر لتحديد نصف القطر';
-    } else if (_points.length >= 3) {
-      statusText = 'المساحة: ${state.area.toStringAsFixed(2)} هـ';
+    final String statusText;
+    if (_drawMode == _DrawMode.rectangle) {
+      if (_firstCorner != null) {
+        statusText = 'انقر لتحديد الزاوية المقابلة';
+      } else if (_points.length >= 3) {
+        statusText = '✓ المساحة: ${state.area.toStringAsFixed(2)} هـ';
+      } else {
+        statusText = 'انقر لتحديد الزاوية الأولى للمستطيل';
+      }
     } else {
-      final needed = _drawMode == _DrawMode.polygon
-          ? 'انقر لإضافة ${_points.isEmpty ? "نقطة" : "نقاط أكثر"}'
-          : 'انقر لتحديد النقطة الأولى';
-      statusText = needed;
+      if (_points.isEmpty) {
+        statusText = 'انقر على الخريطة لإضافة نقاط الحدود';
+      } else if (_points.length < 3) {
+        statusText = 'أضف ${3 - _points.length} نقاط إضافية على الأقل';
+      } else {
+        statusText = '✓ المساحة: ${state.area.toStringAsFixed(2)} هـ';
+      }
     }
 
     return Container(
@@ -564,59 +662,41 @@ class _FieldWizardScreenState extends ConsumerState<FieldWizardScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // الحالة وأزرار التحكم
-          Row(
-            children: [
-              // مؤشر الحالة
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.white10,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        _points.length >= 3
-                            ? Icons.check_circle_outline
-                            : Icons.info_outline,
-                        color: _points.length >= 3 ? SahoolColors.primary : Colors.white54,
-                        size: 16,
-                      ),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Text(
-                          statusText,
-                          style: TextStyle(
-                            color: _points.length >= 3 ? SahoolColors.primary : Colors.white70,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                    ],
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.white10,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  _points.length >= 3
+                      ? Icons.check_circle_outline
+                      : Icons.edit_location_alt,
+                  color: _points.length >= 3
+                      ? SahoolColors.primary
+                      : Colors.white54,
+                  size: 16,
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    statusText,
+                    style: TextStyle(
+                      color: _points.length >= 3
+                          ? SahoolColors.primary
+                          : Colors.white70,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              // تراجع
-              if (_points.isNotEmpty && _drawMode == _DrawMode.polygon)
-                _mapOverlayButton(
-                  icon: Icons.undo,
-                  onTap: _removeLastPoint,
-                ),
-              if (_points.isNotEmpty && _drawMode == _DrawMode.polygon) const SizedBox(width: 6),
-              // مسح
-              if (_points.isNotEmpty || _firstCorner != null)
-                _mapOverlayButton(
-                  icon: Icons.delete_outline,
-                  onTap: _clearPoints,
-                ),
-            ],
+              ],
+            ),
           ),
           const SizedBox(height: 10),
-          // زر التالي
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
@@ -627,7 +707,8 @@ class _FieldWizardScreenState extends ConsumerState<FieldWizardScreen> {
                 backgroundColor: SahoolColors.primary,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
               ),
             ),
           ),
@@ -935,7 +1016,7 @@ class _FieldWizardScreenState extends ConsumerState<FieldWizardScreen> {
           userAgentPackageName: 'com.sahool.app',
           maxNativeZoom: 18,
         ),
-        // مضلع مكتمل
+        // Drawn polygon (for both modes when ≥3 points)
         if (_points.length >= 3)
           PolygonLayer(
             polygons: [
@@ -947,52 +1028,56 @@ class _FieldWizardScreenState extends ConsumerState<FieldWizardScreen> {
               ),
             ],
           ),
-        // خطوط التتبع
-        if (_points.length >= 2)
+        // Polyline outline (polygon mode, <3 points or all points)
+        if (_drawMode == _DrawMode.polygon && _points.length >= 2)
           PolylineLayer(
             polylines: [
               Polyline(
-                points: [..._points, if (_points.length >= 3) _points.first],
-                color: SahoolColors.primary,
+                points: [
+                  ..._points,
+                  if (_points.length >= 3) _points.first,
+                ],
+                color: SahoolColors.primary.withValues(alpha: 0.7),
                 strokeWidth: 2.0,
               ),
             ],
           ),
-        // علامات النقاط (لوضع المضلع فقط)
-        if (_drawMode == _DrawMode.polygon)
+        // Vertex markers
+        if (_points.isNotEmpty)
           MarkerLayer(
-            markers: _points.asMap().entries.map((entry) {
-              final i = entry.key;
-              final p = entry.value;
-              return Marker(
-                point: p,
-                width: 26,
-                height: 26,
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() => _points.removeAt(i));
-                    final area = _calcAreaHa(_points);
-                    ref.read(fieldWizardProvider.notifier).updatePolygon(List.from(_points), area);
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: i == 0 ? SahoolColors.danger : SahoolColors.primary,
-                      border: Border.all(color: Colors.white, width: 2),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '${i + 1}',
-                        style: const TextStyle(color: Colors.white, fontSize: 9),
+            markers: _drawMode == _DrawMode.rectangle
+                ? [
+                    _cornerMarker(_points[0], 'A'),
+                    _cornerMarker(_points[2], 'B'),
+                  ]
+                : _points.asMap().entries.map((entry) {
+                    final i = entry.key;
+                    final p = entry.value;
+                    return Marker(
+                      point: p,
+                      width: 26,
+                      height: 26,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: i == 0 ? Colors.orange : SahoolColors.primary,
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                        child: Center(
+                          child: Text(
+                            '${i + 1}',
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 9,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
+                    );
+                  }).toList(),
           ),
-        // علامة النقطة الأولى (مستطيل/دائرة في الانتظار)
-        if (_firstCorner != null)
+        // First corner marker (rectangle mode, before second click)
+        if (_drawMode == _DrawMode.rectangle && _firstCorner != null)
           MarkerLayer(
             markers: [
               Marker(
@@ -1021,6 +1106,30 @@ class _FieldWizardScreenState extends ConsumerState<FieldWizardScreen> {
       child: SizedBox(
         height: 350,
         child: _buildSatelliteMap(),
+      ),
+    );
+  }
+
+  Marker _cornerMarker(LatLng point, String label) {
+    return Marker(
+      point: point,
+      width: 26,
+      height: 26,
+      child: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: SahoolColors.primary,
+          border: Border.all(color: Colors.white, width: 2),
+        ),
+        child: Center(
+          child: Text(
+            label,
+            style: const TextStyle(
+                color: Colors.white,
+                fontSize: 9,
+                fontWeight: FontWeight.bold),
+          ),
+        ),
       ),
     );
   }

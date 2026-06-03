@@ -47,6 +47,12 @@ class FieldsRepo {
         );
   }
 
+  /// Get all local fields ignoring tenant filter (offline-first fallback)
+  Future<List<domain.Field>> getAllFieldsLocal() async {
+    final dbFields = await _db.getAllFieldsLocal();
+    return dbFields.map(_mapDbToEntity).toList();
+  }
+
   /// Get field by ID
   Future<domain.Field?> getFieldById(String fieldId) async {
     final dbField = await _db.getFieldById(fieldId);

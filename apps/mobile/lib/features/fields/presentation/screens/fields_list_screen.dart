@@ -7,6 +7,7 @@ import '../../../../core/accessibility/semantics_helper.dart';
 import '../../../../core/di/providers.dart';
 import '../../../../core/iam/iam_providers.dart';
 import '../../../../core/utils/app_logger.dart';
+import '../../../field/domain/entities/field.dart' as domain;
 import '../../domain/entities/field_entity.dart';
 import '../widgets/enhanced_field_card.dart';
 import 'field_details_screen.dart';
@@ -53,18 +54,30 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
 
     try {
       final tenant = ref.read(currentTenantProvider);
-      final tenantId = tenant?.id ?? 'default';
+      final tenantId = tenant?.id;
       final repo = ref.read(fieldsRepoProvider);
 
       // Always try to sync from server first so we show the latest data.
       // Errors are logged but don't block showing whatever is in local DB.
       try {
-        await repo.refreshFromServer(tenantId);
+        await repo.refreshFromServer(tenantId ?? 'default');
       } catch (e) {
         AppLogger.w('Server sync skipped: $e', tag: 'FieldsListScreen');
       }
 
-      final domainFields = await repo.getAllFields(tenantId);
+      // Query by tenant when available; fall back to all local fields when
+      // tenant ID is unknown (null) or the tenant-filtered result is empty.
+      // This handles the case where synced records carry a real UUID tenant ID
+      // but the IAM state hasn't resolved yet.
+      List<domain.Field> domainFields;
+      if (tenantId != null) {
+        domainFields = await repo.getAllFields(tenantId);
+        if (domainFields.isEmpty) {
+          domainFields = await repo.getAllFieldsLocal();
+        }
+      } else {
+        domainFields = await repo.getAllFieldsLocal();
+      }
 
       // Map domain Field entities to FieldEntity for the UI
       final now = DateTime.now();
@@ -145,13 +158,14 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
   Future<void> _refreshFields() async {
     try {
       final tenant = ref.read(currentTenantProvider);
-      final tenantId = tenant?.id ?? 'default';
+      final tenantId = tenant?.id;
       final repo = ref.read(fieldsRepoProvider);
 
       // Try to refresh from server first
       try {
-        await repo.refreshFromServer(tenantId);
+        await repo.refreshFromServer(tenantId ?? 'default');
       } catch (e) {
+        AppLogger.w('Server refresh failed: $e', tag: 'FieldsListScreen');
         // If server refresh fails (offline), just reload from local DB
       }
 

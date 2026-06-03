@@ -5065,6 +5065,52 @@ asyncio.run(main())
       - sahool-network
 
   # ─────────────────────────────────────────────────────────────────────────────
+  # Admin Portal - Next.js 15 (port 3002)
+  # بوابة الإدارة - Next.js 15
+  # ─────────────────────────────────────────────────────────────────────────────
+  admin:
+    build:
+      context: .
+      dockerfile: apps/admin/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+    container_name: sahool-admin
+    environment:
+      - NODE_ENV=production
+      - PORT=3002
+      - HOSTNAME=0.0.0.0
+      - API_GATEWAY_URL=http://kong:8000
+      - NEXT_PUBLIC_APP_VERSION=${NEXT_PUBLIC_APP_VERSION:-16.0.0}
+      - NEXT_TELEMETRY_DISABLED=1
+    ports:
+      - "127.0.0.1:${DEV_ADMIN_PORT:-3002}:3002"
+    depends_on:
+      kong:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3002/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1.00'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    logging: *default-logging
+    networks:
+      - sahool-network
+
+  # ─────────────────────────────────────────────────────────────────────────────
   # Web Dashboard - Next.js 15
   # لوحة التحكم الرئيسية - Next.js 15
   # ─────────────────────────────────────────────────────────────────────────────
@@ -5073,18 +5119,41 @@ asyncio.run(main())
       context: .
       dockerfile: apps/web/Dockerfile
       args:
-        # Build-time env vars baked into the browser bundle
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+        # NEXT_PUBLIC_API_URL intentionally empty so the browser bundle falls
+        # back to window.location.origin and routes all /api/v1/* calls through
+        # the Next.js server-side proxy instead of hitting Kong directly.
+        NEXT_PUBLIC_API_URL: ""
         NEXT_PUBLIC_WS_URL: ${NEXT_PUBLIC_WS_URL:-ws://localhost:8081}
+        # API_GATEWAY_URL must be a build arg — next.config.ts rewrites() is
+        # evaluated at build time and the destination is baked into the routes
+        # manifest; the runtime environment variable is ignored for rewrites.
+        API_GATEWAY_URL: http://kong:8000
     container_name: sahool-web
     environment:
       - NODE_ENV=production
       - PORT=3000
       - HOSTNAME=0.0.0.0
-      # Server-side API gateway URL (internal Docker network, overrides build-time value)
+      # Server-side API gateway URL (kept for any runtime reads outside rewrites)
       - API_GATEWAY_URL=http://kong:8000
+      # Direct service URL for the /api/v1/fields Next.js API route proxy
+      # (bypasses Kong to avoid name-resolution issues in local Docker network)
+      - FIELD_SERVICE_URL=http://field-management-service:3000
       - NEXT_PUBLIC_APP_VERSION=${NEXT_PUBLIC_APP_VERSION:-16.0.0}
       - NEXT_TELEMETRY_DISABLED=1
+      # Disable secure-cookie flag so httpOnly cookies work over plain HTTP
+      # (the container is accessed via http://localhost — not HTTPS)
+      - COOKIE_SECURE=false
+      # JWT validation for Next.js middleware (required by jwt-middleware.ts)
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - JWT_ISSUER=${JWT_ISSUER:-sahool}
+      - JWT_AUDIENCE=${JWT_AUDIENCE:-sahool-api}
+      # CDSE / Sentinel Hub credentials for server-side satellite imagery (/api/sentinel)
+      - CDSE_CLIENT_ID=${CDSE_CLIENT_ID:-}
+      - CDSE_CLIENT_SECRET=${CDSE_CLIENT_SECRET:-}
+      - SH_BASE_URL=${SH_BASE_URL:-https://sh.dataspace.copernicus.eu}
+      - SH_TOKEN_URL=${SH_TOKEN_URL:-https://identity.dataspace.copernicus.eu/auth/realms/CDSE/protocol/openid-connect/token}
+      - SENTINEL_HUB_CLIENT_ID=${SENTINEL_HUB_CLIENT_ID:-}
+      - SENTINEL_HUB_CLIENT_SECRET=${SENTINEL_HUB_CLIENT_SECRET:-}
     ports:
       # Bind to localhost only; expose on DEV_WEB_PORT (default 3000)
       - "127.0.0.1:${DEV_WEB_PORT:-3000}:3000"

@@ -86,6 +86,12 @@ ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Re-run install with full source so npm properly hoists workspace binaries (next, tsup, etc.)
+RUN --mount=type=cache,target=/root/.npm \
+    npm install --legacy-peer-deps --prefer-offline --no-audit --no-fund --ignore-scripts || true
+
+ENV PATH=/app/node_modules/.bin:$PATH
+
 # Build shared packages first
 RUN npm run build --workspace=packages/shared-utils --if-present || true
 RUN npm run build --workspace=packages/shared-ui --if-present || true

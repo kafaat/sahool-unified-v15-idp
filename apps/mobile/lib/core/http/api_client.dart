@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import '../config/env_config.dart';
@@ -426,6 +427,27 @@ class ApiClient {
         );
 
       default:
+        // Circuit breaker open — treat as a temporary network unavailability
+        if (e.error is CircuitOpenException) {
+          return ApiException(
+            code: 'SERVICE_UNAVAILABLE',
+            message: 'الخدمة غير متاحة مؤقتاً، حاول مرة أخرى',
+            isNetworkError: true,
+          );
+        }
+        // Connection closed without response (e.g. Docker Desktop proxy issue,
+        // server reset) — surface as network error so callers can retry or
+        // fall back to mock mode in debug builds.
+        if (e.error is SocketException ||
+            e.message?.contains('connection') == true ||
+            e.message?.contains('reset') == true ||
+            e.message?.contains('closed') == true) {
+          return ApiException(
+            code: 'NO_CONNECTION',
+            message: 'لا يوجد اتصال بالإنترنت',
+            isNetworkError: true,
+          );
+        }
         return ApiException(
           code: 'UNKNOWN',
           message: 'حدث خطأ غير متوقع',

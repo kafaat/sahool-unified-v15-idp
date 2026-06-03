@@ -81,8 +81,12 @@ COPY apps/web ./apps/web
 # Build arguments
 ARG NEXT_PUBLIC_API_URL
 ARG NEXT_PUBLIC_WS_URL
+# API_GATEWAY_URL must be a build arg so next.config.ts rewrites() can read it
+# at build time (Next.js bakes rewrite destinations into the routes manifest).
+ARG API_GATEWAY_URL=http://localhost:8000
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_WS_URL=$NEXT_PUBLIC_WS_URL
+ENV API_GATEWAY_URL=$API_GATEWAY_URL
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV DOCKER_BUILD=true
 

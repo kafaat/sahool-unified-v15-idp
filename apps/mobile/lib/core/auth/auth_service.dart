@@ -8,6 +8,7 @@ import '../di/providers.dart';
 import '../utils/app_logger.dart';
 import 'secure_storage_service.dart';
 import 'biometric_service.dart';
+import 'jwt_validator.dart';
 import 'token_manager.dart';
 
 /// SAHOOL Authentication Service
@@ -231,10 +232,11 @@ class AuthService {
       }
     } catch (e) {
       AppLogger.e('Login failed', tag: 'AUTH', error: e);
-      // In debug mode, fall back to mock for any API failure
-      // (network errors, server errors, security header failures, etc.)
-      if (kDebugMode) {
-        AppLogger.w('API failed ($e), falling back to mock mode', tag: 'AUTH');
+      // In debug mode, fall back to mock only for network errors (server unreachable).
+      // Do NOT fall back for 4xx errors — those mean the server rejected the request
+      // with a real token that would later be rejected by protected endpoints.
+      if (kDebugMode && e is ApiException && e.isNetworkError) {
+        AppLogger.w('Network unavailable, falling back to mock mode', tag: 'AUTH');
         return _loginWithMock(email, password);
       }
       rethrow;
@@ -335,7 +337,7 @@ class AuthService {
     final exp = now + 3600;
     final header = base64Url.encode(utf8.encode('{"alg":"HS256","typ":"JWT"}'));
     final payload = base64Url.encode(utf8.encode(
-      '{"sub":"mock-user-001","email":"$email","roles":["FARMER"],"type":"access","iat":$now,"exp":$exp}',
+      '{"sub":"mock-user-001","email":"$email","roles":["FARMER"],"type":"access","iss":"sahool-platform","tid":"mock_tenant","iat":$now,"exp":$exp}',
     ));
     final tokens = TokenPair(
       accessToken: '$header.$payload.mock_signature',
@@ -394,8 +396,8 @@ class AuthService {
       AppLogger.e('Register failed', tag: 'AUTH', error: e);
       // In debug mode, fall back to mock for any API failure
       // (network errors, server errors, security header failures, etc.)
-      if (kDebugMode) {
-        AppLogger.w('API failed ($e), falling back to mock mode', tag: 'AUTH');
+      if (kDebugMode && e is ApiException && e.isNetworkError) {
+        AppLogger.w('Network unavailable, falling back to mock mode', tag: 'AUTH');
         return _registerWithMock(firstName: firstName, lastName: lastName, email: email, phone: phone);
       }
       rethrow;
@@ -451,7 +453,7 @@ class AuthService {
     final exp = now + 3600;
     final header = base64Url.encode(utf8.encode('{"alg":"HS256","typ":"JWT"}'));
     final payload = base64Url.encode(utf8.encode(
-      '{"sub":"mock-user-reg-$now","email":"${email ?? ''}","roles":["FARMER"],"type":"access","iat":$now,"exp":$exp}',
+      '{"sub":"mock-user-reg-$now","email":"${email ?? ''}","roles":["FARMER"],"type":"access","iss":"sahool-platform","tid":"mock_tenant","iat":$now,"exp":$exp}',
     ));
     final tokens = TokenPair(
       accessToken: '$header.$payload.mock_signature',
@@ -622,12 +624,26 @@ class AuthService {
     final accessToken = await secureStorage.getAccessToken();
     if (accessToken == null) return false;
 
-    // Check if token is expired
-    final expiry = await secureStorage.getTokenExpiry();
-    if (expiry == null) return false;
+    // Validate full token structure including required claims (sub, exp, iss).
+    // This catches old tokens that lack required claims before they reach the
+    // server and cause a 401 cascade → logout redirect loop.
+    final validation = JwtValidator.validate(accessToken);
+    if (!validation.isValid) {
+      AppLogger.w(
+        'Stored token is invalid (${validation.error}), attempting refresh',
+        tag: 'AUTH',
+      );
+      try {
+        await refreshToken();
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
 
-    if (DateTime.now().isAfter(expiry)) {
-      // Token expired, try to refresh
+    // Also check stored expiry for early proactive refresh
+    final expiry = await secureStorage.getTokenExpiry();
+    if (expiry != null && DateTime.now().isAfter(expiry)) {
       try {
         await refreshToken();
         return true;

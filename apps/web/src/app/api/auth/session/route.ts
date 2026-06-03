@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
     // Set secure access token cookie with httpOnly flag
     cookieStore.set(ACCESS_TOKEN_COOKIE, body.access_token, {
       httpOnly: true, // Prevents JavaScript access (XSS protection)
-      secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+      secure: process.env.NODE_ENV === 'production' && process.env.COOKIE_SECURE !== 'false', // HTTPS only in production
       sameSite: 'strict', // CSRF protection
       maxAge: ACCESS_TOKEN_MAX_AGE, // 30 minutes default
       path: '/', // Available across entire app
@@ -136,7 +136,7 @@ export async function POST(request: NextRequest) {
     if (body.refresh_token && isValidToken(body.refresh_token)) {
       cookieStore.set(REFRESH_TOKEN_COOKIE, body.refresh_token, {
         httpOnly: true, // Prevents JavaScript access (XSS protection)
-        secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+        secure: process.env.NODE_ENV === 'production' && process.env.COOKIE_SECURE !== 'false', // HTTPS only in production
         sameSite: 'strict', // CSRF protection
         maxAge: REFRESH_TOKEN_MAX_AGE, // 7 days default
         path: '/', // Available across entire app

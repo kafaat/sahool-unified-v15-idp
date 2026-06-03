@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const isProduction = process.env.NODE_ENV === 'production';
+    const isProduction = process.env.NODE_ENV === 'production' && process.env.COOKIE_SECURE !== 'false';
 
     // Parse env vars for cookie maxAge
     const accessMaxAge = parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRE_SECONDS || '1800', 10);

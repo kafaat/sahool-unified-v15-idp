@@ -263,11 +263,14 @@ class RobustRetryInterceptor extends Interceptor {
 
   /// Normalize endpoint for circuit breaker grouping
   String _normalizeEndpoint(String path) {
-    // Extract base path (first two segments)
+    // Extract base path - use 3 segments for /api/v1/... so each domain
+    // (auth, fields, etc.) gets its own circuit breaker instead of sharing /api/v1
     final uri = Uri.parse(path);
     final segments = uri.pathSegments;
 
-    if (segments.length >= 2) {
+    if (segments.length >= 3) {
+      return '/${segments[0]}/${segments[1]}/${segments[2]}';
+    } else if (segments.length >= 2) {
       return '/${segments[0]}/${segments[1]}';
     } else if (segments.isNotEmpty) {
       return '/${segments[0]}';

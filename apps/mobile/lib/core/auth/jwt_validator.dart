@@ -186,6 +186,16 @@ class JwtValidator {
       );
     }
 
+    // Check iss (issuer) claim — the server requires it.
+    // We only check presence, not the specific value, to avoid tight coupling
+    // with JWT_ISSUER env var. Server handles value validation.
+    final iss = claims.raw['iss'] as String?;
+    if (iss == null || iss.isEmpty) {
+      return const JwtValidationResult.invalid(
+        'Invalid JWT: missing "iss" claim',
+      );
+    }
+
     return result;
   }
 

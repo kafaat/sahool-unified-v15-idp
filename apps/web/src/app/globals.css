@@ -240,6 +240,17 @@ select option {
   direction: ltr;
 }
 
+/* Force white text in autofilled inputs — browsers override color via
+   -webkit-text-fill-color which Tailwind's text-white cannot reach */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: #ffffff !important;
+  -webkit-box-shadow: 0 0 0 1000px #334155 inset !important; /* slate-700 bg */
+  transition: background-color 5000s ease-in-out 0s;
+}
+
 /* Reduced motion support for accessibility */
 @media (prefers-reduced-motion: reduce) {
   *,

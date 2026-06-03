@@ -5,6 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:latlong2/latlong.dart';
 import 'package:sqlite3/sqlite3.dart';
+import 'package:sqlite3/open.dart';
 import 'package:sqlcipher_flutter_libs/sqlcipher_flutter_libs.dart';
 import '../utils/app_logger.dart';
 import 'converters/geo_converter.dart';
@@ -413,6 +414,14 @@ class AppDatabase extends _$AppDatabase {
         .get();
   }
 
+  /// Get all local fields regardless of tenant (for offline-first fallback)
+  Future<List<Field>> getAllFieldsLocal() {
+    return (select(fields)
+          ..where((f) => f.isDeleted.equals(false))
+          ..orderBy([(f) => OrderingTerm.desc(f.updatedAt)]))
+        .get();
+  }
+
   /// Watch all fields for tenant (live stream)
   Stream<List<Field>> watchAllFields(String tenantId) {
     return (select(fields)
@@ -663,8 +672,14 @@ class AppDatabase extends _$AppDatabase {
 /// - Backward compatibility support
 LazyDatabase _openConnection() {
   return LazyDatabase(() async {
-    // Ensure SQLCipher native library is loaded
+    // Ensure SQLCipher native library is loaded (required for old Android versions)
     await applyWorkaroundToOpenSqlCipherOnOldAndroidVersions();
+
+    // Override sqlite3 library loader to use SQLCipher on Android.
+    // Required for sqlite3 >=2.x which no longer falls back automatically.
+    if (Platform.isAndroid) {
+      open.overrideFor(OperatingSystem.android, openCipherOnAndroid);
+    }
 
     final dbFolder = await getApplicationDocumentsDirectory();
     final dbPath = p.join(dbFolder.path, 'sahool_field.db');
@@ -704,8 +719,12 @@ LazyDatabase _openConnection() {
     // Get encryption key for opening database
     final encryptionKey = await encryption.getOrCreateKey();
 
-    // Open database with encryption
-    return NativeDatabase.createInBackground(
+    // Open database with encryption.
+    // NOTE: NativeDatabase (not createInBackground) is required here because
+    // open.overrideFor() is isolate-local. createInBackground spawns a new
+    // Dart isolate that would not inherit the SQLCipher override, causing
+    // "libsqlite3.so not found" on Android.
+    return NativeDatabase(
       dbFile,
       setup: (database) {
         // Set SQLCipher encryption key

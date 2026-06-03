@@ -8,6 +8,8 @@ import '../../../../core/config/theme.dart';
 import '../../data/yemen_locations.dart';
 import '../../domain/farm_providers.dart';
 
+enum _FarmDrawMode { polygon, rectangle }
+
 /// Farm creation wizard — 3-step Stepper
 /// معالج إنشاء مزرعة جديد
 class FarmCreationScreen extends ConsumerStatefulWidget {
@@ -45,6 +47,8 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
   double _computedAreaHa = 0.0;
   LatLng _farmCenter = const LatLng(15.3694, 44.1910); // default Yemen
   bool _mapFlyPending = false;
+  _FarmDrawMode _farmDrawMode = _FarmDrawMode.polygon;
+  LatLng? _rectFirstCorner; // for rectangle mode
 
   @override
   void dispose() {
@@ -84,23 +88,50 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
   }
 
   void _addPoint(LatLng point) {
-    setState(() {
-      _polygonPoints.add(point);
-      _computedAreaHa = _calculateArea(_polygonPoints);
-    });
+    if (_farmDrawMode == _FarmDrawMode.rectangle) {
+      if (_rectFirstCorner == null) {
+        setState(() => _rectFirstCorner = point);
+      } else {
+        final a = _rectFirstCorner!;
+        final b = point;
+        final pts = [
+          a,
+          LatLng(a.latitude, b.longitude),
+          b,
+          LatLng(b.latitude, a.longitude),
+        ];
+        setState(() {
+          _polygonPoints.clear();
+          _polygonPoints.addAll(pts);
+          _rectFirstCorner = null;
+          _computedAreaHa = _calculateArea(_polygonPoints);
+        });
+      }
+    } else {
+      setState(() {
+        _rectFirstCorner = null;
+        _polygonPoints.add(point);
+        _computedAreaHa = _calculateArea(_polygonPoints);
+      });
+    }
   }
 
   void _removeLastPoint() {
-    if (_polygonPoints.isEmpty) return;
-    setState(() {
-      _polygonPoints.removeLast();
-      _computedAreaHa = _calculateArea(_polygonPoints);
-    });
+    if (_farmDrawMode == _FarmDrawMode.rectangle) {
+      _clearPolygon();
+    } else {
+      if (_polygonPoints.isEmpty) return;
+      setState(() {
+        _polygonPoints.removeLast();
+        _computedAreaHa = _calculateArea(_polygonPoints);
+      });
+    }
   }
 
   void _clearPolygon() {
     setState(() {
       _polygonPoints.clear();
+      _rectFirstCorner = null;
       _computedAreaHa = 0.0;
     });
   }
@@ -498,14 +529,17 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
               color: Colors.blue.withValues(alpha: 0.18),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.info_outline_rounded, color: Colors.blue, size: 18),
-                SizedBox(width: 8),
+                const Icon(Icons.info_outline_rounded,
+                    color: Colors.blue, size: 18),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'اضغط على الخريطة لإضافة نقاط حدود المزرعة',
-                    style: TextStyle(fontSize: 13, color: Colors.blue),
+                    _farmDrawMode == _FarmDrawMode.rectangle
+                        ? 'انقر مرتين لرسم مستطيل حول المزرعة'
+                        : 'اضغط على الخريطة لإضافة نقاط حدود المزرعة',
+                    style: const TextStyle(fontSize: 13, color: Colors.blue),
                   ),
                 ),
               ],
@@ -537,16 +571,18 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
                         maxZoom: 19,
                       ),
 
-                      // Outline polyline (closes back to first point when ≥2 pts)
-                      if (_polygonPoints.isNotEmpty)
+                      // Outline polyline (polygon mode)
+                      if (_farmDrawMode == _FarmDrawMode.polygon &&
+                          _polygonPoints.length >= 2)
                         PolylineLayer(
                           polylines: [
                             Polyline(
                               points: [
                                 ..._polygonPoints,
-                                if (_polygonPoints.length >= 2) _polygonPoints.first,
+                                if (_polygonPoints.length >= 3)
+                                  _polygonPoints.first,
                               ],
-                              color: SahoolTheme.primary,
+                              color: SahoolTheme.primary.withValues(alpha: 0.8),
                               strokeWidth: 2.5,
                             ),
                           ],
@@ -566,91 +602,144 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
                         ),
 
                       // Vertex markers
-                      MarkerLayer(
-                        markers: _polygonPoints.asMap().entries.map((entry) {
-                          final i = entry.key;
-                          final p = entry.value;
-                          return Marker(
-                            point: p,
-                            width: 24,
-                            height: 24,
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                color: i == 0 ? Colors.orange : SahoolTheme.primary,
-                                shape: BoxShape.circle,
-                                border: Border.all(color: Colors.white, width: 2),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  '${i + 1}',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                      if (_polygonPoints.isNotEmpty)
+                        MarkerLayer(
+                          markers: _farmDrawMode == _FarmDrawMode.rectangle
+                              ? [
+                                  _buildCornerMarker(_polygonPoints[0], 'A'),
+                                  _buildCornerMarker(_polygonPoints[2], 'B'),
+                                ]
+                              : _polygonPoints.asMap().entries.map((entry) {
+                                  final i = entry.key;
+                                  final p = entry.value;
+                                  return Marker(
+                                    point: p,
+                                    width: 24,
+                                    height: 24,
+                                    child: DecoratedBox(
+                                      decoration: BoxDecoration(
+                                        color: i == 0
+                                            ? Colors.orange
+                                            : SahoolTheme.primary,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                            color: Colors.white, width: 2),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          '${i + 1}',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 9,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                        ),
+
+                      // First corner marker (rectangle mode, awaiting 2nd tap)
+                      if (_farmDrawMode == _FarmDrawMode.rectangle &&
+                          _rectFirstCorner != null)
+                        MarkerLayer(
+                          markers: [
+                            Marker(
+                              point: _rectFirstCorner!,
+                              width: 30,
+                              height: 30,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.orange.withValues(alpha: 0.9),
+                                  border:
+                                      Border.all(color: Colors.white, width: 2),
                                 ),
+                                child: const Icon(Icons.add,
+                                    color: Colors.white, size: 16),
                               ),
                             ),
-                          );
-                        }).toList(),
-                      ),
+                          ],
+                        ),
                     ],
                   ),
 
-                  // ── Top-left overlay: Clear + Undo ─────────────────────
+                  // ── Drawing toolbar (top-center) ───────────────────────
                   Positioned(
                     top: 10,
-                    left: 10,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Clear all button
-                        Material(
-                          borderRadius: BorderRadius.circular(8),
-                          color: Colors.grey[800],
-                          elevation: 2,
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(8),
-                            onTap: _clearPolygon,
-                            child: const Padding(
-                              padding:
-                                  EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.clear_rounded,
-                                      size: 16, color: Colors.red),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    'مسح الكل',
-                                    style:
-                                        TextStyle(fontSize: 12, color: Colors.red),
+                    left: 0,
+                    right: 0,
+                    child: Center(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.75),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.white24),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _farmDrawToolButton(
+                              icon: Icons.polyline_rounded,
+                              label: 'مضلع',
+                              mode: _FarmDrawMode.polygon,
+                            ),
+                            const SizedBox(width: 6),
+                            _farmDrawToolButton(
+                              icon: Icons.crop_square_rounded,
+                              label: 'مستطيل',
+                              mode: _FarmDrawMode.rectangle,
+                            ),
+                            if (_polygonPoints.isNotEmpty ||
+                                _rectFirstCorner != null) ...[
+                              const SizedBox(width: 6),
+                              const SizedBox(
+                                height: 24,
+                                child: VerticalDivider(
+                                    color: Colors.white24, width: 1),
+                              ),
+                              const SizedBox(width: 6),
+                              GestureDetector(
+                                onTap: _removeLastPoint,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 5),
+                                  decoration: BoxDecoration(
+                                    color:
+                                        Colors.orange.withValues(alpha: 0.15),
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(
+                                        color: Colors.orange
+                                            .withValues(alpha: 0.5)),
                                   ),
-                                ],
+                                  child: const Icon(Icons.undo_rounded,
+                                      color: Colors.orange, size: 16),
+                                ),
                               ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        // Undo last point button
-                        Material(
-                          borderRadius: BorderRadius.circular(8),
-                          color: Colors.grey[800],
-                          elevation: 2,
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(8),
-                            onTap: _removeLastPoint,
-                            child: const Padding(
-                              padding: EdgeInsets.all(8),
-                              child: Icon(
-                                Icons.undo_rounded,
-                                size: 18,
-                                color: Colors.orange,
+                              const SizedBox(width: 4),
+                              GestureDetector(
+                                onTap: _clearPolygon,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 5),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red.withValues(alpha: 0.15),
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(
+                                        color:
+                                            Colors.red.withValues(alpha: 0.5)),
+                                  ),
+                                  child: const Icon(Icons.delete_outline,
+                                      color: Colors.red, size: 16),
+                                ),
                               ),
-                            ),
-                          ),
+                            ],
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
 
@@ -659,22 +748,24 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
                     top: 10,
                     right: 10,
                     child: Container(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(
                         color: Colors.black54,
                         borderRadius: BorderRadius.circular(8),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.1),
-                            blurRadius: 4,
-                          ),
-                        ],
                       ),
                       child: Text(
-                        '${_polygonPoints.length} نقطة',
+                        _farmDrawMode == _FarmDrawMode.rectangle
+                            ? (_rectFirstCorner != null
+                                ? 'انقر للزاوية B'
+                                : _polygonPoints.length >= 3
+                                    ? '✓ مستطيل'
+                                    : 'انقر للزاوية A')
+                            : '${_polygonPoints.length} نقطة',
                         style: const TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white),
                       ),
                     ),
                   ),
@@ -756,11 +847,77 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Text(
-                'أضف 3 نقاط على الأقل لحساب المساحة',
+                _farmDrawMode == _FarmDrawMode.rectangle
+                    ? 'انقر مرتين على الخريطة لرسم مستطيل'
+                    : 'أضف 3 نقاط على الأقل لحساب المساحة',
                 style: TextStyle(fontSize: 12, color: Colors.grey[500]),
               ),
             ),
         ],
+      ),
+    );
+  }
+
+  Widget _farmDrawToolButton({
+    required IconData icon,
+    required String label,
+    required _FarmDrawMode mode,
+  }) {
+    final isActive = _farmDrawMode == mode;
+    return GestureDetector(
+      onTap: () {
+        if (_farmDrawMode != mode) {
+          _clearPolygon();
+          setState(() => _farmDrawMode = mode);
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: isActive ? SahoolTheme.primary : Colors.white.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(7),
+          border: Border.all(
+            color: isActive ? SahoolTheme.primary : Colors.white30,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon,
+                color: isActive ? Colors.white : Colors.white70, size: 15),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: TextStyle(
+                color: isActive ? Colors.white : Colors.white70,
+                fontSize: 11,
+                fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Marker _buildCornerMarker(LatLng point, String label) {
+    return Marker(
+      point: point,
+      width: 26,
+      height: 26,
+      child: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: SahoolTheme.primary,
+          border: Border.all(color: Colors.white, width: 2),
+        ),
+        child: Center(
+          child: Text(
+            label,
+            style: const TextStyle(
+                color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+          ),
+        ),
       ),
     );
   }

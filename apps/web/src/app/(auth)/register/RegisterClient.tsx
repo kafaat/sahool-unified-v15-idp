@@ -321,50 +321,54 @@ export default function RegisterClient() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sahool-green-50 to-white p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sahool-green-50 to-white dark:from-slate-900 dark:to-slate-800 p-4">
       <Card className="w-full max-w-md" variant="elevated">
         <CardHeader className="text-center">
           <div className="mx-auto w-16 h-16 bg-sahool-green-100 rounded-full flex items-center justify-center mb-4">
             <div className="w-12 h-12 bg-sahool-green-600 rounded-full" />
           </div>
           <CardTitle className="text-2xl">
-            <div>إنشاء حساب جديد</div>
-            <div className="text-base text-gray-600 mt-1">Create New Account</div>
+            <span className="block">إنشاء حساب جديد</span>
+            <span className="block text-base text-gray-600 dark:text-slate-400 mt-1">Create New Account</span>
           </CardTitle>
           <CardDescription>
-            <div className="text-gray-600">انضم إلى منصة سهول الزراعية المتكاملة</div>
-            <div className="text-xs text-gray-500">Join SAHOOL Smart Agricultural Platform</div>
+            <span className="block text-gray-600 dark:text-slate-400">انضم إلى منصة سهول الزراعية المتكاملة</span>
+            <span className="block text-xs text-gray-500 dark:text-slate-500">Join SAHOOL Smart Agricultural Platform</span>
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Registration method toggle */}
-            <div className="flex rounded-lg border border-gray-200 p-1 bg-gray-50">
+            <div className="flex rounded-lg border border-gray-200 dark:border-slate-700 p-1 bg-gray-50 dark:bg-slate-900" role="radiogroup" aria-label="طريقة إنشاء الحساب - Registration method">
               <button
                 type="button"
                 onClick={() => setRegisterMethod('phone')}
+                role="radio"
+                aria-checked={registerMethod === 'phone'}
+                aria-label="التسجيل برقم الهاتف - Register with phone number"
                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-md text-sm font-medium transition-all ${
                   registerMethod === 'phone'
                     ? 'bg-sahool-green-600 text-white shadow-sm'
-                    : 'text-gray-600 hover:text-gray-800'
+                    : 'text-gray-600 hover:text-gray-800 dark:text-slate-400 dark:hover:text-slate-200'
                 }`}
               >
-                <Smartphone className="w-4 h-4" />
+                <Smartphone className="w-4 h-4" aria-hidden="true" />
                 <span>رقم الهاتف</span>
-                <span className="text-xs opacity-75">Phone</span>
               </button>
               <button
                 type="button"
                 onClick={() => setRegisterMethod('email')}
+                role="radio"
+                aria-checked={registerMethod === 'email'}
+                aria-label="التسجيل بالبريد الإلكتروني - Register with email"
                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-md text-sm font-medium transition-all ${
                   registerMethod === 'email'
                     ? 'bg-sahool-green-600 text-white shadow-sm'
-                    : 'text-gray-600 hover:text-gray-800'
+                    : 'text-gray-600 hover:text-gray-800 dark:text-slate-400 dark:hover:text-slate-200'
                 }`}
               >
-                <Mail className="w-4 h-4" />
+                <Mail className="w-4 h-4" aria-hidden="true" />
                 <span>البريد الإلكتروني</span>
-                <span className="text-xs opacity-75">Email</span>
               </button>
             </div>
 
@@ -465,17 +469,19 @@ export default function RegisterClient() {
             </Button>
           </form>
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              <span>لديك حساب بالفعل؟</span>
-              <span className="mx-1">•</span>
-              <span className="text-xs">Already have an account?</span>
-            </p>
-            <Link
-              href="/login"
-              className="text-sm text-sahool-green-600 hover:text-sahool-green-700 font-medium mt-1 inline-block"
-            >
-              تسجيل الدخول • Login
-            </Link>
+            <div className="border-t dark:border-slate-700 pt-3">
+              <p className="text-sm text-gray-600 dark:text-slate-400 mb-1">
+                <span>لديك حساب بالفعل؟</span>
+                <span className="mx-1">•</span>
+                <span className="text-xs">Already have an account?</span>
+              </p>
+              <Link
+                href="/login"
+                className="text-sm text-sahool-green-600 hover:text-sahool-green-700 font-medium"
+              >
+                تسجيل الدخول • Login
+              </Link>
+            </div>
           </div>
         </CardContent>
       </Card>

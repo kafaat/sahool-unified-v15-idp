@@ -250,7 +250,30 @@
       "Bash(/c/Users/ROG/flutter/bin/dart analyze:*)",
       "Bash(~/.flutter/bin/dart analyze:*)",
       "Bash(/c/flutter/bin/flutter.bat analyze:*)",
-      "Bash('C:\\\\flutter\\\\bin\\\\flutter.bat' analyze:*)"
+      "Bash('C:\\\\flutter\\\\bin\\\\flutter.bat' analyze:*)",
+      "Bash(flutter pub:*)",
+      "Bash(tasklist /FI \"PID eq 29472\")",
+      "Bash(tasklist /FI \"PID eq 67392\")",
+      "Bash(keytool:*)",
+      "Bash(flutter doctor:*)",
+      "Bash(C:/Program Files/Android/Android Studio/jbr/bin/keytool.exe:*)",
+      "Bash(flutter build:*)",
+      "Bash(\"C:/flutter/bin/flutter.bat\" build:*)",
+      "Bash(n\\\\\")",
+      "Bash(Get-Content \"C:/Users/ROG/AppData/Local/Temp/claude/D--projects-v91-sahoo-adel-full/71c87e31-8e1b-4751-9429-c552003d92b8/tasks/bte7t00nz.output\")",
+      "Bash(\"C:/flutter/bin/flutter.bat\" --version)",
+      "Bash(\"C:/Program Files/Android/Android Studio/jbr/bin/keytool.exe\" -printcert -jarfile \"D:/projects/v91/sahoo-adel-full/apps/mobile/build/app/outputs/flutter-apk/app-release.apk\")",
+      "Bash(C:/Users/ROG/AppData/Local/Android/sdk/platform-tools/adb.exe devices:*)",
+      "Bash(find:*)",
+      "Bash(sed -n '92,96p' /d/projects/v91/sahoo-adel-full/apps/web/src/app/api/auth/register/route.ts)",
+      "Bash(sed -n '91,95p' /d/projects/v91/sahoo-adel-full/apps/web/src/app/api/auth/refresh/route.ts)",
+      "Bash(sed -n '155,160p' /d/projects/v91/sahoo-adel-full/apps/web/src/app/api/auth/verify-otp/route.ts)",
+      "Bash(sed -n '127,131p' /d/projects/v91/sahoo-adel-full/apps/web/src/app/api/auth/session/route.ts)",
+      "Bash(sort -k5 -rn)",
+      "Bash(awk '{print $5, $9}')",
+      "Bash(cp \"D:\\\\PROJECTS\\\\v91\\\\sahoo-adel-full\\\\.claude\\\\worktrees\\\\agent-aef1f338\\\\apps\\\\mobile\\\\lib\\\\features\\\\field\\\\presentation\\\\screens\\\\field_wizard_screen.dart\" \"D:\\\\PROJECTS\\\\v91\\\\sahoo-adel-full\\\\apps\\\\mobile\\\\lib\\\\features\\\\field\\\\presentation\\\\screens\\\\field_wizard_screen.dart\")",
+      "Bash(cp \"D:\\\\PROJECTS\\\\v91\\\\sahoo-adel-full\\\\.claude\\\\worktrees\\\\agent-ade55939\\\\apps\\\\mobile\\\\lib\\\\features\\\\farm\\\\presentation\\\\screens\\\\farm_creation_screen.dart\" \"D:\\\\PROJECTS\\\\v91\\\\sahoo-adel-full\\\\apps\\\\mobile\\\\lib\\\\features\\\\farm\\\\presentation\\\\screens\\\\farm_creation_screen.dart\")",
+      "Bash(xargs head:*)"
     ]
   }
 }

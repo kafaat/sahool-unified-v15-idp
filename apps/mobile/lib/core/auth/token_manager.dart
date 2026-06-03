@@ -265,7 +265,7 @@ class TokenManager {
     final exp = now + 3600;
     final header = base64Url.encode(utf8.encode('{"alg":"HS256","typ":"JWT"}'));
     final payload = base64Url.encode(utf8.encode(
-      '{"sub":"mock-user-${now}","email":"dev@sahool.app","roles":["FARMER"],"type":"access","iat":$now,"exp":$exp}',
+      '{"sub":"mock-user-$now","email":"dev@sahool.app","roles":["FARMER"],"type":"access","iss":"sahool-platform","tid":"mock_tenant","iat":$now,"exp":$exp}',
     ));
     final mockJwt = '$header.$payload.mock_signature';
     return TokenRefreshResult.success(

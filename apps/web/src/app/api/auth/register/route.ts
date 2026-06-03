@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
     // Set httpOnly cookies if the backend returned tokens (auto-login after registration)
     if (accessToken) {
       const cookieStore = await cookies();
-      const isSecure = process.env.NODE_ENV === 'production';
+      const isSecure = process.env.NODE_ENV === 'production' && process.env.COOKIE_SECURE !== 'false';
 
       cookieStore.set('access_token', accessToken, {
         httpOnly: true,

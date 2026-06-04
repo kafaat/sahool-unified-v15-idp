@@ -20,7 +20,7 @@ uvicorn>=0.30.0,<1.0.0
 pydantic==2.13.1
 pydantic-settings==2.13.1
 httpx==0.28.1
-python-multipart==0.0.26  # CVE-2024-53981 fix
+python-multipart==0.0.27  # CVE-2024-53981 fix
 
 # ─────────────────────────────────────────────────────────────────────────────
 # LangChain Framework (Security Updates)
@@ -60,9 +60,9 @@ chromadb>=0.4.0,<2.0.0  # Alternative vector DB
 # Each service pins its own version in Dockerfile or requirements.txt:
 #   - yolo26-vision-service: torch>=2.6.0,<2.7.0 (ultralytics 8.x compat, CVE-2025-32434)
 #   - copilot-api: torch>=2.6.0,<2.7.0 (sentence-transformers compat, CVE-2025-32434)
-#   - Default (new AI services): torch>=2.6.0,<3.0.0
+#   - Default (new AI services): torch>=2.12.0,<3.0.0
 # Do NOT use exact pins here — they conflict with per-service needs.
-torch>=2.6.0,<3.0.0  # CVE-2025-32434 (CRITICAL) fixed in 2.6.0
+torch>=2.12.0,<3.0.0  # CVE-2025-32434 (CRITICAL) fixed in 2.6.0
 torchvision>=0.17.0,<1.0.0
 numpy>=1.26.0,<2.0.0  # Pin <2.0 to prevent compiled module mismatch (torch, transformers built against 1.x)
 pandas>=2.2.0,<4.0.0

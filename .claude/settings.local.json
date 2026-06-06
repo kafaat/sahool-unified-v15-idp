@@ -273,7 +273,8 @@
       "Bash(awk '{print $5, $9}')",
       "Bash(cp \"D:\\\\PROJECTS\\\\v91\\\\sahoo-adel-full\\\\.claude\\\\worktrees\\\\agent-aef1f338\\\\apps\\\\mobile\\\\lib\\\\features\\\\field\\\\presentation\\\\screens\\\\field_wizard_screen.dart\" \"D:\\\\PROJECTS\\\\v91\\\\sahoo-adel-full\\\\apps\\\\mobile\\\\lib\\\\features\\\\field\\\\presentation\\\\screens\\\\field_wizard_screen.dart\")",
       "Bash(cp \"D:\\\\PROJECTS\\\\v91\\\\sahoo-adel-full\\\\.claude\\\\worktrees\\\\agent-ade55939\\\\apps\\\\mobile\\\\lib\\\\features\\\\farm\\\\presentation\\\\screens\\\\farm_creation_screen.dart\" \"D:\\\\PROJECTS\\\\v91\\\\sahoo-adel-full\\\\apps\\\\mobile\\\\lib\\\\features\\\\farm\\\\presentation\\\\screens\\\\farm_creation_screen.dart\")",
-      "Bash(xargs head:*)"
+      "Bash(xargs head:*)",
+      "WebFetch(domain:openrouter.ai)"
     ]
   }
 }

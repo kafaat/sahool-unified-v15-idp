@@ -8,7 +8,7 @@ import '../../../../core/config/theme.dart';
 import '../../data/yemen_locations.dart';
 import '../../domain/farm_providers.dart';
 
-enum _FarmDrawMode { polygon, rectangle }
+enum _FarmDrawMode { polygon, rectangle, circle }
 
 /// Farm creation wizard — 3-step Stepper
 /// معالج إنشاء مزرعة جديد
@@ -49,6 +49,8 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
   bool _mapFlyPending = false;
   _FarmDrawMode _farmDrawMode = _FarmDrawMode.polygon;
   LatLng? _rectFirstCorner; // for rectangle mode
+  LatLng? _circleCenter;    // for circle mode: center point
+  bool _polygonClosed = false; // polygon closed by tapping first vertex
 
   @override
   void dispose() {
@@ -87,6 +89,34 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
     ];
   }
 
+  double _haversineDistance(LatLng a, LatLng b) {
+    const R = 6371000.0;
+    final lat1 = a.latitude * pi / 180;
+    final lat2 = b.latitude * pi / 180;
+    final dLat = (b.latitude - a.latitude) * pi / 180;
+    final dLng = (b.longitude - a.longitude) * pi / 180;
+    final sinHalfDLat = sin(dLat / 2);
+    final sinHalfDLng = sin(dLng / 2);
+    final c = 2 *
+        asin(sqrt(sinHalfDLat * sinHalfDLat +
+            cos(lat1) * cos(lat2) * sinHalfDLng * sinHalfDLng));
+    return R * c;
+  }
+
+  List<LatLng> _circleToPolygon(LatLng center, double radiusM,
+      {int sides = 64}) {
+    final List<LatLng> pts = [];
+    for (int i = 0; i < sides; i++) {
+      final angle = 2 * pi * i / sides;
+      final dLat = radiusM * cos(angle) / 111320;
+      final dLng = radiusM *
+          sin(angle) /
+          (111320 * cos(center.latitude * pi / 180));
+      pts.add(LatLng(center.latitude + dLat, center.longitude + dLng));
+    }
+    return pts;
+  }
+
   void _addPoint(LatLng point) {
     if (_farmDrawMode == _FarmDrawMode.rectangle) {
       if (_rectFirstCorner == null) {
@@ -107,7 +137,31 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
           _computedAreaHa = _calculateArea(_polygonPoints);
         });
       }
+    } else if (_farmDrawMode == _FarmDrawMode.circle) {
+      if (_circleCenter == null) {
+        setState(() => _circleCenter = point);
+      } else {
+        final radiusM = _haversineDistance(_circleCenter!, point);
+        final circlePts = _circleToPolygon(_circleCenter!, radiusM);
+        setState(() {
+          _polygonPoints.clear();
+          _polygonPoints.addAll(circlePts);
+          _circleCenter = null;
+          _computedAreaHa = _calculateArea(_polygonPoints);
+        });
+      }
     } else {
+      // Polygon mode: multipoint with close-on-first-vertex
+      if (_polygonClosed) return;
+      if (_polygonPoints.length >= 3) {
+        final first = _polygonPoints.first;
+        final distDeg = (point.latitude - first.latitude).abs() +
+            (point.longitude - first.longitude).abs();
+        if (distDeg < 0.0004) {
+          setState(() => _polygonClosed = true);
+          return;
+        }
+      }
       setState(() {
         _rectFirstCorner = null;
         _polygonPoints.add(point);
@@ -117,9 +171,14 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
   }
 
   void _removeLastPoint() {
-    if (_farmDrawMode == _FarmDrawMode.rectangle) {
+    if (_farmDrawMode == _FarmDrawMode.rectangle ||
+        _farmDrawMode == _FarmDrawMode.circle) {
       _clearPolygon();
     } else {
+      if (_polygonClosed) {
+        setState(() => _polygonClosed = false);
+        return;
+      }
       if (_polygonPoints.isEmpty) return;
       setState(() {
         _polygonPoints.removeLast();
@@ -132,6 +191,8 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
     setState(() {
       _polygonPoints.clear();
       _rectFirstCorner = null;
+      _circleCenter = null;
+      _polygonClosed = false;
       _computedAreaHa = 0.0;
     });
   }
@@ -538,7 +599,13 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
                   child: Text(
                     _farmDrawMode == _FarmDrawMode.rectangle
                         ? 'انقر مرتين لرسم مستطيل حول المزرعة'
-                        : 'اضغط على الخريطة لإضافة نقاط حدود المزرعة',
+                        : _farmDrawMode == _FarmDrawMode.circle
+                            ? (_circleCenter == null
+                                ? 'انقر لتحديد مركز الدائرة'
+                                : 'انقر لتحديد نصف القطر')
+                            : (_polygonClosed
+                                ? '✓ المضلع مغلق — انقر تراجع لإعادة الفتح'
+                                : 'انقر لإضافة نقاط — انقر على النقطة الأولى للإغلاق'),
                     style: const TextStyle(fontSize: 13, color: Colors.blue),
                   ),
                 ),
@@ -571,7 +638,7 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
                         maxZoom: 19,
                       ),
 
-                      // Outline polyline (polygon mode)
+                      // Polyline while drawing polygon (live line between points)
                       if (_farmDrawMode == _FarmDrawMode.polygon &&
                           _polygonPoints.length >= 2)
                         PolylineLayer(
@@ -579,8 +646,7 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
                             Polyline(
                               points: [
                                 ..._polygonPoints,
-                                if (_polygonPoints.length >= 3)
-                                  _polygonPoints.first,
+                                if (_polygonClosed) _polygonPoints.first,
                               ],
                               color: SahoolTheme.primary.withValues(alpha: 0.8),
                               strokeWidth: 2.5,
@@ -588,21 +654,27 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
                           ],
                         ),
 
-                      // Filled polygon when ≥3 points
+                      // Filled polygon / circle when ≥3 points
                       if (_polygonPoints.length >= 3)
                         PolygonLayer(
                           polygons: [
                             Polygon(
                               points: _polygonPoints,
-                              color: SahoolTheme.primary.withValues(alpha: 0.15),
-                              borderColor: SahoolTheme.primary,
+                              color: (_farmDrawMode == _FarmDrawMode.circle
+                                      ? Colors.blue
+                                      : SahoolTheme.primary)
+                                  .withValues(alpha: 0.18),
+                              borderColor: _farmDrawMode == _FarmDrawMode.circle
+                                  ? Colors.blue
+                                  : SahoolTheme.primary,
                               borderStrokeWidth: 2,
                             ),
                           ],
                         ),
 
-                      // Vertex markers
-                      if (_polygonPoints.isNotEmpty)
+                      // Vertex markers (polygon + rectangle; not circle)
+                      if (_polygonPoints.isNotEmpty &&
+                          _farmDrawMode != _FarmDrawMode.circle)
                         MarkerLayer(
                           markers: _farmDrawMode == _FarmDrawMode.rectangle
                               ? [
@@ -612,35 +684,89 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
                               : _polygonPoints.asMap().entries.map((entry) {
                                   final i = entry.key;
                                   final p = entry.value;
+                                  final isFirst = i == 0;
+                                  final canClose = isFirst &&
+                                      _polygonPoints.length >= 3 &&
+                                      !_polygonClosed;
+                                  final sz = canClose ? 30.0 : 24.0;
                                   return Marker(
                                     point: p,
-                                    width: 24,
-                                    height: 24,
+                                    width: sz,
+                                    height: sz,
                                     child: DecoratedBox(
                                       decoration: BoxDecoration(
-                                        color: i == 0
-                                            ? Colors.orange
-                                            : SahoolTheme.primary,
+                                        color: _polygonClosed
+                                            ? Colors.green
+                                            : canClose
+                                                ? Colors.green.shade600
+                                                : isFirst
+                                                    ? Colors.orange
+                                                    : SahoolTheme.primary,
                                         shape: BoxShape.circle,
                                         border: Border.all(
-                                            color: Colors.white, width: 2),
+                                            color: Colors.white,
+                                            width: canClose ? 3 : 2),
+                                        boxShadow: canClose
+                                            ? [
+                                                BoxShadow(
+                                                  color: Colors.green
+                                                      .withValues(alpha: 0.5),
+                                                  blurRadius: 8,
+                                                  spreadRadius: 2,
+                                                )
+                                              ]
+                                            : [],
                                       ),
                                       child: Center(
-                                        child: Text(
-                                          '${i + 1}',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 9,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
+                                        child: canClose
+                                            ? const Icon(Icons.close_rounded,
+                                                color: Colors.white, size: 12)
+                                            : Text(
+                                                '${i + 1}',
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 9,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
                                       ),
                                     ),
                                   );
                                 }).toList(),
                         ),
 
-                      // First corner marker (rectangle mode, awaiting 2nd tap)
+                      // Circle center marker (awaiting radius click)
+                      if (_farmDrawMode == _FarmDrawMode.circle &&
+                          _circleCenter != null &&
+                          _polygonPoints.isEmpty)
+                        MarkerLayer(
+                          markers: [
+                            Marker(
+                              point: _circleCenter!,
+                              width: 34,
+                              height: 34,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.blue.withValues(alpha: 0.9),
+                                  border:
+                                      Border.all(color: Colors.white, width: 2),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.blue.withValues(alpha: 0.4),
+                                      blurRadius: 8,
+                                      spreadRadius: 2,
+                                    )
+                                  ],
+                                ),
+                                child: const Icon(Icons.add_location_alt_rounded,
+                                    color: Colors.white, size: 18),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                      // Rectangle first-corner pending marker
                       if (_farmDrawMode == _FarmDrawMode.rectangle &&
                           _rectFirstCorner != null)
                         MarkerLayer(
@@ -693,8 +819,15 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
                               label: 'مستطيل',
                               mode: _FarmDrawMode.rectangle,
                             ),
+                            const SizedBox(width: 6),
+                            _farmDrawToolButton(
+                              icon: Icons.circle_outlined,
+                              label: 'دائرة',
+                              mode: _FarmDrawMode.circle,
+                            ),
                             if (_polygonPoints.isNotEmpty ||
-                                _rectFirstCorner != null) ...[
+                                _rectFirstCorner != null ||
+                                _circleCenter != null) ...[
                               const SizedBox(width: 6),
                               const SizedBox(
                                 height: 24,
@@ -761,7 +894,15 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
                                 : _polygonPoints.length >= 3
                                     ? '✓ مستطيل'
                                     : 'انقر للزاوية A')
-                            : '${_polygonPoints.length} نقطة',
+                            : _farmDrawMode == _FarmDrawMode.circle
+                                ? (_circleCenter != null
+                                    ? 'انقر نصف القطر'
+                                    : _polygonPoints.length >= 3
+                                        ? '✓ دائرة'
+                                        : 'انقر المركز')
+                                : (_polygonClosed
+                                    ? '✓ مغلق'
+                                    : '${_polygonPoints.length} نقطة'),
                         style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -849,7 +990,9 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
               child: Text(
                 _farmDrawMode == _FarmDrawMode.rectangle
                     ? 'انقر مرتين على الخريطة لرسم مستطيل'
-                    : 'أضف 3 نقاط على الأقل لحساب المساحة',
+                    : _farmDrawMode == _FarmDrawMode.circle
+                        ? 'انقر مرتين: مركز ثم نقطة على الحافة'
+                        : 'أضف 3 نقاط على الأقل — انقر النقطة الأولى للإغلاق',
                 style: TextStyle(fontSize: 12, color: Colors.grey[500]),
               ),
             ),

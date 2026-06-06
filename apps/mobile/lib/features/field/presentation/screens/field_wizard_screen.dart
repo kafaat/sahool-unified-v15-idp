@@ -11,7 +11,7 @@ import '../../../farm/domain/farm_providers.dart';
 import '../../domain/field_wizard_notifier.dart';
 import '../../domain/field_wizard_state.dart';
 
-enum _DrawMode { polygon, rectangle }
+enum _DrawMode { polygon, rectangle, circle }
 
 /// معالج إنشاء حقل جديد - 6 خطوات
 class FieldWizardScreen extends ConsumerStatefulWidget {
@@ -28,6 +28,7 @@ class _FieldWizardScreenState extends ConsumerState<FieldWizardScreen> {
 
   _DrawMode _drawMode = _DrawMode.polygon;
   LatLng? _firstCorner; // للمستطيل والدائرة: النقطة الأولى
+  bool _polygonClosed = false; // المضلع مغلق (تم النقر على النقطة الأولى)
 
   // حساب مساحة المضلع بالهكتار (صيغة الحبال)
   double _calcAreaHa(List<LatLng> pts) {
@@ -68,14 +69,31 @@ class _FieldWizardScreenState extends ConsumerState<FieldWizardScreen> {
         final area = _calcAreaHa(_points);
         ref.read(fieldWizardProvider.notifier).updatePolygon(List.from(_points), area);
       }
+    } else if (_drawMode == _DrawMode.circle) {
+      // Circle mode: first click = center, second click = radius point
+      if (_firstCorner == null) {
+        setState(() => _firstCorner = point);
+      } else {
+        final center = _firstCorner!;
+        final radiusM = _haversineDistance(center, point);
+        final circlePts = _circleToPolygon(center, radiusM);
+        setState(() {
+          _points..clear()..addAll(circlePts);
+          _firstCorner = null;
+        });
+        final area = _calcAreaHa(_points);
+        ref.read(fieldWizardProvider.notifier).updatePolygon(List.from(_points), area);
+      }
     } else {
-      // Polygon mode: click to add vertices
-      if (_points.isNotEmpty && _points.length >= 3) {
+      // Polygon mode: multipoint — click to add vertices, click near first to close
+      if (_polygonClosed) return; // shape already closed, ignore taps
+      if (_points.length >= 3) {
         final first = _points.first;
         final distDeg = (point.latitude - first.latitude).abs() +
             (point.longitude - first.longitude).abs();
-        if (distDeg < 0.0003) {
-          // Near first vertex — polygon already live, just ignore (already updating)
+        if (distDeg < 0.0004) {
+          // Tapped near first vertex → close polygon
+          setState(() => _polygonClosed = true);
           return;
         }
       }
@@ -94,14 +112,20 @@ class _FieldWizardScreenState extends ConsumerState<FieldWizardScreen> {
     setState(() {
       _points.clear();
       _firstCorner = null;
+      _polygonClosed = false;
     });
     ref.read(fieldWizardProvider.notifier).updatePolygon([], 0.0);
   }
 
   void _removeLastPoint() {
-    if (_drawMode == _DrawMode.rectangle) {
+    if (_drawMode == _DrawMode.rectangle || _drawMode == _DrawMode.circle) {
       _clearPoints();
     } else {
+      // Polygon: if closed, re-open first (don't remove a vertex)
+      if (_polygonClosed) {
+        setState(() => _polygonClosed = false);
+        return;
+      }
       if (_points.isEmpty) return;
       setState(() => _points.removeLast());
       if (_points.length >= 3) {
@@ -110,6 +134,36 @@ class _FieldWizardScreenState extends ConsumerState<FieldWizardScreen> {
         ref.read(fieldWizardProvider.notifier).updatePolygon([], 0.0);
       }
     }
+  }
+
+  /// Haversine distance in metres between two LatLng points
+  double _haversineDistance(LatLng a, LatLng b) {
+    const R = 6371000.0;
+    final lat1 = a.latitude * pi / 180;
+    final lat2 = b.latitude * pi / 180;
+    final dLat = (b.latitude - a.latitude) * pi / 180;
+    final dLng = (b.longitude - a.longitude) * pi / 180;
+    final sinHalfDLat = sin(dLat / 2);
+    final sinHalfDLng = sin(dLng / 2);
+    final c = 2 *
+        asin(sqrt(sinHalfDLat * sinHalfDLat +
+            cos(lat1) * cos(lat2) * sinHalfDLng * sinHalfDLng));
+    return R * c;
+  }
+
+  /// Approximate a circle as a 64-vertex polygon
+  List<LatLng> _circleToPolygon(LatLng center, double radiusM,
+      {int sides = 64}) {
+    final List<LatLng> pts = [];
+    for (int i = 0; i < sides; i++) {
+      final angle = 2 * pi * i / sides;
+      final dLat = radiusM * cos(angle) / 111320;
+      final dLng = radiusM *
+          sin(angle) /
+          (111320 * cos(center.latitude * pi / 180));
+      pts.add(LatLng(center.latitude + dLat, center.longitude + dLng));
+    }
+    return pts;
   }
 
   void _flyToFarm(FarmEntity farm) {
@@ -532,6 +586,12 @@ class _FieldWizardScreenState extends ConsumerState<FieldWizardScreen> {
             label: 'مستطيل',
             mode: _DrawMode.rectangle,
           ),
+          const SizedBox(width: 6),
+          _drawToolButton(
+            icon: Icons.circle_outlined,
+            label: 'دائرة',
+            mode: _DrawMode.circle,
+          ),
           if (_points.isNotEmpty || _firstCorner != null) ...[
             const SizedBox(width: 6),
             const SizedBox(
@@ -643,13 +703,23 @@ class _FieldWizardScreenState extends ConsumerState<FieldWizardScreen> {
       } else {
         statusText = 'انقر لتحديد الزاوية الأولى للمستطيل';
       }
+    } else if (_drawMode == _DrawMode.circle) {
+      if (_firstCorner != null) {
+        statusText = 'انقر لتحديد نصف القطر';
+      } else if (_points.length >= 3) {
+        statusText = '✓ الدائرة: ${state.area.toStringAsFixed(2)} هـ';
+      } else {
+        statusText = 'انقر لتحديد مركز الدائرة';
+      }
     } else {
       if (_points.isEmpty) {
         statusText = 'انقر على الخريطة لإضافة نقاط الحدود';
       } else if (_points.length < 3) {
         statusText = 'أضف ${3 - _points.length} نقاط إضافية على الأقل';
+      } else if (_polygonClosed) {
+        statusText = '✓ المضلع مغلق — المساحة: ${state.area.toStringAsFixed(2)} هـ';
       } else {
-        statusText = '✓ المساحة: ${state.area.toStringAsFixed(2)} هـ';
+        statusText = '${_points.length} نقطة — انقر على النقطة الأولى لإغلاق المضلع';
       }
     }
 
@@ -1016,34 +1086,39 @@ class _FieldWizardScreenState extends ConsumerState<FieldWizardScreen> {
           userAgentPackageName: 'com.sahool.app',
           maxNativeZoom: 18,
         ),
-        // Drawn polygon (for both modes when ≥3 points)
+        // ── Filled polygon / circle (≥3 points) ─────────────────
         if (_points.length >= 3)
           PolygonLayer(
             polygons: [
               Polygon(
                 points: _points,
-                color: SahoolColors.primary.withValues(alpha: 0.25),
-                borderColor: SahoolColors.primary,
+                color: (_drawMode == _DrawMode.circle
+                        ? Colors.blue
+                        : SahoolColors.primary)
+                    .withValues(alpha: 0.22),
+                borderColor: _drawMode == _DrawMode.circle
+                    ? Colors.blue
+                    : SahoolColors.primary,
                 borderStrokeWidth: 2.5,
               ),
             ],
           ),
-        // Polyline outline (polygon mode, <3 points or all points)
+        // ── Polyline while drawing polygon (connects dots live) ──
         if (_drawMode == _DrawMode.polygon && _points.length >= 2)
           PolylineLayer(
             polylines: [
               Polyline(
                 points: [
                   ..._points,
-                  if (_points.length >= 3) _points.first,
+                  if (_polygonClosed) _points.first,
                 ],
                 color: SahoolColors.primary.withValues(alpha: 0.7),
                 strokeWidth: 2.0,
               ),
             ],
           ),
-        // Vertex markers
-        if (_points.isNotEmpty)
+        // ── Vertex markers ───────────────────────────────────────
+        if (_points.isNotEmpty && _drawMode != _DrawMode.circle)
           MarkerLayer(
             markers: _drawMode == _DrawMode.rectangle
                 ? [
@@ -1053,30 +1128,82 @@ class _FieldWizardScreenState extends ConsumerState<FieldWizardScreen> {
                 : _points.asMap().entries.map((entry) {
                     final i = entry.key;
                     final p = entry.value;
+                    // First vertex gets a special "tap-to-close" style when ≥3 pts
+                    final isFirst = i == 0;
+                    final canClose = isFirst && _points.length >= 3 && !_polygonClosed;
+                    final size = canClose ? 32.0 : 26.0;
                     return Marker(
                       point: p,
-                      width: 26,
-                      height: 26,
+                      width: size,
+                      height: size,
                       child: Container(
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: i == 0 ? Colors.orange : SahoolColors.primary,
-                          border: Border.all(color: Colors.white, width: 2),
+                          color: _polygonClosed
+                              ? Colors.green
+                              : canClose
+                                  ? Colors.green.shade600
+                                  : isFirst
+                                      ? Colors.orange
+                                      : SahoolColors.primary,
+                          border: Border.all(
+                            color: Colors.white,
+                            width: canClose ? 3 : 2,
+                          ),
+                          boxShadow: canClose
+                              ? [
+                                  BoxShadow(
+                                    color: Colors.green.withValues(alpha: 0.5),
+                                    blurRadius: 8,
+                                    spreadRadius: 2,
+                                  )
+                                ]
+                              : [],
                         ),
                         child: Center(
-                          child: Text(
-                            '${i + 1}',
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 9,
-                                fontWeight: FontWeight.bold),
-                          ),
+                          child: canClose
+                              ? const Icon(Icons.close_rounded,
+                                  color: Colors.white, size: 14)
+                              : Text(
+                                  '${i + 1}',
+                                  style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.bold),
+                                ),
                         ),
                       ),
                     );
                   }).toList(),
           ),
-        // First corner marker (rectangle mode, before second click)
+        // ── Circle center marker (waiting for radius click) ──────
+        if (_drawMode == _DrawMode.circle && _firstCorner != null && _points.isEmpty)
+          MarkerLayer(
+            markers: [
+              Marker(
+                point: _firstCorner!,
+                width: 34,
+                height: 34,
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.blue.withValues(alpha: 0.9),
+                    border: Border.all(color: Colors.white, width: 2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.blue.withValues(alpha: 0.4),
+                        blurRadius: 8,
+                        spreadRadius: 2,
+                      )
+                    ],
+                  ),
+                  child: const Icon(Icons.add_location_alt_rounded,
+                      color: Colors.white, size: 18),
+                ),
+              ),
+            ],
+          ),
+        // ── Rectangle first-corner pending marker ────────────────
         if (_drawMode == _DrawMode.rectangle && _firstCorner != null)
           MarkerLayer(
             markers: [

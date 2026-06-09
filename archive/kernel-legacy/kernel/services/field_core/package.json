@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
-    "express": "^4.21.2",
+    "express": "^4.22.2",
     "pg": "^8.13.1",
     "reflect-metadata": "^0.2.2",
     "typeorm": "^0.3.20",

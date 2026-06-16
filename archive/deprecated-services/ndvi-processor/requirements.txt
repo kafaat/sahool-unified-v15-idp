@@ -3,7 +3,7 @@
 
 # Web Framework
 fastapi==0.128.5
-starlette>=0.49.1
+starlette>=1.3.1
 uvicorn[standard]>=0.30.0,<1.0.0
 
 # Data Validation
@@ -21,7 +21,7 @@ redis>=7.1.0,<8.0.0
 nats-py==2.13.1
 
 # Authentication
-PyJWT>=2.10.1,<3.0.0
+PyJWT>=2.13.0,<3.0.0
 cryptography>=44.0.1,<47.0.0
 
 # HTTP Client
@@ -37,7 +37,7 @@ pyproj==3.7.0
 boto3==1.35.76
 
 # Utilities
-python-dotenv==1.2.1
+python-dotenv==1.2.2
 python-dateutil==2.9.0.post0
 
 # Logging
@@ -48,6 +48,6 @@ celery==5.6.2
 kombu>=5.5.0,<6.0.0
 
 # Testing
-pytest==8.4.2
+pytest==9.0.3
 pytest-asyncio==0.26.0
 pytest-cov==4.1.0

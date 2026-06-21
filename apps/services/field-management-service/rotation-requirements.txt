@@ -15,7 +15,7 @@ psycopg2-binary==2.9.11
 alembic==1.18.4
 
 # Testing requirements
-pytest==9.0.3
+pytest==9.1.1
 pytest-asyncio==0.24.0
 pytest-cov==4.1.0
 pytest-mock==3.15.1

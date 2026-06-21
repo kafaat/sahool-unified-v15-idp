@@ -76,7 +76,8 @@ ENV VIRTUAL_ENV=/home/sahool/venv \
     PATH="/home/sahool/venv/bin:$PATH" \
     PYTHONPATH=/app \
     PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    HF_HOME=/app/models
 
 WORKDIR /app
 

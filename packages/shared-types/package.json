@@ -69,18 +69,18 @@
     },
     "typesVersions": {
         "*": {
-            ".": ["./dist/index.d.ts"],
-            "auth": ["./dist/auth.d.ts"],
-            "api": ["./dist/api.d.ts"],
-            "express": ["./dist/express.d.ts"],
-            "websocket": ["./dist/websocket.d.ts"],
-            "monitoring": ["./dist/monitoring.d.ts"],
-            "field": ["./dist/field.d.ts"],
-            "vision": ["./dist/vision.d.ts"],
-            "terrain": ["./dist/terrain.d.ts"],
-            "edge": ["./dist/edge.d.ts"],
-            "contracts": ["./dist/contracts/index.d.ts"],
-            "schemas": ["./dist/schemas/index.d.ts"]
+            ".": ["./dist/index.d.ts", "./src/index.ts"],
+            "auth": ["./dist/auth.d.ts", "./src/auth.ts"],
+            "api": ["./dist/api.d.ts", "./src/api.ts"],
+            "express": ["./dist/express.d.ts", "./src/express.ts"],
+            "websocket": ["./dist/websocket.d.ts", "./src/websocket.ts"],
+            "monitoring": ["./dist/monitoring.d.ts", "./src/monitoring.ts"],
+            "field": ["./dist/field.d.ts", "./src/field.ts"],
+            "vision": ["./dist/vision.d.ts", "./src/vision.ts"],
+            "terrain": ["./dist/terrain.d.ts", "./src/terrain.ts"],
+            "edge": ["./dist/edge.d.ts", "./src/edge.ts"],
+            "contracts": ["./dist/contracts/index.d.ts", "./src/contracts/index.ts"],
+            "schemas": ["./dist/schemas/index.d.ts", "./src/schemas/index.ts"]
         }
     },
     "scripts": {

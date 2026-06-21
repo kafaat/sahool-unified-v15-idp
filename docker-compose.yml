@@ -29,6 +29,7 @@ services:
   # SECURITY: POSTGRES_PASSWORD MUST be set in .env file
   postgres:
     image: postgis/postgis:16-3.4
+    pull_policy: if_not_present
     container_name: sahool-postgres
     # FIX: Set max_connections=300 to accommodate PgBouncer's max_db_connections=250
     # plus superuser_reserved_connections (default 3) and direct admin connections
@@ -188,6 +189,7 @@ services:
   # - TLS/SSL ready (uncomment TLS settings in redis.conf)
   redis:
     image: redis:7.4-alpine
+    pull_policy: if_not_present
     container_name: sahool-redis
     # FIX: Directives remain commented in redis-secure.conf and are instead
     # appended at runtime by the entrypoint to a temp config (/tmp/redis.conf),
@@ -247,6 +249,7 @@ services:
   # Dev Token: dev-root-token (DO NOT use in production)
   vault:
     image: hashicorp/vault:1.17
+    pull_policy: if_not_present
     container_name: sahool-vault
     hostname: vault
     ports:
@@ -288,6 +291,7 @@ services:
   # HARDENED: TLS enforced, encryption at rest, rate limiting enabled
   nats:
     image: nats:2.10.24-alpine
+    pull_policy: if_not_present
     container_name: sahool-nats
     # Use nats-secure.conf which reads passwords from env vars directly
     # (nats.conf uses hardcoded bcrypt hashes that break when .env passwords change)
@@ -345,6 +349,7 @@ services:
   # Provides detailed metrics for streams, consumers, and message queue performance
   nats-prometheus-exporter:
     image: natsio/prometheus-nats-exporter:0.14.0
+    pull_policy: if_not_present
     container_name: sahool-nats-prometheus-exporter
     restart: unless-stopped
     command:
@@ -385,8 +390,8 @@ services:
       - sahool-network
 
   # NATS JetStream Stream Initialization (one-shot)
-  # Creates all 11 JetStream streams defined in shared/events/streams.py
-  # Without this, streams don't exist and messages are plain NATS (no persistence)
+  # Creates all 11 JetStream streams required by the SAHOOL platform.
+  # Uses standalone script (scripts/nats_stream_init.py) — no shared-module dependency.
   nats-stream-init:
     build:
       context: .
@@ -394,19 +399,9 @@ services:
     container_name: sahool-nats-stream-init
     environment:
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-    command: ["python", "-c", "
-import asyncio, os, sys;
-sys.path.insert(0, '/app');
-async def main():
-    import nats;
-    nc = await nats.connect(os.environ['NATS_URL']);
-    js = nc.jetstream();
-    from shared.events.streams import ensure_streams;
-    count = await ensure_streams(js);
-    print(f'Ensured {count} JetStream streams');
-    await nc.close();
-asyncio.run(main())
-      "]
+    volumes:
+      - ./scripts/nats_stream_init.py:/app/nats_stream_init.py:ro
+    command: ["python", "/app/nats_stream_init.py"]
     depends_on:
       nats:
         condition: service_healthy
@@ -426,6 +421,7 @@ asyncio.run(main())
   # Access UI: http://localhost:5000
   mlflow:
     image: ghcr.io/mlflow/mlflow:v2.15.1
+    pull_policy: if_not_present
     container_name: sahool-mlflow
     hostname: mlflow
     # Install psycopg2-binary at build time (not runtime) for offline environments
@@ -474,6 +470,7 @@ asyncio.run(main())
   # MQTT Broker - IoT Communication
   mqtt:
     image: eclipse-mosquitto:2.0.20
+    pull_policy: if_not_present
     container_name: sahool-mqtt
     # NOTE: Do NOT set user: "1883:1883" here. The init-mqtt.sh script requires
     # root to chown/chmod files, and mosquitto drops privileges after starting.
@@ -526,6 +523,7 @@ asyncio.run(main())
     # Using v1.10.1 - stable release with improved vector search performance
     # استخدام الإصدار v1.10.1 - إصدار ثابت مع أداء محسّن للبحث الشعاعي
     image: qdrant/qdrant:v1.10.1
+    pull_policy: if_not_present
     container_name: sahool-qdrant
     volumes:
       - qdrant_data:/qdrant/storage
@@ -576,6 +574,7 @@ asyncio.run(main())
   # Runs once, exits 0, then mongo depends on it being complete.
   mongo-keyfile-init:
     image: mongo:6.0
+    pull_policy: if_not_present
     container_name: sahool-mongo-keyfile-init
     volumes:
       - mongo_keyfile:/keyfile
@@ -596,6 +595,7 @@ asyncio.run(main())
 
   mongo:
     image: mongo:6.0
+    pull_policy: if_not_present
     container_name: sahool-mongo
     depends_on:
       mongo-keyfile-init:
@@ -632,6 +632,7 @@ asyncio.run(main())
   # MongoDB Replica Set Initializer - تهيئة مجموعة النسخ المتماثل
   mongo-init-replica:
     image: mongo:6.0
+    pull_policy: if_not_present
     container_name: sahool-mongo-init-replica
     depends_on:
       mongo:
@@ -669,6 +670,7 @@ asyncio.run(main())
   # منصة المراسلة المجتمعية للمزارعين
   rocketchat:
     image: rocketchat/rocket.chat:7.5.0
+    pull_policy: if_not_present
     container_name: sahool-rocketchat
     environment:
       # MongoDB connection (replica set required for Rocket.Chat)
@@ -745,6 +747,7 @@ asyncio.run(main())
       - gpu
       - code-intel
     image: ollama/ollama:0.5.4
+    pull_policy: if_not_present
     container_name: sahool-ollama
     volumes:
       - ollama_data:/root/.ollama
@@ -798,6 +801,7 @@ asyncio.run(main())
       - gpu
       - code-intel
     image: curlimages/curl:8.11.1
+    pull_policy: if_not_present
     container_name: sahool-ollama-model-loader
     depends_on:
       ollama:
@@ -958,6 +962,7 @@ asyncio.run(main())
   etcd:
     # SECURITY FIX: Upgraded from v3.5.5 → v3.5.16 → v3.5.18 (official for Milvus 2.5.x)
     image: quay.io/coreos/etcd:v3.5.18
+    pull_policy: if_not_present
     container_name: sahool-etcd
     # SECURITY: SYS_TIME capability removed from default config (allows host clock
     # modification). For WSL2 clock drift issues, use the wsl2-time-fix override:
@@ -1046,6 +1051,7 @@ asyncio.run(main())
   # to set restrictive permissions on the data volume before etcd reads it.
   etcd-perms-init:
     image: alpine:3.20
+    pull_policy: if_not_present
     container_name: sahool-etcd-perms-init
     volumes:
       - etcd_data:/etcd-data
@@ -1115,6 +1121,7 @@ asyncio.run(main())
   # See: https://min.io/docs/minio/linux/operations/concepts/erasure-coding.html
   minio:
     image: minio/minio:RELEASE.2025-03-12T18-04-18Z
+    pull_policy: if_not_present
     container_name: sahool-minio
     environment:
       # Root credentials (minimum 16 characters)
@@ -1203,6 +1210,7 @@ asyncio.run(main())
   # Milvus v2.5+ supports etcd authentication (enable via --profile etcd-auth)
   milvus:
     image: milvusdb/milvus:v2.5.27
+    pull_policy: if_not_present
     container_name: sahool-milvus
     # SECURITY: SYS_TIME capability removed from default config. For WSL2 clock
     # drift issues, use: docker compose -f docker-compose.yml -f docker-compose.wsl2.yml up
@@ -1270,6 +1278,7 @@ asyncio.run(main())
   # API Gateway (Kong)
   kong:
     image: kong:3.9.0
+    pull_policy: if_not_present
     container_name: sahool-kong
     environment:
       KONG_DATABASE: "off"
@@ -2952,15 +2961,22 @@ asyncio.run(main())
       - WEATHER_SERVICE_URL=http://weather-service:8092
       - NDVI_SERVICE_URL=http://vegetation-analysis-service:8090
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
-      # OpenRouter — Qwen3 (free) + Claude Sonnet (paid) via unified API
+      # OpenRouter — Claude Sonnet for comprehensive 13-section analysis
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
-      - OPENROUTER_MODEL_FAST=${OPENROUTER_MODEL_FAST:-qwen/qwen3-next-80b-a3b-instruct:free}
-      - OPENROUTER_MODEL_PRIMARY=${OPENROUTER_MODEL_PRIMARY:-qwen/qwen3-next-80b-a3b-instruct:free}
+      - OPENROUTER_MODEL_FAST=${OPENROUTER_MODEL_FAST:-meta-llama/llama-3.1-8b-instruct:free}
+      - OPENROUTER_MODEL_PRIMARY=${OPENROUTER_MODEL_PRIMARY:-anthropic/claude-sonnet-4-20250514}
       - SENTINEL_HUB_CLIENT_ID=${SENTINEL_HUB_CLIENT_ID:-}
       - SENTINEL_HUB_CLIENT_SECRET=${SENTINEL_HUB_CLIENT_SECRET:-}
       - OPENWEATHERMAP_API_KEY=${OPENWEATHERMAP_API_KEY:-}
       - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY:-}
       - FIELD_MANAGEMENT_URL=http://field-management-service:3000
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-}@redis:6379
+      # HuggingFace local models (optional — comment out if no GPU)
+      - HF_HOME=/app/models
+      - CROP_ADVISOR_MODEL=${CROP_ADVISOR_MODEL:-}
+      - TRANSLATION_MODEL=${TRANSLATION_MODEL:-}
+    volumes:
+      - field_ai_models:/app/models
     ports:
       - "127.0.0.1:8120:8120"
     depends_on:
@@ -2984,11 +3000,11 @@ asyncio.run(main())
     deploy:
       resources:
         limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
           cpus: '0.5'
           memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 128M
     logging: *default-logging
     networks:
       - sahool-network
@@ -5138,6 +5154,10 @@ asyncio.run(main())
       # Direct service URL for the /api/v1/fields Next.js API route proxy
       # (bypasses Kong to avoid name-resolution issues in local Docker network)
       - FIELD_SERVICE_URL=http://field-management-service:3000
+      - VEGETATION_ANALYSIS_URL=http://vegetation-analysis-service:8090
+      - FIELD_INTELLIGENCE_URL=http://field-intelligence:8120
+      - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY:-}
+      - OPENWEATHERMAP_API_KEY=${OPENWEATHERMAP_API_KEY:-}
       - NEXT_PUBLIC_APP_VERSION=${NEXT_PUBLIC_APP_VERSION:-16.0.0}
       - NEXT_TELEMETRY_DISABLED=1
       # Disable secure-cookie flag so httpOnly cookies work over plain HTTP
@@ -5197,6 +5217,8 @@ networks:
 # ─────────────────────────────────────────────────────────────────────────────
 
 volumes:
+  field_ai_models:
+    name: sahool-field-ai-models
   postgres_data:
     name: sahool-postgres-data
   nats_data:

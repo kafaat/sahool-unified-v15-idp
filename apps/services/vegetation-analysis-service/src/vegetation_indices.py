@@ -246,6 +246,21 @@ class AllIndices:
     soc: float | None = None  # Soil Organic Carbon (% estimation from SWIR)
     vci: float | None = None  # Vegetation Condition Index (drought)
 
+    # Phase 5 - Expanded for 37-index AI analysis pipeline
+    # المرحلة الخامسة - التوسع لخط أنابيب تحليل الذكاء الاصطناعي بـ 37 مؤشراً
+    rvi: float | None = None  # Ratio Vegetation Index
+    rdvi: float | None = None  # Renormalized Difference VI
+    nirv: float | None = None  # NIR Reflectance of Vegetation
+    ndre1: float | None = None  # NDRE Band 5-6 variant
+    ndre2_v2: float | None = None  # NDRE Band 5-7 variant (renamed to avoid clash with rendvi)
+    s2rep: float | None = None  # Sentinel-2 Red Edge Position
+    lswi: float | None = None  # Land Surface Water Index
+    dswi_val: float | None = None  # Disease-Water Stress Index
+    fapar: float | None = None  # Fraction of Absorbed PAR
+    seli: float | None = None  # Sentinel-2 LAI Index
+    bi: float | None = None  # Brightness Index
+    ndpi: float | None = None  # Normalized Difference Phenology Index
+
     # Valid ranges for normalized difference indices (all follow [-1, 1] range)
     _NORMALIZED_INDICES = frozenset(
         {
@@ -270,6 +285,11 @@ class AllIndices:
             "mndwi",
             "nbr2",
             "ndbi",
+            "ndre1",
+            "lswi",
+            "seli",
+            "ndpi",
+            "rdvi",
         }
     )
 
@@ -389,6 +409,20 @@ class VegetationIndicesCalculator:
             # المرحلة الرابعة - التربة والحرارة
             soc=self.soc(bands),
             vci=self.vci(ndvi),
+            # Phase 5 - Expanded indices
+            # المرحلة الخامسة - المؤشرات الموسعة
+            rvi=self.rvi(bands),
+            rdvi=self.rdvi(bands),
+            nirv=self.nirv(bands, ndvi),
+            ndre1=self.ndre1(bands),
+            ndre2_v2=self.ndre2(bands),
+            s2rep=self.s2rep(bands),
+            lswi=self.lswi(bands),
+            dswi_val=self.dswi(bands),
+            fapar=self.fapar(ndvi),
+            seli=self.seli(bands),
+            bi=self.bi(bands),
+            ndpi=self.ndpi(bands),
         )
 
     # =========================================================================
@@ -1274,6 +1308,87 @@ class VegetationIndicesCalculator:
             return 50.0
         vci_val = ((ndvi - ndvi_min) / (ndvi_max - ndvi_min)) * 100
         return round(max(0, min(vci_val, 100)), 1)
+
+    # =========================================================================
+    # المرحلة الخامسة - المؤشرات الموسعة لخط أنابيب الذكاء الاصطناعي
+    # Phase 5 - Expanded Indices for 37-Index AI Analysis Pipeline
+    # =========================================================================
+
+    def rvi(self, b: BandData) -> float:
+        """RVI - Ratio Vegetation Index: B08/B04"""
+        if b.B04_red == 0:
+            return 0.0
+        return round(min(30.0, b.B08_nir / b.B04_red), 4)
+
+    def rdvi(self, b: BandData) -> float:
+        """RDVI - Renormalized Difference Vegetation Index: (B08-B04)/sqrt(B08+B04)"""
+        s = b.B08_nir + b.B04_red
+        if s <= 0:
+            return 0.0
+        return round(max(-1.0, min(1.0, (b.B08_nir - b.B04_red) / math.sqrt(s))), 4)
+
+    def nirv(self, b: BandData, ndvi: float) -> float:
+        """NIRv - Near-Infrared Reflectance of Vegetation: NDVI * B08"""
+        return round(max(0.0, min(1.0, ndvi * b.B08_nir)), 4)
+
+    def ndre1(self, b: BandData) -> float:
+        """NDRE1 - Red Edge 1 variant: (B06-B05)/(B06+B05)"""
+        d = b.B06_red_edge2 + b.B05_red_edge1
+        if d == 0:
+            return 0.0
+        return round(max(-1.0, min(1.0, (b.B06_red_edge2 - b.B05_red_edge1) / d)), 4)
+
+    def ndre2(self, b: BandData) -> float:
+        """NDRE2 - Red Edge 2 variant: (B07-B05)/(B07+B05)"""
+        d = b.B07_red_edge3 + b.B05_red_edge1
+        if d == 0:
+            return 0.0
+        return round(max(-1.0, min(1.0, (b.B07_red_edge3 - b.B05_red_edge1) / d)), 4)
+
+    def s2rep(self, b: BandData) -> float:
+        """S2REP - Sentinel-2 Red Edge Position: 705+35*((B04+B07)/2-B05)/(B06-B05)"""
+        d = b.B06_red_edge2 - b.B05_red_edge1
+        if d == 0:
+            return 705.0
+        return round(705.0 + 35.0 * ((b.B04_red + b.B07_red_edge3) / 2.0 - b.B05_red_edge1) / d, 2)
+
+    def lswi(self, b: BandData) -> float:
+        """LSWI - Land Surface Water Index: (B08-B11)/(B08+B11)"""
+        d = b.B08_nir + b.B11_swir1
+        if d == 0:
+            return 0.0
+        return round(max(-1.0, min(1.0, (b.B08_nir - b.B11_swir1) / d)), 4)
+
+    def dswi(self, b: BandData) -> float:
+        """DSWI - Disease-Water Stress Index: (B08+B03)/(B11+B04)"""
+        d = b.B11_swir1 + b.B04_red
+        if d == 0:
+            return 0.0
+        return round(max(0.0, min(10.0, (b.B08_nir + b.B03_green) / d)), 4)
+
+    def fapar(self, ndvi: float) -> float:
+        """fAPAR - Fraction of Absorbed PAR (estimated from NDVI)"""
+        fapar_val = 1.24 * ndvi - 0.168
+        return round(max(0.0, min(1.0, fapar_val)), 4)
+
+    def seli(self, b: BandData) -> float:
+        """SeLI - Sentinel-2 LAI Index: (B8A-B05)/(B8A+B05)"""
+        d = b.B8A_nir_narrow + b.B05_red_edge1
+        if d == 0:
+            return 0.0
+        return round(max(-1.0, min(1.0, (b.B8A_nir_narrow - b.B05_red_edge1) / d)), 4)
+
+    def bi(self, b: BandData) -> float:
+        """BI - Brightness Index: sqrt(B04^2 + B08^2)"""
+        return round(math.sqrt(b.B04_red**2 + b.B08_nir**2), 4)
+
+    def ndpi(self, b: BandData) -> float:
+        """NDPI - Normalized Difference Phenology Index"""
+        mixed = 0.74 * b.B04_red + 0.26 * b.B11_swir1
+        d = b.B08_nir + mixed
+        if d == 0:
+            return 0.0
+        return round(max(-1.0, min(1.0, (b.B08_nir - mixed) / d)), 4)
 
 
 # =============================================================================

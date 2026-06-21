@@ -4,6 +4,11 @@ import './globals.css';
 import { Providers } from './providers';
 import { getDirection, getLocale } from '@/lib/i18n';
 
+// RootLayout reads request headers (CSP nonce) on every render, so it must
+// always be dynamically server-rendered. Declaring this explicitly silences
+// the "Dynamic server usage" warnings emitted during `next build`.
+export const dynamic = 'force-dynamic';
+
 // Self-hosted Tajawal font via @font-face in globals.css (no external dependency)
 const tajawal = { variable: '--font-tajawal' };
 

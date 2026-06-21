@@ -1,7 +1,8 @@
 /**
  * Field AI Analysis Proxy
- * Proxies POST requests to field-intelligence POST /api/v1/analyze/field
- * Runs three parallel Claude agents: vegetation, weather, recommendations.
+ * Proxies POST to field-intelligence POST /api/v1/analyze/field/comprehensive
+ * Runs AgriGuard scoring + CropSeek-LLM advisory + NLLB Arabic translation.
+ * Results are Redis-cached for 6 hours on the backend.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -19,11 +20,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   try {
     // eslint-disable-next-line no-restricted-syntax
-    const res = await fetch(`${FIELD_INTELLIGENCE_URL}/api/v1/analyze/field`, {
+    const res = await fetch(`${FIELD_INTELLIGENCE_URL}/api/v1/analyze/field/comprehensive`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
-      signal: AbortSignal.timeout(90000), // AI analysis can take up to 90s
+      signal: AbortSignal.timeout(180000), // comprehensive analysis: 2 parallel LLM calls + buffer
     });
 
     const data = await res.json().catch(() => ({ error: 'Upstream parse error' }));

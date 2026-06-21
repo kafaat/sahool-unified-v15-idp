@@ -274,7 +274,28 @@
       "Bash(cp \"D:\\\\PROJECTS\\\\v91\\\\sahoo-adel-full\\\\.claude\\\\worktrees\\\\agent-aef1f338\\\\apps\\\\mobile\\\\lib\\\\features\\\\field\\\\presentation\\\\screens\\\\field_wizard_screen.dart\" \"D:\\\\PROJECTS\\\\v91\\\\sahoo-adel-full\\\\apps\\\\mobile\\\\lib\\\\features\\\\field\\\\presentation\\\\screens\\\\field_wizard_screen.dart\")",
       "Bash(cp \"D:\\\\PROJECTS\\\\v91\\\\sahoo-adel-full\\\\.claude\\\\worktrees\\\\agent-ade55939\\\\apps\\\\mobile\\\\lib\\\\features\\\\farm\\\\presentation\\\\screens\\\\farm_creation_screen.dart\" \"D:\\\\PROJECTS\\\\v91\\\\sahoo-adel-full\\\\apps\\\\mobile\\\\lib\\\\features\\\\farm\\\\presentation\\\\screens\\\\farm_creation_screen.dart\")",
       "Bash(xargs head:*)",
-      "WebFetch(domain:openrouter.ai)"
+      "WebFetch(domain:openrouter.ai)",
+      "WebFetch(domain:clearsky.vision)",
+      "WebFetch(domain:www.tandfonline.com)",
+      "WebFetch(domain:developers.sentinel-hub.com)",
+      "WebFetch(domain:www.fao.org)",
+      "WebFetch(domain:openknowledge.fao.org)",
+      "WebFetch(domain:precisionag.org)",
+      "WebFetch(domain:precisiondev.org)",
+      "WebFetch(domain:www.mdpi.com)",
+      "WebFetch(domain:ipad.fsa.usda.gov)",
+      "WebFetch(domain:www.esa.int)",
+      "WebFetch(domain:www.sciencedirect.com)",
+      "WebFetch(domain:ag.purdue.edu)",
+      "WebFetch(domain:www.cropmonitoring.eu)",
+      "WebFetch(domain:www.agriculture.com)",
+      "WebFetch(domain:cropwatch.unl.edu)",
+      "WebFetch(domain:precisionsustainableag.org)",
+      "WebFetch(domain:www.planet.com)",
+      "WebFetch(domain:www.indexdatabase.de)",
+      "WebFetch(domain:agupubs.onlinelibrary.wiley.com)",
+      "WebFetch(domain:extension.umn.edu)",
+      "WebFetch(domain:medium.com)"
     ]
   }
 }

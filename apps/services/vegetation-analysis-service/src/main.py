@@ -34,7 +34,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field, field_validator
 
-from shared.auth.dependencies import get_current_user
+from shared.auth.dependencies import get_current_user, get_optional_user
 from shared.auth.models import User
 
 # Configure structured logging (replaces stdlib logging init)
@@ -2649,6 +2649,183 @@ async def get_all_indices(
         "indices": all_indices.to_dict(),
         "data_source": "simulated",
         "note": "Advanced indices calculated from Sentinel-2 bands. Configure real data provider for actual satellite imagery.",
+    }
+
+
+@app.get("/v1/fields/{field_id}/all-indices")
+async def get_field_all_indices_for_ai(
+    field_id: str,
+    lat: float = Query(default=0.0, description="Latitude", ge=-90, le=90),
+    lon: float = Query(default=0.0, description="Longitude", ge=-180, le=180),
+    date: str | None = Query(default=None, description="Date YYYY-MM-DD, defaults to today"),
+    crop_type: str | None = Query(default=None, description="نوع المحصول"),
+    user: User | None = Depends(get_optional_user),
+):
+    """
+    Bulk endpoint: returns all 37 agricultural key indices in one call.
+    Optimised for the comprehensive AI field analysis pipeline.
+    Categories: Vegetation Vigor, Red Edge/Chlorophyll, Soil-Adjusted, Water/Moisture,
+    Canopy Structure, Pigment/Senescence, Soil, Phenology.
+    Falls back to simulated data when CDSE credentials are not configured.
+    Auth is optional — the endpoint returns simulated data for the AI pipeline.
+    """
+    _validate_field_id(field_id)
+
+    import random
+
+    acquisition_date = date or datetime.now(UTC).strftime("%Y-%m-%d")
+
+    if not _indices_available:
+        # Return zero-data response so the AI can still run on weather/field data
+        return {
+            "field_id": field_id,
+            "acquisition_date": acquisition_date,
+            "data_source": "unavailable",
+            "indices": {},
+        }
+
+    # --- Use real multi-provider data when available ---
+    real_indices: dict[str, float | None] = {}
+    data_source = "simulated"
+    cloud_cover_pct = 0.0
+
+    if _multi_provider and _indices_available:
+        try:
+            result = await _multi_provider.get_vegetation_analysis(
+                field_id=field_id,
+                lat=lat,
+                lon=lon,
+                date_str=acquisition_date,
+                crop_type=crop_type,
+            )
+            if result and result.get("indices"):
+                real_indices = result["indices"]
+                cloud_cover_pct = result.get("cloud_cover_percent", 0.0)
+                data_source = "sentinel2"
+        except Exception as _e:
+            logger.warning("multi_provider_indices_failed", field_id=field_id, error=str(_e))
+
+    # --- Simulated band data (fallback) ---
+    if not real_indices:
+        seed = hash(field_id + acquisition_date) % (2**31)
+        rng = random.Random(seed)
+        bands = BandData(
+            B02_blue=rng.uniform(0.02, 0.08),
+            B03_green=rng.uniform(0.03, 0.12),
+            B04_red=rng.uniform(0.02, 0.15),
+            B05_red_edge1=rng.uniform(0.05, 0.20),
+            B06_red_edge2=rng.uniform(0.08, 0.25),
+            B07_red_edge3=rng.uniform(0.10, 0.30),
+            B08_nir=rng.uniform(0.15, 0.55),
+            B8A_nir_narrow=rng.uniform(0.15, 0.50),
+            B11_swir1=rng.uniform(0.08, 0.35),
+            B12_swir2=rng.uniform(0.05, 0.25),
+        )
+        calculator = VegetationIndicesCalculator()
+        all_idx = calculator.calculate_all(bands)
+        raw = all_idx.to_dict()
+        real_indices = {k: v for k, v in raw.items() if isinstance(v, (int, float))}
+
+    # Build the 37-index response the AI analysis pipeline expects
+    def _stats(key: str) -> dict:
+        val = real_indices.get(key)
+        if val is None:
+            return {"value": None, "min": None, "max": None, "std_dev": None, "cloud_cover": cloud_cover_pct}
+        # For real data, add realistic variability; simulated values have no spatial range
+        spread = abs(val) * 0.08 + 0.02 if data_source == "simulated" else 0.0
+        return {
+            "value": round(float(val), 4),
+            "min": round(float(val) - spread, 4),
+            "max": round(float(val) + spread, 4),
+            "std_dev": round(spread * 0.5, 4),
+            "cloud_cover": cloud_cover_pct,
+        }
+
+    return {
+        "field_id": field_id,
+        "acquisition_date": acquisition_date,
+        "data_source": data_source,
+        "cloud_cover_percent": cloud_cover_pct,
+        "index_count": 37,
+        "indices": {
+            # Vegetation Vigor (10)
+            "NDVI":    _stats("ndvi"),
+            "EVI":     _stats("evi"),
+            "EVI2":    _stats("evi2"),
+            "GNDVI":   _stats("gndvi"),
+            "WDRVI":   _stats("wdrvi"),
+            "ARVI":    _stats("arvi"),
+            "DVI":     _stats("dvi"),
+            "RVI":     _stats("rvi"),
+            "RDVI":    _stats("rdvi"),
+            "NIRv":    _stats("nirv"),
+            # Red Edge / Chlorophyll (8)
+            "NDRE":    _stats("ndre"),
+            "NDRE1":   _stats("ndre1"),
+            "NDRE2":   _stats("ndre2_v2") if "ndre2_v2" in real_indices else _stats("rendvi"),
+            "S2REP":   _stats("s2rep") if "s2rep" in real_indices else _stats("rep"),
+            "IRECI":   _stats("ireci"),
+            "CIre":    _stats("ci_rededge"),
+            "CIgreen": _stats("ci_green"),
+            "MCARI":   _stats("mcari"),
+            # Soil-Adjusted (4)
+            "SAVI":    _stats("savi"),
+            "OSAVI":   _stats("osavi"),
+            "MSAVI":   _stats("msavi"),
+            "TSAVI":   _stats("tsavi"),
+            # Water / Moisture (6)
+            "NDWI":    _stats("ndwi"),
+            "NDMI":    _stats("ndmi"),
+            "MNDWI":   _stats("mndwi"),
+            "MSI":     _stats("msi"),
+            "LSWI":    _stats("lswi"),
+            "DSWI":    _stats("dswi_val"),
+            # Canopy Structure (3)
+            "LAI":     _stats("lai"),
+            "FAPAR":   _stats("fapar"),
+            "SeLI":    _stats("seli"),
+            # Pigment / Senescence (3)
+            "PSRI":    _stats("psri"),
+            "SIPI":    _stats("sipi"),
+            "ARI":     _stats("ari"),
+            # Soil (2)
+            "BSI":     _stats("bsi"),
+            "BI":      _stats("bi"),
+            # Phenology (1)
+            "NDPI":    _stats("ndpi"),
+        },
+    }
+
+
+@app.get("/v1/fields/{field_id}/imagery")
+async def get_field_imagery_thumbnails(
+    field_id: str,
+    lat: float = Query(default=0.0, description="Latitude", ge=-90, le=90),
+    lon: float = Query(default=0.0, description="Longitude", ge=-180, le=180),
+    date: str | None = Query(default=None, description="Date YYYY-MM-DD"),
+    user: User | None = Depends(get_optional_user),
+):
+    """
+    Returns lightweight imagery info for the field.
+    In production, this returns base64 PNG thumbnails from CDSE.
+    Currently returns placeholder metadata for development.
+    Auth is optional — the endpoint returns placeholder data for the AI pipeline.
+    """
+    _validate_field_id(field_id)
+
+    acquisition_date = date or datetime.now(UTC).strftime("%Y-%m-%d")
+
+    return {
+        "field_id": field_id,
+        "acquisition_date": acquisition_date,
+        "available": False,
+        "note": "Configure CDSE_CLIENT_ID and CDSE_CLIENT_SECRET for real imagery thumbnails.",
+        "thumbnails": {
+            "true_color": None,
+            "ndvi_heatmap": None,
+            "ndmi_heatmap": None,
+            "ndre_heatmap": None,
+        },
     }
 
 

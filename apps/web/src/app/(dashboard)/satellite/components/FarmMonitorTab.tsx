@@ -25,7 +25,6 @@ import {
   ChevronDown,
   Loader2,
   Satellite,
-  CloudSun,
   Brain,
   AlertCircle,
 } from 'lucide-react';
@@ -45,12 +44,59 @@ const GoogleSatelliteMap = dynamic(
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
-interface AnalysisResult {
+interface SectionContent {
+  title: string;
+  title_en: string;
+  status: 'good' | 'moderate' | 'warning' | 'critical';
+  status_color: 'green' | 'yellow' | 'orange' | 'red';
+  summary: string;
+  details: string[];
+  metrics?: Record<string, unknown> | null;
+  confidence: number;
+}
+
+interface AnalysisSections {
+  health_overview: SectionContent;
+  vegetation_health: SectionContent;
+  water_stress: SectionContent;
+  growth_stage: SectionContent;
+  nutrient_status: SectionContent;
+  pest_disease_risk: SectionContent;
+  irrigation_recommendation: SectionContent;
+  weather_impact: SectionContent;
+  yield_prediction: SectionContent;
+  soil_health: SectionContent;
+  historical_trends: SectionContent;
+  action_plan: SectionContent;
+  economic_impact: SectionContent;
+}
+
+interface ImageryPayload {
+  true_color: string | null;
+  ndvi_heatmap: string | null;
+  ndmi_heatmap: string | null;
+  ndre_heatmap: string | null;
+}
+
+interface FieldAnalysisResponse {
   field_id: string;
-  indice: string;
-  current_status: string[];
-  recommendations: string[];
   analyzed_at: string;
+  cached: boolean;
+  health_score: number;
+  health_class: 'healthy' | 'moderate' | 'stressed' | 'critical';
+  health_confidence: number;
+  imagery?: ImageryPayload | null;
+  sections?: AnalysisSections | null;
+  indices_summary: Record<string, number | null>;
+  satellite_date?: string | null;
+  cloud_cover_pct?: number | null;
+  data_sources?: string[];
+  indice: string;
+  // legacy compat
+  current_status?: string[];
+  recommendations?: string[];
+  farmer?: unknown;
+  specialist?: unknown;
 }
 
 type LoadingStep = 'idle' | 'fetching' | 'analyzing';
@@ -203,18 +249,59 @@ function AnalysisLoadingPanel({ step }: { step: LoadingStep }) {
 
 /** Floating dark-mode AI analysis results panel (overlaid on the map, right side) */
 function AnalysisPanel({
-  result,
+  analysis,
+  imagery,
   field,
-  indice,
   onClose,
 }: {
-  result: AnalysisResult;
+  analysis: FieldAnalysisResponse;
+  imagery?: ImageryPayload | null;
   field: Field;
-  indice: string;
   onClose: () => void;
 }) {
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(
+    new Set(['health_overview', 'vegetation_health', 'water_stress', 'growth_stage', 'nutrient_status'])
+  );
+
+  const toggleSection = (key: string) => {
+    setExpandedSections(prev => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
+
+  const statusIcon = (status: string) => {
+    switch (status) {
+      case 'good': return '\u2705';
+      case 'moderate': return '\uD83D\uDFE1';
+      case 'warning': return '\uD83D\uDFE0';
+      case 'critical': return '\uD83D\uDD34';
+      default: return '\u26AA';
+    }
+  };
+
+  const healthColor = analysis.health_score >= 70 ? '#22c55e' : analysis.health_score >= 40 ? '#eab308' : '#ef4444';
+
+  const sectionOrder: Array<[string, SectionContent | undefined]> = analysis.sections ? [
+    ['health_overview', analysis.sections.health_overview],
+    ['vegetation_health', analysis.sections.vegetation_health],
+    ['water_stress', analysis.sections.water_stress],
+    ['growth_stage', analysis.sections.growth_stage],
+    ['nutrient_status', analysis.sections.nutrient_status],
+    ['pest_disease_risk', analysis.sections.pest_disease_risk],
+    ['irrigation_recommendation', analysis.sections.irrigation_recommendation],
+    ['weather_impact', analysis.sections.weather_impact],
+    ['yield_prediction', analysis.sections.yield_prediction],
+    ['soil_health', analysis.sections.soil_health],
+    ['historical_trends', analysis.sections.historical_trends],
+    ['action_plan', analysis.sections.action_plan],
+    ['economic_impact', analysis.sections.economic_impact],
+  ] : [];
+
   return (
-    <div className="h-full flex flex-col bg-black overflow-hidden" dir="rtl">
+    <div className="h-full flex flex-col bg-gray-900 overflow-hidden" dir="rtl">
       {/* Panel header */}
       <div className="flex items-start justify-between px-4 py-3 border-b border-gray-700 flex-shrink-0 bg-gradient-to-l from-green-950 to-blue-950">
         <div className="min-w-0">
@@ -226,10 +313,10 @@ function AnalysisPanel({
           </div>
           <div className="flex items-center gap-2 mt-1">
             <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-mono font-bold bg-green-900 text-green-300 border border-green-700">
-              {indice}
+              {analysis.indice}
             </span>
-            <span className="text-xs text-gray-400">
-              {new Date(result.analyzed_at).toLocaleTimeString('ar-SA', {
+            <span className="text-xs text-gray-300">
+              {new Date(analysis.analyzed_at).toLocaleTimeString('ar-SA', {
                 hour: '2-digit',
                 minute: '2-digit',
               })}
@@ -238,7 +325,7 @@ function AnalysisPanel({
         </div>
         <button
           onClick={onClose}
-          className="p-1.5 rounded-lg hover:bg-gray-800 text-gray-400 hover:text-white transition-colors flex-shrink-0 mr-auto ml-0"
+          className="p-1.5 rounded-lg hover:bg-gray-700 text-gray-300 hover:text-white transition-colors flex-shrink-0 mr-auto ml-0"
         >
           <X className="w-4 h-4" />
         </button>
@@ -246,72 +333,182 @@ function AnalysisPanel({
 
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
-        {/* Current Status — الوضع الراهن */}
-        <section className="px-4 pt-4 pb-3">
-          <div className="flex items-center gap-2 mb-3">
-            <CloudSun className="w-4 h-4 text-blue-400 flex-shrink-0" />
-            <h3 className="text-sm font-extrabold text-white tracking-wide">الوضع الراهن</h3>
-          </div>
-          <ul className="space-y-2.5">
-            {result.current_status.map((bullet, i) => (
-              <li key={i} className="flex gap-2 text-sm text-white leading-relaxed">
-                <span className="text-green-400 flex-shrink-0 mt-0.5 font-bold">•</span>
-                <span>{bullet}</span>
-              </li>
-            ))}
-            {result.current_status.length === 0 && (
-              <li className="text-sm text-gray-500 italic">لا توجد بيانات متاحة</li>
-            )}
-          </ul>
-        </section>
+        <div className="flex flex-col gap-3 p-3">
+          {/* Imagery Gallery */}
+          {imagery && (imagery.true_color || imagery.ndvi_heatmap || imagery.ndmi_heatmap || imagery.ndre_heatmap) && (
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              {[
+                { key: 'true_color', label: '\u0627\u0644\u0623\u0644\u0648\u0627\u0646 \u0627\u0644\u062D\u0642\u064A\u0642\u064A\u0629', src: imagery.true_color },
+                { key: 'ndvi_heatmap', label: 'NDVI', src: imagery.ndvi_heatmap },
+                { key: 'ndmi_heatmap', label: 'NDMI', src: imagery.ndmi_heatmap },
+                { key: 'ndre_heatmap', label: 'NDRE', src: imagery.ndre_heatmap },
+              ].filter(img => img.src).map(img => (
+                <div key={img.key} className="flex-shrink-0 w-40">
+                  <img src={`data:image/png;base64,${img.src}`} alt={img.label} className="w-full h-28 object-cover rounded-lg" />
+                  <p className="text-xs text-center text-gray-400 mt-1">{img.label}</p>
+                </div>
+              ))}
+            </div>
+          )}
 
-        <div className="mx-4 border-t border-gray-700" />
-
-        {/* Recommendations — التوصيات */}
-        <section className="px-4 pt-3 pb-6">
-          <div className="flex items-center gap-2 mb-3">
-            <AlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0" />
-            <h3 className="text-sm font-extrabold text-white tracking-wide">التوصيات</h3>
+          {/* Health Score Badge */}
+          <div className="flex items-center gap-4 bg-gray-800 rounded-xl p-4">
+            <div className="relative w-16 h-16 flex items-center justify-center">
+              <svg className="w-16 h-16 -rotate-90" viewBox="0 0 36 36">
+                <path d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831a 15.9155 15.9155 0 0 1 0 -31.831"
+                  fill="none" stroke="#4b5563" strokeWidth="3" />
+                <path d="M18 2.0845a 15.9155 15.9155 0 0 1 0 31.831a 15.9155 15.9155 0 0 1 0 -31.831"
+                  fill="none" stroke={healthColor} strokeWidth="3"
+                  strokeDasharray={`${analysis.health_score}, 100`} />
+              </svg>
+              <span className="absolute text-lg font-bold" style={{ color: healthColor }}>{analysis.health_score}</span>
+            </div>
+            <div className="flex-1">
+              <p className="text-white font-semibold text-sm">
+                {analysis.health_class === 'healthy' ? '\u0635\u062D\u064A' : analysis.health_class === 'moderate' ? '\u0645\u062A\u0648\u0633\u0637' : analysis.health_class === 'stressed' ? '\u0645\u062C\u0647\u062F' : '\u062D\u0631\u062C'}
+              </p>
+              <p className="text-gray-200 text-xs">{'\u062B\u0642\u0629'}: {Math.round(analysis.health_confidence * 100)}% | {analysis.indice}</p>
+              {analysis.satellite_date && <p className="text-gray-300 text-xs">{'\u062A\u0627\u0631\u064A\u062E \u0627\u0644\u0635\u0648\u0631\u0629'}: {analysis.satellite_date}</p>}
+            </div>
+            {analysis.cached && <span className="text-xs bg-blue-900/40 text-blue-300 px-2 py-0.5 rounded">{'\u0645\u062E\u0632\u0651\u0646'}</span>}
           </div>
-          <ul className="space-y-2.5">
-            {result.recommendations.map((rec, i) => {
-              const isUrgent = rec.includes('[عاجل]') || rec.includes('[URGENT]');
-              const isHigh = rec.includes('[عالٍ]') || rec.includes('[HIGH]');
-              const clean = rec
-                .replace(/\[(عاجل|عالٍ|متوسط|منخفض|URGENT|HIGH|MEDIUM|LOW)\]/g, '')
-                .trim();
-              return (
-                <li key={i} className="flex gap-2 text-sm leading-relaxed">
-                  <span className={`flex-shrink-0 mt-0.5 font-bold ${isUrgent ? 'text-red-400' : isHigh ? 'text-amber-400' : 'text-blue-400'}`}>
-                    {isUrgent ? '🔴' : isHigh ? '🟠' : '•'}
-                  </span>
-                  <span className="text-white">
-                    {isUrgent && (
-                      <span className="inline-block ml-1 mb-0.5 px-1.5 py-0.5 text-xs font-bold bg-red-900 text-red-300 border border-red-700 rounded">
-                        عاجل
-                      </span>
+
+          {/* 13 Sections */}
+          {sectionOrder.map(([key, section]) => {
+            if (!section) return null;
+            const isExpanded = expandedSections.has(key);
+            return (
+              <div key={key} className="bg-gray-800 rounded-lg overflow-hidden">
+                <button
+                  onClick={() => toggleSection(key)}
+                  className="w-full flex items-center gap-2 p-3 text-right hover:bg-gray-700 transition-colors"
+                >
+                  <span className="text-sm">{statusIcon(section.status)}</span>
+                  <span className="flex-1 text-sm font-medium text-white">{section.title}</span>
+                  <span className="text-xs text-gray-300">{section.title_en}</span>
+                  <span className="text-gray-300 text-xs">{isExpanded ? '\u25B2' : '\u25BC'}</span>
+                </button>
+                {isExpanded && (
+                  <div className="px-3 pb-3 border-t border-gray-600">
+                    <p className="text-white text-sm mt-2 leading-relaxed">{section.summary}</p>
+                    {section.details.length > 0 && (
+                      <ul className="mt-2 space-y-1">
+                        {section.details.map((detail, i) => (
+                          <li key={i} className="text-gray-200 text-xs flex gap-2">
+                            <span className="text-gray-400 mt-0.5">{'\u2022'}</span>
+                            <span>{detail}</span>
+                          </li>
+                        ))}
+                      </ul>
                     )}
-                    {isHigh && !isUrgent && (
-                      <span className="inline-block ml-1 mb-0.5 px-1.5 py-0.5 text-xs font-bold bg-amber-900 text-amber-300 border border-amber-700 rounded">
-                        عالٍ
-                      </span>
+                    {section.confidence > 0 && (
+                      <div className="mt-2 flex items-center gap-2">
+                        <div className="flex-1 h-1 bg-gray-600 rounded-full overflow-hidden">
+                          <div className="h-full rounded-full" style={{ width: `${section.confidence * 100}%`, backgroundColor: section.confidence > 0.7 ? '#22c55e' : section.confidence > 0.4 ? '#eab308' : '#ef4444' }} />
+                        </div>
+                        <span className="text-xs text-gray-300">{Math.round(section.confidence * 100)}%</span>
+                      </div>
                     )}
-                    {clean}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+
+          {/* Fallback for legacy response (old farmer/specialist format or when sections is null) */}
+          {!analysis.sections && (() => {
+            // Extract content from old farmer/specialist format if present
+            const farmer = analysis.farmer as Record<string, unknown> | null | undefined;
+            const specialist = analysis.specialist as Record<string, unknown> | null | undefined;
+            const farmerAr = (farmer?.ar ?? farmer) as Record<string, unknown> | null | undefined;
+            const specialistAr = (specialist?.ar ?? specialist) as Record<string, unknown> | null | undefined;
+
+            const observations = (
+              (farmerAr?.observations as string[]) ??
+              (specialistAr?.observations as string[]) ??
+              analysis.current_status ??
+              []
+            ).filter(Boolean);
+
+            const actions = (
+              (farmerAr?.actions as Array<Record<string, string>>) ??
+              (specialistAr?.actions as Array<Record<string, string>>) ??
+              []
+            );
+
+            const recommendations = (analysis.recommendations ?? []).filter(Boolean);
+
+            const summary = (
+              (farmerAr?.summary as string) ??
+              (specialistAr?.summary as string) ??
+              ''
+            );
+
+            const statusLabel = (
+              (farmerAr?.status_label as string) ??
+              (specialistAr?.status_label as string) ??
+              ''
+            );
+
+            const hasContent = observations.length > 0 || recommendations.length > 0 || summary || actions.length > 0;
+
+            if (!hasContent) return null;
+
+            return (
+              <div className="bg-gray-800 rounded-lg p-3 space-y-3">
+                {statusLabel && (
+                  <span className="inline-block px-2 py-0.5 rounded-full text-xs font-bold bg-yellow-900/40 text-yellow-300 border border-yellow-700/50">
+                    {statusLabel}
                   </span>
-                </li>
-              );
-            })}
-            {result.recommendations.length === 0 && (
-              <li className="text-sm text-gray-500 italic">لا توجد توصيات متاحة</li>
-            )}
-          </ul>
-        </section>
+                )}
+                {summary && (
+                  <p className="text-white text-sm leading-relaxed">{summary}</p>
+                )}
+                {observations.length > 0 && (
+                  <div>
+                    <p className="text-sm font-medium text-white mb-2">الملاحظات</p>
+                    {observations.map((s, i) => (
+                      <p key={i} className="text-gray-200 text-xs mb-1.5 flex gap-2">
+                        <span className="text-green-400 mt-0.5">{'\u2022'}</span>
+                        <span>{s}</span>
+                      </p>
+                    ))}
+                  </div>
+                )}
+                {actions.length > 0 && (
+                  <div>
+                    <p className="text-sm font-medium text-white mb-2">الإجراءات</p>
+                    {actions.map((a, i) => (
+                      <p key={i} className="text-gray-200 text-xs mb-1.5 flex gap-2">
+                        <span className={`text-xs px-1.5 py-0.5 rounded font-bold ${a.priority === 'urgent' ? 'bg-red-900/40 text-red-300' : a.priority === 'this_week' ? 'bg-yellow-900/40 text-yellow-300' : 'bg-blue-900/40 text-blue-300'}`}>
+                          {a.priority === 'urgent' ? 'عاجل' : a.priority === 'this_week' ? 'هذا الأسبوع' : 'هذا الشهر'}
+                        </span>
+                        <span>{a.text}</span>
+                      </p>
+                    ))}
+                  </div>
+                )}
+                {recommendations.length > 0 && actions.length === 0 && (
+                  <div>
+                    <p className="text-sm font-medium text-white mb-2">التوصيات</p>
+                    {recommendations.map((r, i) => (
+                      <p key={i} className="text-gray-200 text-xs mb-1.5 flex gap-2">
+                        <span className="text-green-400 mt-0.5">{'\u2022'}</span>
+                        <span>{r}</span>
+                      </p>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+        </div>
       </div>
 
       {/* Footer */}
-      <div className="px-4 py-2 border-t border-gray-700 bg-gray-950 flex-shrink-0">
-        <p className="text-xs text-center text-gray-500">
-          تحليل ذكاء اصطناعي زراعي · Qwen 3.5 via OpenRouter
+      <div className="px-4 py-2 border-t border-gray-700 bg-gray-900 flex-shrink-0">
+        <p className="text-xs text-center text-gray-300">
+          {'\u062A\u062D\u0644\u064A\u0644 \u0630\u0643\u0627\u0621 \u0627\u0635\u0637\u0646\u0627\u0639\u064A \u0632\u0631\u0627\u0639\u064A'} {'\u00B7'} Claude Sonnet via OpenRouter
         </p>
       </div>
     </div>
@@ -333,7 +530,8 @@ export function FarmMonitorTab({ activeLayerId, setActiveLayerId }: Props) {
   const [clickedField, setClickedField] = useState<Field | null>(null);
   const [selectedIndice, setSelectedIndice] = useState<string | null>(null);
   const [loadingStep, setLoadingStep] = useState<LoadingStep>('idle');
-  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const [analysisResult, setAnalysisResult] = useState<FieldAnalysisResponse | null>(null);
+  const [analysisImagery, setAnalysisImagery] = useState<ImageryPayload | null>(null);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
 
   const { data: farms = [], isLoading: farmsLoading } = useFarms();
@@ -349,6 +547,7 @@ export function FarmMonitorTab({ activeLayerId, setActiveLayerId }: Props) {
       setSelectedIndice(null);
       setLoadingStep('idle');
       setAnalysisResult(null);
+      setAnalysisImagery(null);
       setAnalysisError(null);
       if (farmId) setActiveLayerId('NDVI');
     },
@@ -361,12 +560,16 @@ export function FarmMonitorTab({ activeLayerId, setActiveLayerId }: Props) {
     setSelectedIndice(indice);
     setAnalysisError(null);
     setAnalysisResult(null);
+    setAnalysisImagery(null);
 
     // Phase 1: Fetch field AI data (CDSE + OpenWeather + OpenMeteo)
     setLoadingStep('fetching');
     let aiData: unknown;
     try {
-      const res = await fetch(`/api/field-ai-data?fieldId=${field.id}&indice=${indice}`);
+      // Extract lat/lng from field centroid (GeoJSON: coordinates=[lng, lat])
+      const fieldLat = field.centroid?.coordinates?.[1] ?? (field as unknown as Record<string, number>).lat ?? 0;
+      const fieldLng = field.centroid?.coordinates?.[0] ?? (field as unknown as Record<string, number>).lng ?? 0;
+      const res = await fetch(`/api/field-ai-data?fieldId=${field.id}&indice=${indice}&lat=${fieldLat}&lng=${fieldLng}`);
       const json = await res.json();
       if (!res.ok) {
         const msg = typeof json?.error === 'string'
@@ -377,6 +580,11 @@ export function FarmMonitorTab({ activeLayerId, setActiveLayerId }: Props) {
         throw new Error(msg);
       }
       aiData = json?.data ?? json;
+      // Extract imagery from Phase 1 response if available
+      const rawData = aiData as Record<string, unknown>;
+      if (rawData?.imagery) {
+        setAnalysisImagery(rawData.imagery as ImageryPayload);
+      }
     } catch (err) {
       setLoadingStep('idle');
       setAnalysisError(err instanceof Error ? err.message : 'فشل جلب بيانات الحقل');
@@ -402,7 +610,12 @@ export function FarmMonitorTab({ activeLayerId, setActiveLayerId }: Props) {
           : `HTTP ${res.status}`;
         throw new Error(msg);
       }
-      setAnalysisResult(json as AnalysisResult);
+      const result = json as FieldAnalysisResponse;
+      // Merge imagery from Phase 2 response if present
+      if (result.imagery) {
+        setAnalysisImagery(result.imagery);
+      }
+      setAnalysisResult(result);
       setLoadingStep('idle');
     } catch (err) {
       setLoadingStep('idle');
@@ -420,6 +633,7 @@ export function FarmMonitorTab({ activeLayerId, setActiveLayerId }: Props) {
 
   const handleCloseAnalysis = useCallback(() => {
     setAnalysisResult(null);
+    setAnalysisImagery(null);
     setClickedField(null);
     setSelectedIndice(null);
     setLoadingStep('idle');
@@ -638,9 +852,9 @@ export function FarmMonitorTab({ activeLayerId, setActiveLayerId }: Props) {
                 {/* Results */}
                 {hasResult && analysisResult && clickedField && (
                   <AnalysisPanel
-                    result={analysisResult}
+                    analysis={analysisResult}
+                    imagery={analysisImagery}
                     field={clickedField}
-                    indice={selectedIndice ?? analysisResult.indice}
                     onClose={handleCloseAnalysis}
                   />
                 )}

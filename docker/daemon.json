@@ -1,0 +1,27 @@
+{
+  "_comment": [
+    "Docker Daemon Configuration - Registry Mirrors for Low-Connectivity / Chinese Network Environments",
+    "",
+    "INSTALLATION:",
+    "  Linux:   sudo cp docker/daemon.json /etc/docker/daemon.json && sudo systemctl restart docker",
+    "  macOS:   Copy contents into Docker Desktop → Settings → Docker Engine → Apply & Restart",
+    "  Windows: Docker Desktop → Settings → Docker Engine → paste the JSON below → Apply & Restart",
+    "           (Remove this _comment key before pasting, as Docker Desktop may reject it)",
+    "",
+    "VERIFY:  docker info | grep -A5 'Registry Mirrors'",
+    "",
+    "WHY: TLS handshake timeouts pulling from docker.io / ghcr.io / quay.io indicate",
+    "     poor connectivity to those registries from this build environment.",
+    "     The mirrors below are reachable from mainland China / Asian networks."
+  ],
+  "registry-mirrors": [
+    "https://mirror.baidubce.com",
+    "https://hub-mirror.c.163.com",
+    "https://docker.mirrors.ustc.edu.cn"
+  ],
+  "max-concurrent-downloads": 3,
+  "dns": [
+    "8.8.8.8",
+    "8.8.4.4"
+  ]
+}

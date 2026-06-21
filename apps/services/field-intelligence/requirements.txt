@@ -53,3 +53,12 @@ openai>=2.26.0,<3.0.0
 
 # HTTP client for internal service calls
 aiohttp>=3.9.0,<4.0.0
+
+# ── Optional: HuggingFace local models (agricultural LLM + Arabic translation) ─
+# Loaded only when CROP_ADVISOR_MODEL or TRANSLATION_MODEL env vars are set.
+# Comment out if running without GPU or in resource-constrained environments.
+# torch>=2.2.0          # uncomment for local GPU inference
+# transformers>=4.40.0  # uncomment for HFAdvisorModel / NLLBTranslator
+# sentencepiece>=0.1.99 # required by NLLB tokenizer
+# sacremoses>=0.1.0     # required by some translation tokenizers
+# accelerate>=0.27.0    # required for device_map="auto"

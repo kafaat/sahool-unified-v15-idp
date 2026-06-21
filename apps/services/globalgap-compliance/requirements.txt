@@ -10,11 +10,11 @@ uvicorn[standard]>=0.34.0,<1.0.0
 
 # Data Validation
 pydantic==2.13.1
-pydantic-settings==2.13.1
+pydantic-settings==2.14.2
 
 # Utilities
 python-dotenv>=1.0.0
-python-multipart>=0.0.22
+python-multipart>=0.0.32
 
 # Date/Time
 python-dateutil>=2.8.2

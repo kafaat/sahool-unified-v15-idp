@@ -36,7 +36,7 @@
     "leaflet": "1.9.4",
     "lucide-react": "0.577.0",
     "next": "15.5.14",
-    "react": "^19.2.4",
+    "react": "^19.2.7",
     "react-dom": "^19.2.4",
     "react-leaflet": "4.2.1",
     "recharts": "2.15.4",

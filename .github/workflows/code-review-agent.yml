@@ -67,7 +67,7 @@ jobs:
     steps:
       - name: Check for agent-review label + actor permission
         id: check
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -128,7 +128,7 @@ jobs:
       # dist / src all live at GITHUB_WORKSPACE.
       # ─────────────────────────────────────────────────────────────────
       - name: Checkout base-ref agent code (trusted)
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.base.sha }}
           fetch-depth: 1
@@ -145,7 +145,7 @@ jobs:
       # execute anything from it.
       # ─────────────────────────────────────────────────────────────────
       - name: Checkout PR content (untrusted — review target only)
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 1
@@ -214,7 +214,7 @@ jobs:
 
       - name: Post review as PR comment
         if: always() && steps.run_review.outcome != 'cancelled'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         env:
           REVIEW_OUTCOME: ${{ steps.run_review.outcome }}
         with:

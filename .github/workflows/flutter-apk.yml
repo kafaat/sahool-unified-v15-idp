@@ -73,7 +73,7 @@ jobs:
         working-directory: .
 
       - name: Checkout repository
-        uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98 # v6.0.2
+        uses: actions/checkout@b9e0990d219a03df7633c93f6f005a8fecbcab22 # v6.0.2
 
       - name: Setup Java ${{ env.JAVA_VERSION }}
         uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e # v5.1.0
@@ -90,7 +90,7 @@ jobs:
         # docs/prompts/fix-flutter-android-ci-flake.md). On a miss the
         # retry-wrapped install below will populate it.
         id: cache-android-ndk
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
         with:
           path: /usr/local/lib/android/sdk/ndk/27.0.12077973
           key: android-ndk-27.0.12077973-${{ runner.os }}
@@ -166,7 +166,7 @@ jobs:
         run: flutter pub get
 
       - name: Setup Python for icon generation
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: '3.11'
 

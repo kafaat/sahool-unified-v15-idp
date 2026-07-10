@@ -71,7 +71,7 @@
     "postcss": "8.5.8",
     "tailwindcss": "3.4.17",
     "typescript": "5.9.3",
-    "vitest": "3.2.4",
+    "vitest": "3.2.6",
     "@storybook/addon-a11y": "^8.5.0",
     "@storybook/addon-essentials": "^8.5.0",
     "@storybook/nextjs": "^8.5.0",

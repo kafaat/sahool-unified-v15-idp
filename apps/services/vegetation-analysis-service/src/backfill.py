@@ -91,9 +91,7 @@ async def backfill_field(
     for i, acq_date in enumerate(sorted_dates):
         # Skip if already stored
         try:
-            has_data = await satellite_storage.has_data_for_date(
-                tenant_id, field_id, acq_date
-            )
+            has_data = await satellite_storage.has_data_for_date(tenant_id, field_id, acq_date)
         except Exception:
             has_data = False
 
@@ -151,9 +149,7 @@ async def backfill_field(
 
             # Also register this date in the acquisition plan as completed
             if acquisition_plan_manager:
-                await acquisition_plan_manager.mark_completed(
-                    tenant_id, field_id, acq_date
-                )
+                await acquisition_plan_manager.mark_completed(tenant_id, field_id, acq_date)
         except Exception as exc:
             logger.error(
                 "backfill_store_error",

@@ -17,11 +17,22 @@ import logging
 import os
 import re
 
-from openai import AsyncOpenAI
 from fastapi import APIRouter, HTTPException
+from openai import AsyncOpenAI
 from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
+
+
+def _safe_log(value: object) -> str:
+    """Strip CR/LF from a value before logging to prevent log-injection (CWE-117).
+
+    Pydantic string fields are not sanitised for newlines by default, so any
+    request-controlled string that lands in a log format string is a potential
+    log-forging vector. Wrap such values with this helper.
+    """
+    return str(value).replace("\r", "\\r").replace("\n", "\\n")
+
 
 ai_router = APIRouter()
 
@@ -153,60 +164,60 @@ SYSTEM_PERSONA = """أنت الدكتور خالد الرشيدي، متخصص �
 
 # Arabic names for each index
 _INDICE_AR: dict[str, str] = {
-    "NDVI":        "مؤشر الغطاء النباتي الطبيعي (NDVI)",
-    "EVI":         "مؤشر الغطاء النباتي المُحسَّن (EVI)",
-    "EVI2":        "مؤشر الغطاء النباتي ثنائي النطاق (EVI2)",
-    "NDWI":        "مؤشر محتوى الماء في النبات (NDWI)",
-    "NDMI":        "مؤشر رطوبة النبات (NDMI)",
+    "NDVI": "مؤشر الغطاء النباتي الطبيعي (NDVI)",
+    "EVI": "مؤشر الغطاء النباتي المُحسَّن (EVI)",
+    "EVI2": "مؤشر الغطاء النباتي ثنائي النطاق (EVI2)",
+    "NDWI": "مؤشر محتوى الماء في النبات (NDWI)",
+    "NDMI": "مؤشر رطوبة النبات (NDMI)",
     "NDMI_STRESS": "مؤشر إجهاد رطوبة النبات (NDMI Stress)",
-    "SAVI":        "مؤشر الغطاء مع تعديل التربة (SAVI)",
-    "NDRE":        "مؤشر الحافة الحمراء للكلوروفيل (NDRE)",
-    "NBR":         "نسبة الحرق المُعيَّرة (NBR)",
-    "BAIS2":       "مؤشر المناطق المحروقة (BAIS2)",
-    "BSI":         "مؤشر التربة العارية (BSI)",
-    "MSAVI":       "مؤشر النبات المُعدَّل للتربة (MSAVI)",
-    "GNDVI":       "مؤشر الغطاء النباتي الأخضر (GNDVI)",
-    "LAI":         "مؤشر مساحة الأوراق (LAI)",
-    "FAPAR":       "جزء الإشعاع الضوئي الممتص (FAPAR)",
-    "FCOVER":      "كسر الغطاء النباتي (FCOVER)",
-    "ARVI":        "مؤشر مقاومة الغلاف الجوي (ARVI)",
-    "PSRI":        "مؤشر شيخوخة النبات (PSRI)",
-    "RECI":        "مؤشر كلوروفيل الحافة الحمراء (RECI)",
-    "NDCI":        "مؤشر الكلوروفيل المعياري (NDCI)",
-    "MCARI":       "مؤشر امتصاص الكلوروفيل (MCARI)",
-    "NDSI":        "مؤشر الثلج المعياري (NDSI)",
-    "KNDVI":       "مؤشر NDVI النواة (kNDVI)",
-    "NDYI":        "مؤشر الاصفرار (NDYI)",
-    "MSI":         "مؤشر إجهاد الرطوبة (MSI)",
+    "SAVI": "مؤشر الغطاء مع تعديل التربة (SAVI)",
+    "NDRE": "مؤشر الحافة الحمراء للكلوروفيل (NDRE)",
+    "NBR": "نسبة الحرق المُعيَّرة (NBR)",
+    "BAIS2": "مؤشر المناطق المحروقة (BAIS2)",
+    "BSI": "مؤشر التربة العارية (BSI)",
+    "MSAVI": "مؤشر النبات المُعدَّل للتربة (MSAVI)",
+    "GNDVI": "مؤشر الغطاء النباتي الأخضر (GNDVI)",
+    "LAI": "مؤشر مساحة الأوراق (LAI)",
+    "FAPAR": "جزء الإشعاع الضوئي الممتص (FAPAR)",
+    "FCOVER": "كسر الغطاء النباتي (FCOVER)",
+    "ARVI": "مؤشر مقاومة الغلاف الجوي (ARVI)",
+    "PSRI": "مؤشر شيخوخة النبات (PSRI)",
+    "RECI": "مؤشر كلوروفيل الحافة الحمراء (RECI)",
+    "NDCI": "مؤشر الكلوروفيل المعياري (NDCI)",
+    "MCARI": "مؤشر امتصاص الكلوروفيل (MCARI)",
+    "NDSI": "مؤشر الثلج المعياري (NDSI)",
+    "KNDVI": "مؤشر NDVI النواة (kNDVI)",
+    "NDYI": "مؤشر الاصفرار (NDYI)",
+    "MSI": "مؤشر إجهاد الرطوبة (MSI)",
 }
 
 # Per-index interpretation context: ranges + what it measures + key thresholds
 _INDICE_CONTEXT: dict[str, str] = {
     "NDVI": "النطاق −1 إلى +1. < 0.2 = تربة/غطاء حرج | 0.2–0.4 = نبات مجهد | 0.4–0.6 = نبات متوسط | > 0.6 = نبات صحي. يقيس الكثافة الخضرية العامة.",
-    "EVI":  "النطاق −1 إلى +1. أكثر دقة من NDVI في المناطق الكثيفة وعند تشبع الإشارة. < 0.2 = حرج | 0.2–0.4 = مجهد | > 0.5 = صحي.",
+    "EVI": "النطاق −1 إلى +1. أكثر دقة من NDVI في المناطق الكثيفة وعند تشبع الإشارة. < 0.2 = حرج | 0.2–0.4 = مجهد | > 0.5 = صحي.",
     "EVI2": "مشابه لـ EVI لكن بدون نطاق أزرق. الحدود ذاتها.",
-    "GNDVI":"النطاق −1 إلى +1. حساس لنقص النيتروجين أكثر من NDVI. < 0.25 = نقص شديد | 0.25–0.45 = نقص متوسط | > 0.5 = كافٍ.",
+    "GNDVI": "النطاق −1 إلى +1. حساس لنقص النيتروجين أكثر من NDVI. < 0.25 = نقص شديد | 0.25–0.45 = نقص متوسط | > 0.5 = كافٍ.",
     "NDRE": "النطاق −1 إلى +1. مؤشر الكلوروفيل ومحتوى النيتروجين. < 0.1 = نقص حاد | 0.1–0.2 = نقص | > 0.2 = مقبول.",
     "SAVI": "النطاق −1 إلى +1. مُحسَّن للمناطق متفرقة النبات (جفاف، رعي). < 0.2 = غطاء ضعيف | 0.2–0.5 = متوسط | > 0.5 = جيد.",
-    "MSAVI":"مشابه لـ SAVI مع تكيف ذاتي. مناسب للمناطق الجافة. نفس نطاقات SAVI.",
+    "MSAVI": "مشابه لـ SAVI مع تكيف ذاتي. مناسب للمناطق الجافة. نفس نطاقات SAVI.",
     "NDWI": "النطاق −1 إلى +1. يقيس محتوى الماء في النبات. < −0.1 = إجهاد مائي حاد | −0.1–0.1 = جفاف معتدل | > 0.2 = محتوى مائي كافٍ.",
     "NDMI": "النطاق −1 إلى +1. يقيس رطوبة الأوراق. < −0.2 = إجهاد مائي شديد | −0.2–0.0 = مجهد | > 0.0 = رطوبة مناسبة.",
     "NDMI_STRESS": "نفس NDMI مع تركيز على قيم الإجهاد السلبية.",
-    "MSI":  "النطاق 0 إلى +3. عكسي: الأعلى = جفاف أشد. < 0.4 = رطوبة عالية | 0.4–1.0 = طبيعي | > 1.0 = إجهاد مائي.",
-    "LAI":  "النطاق 0 إلى 8+ م²/م². 0–1 = غطاء ضعيف | 1–3 = متوسط | 3–6 = جيد | > 6 = كثيف جدًا.",
-    "FAPAR":"النطاق 0–1. نسبة الإشعاع الممتص. < 0.3 = غطاء ضعيف | > 0.6 = غطاء جيد.",
-    "FCOVER":"النطاق 0–1. نسبة تغطية الأرض. < 0.3 = تغطية ضعيفة | > 0.6 = تغطية جيدة.",
-    "NBR":  "النطاق −1 إلى +1. يقيس الحرق والتلف. > 0.1 = نبات سليم | −0.1–0.1 = تلف خفيف | < −0.1 = حريق/تلف شديد.",
-    "BAIS2":"النطاق 0–5+. مؤشر المساحات المحروقة. > 1.0 = حريق مؤكد.",
-    "BSI":  "النطاق −1 إلى +1. يكشف التربة العارية. > 0 = تربة مكشوفة | < 0 = غطاء نباتي.",
+    "MSI": "النطاق 0 إلى +3. عكسي: الأعلى = جفاف أشد. < 0.4 = رطوبة عالية | 0.4–1.0 = طبيعي | > 1.0 = إجهاد مائي.",
+    "LAI": "النطاق 0 إلى 8+ م²/م². 0–1 = غطاء ضعيف | 1–3 = متوسط | 3–6 = جيد | > 6 = كثيف جدًا.",
+    "FAPAR": "النطاق 0–1. نسبة الإشعاع الممتص. < 0.3 = غطاء ضعيف | > 0.6 = غطاء جيد.",
+    "FCOVER": "النطاق 0–1. نسبة تغطية الأرض. < 0.3 = تغطية ضعيفة | > 0.6 = تغطية جيدة.",
+    "NBR": "النطاق −1 إلى +1. يقيس الحرق والتلف. > 0.1 = نبات سليم | −0.1–0.1 = تلف خفيف | < −0.1 = حريق/تلف شديد.",
+    "BAIS2": "النطاق 0–5+. مؤشر المساحات المحروقة. > 1.0 = حريق مؤكد.",
+    "BSI": "النطاق −1 إلى +1. يكشف التربة العارية. > 0 = تربة مكشوفة | < 0 = غطاء نباتي.",
     "ARVI": "مشابه لـ NDVI لكن مُصحَّح للغلاف الجوي. نفس نطاقات NDVI.",
     "PSRI": "النطاق −1 إلى +1. يقيس شيخوخة النبات. > 0.2 = شيخوخة/نضج متقدم | < 0 = نبات خضراء.",
     "NDYI": "يقيس الاصفرار. > 0.2 = اصفرار واضح ← نقص N أو مرض.",
     "RECI": "النطاق 0–15+. يقيس الكلوروفيل الكلي. < 2 = نقص | 2–5 = طبيعي | > 5 = وفير.",
     "NDCI": "النطاق −1 إلى +1. كلوروفيل في المسطحات المائية. > 0.2 = تركيز عالٍ.",
-    "MCARI":"مشابه لـ RECI للكلوروفيل. القيم الأعلى = كلوروفيل أوفر.",
+    "MCARI": "مشابه لـ RECI للكلوروفيل. القيم الأعلى = كلوروفيل أوفر.",
     "NDSI": "النطاق −1 إلى +1. يكشف الثلج. > 0.4 = غطاء ثلجي.",
-    "KNDVI":"نسخة منقحة من NDVI. نفس نطاقات NDVI لكن أكثر استقرارًا مع الغطاء الكثيف.",
+    "KNDVI": "نسخة منقحة من NDVI. نفس نطاقات NDVI لكن أكثر استقرارًا مع الغطاء الكثيف.",
 }
 
 
@@ -272,7 +283,7 @@ def _build_vegetation_prompt(req: AnalyzeFieldRequest) -> str:
 <بيانات_الحقل>
 الحقل   : {field.nameAr or field.name}
 الموقع  : {field.lat:.4f}°ش، {field.lng:.4f}°ش
-المحصول : {field.cropType or 'غير محدد'} | المساحة: {_fmt(field.areaHa, 1, 'هـ')} | التربة: {field.soilType or 'غير محدد'}
+المحصول : {field.cropType or "غير محدد"} | المساحة: {_fmt(field.areaHa, 1, "هـ")} | التربة: {field.soilType or "غير محدد"}
 </بيانات_الحقل>
 
 <البيانات_البيئية_المتاحة>
@@ -298,13 +309,13 @@ def _build_vegetation_prompt(req: AnalyzeFieldRequest) -> str:
 <بيانات_الحقل>
 الحقل   : {field.nameAr or field.name}
 الموقع  : {field.lat:.4f}°ش، {field.lng:.4f}°ش
-المحصول : {field.cropType or 'غير محدد'} | المساحة: {_fmt(field.areaHa, 1, 'هـ')} | التربة: {field.soilType or 'غير محدد'}
+المحصول : {field.cropType or "غير محدد"} | المساحة: {_fmt(field.areaHa, 1, "هـ")} | التربة: {field.soilType or "غير محدد"}
 </بيانات_الحقل>
 
 <قراءة_{req.indice}>
 القيمة المتوسطة : {val_str}{range_str}
-تاريخ الصورة   : {cdse.date or 'غير محدد'}
-الغطاء السحابي : {_fmt(cdse.cloudCover, 1, '%')}
+تاريخ الصورة   : {cdse.date or "غير محدد"}
+الغطاء السحابي : {_fmt(cdse.cloudCover, 1, "%")}
 </قراءة_{req.indice}>
 
 <مرجع_التفسير>
@@ -336,32 +347,32 @@ def _build_weather_prompt(req: AnalyzeFieldRequest) -> str:
     weather_block = "  ── OpenWeather: غير متوفر (مفتاح API غير مُهيَّأ) ──"
     if w:
         weather_block = f"""  ── بيانات OpenWeather الحالية ──
-  درجة الحرارة    : {_fmt(w.temperature, 1, '°م')} (تبدو كـ {_fmt(w.feelsLike, 1, '°م')})
-  الرطوبة النسبية : {_fmt(w.humidity, 0, '%')}
-  سرعة الرياح    : {_fmt(w.windSpeed, 1, 'م/ث')} باتجاه {_fmt(w.windDirection, 0, '°')}
-  هطول الأمطار   : {_fmt(w.precipitation, 2, 'مم')} (الساعة الأخيرة)
-  الغطاء السحابي : {_fmt(w.cloudCover, 0, '%')}
-  الضغط الجوي    : {_fmt(w.pressure, 0, 'هكتوباسكال')}
-  مدى الرؤية     : {_fmt(w.visibility, 0, 'كم')}
-  الحالة الجوية  : {w.description or 'غير متوفر'}"""
+  درجة الحرارة    : {_fmt(w.temperature, 1, "°م")} (تبدو كـ {_fmt(w.feelsLike, 1, "°م")})
+  الرطوبة النسبية : {_fmt(w.humidity, 0, "%")}
+  سرعة الرياح    : {_fmt(w.windSpeed, 1, "م/ث")} باتجاه {_fmt(w.windDirection, 0, "°")}
+  هطول الأمطار   : {_fmt(w.precipitation, 2, "مم")} (الساعة الأخيرة)
+  الغطاء السحابي : {_fmt(w.cloudCover, 0, "%")}
+  الضغط الجوي    : {_fmt(w.pressure, 0, "هكتوباسكال")}
+  مدى الرؤية     : {_fmt(w.visibility, 0, "كم")}
+  الحالة الجوية  : {w.description or "غير متوفر"}"""
 
     meteo_block = "  ── OpenMeteo: غير متوفر ──"
     if m:
         meteo_block = f"""  ── بيانات OpenMeteo الحالية ──
-  درجة الحرارة (2م)        : {_fmt(m.temperature2m, 1, '°م')}
-  الرطوبة النسبية (2م)      : {_fmt(m.relativeHumidity2m, 0, '%')}
-  هطول الأمطار              : {_fmt(m.precipitation, 2, 'مم')}
-  سرعة الرياح (10م)         : {_fmt(m.windSpeed10m, 1, 'م/ث')}
-  رطوبة التربة (0–1 سم)     : {_fmt(m.soilMoisture0to1cm, 3, 'م³/م³')}
-  التبخر-النتح ET₀ (FAO-56) : {_fmt(m.et0FaoEvapotranspiration, 2, 'مم/يوم')}
-  ضغط السطح                 : {_fmt(m.surfacePressure, 0, 'هكتوباسكال')}
-  الغطاء السحابي             : {_fmt(m.cloudCover, 0, '%')}
-  الإشعاع الشمسي القصير     : {_fmt(m.shortwaveRadiation, 1, 'واط/م²')}"""
+  درجة الحرارة (2م)        : {_fmt(m.temperature2m, 1, "°م")}
+  الرطوبة النسبية (2م)      : {_fmt(m.relativeHumidity2m, 0, "%")}
+  هطول الأمطار              : {_fmt(m.precipitation, 2, "مم")}
+  سرعة الرياح (10م)         : {_fmt(m.windSpeed10m, 1, "م/ث")}
+  رطوبة التربة (0–1 سم)     : {_fmt(m.soilMoisture0to1cm, 3, "م³/م³")}
+  التبخر-النتح ET₀ (FAO-56) : {_fmt(m.et0FaoEvapotranspiration, 2, "مم/يوم")}
+  ضغط السطح                 : {_fmt(m.surfacePressure, 0, "هكتوباسكال")}
+  الغطاء السحابي             : {_fmt(m.cloudCover, 0, "%")}
+  الإشعاع الشمسي القصير     : {_fmt(m.shortwaveRadiation, 1, "واط/م²")}"""
 
     return f"""أنت الدكتور خالد الرشيدي. حلِّل الطقس والأرصاد الزراعية لهذا الحقل وأنتج 4 نقاط طقسية دقيقة.
 
 <بيانات_الحقل>
-الحقل: {field.nameAr or field.name} | المحصول: {field.cropType or 'غير محدد'} | {_fmt(field.areaHa, 1, 'هـ')}
+الحقل: {field.nameAr or field.name} | المحصول: {field.cropType or "غير محدد"} | {_fmt(field.areaHa, 1, "هـ")}
 الموقع: {field.lat:.4f}°ش، {field.lng:.4f}°ش | المؤشر الساتلي: {indice_label} = {val_str}
 </بيانات_الحقل>
 
@@ -396,37 +407,37 @@ def _build_recommendations_prompt(req: AnalyzeFieldRequest) -> str:
     weather_lines = "  ── OpenWeather: غير متوفر (مفتاح API غير مُهيَّأ) ──"
     if w:
         weather_lines = f"""  ── بيانات OpenWeather الحالية ──
-  درجة الحرارة      : {_fmt(w.temperature, 1, '°م')} (تبدو كـ {_fmt(w.feelsLike, 1, '°م')})
-  الرطوبة النسبية   : {_fmt(w.humidity, 0, '%')}
-  سرعة الرياح       : {_fmt(w.windSpeed, 1, 'م/ث')} | اتجاه {_fmt(w.windDirection, 0, '°')}
-  هطول الأمطار      : {_fmt(w.precipitation, 2, 'مم/ساعة')}
-  الغطاء السحابي    : {_fmt(w.cloudCover, 0, '%')}
-  الضغط الجوي       : {_fmt(w.pressure, 0, 'هكتوباسكال')}
-  مدى الرؤية        : {_fmt(w.visibility, 0, 'كم')}
-  الحالة الجوية     : {w.description or 'غير متوفر'}"""
+  درجة الحرارة      : {_fmt(w.temperature, 1, "°م")} (تبدو كـ {_fmt(w.feelsLike, 1, "°م")})
+  الرطوبة النسبية   : {_fmt(w.humidity, 0, "%")}
+  سرعة الرياح       : {_fmt(w.windSpeed, 1, "م/ث")} | اتجاه {_fmt(w.windDirection, 0, "°")}
+  هطول الأمطار      : {_fmt(w.precipitation, 2, "مم/ساعة")}
+  الغطاء السحابي    : {_fmt(w.cloudCover, 0, "%")}
+  الضغط الجوي       : {_fmt(w.pressure, 0, "هكتوباسكال")}
+  مدى الرؤية        : {_fmt(w.visibility, 0, "كم")}
+  الحالة الجوية     : {w.description or "غير متوفر"}"""
 
     meteo_lines = "  ── OpenMeteo: غير متوفر ──"
     if m:
         meteo_lines = f"""  ── بيانات OpenMeteo الحالية ──
-  درجة الحرارة (2م)         : {_fmt(m.temperature2m, 1, '°م')}
-  الرطوبة النسبية (2م)       : {_fmt(m.relativeHumidity2m, 0, '%')}
-  هطول الأمطار               : {_fmt(m.precipitation, 2, 'مم')}
-  سرعة الرياح (10م)          : {_fmt(m.windSpeed10m, 1, 'م/ث')}
-  رطوبة التربة (0–1 سم)      : {_fmt(m.soilMoisture0to1cm, 3, 'م³/م³')}
-  التبخر-النتح ET₀ (FAO-56)  : {_fmt(m.et0FaoEvapotranspiration, 2, 'مم/يوم')}
-  ضغط السطح                  : {_fmt(m.surfacePressure, 0, 'هكتوباسكال')}
-  الغطاء السحابي              : {_fmt(m.cloudCover, 0, '%')}
-  الإشعاع الشمسي القصير      : {_fmt(m.shortwaveRadiation, 1, 'واط/م²')}"""
+  درجة الحرارة (2م)         : {_fmt(m.temperature2m, 1, "°م")}
+  الرطوبة النسبية (2م)       : {_fmt(m.relativeHumidity2m, 0, "%")}
+  هطول الأمطار               : {_fmt(m.precipitation, 2, "مم")}
+  سرعة الرياح (10م)          : {_fmt(m.windSpeed10m, 1, "م/ث")}
+  رطوبة التربة (0–1 سم)      : {_fmt(m.soilMoisture0to1cm, 3, "م³/م³")}
+  التبخر-النتح ET₀ (FAO-56)  : {_fmt(m.et0FaoEvapotranspiration, 2, "مم/يوم")}
+  ضغط السطح                  : {_fmt(m.surfacePressure, 0, "هكتوباسكال")}
+  الغطاء السحابي              : {_fmt(m.cloudCover, 0, "%")}
+  الإشعاع الشمسي القصير      : {_fmt(m.shortwaveRadiation, 1, "واط/م²")}"""
 
     ctx = _indice_context(req.indice)
 
     return f"""أنت الدكتور خالد الرشيدي. بناءً على جميع البيانات أدناه، أنتج 5 توصيات زراعية فورية قابلة للتنفيذ.
 
 <بيانات_الحقل_الكاملة>
-الحقل: {field.nameAr or field.name} | المحصول: {field.cropType or 'غير محدد'} | {_fmt(field.areaHa, 1, 'هـ')} | التربة: {field.soilType or 'غير محدد'}
+الحقل: {field.nameAr or field.name} | المحصول: {field.cropType or "غير محدد"} | {_fmt(field.areaHa, 1, "هـ")} | التربة: {field.soilType or "غير محدد"}
 الموقع: {field.lat:.4f}°ش، {field.lng:.4f}°ش
 
-── {indice_label} (تاريخ: {cdse.date or 'غير محدد'}) ──
+── {indice_label} (تاريخ: {cdse.date or "غير محدد"}) ──
 القيمة: {val_str}{range_str}
 مرجع التفسير: {ctx}
 
@@ -530,8 +541,8 @@ async def analyze_field(req: AnalyzeFieldRequest) -> AnalyzeFieldResponse:
     has_meteo = req.meteo is not None
     logger.info(
         "AI analysis started — field=%s indice=%s cdse_value=%s weather=%s meteo=%s model=%s",
-        req.field.id,
-        req.indice,
+        _safe_log(req.field.id),
+        _safe_log(req.indice),
         f"{req.cdse.value:.4f}" if has_cdse else "null",
         "yes" if has_weather else "null",
         "yes" if has_meteo else "null",
@@ -539,13 +550,11 @@ async def analyze_field(req: AnalyzeFieldRequest) -> AnalyzeFieldResponse:
     )
 
     try:
-        veg_task     = _run_agent(SYSTEM_PERSONA, veg_prompt,     max_tokens=700, model=MODEL_FAST)
+        veg_task = _run_agent(SYSTEM_PERSONA, veg_prompt, max_tokens=700, model=MODEL_FAST)
         weather_task = _run_agent(SYSTEM_PERSONA, weather_prompt, max_tokens=700, model=MODEL_FAST)
-        reco_task    = _run_agent(SYSTEM_PERSONA, reco_prompt,    max_tokens=1000, model=MODEL_PRIMARY)
+        reco_task = _run_agent(SYSTEM_PERSONA, reco_prompt, max_tokens=1000, model=MODEL_PRIMARY)
 
-        veg_text, weather_text, reco_text = await asyncio.gather(
-            veg_task, weather_task, reco_task
-        )
+        veg_text, weather_text, reco_text = await asyncio.gather(veg_task, weather_task, reco_task)
 
     except Exception as exc:
         logger.error("Multi-agent analysis failed: %s", exc)
@@ -559,14 +568,14 @@ async def analyze_field(req: AnalyzeFieldRequest) -> AnalyzeFieldResponse:
     current_status_bullets = _parse_bullets(veg_text, 4) + _parse_bullets(weather_text, 4)
     recommendation_bullets = _parse_bullets(reco_text, 5)
 
-    from datetime import datetime, timezone
+    from datetime import UTC, datetime
 
     return AnalyzeFieldResponse(
         field_id=req.field.id,
         indice=req.indice,
         current_status=current_status_bullets,
         recommendations=recommendation_bullets,
-        analyzed_at=datetime.now(timezone.utc).isoformat(),
+        analyzed_at=datetime.now(UTC).isoformat(),
     )
 
 
@@ -580,17 +589,20 @@ import os as _os
 
 # Import schemas at module level so FastAPI can resolve them for body injection
 from ..models.analysis_schemas import (  # noqa: E402
-    ComprehensiveAnalysisRequest,
-    FieldAnalysisResponse,
+    ActionItem,
     AllIndicesPayload,
     AnalysisSections,
-    SectionContent,
-    ActionItem,
+    ComprehensiveAnalysisRequest,
+    FieldAnalysisResponse,
     ImageryPayload,
+    MeteoPayload,
+    SectionContent,
+    WeatherPayload,
 )
 
 try:
     import redis.asyncio as aioredis
+
     _REDIS_URL = _os.environ.get("REDIS_URL", "redis://redis:6379")
     _redis_client: aioredis.Redis | None = None
 
@@ -604,6 +616,7 @@ try:
         return _redis_client
 
 except ImportError:
+
     async def _get_redis():
         return None
 
@@ -615,21 +628,45 @@ def _fmt_val(v: float | None, dec: int = 3) -> str:
     return f"{v:.{dec}f}" if v is not None else "غير متوفر"
 
 
-def _build_indices_block(indices: "AllIndicesPayload") -> str:
+def _build_indices_block(indices: AllIndicesPayload) -> str:
     """Format all 37 indices into a structured Arabic text block."""
     _LABELS = {
-        "NDVI": "NDVI (الغطاء النباتي)", "EVI": "EVI (الغطاء المُحسَّن)", "EVI2": "EVI2 (ثنائي النطاق)",
-        "GNDVI": "GNDVI (الكلوروفيل الأخضر)", "WDRVI": "WDRVI (النطاق الديناميكي)", "ARVI": "ARVI (تصحيح جوي)",
-        "DVI": "DVI (فرق الغطاء)", "RVI": "RVI (نسبة الغطاء)", "RDVI": "RDVI (معياري محسّن)", "NIRv": "NIRv (إنتاجية أولية)",
-        "NDRE": "NDRE (كلوروفيل/نيتروجين)", "NDRE1": "NDRE1 (حافة حمراء 1)", "NDRE2": "NDRE2 (حافة حمراء 2)",
-        "S2REP": "S2REP (موضع الحافة الحمراء)", "IRECI": "IRECI (كلوروفيل معكوس)", "CIre": "CIre (مؤشر كلوروفيل)",
-        "CIgreen": "CIgreen (كلوروفيل أخضر)", "MCARI": "MCARI (امتصاص الكلوروفيل)",
-        "SAVI": "SAVI (تعديل التربة)", "OSAVI": "OSAVI (تعديل محسّن)", "MSAVI": "MSAVI (تعديل ذاتي)", "TSAVI": "TSAVI (تعديل محوّل)",
-        "NDWI": "NDWI (محتوى الماء)", "NDMI": "NDMI (رطوبة النبات)", "MNDWI": "MNDWI (ماء معدّل)",
-        "MSI": "MSI (إجهاد الرطوبة)", "LSWI": "LSWI (رطوبة السطح)", "DSWI": "DSWI (مرض-إجهاد مائي)",
-        "LAI": "LAI (مساحة الأوراق م²/م²)", "FAPAR": "FAPAR (الإشعاع الممتص)", "SeLI": "SeLI (مؤشر LAI)",
-        "PSRI": "PSRI (شيخوخة النبات)", "SIPI": "SIPI (نسبة الأصباغ)", "ARI": "ARI (أنثوسيانين)",
-        "BSI": "BSI (التربة العارية)", "BI": "BI (سطوع التربة)",
+        "NDVI": "NDVI (الغطاء النباتي)",
+        "EVI": "EVI (الغطاء المُحسَّن)",
+        "EVI2": "EVI2 (ثنائي النطاق)",
+        "GNDVI": "GNDVI (الكلوروفيل الأخضر)",
+        "WDRVI": "WDRVI (النطاق الديناميكي)",
+        "ARVI": "ARVI (تصحيح جوي)",
+        "DVI": "DVI (فرق الغطاء)",
+        "RVI": "RVI (نسبة الغطاء)",
+        "RDVI": "RDVI (معياري محسّن)",
+        "NIRv": "NIRv (إنتاجية أولية)",
+        "NDRE": "NDRE (كلوروفيل/نيتروجين)",
+        "NDRE1": "NDRE1 (حافة حمراء 1)",
+        "NDRE2": "NDRE2 (حافة حمراء 2)",
+        "S2REP": "S2REP (موضع الحافة الحمراء)",
+        "IRECI": "IRECI (كلوروفيل معكوس)",
+        "CIre": "CIre (مؤشر كلوروفيل)",
+        "CIgreen": "CIgreen (كلوروفيل أخضر)",
+        "MCARI": "MCARI (امتصاص الكلوروفيل)",
+        "SAVI": "SAVI (تعديل التربة)",
+        "OSAVI": "OSAVI (تعديل محسّن)",
+        "MSAVI": "MSAVI (تعديل ذاتي)",
+        "TSAVI": "TSAVI (تعديل محوّل)",
+        "NDWI": "NDWI (محتوى الماء)",
+        "NDMI": "NDMI (رطوبة النبات)",
+        "MNDWI": "MNDWI (ماء معدّل)",
+        "MSI": "MSI (إجهاد الرطوبة)",
+        "LSWI": "LSWI (رطوبة السطح)",
+        "DSWI": "DSWI (مرض-إجهاد مائي)",
+        "LAI": "LAI (مساحة الأوراق م²/م²)",
+        "FAPAR": "FAPAR (الإشعاع الممتص)",
+        "SeLI": "SeLI (مؤشر LAI)",
+        "PSRI": "PSRI (شيخوخة النبات)",
+        "SIPI": "SIPI (نسبة الأصباغ)",
+        "ARI": "ARI (أنثوسيانين)",
+        "BSI": "BSI (التربة العارية)",
+        "BI": "BI (سطوع التربة)",
         "NDPI": "NDPI (المرحلة الفينولوجية)",
     }
     lines = []
@@ -640,30 +677,40 @@ def _build_indices_block(indices: "AllIndicesPayload") -> str:
     return "\n".join(lines)
 
 
-def _build_meteo_block(meteo: "MeteoPayload | None", weather: "WeatherPayload | None") -> str:
+def _build_meteo_block(meteo: MeteoPayload | None, weather: WeatherPayload | None) -> str:
     """Format all weather + soil + forecast data into Arabic text block."""
-    from ..models.analysis_schemas import MeteoPayload, WeatherPayload
-
     lines = []
     if weather:
         lines.append("── بيانات الطقس الحالية (OpenWeather) ──")
-        lines.append(f"  درجة الحرارة: {_fmt_val(weather.temperature, 1)}°م | الرطوبة: {_fmt_val(weather.humidity, 0)}%")
+        lines.append(
+            f"  درجة الحرارة: {_fmt_val(weather.temperature, 1)}°م | الرطوبة: {_fmt_val(weather.humidity, 0)}%"
+        )
         lines.append(f"  الرياح: {_fmt_val(weather.wind_speed, 1)} كم/س | هطول: {_fmt_val(weather.precipitation)} مم")
-        lines.append(f"  الغيوم: {_fmt_val(weather.cloud_cover, 0)}% | الضغط: {_fmt_val(weather.pressure, 0)} هكتوباسكال")
+        lines.append(
+            f"  الغيوم: {_fmt_val(weather.cloud_cover, 0)}% | الضغط: {_fmt_val(weather.pressure, 0)} هكتوباسكال"
+        )
         lines.append(f"  الحالة: {weather.description or 'غير متوفر'}")
     if meteo:
         lines.append("── بيانات الأرصاد الزراعية (Open-Meteo) ──")
-        lines.append(f"  الحرارة: {_fmt_val(meteo.temperature_2m, 1)}°م | الظاهرية: {_fmt_val(meteo.apparent_temperature, 1)}°م")
-        lines.append(f"  الرطوبة: {_fmt_val(meteo.relative_humidity_2m, 0)}% | VPD: {_fmt_val(meteo.vapour_pressure_deficit, 2)} كيلوباسكال")
+        lines.append(
+            f"  الحرارة: {_fmt_val(meteo.temperature_2m, 1)}°م | الظاهرية: {_fmt_val(meteo.apparent_temperature, 1)}°م"
+        )
+        lines.append(
+            f"  الرطوبة: {_fmt_val(meteo.relative_humidity_2m, 0)}% | VPD: {_fmt_val(meteo.vapour_pressure_deficit, 2)} كيلوباسكال"
+        )
         lines.append(f"  ET₀ (FAO-56): {_fmt_val(meteo.et0_fao_evapotranspiration, 2)} مم/يوم")
         lines.append(f"  الإشعاع الشمسي: {_fmt_val(meteo.shortwave_radiation, 1)} واط/م²")
-        lines.append(f"  إشعاع مباشر: {_fmt_val(meteo.direct_radiation, 1)} واط/م² | منتشر: {_fmt_val(meteo.diffuse_radiation, 1)} واط/م²")
+        lines.append(
+            f"  إشعاع مباشر: {_fmt_val(meteo.direct_radiation, 1)} واط/م² | منتشر: {_fmt_val(meteo.diffuse_radiation, 1)} واط/م²"
+        )
         lines.append(f"  مدة سطوع الشمس: {_fmt_val(meteo.sunshine_duration, 0)} ثانية")
         # Soil moisture
         sm = meteo.soil_moisture
         if sm:
             lines.append("── رطوبة التربة (م³/م³) ──")
-            lines.append(f"  0-1سم: {_fmt_val(sm.depth_0_1cm, 3)} | 1-3سم: {_fmt_val(sm.depth_1_3cm, 3)} | 3-9سم: {_fmt_val(sm.depth_3_9cm, 3)}")
+            lines.append(
+                f"  0-1سم: {_fmt_val(sm.depth_0_1cm, 3)} | 1-3سم: {_fmt_val(sm.depth_1_3cm, 3)} | 3-9سم: {_fmt_val(sm.depth_3_9cm, 3)}"
+            )
             lines.append(f"  9-27سم: {_fmt_val(sm.depth_9_27cm, 3)} | 27-81سم: {_fmt_val(sm.depth_27_81cm, 3)}")
         elif meteo.soil_moisture_0to1cm is not None:
             lines.append(f"  رطوبة التربة (0-1سم): {_fmt_val(meteo.soil_moisture_0to1cm, 3)} م³/م³")
@@ -671,13 +718,17 @@ def _build_meteo_block(meteo: "MeteoPayload | None", weather: "WeatherPayload | 
         st = meteo.soil_temperature
         if st:
             lines.append("── حرارة التربة (°م) ──")
-            lines.append(f"  سطح: {_fmt_val(st.surface, 1)} | 6سم: {_fmt_val(st.depth_6cm, 1)} | 18سم: {_fmt_val(st.depth_18cm, 1)} | 54سم: {_fmt_val(st.depth_54cm, 1)}")
+            lines.append(
+                f"  سطح: {_fmt_val(st.surface, 1)} | 6سم: {_fmt_val(st.depth_6cm, 1)} | 18سم: {_fmt_val(st.depth_18cm, 1)} | 54سم: {_fmt_val(st.depth_54cm, 1)}"
+            )
         # 7-day forecast summary
         if meteo.forecast_7day:
             lines.append("── توقعات 7 أيام ──")
             for day in meteo.forecast_7day[:7]:
                 if day and day.date:
-                    lines.append(f"  {day.date}: {_fmt_val(day.temp_min, 0)}-{_fmt_val(day.temp_max, 0)}°م | هطول: {_fmt_val(day.precipitation_sum)} مم | ET₀: {_fmt_val(day.et0)} مم | أشعة: {_fmt_val(day.uv_index_max, 1)}")
+                    lines.append(
+                        f"  {day.date}: {_fmt_val(day.temp_min, 0)}-{_fmt_val(day.temp_max, 0)}°م | هطول: {_fmt_val(day.precipitation_sum)} مم | ET₀: {_fmt_val(day.et0)} مم | أشعة: {_fmt_val(day.uv_index_max, 1)}"
+                    )
     return "\n".join(lines) if lines else "  لا تتوفر بيانات بيئية"
 
 
@@ -687,6 +738,7 @@ def _calc_growth_stage(seeding_date: str | None) -> str:
         return "غير محدد"
     try:
         from datetime import date as _date
+
         seeded = _date.fromisoformat(seeding_date[:10])
         days = (_date.today() - seeded).days
         if days < 0:
@@ -769,8 +821,9 @@ async def analyze_field_comprehensive(
         )
 
     # ── 1. Redis cache ─────────────────────────────────────────────────────────
-    from datetime import datetime, timezone as _tz
-    today_str = datetime.now(_tz.utc).strftime("%Y%m%d")
+    from datetime import UTC, datetime
+
+    today_str = datetime.now(UTC).strftime("%Y%m%d")
     cache_key = f"field_ai_v2:{req.field.id}:{today_str}"
 
     redis = await _get_redis()
@@ -778,7 +831,7 @@ async def analyze_field_comprehensive(
         try:
             cached = await redis.get(cache_key)
             if cached:
-                logger.info("cache_hit field=%s", req.field.id)
+                logger.info("cache_hit field=%s", _safe_log(req.field.id))
                 data = json.loads(cached)
                 data["cached"] = True
                 return FieldAnalysisResponse(**data)
@@ -787,6 +840,7 @@ async def analyze_field_comprehensive(
 
     # ── 2. AgriGuard health scoring ────────────────────────────────────────────
     from ..services.model_loader import get_agri_scorer
+
     scorer = get_agri_scorer()
     health_class, health_confidence = scorer.score(
         ndvi=req.indices.NDVI.value,
@@ -816,7 +870,9 @@ async def analyze_field_comprehensive(
     indices_block = _build_indices_block(req.indices)
     meteo_block = _build_meteo_block(req.meteo, req.weather)
 
-    health_ar = {"healthy": "صحي", "stressed": "مجهد", "diseased": "حرج", "moderate": "متوسط"}.get(health_class, "غير محدد")
+    health_ar = {"healthy": "صحي", "stressed": "مجهد", "diseased": "حرج", "moderate": "متوسط"}.get(
+        health_class, "غير محدد"
+    )
 
     unified_prompt = f"""أنت الدكتور خالد الرشيدي، خبير زراعي أول متخصص في الزراعة الذكية بخبرة تزيد عن 20 عامًا في منطقة الشرق الأوسط.
 خبرتك تشمل: إدارة المحاصيل في المناطق الجافة وشبه الجافة (قمح، شعير، نخيل، خضروات)، تفسير صور الأقمار الصناعية Sentinel-2، تحسين الري تحت ظروف شح المياه، الآفات والأمراض المحلية (سوسة النخيل الحمراء، صدأ القمح، المن)، أنواع التربة في الشرق الأوسط (كلسية، ملحية، رملية).
@@ -826,9 +882,9 @@ async def analyze_field_comprehensive(
 <بيانات_الحقل>
 الحقل: {f.name_ar or f.name} | المعرف: {f.id}
 الموقع: {f.lat:.4f}°ش، {f.lng:.4f}°ش | الموقع الإداري: {loc_str}
-المحصول: {f.crop_type or 'غير محدد'} | المحصول السابق: {f.previous_crop or 'غير محدد'}
-المساحة: {_fmt_val(f.area_ha, 1)} هكتار | نوع التربة: {f.soil_type or 'غير محدد'} | نوع الري: {f.irrigation_type or 'غير محدد'}
-تاريخ الزراعة: {f.seeding_date or 'غير محدد'} | تاريخ الحصاد المتوقع: {f.harvest_date or 'غير محدد'}
+المحصول: {f.crop_type or "غير محدد"} | المحصول السابق: {f.previous_crop or "غير محدد"}
+المساحة: {_fmt_val(f.area_ha, 1)} هكتار | نوع التربة: {f.soil_type or "غير محدد"} | نوع الري: {f.irrigation_type or "غير محدد"}
+تاريخ الزراعة: {f.seeding_date or "غير محدد"} | تاريخ الحصاد المتوقع: {f.harvest_date or "غير محدد"}
 مرحلة النمو التقريبية: {growth}
 التصنيف الصحي (AgriGuard): {health_ar} (ثقة: {health_confidence:.0%})
 </بيانات_الحقل>
@@ -979,7 +1035,10 @@ NDVI متقطع منخفض + متغير + متغير = إصابة آفات
 
     logger.info(
         "comprehensive_unified_analysis field=%s health=%s score=%d model=%s",
-        req.field.id, health_class, health_score, MODEL_PRIMARY,
+        _safe_log(req.field.id),
+        health_class,
+        health_score,
+        MODEL_PRIMARY,
     )
 
     try:
@@ -1033,7 +1092,7 @@ NDVI متقطع منخفض + متغير + متغير = إصابة آفات
     compat_recs = sections.action_plan.details[:5]
 
     # ── Assemble response ──────────────────────────────────────────────────────
-    now_iso = datetime.now(_tz.utc).isoformat()
+    now_iso = datetime.now(UTC).isoformat()
     response = FieldAnalysisResponse(
         field_id=req.field.id,
         analyzed_at=now_iso,
@@ -1046,7 +1105,11 @@ NDVI متقطع منخفض + متغير + متغير = إصابة آفات
         indices_summary=indices_summary,
         satellite_date=req.satellite_date,
         cloud_cover_pct=req.cloud_cover_pct,
-        data_sources=[s for s in [req.data_source, "openweather" if req.weather else None, "open-meteo" if req.meteo else None] if s],
+        data_sources=[
+            s
+            for s in [req.data_source, "openweather" if req.weather else None, "open-meteo" if req.meteo else None]
+            if s
+        ],
         indice=req.primary_indice,
         current_status=compat_status,
         recommendations=compat_recs,

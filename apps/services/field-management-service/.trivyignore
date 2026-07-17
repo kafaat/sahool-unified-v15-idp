@@ -64,3 +64,12 @@ CVE-2026-25547
 # Revisit: remove once npm ships a release bundling tinyglobby with
 # picomatch>=4.0.4.
 CVE-2026-33671
+
+# sigstore@4.0.0 — certificateOIDs verification option silently discarded
+# (CVE-2026-48815). Package bundled inside npm@11.7.0's own
+# /usr/local/lib/node_modules/npm/node_modules/sigstore. npm uses sigstore
+# only when publishing packages (`npm publish`) — this container never
+# invokes that code path at runtime; deployments install via `npm install`,
+# never `npm publish`. Fixed in sigstore 4.1.1.
+# Revisit: remove once npm ships a release bundling sigstore>=4.1.1.
+CVE-2026-48815

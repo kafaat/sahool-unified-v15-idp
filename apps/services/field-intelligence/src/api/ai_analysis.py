@@ -23,6 +23,17 @@ from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
 
+
+def _safe_log(value: object) -> str:
+    """Strip CR/LF from a value before logging to prevent log-injection (CWE-117).
+
+    Pydantic string fields are not sanitised for newlines by default, so any
+    request-controlled string that lands in a log format string is a potential
+    log-forging vector. Wrap such values with this helper.
+    """
+    return str(value).replace("\r", "\\r").replace("\n", "\\n")
+
+
 ai_router = APIRouter()
 
 # ── OpenRouter client (lazy, shared) ─────────────────────────────────────────
@@ -530,8 +541,8 @@ async def analyze_field(req: AnalyzeFieldRequest) -> AnalyzeFieldResponse:
     has_meteo = req.meteo is not None
     logger.info(
         "AI analysis started — field=%s indice=%s cdse_value=%s weather=%s meteo=%s model=%s",
-        req.field.id,
-        req.indice,
+        _safe_log(req.field.id),
+        _safe_log(req.indice),
         f"{req.cdse.value:.4f}" if has_cdse else "null",
         "yes" if has_weather else "null",
         "yes" if has_meteo else "null",
@@ -820,7 +831,7 @@ async def analyze_field_comprehensive(
         try:
             cached = await redis.get(cache_key)
             if cached:
-                logger.info("cache_hit field=%s", req.field.id)
+                logger.info("cache_hit field=%s", _safe_log(req.field.id))
                 data = json.loads(cached)
                 data["cached"] = True
                 return FieldAnalysisResponse(**data)
@@ -1024,7 +1035,7 @@ NDVI متقطع منخفض + متغير + متغير = إصابة آفات
 
     logger.info(
         "comprehensive_unified_analysis field=%s health=%s score=%d model=%s",
-        req.field.id,
+        _safe_log(req.field.id),
         health_class,
         health_score,
         MODEL_PRIMARY,

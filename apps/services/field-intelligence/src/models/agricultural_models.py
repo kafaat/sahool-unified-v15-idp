@@ -193,9 +193,7 @@ class HFAdvisorModel:
             device = "cuda" if torch.cuda.is_available() else "cpu"
             logger.info("Loading agricultural LLM: %s@%s on %s", self._model_name, hf_revision, device)
 
-            tokenizer = AutoTokenizer.from_pretrained(
-                self._model_name, cache_dir=hf_home, revision=hf_revision
-            )
+            tokenizer = AutoTokenizer.from_pretrained(self._model_name, cache_dir=hf_home, revision=hf_revision)
             model = AutoModelForCausalLM.from_pretrained(
                 self._model_name,
                 cache_dir=hf_home,

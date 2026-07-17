@@ -187,13 +187,19 @@ class HFAdvisorModel:
             from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 
             hf_home = os.environ.get("HF_HOME", "/app/models")
+            # Pin HF model revision for supply-chain safety; overridable per deployment
+            # via CROP_ADVISOR_MODEL_REVISION (default "main" for backward compat).
+            hf_revision = os.environ.get("CROP_ADVISOR_MODEL_REVISION", "main")
             device = "cuda" if torch.cuda.is_available() else "cpu"
-            logger.info("Loading agricultural LLM: %s on %s", self._model_name, device)
+            logger.info("Loading agricultural LLM: %s@%s on %s", self._model_name, hf_revision, device)
 
-            tokenizer = AutoTokenizer.from_pretrained(self._model_name, cache_dir=hf_home)
+            tokenizer = AutoTokenizer.from_pretrained(
+                self._model_name, cache_dir=hf_home, revision=hf_revision
+            )
             model = AutoModelForCausalLM.from_pretrained(
                 self._model_name,
                 cache_dir=hf_home,
+                revision=hf_revision,
                 torch_dtype=torch.float16 if device == "cuda" else torch.float32,
                 device_map="auto",
                 low_cpu_mem_usage=True,

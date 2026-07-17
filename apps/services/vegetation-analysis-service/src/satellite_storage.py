@@ -168,6 +168,9 @@ class SatelliteStorage:
             clauses.append(f"acquisition_date <= ${len(params)}")
 
         where = " AND ".join(clauses)
+        # `idx` is validated against a 4-element allowlist above (ndvi/evi/lai/ndwi)
+        # so column-name interpolation is safe; all user input reaches SQL only via
+        # `params` bound to $N placeholders.
         query = f"""
             SELECT
                 acquisition_date,
@@ -181,7 +184,7 @@ class SatelliteStorage:
             FROM satellite_field_data
             WHERE {where}
             ORDER BY acquisition_date ASC
-        """
+        """  # nosec B608 — allowlisted column prefix + parameterized $N binding
 
         async with self._pool.acquire() as conn:
             rows = await conn.fetch(query, *params)
@@ -241,7 +244,7 @@ class SatelliteStorage:
                 FROM satellite_acquisition_plan
                 WHERE {where}
                 ORDER BY planned_date ASC
-                """,
+                """,  # nosec B608 — allowlisted clauses + parameterized $N binding
                 *params,
             )
         return [

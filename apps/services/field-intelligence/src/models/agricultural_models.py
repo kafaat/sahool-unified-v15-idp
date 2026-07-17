@@ -217,7 +217,7 @@ class HFAdvisorModel:
             return None
         try:
             output = self._pipe(prompt)
-            return output[0]["generated_text"][len(prompt):].strip()
+            return output[0]["generated_text"][len(prompt) :].strip()
         except Exception as exc:
             logger.warning("HF model inference failed: %s", exc)
             return None

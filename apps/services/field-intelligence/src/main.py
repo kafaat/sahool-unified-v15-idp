@@ -80,8 +80,8 @@ except ImportError:
         _logger.debug("Security headers not configured (module unavailable)")
 
 
-from .api.routes import router
 from .api.ai_analysis import ai_router
+from .api.routes import router
 from .services.event_processor import EventProcessor
 from .services.rules_engine import RulesEngine
 

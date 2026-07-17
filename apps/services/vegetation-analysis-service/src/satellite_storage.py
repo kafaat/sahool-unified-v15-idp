@@ -58,13 +58,9 @@ class SatelliteStorage:
 
         # Upload to MinIO
         if self._minio and geotiff_bytes:
-            geotiff_url = await self._upload(
-                tenant_id, field_id, date_str, "ndvi.tif", geotiff_bytes, "image/tiff"
-            )
+            geotiff_url = await self._upload(tenant_id, field_id, date_str, "ndvi.tif", geotiff_bytes, "image/tiff")
         if self._minio and png_bytes:
-            png_url = await self._upload(
-                tenant_id, field_id, date_str, "thumbnail.png", png_bytes, "image/png"
-            )
+            png_url = await self._upload(tenant_id, field_id, date_str, "thumbnail.png", png_bytes, "image/png")
 
         # Embed bbox into stac_metadata so acquisition_plan_manager can find it
         meta = stac_metadata or {}
@@ -111,14 +107,22 @@ class SatelliteStorage:
                 field_id,
                 acquisition_date,
                 stats.get("cloud_cover_percent"),
-                stats.get("ndvi_mean"), stats.get("ndvi_min"),
-                stats.get("ndvi_max"), stats.get("ndvi_std"),
-                stats.get("evi_mean"),  stats.get("evi_min"),
-                stats.get("evi_max"),  stats.get("evi_std"),
-                stats.get("lai_mean"),  stats.get("lai_min"),
-                stats.get("lai_max"),  stats.get("lai_std"),
-                stats.get("ndwi_mean"), stats.get("ndwi_min"),
-                stats.get("ndwi_max"), stats.get("ndwi_std"),
+                stats.get("ndvi_mean"),
+                stats.get("ndvi_min"),
+                stats.get("ndvi_max"),
+                stats.get("ndvi_std"),
+                stats.get("evi_mean"),
+                stats.get("evi_min"),
+                stats.get("evi_max"),
+                stats.get("evi_std"),
+                stats.get("lai_mean"),
+                stats.get("lai_min"),
+                stats.get("lai_max"),
+                stats.get("lai_std"),
+                stats.get("ndwi_mean"),
+                stats.get("ndwi_min"),
+                stats.get("ndwi_max"),
+                stats.get("ndwi_std"),
                 geotiff_url,
                 png_url,
                 json.dumps(meta) if meta else None,
@@ -199,9 +203,7 @@ class SatelliteStorage:
             for r in rows
         ]
 
-    async def has_data_for_date(
-        self, tenant_id: str, field_id: str, acquisition_date: date
-    ) -> bool:
+    async def has_data_for_date(self, tenant_id: str, field_id: str, acquisition_date: date) -> bool:
         async with self._pool.acquire() as conn:
             row = await conn.fetchrow(
                 """

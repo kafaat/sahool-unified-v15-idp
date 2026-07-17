@@ -12,12 +12,11 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import os
 import time
 from dataclasses import dataclass, field
 from datetime import date, datetime, timezone
 from typing import Any
-
-import os
 
 import httpx
 import structlog
@@ -117,7 +116,7 @@ class CdseClient:
                 return
             except httpx.HTTPError as exc:
                 logger.error("cdse_token_error", attempt=attempt, error=str(exc))
-                await asyncio.sleep(2 ** attempt)
+                await asyncio.sleep(2**attempt)
         raise RuntimeError("Failed to obtain CDSE token after 3 attempts")
 
     # ------------------------------------------------------------------ #
@@ -181,7 +180,7 @@ class CdseClient:
                     if attempt == 2:
                         logger.error("cdse_search_failed", error=str(exc), bbox=bbox)
                         return features
-                    await asyncio.sleep(2 ** attempt)
+                    await asyncio.sleep(2**attempt)
 
             data = resp.json()
             features.extend(data.get("features", []))
@@ -288,7 +287,7 @@ class CdseClient:
                         error=str(exc),
                     )
                     return None
-                await asyncio.sleep(2 ** attempt)
+                await asyncio.sleep(2**attempt)
 
         return None
 

@@ -11,14 +11,18 @@ Provides lazy-loaded singletons for:
 from __future__ import annotations
 
 import logging
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ..models.agricultural_models import AgriGuardScorer, HFAdvisorModel, NLLBTranslator
 
 logger = logging.getLogger(__name__)
 
 # ── Singletons (initialised once on first use) ─────────────────────────────────
 
-_agri_scorer: "AgriGuardScorer | None" = None  # type: ignore[name-defined]
-_hf_advisor: "HFAdvisorModel | None" = None  # type: ignore[name-defined]
-_nllb_translator: "NLLBTranslator | None" = None  # type: ignore[name-defined]
+_agri_scorer: AgriGuardScorer | None = None
+_hf_advisor: HFAdvisorModel | None = None
+_nllb_translator: NLLBTranslator | None = None
 
 
 def get_agri_scorer():

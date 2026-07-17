@@ -559,14 +559,14 @@ async def analyze_field(req: AnalyzeFieldRequest) -> AnalyzeFieldResponse:
     current_status_bullets = _parse_bullets(veg_text, 4) + _parse_bullets(weather_text, 4)
     recommendation_bullets = _parse_bullets(reco_text, 5)
 
-    from datetime import datetime, timezone
+    from datetime import UTC, datetime
 
     return AnalyzeFieldResponse(
         field_id=req.field.id,
         indice=req.indice,
         current_status=current_status_bullets,
         recommendations=recommendation_bullets,
-        analyzed_at=datetime.now(timezone.utc).isoformat(),
+        analyzed_at=datetime.now(UTC).isoformat(),
     )
 
 
@@ -580,13 +580,15 @@ import os as _os
 
 # Import schemas at module level so FastAPI can resolve them for body injection
 from ..models.analysis_schemas import (  # noqa: E402
-    ComprehensiveAnalysisRequest,
-    FieldAnalysisResponse,
+    ActionItem,
     AllIndicesPayload,
     AnalysisSections,
-    SectionContent,
-    ActionItem,
+    ComprehensiveAnalysisRequest,
+    FieldAnalysisResponse,
     ImageryPayload,
+    MeteoPayload,
+    SectionContent,
+    WeatherPayload,
 )
 
 try:
@@ -615,7 +617,7 @@ def _fmt_val(v: float | None, dec: int = 3) -> str:
     return f"{v:.{dec}f}" if v is not None else "غير متوفر"
 
 
-def _build_indices_block(indices: "AllIndicesPayload") -> str:
+def _build_indices_block(indices: AllIndicesPayload) -> str:
     """Format all 37 indices into a structured Arabic text block."""
     _LABELS = {
         "NDVI": "NDVI (الغطاء النباتي)", "EVI": "EVI (الغطاء المُحسَّن)", "EVI2": "EVI2 (ثنائي النطاق)",
@@ -640,10 +642,8 @@ def _build_indices_block(indices: "AllIndicesPayload") -> str:
     return "\n".join(lines)
 
 
-def _build_meteo_block(meteo: "MeteoPayload | None", weather: "WeatherPayload | None") -> str:
+def _build_meteo_block(meteo: MeteoPayload | None, weather: WeatherPayload | None) -> str:
     """Format all weather + soil + forecast data into Arabic text block."""
-    from ..models.analysis_schemas import MeteoPayload, WeatherPayload
-
     lines = []
     if weather:
         lines.append("── بيانات الطقس الحالية (OpenWeather) ──")
@@ -769,8 +769,8 @@ async def analyze_field_comprehensive(
         )
 
     # ── 1. Redis cache ─────────────────────────────────────────────────────────
-    from datetime import datetime, timezone as _tz
-    today_str = datetime.now(_tz.utc).strftime("%Y%m%d")
+    from datetime import UTC, datetime
+    today_str = datetime.now(UTC).strftime("%Y%m%d")
     cache_key = f"field_ai_v2:{req.field.id}:{today_str}"
 
     redis = await _get_redis()
@@ -1033,7 +1033,7 @@ NDVI متقطع منخفض + متغير + متغير = إصابة آفات
     compat_recs = sections.action_plan.details[:5]
 
     # ── Assemble response ──────────────────────────────────────────────────────
-    now_iso = datetime.now(_tz.utc).isoformat()
+    now_iso = datetime.now(UTC).isoformat()
     response = FieldAnalysisResponse(
         field_id=req.field.id,
         analyzed_at=now_iso,

@@ -571,11 +571,16 @@ class TestSoilHealthTracking:
 
     def test_calculate_indicator_trend(self, soil_tracker, sample_soil_measurement):
         """Test calculating trend for soil indicator"""
-        # Add multiple measurements
+        # Anchor measurements to today so the trailing 1-year window
+        # (see years=1 below) always contains at least 2 of them. Previously
+        # the fixed date(2025, 1, 1) start meant this test failed whenever
+        # it ran more than ~1 year after that anchor (all measurements fell
+        # outside the trailing window and measurement_count dropped to 1).
+        today = date.today()
         for i in range(3):
             m = SoilHealthMeasurement(
                 field_id="FIELD-001",
-                measurement_date=date(2025, 1, 1) + timedelta(days=i * 180),
+                measurement_date=today - timedelta(days=(2 - i) * 180),
                 organic_matter_percent=2.0 + i * 0.3,
                 nitrogen_available_kg_ha=40 + i * 10,
             )

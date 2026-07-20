@@ -603,7 +603,11 @@ class TestIslamicEvents:
     def test_get_events_affecting_agriculture(self):
         """Test getting events that affect agriculture"""
         manager = IslamicEventsManager()
-        affecting = manager.get_events_affecting_agriculture(days_ahead=90)
+        # A full 365-day window always spans at least one major Islamic event
+        # (Ramadan / Eid al-Fitr / Eid al-Adha) — using 90 days made the test
+        # date-fragile: on runs when the next major event is >90 days away
+        # the returned list was empty.
+        affecting = manager.get_events_affecting_agriculture(days_ahead=365)
 
         # Should have events that affect market or labor
         assert len(affecting) > 0

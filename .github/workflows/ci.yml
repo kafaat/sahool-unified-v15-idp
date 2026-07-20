@@ -298,8 +298,15 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip wheel
-          # Core test framework and dependencies
-          pip install pytest pytest-asyncio pytest-cov pytest-xdist pytest-timeout schemathesis allure-pytest --quiet
+          # Core test framework and dependencies. pytest-asyncio is pinned
+          # because 1.4.x removed the auto-created MainThread event loop and
+          # dozens of pre-existing async unit tests (test_gap_fixes,
+          # test_orchestration_swarm, test_knowledge_async_pipeline,
+          # test_ultrarag_crag_workflow, test_edge_layer,
+          # test_security_fixes/TestDriftDetectionCommandAllowlist) fail with
+          # "There is no current event loop in thread 'MainThread'". Matches
+          # the pin already in requirements/testing.txt.
+          pip install pytest "pytest-asyncio==1.3.0" pytest-cov pytest-xdist pytest-timeout schemathesis allure-pytest --quiet
           pip install httpx "pyjwt[crypto]" cryptography cffi fastapi pydantic pydantic-settings jsonschema "sqlalchemy[asyncio]" structlog redis prometheus-client nats-py --quiet
           # ORM and optional deps (may fail on some platforms)
           pip install tortoise-orm --quiet || echo "::warning::tortoise-orm install failed, some tests may skip"

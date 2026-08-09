@@ -2,7 +2,7 @@
 # متطلبات طبقة المصادقة المشتركة
 
 # JWT
-PyJWT==2.10.1
+PyJWT==2.13.0
 
 # Password hashing - Primary: Argon2id (OWASP recommended)
 argon2-cffi==23.1.0

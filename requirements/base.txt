@@ -6,15 +6,15 @@
 # Version: 16.0.0
 
 # FastAPI Framework Stack
-fastapi==0.135.1
+fastapi==0.141.1
 uvicorn[standard]>=0.34.0,<1.0.0
-pydantic==2.13.1
+pydantic==2.13.4
 
 # Async HTTP Client
 httpx==0.28.1
 
 # File Uploads (required by FastAPI for multipart form data)
-python-multipart>=0.0.12  # Constrained to ==0.0.22 by constraints.txt
+python-multipart>=0.0.32  # Constrained to ==0.0.22 by constraints.txt
 
 # Event Contract Validation (shared.contracts.events)
 jsonschema>=4.20.0

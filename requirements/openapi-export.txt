@@ -37,7 +37,7 @@ opentelemetry-instrumentation-fastapi
 # Serialization — pinned exactly so the freshness guard is byte-stable.
 # Minor PyYAML releases have changed default escaping/wrapping in the past;
 # locking the version is cheaper than chasing false drift.
-pyyaml==6.0.2
+pyyaml==6.0.3
 
 # Async / filesystem
 aiofiles

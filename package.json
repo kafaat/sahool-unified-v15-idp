@@ -109,7 +109,7 @@
     "handlebars": ">=4.7.9",
     "path-to-regexp": ">=0.1.13",
     "socket.io-parser": ">=4.2.6",
-    "smol-toml": ">=1.6.1",
+    "smol-toml": ">=1.9.1",
     "yaml": ">=2.8.3",
     "next": ">=15.5.14"
   },

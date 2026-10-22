@@ -28,10 +28,10 @@ jobs:
       sql_issues: ${{ steps.sqlfluff.outputs.issues }}
       spec_valid: ${{ steps.spec.outputs.valid }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Setup Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: '3.11'
 
@@ -99,7 +99,7 @@ jobs:
       contract_pass: ${{ steps.schemathesis.outputs.pass }}
       newman_pass: ${{ steps.newman.outputs.pass }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: actions/download-artifact@v8
         with:
@@ -107,7 +107,7 @@ jobs:
           path: api/
 
       - name: Setup Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: '3.11'
 
@@ -169,10 +169,10 @@ jobs:
       bandit_issues: ${{ steps.bandit.outputs.issues }}
       semgrep_issues: ${{ steps.semgrep.outputs.issues }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Setup Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: '3.11'
 
@@ -220,10 +220,10 @@ jobs:
       python_pass: ${{ steps.pytest.outputs.pass }}
       coverage: ${{ steps.pytest.outputs.coverage }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Setup Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: '3.11'
 
@@ -275,7 +275,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Generate Quality Report
         env:

@@ -88,6 +88,7 @@ class TestWebSocketMessageHandler:
     async def test_handle_join_room(self, setup_handler):
         """Test join room message handling"""
         handler, room_manager = setup_handler
+        handler._validate_field_access = AsyncMock(return_value=True)
         ws = AsyncMock()
 
         await room_manager.add_connection("conn_001", ws, "user_123", "tenant_001")
@@ -96,9 +97,22 @@ class TestWebSocketMessageHandler:
 
         response = await handler.handle_join_room("conn_001", message)
 
+        handler._validate_field_access.assert_awaited_once()
         assert response["type"] == "room_joined"
         assert response["room"] == "field:field_123"
         assert "field:field_123" in room_manager.rooms
+
+    @pytest.mark.asyncio
+    async def test_field_authorization_denial_blocks_join_and_broadcast(self, setup_handler):
+        handler, room_manager = setup_handler
+        await room_manager.add_connection("conn_001", AsyncMock(), "user_123", "tenant_001")
+        handler._validate_field_access = AsyncMock(return_value=False)
+        joined = await handler.handle_join_room("conn_001", {"room": "field:field_123"})
+        broadcast = await handler.handle_broadcast("conn_001", {"room": "field:field_123"})
+        assert joined["type"] == "error"
+        assert broadcast["type"] == "error"
+        assert "field:field_123" not in room_manager.rooms
+        assert handler._validate_field_access.await_count == 2
 
     @pytest.mark.asyncio
     async def test_handle_join_room_missing_room_id(self, setup_handler):
@@ -135,6 +149,7 @@ class TestWebSocketMessageHandler:
     async def test_handle_broadcast(self, setup_handler):
         """Test broadcast message handling"""
         handler, room_manager = setup_handler
+        handler._validate_field_access = AsyncMock(return_value=True)
         ws1 = AsyncMock()
         ws2 = AsyncMock()
 
@@ -152,6 +167,7 @@ class TestWebSocketMessageHandler:
 
         response = await handler.handle_broadcast("conn_001", message)
 
+        handler._validate_field_access.assert_awaited_once()
         assert response["type"] == "broadcast_sent"
         assert response["room"] == "field:field_123"
         assert response["recipients"] == 1  # Excludes sender
@@ -252,9 +268,9 @@ class TestWebSocketMessageHandler:
         await room_manager.add_connection("conn_001", ws, "user_123", "tenant_001")
 
         # Global topics should be accessible
-        assert handler._validate_topic_access("conn_001", "alerts")
-        assert handler._validate_topic_access("conn_001", "weather")
-        assert handler._validate_topic_access("conn_001", "global:system")
+        assert await handler._validate_topic_access("conn_001", "alerts")
+        assert await handler._validate_topic_access("conn_001", "weather")
+        assert await handler._validate_topic_access("conn_001", "global:system")
 
     @pytest.mark.asyncio
     async def test_topic_validation_tenant_match(self, setup_handler):
@@ -265,10 +281,10 @@ class TestWebSocketMessageHandler:
         await room_manager.add_connection("conn_001", ws, "user_123", "tenant_001")
 
         # Own tenant - should be accessible
-        assert handler._validate_topic_access("conn_001", "tenant:tenant_001")
+        assert await handler._validate_topic_access("conn_001", "tenant:tenant_001")
 
         # Different tenant - should not be accessible
-        assert not handler._validate_topic_access("conn_001", "tenant:tenant_999")
+        assert not await handler._validate_topic_access("conn_001", "tenant:tenant_999")
 
     @pytest.mark.asyncio
     async def test_topic_validation_user_match(self, setup_handler):
@@ -279,10 +295,10 @@ class TestWebSocketMessageHandler:
         await room_manager.add_connection("conn_001", ws, "user_123", "tenant_001")
 
         # Own user - should be accessible
-        assert handler._validate_topic_access("conn_001", "user:user_123")
+        assert await handler._validate_topic_access("conn_001", "user:user_123")
 
         # Different user - should not be accessible
-        assert not handler._validate_topic_access("conn_001", "user:user_999")
+        assert not await handler._validate_topic_access("conn_001", "user:user_999")
 
     @pytest.mark.asyncio
     async def test_broadcast_permission_validation(self, setup_handler):
@@ -293,8 +309,8 @@ class TestWebSocketMessageHandler:
         await room_manager.add_connection("conn_001", ws, "user_123", "tenant_001")
 
         # Should be able to broadcast to accessible rooms
-        assert handler._validate_broadcast_permission("conn_001", "alerts")
-        assert handler._validate_broadcast_permission("conn_001", "tenant:tenant_001")
+        assert await handler._validate_broadcast_permission("conn_001", "alerts")
+        assert await handler._validate_broadcast_permission("conn_001", "tenant:tenant_001")
 
         # Should not broadcast to inaccessible rooms
-        assert not handler._validate_broadcast_permission("conn_001", "tenant:tenant_999")
+        assert not await handler._validate_broadcast_permission("conn_001", "tenant:tenant_999")

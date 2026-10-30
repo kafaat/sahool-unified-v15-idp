@@ -3,7 +3,6 @@
 import argparse
 import hashlib
 import json
-import os
 import platform
 import subprocess
 import sys
@@ -132,16 +131,24 @@ def main():
         print(json.dumps({"status": "BLOCKED", "reason": str(exc)}))
         return 2
     run_id = uuid.uuid4().hex
-    environment = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
     stages = [
         (
             "unit",
-            [sys.executable, str(ROOT / "unit_harness.py"), "--output", str(output / "unit.json"), "--run-id", run_id],
+            [
+                sys.executable,
+                "-B",
+                str(ROOT / "unit_harness.py"),
+                "--output",
+                str(output / "unit.json"),
+                "--run-id",
+                run_id,
+            ],
         ),
         (
             "independent",
             [
                 sys.executable,
+                "-B",
                 str(ROOT / "encoding_guard_review/review.py"),
                 "--evidence-root",
                 str(ROOT),
@@ -156,8 +163,16 @@ def main():
     for name, command in stages:
         stage = {"stage": name, "exit_code": None, "receipt_valid": False}
         try:
+            # Interpreter/scripts are fixed above; CLI output paths are absolute argv values.
+            # No shell parses these values, including spaces or shell metacharacters.
             result = subprocess.run(
-                command, cwd=ROOT, env=environment, capture_output=True, text=True, timeout=120, check=False
+                command,  # nosemgrep: python.lang.security.audit.dangerous-subprocess-use-tainted-env-args.dangerous-subprocess-use-tainted-env-args
+                cwd=ROOT,
+                capture_output=True,
+                text=True,
+                timeout=120,
+                check=False,
+                shell=False,
             )
             (output / (name + ".log")).write_text(result.stdout + result.stderr)
             stage["exit_code"] = result.returncode

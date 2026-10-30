@@ -569,9 +569,16 @@ class TestSoilHealthTracking:
         dates = [m.measurement_date for m in measurements]
         assert dates == sorted(dates)
 
-    def test_calculate_indicator_trend(self, soil_tracker, sample_soil_measurement):
+    def test_calculate_indicator_trend(self, soil_tracker, sample_soil_measurement, monkeypatch):
         """Test calculating trend for soil indicator"""
-        # Add multiple measurements
+
+        class FixedDate(date):
+            @classmethod
+            def today(cls):
+                return cls(2025, 12, 31)
+
+        monkeypatch.setattr("shared.crop_rotation.soil_health.date", FixedDate)
+        # All three observations fall within the fixed one-year query window.
         for i in range(3):
             m = SoilHealthMeasurement(
                 field_id="FIELD-001",
@@ -588,7 +595,7 @@ class TestSoilHealthTracking:
         )
 
         assert trend.field_id == "FIELD-001"
-        assert trend.measurement_count >= 2
+        assert trend.measurement_count == 3
         assert trend.trend_direction in [
             TrendDirection.IMPROVING.value,
             TrendDirection.STABLE.value,

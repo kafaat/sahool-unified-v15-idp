@@ -303,17 +303,24 @@ class TestDockerComposePortUniqueness:
         deprecated_services = {
             "wechat-service",
         }
+        # Verified one-shot jobs and outbound-only workers have no HTTP listener.
+        worker_services = {
+            "nats-stream-init",
+            "mongo-keyfile-init",
+            "field-management-migrate",
+            "agro-rules",
+            "demo-data",
+            "code-review-agent",
+        }
         services = docker_compose_config.get("services", {})
         missing = []
         for svc_name, svc_config in services.items():
-            if svc_name in infra_services or svc_name in deprecated_services:
+            if svc_name in infra_services | deprecated_services | worker_services:
                 continue
             if not svc_config.get("ports"):
                 missing.append(svc_name)
 
-        # Allow some services without ports (workers, sidecars)
-        # but flag if too many are missing
-        assert len(missing) <= 5, f"Too many application services without port mappings: {missing}"
+        assert not missing, f"Application services without port mappings: {missing}"
 
 
 # ═══════════════════════════════════════════════════════════════════════════

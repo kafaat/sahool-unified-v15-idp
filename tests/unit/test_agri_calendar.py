@@ -16,7 +16,6 @@ from datetime import date, timedelta
 from typing import Any
 
 import pytest
-
 from shared.agri_calendar.islamic import (
     DAY_NAMES,
     HIJRI_MONTH_ENUM,
@@ -588,8 +587,8 @@ class TestIslamicEvents:
     def test_get_upcoming_islamic_events(self):
         """Test getting upcoming Islamic events"""
         manager = IslamicEventsManager()
-        # Use 180 days window to avoid date-dependent failures
-        upcoming = manager.get_upcoming_events(days_ahead=180)
+        # Anchor the query before known events, independent of the execution date.
+        upcoming = manager.get_upcoming_events(days_ahead=180, from_date=date(2026, 1, 1))
 
         assert len(upcoming) > 0
 
@@ -603,7 +602,7 @@ class TestIslamicEvents:
     def test_get_events_affecting_agriculture(self):
         """Test getting events that affect agriculture"""
         manager = IslamicEventsManager()
-        affecting = manager.get_events_affecting_agriculture(days_ahead=90)
+        affecting = manager.get_events_affecting_agriculture(days_ahead=90, from_date=date(2026, 1, 1))
 
         # Should have events that affect market or labor
         assert len(affecting) > 0
@@ -662,8 +661,15 @@ class TestIslamicEvents:
         assert advisory["labor_available"] is True
         assert len(advisory["advisory_en"]) > 0
 
-    def test_get_upcoming_islamic_events_helper(self):
+    def test_get_upcoming_islamic_events_helper(self, monkeypatch):
         """Test get_upcoming_islamic_events helper function"""
+
+        class FixedDate(date):
+            @classmethod
+            def today(cls):
+                return cls(2026, 1, 1)
+
+        monkeypatch.setattr("shared.agri_calendar.islamic.date", FixedDate)
         events = get_upcoming_islamic_events(days_ahead=90)
         assert len(events) > 0
 

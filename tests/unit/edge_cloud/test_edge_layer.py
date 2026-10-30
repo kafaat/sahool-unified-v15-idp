@@ -834,7 +834,8 @@ class TestAutoIrrigationTrigger:
         assert result["success"] is False
         assert result["reason"] == "auto_irrigation_disabled"
 
-    def test_trigger_history(self, irrigation_controller: AutoIrrigationController):
+    @pytest.mark.asyncio
+    async def test_trigger_history(self, irrigation_controller: AutoIrrigationController):
         """Test trigger history is maintained"""
         import asyncio
 
@@ -846,7 +847,7 @@ class TestAutoIrrigationTrigger:
                     evaluation={"urgency": "normal", "reasons": [f"test {i}"]},
                 )
 
-        asyncio.get_event_loop().run_until_complete(trigger_multiple())
+        await trigger_multiple()
 
         history = irrigation_controller.get_trigger_history()
         assert len(history) == 3

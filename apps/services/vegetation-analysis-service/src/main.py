@@ -33,7 +33,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field, field_validator
-
 from shared.auth.dependencies import get_current_user, get_optional_user
 from shared.auth.models import User
 
@@ -481,13 +480,15 @@ async def lifespan(app: FastAPI):
     if _db_url:
         try:
             import asyncpg
-            _db_pool = await asyncpg.create_pool(
-                _db_url, min_size=2, max_size=5, statement_cache_size=0
-            )
+
+            _db_pool = await asyncpg.create_pool(_db_url, min_size=2, max_size=5, statement_cache_size=0)
             # Run migration to ensure tables exist
             try:
                 import pathlib
-                _migration_path = pathlib.Path(__file__).parent.parent / "migrations" / "001_satellite_scheduler_tables.sql"
+
+                _migration_path = (
+                    pathlib.Path(__file__).parent.parent / "migrations" / "001_satellite_scheduler_tables.sql"
+                )
                 if _migration_path.exists():
                     _sql = _migration_path.read_text()
                     async with _db_pool.acquire() as _conn:
@@ -503,6 +504,7 @@ async def lifespan(app: FastAPI):
     if _nats_url:
         try:
             import nats
+
             _nats_conn = await nats.connect(_nats_url)
             logger.info("satellite_scheduler_nats_connected")
         except Exception as _e:
@@ -515,6 +517,7 @@ async def lifespan(app: FastAPI):
     if _minio_endpoint and _minio_access and _minio_secret:
         try:
             import boto3
+
             _minio_client = boto3.client(
                 "s3",
                 endpoint_url=f"http://{_minio_endpoint}",
@@ -2749,50 +2752,50 @@ async def get_field_all_indices_for_ai(
         "index_count": 37,
         "indices": {
             # Vegetation Vigor (10)
-            "NDVI":    _stats("ndvi"),
-            "EVI":     _stats("evi"),
-            "EVI2":    _stats("evi2"),
-            "GNDVI":   _stats("gndvi"),
-            "WDRVI":   _stats("wdrvi"),
-            "ARVI":    _stats("arvi"),
-            "DVI":     _stats("dvi"),
-            "RVI":     _stats("rvi"),
-            "RDVI":    _stats("rdvi"),
-            "NIRv":    _stats("nirv"),
+            "NDVI": _stats("ndvi"),
+            "EVI": _stats("evi"),
+            "EVI2": _stats("evi2"),
+            "GNDVI": _stats("gndvi"),
+            "WDRVI": _stats("wdrvi"),
+            "ARVI": _stats("arvi"),
+            "DVI": _stats("dvi"),
+            "RVI": _stats("rvi"),
+            "RDVI": _stats("rdvi"),
+            "NIRv": _stats("nirv"),
             # Red Edge / Chlorophyll (8)
-            "NDRE":    _stats("ndre"),
-            "NDRE1":   _stats("ndre1"),
-            "NDRE2":   _stats("ndre2_v2") if "ndre2_v2" in real_indices else _stats("rendvi"),
-            "S2REP":   _stats("s2rep") if "s2rep" in real_indices else _stats("rep"),
-            "IRECI":   _stats("ireci"),
-            "CIre":    _stats("ci_rededge"),
+            "NDRE": _stats("ndre"),
+            "NDRE1": _stats("ndre1"),
+            "NDRE2": _stats("ndre2_v2") if "ndre2_v2" in real_indices else _stats("rendvi"),
+            "S2REP": _stats("s2rep") if "s2rep" in real_indices else _stats("rep"),
+            "IRECI": _stats("ireci"),
+            "CIre": _stats("ci_rededge"),
             "CIgreen": _stats("ci_green"),
-            "MCARI":   _stats("mcari"),
+            "MCARI": _stats("mcari"),
             # Soil-Adjusted (4)
-            "SAVI":    _stats("savi"),
-            "OSAVI":   _stats("osavi"),
-            "MSAVI":   _stats("msavi"),
-            "TSAVI":   _stats("tsavi"),
+            "SAVI": _stats("savi"),
+            "OSAVI": _stats("osavi"),
+            "MSAVI": _stats("msavi"),
+            "TSAVI": _stats("tsavi"),
             # Water / Moisture (6)
-            "NDWI":    _stats("ndwi"),
-            "NDMI":    _stats("ndmi"),
-            "MNDWI":   _stats("mndwi"),
-            "MSI":     _stats("msi"),
-            "LSWI":    _stats("lswi"),
-            "DSWI":    _stats("dswi_val"),
+            "NDWI": _stats("ndwi"),
+            "NDMI": _stats("ndmi"),
+            "MNDWI": _stats("mndwi"),
+            "MSI": _stats("msi"),
+            "LSWI": _stats("lswi"),
+            "DSWI": _stats("dswi_val"),
             # Canopy Structure (3)
-            "LAI":     _stats("lai"),
-            "FAPAR":   _stats("fapar"),
-            "SeLI":    _stats("seli"),
+            "LAI": _stats("lai"),
+            "FAPAR": _stats("fapar"),
+            "SeLI": _stats("seli"),
             # Pigment / Senescence (3)
-            "PSRI":    _stats("psri"),
-            "SIPI":    _stats("sipi"),
-            "ARI":     _stats("ari"),
+            "PSRI": _stats("psri"),
+            "SIPI": _stats("sipi"),
+            "ARI": _stats("ari"),
             # Soil (2)
-            "BSI":     _stats("bsi"),
-            "BI":      _stats("bi"),
+            "BSI": _stats("bsi"),
+            "BI": _stats("bi"),
             # Phenology (1)
-            "NDPI":    _stats("ndpi"),
+            "NDPI": _stats("ndpi"),
         },
     }
 
@@ -4839,32 +4842,17 @@ async def get_scheduler_logs(
     days = period[:-1]  # keep as str for ($1 || ' days')::INTERVAL
     offset = (page - 1) * limit
 
-    # Build dynamic WHERE clauses
-    conditions = ["sfd.created_at >= NOW() - ($1 || ' days')::INTERVAL"]
-    args: list = [days]
-    arg_idx = 2
-
     valid_statuses = {"completed", "missed", "skipped", "retry_pending", "failed"}
-    if status and status in valid_statuses:
-        conditions.append(f"sfd.processing_status = ${arg_idx}")
-        args.append(status)
-        arg_idx += 1
+    args = [days, status if status in valid_statuses else None, f"%{search}%" if search else None]
 
-    if search:
-        conditions.append(
-            f"f.name ILIKE ${arg_idx}"
-        )
-        args.append(f"%{search}%")
-        arg_idx += 1
-
-    where = " AND ".join(conditions)
-
-    count_sql = f"""
+    count_sql = """
         SELECT COUNT(*) FROM satellite_field_data sfd
         LEFT JOIN fields f ON f.id = sfd.field_id
-        WHERE {where}
+        WHERE sfd.created_at >= NOW() - ($1 || ' days')::INTERVAL
+          AND ($2::text IS NULL OR sfd.processing_status = $2)
+          AND ($3::text IS NULL OR f.name ILIKE $3)
     """
-    rows_sql = f"""
+    rows_sql = """
         SELECT
             sfd.id, sfd.field_id, sfd.acquisition_date, sfd.created_at,
             sfd.satellite, sfd.cloud_cover_percent,
@@ -4878,9 +4866,11 @@ async def get_scheduler_logs(
             COALESCE(f.name, '') AS field_name_ar
         FROM satellite_field_data sfd
         LEFT JOIN fields f ON f.id = sfd.field_id
-        WHERE {where}
+        WHERE sfd.created_at >= NOW() - ($1 || ' days')::INTERVAL
+          AND ($2::text IS NULL OR sfd.processing_status = $2)
+          AND ($3::text IS NULL OR f.name ILIKE $3)
         ORDER BY sfd.acquisition_date DESC, sfd.created_at DESC
-        LIMIT ${arg_idx} OFFSET ${arg_idx + 1}
+        LIMIT $4 OFFSET $5
     """
 
     try:
@@ -4909,8 +4899,8 @@ async def get_scheduler_logs(
             "status": r["status"],
             "indices": {
                 "ndvi": _index(r["ndvi_mean"], r["ndvi_min"], r["ndvi_max"], r["ndvi_std"]),
-                "evi":  _index(r["evi_mean"],  r["evi_min"],  r["evi_max"],  r["evi_std"]),
-                "lai":  _index(r["lai_mean"],  r["lai_min"],  r["lai_max"],  r["lai_std"]),
+                "evi": _index(r["evi_mean"], r["evi_min"], r["evi_max"], r["evi_std"]),
+                "lai": _index(r["lai_mean"], r["lai_min"], r["lai_max"], r["lai_std"]),
                 "ndwi": _index(r["ndwi_mean"], r["ndwi_min"], r["ndwi_max"], r["ndwi_std"]),
             },
             "errorMessage": None,
@@ -4934,9 +4924,16 @@ async def get_scheduler_stats(
     """
     if _db_pool is None:
         return {
-            "totalRuns": 0, "successfulRuns": 0, "failedRuns": 0, "missedRuns": 0,
-            "successRate": 0, "lastRunAt": None, "nextRunAt": None,
-            "totalFieldsProcessed": 0, "averageCloudCover": 0, "period": period,
+            "totalRuns": 0,
+            "successfulRuns": 0,
+            "failedRuns": 0,
+            "missedRuns": 0,
+            "successRate": 0,
+            "lastRunAt": None,
+            "nextRunAt": None,
+            "totalFieldsProcessed": 0,
+            "averageCloudCover": 0,
+            "period": period,
         }
 
     days = period[:-1]  # keep as str for ($1 || ' days')::INTERVAL
@@ -4963,9 +4960,16 @@ async def get_scheduler_stats(
 
     if not row or row["total"] == 0:
         return {
-            "totalRuns": 0, "successfulRuns": 0, "failedRuns": 0, "missedRuns": 0,
-            "successRate": 0, "lastRunAt": None, "nextRunAt": None,
-            "totalFieldsProcessed": 0, "averageCloudCover": 0, "period": period,
+            "totalRuns": 0,
+            "successfulRuns": 0,
+            "failedRuns": 0,
+            "missedRuns": 0,
+            "successRate": 0,
+            "lastRunAt": None,
+            "nextRunAt": None,
+            "totalFieldsProcessed": 0,
+            "averageCloudCover": 0,
+            "period": period,
         }
 
     total = row["total"] or 0
@@ -5003,6 +5007,7 @@ async def trigger_scheduler_now(user: User | None = Depends(get_current_user)):
 
     async def _full_run():
         import traceback
+
         try:
             logger.info("scheduler_manual_trigger_start")
             # Step 1: direct grab for all fields (bypasses acquisition plan)

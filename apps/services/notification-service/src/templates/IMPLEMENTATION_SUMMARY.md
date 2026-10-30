@@ -130,17 +130,10 @@ Each template supports dynamic placeholders:
 
 ```python
 {
-  "title": "🦠 تنبيه: مرض مكتشف",
-  "body": "تم اكتشاف...",
-  "notification": {
-    "icon": "🦠",
-    "sound": "default",
-    "badge": 1
-  },
-  "data": {
-    "action_url": "/fields/123/diseases",
-    "priority": "high"
-  }
+    "title": "🦠 تنبيه: مرض مكتشف",
+    "body": "تم اكتشاف...",
+    "notification": {"icon": "🦠", "sound": "default", "badge": 1},
+    "data": {"action_url": "/fields/123/diseases", "priority": "high"},
 }
 ```
 
@@ -203,11 +196,7 @@ from templates import get_template_manager
 manager = get_template_manager()
 
 # Disease alert
-context = {
-    "disease_name": "البياض الدقيقي",
-    "field_name": "حقل القمح",
-    "confidence": 92
-}
+context = {"disease_name": "البياض الدقيقي", "field_name": "حقل القمح", "confidence": 92}
 
 # Multi-channel delivery
 push = manager.format_for_push("disease_detected", context, "ar")
@@ -278,32 +267,20 @@ manager = get_template_manager()
 ### Step 3: Prepare Context
 
 ```python
-context = {
-    "field_name": "حقل القمح",
-    "field_id": "field_123",
-    "water_amount": 5000
-}
+context = {"field_name": "حقل القمح", "field_id": "field_123", "water_amount": 5000}
 ```
 
 ### Step 4: Render for Channel
 
 ```python
 # Push notification
-push_data = manager.format_for_push(
-    "irrigation_reminder",
-    context,
-    language="ar"
-)
+push_data = manager.format_for_push("irrigation_reminder", context, language="ar")
 
 # Send via Firebase
 await firebase_client.send(user_token, push_data)
 
 # SMS
-sms_text = manager.format_for_sms(
-    "irrigation_reminder",
-    context,
-    language="ar"
-)
+sms_text = manager.format_for_sms("irrigation_reminder", context, language="ar")
 
 # Send via SMS gateway
 await sms_client.send(user_phone, sms_text)

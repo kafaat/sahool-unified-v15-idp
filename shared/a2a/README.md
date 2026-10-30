@@ -48,11 +48,8 @@ task = TaskMessage(
     receiver_agent_id="agent-2",
     task_type="crop-disease-diagnosis",
     task_description="Diagnose tomato plant disease",
-    parameters={
-        "crop_type": "tomato",
-        "symptoms": {"leaf_condition": "yellow spots"}
-    },
-    priority=8
+    parameters={"crop_type": "tomato", "symptoms": {"leaf_condition": "yellow spots"}},
+    priority=8,
 )
 ```
 
@@ -63,6 +60,7 @@ Base class for creating A2A-compatible agents:
 ```python
 from a2a.agent import A2AAgent, AgentCapability
 
+
 class MyAgent(A2AAgent):
     def get_capabilities(self):
         return [
@@ -72,9 +70,10 @@ class MyAgent(A2AAgent):
                 description="What my agent can do",
                 input_schema={"type": "object", "properties": {...}},
                 output_schema={"type": "object", "properties": {...}},
-                tags=["agriculture", "advisory"]
+                tags=["agriculture", "advisory"],
             )
         ]
+
 
 # Initialize agent
 agent = MyAgent(
@@ -83,13 +82,15 @@ agent = MyAgent(
     version="1.0.0",
     description="Provides agricultural advice",
     provider="SAHOOL",
-    task_endpoint="http://localhost:8000/a2a/tasks"
+    task_endpoint="http://localhost:8000/a2a/tasks",
 )
+
 
 # Register task handlers
 async def handle_my_task(task: TaskMessage) -> dict:
     # Process task
     return {"result": "success"}
+
 
 agent.register_task_handler("my-capability", handle_my_task)
 ```
@@ -111,7 +112,7 @@ result = await client.send_task(
     agent_card=agent_card,
     task_type="crop-disease-diagnosis",
     task_description="Diagnose disease",
-    parameters={"crop_type": "wheat", "symptoms": {...}}
+    parameters={"crop_type": "wheat", "symptoms": {...}},
 )
 
 # Stream task with progress updates
@@ -119,7 +120,7 @@ async for update in client.stream_task(
     agent_card=agent_card,
     task_type="field-analysis",
     task_description="Analyze field",
-    parameters={"field_id": "field-123"}
+    parameters={"field_id": "field-123"},
 ):
     print(f"Progress: {update.progress}")
     if update.is_final:
@@ -160,6 +161,7 @@ This creates the following endpoints:
 import asyncio
 from a2a.client import A2AClient, AgentDiscovery
 
+
 async def main():
     # Discover agent
     discovery = AgentDiscovery()
@@ -173,15 +175,12 @@ async def main():
         agent_card=agent_card,
         task_type="irrigation-optimization",
         task_description="Get irrigation recommendations",
-        parameters={
-            "crop_type": "corn",
-            "growth_stage": "vegetative",
-            "soil_data": {"moisture_level": 0.3}
-        }
+        parameters={"crop_type": "corn", "growth_stage": "vegetative", "soil_data": {"moisture_level": 0.3}},
     )
 
     print(f"Task completed: {result.state}")
     print(f"Result: {result.result}")
+
 
 asyncio.run(main())
 ```
@@ -203,8 +202,8 @@ async def stream_field_analysis():
             "field_id": "field-42",
             "crop_type": "wheat",
             "include_disease_check": True,
-            "include_yield_prediction": True
-        }
+            "include_yield_prediction": True,
+        },
     ):
         if update.is_final:
             print(f"✅ Analysis complete: {update.result}")
@@ -212,6 +211,7 @@ async def stream_field_analysis():
             print(f"⏳ Progress: {update.progress * 100:.1f}%")
             if update.partial_result:
                 print(f"   Partial: {update.partial_result}")
+
 
 asyncio.run(stream_field_analysis())
 ```
@@ -240,17 +240,20 @@ async def coordinate_multiple_agents():
     tasks = []
     for agent_card in agents:
         for capability in agent_card.capabilities:
-            tasks.append(client.send_task(
-                agent_card=agent_card,
-                task_type=capability.capability_id,
-                task_description=f"Execute {capability.name}",
-                parameters={"field_id": "field-123"}
-            ))
+            tasks.append(
+                client.send_task(
+                    agent_card=agent_card,
+                    task_type=capability.capability_id,
+                    task_description=f"Execute {capability.name}",
+                    parameters={"field_id": "field-123"},
+                )
+            )
 
     results = await asyncio.gather(*tasks)
 
     for result in results:
         print(f"Agent result: {result.state} - {result.result}")
+
 
 asyncio.run(coordinate_multiple_agents())
 ```
@@ -280,12 +283,9 @@ result = await client.send_task(
     task_description="Diagnose wheat disease",
     parameters={
         "crop_type": "wheat",
-        "symptoms": {
-            "leaf_condition": "rust-colored spots",
-            "color_changes": "yellowing"
-        },
-        "location": "field-456"
-    }
+        "symptoms": {"leaf_condition": "rust-colored spots", "color_changes": "yellowing"},
+        "location": "field-456",
+    },
 )
 
 print(f"Diagnosis: {result.result['diagnosis']}")
@@ -361,7 +361,7 @@ agent = MyAgent(
     description="Agent description",
     provider="Organization Name",
     task_endpoint="http://host:port/a2a/tasks",
-    websocket_endpoint="ws://host:port/a2a/ws"  # Optional
+    websocket_endpoint="ws://host:port/a2a/ws",  # Optional
 )
 ```
 
@@ -398,6 +398,7 @@ All operations are logged using `structlog`:
 
 ```python
 import structlog
+
 logger = structlog.get_logger()
 
 # Logs include structured context

@@ -45,11 +45,9 @@ from shared.auth.jwt_handler import verify_token
 
 router = APIRouter()
 
+
 @router.post("/auth/logout")
-async def logout(
-    request: Request,
-    current_user: User = Depends(get_current_user)
-):
+async def logout(request: Request, current_user: User = Depends(get_current_user)):
     # Extract token
     token = request.headers.get("Authorization").split(" ")[1]
     payload = verify_token(token)
@@ -59,7 +57,7 @@ async def logout(
         jti=payload.jti,
         expires_in=3600,  # 1 hour
         reason="user_logout",
-        user_id=current_user.id
+        user_id=current_user.id,
     )
 
     return {"message": "Successfully logged out"}
@@ -69,6 +67,7 @@ async def logout(
 
 ```python
 from shared.auth.token_revocation import revoke_all_user_tokens
+
 
 @router.post("/auth/change-password")
 async def change_password(
@@ -84,10 +83,7 @@ async def change_password(
     await update_user_password(current_user.id, new_password)
 
     # Revoke all existing tokens
-    await revoke_all_user_tokens(
-        user_id=current_user.id,
-        reason="password_change"
-    )
+    await revoke_all_user_tokens(user_id=current_user.id, reason="password_change")
 
     return {"message": "Password changed. Please login again."}
 ```
@@ -97,14 +93,11 @@ async def change_password(
 ```python
 from shared.auth.token_revocation import get_revocation_store
 
+
 async def check_token_manually(jti: str, user_id: str, issued_at: float):
     store = await get_revocation_store()
 
-    is_revoked, reason = await store.is_revoked(
-        jti=jti,
-        user_id=user_id,
-        issued_at=issued_at
-    )
+    is_revoked, reason = await store.is_revoked(jti=jti, user_id=user_id, issued_at=issued_at)
 
     if is_revoked:
         print(f"Token is revoked: {reason}")
@@ -120,6 +113,7 @@ from fastapi import Depends
 from shared.auth.revocation_middleware import RevocationCheckDependency
 
 revocation_check = RevocationCheckDependency(fail_open=True)
+
 
 @router.get("/protected", dependencies=[Depends(revocation_check)])
 async def protected_route(current_user: User = Depends(get_current_user)):
@@ -484,6 +478,7 @@ Security breach detected → Revoke all tenant tokens → All users must re-logi
 ```python
 # Python (Admin only)
 from shared.auth.token_revocation import get_revocation_store
+
 store = await get_revocation_store()
 await store.revoke_all_tenant_tokens(tenant_id=tenant_id, reason="security_breach")
 ```
@@ -529,6 +524,7 @@ JWT_REFRESH_TOKEN_EXPIRE_DAYS=7
 # Python
 from shared.auth.token_revocation import get_revocation_store
 
+
 async def test_redis():
     store = await get_revocation_store()
     is_healthy = await store.health_check()
@@ -548,6 +544,7 @@ console.log(`Redis is ${isHealthy ? "healthy" : "unhealthy"}`);
 ```python
 # Python
 import time
+
 
 async def test_token_revocation():
     store = await get_revocation_store()
@@ -600,6 +597,7 @@ docker logs redis-container
 ```python
 # Check if revocation is enabled
 from shared.auth.config import config
+
 print(f"Revocation enabled: {config.TOKEN_REVOCATION_ENABLED}")
 
 # Check Redis health

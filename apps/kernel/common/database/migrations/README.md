@@ -25,10 +25,7 @@ migrations/
 from apps.kernel.common.database.migrations import MigrationManager
 
 manager = MigrationManager(database_url="postgresql://...")
-manager.create_migration(
-    name="add_user_table",
-    description="Add users table with authentication fields"
-)
+manager.create_migration(name="add_user_table", description="Add users table with authentication fields")
 ```
 
 ### Running Migrations / تشغيل الهجرات
@@ -104,6 +101,7 @@ For spatial data operations, use the PostGISMigrationHelper:
 ```python
 from apps.kernel.common.database.migrations import PostGISMigrationHelper
 
+
 def upgrade():
     conn = op.get_bind()
 
@@ -111,19 +109,10 @@ def upgrade():
     PostGISMigrationHelper.enable_postgis_extension(conn)
 
     # Add spatial column / إضافة عمود مكاني
-    PostGISMigrationHelper.add_geography_column(
-        conn,
-        table="fields",
-        column="location",
-        geometry_type="POINT"
-    )
+    PostGISMigrationHelper.add_geography_column(conn, table="fields", column="location", geometry_type="POINT")
 
     # Create spatial index / إنشاء فهرس مكاني
-    PostGISMigrationHelper.create_spatial_index(
-        conn,
-        table="fields",
-        column="location"
-    )
+    PostGISMigrationHelper.create_spatial_index(conn, table="fields", column="location")
 ```
 
 ## Checksum Validation / التحقق من Checksum
@@ -134,9 +123,9 @@ The migration system tracks checksums to detect unauthorized changes:
 ```python
 # Validate checksums / التحقق من checksums
 result = manager.validate_checksums()
-if result['has_conflicts']:
+if result["has_conflicts"]:
     print("Warning: Migration files have been modified!")
-    for conflict in result['conflicts']:
+    for conflict in result["conflicts"]:
         print(f"  - {conflict['revision']}")
 ```
 

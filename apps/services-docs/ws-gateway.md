@@ -1020,6 +1020,7 @@ import asyncio
 import websockets
 import json
 
+
 async def connect():
     uri = "wss://api.sahool.io/ws?tenant_id=tenant-123"
     headers = {"Authorization": "Bearer your-jwt-token"}
@@ -1030,15 +1031,13 @@ async def connect():
         print(f"Connected: {msg}")
 
         # Subscribe to topics
-        await ws.send(json.dumps({
-            "type": "subscribe",
-            "topics": ["field:field-123", "alerts"]
-        }))
+        await ws.send(json.dumps({"type": "subscribe", "topics": ["field:field-123", "alerts"]}))
 
         # Listen for events
         async for message in ws:
             data = json.loads(message)
             print(f"Received: {data}")
+
 
 asyncio.run(connect())
 ```

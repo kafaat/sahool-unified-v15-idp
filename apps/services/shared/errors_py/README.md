@@ -52,15 +52,11 @@ raise NotFoundException.farm("farm-123")
 
 # With custom details
 raise ValidationException(
-    ErrorCode.VALIDATION_ERROR,
-    details={"fields": [{"field": "email", "message": "Invalid format"}]}
+    ErrorCode.VALIDATION_ERROR, details={"fields": [{"field": "email", "message": "Invalid format"}]}
 )
 
 # Business logic errors
-raise BusinessLogicException.insufficient_balance(
-    available=100.0,
-    required=500.0
-)
+raise BusinessLogicException.insufficient_balance(available=100.0, required=500.0)
 ```
 
 ### 3. Return Success Responses
@@ -68,15 +64,15 @@ raise BusinessLogicException.insufficient_balance(
 ```python
 from apps.services.shared.errors_py import create_success_response, create_paginated_response
 
+
 # Simple success response
 @app.get("/farms/{farm_id}")
 async def get_farm(farm_id: str):
     farm = await get_farm_from_db(farm_id)
     return create_success_response(
-        data=farm,
-        message="Farm retrieved successfully",
-        message_ar="تم استرداد المزرعة بنجاح"
+        data=farm, message="Farm retrieved successfully", message_ar="تم استرداد المزرعة بنجاح"
     )
+
 
 # Paginated response
 @app.get("/farms")
@@ -88,7 +84,7 @@ async def list_farms(page: int = 1, limit: int = 20):
         limit=limit,
         total=total,
         message="Farms retrieved successfully",
-        message_ar="تم استرداد المزارع بنجاح"
+        message_ar="تم استرداد المزارع بنجاح",
     )
 ```
 
@@ -362,6 +358,7 @@ app = FastAPI(title="My Service")
 setup_exception_handlers(app)
 add_request_id_middleware(app)
 
+
 @app.get("/farms/{farm_id}")
 async def get_farm(farm_id: str, user=Depends(get_current_user)):
     # Authentication check
@@ -371,8 +368,7 @@ async def get_farm(farm_id: str, user=Depends(get_current_user)):
     # Validation
     if not farm_id or len(farm_id) < 3:
         raise ValidationException(
-            ErrorCode.INVALID_INPUT,
-            details={"field": "farm_id", "message": "Must be at least 3 characters"}
+            ErrorCode.INVALID_INPUT, details={"field": "farm_id", "message": "Must be at least 3 characters"}
         )
 
     # Business logic
@@ -386,9 +382,7 @@ async def get_farm(farm_id: str, user=Depends(get_current_user)):
 
     # Success response
     return create_success_response(
-        data=farm,
-        message="Farm retrieved successfully",
-        message_ar="تم استرداد المزرعة بنجاح"
+        data=farm, message="Farm retrieved successfully", message_ar="تم استرداد المزرعة بنجاح"
     )
 ```
 

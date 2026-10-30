@@ -75,12 +75,14 @@ from shared.database import (
     BaseRepository,
 )
 
+
 # إنشاء نموذج
 class Farm(Base, TimestampMixin, TenantMixin):
     __tablename__ = "farms"
 
     name = Column(String(255))
     area_hectares = Column(Float)
+
 
 # Repository
 class FarmRepository(BaseRepository[Farm]):
@@ -89,6 +91,7 @@ class FarmRepository(BaseRepository[Farm]):
 
     def get_by_tenant(self, tenant_id: str):
         return self.get_by_tenant_id(tenant_id)
+
 
 # استخدام في FastAPI
 @app.get("/farms")
@@ -138,23 +141,22 @@ from shared.auth import (
     require_permissions,
 )
 
+
 # مستخدم مصادق
 @app.get("/profile")
 async def get_profile(user: User = Depends(get_current_active_user)):
     return {"user": user.email}
 
+
 # يتطلب دور معين
 @app.post("/farms")
-async def create_farm(
-    user: User = Depends(require_roles(["farm_manager", "tenant_admin"]))
-):
+async def create_farm(user: User = Depends(require_roles(["farm_manager", "tenant_admin"]))):
     pass
+
 
 # يتطلب صلاحية معينة
 @app.delete("/farms/{id}")
-async def delete_farm(
-    user: User = Depends(require_permissions(["farm:delete"]))
-):
+async def delete_farm(user: User = Depends(require_permissions(["farm:delete"]))):
     pass
 ```
 
@@ -220,13 +222,15 @@ from shared.integration import CircuitBreaker, get_circuit_breaker
 
 breaker = get_circuit_breaker("weather-api")
 
+
 async def fetch_weather():
     return await api_call()
+
 
 # مع fallback
 result = await breaker.call(
     fetch_weather,
-    fallback=lambda: {"temp": 25}  # قيمة افتراضية
+    fallback=lambda: {"temp": 25},  # قيمة افتراضية
 )
 ```
 

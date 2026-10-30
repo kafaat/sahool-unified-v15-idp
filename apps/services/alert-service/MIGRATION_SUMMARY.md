@@ -360,11 +360,10 @@ from .database import get_db
 from .repository import create_alert, get_alerts_by_field
 from sqlalchemy.orm import Session
 
+
 @app.post("/alerts", response_model=AlertResponse)
 async def create_alert_endpoint(
-    alert_data: AlertCreate,
-    db: Session = Depends(get_db),
-    tenant_id: str = Depends(get_tenant_id)
+    alert_data: AlertCreate, db: Session = Depends(get_db), tenant_id: str = Depends(get_tenant_id)
 ):
     # استخدام repository بدلاً من _alerts dict
     alert = Alert(**alert_data.dict())
@@ -381,7 +380,8 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 scheduler = AsyncIOScheduler()
 
-@scheduler.scheduled_job('interval', hours=1)
+
+@scheduler.scheduled_job("interval", hours=1)
 async def check_expired_alerts():
     # تحديث التنبيهات المنتهية
     pass
@@ -393,6 +393,7 @@ async def check_expired_alerts():
 
 ```python
 from functools import lru_cache
+
 
 @lru_cache(maxsize=100)
 def get_active_alerts_cached(field_id: str):

@@ -88,6 +88,7 @@ Correlation IDs are automatically:
 ```python
 # Python
 from shared.middleware.request_logging import get_correlation_id
+
 correlation_id = get_correlation_id(request)
 ```
 
@@ -137,11 +138,11 @@ Exceptions are automatically logged with:
 ```python
 app.add_middleware(
     RequestLoggingMiddleware,
-    service_name="my-service",          # Required: service name for logs
-    log_request_body=False,             # Optional: log request bodies
-    log_response_body=False,            # Optional: log response bodies
-    exclude_paths=["/healthz"],         # Optional: paths to exclude
-    max_body_length=1000,               # Optional: max body length to log
+    service_name="my-service",  # Required: service name for logs
+    log_request_body=False,  # Optional: log request bodies
+    log_response_body=False,  # Optional: log response bodies
+    exclude_paths=["/healthz"],  # Optional: paths to exclude
+    max_body_length=1000,  # Optional: max body length to log
 )
 ```
 
@@ -168,7 +169,7 @@ async with httpx.AsyncClient() as client:
         headers={
             "X-Correlation-ID": get_correlation_id(request),
             "X-Tenant-ID": request.state.tenant_id,
-        }
+        },
     )
 ```
 
@@ -225,6 +226,7 @@ logger.info(f"Processing for tenant {tenant_id}")
 
 # New way
 from shared.middleware.request_logging import get_request_context
+
 context = get_request_context(request)
 logger.info("Processing request", extra=context)
 ```

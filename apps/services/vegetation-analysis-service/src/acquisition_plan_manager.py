@@ -51,12 +51,7 @@ class AcquisitionPlanManager:
         for i in range(0, len(fields), batch_size):
             batch = fields[i : i + batch_size]
             await asyncio.gather(
-                *[
-                    self._sync_field_plan(
-                        row["tenant_id"], row["field_id"], row["bbox"]
-                    )
-                    for row in batch
-                ],
+                *[self._sync_field_plan(row["tenant_id"], row["field_id"], row["bbox"]) for row in batch],
                 return_exceptions=True,
             )
             await asyncio.sleep(1)  # gentle rate limiting between batches
@@ -67,14 +62,10 @@ class AcquisitionPlanManager:
     # Per-field plan refresh                                               #
     # ------------------------------------------------------------------ #
 
-    async def sync_field_plan(
-        self, tenant_id: str, field_id: str, bbox: list[float]
-    ) -> None:
+    async def sync_field_plan(self, tenant_id: str, field_id: str, bbox: list[float]) -> None:
         await self._sync_field_plan(tenant_id, field_id, bbox)
 
-    async def _sync_field_plan(
-        self, tenant_id: str, field_id: str, bbox: list[float]
-    ) -> None:
+    async def _sync_field_plan(self, tenant_id: str, field_id: str, bbox: list[float]) -> None:
         today = date.today()
         date_to = today + timedelta(days=_LOOKAHEAD_DAYS)
 
@@ -98,11 +89,7 @@ class AcquisitionPlanManager:
             return
 
         # Upsert planned dates
-        planned_dates = {
-            self._cdse.scene_date(f)
-            for f in features
-            if self._cdse.scene_date(f)
-        }
+        planned_dates = {self._cdse.scene_date(f) for f in features if self._cdse.scene_date(f)}
 
         async with self._pool.acquire() as conn:
             for planned_date in planned_dates:
@@ -159,9 +146,7 @@ class AcquisitionPlanManager:
         """
         return await self.get_todays_fields(today)
 
-    async def mark_completed(
-        self, tenant_id: str, field_id: str, planned_date: date
-    ) -> None:
+    async def mark_completed(self, tenant_id: str, field_id: str, planned_date: date) -> None:
         async with self._pool.acquire() as conn:
             await conn.execute(
                 """
@@ -174,9 +159,7 @@ class AcquisitionPlanManager:
                 planned_date,
             )
 
-    async def mark_missed(
-        self, tenant_id: str, field_id: str, planned_date: date
-    ) -> None:
+    async def mark_missed(self, tenant_id: str, field_id: str, planned_date: date) -> None:
         async with self._pool.acquire() as conn:
             await conn.execute(
                 """

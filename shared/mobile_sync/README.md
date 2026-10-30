@@ -100,8 +100,13 @@ with counts, duration, and conflict details on session close.
 
 ```python
 from shared.mobile_sync import (
-    SyncQueue, SyncQueueConfig, SyncItem,
-    SyncPriority, SyncDirection, SyncOperationType, EntityType,
+    SyncQueue,
+    SyncQueueConfig,
+    SyncItem,
+    SyncPriority,
+    SyncDirection,
+    SyncOperationType,
+    EntityType,
 )
 
 config = SyncQueueConfig(max_queue_size=5000, max_batch_size=25)
@@ -130,8 +135,11 @@ for sync_item in batch:
 
 ```python
 from shared.mobile_sync import (
-    ConflictResolutionManager, ConflictResolutionStrategy,
-    ResolutionConfig, ManualMergeChoice, detect_conflict,
+    ConflictResolutionManager,
+    ConflictResolutionStrategy,
+    ResolutionConfig,
+    ManualMergeChoice,
+    detect_conflict,
 )
 
 config = ResolutionConfig(
@@ -158,9 +166,7 @@ if conflict:
                 custom_value=6.0,
             )
         ]
-        resolved, success, msg = manager.manual_resolve(
-            conflict.id, choices, user_id="user_001"
-        )
+        resolved, success, msg = manager.manual_resolve(conflict.id, choices, user_id="user_001")
 ```
 
 ### Delta Sync (Bandwidth Optimization)

@@ -159,15 +159,15 @@ Three methods implemented:
 ### SensorReading ✓
 
 ```python
-device_id: str              # معرف الجهاز
-field_id: str               # معرف الحقل
-sensor_type: str            # نوع المستشعر
-value: float                # القيمة
-unit: str                   # الوحدة
-timestamp: str              # وقت القراءة
-metadata: Optional[Dict]    # بيانات إضافية
+device_id: str  # معرف الجهاز
+field_id: str  # معرف الحقل
+sensor_type: str  # نوع المستشعر
+value: float  # القيمة
+unit: str  # الوحدة
+timestamp: str  # وقت القراءة
+metadata: Optional[Dict]  # بيانات إضافية
 quality_score: Optional[float]  # نقاط الجودة
-is_outlier: bool           # هل هي قيمة شاذة
+is_outlier: bool  # هل هي قيمة شاذة
 ```
 
 ### AggregatedData ✓
@@ -253,7 +253,7 @@ readings = [
         sensor_type="air_temperature",
         value=25.5,
         unit="°C",
-        timestamp="2024-01-02T12:00:00Z"
+        timestamp="2024-01-02T12:00:00Z",
     ),
     # ... more readings
 ]

@@ -89,8 +89,13 @@ FAO-56 Kc values are stage-mapped (initial: 0.40, tillering: 0.80, heading: 1.15
 
 ```python
 from shared.digital_twin import (
-    TwinPipeline, TwinRepository, AssimilationEngine, DecisionEngine,
-    FieldObservation, ObservationType, ObservationSource,
+    TwinPipeline,
+    TwinRepository,
+    AssimilationEngine,
+    DecisionEngine,
+    FieldObservation,
+    ObservationType,
+    ObservationSource,
 )
 from shared.process_models.models import DailyWeather, CropParameters, SoilProfile
 from datetime import date

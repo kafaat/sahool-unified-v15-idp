@@ -186,7 +186,7 @@ field = FieldData(
     total_irrigation_mm=350,
     total_rainfall_mm=150,
     soil_ph=6.5,
-    days_since_planting=100
+    days_since_planting=100,
 )
 
 # Create model and predict
@@ -219,9 +219,9 @@ for feature, weight in importance.items():
 explanation = model.explain_prediction(prediction)
 
 # Access detailed breakdown
-print(explanation['confidence_breakdown'])
-print(explanation['sub_models']['contributions'])
-print(explanation['economic_projection'])
+print(explanation["confidence_breakdown"])
+print(explanation["sub_models"]["contributions"])
+print(explanation["economic_projection"])
 ```
 
 ### Handle Limiting Factors
@@ -391,6 +391,7 @@ prediction = ensemble_model.predict(field_data)
 ```python
 # In field-management-service API
 from ai_agents_core.models import YieldEnsembleModel, FieldData, Region
+
 
 @router.post("/api/v1/fields/{field_id}/predict-yield")
 async def predict_yield(field_id: str, field_data: FieldDataInput):

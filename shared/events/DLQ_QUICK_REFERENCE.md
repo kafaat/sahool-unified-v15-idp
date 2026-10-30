@@ -89,7 +89,7 @@ docker-compose logs notification-service | grep DLQ
 Verify DLQ is enabled:
 
 ```python
-subscriber.stats['dlq_enabled']  # Should be True
+subscriber.stats["dlq_enabled"]  # Should be True
 ```
 
 ## Code Integration
@@ -176,9 +176,11 @@ fi
 ```python
 from shared.events.dlq_monitoring import DLQMonitor
 
+
 async def alert_handler(alert):
     print(f"ALERT: {alert.message}")
     # Send to Slack, PagerDuty, etc.
+
 
 monitor = DLQMonitor(alert_callback=alert_handler)
 await monitor.start()

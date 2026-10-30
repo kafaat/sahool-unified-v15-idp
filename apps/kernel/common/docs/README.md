@@ -91,10 +91,7 @@ You can also use the generator in your Python code:
 from apps.kernel.common.docs.api_docs_generator import APIDocsGenerator
 
 # Initialize generator
-generator = APIDocsGenerator(
-    services_dir="/path/to/services",
-    output_dir="/path/to/output"
-)
+generator = APIDocsGenerator(services_dir="/path/to/services", output_dir="/path/to/output")
 
 # Scan services
 generator.scan_all_services()
@@ -146,7 +143,7 @@ Update `_determine_category` method to classify endpoints:
 ```python
 def _determine_category(self, service_name: str, path: str) -> APICategory:
     # ... existing logic ...
-    if 'my-keyword' in service_lower:
+    if "my-keyword" in service_lower:
         return APICategory.MY_CATEGORY
 ```
 
@@ -252,10 +249,7 @@ from pathlib import Path
 from api_docs_generator import APIDocsGenerator
 
 generator = APIDocsGenerator()
-service = generator._scan_service(
-    "weather-service",
-    Path("apps/services/weather-service/src/main.py")
-)
+service = generator._scan_service("weather-service", Path("apps/services/weather-service/src/main.py"))
 
 print(f"Service: {service.title}")
 print(f"Endpoints: {len(service.endpoints)}")

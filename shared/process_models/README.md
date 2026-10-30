@@ -103,15 +103,17 @@ WOFOST/AquaCrop/APSIM-inspired implementation with 4 sub-units:
 
 ```python
 from shared.process_models import (
-    AgroMeteorologyEngine, CropGrowthEngine, HydrologyEngine, QueftsNutrientModel,
+    AgroMeteorologyEngine,
+    CropGrowthEngine,
+    HydrologyEngine,
+    QueftsNutrientModel,
 )
 from shared.process_models.models import DailyWeather, SoilProfile, CropParameters
 from shared.process_models.crop_growth import compute_gdd
 from shared.process_models.hydrology import SoilWaterState
 
 # Daily weather input
-weather = DailyWeather(tmax=32.0, tmin=16.0, wind_ms=2.0, rh_mean=45.0,
-                       rainfall_mm=0.0, solar_rad_mj=22.5)
+weather = DailyWeather(tmax=32.0, tmin=16.0, wind_ms=2.0, rh_mean=45.0, rainfall_mm=0.0, solar_rad_mj=22.5)
 
 # ET0 computation
 et0 = penman_monteith_et0(weather, elevation=600, latitude=15.0)
@@ -120,7 +122,7 @@ print(f"ET0: {et0:.2f} mm/day")
 # Soil water balance step
 hydro = HydrologyEngine()
 soil = SoilProfile(field_capacity=0.32, wilting_point=0.14, bulk_density=1.35)
-prev_water = SoilWaterState(dr=35.0)   # Root zone depletion 35mm
+prev_water = SoilWaterState(dr=35.0)  # Root zone depletion 35mm
 new_water = hydro.soil_water_daily_step(prev_water, weather, soil, et0, kc=0.85)
 
 # Crop growth step

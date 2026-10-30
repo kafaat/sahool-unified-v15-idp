@@ -12,6 +12,7 @@ All Python services already have `structlog>=24.1.0` in requirements.txt.
 # Step 1: Add imports at the top
 import sys
 import os
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 from shared.logging_config import setup_logging, get_logger, RequestLoggingMiddleware
 
@@ -163,6 +164,7 @@ curl http://localhost:PORT/api/v1/resource
 # Make sure sys.path is set correctly
 import sys
 import os
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 # Now import
 from shared.logging_config import setup_logging, get_logger
@@ -277,13 +279,7 @@ logger.info("request", action="forecast")
 
 ```python
 # Always include relevant IDs
-logger.error(
-    "database_query_failed",
-    query="SELECT * FROM fields",
-    user_id=user_id,
-    tenant_id=tenant_id,
-    error=str(e)
-)
+logger.error("database_query_failed", query="SELECT * FROM fields", user_id=user_id, tenant_id=tenant_id, error=str(e))
 ```
 
 ### 4. Don't Log Sensitive Data

@@ -49,12 +49,14 @@ metrics.set_info(version=SERVICE_VERSION, environment=get_environment())
 # OpenTelemetry
 setup_opentelemetry(SERVICE_NAME)
 
+
 # Lifespan context manager pattern
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # startup: db pool, nats, warm-up
     yield
     # shutdown: close connections
+
 
 app = FastAPI(title=SERVICE_NAME, version=SERVICE_VERSION, lifespan=lifespan)
 instrument_fastapi(app)  # Auto-instrument all routes with OTel
@@ -69,9 +71,9 @@ app.include_router(create_metrics_router(metrics))
 ```python
 limiter = RateLimiter(
     tiers={
-        "starter":      TierConfig(requests_per_minute=30),
+        "starter": TierConfig(requests_per_minute=30),
         "professional": TierConfig(requests_per_minute=60),
-        "enterprise":   TierConfig(requests_per_minute=120),
+        "enterprise": TierConfig(requests_per_minute=120),
     }
 )
 app.add_middleware(limiter.as_middleware())

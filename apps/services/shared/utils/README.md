@@ -39,7 +39,7 @@ from shared.utils.fallback_manager import (
     CircuitBreaker,
     circuit_breaker,
     with_fallback,
-    get_fallback_manager
+    get_fallback_manager,
 )
 ```
 
@@ -53,11 +53,13 @@ from shared.utils.fallback_manager import get_fallback_manager
 # Get global instance / الحصول على النسخة العامة
 fm = get_fallback_manager()
 
+
 # Execute with fallback / تنفيذ مع احتياطي
 def get_weather_from_api():
     # Call external weather API
     response = requests.get("https://api.weather.com/data")
     return response.json()
+
 
 # Automatically uses weather_fallback on failure
 result = fm.execute_with_fallback("weather", get_weather_from_api)
@@ -71,27 +73,27 @@ from shared.utils.fallback_manager import FallbackManager
 # Create manager / إنشاء المدير
 fm = FallbackManager()
 
+
 # Define fallback function / تعريف دالة احتياطية
 def my_service_fallback(*args, **kwargs):
-    return {
-        "status": "fallback",
-        "data": "Default data",
-        "source": "fallback"
-    }
+    return {"status": "fallback", "data": "Default data", "source": "fallback"}
+
 
 # Register service / تسجيل الخدمة
 fm.register_fallback(
     service_name="my_service",
     fallback_fn=my_service_fallback,
-    failure_threshold=5,      # 5 failures before opening circuit
-    recovery_timeout=30,      # 30 seconds before retry
-    success_threshold=3       # 3 successes to close circuit
+    failure_threshold=5,  # 5 failures before opening circuit
+    recovery_timeout=30,  # 30 seconds before retry
+    success_threshold=3,  # 3 successes to close circuit
 )
+
 
 # Execute / تنفيذ
 def primary_function():
     # Your primary logic here
     return call_external_api()
+
 
 result = fm.execute_with_fallback("my_service", primary_function)
 ```
@@ -103,6 +105,7 @@ result = fm.execute_with_fallback("my_service", primary_function)
 ```python
 from shared.utils.fallback_manager import circuit_breaker
 
+
 @circuit_breaker(failure_threshold=5, recovery_timeout=30)
 def call_satellite_api():
     """
@@ -111,6 +114,7 @@ def call_satellite_api():
     """
     response = requests.get("https://api.satellite.com/imagery")
     return response.json()
+
 
 # Call normally / استدعاء عادي
 try:
@@ -128,12 +132,10 @@ print(f"Circuit State: {status['state']}")
 ```python
 from shared.utils.fallback_manager import with_fallback
 
+
 def fallback_crop_data():
-    return {
-        "crop": "unknown",
-        "health": 50.0,
-        "source": "fallback"
-    }
+    return {"crop": "unknown", "health": 50.0, "source": "fallback"}
+
 
 @with_fallback(fallback_crop_data)
 def get_crop_health(field_id):
@@ -144,6 +146,7 @@ def get_crop_health(field_id):
     response = requests.get(f"https://api.crop-health.com/field/{field_id}")
     return response.json()
 
+
 # Automatically uses fallback on error
 data = get_crop_health("field_123")
 ```
@@ -153,8 +156,10 @@ data = get_crop_health("field_123")
 ```python
 from shared.utils.fallback_manager import circuit_breaker, with_fallback
 
+
 def ai_fallback():
     return {"recommendations": [], "source": "fallback"}
+
 
 @with_fallback(ai_fallback)
 @circuit_breaker(failure_threshold=5, recovery_timeout=60)
@@ -163,9 +168,9 @@ def get_ai_recommendations(field_id):
     Protected by both circuit breaker and fallback
     محمي بقاطع الدائرة والاحتياطي معاً
     """
-    response = requests.post("https://api.ai-advisor.com/recommend",
-                            json={"field_id": field_id})
+    response = requests.post("https://api.ai-advisor.com/recommend", json={"field_id": field_id})
     return response.json()
+
 
 # Fully protected call
 recommendations = get_ai_recommendations("field_123")
@@ -213,10 +218,10 @@ fm = get_fallback_manager()
 # Get status for specific service / الحصول على حالة خدمة معينة
 weather_status = fm.get_circuit_status("weather")
 print(f"""
-State: {weather_status['state']}
-Failures: {weather_status['failure_count']}/{weather_status['failure_threshold']}
-Successes: {weather_status['success_count']}/{weather_status['success_threshold']}
-Time until retry: {weather_status['time_until_retry']} seconds
+State: {weather_status["state"]}
+Failures: {weather_status["failure_count"]}/{weather_status["failure_threshold"]}
+Successes: {weather_status["success_count"]}/{weather_status["success_threshold"]}
+Time until retry: {weather_status["time_until_retry"]} seconds
 """)
 
 # Get all statuses / الحصول على جميع الحالات
@@ -249,16 +254,14 @@ import requests
 
 fm = FallbackManager()
 
+
 def ndvi_fallback(field_id):
     """Returns cached NDVI or default value"""
-    return {
-        "ndvi": 0.5,
-        "field_id": field_id,
-        "source": "fallback",
-        "message": "Using default NDVI value"
-    }
+    return {"ndvi": 0.5, "field_id": field_id, "source": "fallback", "message": "Using default NDVI value"}
+
 
 fm.register_fallback("ndvi", ndvi_fallback, failure_threshold=3)
+
 
 def get_ndvi(field_id):
     """Primary NDVI calculation"""
@@ -266,6 +269,7 @@ def get_ndvi(field_id):
     if response.status_code != 200:
         raise Exception("NDVI API failed")
     return response.json()
+
 
 # First call - success, result is cached
 ndvi_data = fm.execute_with_fallback("ndvi", get_ndvi, field_id="F123")
@@ -281,6 +285,7 @@ from shared.utils.fallback_manager import get_fallback_manager
 
 fm = get_fallback_manager()
 
+
 def get_field_analysis(field_id):
     """
     Combines multiple services with individual circuit breakers
@@ -289,24 +294,16 @@ def get_field_analysis(field_id):
     results = {}
 
     # Weather data with fallback
-    results['weather'] = fm.execute_with_fallback(
-        "weather",
-        lambda: get_weather_api(field_id)
-    )
+    results["weather"] = fm.execute_with_fallback("weather", lambda: get_weather_api(field_id))
 
     # Satellite data with fallback
-    results['satellite'] = fm.execute_with_fallback(
-        "satellite",
-        lambda: get_satellite_api(field_id)
-    )
+    results["satellite"] = fm.execute_with_fallback("satellite", lambda: get_satellite_api(field_id))
 
     # AI recommendations with fallback
-    results['ai'] = fm.execute_with_fallback(
-        "ai",
-        lambda: get_ai_recommendations_api(field_id)
-    )
+    results["ai"] = fm.execute_with_fallback("ai", lambda: get_ai_recommendations_api(field_id))
 
     return results
+
 
 # Even if some services fail, you get partial results
 analysis = get_field_analysis("field_123")
@@ -321,7 +318,8 @@ from shared.utils.fallback_manager import get_fallback_manager
 app = Flask(__name__)
 fm = get_fallback_manager()
 
-@app.route('/health/circuits')
+
+@app.route("/health/circuits")
 def circuit_health():
     """
     Returns circuit breaker status for all services
@@ -329,22 +327,18 @@ def circuit_health():
     """
     all_statuses = fm.get_all_statuses()
 
-    healthy_services = [
-        name for name, status in all_statuses.items()
-        if status['state'] == 'closed'
-    ]
+    healthy_services = [name for name, status in all_statuses.items() if status["state"] == "closed"]
 
-    degraded_services = [
-        name for name, status in all_statuses.items()
-        if status['state'] in ['open', 'half_open']
-    ]
+    degraded_services = [name for name, status in all_statuses.items() if status["state"] in ["open", "half_open"]]
 
-    return jsonify({
-        "status": "healthy" if not degraded_services else "degraded",
-        "healthy_services": healthy_services,
-        "degraded_services": degraded_services,
-        "details": all_statuses
-    })
+    return jsonify(
+        {
+            "status": "healthy" if not degraded_services else "degraded",
+            "healthy_services": healthy_services,
+            "degraded_services": degraded_services,
+            "details": all_statuses,
+        }
+    )
 ```
 
 ## Configuration Guide / دليل التكوين
@@ -373,30 +367,14 @@ def circuit_health():
 
 ```python
 # Critical service - fail fast / خدمة حرجة - فشل سريع
-fm.register_fallback(
-    "payment_gateway",
-    payment_fallback,
-    failure_threshold=3,
-    recovery_timeout=60,
-    success_threshold=5
-)
+fm.register_fallback("payment_gateway", payment_fallback, failure_threshold=3, recovery_timeout=60, success_threshold=5)
 
 # Standard service / خدمة عادية
-fm.register_fallback(
-    "weather",
-    weather_fallback,
-    failure_threshold=5,
-    recovery_timeout=30,
-    success_threshold=3
-)
+fm.register_fallback("weather", weather_fallback, failure_threshold=5, recovery_timeout=30, success_threshold=3)
 
 # Flaky service / خدمة غير مستقرة
 fm.register_fallback(
-    "external_sensor",
-    sensor_fallback,
-    failure_threshold=10,
-    recovery_timeout=120,
-    success_threshold=3
+    "external_sensor", sensor_fallback, failure_threshold=10, recovery_timeout=120, success_threshold=3
 )
 ```
 

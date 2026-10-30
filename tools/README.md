@@ -213,7 +213,7 @@ python tools/sensor-simulator/simulator.py \
 DEVICES = [
     {"type": "soil_moisture", "field_id": "field-1"},
     {"type": "temperature", "field_id": "field-1"},
-    {"type": "weather", "location": "25.0,45.0"}
+    {"type": "weather", "location": "25.0,45.0"},
 ]
 ```
 

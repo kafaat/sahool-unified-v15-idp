@@ -190,18 +190,18 @@ class BoundaryChange:
 
 ```python
 # Detection thresholds
-ndvi_threshold = 0.25         # Minimum NDVI for cultivated land
-edge_sensitivity = 0.15       # NDVI gradient threshold
+ndvi_threshold = 0.25  # Minimum NDVI for cultivated land
+edge_sensitivity = 0.15  # NDVI gradient threshold
 
 # Area filters
-min_area_hectares = 0.1       # 1,000 m² minimum
-max_area_hectares = 500.0     # 5,000,000 m² maximum
+min_area_hectares = 0.1  # 1,000 m² minimum
+max_area_hectares = 500.0  # 5,000,000 m² maximum
 
 # Simplification
 simplify_tolerance = 0.00005  # ~5 meters at equator
 
 # Change detection
-stable_threshold = 0.05       # ±5% considered stable
+stable_threshold = 0.05  # ±5% considered stable
 ```
 
 ## Testing Results

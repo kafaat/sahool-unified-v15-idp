@@ -79,7 +79,7 @@ from shared.salinity import (
 )
 
 # Standalone: quick risk check for a water sample
-sar = calculate_sar(na=8.5, ca=2.0, mg=1.5)   # -> ~5.1
+sar = calculate_sar(na=8.5, ca=2.0, mg=1.5)  # -> ~5.1
 risk = classify_salinity_risk(ec_water=2.1, sar=sar)
 print(f"Risk: {risk.value}")  # -> slight_moderate
 
@@ -95,13 +95,13 @@ print(f"Leaching fraction: {lf:.3f}")  # -> ~0.145
 module = SalinityModule(default_irrigation_efficiency=0.85)
 
 assessment = module.assess(
-    ec_water=2.1,       # dS/m - moderately saline groundwater
+    ec_water=2.1,  # dS/m - moderately saline groundwater
     crop="tomato",
-    kc=0.95,            # Current crop coefficient (e.g. flowering stage)
-    na=8.5,             # meq/L - for SAR calculation
+    kc=0.95,  # Current crop coefficient (e.g. flowering stage)
+    na=8.5,  # meq/L - for SAR calculation
     ca=2.0,
     mg=1.5,
-    ec_soil=3.2,        # dS/m - measured soil saturation extract
+    ec_soil=3.2,  # dS/m - measured soil saturation extract
 )
 
 print(f"Risk: {assessment.risk.value} ({assessment.risk_ar})")

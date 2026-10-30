@@ -993,13 +993,14 @@ class CreatePaymentRequest(BaseModel):
 
 **Current Code:**
 ```python
-default=datetime.utcnow
+default = datetime.utcnow
 ```
 
 **Recommended Fix:**
 ```python
 from datetime import UTC, datetime
-default=lambda: datetime.now(UTC)
+
+default = lambda: datetime.now(UTC)
 ```
 
 ---

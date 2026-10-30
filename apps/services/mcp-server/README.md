@@ -256,17 +256,10 @@ async with MCPClientContext(server_url="http://localhost:8200") as client:
     tools = await client.list_tools()
 
     # Get weather forecast
-    weather = await client.get_weather_forecast(
-        latitude=15.5527,
-        longitude=48.5164,
-        days=7
-    )
+    weather = await client.get_weather_forecast(latitude=15.5527, longitude=48.5164, days=7)
 
     # Analyze crop health
-    health = await client.analyze_crop_health(
-        field_id="field-123",
-        analysis_type="ndvi"
-    )
+    health = await client.analyze_crop_health(field_id="field-123", analysis_type="ndvi")
 ```
 
 ### Using Claude Desktop | استخدام Claude Desktop

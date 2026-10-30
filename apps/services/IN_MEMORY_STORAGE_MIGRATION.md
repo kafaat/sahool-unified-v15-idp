@@ -658,6 +658,7 @@ For each service migration:
 from tortoise import fields
 from tortoise.models import Model
 
+
 class CropDiagnosis(Model):
     id = fields.UUIDField(pk=True)
     disease_id = fields.CharField(max_length=50)
@@ -666,7 +667,7 @@ class CropDiagnosis(Model):
     governorate = fields.CharField(max_length=50, null=True, index=True)
     field_id = fields.CharField(max_length=100, null=True, index=True)
     farmer_id = fields.CharField(max_length=100, null=True, index=True)
-    status = fields.CharField(max_length=20, default='pending', index=True)
+    status = fields.CharField(max_length=20, default="pending", index=True)
     created_at = fields.DatetimeField(auto_now_add=True, index=True)
     updated_at = fields.DatetimeField(auto_now=True)
 
@@ -691,15 +692,11 @@ class DiagnosisRepository:
         return await CropDiagnosis.get_or_none(id=diagnosis_id)
 
     @staticmethod
-    async def get_history(
-        governorate: Optional[str] = None,
-        limit: int = 50,
-        offset: int = 0
-    ) -> List[CropDiagnosis]:
+    async def get_history(governorate: Optional[str] = None, limit: int = 50, offset: int = 0) -> List[CropDiagnosis]:
         query = CropDiagnosis.all()
         if governorate:
             query = query.filter(governorate=governorate)
-        return await query.order_by('-created_at').offset(offset).limit(limit)
+        return await query.order_by("-created_at").offset(offset).limit(limit)
 ```
 
 ---
@@ -718,14 +715,11 @@ class DiagnosisRepository:
 import pytest
 from tortoise.contrib.test import initializer, finalizer
 
+
 @pytest.fixture(scope="session", autouse=True)
 async def initialize_tests():
     # Use in-memory SQLite for fast tests
-    await initializer(
-        modules={"models": ["app.models"]},
-        db_url="sqlite://:memory:",
-        app_label="test"
-    )
+    await initializer(modules={"models": ["app.models"]}, db_url="sqlite://:memory:", app_label="test")
     yield
     await finalizer()
 ```
@@ -773,10 +767,10 @@ TORTOISE_ORM = {
                 "database": os.getenv("POSTGRES_DB"),
                 "minsize": 10,  # Minimum pool size
                 "maxsize": 20,  # Maximum pool size
-            }
+            },
         }
     },
-    "apps": {...}
+    "apps": {...},
 }
 ```
 
@@ -822,17 +816,9 @@ async def get_diagnoses(limit: int = 50):
 ```python
 from prometheus_client import Counter, Histogram
 
-db_query_duration = Histogram(
-    'db_query_duration_seconds',
-    'Database query duration',
-    ['table', 'operation']
-)
+db_query_duration = Histogram("db_query_duration_seconds", "Database query duration", ["table", "operation"])
 
-db_errors = Counter(
-    'db_errors_total',
-    'Database errors',
-    ['table', 'operation']
-)
+db_errors = Counter("db_errors_total", "Database errors", ["table", "operation"])
 ```
 
 ---

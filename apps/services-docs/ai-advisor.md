@@ -1071,6 +1071,7 @@ The following environment variables are referenced but may need explicit configu
 # Add NATS connection in lifespan
 import nats
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # ... existing code ...
@@ -1086,6 +1087,7 @@ async def lifespan(app: FastAPI):
     # Close NATS
     if hasattr(app.state, "nc") and app.state.nc:
         await app.state.nc.close()
+
 
 # Publish events after recommendations
 async def publish_event(subject: str, data: dict):
@@ -1208,9 +1210,10 @@ app = FastAPI(
 ```python
 from prometheus_client import Counter, Histogram, generate_latest
 
-REQUESTS_TOTAL = Counter('ai_advisor_requests_total', 'Total requests', ['endpoint', 'status'])
-LLM_LATENCY = Histogram('ai_advisor_llm_latency_seconds', 'LLM response latency', ['provider'])
-AGENT_TASKS = Counter('ai_advisor_agent_tasks_total', 'Agent tasks executed', ['agent', 'status'])
+REQUESTS_TOTAL = Counter("ai_advisor_requests_total", "Total requests", ["endpoint", "status"])
+LLM_LATENCY = Histogram("ai_advisor_llm_latency_seconds", "LLM response latency", ["provider"])
+AGENT_TASKS = Counter("ai_advisor_agent_tasks_total", "Agent tasks executed", ["agent", "status"])
+
 
 @app.get("/metrics")
 async def metrics():
@@ -1229,10 +1232,11 @@ async def metrics():
 ```python
 VALID_CROP_TYPES = ["wheat", "corn", "tomato", "cotton", "rice", "barley", "soybean", ...]
 
+
 class DiagnoseRequest(BaseModel):
     crop_type: str = Field(..., description="Type of crop")
 
-    @validator('crop_type')
+    @validator("crop_type")
     def validate_crop_type(cls, v):
         if v.lower() not in VALID_CROP_TYPES:
             raise ValueError(f"Invalid crop type. Must be one of: {VALID_CROP_TYPES}")

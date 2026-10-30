@@ -118,7 +118,7 @@ print(f"Risk level: {risk_profile.overall_risk_level}")  # e.g. MODERATE
 # 2. Get premium quote
 quote = await calculate_premium_rate(
     risk_profile=risk_profile,
-    coverage_amount=85000,   # SAR
+    coverage_amount=85000,  # SAR
     insurance_type=InsuranceType.PARAMETRIC,
 )
 print(f"Annual premium: {quote.annual_premium} SAR")
@@ -138,7 +138,7 @@ print(f"Claim ID: {claim.id}, Status: {claim.status}")
 # 4. Automatic parametric trigger (weather station data)
 result = await process_parametric_trigger(
     trigger_id="TRIG-RAINFALL-001",
-    observed_value=12.5,   # mm actual rainfall
+    observed_value=12.5,  # mm actual rainfall
     # Trigger fires when rainfall < threshold
 )
 ```

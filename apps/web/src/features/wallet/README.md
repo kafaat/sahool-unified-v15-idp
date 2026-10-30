@@ -287,15 +287,18 @@ For full functionality, the billing-core service should implement these endpoint
 ```python
 # In billing-core service (FastAPI)
 
+
 @app.get("/v1/billing/wallet")
 async def get_wallet(user_id: str = Header(...)):
     # Return wallet for user
     pass
 
+
 @app.get("/v1/billing/wallet/stats")
 async def get_wallet_stats(user_id: str = Header(...)):
     # Return wallet statistics
     pass
+
 
 @app.get("/v1/billing/transactions")
 async def get_transactions(
@@ -308,15 +311,18 @@ async def get_transactions(
     # Return filtered transactions
     pass
 
+
 @app.post("/v1/billing/deposit")
 async def create_deposit(data: DepositRequest, user_id: str = Header(...)):
     # Create deposit transaction
     pass
 
+
 @app.post("/v1/billing/withdraw")
 async def create_withdrawal(data: WithdrawRequest, user_id: str = Header(...)):
     # Create withdrawal transaction
     pass
+
 
 @app.post("/v1/billing/transfer")
 async def create_transfer(data: TransferRequest, user_id: str = Header(...)):

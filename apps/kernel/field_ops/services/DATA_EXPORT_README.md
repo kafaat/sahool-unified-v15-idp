@@ -137,7 +137,7 @@ result = exporter.export_field_data(
     include_sensors=True,
     include_weather=True,
     include_recommendations=True,
-    include_actions=True
+    include_actions=True,
 )
 
 # Access result
@@ -159,9 +159,7 @@ else:
 
 ```python
 result = exporter.export_sensor_readings(
-    field_id="FIELD_001",
-    format=ExportFormat.EXCEL,
-    date_range=(start_date, end_date)
+    field_id="FIELD_001", format=ExportFormat.EXCEL, date_range=(start_date, end_date)
 )
 ```
 
@@ -169,9 +167,7 @@ result = exporter.export_sensor_readings(
 
 ```python
 result = exporter.export_recommendations(
-    field_id="FIELD_001",
-    format=ExportFormat.PDF,
-    date_range=(start_date, end_date)
+    field_id="FIELD_001", format=ExportFormat.PDF, date_range=(start_date, end_date)
 )
 ```
 
@@ -181,11 +177,7 @@ result = exporter.export_recommendations(
 
 ```python
 result = exporter.generate_report(
-    report_type=ReportType.DAILY_SUMMARY,
-    params={
-        "field_id": "FIELD_001",
-        "date": date.today()
-    }
+    report_type=ReportType.DAILY_SUMMARY, params={"field_id": "FIELD_001", "date": date.today()}
 )
 ```
 
@@ -193,11 +185,7 @@ result = exporter.generate_report(
 
 ```python
 result = exporter.generate_report(
-    report_type=ReportType.WEEKLY_ANALYSIS,
-    params={
-        "field_id": "FIELD_001",
-        "end_date": date.today()
-    }
+    report_type=ReportType.WEEKLY_ANALYSIS, params={"field_id": "FIELD_001", "end_date": date.today()}
 )
 ```
 
@@ -205,12 +193,7 @@ result = exporter.generate_report(
 
 ```python
 result = exporter.generate_report(
-    report_type=ReportType.MONTHLY_REPORT,
-    params={
-        "field_id": "FIELD_001",
-        "month": 10,
-        "year": 2024
-    }
+    report_type=ReportType.MONTHLY_REPORT, params={"field_id": "FIELD_001", "month": 10, "year": 2024}
 )
 ```
 
@@ -219,22 +202,14 @@ result = exporter.generate_report(
 ```python
 result = exporter.generate_report(
     report_type=ReportType.SEASONAL_COMPARISON,
-    params={
-        "field_id": "FIELD_001",
-        "seasons": ["2023-winter", "2024-spring", "2024-summer"]
-    }
+    params={"field_id": "FIELD_001", "seasons": ["2023-winter", "2024-spring", "2024-summer"]},
 )
 ```
 
 #### Yield Forecast
 
 ```python
-result = exporter.generate_report(
-    report_type=ReportType.YIELD_FORECAST,
-    params={
-        "field_id": "FIELD_001"
-    }
-)
+result = exporter.generate_report(report_type=ReportType.YIELD_FORECAST, params={"field_id": "FIELD_001"})
 ```
 
 ---
@@ -397,10 +372,7 @@ exporter.ARABIC_HEADERS = {
 Add your own custom Arabic headers:
 
 ```python
-exporter.ARABIC_HEADERS.update({
-    "custom_field": "حقل مخصص",
-    "new_metric": "مؤشر جديد"
-})
+exporter.ARABIC_HEADERS.update({"custom_field": "حقل مخصص", "new_metric": "مؤشر جديد"})
 ```
 
 ### PDF with Arabic Font
@@ -432,23 +404,16 @@ import io
 
 app = FastAPI()
 
+
 @app.get("/api/fields/{field_id}/export")
-async def export_field_data(
-    field_id: str,
-    format: str = "csv",
-    days: int = 30
-):
+async def export_field_data(field_id: str, format: str = "csv", days: int = 30):
     exporter = DataExporter()
 
     export_format = ExportFormat(format.lower())
     end_date = date.today()
     start_date = end_date - timedelta(days=days)
 
-    result = exporter.export_field_data(
-        field_id=field_id,
-        format=export_format,
-        date_range=(start_date, end_date)
-    )
+    result = exporter.export_field_data(field_id=field_id, format=export_format, date_range=(start_date, end_date))
 
     if isinstance(result.data, str):
         content = io.BytesIO(result.data.encode("utf-8"))
@@ -458,9 +423,7 @@ async def export_field_data(
     return StreamingResponse(
         content,
         media_type=result.content_type,
-        headers={
-            "Content-Disposition": f"attachment; filename={result.filename}"
-        }
+        headers={"Content-Disposition": f"attachment; filename={result.filename}"},
     )
 ```
 
@@ -471,19 +434,16 @@ from django.http import HttpResponse
 from data_exporter import DataExporter, ReportType
 from datetime import date
 
+
 def generate_daily_report_view(request, field_id):
     exporter = DataExporter()
 
     result = exporter.generate_report(
-        report_type=ReportType.DAILY_SUMMARY,
-        params={
-            "field_id": field_id,
-            "date": date.today()
-        }
+        report_type=ReportType.DAILY_SUMMARY, params={"field_id": field_id, "date": date.today()}
     )
 
     response = HttpResponse(result.data, content_type=result.content_type)
-    response['Content-Disposition'] = f'attachment; filename="{result.filename}"'
+    response["Content-Disposition"] = f'attachment; filename="{result.filename}"'
 
     return response
 ```
@@ -495,7 +455,8 @@ from celery import Celery
 from data_exporter import DataExporter, ReportType
 from datetime import date
 
-app = Celery('sahool')
+app = Celery("sahool")
+
 
 @app.task
 def generate_daily_reports():
@@ -504,11 +465,7 @@ def generate_daily_reports():
 
     for field_id in get_active_field_ids():
         result = exporter.generate_report(
-            report_type=ReportType.DAILY_SUMMARY,
-            params={
-                "field_id": field_id,
-                "date": date.today()
-            }
+            report_type=ReportType.DAILY_SUMMARY, params={"field_id": field_id, "date": date.today()}
         )
 
         # Save to storage
@@ -569,10 +526,10 @@ def export_large_dataset(field_id, format):
         format=format,
         include_metadata=False,  # Skip if not needed
         include_ndvi=True,
-        include_sensors=False,   # Skip if not needed
+        include_sensors=False,  # Skip if not needed
         include_weather=False,
         include_recommendations=False,
-        include_actions=False
+        include_actions=False,
     )
 
     return result
@@ -586,10 +543,7 @@ def export_large_dataset(field_id, format):
 
 ```python
 try:
-    result = exporter.export_field_data(
-        field_id="FIELD_001",
-        format=ExportFormat.PDF
-    )
+    result = exporter.export_field_data(field_id="FIELD_001", format=ExportFormat.PDF)
 except ValueError as e:
     # Invalid format or parameters
     print(f"Invalid input: {e}")
@@ -614,6 +568,7 @@ except ValueError:
 
 # Check dependencies
 import data_exporter
+
 if not data_exporter.REPORTLAB_AVAILABLE:
     print("PDF export not available - install reportlab")
 if not data_exporter.OPENPYXL_AVAILABLE:

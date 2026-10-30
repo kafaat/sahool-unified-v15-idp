@@ -13,11 +13,7 @@ Quick guide for integrating the Fallback Manager into existing SAHOOL microservi
 Add to your service's main file:
 
 ```python
-from shared.utils.fallback_manager import (
-    get_fallback_manager,
-    circuit_breaker,
-    with_fallback
-)
+from shared.utils.fallback_manager import get_fallback_manager, circuit_breaker, with_fallback
 ```
 
 ### 2. Choose Integration Pattern / اختيار نمط الدمج
@@ -36,7 +32,8 @@ fm = get_fallback_manager()
 # Already configured fallbacks for common services!
 # احتياطيات مُكونة مسبقاً للخدمات الشائعة!
 
-@app.route('/api/weather/<location>')
+
+@app.route("/api/weather/<location>")
 def get_weather(location):
     def primary_weather_call():
         return call_external_weather_api(location)
@@ -53,8 +50,10 @@ Best for: Individual functions that need protection
 ```python
 from shared.utils.fallback_manager import circuit_breaker, with_fallback
 
+
 def my_fallback():
     return {"status": "unavailable", "data": None}
+
 
 @with_fallback(my_fallback)
 @circuit_breaker(failure_threshold=5, recovery_timeout=30)
@@ -74,12 +73,7 @@ from shared.utils.fallback_manager import FallbackManager
 my_fm = FallbackManager()
 
 # Register custom fallback
-my_fm.register_fallback(
-    "my_service",
-    my_custom_fallback,
-    failure_threshold=3,
-    recovery_timeout=60
-)
+my_fm.register_fallback("my_service", my_custom_fallback, failure_threshold=3, recovery_timeout=60)
 ```
 
 ## Service-Specific Integration Examples / أمثلة دمج خاصة بالخدمات
@@ -96,16 +90,17 @@ import requests
 app = Flask(__name__)
 fm = get_fallback_manager()
 
-@app.route('/api/weather/<location>')
+
+@app.route("/api/weather/<location>")
 def get_weather(location):
     """
     Weather endpoint with automatic fallback
     نقطة نهاية الطقس مع احتياطي تلقائي
     """
+
     def fetch_weather():
         response = requests.get(
-            f"https://api.openweathermap.org/data/2.5/weather",
-            params={"q": location, "appid": API_KEY}
+            f"https://api.openweathermap.org/data/2.5/weather", params={"q": location, "appid": API_KEY}
         )
         response.raise_for_status()
         return response.json()
@@ -117,7 +112,8 @@ def get_weather(location):
     except Exception as e:
         return jsonify({"error": str(e)}), 503
 
-@app.route('/health/circuit')
+
+@app.route("/health/circuit")
 def circuit_status():
     """Health check endpoint for circuit breaker"""
     status = fm.get_circuit_status("weather")
@@ -134,12 +130,14 @@ import requests
 
 fm = get_fallback_manager()
 
+
 class SatelliteService:
     def get_ndvi(self, field_id: str):
         """
         Get NDVI with fallback protection
         الحصول على NDVI مع حماية احتياطية
         """
+
         def fetch_ndvi():
             response = requests.get(f"{SATELLITE_API}/ndvi/{field_id}")
             response.raise_for_status()
@@ -151,7 +149,7 @@ class SatelliteService:
     def get_circuit_health(self):
         """Check if satellite service circuit is healthy"""
         status = fm.get_circuit_status("satellite")
-        return status['state'] == 'closed'
+        return status["state"] == "closed"
 ```
 
 ### AI Advisor Service Integration / دمج خدمة مستشار الذكاء الاصطناعي
@@ -164,17 +162,16 @@ import requests
 
 fm = get_fallback_manager()
 
+
 class AIAdvisorService:
     def get_recommendations(self, field_id: str, crop_type: str):
         """
         Get AI recommendations with rule-based fallback
         الحصول على توصيات AI مع احتياطي قائم على القواعد
         """
+
         def fetch_ai_recommendations():
-            response = requests.post(
-                f"{AI_API}/recommendations",
-                json={"field_id": field_id, "crop_type": crop_type}
-            )
+            response = requests.post(f"{AI_API}/recommendations", json={"field_id": field_id, "crop_type": crop_type})
             response.raise_for_status()
             return response.json()
 
@@ -191,6 +188,7 @@ from shared.utils.fallback_manager import get_fallback_manager, circuit_breaker
 
 fm = get_fallback_manager()
 
+
 @circuit_breaker(failure_threshold=5, recovery_timeout=45)
 def analyze_crop_health(field_id: str):
     """
@@ -206,8 +204,9 @@ def analyze_crop_health(field_id: str):
     return {
         "field_id": field_id,
         "health_score": health_score,
-        "status": "healthy" if health_score > 70 else "needs_attention"
+        "status": "healthy" if health_score > 70 else "needs_attention",
     }
+
 
 # Access circuit breaker status
 def get_analysis_circuit_status():
@@ -224,24 +223,16 @@ from shared.utils.fallback_manager import FallbackManager
 # Create service-specific manager
 fm = FallbackManager()
 
+
 # Define custom fallback
 def my_custom_fallback(param1, param2):
     """Return safe default values"""
-    return {
-        "param1": param1,
-        "param2": param2,
-        "result": "default_value",
-        "source": "fallback",
-        "confidence": 0.0
-    }
+    return {"param1": param1, "param2": param2, "result": "default_value", "source": "fallback", "confidence": 0.0}
+
 
 # Register the fallback
-fm.register_fallback(
-    "my_service",
-    my_custom_fallback,
-    failure_threshold=3,
-    recovery_timeout=30
-)
+fm.register_fallback("my_service", my_custom_fallback, failure_threshold=3, recovery_timeout=30)
+
 
 # Use it
 def process_request(param1, param2):
@@ -249,12 +240,7 @@ def process_request(param1, param2):
         # Your complex logic here
         return complex_api_call(param1, param2)
 
-    return fm.execute_with_fallback(
-        "my_service",
-        primary_processing,
-        param1,
-        param2
-    )
+    return fm.execute_with_fallback("my_service", primary_processing, param1, param2)
 ```
 
 ## Health Check Integration / دمج فحص الصحة
@@ -268,7 +254,8 @@ from shared.utils.fallback_manager import get_fallback_manager
 app = Flask(__name__)
 fm = get_fallback_manager()
 
-@app.route('/health')
+
+@app.route("/health")
 def health_check():
     """
     Standard health check with circuit breaker status
@@ -276,27 +263,25 @@ def health_check():
     """
     all_statuses = fm.get_all_statuses()
 
-    degraded_circuits = [
-        name for name, status in all_statuses.items()
-        if status['state'] != 'closed'
-    ]
+    degraded_circuits = [name for name, status in all_statuses.items() if status["state"] != "closed"]
 
-    return jsonify({
-        "status": "degraded" if degraded_circuits else "healthy",
-        "circuits": all_statuses,
-        "degraded": degraded_circuits
-    }), 200 if not degraded_circuits else 503
+    return jsonify(
+        {
+            "status": "degraded" if degraded_circuits else "healthy",
+            "circuits": all_statuses,
+            "degraded": degraded_circuits,
+        }
+    ), 200 if not degraded_circuits else 503
 
-@app.route('/admin/circuits/reset/<service_name>', methods=['POST'])
+
+@app.route("/admin/circuits/reset/<service_name>", methods=["POST"])
 def reset_circuit(service_name):
     """
     Admin endpoint to manually reset a circuit
     نقطة نهاية الإدارة لإعادة تعيين الدائرة يدوياً
     """
     fm.reset_circuit(service_name)
-    return jsonify({
-        "message": f"Circuit {service_name} reset successfully"
-    })
+    return jsonify({"message": f"Circuit {service_name} reset successfully"})
 ```
 
 ## Docker Compose Integration / دمج Docker Compose
@@ -318,16 +303,13 @@ Then in your service:
 import os
 
 # Configure based on environment
-CIRCUIT_ENABLED = os.getenv('CIRCUIT_BREAKER_ENABLED', 'true') == 'true'
-FAILURE_THRESHOLD = int(os.getenv('WEATHER_FAILURE_THRESHOLD', '5'))
-RECOVERY_TIMEOUT = int(os.getenv('WEATHER_RECOVERY_TIMEOUT', '30'))
+CIRCUIT_ENABLED = os.getenv("CIRCUIT_BREAKER_ENABLED", "true") == "true"
+FAILURE_THRESHOLD = int(os.getenv("WEATHER_FAILURE_THRESHOLD", "5"))
+RECOVERY_TIMEOUT = int(os.getenv("WEATHER_RECOVERY_TIMEOUT", "30"))
 
 if CIRCUIT_ENABLED:
     fm.register_fallback(
-        "weather",
-        weather_fallback,
-        failure_threshold=FAILURE_THRESHOLD,
-        recovery_timeout=RECOVERY_TIMEOUT
+        "weather", weather_fallback, failure_threshold=FAILURE_THRESHOLD, recovery_timeout=RECOVERY_TIMEOUT
     )
 ```
 
@@ -357,33 +339,35 @@ Create tests to verify fallback behavior:
 import pytest
 from unittest.mock import patch
 
+
 def test_weather_with_fallback(app):
     """Test weather service uses fallback on API failure"""
 
-    with patch('requests.get') as mock_get:
+    with patch("requests.get") as mock_get:
         # Simulate API failure
         mock_get.side_effect = Exception("API timeout")
 
-        response = app.get('/api/weather/Sanaa')
+        response = app.get("/api/weather/Sanaa")
 
         # Should return fallback data, not error
         assert response.status_code == 200
         data = response.json()
-        assert data['source'] == 'fallback'
+        assert data["source"] == "fallback"
+
 
 def test_circuit_opens_after_failures(app):
     """Test circuit opens after threshold failures"""
 
-    with patch('requests.get') as mock_get:
+    with patch("requests.get") as mock_get:
         mock_get.side_effect = Exception("API timeout")
 
         # Trigger 5 failures
         for _ in range(5):
-            app.get('/api/weather/Sanaa')
+            app.get("/api/weather/Sanaa")
 
         # Check circuit is open
-        status = app.get('/health/circuit').json()
-        assert status['state'] == 'open'
+        status = app.get("/health/circuit").json()
+        assert status["state"] == "open"
 ```
 
 ## Best Practices / أفضل الممارسات
@@ -409,8 +393,9 @@ def weather_fallback():
         "temperature": 25.0,
         "condition": "unknown",
         "source": "fallback",
-        "message": "Using default data - Check manually"
+        "message": "Using default data - Check manually",
     }
+
 
 # ❌ Avoid - Useless fallback
 def weather_fallback():
@@ -421,22 +406,20 @@ def weather_fallback():
 
 ```python
 # ✅ Good - Critical service, fail fast
-fm.register_fallback("payment", payment_fallback,
-                     failure_threshold=3, recovery_timeout=60)
+fm.register_fallback("payment", payment_fallback, failure_threshold=3, recovery_timeout=60)
 
 # ✅ Good - Non-critical service, more tolerant
-fm.register_fallback("analytics", analytics_fallback,
-                     failure_threshold=10, recovery_timeout=30)
+fm.register_fallback("analytics", analytics_fallback, failure_threshold=10, recovery_timeout=30)
 ```
 
 ### 4. Monitor Circuit Status in Production
 
 ```python
 # ✅ Good - Regular monitoring
-@app.route('/metrics')
+@app.route("/metrics")
 def metrics():
     statuses = fm.get_all_statuses()
-    open_circuits = [k for k, v in statuses.items() if v['state'] == 'open']
+    open_circuits = [k for k, v in statuses.items() if v["state"] == "open"]
 
     # Alert if circuits are open
     if open_circuits:
@@ -452,8 +435,8 @@ def metrics():
 def test_fallback_path():
     """Ensure fallback returns valid data"""
     result = weather_fallback()
-    assert 'temperature' in result
-    assert 'condition' in result
+    assert "temperature" in result
+    assert "condition" in result
 ```
 
 ## Troubleshooting Common Issues / حل المشكلات الشائعة
@@ -488,8 +471,7 @@ fm.reset_circuit("service_name")
 
 ```python
 # Increase threshold for flaky services
-fm.register_fallback("flaky_service", fallback,
-                     failure_threshold=10)  # Was 5
+fm.register_fallback("flaky_service", fallback, failure_threshold=10)  # Was 5
 ```
 
 ## Performance Considerations / اعتبارات الأداء
@@ -520,11 +502,9 @@ from shared.utils.fallback_manager import get_fallback_manager
 
 fm = get_fallback_manager()
 
+
 def get_weather(location):
-    return fm.execute_with_fallback(
-        "weather",
-        lambda: call_weather_api(location)
-    )
+    return fm.execute_with_fallback("weather", lambda: call_weather_api(location))
 ```
 
 Benefits:

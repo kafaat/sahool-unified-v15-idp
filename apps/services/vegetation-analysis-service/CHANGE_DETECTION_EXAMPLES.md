@@ -228,8 +228,8 @@ for field in fields:
             "lon": field["lon"],
             "start_date": start.isoformat(),
             "end_date": today.isoformat(),
-            "crop_type": "wheat"
-        }
+            "crop_type": "wheat",
+        },
     )
 
     report = response.json()
@@ -309,12 +309,7 @@ def verify_damage_claim(claim_id, field_id, lat, lon, damage_date):
 
     response = requests.get(
         f"http://localhost:8090/v1/changes/{field_id}/compare",
-        params={
-            "lat": lat,
-            "lon": lon,
-            "date1": before_date,
-            "date2": after_date
-        }
+        params={"lat": lat, "lon": lon, "date1": before_date, "date2": after_date},
     )
 
     event = response.json()
@@ -328,12 +323,12 @@ def verify_damage_claim(claim_id, field_id, lat, lon, damage_date):
             "change_percent": event["change_percent"],
             "damage_type": event["change_type"],
             "severity": event["severity"],
-            "confidence": event["confidence"]
+            "confidence": event["confidence"],
         },
-        "claim_status": "approved" if event["confidence"] > 0.8 and
-                                       event["severity"] in ["high", "critical"]
-                                  else "requires_inspection",
-        "evidence_description": event["description_en"]
+        "claim_status": "approved"
+        if event["confidence"] > 0.8 and event["severity"] in ["high", "critical"]
+        else "requires_inspection",
+        "evidence_description": event["description_en"],
     }
 
     return report

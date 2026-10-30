@@ -78,12 +78,13 @@ field = FieldBoundary(
 # Single NDVI reading
 result = await analyzer.get_ndvi(field, max_cloud_coverage=30.0)
 if result:
-    print(f"NDVI: {result.mean_value:.2f}")   # 0.65
+    print(f"NDVI: {result.mean_value:.2f}")  # 0.65
     print(f"Status: {result.health_status}")  # healthy
     print(f"Arabic: {result.health_status_ar}")  # صحي
 
 # Time series for the past 30 days
 from datetime import timedelta
+
 end = datetime.now(UTC)
 start = end - timedelta(days=30)
 ts = await analyzer.get_time_series(field, start, end, interval_days=5)
@@ -94,8 +95,8 @@ lai = await analyzer.get_vegetation_index(field, VegetationIndex.LAI)
 
 # Full crop health report
 report = await analyzer.analyze_crop_health(field)
-print(report["health_status"])       # stressed
-print(report["recommendations"])     # ['Consider additional fertilization', ...]
+print(report["health_status"])  # stressed
+print(report["recommendations"])  # ['Consider additional fertilization', ...]
 print(report["recommendations_ar"])  # ['فكر في تسميد إضافي', ...]
 ```
 

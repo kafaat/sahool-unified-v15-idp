@@ -176,7 +176,7 @@ Updated module exports to include application tracker classes and enums.
 ```python
 # Default periods by category:
 DEFAULT_WITHHOLDING_PERIODS = {
-    "PESTICIDE": 14,    # days
+    "PESTICIDE": 14,  # days
     "HERBICIDE": 7,
     "FUNGICIDE": 10,
     "FERTILIZER": 0,

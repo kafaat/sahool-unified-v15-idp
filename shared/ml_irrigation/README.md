@@ -104,7 +104,7 @@ weather = WeatherFeatures(
 )
 
 soil = SoilFeatures(
-    moisture_current=28.0,           # Below low threshold (40%)
+    moisture_current=28.0,  # Below low threshold (40%)
     moisture_field_capacity=45.0,
     moisture_wilting_point=15.0,
     moisture_depth_cm=30.0,
@@ -123,7 +123,7 @@ crop = CropFeatures(
     growth_stage=CropStage.FLOWERING,  # Critical stage - lower depletion allowance (0.35)
     days_after_planting=85,
     growth_stage_days=8,
-    kc=1.15,                          # Wheat flowering Kc
+    kc=1.15,  # Wheat flowering Kc
     root_depth_cm=80.0,
     ndvi=0.68,
     area_ha=5.5,

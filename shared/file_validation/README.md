@@ -75,6 +75,7 @@ from shared.file_validation import (
 
 app = FastAPI()
 
+
 # Initialize validator on startup
 @app.on_event("startup")
 async def startup_event():
@@ -89,6 +90,7 @@ async def startup_event():
             sanitize_filename=True,
         )
     )
+
 
 # Use in endpoint
 @app.post("/upload")
@@ -138,7 +140,7 @@ validator = FileValidator(
         allowed_mime_types=ALLOWED_IMAGE_TYPES,
         scan_for_viruses=True,
     ),
-    virus_scanner=virus_scanner
+    virus_scanner=virus_scanner,
 )
 
 # Use validator
@@ -192,7 +194,7 @@ result = await validate_file_upload(
     file_content=file_bytes,
     filename="photo.jpg",
     declared_mime_type="image/jpeg",
-    config=FileValidationConfig(max_file_size=5 * 1024 * 1024)
+    config=FileValidationConfig(max_file_size=5 * 1024 * 1024),
 )
 ```
 
@@ -224,7 +226,12 @@ from shared.file_validation import (
 ["image/jpeg", "image/png", "image/gif", "image/webp", "image/bmp", "image/tiff"]
 
 # ALLOWED_DOCUMENT_TYPES
-["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", ...]
+[
+    "application/pdf",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ...,
+]
 
 # ALLOWED_ARCHIVE_TYPES
 ["application/zip", "application/x-tar", "application/gzip", ...]
@@ -368,6 +375,7 @@ limiter = Limiter(key_func=get_remote_address)
 app = FastAPI()
 app.state.limiter = limiter
 
+
 @app.post("/upload")
 @limiter.limit("10/minute")  # 10 uploads per minute
 async def upload_file(request: Request, file: UploadFile = File(...)):
@@ -385,6 +393,7 @@ from shared.file_validation import FileValidator, FileValidationConfig, ALLOWED_
 
 app = FastAPI()
 
+
 @app.on_event("startup")
 async def startup():
     app.state.validator = FileValidator(
@@ -395,6 +404,7 @@ async def startup():
             strict_mime_check=True,
         )
     )
+
 
 @app.post("/api/v1/upload-profile-photo")
 async def upload_profile_photo(photo: UploadFile = File(...)):
@@ -427,6 +437,7 @@ from shared.file_validation import (
     get_virus_scanner,
 )
 
+
 @app.on_event("startup")
 async def startup():
     scanner = get_virus_scanner(
@@ -441,7 +452,7 @@ async def startup():
             allowed_mime_types=ALLOWED_DOCUMENT_TYPES,
             scan_for_viruses=os.getenv("VIRUS_SCANNER") == "clamav",
         ),
-        virus_scanner=scanner
+        virus_scanner=scanner,
     )
 ```
 
@@ -453,21 +464,19 @@ async def startup():
 import pytest
 from shared.file_validation import FileValidator, FileValidationConfig, FileValidationError
 
+
 @pytest.mark.asyncio
 async def test_valid_image():
     validator = FileValidator(config=FileValidationConfig())
 
     # PNG magic bytes
-    png_content = b'\x89PNG\r\n\x1a\n' + b'\x00' * 100
+    png_content = b"\x89PNG\r\n\x1a\n" + b"\x00" * 100
 
-    result = await validator.validate(
-        file_content=png_content,
-        filename="test.png",
-        declared_mime_type="image/png"
-    )
+    result = await validator.validate(file_content=png_content, filename="test.png", declared_mime_type="image/png")
 
     assert result["valid"] is True
     assert result["detected_mime"] == "image/png"
+
 
 @pytest.mark.asyncio
 async def test_file_too_large():
@@ -475,14 +484,10 @@ async def test_file_too_large():
         config=FileValidationConfig(max_file_size=1024)  # 1KB
     )
 
-    large_content = b'\x89PNG\r\n\x1a\n' + b'\x00' * 2000  # 2KB
+    large_content = b"\x89PNG\r\n\x1a\n" + b"\x00" * 2000  # 2KB
 
     with pytest.raises(FileValidationError) as exc:
-        await validator.validate(
-            file_content=large_content,
-            filename="large.png",
-            declared_mime_type="image/png"
-        )
+        await validator.validate(file_content=large_content, filename="large.png", declared_mime_type="image/png")
 
     assert exc.value.error_code == "FILE_TOO_LARGE"
 ```

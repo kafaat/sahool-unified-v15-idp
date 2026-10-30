@@ -860,7 +860,7 @@ class FertilizerPlanRequest(BaseModel):
     stage: str
     field_size_ha: float = 1.0
     soil_fertility: str = "medium"  # low, medium, high
-    irrigation_type: str = "drip"   # drip, surface, sprinkler
+    irrigation_type: str = "drip"  # drip, surface, sprinkler
     correlation_id: str | None = None
 ```
 

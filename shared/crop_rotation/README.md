@@ -69,13 +69,20 @@ Tracks `SoilHealthMeasurement` objects over time and produces `SoilHealthReport`
 
 ```python
 from shared.crop_rotation import (
-    CropRotationPlanner, SoilHealthTracker,
-    RotationPlannerConfig, SoilHealthTrackerConfig,
-    CropType, Season,
-    get_crop_characteristics, get_rotation_compatibility,
-    get_recommended_break_crops, calculate_rotation_score,
-    assess_soil_health_from_measurement, calculate_nitrogen_credit,
-    CROP_DATABASE, ROTATION_COMPATIBILITY,
+    CropRotationPlanner,
+    SoilHealthTracker,
+    RotationPlannerConfig,
+    SoilHealthTrackerConfig,
+    CropType,
+    Season,
+    get_crop_characteristics,
+    get_rotation_compatibility,
+    get_recommended_break_crops,
+    calculate_rotation_score,
+    assess_soil_health_from_measurement,
+    calculate_nitrogen_credit,
+    CROP_DATABASE,
+    ROTATION_COMPATIBILITY,
 )
 from datetime import date
 

@@ -69,11 +69,20 @@ Analyzes a time series of `SoilTestResult` objects for a field, producing a `Tre
 ```python
 from datetime import datetime
 from shared.soil_testing import (
-    SoilTestResult, MacronutrientResults, MicronutrientResults,
-    SoilProperties, SoilTexture,
-    SoilTestInterpreter, SoilAmendmentRecommender, SoilTrendAnalyzer,
-    interpret_soil_test, generate_amendment_plan, analyze_soil_trends,
-    get_nutrient_status, get_ph_status, get_ec_status,
+    SoilTestResult,
+    MacronutrientResults,
+    MicronutrientResults,
+    SoilProperties,
+    SoilTexture,
+    SoilTestInterpreter,
+    SoilAmendmentRecommender,
+    SoilTrendAnalyzer,
+    interpret_soil_test,
+    generate_amendment_plan,
+    analyze_soil_trends,
+    get_nutrient_status,
+    get_ph_status,
+    get_ec_status,
     NutrientStatus,
 )
 
@@ -85,7 +94,7 @@ soil_test = SoilTestResult(
     sample_id="S2026-001",
     sample_date=datetime.now(),
     macronutrients=MacronutrientResults(
-        nitrogen_nitrate_ppm=18.0,   # Low - below 20 ppm threshold
+        nitrogen_nitrate_ppm=18.0,  # Low - below 20 ppm threshold
         phosphorus_ppm=12.0,
         potassium_ppm=155.0,
     ),

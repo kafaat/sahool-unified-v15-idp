@@ -467,9 +467,7 @@ class SatelliteScheduler:
     # Helpers                                                              #
     # ------------------------------------------------------------------ #
 
-    async def _get_field_bbox(
-        self, tenant_id: str, field_id: str
-    ) -> list[float] | None:
+    async def _get_field_bbox(self, tenant_id: str, field_id: str) -> list[float] | None:
         """
         Retrieve bbox for the field.
 

@@ -116,11 +116,13 @@ Event-driven messaging contracts:
 from shared.contracts.events.base import BaseEvent
 from shared.contracts.events.publisher import EventPublisher
 
+
 # Define event
 class FieldCreated(BaseEvent):
     field_id: str
     tenant_id: str
     geometry: dict
+
 
 # Publish event
 publisher = EventPublisher()
@@ -151,12 +153,7 @@ from shared.libs.audit.service import AuditService
 from shared.libs.audit.redact import redact_pii
 
 # Log action
-await audit.log(
-    action="field.created",
-    actor_id=user.id,
-    resource_id=field.id,
-    details=redact_pii(details)
-)
+await audit.log(action="field.created", actor_id=user.id, resource_id=field.id, details=redact_pii(details))
 ```
 
 ### libs/events
@@ -168,10 +165,7 @@ from shared.libs.events.producer import EventProducer
 from shared.libs.events.envelope import EventEnvelope
 
 producer = EventProducer(nats_client)
-envelope = EventEnvelope(
-    event_type="ndvi.computed.v1",
-    data={"field_id": "...", "value": 0.75}
-)
+envelope = EventEnvelope(event_type="ndvi.computed.v1", data={"field_id": "...", "value": 0.75})
 await producer.publish(envelope)
 ```
 
@@ -185,10 +179,7 @@ from shared.libs.outbox.publisher import OutboxPublisher
 # Within transaction
 async with db.transaction():
     await db.insert(field)
-    await outbox.schedule(
-        event_type="field.created.v1",
-        payload=field.dict()
-    )
+    await outbox.schedule(event_type="field.created.v1", payload=field.dict())
 ```
 
 ### middleware
@@ -232,10 +223,12 @@ Metrics and health checks:
 from shared.observability.health import HealthCheck
 from shared.observability.metrics import MetricsMiddleware
 
+
 # Health endpoint
 @app.get("/health")
 async def health():
     return await HealthCheck().run()
+
 
 # Metrics
 app.add_middleware(MetricsMiddleware)

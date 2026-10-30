@@ -465,12 +465,9 @@ nc = await nats.connect("nats://localhost:4222")
 # Publish field update
 await nc.publish(
     "sahool.fields.123.updated",
-    json.dumps({
-        "field_id": "123",
-        "tenant_id": "tenant_456",
-        "name": "North Field",
-        "updated_at": "2024-01-15T10:30:00Z"
-    }).encode()
+    json.dumps(
+        {"field_id": "123", "tenant_id": "tenant_456", "name": "North Field", "updated_at": "2024-01-15T10:30:00Z"}
+    ).encode(),
 )
 ```
 

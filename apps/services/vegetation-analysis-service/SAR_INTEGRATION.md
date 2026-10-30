@@ -222,10 +222,7 @@ if soil_moisture.soil_moisture_percent < 20:
         "title_ar": "ري عاجل مطلوب - رطوبة منخفضة",
         "title_en": "Urgent Irrigation - Low Moisture",
         "urgency": "high",
-        "data": {
-            "current_moisture": soil_moisture.soil_moisture_percent,
-            "recommended_water_mm": 40.0
-        }
+        "data": {"current_moisture": soil_moisture.soil_moisture_percent, "recommended_water_mm": 40.0},
     }
 ```
 
@@ -238,12 +235,8 @@ Real-time soil moisture alerts can be published via NATS:
 await publish_analysis_completed_sync(
     event_type="sar.soil_moisture_critical",
     field_id=field_id,
-    data={
-        "moisture_percent": 15.2,
-        "status": "critical",
-        "recommendation": "immediate_irrigation"
-    },
-    priority="high"
+    data={"moisture_percent": 15.2, "status": "critical", "recommendation": "immediate_irrigation"},
+    priority="high",
 )
 ```
 
@@ -255,12 +248,12 @@ await publish_analysis_completed_sync(
 import httpx
 import asyncio
 
+
 async def monitor_soil_moisture(field_id: str, lat: float, lon: float):
     async with httpx.AsyncClient() as client:
         # Get current soil moisture
         response = await client.get(
-            f"http://localhost:8090/v1/soil-moisture/{field_id}",
-            params={"lat": lat, "lon": lon}
+            f"http://localhost:8090/v1/soil-moisture/{field_id}", params={"lat": lat, "lon": lon}
         )
         data = response.json()
 
@@ -270,15 +263,13 @@ async def monitor_soil_moisture(field_id: str, lat: float, lon: float):
         print(f"  Recommendation: {data['recommendation_en']}")
 
         # Check for recent irrigation events
-        response = await client.get(
-            f"http://localhost:8090/v1/irrigation-events/{field_id}",
-            params={"days": 14}
-        )
+        response = await client.get(f"http://localhost:8090/v1/irrigation-events/{field_id}", params={"days": 14})
         events = response.json()
 
         print(f"\n  Recent irrigation events: {events['events_detected']}")
-        for event in events['events']:
+        for event in events["events"]:
             print(f"    - {event['detected_date']}: {event['estimated_water_mm']}mm")
+
 
 # Run for Sana'a region field
 asyncio.run(monitor_soil_moisture("field_sana_001", 15.3694, 44.1910))

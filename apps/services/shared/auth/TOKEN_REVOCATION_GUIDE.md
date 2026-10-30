@@ -59,6 +59,7 @@ from fastapi import FastAPI
 try:
     from auth.token_revocation import get_revocation_store
     from auth.revocation_middleware import TokenRevocationMiddleware
+
     REVOCATION_AVAILABLE = True
 except ImportError:
     REVOCATION_AVAILABLE = False
@@ -124,6 +125,7 @@ refresh_token, refresh_jti, family_id = create_refresh_token(
 
 ```python
 from fastapi import Request
+
 
 @app.post("/auth/logout")
 async def logout(request: Request, token_data: TokenData = Depends(get_token_data)):
@@ -280,6 +282,7 @@ If you need to check revocation status manually:
 
 ```python
 from auth.revocation_middleware import check_token_revocation
+
 
 @app.get("/internal/check-token")
 async def check_token(token: str):

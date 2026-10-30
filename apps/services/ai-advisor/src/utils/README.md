@@ -48,9 +48,9 @@ logger = structlog.get_logger()
 # This will automatically mask PII
 logger.info(
     "user_login_attempt",
-    email="user@example.com",           # Masked to [EMAIL]
-    ip_address="192.168.1.100",         # Masked to [IP]
-    api_key="sk-abc123def456"           # Masked to [REDACTED]
+    email="user@example.com",  # Masked to [EMAIL]
+    ip_address="192.168.1.100",  # Masked to [IP]
+    api_key="sk-abc123def456",  # Masked to [REDACTED]
 )
 
 # Output (after masking):
@@ -76,11 +76,7 @@ masked_text = PIIMasker.mask_text(text)
 # Result: "Contact [EMAIL] for [PASSWORD] reset"
 
 # Mask dictionary
-data = {
-    "user": "john@example.com",
-    "phone": "+966-555-1234",
-    "password": "secret123"
-}
+data = {"user": "john@example.com", "phone": "+966-555-1234", "password": "secret123"}
 masked_data = PIIMasker.mask_dict(data)
 # Result: {
 #   "user": "[EMAIL]",
@@ -89,11 +85,7 @@ masked_data = PIIMasker.mask_dict(data)
 # }
 
 # Safe logging helper
-sensitive_info = {
-    "email": "farmer@example.com",
-    "api_key": "sk-123456789",
-    "action": "crop_analysis"
-}
+sensitive_info = {"email": "farmer@example.com", "api_key": "sk-123456789", "action": "crop_analysis"}
 logger.info("operation", details=safe_log(sensitive_info))
 ```
 
@@ -105,9 +97,9 @@ To add custom patterns:
 from utils.pii_masker import PIIMasker
 
 # Add custom pattern
-PIIMasker.PATTERNS['custom_id'] = (
-    r'FARM-\d{6}',  # Pattern
-    '[FARM_ID]'      # Replacement
+PIIMasker.PATTERNS["custom_id"] = (
+    r"FARM-\d{6}",  # Pattern
+    "[FARM_ID]",  # Replacement
 )
 
 # Re-compile patterns
@@ -175,7 +167,7 @@ except Exception as e:
         "processing_failed",
         user_email="john@example.com",  # Masked to [EMAIL]
         error=str(e),
-        exc_info=True
+        exc_info=True,
     )
 ```
 
@@ -188,10 +180,7 @@ user_data = {
     "email": "ahmed@farm.sa",
     "phone": "+966-555-123456",
     "field_id": "FIELD-001",
-    "api_credentials": {
-        "api_key": "sk-abc123xyz789",
-        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-    }
+    "api_credentials": {"api_key": "sk-abc123xyz789", "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."},
 }
 
 # Safe to log - all PII automatically masked

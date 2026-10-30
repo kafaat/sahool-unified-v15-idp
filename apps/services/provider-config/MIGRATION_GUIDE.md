@@ -152,19 +152,12 @@ import requests
 
 # Old in-memory data
 old_configs = {
-    "tenant_001": {
-        "map_providers": [
-            {"provider_name": "openstreetmap", "priority": "primary", "enabled": True}
-        ]
-    }
+    "tenant_001": {"map_providers": [{"provider_name": "openstreetmap", "priority": "primary", "enabled": True}]}
 }
 
 # Migrate to database
 for tenant_id, config in old_configs.items():
-    response = requests.post(
-        f"http://localhost:8104/config/{tenant_id}",
-        json=config
-    )
+    response = requests.post(f"http://localhost:8104/config/{tenant_id}", json=config)
     print(f"Migrated {tenant_id}: {response.json()}")
 ```
 
@@ -399,9 +392,11 @@ docker-compose logs -f provider-config | grep -E "(Cache|Database|Config)"
    ```python
    from cryptography.fernet import Fernet
 
+
    # In config_service.py
    def encrypt_api_key(self, key: str) -> str:
        return self.cipher.encrypt(key.encode()).decode()
+
 
    def decrypt_api_key(self, encrypted_key: str) -> str:
        return self.cipher.decrypt(encrypted_key.encode()).decode()

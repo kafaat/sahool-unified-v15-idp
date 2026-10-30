@@ -116,30 +116,18 @@ Generates recommended application schedule for a crop season.
 
 ```python
 {
-  "id": "uuid",
-  "field_id": "field-123",
-  "crop_season_id": "season-2024-wheat",
-  "crop_type": "wheat",
-
-  "planned_applications": [
-    {
-      "stage": "basal",
-      "days_after_planting": 0,
-      "purpose": "BASAL",
-      "notes": "NPK at planting"
-    },
-    {
-      "stage": "tillering",
-      "days_after_planting": 30,
-      "purpose": "TOP_DRESSING",
-      "notes": "Nitrogen boost"
-    }
-  ],
-
-  "total_fertilizer_kg": 150.0,
-  "total_pesticide_l": 5.0,
-  "estimated_cost": 1250.0,
-  "status": "DRAFT"
+    "id": "uuid",
+    "field_id": "field-123",
+    "crop_season_id": "season-2024-wheat",
+    "crop_type": "wheat",
+    "planned_applications": [
+        {"stage": "basal", "days_after_planting": 0, "purpose": "BASAL", "notes": "NPK at planting"},
+        {"stage": "tillering", "days_after_planting": 30, "purpose": "TOP_DRESSING", "notes": "Nitrogen boost"},
+    ],
+    "total_fertilizer_kg": 150.0,
+    "total_pesticide_l": 5.0,
+    "estimated_cost": 1250.0,
+    "status": "DRAFT",
 }
 ```
 

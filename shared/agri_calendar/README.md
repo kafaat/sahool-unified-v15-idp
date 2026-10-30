@@ -62,15 +62,24 @@ Returns `PlantingRecommendation` objects from `PLANTING_WINDOWS` database (keyed
 
 ```python
 from shared.agri_calendar import (
-    SeasonCalculator, PlantingRecommendationEngine,
-    Region, CropType,
-    get_current_season, get_current_traditional_season,
-    get_planting_recommendation, get_crops_to_plant_now,
-    get_planting_calendar, get_region_info,
-    gregorian_to_hijri, hijri_to_gregorian,
-    get_current_hijri_date, get_upcoming_islamic_events,
-    format_dual_date, get_labor_advisory,
-    TRADITIONAL_SEASONS, TraditionalSeason,
+    SeasonCalculator,
+    PlantingRecommendationEngine,
+    Region,
+    CropType,
+    get_current_season,
+    get_current_traditional_season,
+    get_planting_recommendation,
+    get_crops_to_plant_now,
+    get_planting_calendar,
+    get_region_info,
+    gregorian_to_hijri,
+    hijri_to_gregorian,
+    get_current_hijri_date,
+    get_upcoming_islamic_events,
+    format_dual_date,
+    get_labor_advisory,
+    TRADITIONAL_SEASONS,
+    TraditionalSeason,
 )
 from datetime import date
 
@@ -118,9 +127,9 @@ print(dual["combined"])  # "25 فبراير 2026م / 27 شعبان 1447هـ"
 events = get_upcoming_islamic_events(days_ahead=90)
 for e in events:
     print(f"{e['event'].name_ar}: {e['gregorian_date']}")
-    if e['event'].affects_labor:
+    if e["event"].affects_labor:
         print(f"  Labor: {e['event'].labor_impact_ar}")
-    if e['event'].affects_market:
+    if e["event"].affects_market:
         print(f"  Market: {e['event'].market_impact_ar}")
 
 # Labor advisory for a planned operation date

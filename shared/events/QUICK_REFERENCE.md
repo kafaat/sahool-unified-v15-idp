@@ -7,30 +7,34 @@
 ```python
 from shared.events import (
     # Publisher & Subscriber
-    EventPublisher, EventSubscriber,
-
+    EventPublisher,
+    EventSubscriber,
     # Field Events
-    FieldCreatedEvent, FieldUpdatedEvent, FieldDeletedEvent,
-
+    FieldCreatedEvent,
+    FieldUpdatedEvent,
+    FieldDeletedEvent,
     # Weather Events
-    WeatherForecastEvent, WeatherAlertEvent,
-
+    WeatherForecastEvent,
+    WeatherAlertEvent,
     # Satellite Events
-    SatelliteDataReadyEvent, SatelliteAnomalyEvent,
-
+    SatelliteDataReadyEvent,
+    SatelliteAnomalyEvent,
     # Health Events
-    DiseaseDetectedEvent, CropStressEvent,
-
+    DiseaseDetectedEvent,
+    CropStressEvent,
     # Inventory Events
-    LowStockEvent, BatchExpiredEvent,
-
+    LowStockEvent,
+    BatchExpiredEvent,
     # Billing Events
-    SubscriptionCreatedEvent, PaymentCompletedEvent,
-
+    SubscriptionCreatedEvent,
+    PaymentCompletedEvent,
     # NATS Subjects
-    SAHOOL_FIELD_CREATED, SAHOOL_FIELD_ALL,
-    SAHOOL_WEATHER_ALERT, SAHOOL_SATELLITE_DATA_READY,
-    SAHOOL_HEALTH_DISEASE_DETECTED, SAHOOL_INVENTORY_LOW_STOCK,
+    SAHOOL_FIELD_CREATED,
+    SAHOOL_FIELD_ALL,
+    SAHOOL_WEATHER_ALERT,
+    SAHOOL_SATELLITE_DATA_READY,
+    SAHOOL_HEALTH_DISEASE_DETECTED,
+    SAHOOL_INVENTORY_LOW_STOCK,
     SAHOOL_BILLING_PAYMENT_COMPLETED,
 )
 ```
@@ -58,9 +62,13 @@ await subscriber.run()
 
 ```python
 event = FieldCreatedEvent(
-    field_id=uuid4(), farm_id=uuid4(), tenant_id=uuid4(),
-    name="Field Name", name_ar="اسم الحقل",
-    geometry_wkt="POLYGON(...)", area_hectares=25.0
+    field_id=uuid4(),
+    farm_id=uuid4(),
+    tenant_id=uuid4(),
+    name="Field Name",
+    name_ar="اسم الحقل",
+    geometry_wkt="POLYGON(...)",
+    area_hectares=25.0,
 )
 await publisher.publish_event(SAHOOL_FIELD_CREATED, event)
 ```
@@ -69,10 +77,14 @@ await publisher.publish_event(SAHOOL_FIELD_CREATED, event)
 
 ```python
 event = WeatherAlertEvent(
-    tenant_id=uuid4(), field_ids=[uuid4()],
-    alert_type="frost", severity="critical",
-    title="Frost Warning", title_ar="تحذير من الصقيع",
-    message="...", start_time=datetime.utcnow()
+    tenant_id=uuid4(),
+    field_ids=[uuid4()],
+    alert_type="frost",
+    severity="critical",
+    title="Frost Warning",
+    title_ar="تحذير من الصقيع",
+    message="...",
+    start_time=datetime.utcnow(),
 )
 await publisher.publish_event(SAHOOL_WEATHER_ALERT, event)
 ```
@@ -81,9 +93,12 @@ await publisher.publish_event(SAHOOL_WEATHER_ALERT, event)
 
 ```python
 event = SatelliteDataReadyEvent(
-    field_id=uuid4(), tenant_id=uuid4(),
-    satellite_source="Sentinel-2", capture_date=datetime.utcnow(),
-    ndvi_mean=0.68, cloud_coverage=5.0
+    field_id=uuid4(),
+    tenant_id=uuid4(),
+    satellite_source="Sentinel-2",
+    capture_date=datetime.utcnow(),
+    ndvi_mean=0.68,
+    cloud_coverage=5.0,
 )
 await publisher.publish_event(SAHOOL_SATELLITE_DATA_READY, event)
 ```
@@ -92,10 +107,14 @@ await publisher.publish_event(SAHOOL_SATELLITE_DATA_READY, event)
 
 ```python
 event = LowStockEvent(
-    tenant_id=uuid4(), product_id=uuid4(),
-    product_name="Fertilizer", product_name_ar="سماد",
-    current_quantity=150.0, unit_of_measure="kg",
-    threshold_quantity=500.0, severity="medium"
+    tenant_id=uuid4(),
+    product_id=uuid4(),
+    product_name="Fertilizer",
+    product_name_ar="سماد",
+    current_quantity=150.0,
+    unit_of_measure="kg",
+    threshold_quantity=500.0,
+    severity="medium",
 )
 await publisher.publish_event(SAHOOL_INVENTORY_LOW_STOCK, event)
 ```
@@ -104,9 +123,12 @@ await publisher.publish_event(SAHOOL_INVENTORY_LOW_STOCK, event)
 
 ```python
 event = PaymentCompletedEvent(
-    payment_id=uuid4(), tenant_id=uuid4(),
-    amount=9999.00, currency="SAR",
-    payment_method="credit_card", transaction_id="txn_123"
+    payment_id=uuid4(),
+    tenant_id=uuid4(),
+    amount=9999.00,
+    currency="SAR",
+    payment_method="credit_card",
+    transaction_id="txn_123",
 )
 await publisher.publish_event(SAHOOL_BILLING_PAYMENT_COMPLETED, event)
 ```
@@ -114,12 +136,12 @@ await publisher.publish_event(SAHOOL_BILLING_PAYMENT_COMPLETED, event)
 ## Subject Wildcards
 
 ```python
-SAHOOL_FIELD_ALL = "sahool.field.*"           # All field events
-SAHOOL_WEATHER_ALL = "sahool.weather.*"       # All weather events
-SAHOOL_SATELLITE_ALL = "sahool.satellite.*"   # All satellite events
-SAHOOL_HEALTH_ALL = "sahool.health.*"         # All health events
-SAHOOL_INVENTORY_ALL = "sahool.inventory.*"   # All inventory events
-SAHOOL_BILLING_ALL = "sahool.billing.*"       # All billing events
+SAHOOL_FIELD_ALL = "sahool.field.*"  # All field events
+SAHOOL_WEATHER_ALL = "sahool.weather.*"  # All weather events
+SAHOOL_SATELLITE_ALL = "sahool.satellite.*"  # All satellite events
+SAHOOL_HEALTH_ALL = "sahool.health.*"  # All health events
+SAHOOL_INVENTORY_ALL = "sahool.inventory.*"  # All inventory events
+SAHOOL_BILLING_ALL = "sahool.billing.*"  # All billing events
 ```
 
 ## Advanced Features

@@ -36,8 +36,10 @@ PostgreSQL (report persistence) + Redis (caching) + NATS (events)
 The service delegates core pest identification logic to `shared/pest_scouting/`:
 ```python
 from shared.pest_scouting import (
-    PestIdentification, ScoutReport,
-    get_pest_by_id, assess_threshold,
+    PestIdentification,
+    ScoutReport,
+    get_pest_by_id,
+    assess_threshold,
     generate_treatment_recommendation,
 )
 ```

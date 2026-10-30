@@ -98,12 +98,10 @@ REDIS_PASSWORD = None  # Optional
 
 ```python
 from redis import Redis
-from apps.kernel.common.queue import (
-    TaskQueue, TaskType, TaskPriority
-)
+from apps.kernel.common.queue import TaskQueue, TaskType, TaskPriority
 
 # Create Redis client
-redis_client = Redis(host='localhost', port=6379, db=0)
+redis_client = Redis(host="localhost", port=6379, db=0)
 
 # Create task queue
 queue = TaskQueue(redis_client)
@@ -111,11 +109,8 @@ queue = TaskQueue(redis_client)
 # Enqueue a task
 task_id = queue.enqueue(
     task_type=TaskType.NDVI_CALCULATION,
-    payload={
-        "field_id": "field-123",
-        "image_url": "s3://bucket/image.tif"
-    },
-    priority=TaskPriority.HIGH.value
+    payload={"field_id": "field-123", "image_url": "s3://bucket/image.tif"},
+    priority=TaskPriority.HIGH.value,
 )
 
 print(f"Task enqueued: {task_id}")
@@ -124,15 +119,10 @@ print(f"Task enqueued: {task_id}")
 ### 2. Worker Setup / إعداد العامل
 
 ```python
-from apps.kernel.common.queue import (
-    TaskWorker, register_all_handlers
-)
+from apps.kernel.common.queue import TaskWorker, register_all_handlers
 
 # Create worker
-worker = TaskWorker(
-    redis_client=redis_client,
-    max_tasks=10
-)
+worker = TaskWorker(redis_client=redis_client, max_tasks=10)
 
 # Register all task handlers
 register_all_handlers(worker)
@@ -147,16 +137,11 @@ worker.start()
 from apps.kernel.common.queue import create_queue_with_workers
 
 # Create queue with 3 workers
-queue, manager = create_queue_with_workers(
-    redis_client=redis_client,
-    worker_count=3
-)
+queue, manager = create_queue_with_workers(redis_client=redis_client, worker_count=3)
 
 # Enqueue tasks
 task_id = queue.enqueue(
-    task_type=TaskType.DISEASE_DETECTION,
-    payload={"field_id": "field-456"},
-    priority=TaskPriority.CRITICAL.value
+    task_type=TaskType.DISEASE_DETECTION, payload={"field_id": "field-456"}, priority=TaskPriority.CRITICAL.value
 )
 
 # Check status
@@ -174,14 +159,10 @@ print(f"Completed: {status['completed']}")
 from datetime import datetime, timedelta
 
 # Schedule for 6 AM tomorrow
-scheduled_time = datetime.utcnow().replace(
-    hour=6, minute=0, second=0
-) + timedelta(days=1)
+scheduled_time = datetime.utcnow().replace(hour=6, minute=0, second=0) + timedelta(days=1)
 
 task_id = queue.enqueue(
-    task_type=TaskType.REPORT_GENERATION,
-    payload={"field_id": "field-123"},
-    scheduled_at=scheduled_time
+    task_type=TaskType.REPORT_GENERATION, payload={"field_id": "field-123"}, scheduled_at=scheduled_time
 )
 ```
 
@@ -223,16 +204,11 @@ def my_custom_handler(payload: dict) -> dict:
     result = process_data(payload)
 
     # Return result
-    return {
-        "status": "success",
-        "data": result
-    }
+    return {"status": "success", "data": result}
+
 
 # Register handler
-worker.register_handler(
-    TaskType.MODEL_INFERENCE,
-    my_custom_handler
-)
+worker.register_handler(TaskType.MODEL_INFERENCE, my_custom_handler)
 ```
 
 ## Monitoring / المراقبة
@@ -244,11 +220,11 @@ status = queue.get_queue_status()
 
 print(f"""
 Queue Status:
-  - Total Pending: {status['total_pending']}
-  - Processing: {status['processing']}
-  - Completed: {status['completed']}
-  - Failed: {status['failed']}
-  - DLQ Size: {status['dlq_size']}
+  - Total Pending: {status["total_pending"]}
+  - Processing: {status["processing"]}
+  - Completed: {status["completed"]}
+  - Failed: {status["failed"]}
+  - DLQ Size: {status["dlq_size"]}
 """)
 ```
 
@@ -258,11 +234,11 @@ Queue Status:
 worker_status = worker.get_status()
 
 print(f"""
-Worker: {worker_status['worker_id']}
-  - Status: {worker_status['status']}
-  - Current Tasks: {worker_status['current_tasks']}
-  - Total Processed: {worker_status['stats']['total_processed']}
-  - Success Rate: {worker_status['stats']['total_succeeded'] / worker_status['stats']['total_processed'] * 100:.1f}%
+Worker: {worker_status["worker_id"]}
+  - Status: {worker_status["status"]}
+  - Current Tasks: {worker_status["current_tasks"]}
+  - Total Processed: {worker_status["stats"]["total_processed"]}
+  - Success Rate: {worker_status["stats"]["total_succeeded"] / worker_status["stats"]["total_processed"] * 100:.1f}%
 """)
 ```
 
@@ -316,17 +292,17 @@ from apps.kernel.common.queue import TaskQueue, TaskWorker
 
 queue = TaskQueue(
     redis_client=redis_client,
-    namespace="sahool"  # Custom namespace
+    namespace="sahool",  # Custom namespace
 )
 
 worker = TaskWorker(
     redis_client=redis_client,
-    poll_interval=1,     # Poll every second
-    max_tasks=10,        # Max concurrent tasks
-    task_types=[         # Only process specific types
+    poll_interval=1,  # Poll every second
+    max_tasks=10,  # Max concurrent tasks
+    task_types=[  # Only process specific types
         TaskType.NDVI_CALCULATION,
-        TaskType.DISEASE_DETECTION
-    ]
+        TaskType.DISEASE_DETECTION,
+    ],
 )
 ```
 
@@ -349,7 +325,7 @@ Failed tasks are moved to DLQ after max retries:
 ```python
 # Get DLQ size
 status = queue.get_queue_status()
-dlq_size = status['dlq_size']
+dlq_size = status["dlq_size"]
 
 # Retry all DLQ tasks
 # (Implement custom logic to process DLQ)
@@ -388,10 +364,7 @@ python apps/kernel/common/queue/example_usage.py
 queue.clear_all()
 
 # Enqueue test task
-task_id = queue.enqueue(
-    task_type=TaskType.NDVI_CALCULATION,
-    payload={"test": True}
-)
+task_id = queue.enqueue(task_type=TaskType.NDVI_CALCULATION, payload={"test": True})
 
 # Check task status
 task = queue.get_task(task_id)

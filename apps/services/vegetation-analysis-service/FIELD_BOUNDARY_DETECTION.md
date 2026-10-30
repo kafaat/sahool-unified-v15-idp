@@ -301,18 +301,18 @@ Default parameters can be adjusted:
 detector = FieldBoundaryDetector()
 
 # Detection thresholds
-detector.ndvi_threshold = 0.25      # Minimum NDVI for cultivated land
-detector.edge_sensitivity = 0.15    # NDVI gradient threshold
+detector.ndvi_threshold = 0.25  # Minimum NDVI for cultivated land
+detector.edge_sensitivity = 0.15  # NDVI gradient threshold
 
 # Area filters
-detector.min_area_hectares = 0.1    # Minimum field size (1,000 m²)
+detector.min_area_hectares = 0.1  # Minimum field size (1,000 m²)
 detector.max_area_hectares = 500.0  # Maximum field size
 
 # Simplification
 detector.simplify_tolerance = 0.00005  # ~5m at equator
 
 # Change detection
-detector.stable_threshold = 0.05    # ±5% is considered stable
+detector.stable_threshold = 0.05  # ±5% is considered stable
 ```
 
 ## Use Cases
@@ -323,11 +323,7 @@ Automatically detect and register farmer fields without manual digitization:
 
 ```python
 # Farmer provides approximate location
-boundaries = await detector.detect_boundary(
-    latitude=15.5527,
-    longitude=44.2075,
-    radius_meters=500
-)
+boundaries = await detector.detect_boundary(latitude=15.5527, longitude=44.2075, radius_meters=500)
 
 # System presents detected boundaries for confirmation
 # Farmer selects their field(s)
@@ -360,11 +356,7 @@ Generate agricultural cadastre from satellite imagery:
 ```python
 # Scan large area in grid
 for lat, lon in grid_points:
-    boundaries = await detector.detect_boundary(
-        latitude=lat,
-        longitude=lon,
-        radius_meters=1000
-    )
+    boundaries = await detector.detect_boundary(latitude=lat, longitude=lon, radius_meters=1000)
     # Store boundaries in database
     # Build regional field map
 ```
@@ -375,10 +367,7 @@ Define management zones within fields:
 
 ```python
 # Refine farmer-drawn boundary
-refined = await detector.refine_boundary(
-    initial_coords=farmer_drawn_coords,
-    buffer_meters=50
-)
+refined = await detector.refine_boundary(initial_coords=farmer_drawn_coords, buffer_meters=50)
 
 # Use refined boundary for:
 # - Variable rate application
@@ -397,17 +386,12 @@ from satellite_service.field_boundary_detector import FieldBoundaryDetector
 detector = FieldBoundaryDetector()
 
 # Detect boundaries
-boundaries = await detector.detect_boundary(
-    latitude=15.5527,
-    longitude=44.2075,
-    radius_meters=500
-)
+boundaries = await detector.detect_boundary(latitude=15.5527, longitude=44.2075, radius_meters=500)
 
 # Export as GeoJSON
 for boundary in boundaries:
     geojson = boundary.to_geojson()
-    print(f"Field {geojson['properties']['field_id']}: "
-          f"{geojson['properties']['area_hectares']} hectares")
+    print(f"Field {geojson['properties']['field_id']}: {geojson['properties']['area_hectares']} hectares")
 ```
 
 ### JavaScript/TypeScript Integration

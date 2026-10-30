@@ -58,11 +58,7 @@ import httpx
 # Orchestrate a crop disease query
 response = httpx.post(
     "http://localhost:8220/api/v1/orchestrate",
-    json={
-        "text": "What disease is affecting my wheat crop?",
-        "language": "en",
-        "field_id": "field_001"
-    }
+    json={"text": "What disease is affecting my wheat crop?", "language": "en", "field_id": "field_001"},
 )
 
 print(response.json())
@@ -72,11 +68,7 @@ Arabic example:
 ```python
 response = httpx.post(
     "http://localhost:8220/api/v1/orchestrate",
-    json={
-        "text": "ما هو المرض الذي يصيب محصول القمح؟",
-        "language": "ar",
-        "field_id": "field_001"
-    }
+    json={"text": "ما هو المرض الذي يصيب محصول القمح؟", "language": "ar", "field_id": "field_001"},
 )
 ```
 

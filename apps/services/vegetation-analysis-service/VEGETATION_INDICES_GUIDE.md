@@ -422,24 +422,13 @@ Returns comprehensive guide on which indices to use for each growth stage.
 
 ```python
 # 1. Get all indices
-response = requests.get(
-    "http://satellite-service:8090/v1/indices/field123",
-    params={
-        "lat": 15.3694,
-        "lon": 44.1910
-    }
-)
+response = requests.get("http://satellite-service:8090/v1/indices/field123", params={"lat": 15.3694, "lon": 44.1910})
 indices = response.json()["indices"]
 
 # 2. Interpret based on crop and stage
 interpret_response = requests.post(
     "http://satellite-service:8090/v1/indices/interpret",
-    json={
-        "field_id": "field123",
-        "indices": indices,
-        "crop_type": "wheat",
-        "growth_stage": "vegetative"
-    }
+    json={"field_id": "field123", "indices": indices, "crop_type": "wheat", "growth_stage": "vegetative"},
 )
 
 status = interpret_response.json()["overall_status"]
@@ -452,12 +441,7 @@ print(f"Field health: {status}")
 # Check NDRE for nitrogen status
 response = requests.get(
     "http://satellite-service:8090/v1/indices/field123/ndre",
-    params={
-        "lat": 15.3694,
-        "lon": 44.1910,
-        "crop_type": "wheat",
-        "growth_stage": "vegetative"
-    }
+    params={"lat": 15.3694, "lon": 44.1910, "crop_type": "wheat", "growth_stage": "vegetative"},
 )
 
 ndre_data = response.json()["index"]
@@ -473,12 +457,7 @@ else:
 # Check water stress with NDWI
 response = requests.get(
     "http://satellite-service:8090/v1/indices/field123/ndwi",
-    params={
-        "lat": 15.3694,
-        "lon": 44.1910,
-        "crop_type": "sorghum",
-        "growth_stage": "reproductive"
-    }
+    params={"lat": 15.3694, "lon": 44.1910, "crop_type": "sorghum", "growth_stage": "reproductive"},
 )
 
 ndwi_data = response.json()["index"]

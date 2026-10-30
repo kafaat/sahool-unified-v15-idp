@@ -89,9 +89,12 @@ Included crops: wheat (قمح), barley (شعير), sorghum (ذرة رفيعة), 
 
 ```python
 from shared.yemen import (
-    get_yemen_crop, list_yemen_crops,
-    get_climate_zone, get_et0_range,
-    get_soil_profile, list_soil_profiles,
+    get_yemen_crop,
+    list_yemen_crops,
+    get_climate_zone,
+    get_et0_range,
+    get_soil_profile,
+    list_soil_profiles,
     YemenClimateZone,
 )
 

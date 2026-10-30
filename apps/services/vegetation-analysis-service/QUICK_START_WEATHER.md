@@ -84,29 +84,24 @@ curl "http://localhost:8090/v1/weather/historical?lat=15.37&lon=44.19&start_date
 import httpx
 import asyncio
 
+
 async def get_weather():
     async with httpx.AsyncClient() as client:
         # Get forecast
         response = await client.get(
-            "http://localhost:8090/v1/weather/forecast",
-            params={"lat": 15.3694, "lon": 44.1910, "days": 7}
+            "http://localhost:8090/v1/weather/forecast", params={"lat": 15.3694, "lon": 44.1910, "days": 7}
         )
         forecast = response.json()
 
         # Get irrigation advice
         response = await client.get(
             "http://localhost:8090/v1/weather/irrigation-advice",
-            params={
-                "lat": 15.3694,
-                "lon": 44.1910,
-                "crop_type": "WHEAT",
-                "growth_stage": "mid",
-                "soil_moisture": 0.4
-            }
+            params={"lat": 15.3694, "lon": 44.1910, "crop_type": "WHEAT", "growth_stage": "mid", "soil_moisture": 0.4},
         )
         advice = response.json()
 
         return forecast, advice
+
 
 asyncio.run(get_weather())
 ```

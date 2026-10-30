@@ -87,21 +87,11 @@ validator = BoundaryValidator()
 # حدود الحقل (GeoJSON) - Field boundary (GeoJSON)
 field_boundary = {
     "type": "Feature",
-    "properties": {
-        "name": "حقل القمح - Wheat Field"
-    },
+    "properties": {"name": "حقل القمح - Wheat Field"},
     "geometry": {
         "type": "Polygon",
-        "coordinates": [
-            [
-                [44.2, 15.35],
-                [44.21, 15.35],
-                [44.21, 15.36],
-                [44.2, 15.36],
-                [44.2, 15.35]
-            ]
-        ]
-    }
+        "coordinates": [[[44.2, 15.35], [44.21, 15.35], [44.21, 15.36], [44.2, 15.36], [44.2, 15.35]]],
+    },
 }
 
 # التحقق - Validate
@@ -132,7 +122,8 @@ result = validator.validate_geometry(field_boundary)
 
 # التحقق من المحافظة - Check governorate
 from shapely.geometry import shape
-polygon = shape(field_boundary['geometry'])
+
+polygon = shape(field_boundary["geometry"])
 is_in_sanaa = validator.validate_governorate(polygon, "صنعاء")
 ```
 
@@ -140,19 +131,11 @@ is_in_sanaa = validator.validate_governorate(polygon, "صنعاء")
 
 ```python
 # حدود حقل جديد - New field boundary
-new_field = {
-    "type": "Polygon",
-    "coordinates": [[...]]
-}
+new_field = {"type": "Polygon", "coordinates": [[...]]}
 
 # الحقول الموجودة - Existing fields
 existing_fields = [
-    {
-        "field_id": "field_001",
-        "name": "حقل القمح",
-        "user_id": "user_123",
-        "geometry": {...}
-    },
+    {"field_id": "field_001", "name": "حقل القمح", "user_id": "user_123", "geometry": {...}},
     # ... المزيد من الحقول
 ]
 
@@ -161,7 +144,7 @@ overlap_result = validator.check_overlap_with_existing(
     new_boundary=new_field,
     existing_fields=existing_fields,
     user_id="user_123",  # اختياري - optional
-    tolerance_percentage=5.0  # التفاوت المسموح - allowed tolerance
+    tolerance_percentage=5.0,  # التفاوت المسموح - allowed tolerance
 )
 
 # النتائج - Results
@@ -180,7 +163,7 @@ if overlap_result.has_overlap:
 from shapely.geometry import shape
 
 # تحويل GeoJSON إلى Shapely polygon
-polygon = shape(field_boundary['geometry'])
+polygon = shape(field_boundary["geometry"])
 
 # الحسابات - Calculations
 area_ha = validator.calculate_area_hectares(polygon)
@@ -201,7 +184,7 @@ from shapely.geometry import shape
 
 # حقل مع مشاكل - Field with issues
 problematic_field = {...}
-polygon = shape(problematic_field['geometry'])
+polygon = shape(problematic_field["geometry"])
 
 # إصلاح - Fix
 fixed_polygon = validator.fix_common_issues(polygon)
@@ -209,7 +192,7 @@ fixed_polygon = validator.fix_common_issues(polygon)
 # تبسيط - Simplify
 simplified_polygon = validator.simplify_geometry(
     polygon,
-    tolerance=0.00001  # ≈ 1 meter
+    tolerance=0.00001,  # ≈ 1 meter
 )
 
 # التحقق من الصحة - Verify validity
@@ -227,16 +210,11 @@ print(f"صالح بعد الإصلاح: {fixed_polygon.is_valid}")
     "area_hectares": float,
     "perimeter_meters": float,
     "centroid": {"longitude": float, "latitude": float},
-    "bounding_box": {
-        "min_longitude": float,
-        "min_latitude": float,
-        "max_longitude": float,
-        "max_latitude": float
-    },
+    "bounding_box": {"min_longitude": float, "min_latitude": float, "max_longitude": float, "max_latitude": float},
     "simplified_geometry": GeoJSON,  # اختياري - optional
-    "fixed_geometry": GeoJSON,       # اختياري - optional
+    "fixed_geometry": GeoJSON,  # اختياري - optional
     "validation_timestamp": datetime,
-    "validator_version": str
+    "validator_version": str,
 }
 ```
 
@@ -245,12 +223,12 @@ print(f"صالح بعد الإصلاح: {fixed_polygon.is_valid}")
 ```python
 {
     "issue_type": str,  # GeometryIssueType or BoundarySeverity
-    "severity": str,    # info, warning, error, critical
+    "severity": str,  # info, warning, error, critical
     "message_ar": str,
     "message_en": str,
     "location": {"longitude": float, "latitude": float},  # اختياري
     "fixable": bool,
-    "details": dict
+    "details": dict,
 }
 ```
 
@@ -265,11 +243,11 @@ print(f"صالح بعد الإصلاح: {fixed_polygon.is_valid}")
             "overlap_area_hectares": float,
             "overlap_percentage": float,
             "field_name": str,
-            "intersection_geometry": GeoJSON
+            "intersection_geometry": GeoJSON,
         }
     ],
     "total_overlap_area_hectares": float,
-    "max_overlap_percentage": float
+    "max_overlap_percentage": float,
 }
 ```
 
@@ -305,9 +283,28 @@ print(f"صالح بعد الإصلاح: {fixed_polygon.is_valid}")
 
 ```python
 YEMEN_GOVERNORATES = [
-    "صنعاء", "عدن", "تعز", "الحديدة", "إب", "ذمار", "حضرموت",
-    "المحويت", "حجة", "صعدة", "عمران", "البيضاء", "أبين", "شبوة",
-    "المهرة", "لحج", "الضالع", "مأرب", "الجوف", "ريمة", "سقطرى", "أمانة العاصمة"
+    "صنعاء",
+    "عدن",
+    "تعز",
+    "الحديدة",
+    "إب",
+    "ذمار",
+    "حضرموت",
+    "المحويت",
+    "حجة",
+    "صعدة",
+    "عمران",
+    "البيضاء",
+    "أبين",
+    "شبوة",
+    "المهرة",
+    "لحج",
+    "الضالع",
+    "مأرب",
+    "الجوف",
+    "ريمة",
+    "سقطرى",
+    "أمانة العاصمة",
 ]
 ```
 
@@ -322,10 +319,12 @@ from pydantic import BaseModel
 app = FastAPI()
 validator = BoundaryValidator(yemen_boundaries_path="data/yemen_boundaries.geojson")
 
+
 class FieldBoundary(BaseModel):
     field_id: str
     geometry: dict
     user_id: str
+
 
 @app.post("/validate-boundary")
 async def validate_boundary(field: FieldBoundary):
@@ -341,14 +340,10 @@ async def validate_boundary(field: FieldBoundary):
                 "message_ar": "حدود الحقل غير صالحة",
                 "message_en": "Invalid field boundary",
                 "issues": [
-                    {
-                        "severity": issue.severity,
-                        "message_ar": issue.message_ar,
-                        "message_en": issue.message_en
-                    }
+                    {"severity": issue.severity, "message_ar": issue.message_ar, "message_en": issue.message_en}
                     for issue in result.issues
-                ]
-            }
+                ],
+            },
         )
 
     # فحص التداخل - Check overlap
@@ -358,7 +353,7 @@ async def validate_boundary(field: FieldBoundary):
         "valid": True,
         "area_hectares": result.area_hectares,
         "perimeter_meters": result.perimeter_meters,
-        "centroid": result.centroid
+        "centroid": result.centroid,
     }
 ```
 
@@ -368,28 +363,16 @@ async def validate_boundary(field: FieldBoundary):
 def validate_multiple_fields(fields: list) -> dict:
     """التحقق من عدة حقول دفعة واحدة"""
 
-    results = {
-        "total": len(fields),
-        "valid": 0,
-        "invalid": 0,
-        "warnings": 0,
-        "details": []
-    }
+    results = {"total": len(fields), "valid": 0, "invalid": 0, "warnings": 0, "details": []}
 
     for field in fields:
-        result = validator.validate_geometry(field['geometry'])
+        result = validator.validate_geometry(field["geometry"])
 
         field_result = {
-            "field_id": field['field_id'],
+            "field_id": field["field_id"],
             "is_valid": result.is_valid,
             "area_hectares": result.area_hectares,
-            "issues": [
-                {
-                    "severity": issue.severity,
-                    "message": issue.message_ar
-                }
-                for issue in result.issues
-            ]
+            "issues": [{"severity": issue.severity, "message": issue.message_ar} for issue in result.issues],
         }
 
         if result.is_valid:

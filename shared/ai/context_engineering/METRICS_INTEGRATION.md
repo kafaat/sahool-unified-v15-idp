@@ -46,14 +46,13 @@ The `metrics.py` module provides comprehensive Prometheus metrics for:
 ```python
 from shared.ai.context_engineering import track_compression, ContextCompressor
 
+
 @track_compression
 async def compress_field_data(field_data: dict) -> CompressionResult:
     compressor = ContextCompressor()
-    result = await compressor.compress(
-        field_data,
-        strategy=CompressionStrategy.HYBRID
-    )
+    result = await compressor.compress(field_data, strategy=CompressionStrategy.HYBRID)
     return result
+
 
 # The decorator automatically records:
 # - Compression operations count
@@ -71,32 +70,24 @@ from shared.ai.context_engineering import (
     track_memory_operation,
     FarmMemory,
     record_memory_entry_stored,
-    update_memory_usage
+    update_memory_usage,
 )
+
 
 @track_memory_operation(operation_type="retrieve")
 async def retrieve_farm_history(farm_id: str) -> list[MemoryEntry]:
     memory = FarmMemory()
-    entries = await memory.retrieve_by_type(
-        tenant_id=farm_id,
-        memory_type=MemoryType.CONVERSATION
-    )
+    entries = await memory.retrieve_by_type(tenant_id=farm_id, memory_type=MemoryType.CONVERSATION)
     return entries
+
 
 @track_memory_operation(operation_type="store")
 async def store_farm_observation(farm_id: str, observation: dict) -> MemoryEntry:
     memory = FarmMemory()
-    entry = await memory.add(
-        tenant_id=farm_id,
-        data=observation,
-        memory_type=MemoryType.OBSERVATION
-    )
+    entry = await memory.add(tenant_id=farm_id, data=observation, memory_type=MemoryType.OBSERVATION)
 
     # Record entry metadata
-    record_memory_entry_stored(
-        entry_size_bytes=len(str(observation).encode()),
-        entry_type=str(MemoryType.OBSERVATION)
-    )
+    record_memory_entry_stored(entry_size_bytes=len(str(observation).encode()), entry_type=str(MemoryType.OBSERVATION))
 
     # Update overall memory usage
     total_entries = await memory.get_entry_count(farm_id)
@@ -109,17 +100,11 @@ async def store_farm_observation(farm_id: str, observation: dict) -> MemoryEntry
 #### Tracking Evaluation Operations
 
 ```python
-from shared.ai.context_engineering import (
-    track_evaluation,
-    RecommendationEvaluator,
-    RecommendationType
-)
+from shared.ai.context_engineering import track_evaluation, RecommendationEvaluator, RecommendationType
+
 
 @track_evaluation(recommendation_type=RecommendationType.FERTILIZATION)
-async def evaluate_fertilizer_recommendation(
-    recommendation: str,
-    context: dict
-) -> EvaluationResult:
+async def evaluate_fertilizer_recommendation(recommendation: str, context: dict) -> EvaluationResult:
     evaluator = RecommendationEvaluator()
     result = await evaluator.evaluate(
         recommendation=recommendation,
@@ -131,7 +116,7 @@ async def evaluate_fertilizer_recommendation(
             EvaluationCriteria.RELEVANCE,
             EvaluationCriteria.COMPLETENESS,
             EvaluationCriteria.CLARITY,
-        ]
+        ],
     )
     return result
 ```
@@ -141,11 +126,8 @@ async def evaluate_fertilizer_recommendation(
 For operations not wrapped by decorators:
 
 ```python
-from shared.ai.context_engineering import (
-    record_memory_eviction,
-    record_memory_ttl_expiration,
-    update_memory_usage
-)
+from shared.ai.context_engineering import record_memory_eviction, record_memory_ttl_expiration, update_memory_usage
+
 
 # When evicting old entries
 async def cleanup_old_entries(farm_id: str):
@@ -159,6 +141,7 @@ async def cleanup_old_entries(farm_id: str):
     total_entries = await memory.get_entry_count(farm_id)
     total_bytes = await memory.get_total_size_bytes(farm_id)
     update_memory_usage(total_entries, total_bytes)
+
 
 # When handling TTL expirations
 async def expire_ttl_entries(farm_id: str):
@@ -175,6 +158,7 @@ For more granular control:
 
 ```python
 from shared.ai.context_engineering import track_operation_async
+
 
 async def complex_ai_operation():
     async with track_operation_async("complex_operation"):
@@ -201,6 +185,7 @@ app = FastAPI(title="AI Advisor Service", version="1.0.0")
 # Setup standard HTTP metrics
 setup_metrics(app, service_name="ai_advisor_service")
 
+
 # AI metrics are automatically available
 @app.on_event("startup")
 async def startup_event():
@@ -208,17 +193,20 @@ async def startup_event():
     metrics = get_ai_metrics_registry()
     logger.info("AI metrics registry initialized")
 
+
 @app.get("/metrics")
 async def metrics():
     """Prometheus metrics endpoint"""
     registry = get_registry("sahool_ai")
     return registry.export()
 
+
 @app.post("/api/v1/recommendations/evaluate")
 @track_evaluation(recommendation_type="irrigation")
 async def evaluate_irrigation_recommendation(request: dict):
     # Your evaluation logic
     pass
+
 
 @app.post("/api/v1/context/compress")
 @track_compression
@@ -410,10 +398,8 @@ histogram_quantile(0.99, rate(sahool_ai_evaluation_latency_seconds_bucket[5m]))
 
 ```python
 import pytest
-from shared.ai.context_engineering import (
-    get_ai_metrics_registry,
-    record_memory_entry_stored
-)
+from shared.ai.context_engineering import get_ai_metrics_registry, record_memory_entry_stored
+
 
 @pytest.mark.unit
 def test_memory_metrics_recording():

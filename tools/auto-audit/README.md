@@ -71,10 +71,7 @@ print(f"Chain integrity: {validation.chain_integrity}%")
 # تقرير الامتثال
 reporter = ComplianceReporter()
 reporter.load_from_file("logs.json")
-compliance = reporter.generate_report(
-    framework=ComplianceFramework.GDPR,
-    tenant_id="tenant-123"
-)
+compliance = reporter.generate_report(framework=ComplianceFramework.GDPR, tenant_id="tenant-123")
 print(f"Compliance score: {compliance.overall_score}%")
 
 # كشف الأنماط الشاذة

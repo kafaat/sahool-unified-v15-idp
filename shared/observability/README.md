@@ -40,11 +40,7 @@ Comprehensive observability infrastructure for SAHOOL microservices, providing:
 ```python
 from shared.observability import setup_tracing
 
-tracer = setup_tracing(
-    service_name="my-service",
-    service_version="1.0.0",
-    gcp_project_id="your-project-id"
-)
+tracer = setup_tracing(service_name="my-service", service_version="1.0.0", gcp_project_id="your-project-id")
 tracer.instrument_fastapi(app)
 ```
 
@@ -92,7 +88,7 @@ agent_metrics.record_agent_call(
     prompt_tokens=150,
     completion_tokens=500,
     cost=CostTracker.calculate_cost("gpt-4", 150, 500),
-    success=True
+    success=True,
 )
 ```
 
@@ -134,11 +130,7 @@ from shared.observability import get_logger, set_request_context
 logger = get_logger("my-service")
 
 # Set request context
-set_request_context(
-    request_id="req-123",
-    tenant_id="tenant-456",
-    user_id="user-789"
-)
+set_request_context(request_id="req-123", tenant_id="tenant-456", user_id="user-789")
 
 # All logs include context
 logger.info("Processing request", field_id="field-123")
@@ -171,7 +163,7 @@ setup_observability_middleware(
     app,
     service_name="my-service",
     metrics_collector=metrics,
-    enable_request_logging=False  # Only enable for debugging
+    enable_request_logging=False,  # Only enable for debugging
 )
 ```
 
@@ -223,6 +215,7 @@ setup_observability_middleware(app, "my-service", metrics)
 
 # Endpoints
 app.include_router(create_metrics_router(metrics.registry))
+
 
 @app.get("/")
 async def root():

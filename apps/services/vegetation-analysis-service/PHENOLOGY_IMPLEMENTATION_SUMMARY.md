@@ -203,11 +203,11 @@ Based on:
 ```python
 NDVI_THRESHOLDS = {
     "bare_soil": 0.10,
-    "emergence": 0.20,        # SOS trigger
+    "emergence": 0.20,  # SOS trigger
     "active_growth": 0.35,
     "peak": 0.65,
     "senescence_start": 0.45,
-    "harvest_ready": 0.25,    # EOS trigger
+    "harvest_ready": 0.25,  # EOS trigger
 }
 ```
 

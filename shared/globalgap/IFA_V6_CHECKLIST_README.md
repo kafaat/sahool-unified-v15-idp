@@ -63,7 +63,7 @@ print(f"Major Must items: {stats['by_compliance_level']['MAJOR_MUST']}")
 ```python
 from shared.globalgap.ifa_v6_checklist import get_category
 
-category = get_category('WORKERS_HEALTH')
+category = get_category("WORKERS_HEALTH")
 print(f"{category.name_en} / {category.name_ar}")
 print(f"Items: {len(category.items)}")
 
@@ -77,7 +77,7 @@ for item in category.items:
 ```python
 from shared.globalgap.ifa_v6_checklist import get_checklist_item
 
-item = get_checklist_item('AF.3.6.1')
+item = get_checklist_item("AF.3.6.1")
 print(f"{item.title_en}")
 print(f"{item.title_ar}")
 print(f"Compliance Level: {item.compliance_level}")
@@ -96,10 +96,7 @@ major_items = get_items_by_compliance_level(ComplianceLevel.MAJOR_MUST)
 print(f"Total MAJOR_MUST items: {len(major_items)}")
 
 # Get MINOR_MUST items for a specific category
-minor_items = get_items_by_compliance_level(
-    ComplianceLevel.MINOR_MUST,
-    category_code='IRRIGATION'
-)
+minor_items = get_items_by_compliance_level(ComplianceLevel.MINOR_MUST, category_code="IRRIGATION")
 ```
 
 ### 5. Get All Items in Order
@@ -132,7 +129,7 @@ print(f"Overall Pass: {result['overall_pass']}")
 print(f"Recommendation: {result['certification_recommendation']}")
 
 # Breakdown by compliance level
-for level, stats in result['by_level'].items():
+for level, stats in result["by_level"].items():
     print(f"\n{level}:")
     print(f"  Total: {stats['total_items']}")
     print(f"  Compliant: {stats['compliant']}")
@@ -164,20 +161,20 @@ Each checklist item includes:
 
 ```python
 {
-    "id": str,                      # Control point ID (e.g., "AF.1.1.1")
-    "category_code": str,           # Category code
-    "subcategory": str,             # Subcategory name
-    "title_en": str,                # Title in English
-    "title_ar": str,                # Title in Arabic
-    "description_en": str,          # Description in English
-    "description_ar": str,          # Description in Arabic
-    "compliance_level": str,        # MAJOR_MUST, MINOR_MUST, or RECOMMENDATION
-    "evidence_required": List[str], # Evidence types: DOCUMENT, OBSERVATION, etc.
-    "guidance_en": str,             # Implementation guidance in English
-    "guidance_ar": str,             # Implementation guidance in Arabic
-    "applicable_to": List[str],     # Scopes: FV, CROPS_BASE, etc.
-    "not_applicable_allowed": bool, # Whether N/A is acceptable
-    "order": int                    # Display order
+    "id": str,  # Control point ID (e.g., "AF.1.1.1")
+    "category_code": str,  # Category code
+    "subcategory": str,  # Subcategory name
+    "title_en": str,  # Title in English
+    "title_ar": str,  # Title in Arabic
+    "description_en": str,  # Description in English
+    "description_ar": str,  # Description in Arabic
+    "compliance_level": str,  # MAJOR_MUST, MINOR_MUST, or RECOMMENDATION
+    "evidence_required": List[str],  # Evidence types: DOCUMENT, OBSERVATION, etc.
+    "guidance_en": str,  # Implementation guidance in English
+    "guidance_ar": str,  # Implementation guidance in Arabic
+    "applicable_to": List[str],  # Scopes: FV, CROPS_BASE, etc.
+    "not_applicable_allowed": bool,  # Whether N/A is acceptable
+    "order": int,  # Display order
 }
 ```
 
@@ -187,13 +184,13 @@ Each category includes:
 
 ```python
 {
-    "code": str,           # Category code
-    "name_en": str,        # Name in English
-    "name_ar": str,        # Name in Arabic
-    "description_en": str, # Description in English
-    "description_ar": str, # Description in Arabic
+    "code": str,  # Category code
+    "name_en": str,  # Name in English
+    "name_ar": str,  # Name in Arabic
+    "description_en": str,  # Description in English
+    "description_ar": str,  # Description in Arabic
     "items": List[ChecklistItem],
-    "order": int          # Display order
+    "order": int,  # Display order
 }
 ```
 
@@ -224,7 +221,7 @@ audit = AuditSession(
     lead_auditor_id="auditor_001",
     certification_body="CB Name",
     cb_code="CB001",
-    scheduled_date=datetime.now().date()
+    scheduled_date=datetime.now().date(),
 )
 
 # Audit each checklist item
@@ -239,24 +236,20 @@ for item in get_all_items():
         notes_en="Complies with requirements",
         notes_ar="يتوافق مع المتطلبات",
         auditor_id="auditor_001",
-        audit_date=datetime.now()
+        audit_date=datetime.now(),
     )
     audit.findings.append(finding)
 
 # Calculate compliance score
 findings_data = [
-    {
-        "checklist_item_id": f.checklist_item_id,
-        "is_compliant": f.is_compliant,
-        "is_not_applicable": f.is_not_applicable
-    }
+    {"checklist_item_id": f.checklist_item_id, "is_compliant": f.is_compliant, "is_not_applicable": f.is_not_applicable}
     for f in audit.findings
 ]
 
 compliance_result = calculate_compliance_score(findings_data)
 
 # Set audit recommendation
-audit.recommendation = compliance_result['certification_recommendation']
+audit.recommendation = compliance_result["certification_recommendation"]
 ```
 
 ## Compliance Calculation Rules / قواعد حساب الامتثال

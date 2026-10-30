@@ -498,25 +498,27 @@ prescription.zones.forEach((zone) => {
 import requests
 
 # Generate prescription
-prescription = requests.post('http://satellite-service:8090/v1/vra/generate', json={
-    'field_id': 'field_123',
-    'latitude': 15.5,
-    'longitude': 44.2,
-    'vra_type': 'fertilizer',
-    'target_rate': 100,
-    'unit': 'kg/ha',
-    'num_zones': 3,
-    'product_price_per_unit': 2.5
-}).json()
+prescription = requests.post(
+    "http://satellite-service:8090/v1/vra/generate",
+    json={
+        "field_id": "field_123",
+        "latitude": 15.5,
+        "longitude": 44.2,
+        "vra_type": "fertilizer",
+        "target_rate": 100,
+        "unit": "kg/ha",
+        "num_zones": 3,
+        "product_price_per_unit": 2.5,
+    },
+).json()
 
 # Export to equipment format
 geojson = requests.get(
-    f"http://satellite-service:8090/v1/vra/export/{prescription['id']}",
-    params={'format': 'geojson'}
+    f"http://satellite-service:8090/v1/vra/export/{prescription['id']}", params={"format": "geojson"}
 ).json()
 
 # Save to file for equipment upload
-with open('prescription.geojson', 'w') as f:
+with open("prescription.geojson", "w") as f:
     json.dump(geojson, f)
 ```
 

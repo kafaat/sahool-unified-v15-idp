@@ -323,15 +323,12 @@ curl http://localhost:8090/v1/crops/list
 ```python
 import httpx
 
+
 async def analyze_wheat_crop():
     async with httpx.AsyncClient() as client:
         response = await client.get(
             "http://localhost:8090/v1/profitability/crop/season-001",
-            params={
-                "field_id": "field-001",
-                "crop_code": "wheat",
-                "area_ha": 2.5
-            }
+            params={"field_id": "field-001", "crop_code": "wheat", "area_ha": 2.5},
         )
         data = response.json()
         print(f"Net Profit: {data['net_profit']:,.0f} YER")

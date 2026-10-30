@@ -229,9 +229,10 @@ app.delete("/api/*", validateCsrfToken, handler);
 ```python
 from fastapi import Request, HTTPException
 
+
 def validate_csrf_token(request: Request):
-    header_token = request.headers.get('X-CSRF-Token')
-    cookie_token = request.cookies.get('csrf_token')
+    header_token = request.headers.get("X-CSRF-Token")
+    cookie_token = request.cookies.get("csrf_token")
 
     if not header_token or not cookie_token:
         raise HTTPException(status_code=403, detail="CSRF token missing")

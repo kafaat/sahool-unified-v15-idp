@@ -89,7 +89,7 @@ app.add_middleware(
     requests_per_hour=2000,
     burst_limit=20,
     exclude_paths=["/health", "/docs"],
-    redis_url="redis://localhost:6379/0"
+    redis_url="redis://localhost:6379/0",
 )
 ```
 
@@ -105,6 +105,7 @@ from shared.middleware import rate_limit
 
 app = FastAPI()
 
+
 @app.get("/expensive-endpoint")
 @rate_limit(requests_per_minute=10, requests_per_hour=100, burst_limit=2)
 async def expensive_endpoint(request: Request):
@@ -116,6 +117,7 @@ async def expensive_endpoint(request: Request):
 
 ```python
 from shared.middleware import rate_limit_by_user
+
 
 @app.get("/user-data")
 @rate_limit_by_user(requests_per_minute=30, requests_per_hour=500)
@@ -130,12 +132,9 @@ async def get_user_data(request: Request):
 ```python
 from shared.middleware import rate_limit_by_api_key
 
+
 @app.get("/api/data")
-@rate_limit_by_api_key(
-    requests_per_minute=100,
-    requests_per_hour=5000,
-    header_name="X-API-Key"
-)
+@rate_limit_by_api_key(requests_per_minute=100, requests_per_hour=5000, header_name="X-API-Key")
 async def api_endpoint(request: Request):
     """API endpoint - يحدد بناءً على API key"""
     return {"data": "API response"}
@@ -145,6 +144,7 @@ async def api_endpoint(request: Request):
 
 ```python
 from shared.middleware import rate_limit_by_tenant
+
 
 @app.get("/tenant/data")
 @rate_limit_by_tenant(requests_per_minute=200, requests_per_hour=10000)
@@ -163,17 +163,16 @@ async def tenant_endpoint(request: Request):
 ```python
 from shared.middleware import rate_limit
 
+
 def custom_rate_limit_key(request: Request) -> str:
     """دالة مخصصة لاستخراج مفتاح التحديد"""
     # استخدام organization_id من header
     org_id = request.headers.get("X-Organization-ID", "default")
     return f"org:{org_id}"
 
+
 @app.get("/org/data")
-@rate_limit(
-    requests_per_minute=50,
-    key_func=custom_rate_limit_key
-)
+@rate_limit(requests_per_minute=50, key_func=custom_rate_limit_key)
 async def org_endpoint(request: Request):
     return {"data": "Organization data"}
 ```
@@ -198,17 +197,20 @@ app.add_middleware(
     burst_limit=10,
 )
 
+
 # Endpoints مع تحديدات مختلفة
 @app.get("/public")
 async def public_endpoint():
     """Endpoint عام - يستخدم الإعدادات الافتراضية"""
     return {"message": "Public data"}
 
+
 @app.get("/premium-feature")
 @rate_limit(requests_per_minute=200)
 async def premium_feature(request: Request):
     """ميزة premium - حدود أعلى"""
     return {"message": "Premium feature"}
+
 
 @app.get("/limited-resource")
 @rate_limit(requests_per_minute=5, burst_limit=1)
@@ -230,17 +232,14 @@ custom_limiter = RateLimiter(
     )
 )
 
+
 @app.get("/custom-endpoint")
 async def custom_endpoint(request: Request):
     # فحص يدوي
     allowed, headers = custom_limiter.check_rate_limit(request)
 
     if not allowed:
-        raise HTTPException(
-            status_code=429,
-            detail="Rate limit exceeded",
-            headers=headers
-        )
+        raise HTTPException(status_code=429, detail="Rate limit exceeded", headers=headers)
 
     return {"message": "Success"}
 ```
@@ -249,6 +248,7 @@ async def custom_endpoint(request: Request):
 
 ```python
 from fastapi import Response
+
 
 @app.get("/monitored-endpoint")
 @rate_limit(requests_per_minute=50)
@@ -260,10 +260,7 @@ async def monitored_endpoint(request: Request, response: Response):
     # X-RateLimit-Remaining: 45
     # X-RateLimit-Reset: 1234567890
 
-    return {
-        "message": "Check response headers for rate limit info",
-        "headers": dict(response.headers)
-    }
+    return {"message": "Check response headers for rate limit info", "headers": dict(response.headers)}
 ```
 
 ---
@@ -295,9 +292,9 @@ async def monitored_endpoint(request: Request, response: Response):
 from shared.middleware import RateLimitConfig
 
 config = RateLimitConfig(
-    requests_per_minute=60,   # الحد الأقصى للطلبات في الدقيقة
-    requests_per_hour=2000,    # الحد الأقصى للطلبات في الساعة
-    burst_limit=10,            # حماية من الاختراق السريع
+    requests_per_minute=60,  # الحد الأقصى للطلبات في الدقيقة
+    requests_per_hour=2000,  # الحد الأقصى للطلبات في الساعة
+    burst_limit=10,  # حماية من الاختراق السريع
 )
 ```
 
@@ -332,10 +329,12 @@ Retry-After: 60
 ```python
 # تأكد من تفعيل rate limiting
 import os
+
 print(os.getenv("RATE_LIMIT_ENABLED"))  # يجب أن يكون "true"
 
 # تأكد من إضافة middleware
 from shared.auth.config import config
+
 print(config.RATE_LIMIT_ENABLED)  # يجب أن يكون True
 ```
 
@@ -357,6 +356,7 @@ print(r.ping())  # يجب أن يرجع: True
 ```python
 # تفعيل logging
 import logging
+
 logging.basicConfig(level=logging.DEBUG)
 
 # سيظهر في logs:
@@ -418,6 +418,7 @@ RATE_LIMIT_ENABLED=true
 async def expensive_ai_processing():
     pass
 
+
 # موارد خفيفة = حدود أعلى
 @rate_limit(requests_per_minute=100)
 async def get_cached_data():
@@ -431,23 +432,19 @@ async def get_cached_data():
 from prometheus_client import Counter
 
 rate_limit_exceeded_counter = Counter(
-    'rate_limit_exceeded_total',
-    'Total rate limit exceeded events',
-    ['endpoint', 'tier']
+    "rate_limit_exceeded_total", "Total rate limit exceeded events", ["endpoint", "tier"]
 )
 
 # في middleware
 if is_limited:
-    rate_limit_exceeded_counter.labels(
-        endpoint=request.url.path,
-        tier=tier
-    ).inc()
+    rate_limit_exceeded_counter.labels(endpoint=request.url.path, tier=tier).inc()
 ```
 
 ### 4. معالجة Errors بشكل صحيح
 
 ```python
 from fastapi import Request, HTTPException
+
 
 @app.exception_handler(HTTPException)
 async def rate_limit_exception_handler(request: Request, exc: HTTPException):
@@ -460,9 +457,9 @@ async def rate_limit_exception_handler(request: Request, exc: HTTPException):
                 "message": "Too many requests",
                 "message_ar": "طلبات كثيرة جداً",
                 "retry_after": exc.headers.get("Retry-After", 60),
-                "support": "contact@sahool.com"
+                "support": "contact@sahool.com",
             },
-            headers=exc.headers
+            headers=exc.headers,
         )
     return exc
 ```
@@ -477,6 +474,7 @@ async def rate_limit_exception_handler(request: Request, exc: HTTPException):
 from fastapi import Depends, Request
 from shared.middleware import RateLimiter, RateLimitConfig
 
+
 async def check_rate_limit(request: Request):
     """Dependency للتحقق من rate limit"""
     limiter = RateLimiter()
@@ -487,11 +485,9 @@ async def check_rate_limit(request: Request):
 
     return True
 
+
 @app.get("/protected")
-async def protected_route(
-    request: Request,
-    _: bool = Depends(check_rate_limit)
-):
+async def protected_route(request: Request, _: bool = Depends(check_rate_limit)):
     return {"message": "Protected data"}
 ```
 
@@ -500,17 +496,16 @@ async def protected_route(
 ```python
 from fastapi import BackgroundTasks
 
+
 @app.post("/process")
 @rate_limit(requests_per_minute=10)
-async def process_data(
-    request: Request,
-    background_tasks: BackgroundTasks
-):
+async def process_data(request: Request, background_tasks: BackgroundTasks):
     """معالجة في الخلفية - rate limit على الطلب فقط"""
 
     def heavy_processing():
         # لا يؤثر على rate limiting
         import time
+
         time.sleep(10)
 
     background_tasks.add_task(heavy_processing)

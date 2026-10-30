@@ -104,10 +104,16 @@ RESERVE_TRANSFER, LOAN, LOAN_REPAYMENT, ADJUSTMENT.
 ```python
 from datetime import datetime
 from shared.cooperatives import (
-    Cooperative, CooperativeMember, SharedResource,
-    CooperativeType, ResourceType, RevenueShareMethod,
-    ResourcePoolService, RevenueService,
-    create_resource_pool, create_revenue_service,
+    Cooperative,
+    CooperativeMember,
+    SharedResource,
+    CooperativeType,
+    ResourceType,
+    RevenueShareMethod,
+    ResourcePoolService,
+    RevenueService,
+    create_resource_pool,
+    create_revenue_service,
 )
 
 # Create cooperative

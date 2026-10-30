@@ -306,12 +306,12 @@ The detector uses three key phenological metrics:
 
 ```python
 NDVI_THRESHOLDS = {
-    "bare_soil": 0.10,        # Bare soil baseline
-    "emergence": 0.20,        # Green-up begins (SOS)
-    "active_growth": 0.35,    # Active vegetative growth
-    "peak": 0.65,             # Maximum greenness (POS)
-    "senescence_start": 0.45, # Decline begins
-    "harvest_ready": 0.25,    # Ready for harvest (EOS)
+    "bare_soil": 0.10,  # Bare soil baseline
+    "emergence": 0.20,  # Green-up begins (SOS)
+    "active_growth": 0.35,  # Active vegetative growth
+    "peak": 0.65,  # Maximum greenness (POS)
+    "senescence_start": 0.45,  # Decline begins
+    "harvest_ready": 0.25,  # Ready for harvest (EOS)
 }
 ```
 

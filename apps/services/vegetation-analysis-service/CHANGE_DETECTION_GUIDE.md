@@ -232,16 +232,16 @@ curl "http://localhost:8090/v1/changes/field_123/anomalies?lat=15.5&lon=44.2&day
 
 ```python
 THRESHOLDS = {
-    "significant_change": 0.10,      # 10% NDVI change
-    "major_change": 0.20,            # 20% NDVI change
-    "critical_change": 0.30,         # 30% NDVI change
-    "rapid_change_days": 14,         # Change within 2 weeks
+    "significant_change": 0.10,  # 10% NDVI change
+    "major_change": 0.20,  # 20% NDVI change
+    "critical_change": 0.30,  # 30% NDVI change
+    "rapid_change_days": 14,  # Change within 2 weeks
 }
 
 ANOMALY_THRESHOLDS = {
-    "mild": 1.5,                     # 1.5 standard deviations
-    "moderate": 2.0,                 # 2.0 standard deviations
-    "severe": 2.5,                   # 2.5 standard deviations
+    "mild": 1.5,  # 1.5 standard deviations
+    "moderate": 2.0,  # 2.0 standard deviations
+    "severe": 2.5,  # 2.5 standard deviations
 }
 ```
 
@@ -344,8 +344,8 @@ response = requests.get(
         "lon": 44.2,
         "start_date": start.isoformat(),
         "end_date": today.isoformat(),
-        "crop_type": "wheat"
-    }
+        "crop_type": "wheat",
+    },
 )
 
 report = response.json()
@@ -353,8 +353,8 @@ print(f"Detected {len(report['events'])} changes")
 print(f"Overall trend: {report['overall_trend']}")
 
 # Print critical events
-for event in report['events']:
-    if event['severity'] == 'critical':
+for event in report["events"]:
+    if event["severity"] == "critical":
         print(f"⚠️ {event['description_en']}")
         print(f"   {event['recommended_action_en']}")
 ```

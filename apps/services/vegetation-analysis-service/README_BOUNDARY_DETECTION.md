@@ -144,11 +144,7 @@ from src.field_boundary_detector import FieldBoundaryDetector
 detector = FieldBoundaryDetector()
 
 # Detect boundaries
-boundaries = await detector.detect_boundary(
-    latitude=15.5527,
-    longitude=44.2075,
-    radius_meters=500
-)
+boundaries = await detector.detect_boundary(latitude=15.5527, longitude=44.2075, radius_meters=500)
 
 # Output as GeoJSON
 for boundary in boundaries:
@@ -209,12 +205,12 @@ Default parameters (can be adjusted):
 detector = FieldBoundaryDetector()
 
 # Thresholds
-detector.ndvi_threshold = 0.25       # Vegetation threshold
-detector.edge_sensitivity = 0.15     # Edge detection sensitivity
+detector.ndvi_threshold = 0.25  # Vegetation threshold
+detector.edge_sensitivity = 0.15  # Edge detection sensitivity
 
 # Filters
-detector.min_area_hectares = 0.1     # Minimum field size
-detector.max_area_hectares = 500.0   # Maximum field size
+detector.min_area_hectares = 0.1  # Minimum field size
+detector.max_area_hectares = 500.0  # Maximum field size
 
 # Simplification
 detector.simplify_tolerance = 0.00005  # ~5 meters

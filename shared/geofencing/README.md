@@ -78,8 +78,10 @@ water_zone = create_polygon_geofence(
     name="Irrigation Canal",
     name_ar="قناة الري",
     boundary=[
-        (24.715, 46.674), (24.716, 46.674),
-        (24.716, 46.676), (24.715, 46.676),
+        (24.715, 46.674),
+        (24.716, 46.674),
+        (24.716, 46.676),
+        (24.715, 46.676),
     ],
     geofence_type=GeofenceType.SENSITIVE,
     alert_on_entry=True,
@@ -125,10 +127,10 @@ pending = engine.get_unacknowledged_alerts(tenant_id="farm_001")
 # Alert when equipment approaches within 50m of boundary
 farm_fence = create_circular_geofence(
     ...,
-    buffer_distance_m=50.0,       # approaching-alert threshold
+    buffer_distance_m=50.0,  # approaching-alert threshold
     operating_hours_start="06:00",
     operating_hours_end="20:00",
-    alert_outside_hours=True,      # alert if moving outside hours
+    alert_outside_hours=True,  # alert if moving outside hours
 )
 ```
 

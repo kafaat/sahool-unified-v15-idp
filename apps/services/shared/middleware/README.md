@@ -96,7 +96,7 @@ app.add_middleware(
     log_request_body=False,
     log_response_body=False,
     exclude_paths=["/healthz", "/metrics"],
-    max_body_length=1000
+    max_body_length=1000,
 )
 ```
 
@@ -135,7 +135,7 @@ setup_cors(
     allow_credentials=True,
     allowed_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowed_headers=["Authorization", "Content-Type", "X-Tenant-ID"],
-    max_age=3600
+    max_age=3600,
 )
 ```
 
@@ -166,10 +166,7 @@ Production-grade rate limiting with Redis support and tiered configuration.
 from apps.services.shared.middleware import setup_rate_limiting
 
 limiter = setup_rate_limiting(
-    app,
-    use_redis=True,
-    redis_url="redis://localhost:6379",
-    exclude_paths=["/healthz", "/metrics"]
+    app, use_redis=True, redis_url="redis://localhost:6379", exclude_paths=["/healthz", "/metrics"]
 )
 ```
 
@@ -198,20 +195,21 @@ Global exception handling with consistent error responses and bilingual messages
 **Error Classes**:
 ```python
 from apps.services.shared.middleware.exception_handler import (
-    AppError,           # Base error
-    ValidationError,    # 400
-    AuthenticationError, # 401
+    AppError,  # Base error
+    ValidationError,  # 400
+    AuthenticationError,  # 401
     AuthorizationError,  # 403
-    NotFoundError,       # 404
-    ConflictError,       # 409
-    RateLimitError,      # 429
-    InternalError,       # 500
+    NotFoundError,  # 404
+    ConflictError,  # 409
+    RateLimitError,  # 429
+    InternalError,  # 500
 )
 ```
 
 **Setup**:
 ```python
 from apps.services.shared.middleware import setup_exception_handlers
+
 setup_exception_handlers(app)
 ```
 
@@ -247,11 +245,7 @@ Kubernetes liveness and readiness probes with custom health checks.
 from apps.services.shared.middleware import setup_health_endpoints
 
 health_mgr = setup_health_endpoints(
-    app,
-    service_name="my-service",
-    version="1.0.0",
-    include_livez=True,
-    include_readyz=True
+    app, service_name="my-service", version="1.0.0", include_livez=True, include_readyz=True
 )
 
 # Register custom health checks
@@ -260,7 +254,7 @@ health_mgr.register_check("redis", create_redis_check("redis://localhost:6379"))
 
 # Control readiness
 health_mgr.set_ready(False)  # Pause traffic
-health_mgr.set_ready(True)   # Resume traffic
+health_mgr.set_ready(True)  # Resume traffic
 ```
 
 **Health Response**:
@@ -299,10 +293,7 @@ Multi-tenant isolation and context management.
 from apps.services.shared.middleware import TenantContextMiddleware
 
 app.add_middleware(
-    TenantContextMiddleware,
-    require_tenant=True,
-    allow_query_param=False,
-    exempt_paths=["/healthz", "/docs"]
+    TenantContextMiddleware, require_tenant=True, allow_query_param=False, exempt_paths=["/healthz", "/docs"]
 )
 ```
 
@@ -314,10 +305,12 @@ from apps.services.shared.middleware.tenant_context import (
     tenant_filter,
 )
 
+
 @app.get("/fields")
 async def list_fields(tenant: TenantContext = Depends(get_current_tenant)):
     # Tenant is automatically available
     return {"tenant_id": tenant.id}
+
 
 # SQLAlchemy filter
 query = session.query(Field).filter(tenant_filter(Field))

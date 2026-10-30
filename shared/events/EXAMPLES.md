@@ -30,12 +30,10 @@ from shared.events import (
     SAHOOL_FIELD_CREATED,
 )
 
+
 async def main():
     # Create publisher
-    publisher = EventPublisher(
-        service_name="field-service",
-        service_version="1.0.0"
-    )
+    publisher = EventPublisher(service_name="field-service", service_version="1.0.0")
 
     # Connect to NATS
     await publisher.connect()
@@ -54,10 +52,7 @@ async def main():
     )
 
     # Publish event
-    success = await publisher.publish_event(
-        SAHOOL_FIELD_CREATED,
-        event
-    )
+    success = await publisher.publish_event(SAHOOL_FIELD_CREATED, event)
 
     if success:
         print(f"✅ Event published: {event.event_id}")
@@ -66,6 +61,7 @@ async def main():
 
     # Close connection
     await publisher.close()
+
 
 if __name__ == "__main__":
     asyncio.run(main())
@@ -76,18 +72,12 @@ if __name__ == "__main__":
 ```python
 from shared.events import get_publisher, SAHOOL_FIELD_UPDATED, FieldUpdatedEvent
 
+
 async def update_field():
     # Get singleton publisher (auto-connects)
-    publisher = await get_publisher(
-        service_name="field-service",
-        service_version="1.0.0"
-    )
+    publisher = await get_publisher(service_name="field-service", service_version="1.0.0")
 
-    event = FieldUpdatedEvent(
-        field_id=uuid4(),
-        ndvi_value=0.75,
-        updated_by=uuid4()
-    )
+    event = FieldUpdatedEvent(field_id=uuid4(), ndvi_value=0.75, updated_by=uuid4())
 
     await publisher.publish_event(SAHOOL_FIELD_UPDATED, event)
 ```
@@ -106,6 +96,7 @@ from shared.events import (
     SAHOOL_FIELD_CREATED,
 )
 
+
 async def handle_field_created(event: FieldCreatedEvent):
     """
     معالج إنشاء حقل جديد
@@ -115,12 +106,10 @@ async def handle_field_created(event: FieldCreatedEvent):
     print(f"   Area: {event.area_hectares} hectares")
     print(f"   Farm ID: {event.farm_id}")
 
+
 async def main():
     # Create subscriber
-    subscriber = EventSubscriber(
-        service_name="notification-service",
-        service_version="1.0.0"
-    )
+    subscriber = EventSubscriber(service_name="notification-service", service_version="1.0.0")
 
     # Connect to NATS
     await subscriber.connect()
@@ -129,13 +118,14 @@ async def main():
     await subscriber.subscribe(
         subject=SAHOOL_FIELD_CREATED,
         handler=handle_field_created,
-        event_class=FieldCreatedEvent  # Auto-deserialize to this class
+        event_class=FieldCreatedEvent,  # Auto-deserialize to this class
     )
 
     print("🚀 Subscriber running... Press Ctrl+C to stop")
 
     # Keep running
     await subscriber.run()
+
 
 if __name__ == "__main__":
     asyncio.run(main())
@@ -152,11 +142,14 @@ from shared.events import (
     WeatherAlertEvent,
 )
 
+
 async def handle_field_event(event):
     print(f"📨 Field event: {event}")
 
+
 async def handle_weather_event(event):
     print(f"🌦️  Weather event: {event}")
+
 
 async def main():
     subscriber = EventSubscriber()
@@ -165,13 +158,13 @@ async def main():
     # Subscribe to all field events
     await subscriber.subscribe(
         SAHOOL_FIELD_ALL,  # Wildcard: sahool.field.*
-        handle_field_event
+        handle_field_event,
     )
 
     # Subscribe to all weather events
     await subscriber.subscribe(
         SAHOOL_WEATHER_ALL,  # Wildcard: sahool.weather.*
-        handle_weather_event
+        handle_weather_event,
     )
 
     await subscriber.run()
@@ -191,6 +184,7 @@ from shared.events import (
 )
 from datetime import datetime, timedelta
 
+
 async def publish_weather_alert():
     publisher = await get_publisher()
 
@@ -205,7 +199,7 @@ async def publish_weather_alert():
         message_ar="يتوقع حدوث صقيع الليلة. احمِ المحاصيل الحساسة.",
         start_time=datetime.utcnow(),
         end_time=datetime.utcnow() + timedelta(hours=12),
-        affected_area_radius_km=50.0
+        affected_area_radius_km=50.0,
     )
 
     await publisher.publish_event(SAHOOL_WEATHER_ALERT, event)
@@ -222,6 +216,7 @@ from shared.events import (
     get_publisher,
 )
 
+
 async def publish_satellite_events():
     publisher = await get_publisher()
 
@@ -237,7 +232,7 @@ async def publish_satellite_events():
         ndvi_max=0.89,
         image_url="https://s3.example.com/images/field123.tif",
         resolution_meters=10.0,
-        bands=["B4", "B8", "B3", "B2"]
+        bands=["B4", "B8", "B3", "B2"],
     )
 
     await publisher.publish_event(SAHOOL_SATELLITE_DATA_READY, data_event)
@@ -255,7 +250,7 @@ async def publish_satellite_events():
         baseline_value=0.72,
         deviation=-0.27,
         recommended_action="Inspect area for disease or pest damage",
-        recommended_action_ar="فحص المنطقة للكشف عن الأمراض أو الآفات"
+        recommended_action_ar="فحص المنطقة للكشف عن الأمراض أو الآفات",
     )
 
     await publisher.publish_event(SAHOOL_SATELLITE_ANOMALY, anomaly_event)
@@ -271,6 +266,7 @@ from shared.events import (
     SAHOOL_INVENTORY_BATCH_EXPIRED,
     get_publisher,
 )
+
 
 async def publish_inventory_events():
     publisher = await get_publisher()
@@ -289,7 +285,7 @@ async def publish_inventory_events():
         reorder_quantity=1000.0,
         severity="medium",
         estimated_cost=2500.0,
-        currency="SAR"
+        currency="SAR",
     )
 
     await publisher.publish_event(SAHOOL_INVENTORY_LOW_STOCK, low_stock)
@@ -310,7 +306,7 @@ async def publish_inventory_events():
         value_at_risk=1500.0,
         currency="SAR",
         recommended_action="Dispose of expired pesticide safely",
-        recommended_action_ar="التخلص من المبيد منتهي الصلاحية بشكل آمن"
+        recommended_action_ar="التخلص من المبيد منتهي الصلاحية بشكل آمن",
     )
 
     await publisher.publish_event(SAHOOL_INVENTORY_BATCH_EXPIRED, batch_expired)
@@ -326,6 +322,7 @@ from shared.events import (
     SAHOOL_BILLING_PAYMENT_COMPLETED,
     get_publisher,
 )
+
 
 async def publish_billing_events():
     publisher = await get_publisher()
@@ -345,13 +342,8 @@ async def publish_billing_events():
         currency="SAR",
         max_fields=100,
         max_area_hectares=1000.0,
-        features_enabled=[
-            "satellite_imagery",
-            "weather_alerts",
-            "ai_recommendations",
-            "inventory_management"
-        ],
-        auto_renew=True
+        features_enabled=["satellite_imagery", "weather_alerts", "ai_recommendations", "inventory_management"],
+        auto_renew=True,
     )
 
     await publisher.publish_event(SAHOOL_BILLING_SUBSCRIPTION_CREATED, subscription)
@@ -371,7 +363,7 @@ async def publish_billing_events():
         subtotal=8695.22,
         tax_amount=1303.78,
         tax_percentage=15.0,
-        receipt_url="https://receipts.sahool.io/12345"
+        receipt_url="https://receipts.sahool.io/12345",
     )
 
     await publisher.publish_event(SAHOOL_BILLING_PAYMENT_COMPLETED, payment)
@@ -393,7 +385,7 @@ async def main():
         SAHOOL_SATELLITE_DATA_READY,
         handle_satellite_data,
         queue_group="satellite-processors",  # Load balancing
-        event_class=SatelliteDataReadyEvent
+        event_class=SatelliteDataReadyEvent,
     )
 
     await subscriber.run()
@@ -411,7 +403,7 @@ async def main():
         SAHOOL_FIELD_CREATED,
         handle_field_for_analytics,
         durable_name="analytics-field-consumer",  # Persistent consumer
-        event_class=FieldCreatedEvent
+        event_class=FieldCreatedEvent,
     )
 
     await subscriber.run()
@@ -427,29 +419,24 @@ from shared.events import (
     CropStressEvent,
 )
 
+
 async def handle_disease(event: DiseaseDetectedEvent):
     print(f"🦠 Disease detected: {event.disease_name}")
     # Send alert, create task, etc.
+
 
 async def handle_stress(event: CropStressEvent):
     print(f"⚠️  Crop stress: {event.stress_type}")
     # Adjust irrigation, create recommendation, etc.
 
+
 async def main():
     subscriber = EventSubscriber()
     await subscriber.connect()
 
-    await subscriber.subscribe(
-        SAHOOL_HEALTH_DISEASE_DETECTED,
-        handle_disease,
-        event_class=DiseaseDetectedEvent
-    )
+    await subscriber.subscribe(SAHOOL_HEALTH_DISEASE_DETECTED, handle_disease, event_class=DiseaseDetectedEvent)
 
-    await subscriber.subscribe(
-        SAHOOL_HEALTH_STRESS_DETECTED,
-        handle_stress,
-        event_class=CropStressEvent
-    )
+    await subscriber.subscribe(SAHOOL_HEALTH_STRESS_DETECTED, handle_stress, event_class=CropStressEvent)
 
     await subscriber.run()
 ```
@@ -463,6 +450,7 @@ async def main():
 ```python
 from shared.events import EventPublisher, SAHOOL_FIELD_CREATED, FieldCreatedEvent
 
+
 async def create_field():
     # Automatically connects and disconnects
     async with EventPublisher(service_name="field-service") as publisher:
@@ -475,6 +463,7 @@ async def create_field():
 
 ```python
 from shared.events import EventSubscriber
+
 
 async def main():
     async with EventSubscriber(service_name="my-service") as subscriber:
@@ -492,10 +481,11 @@ async def main():
 ```python
 from shared.events import EventPublisher, PublisherConfig
 
+
 async def main():
     config = PublisherConfig(
         enable_jetstream=True,  # Enable JetStream
-        servers=["nats://localhost:4222"]
+        servers=["nats://localhost:4222"],
     )
 
     publisher = EventPublisher(config=config)
@@ -505,7 +495,7 @@ async def main():
     await publisher.publish_event(
         SAHOOL_BILLING_PAYMENT_COMPLETED,
         payment_event,
-        use_jetstream=True  # Explicitly use JetStream
+        use_jetstream=True,  # Explicitly use JetStream
     )
 ```
 
@@ -517,6 +507,7 @@ async def main():
 
 ```python
 from shared.events import EventPublisher
+
 
 async def publish_with_error_handling():
     publisher = EventPublisher()
@@ -569,16 +560,11 @@ from shared.events import (
     SAHOOL_SATELLITE_DATA_READY,
 )
 
+
 class SatelliteService:
     def __init__(self):
-        self.publisher = EventPublisher(
-            service_name="satellite-service",
-            service_version="2.0.0"
-        )
-        self.subscriber = EventSubscriber(
-            service_name="satellite-service",
-            service_version="2.0.0"
-        )
+        self.publisher = EventPublisher(service_name="satellite-service", service_version="2.0.0")
+        self.subscriber = EventSubscriber(service_name="satellite-service", service_version="2.0.0")
 
     async def start(self):
         # Connect to NATS
@@ -590,7 +576,7 @@ class SatelliteService:
             SAHOOL_FIELD_CREATED,
             self.handle_new_field,
             event_class=FieldCreatedEvent,
-            queue_group="satellite-processors"
+            queue_group="satellite-processors",
         )
 
         print("✅ Satellite service started")
@@ -610,19 +596,17 @@ class SatelliteService:
             satellite_source="Sentinel-2",
             capture_date=datetime.utcnow(),
             ndvi_mean=0.65,
-            image_url=f"https://s3.example.com/{event.field_id}.tif"
+            image_url=f"https://s3.example.com/{event.field_id}.tif",
         )
 
-        await self.publisher.publish_event(
-            SAHOOL_SATELLITE_DATA_READY,
-            satellite_event
-        )
+        await self.publisher.publish_event(SAHOOL_SATELLITE_DATA_READY, satellite_event)
 
         print(f"✅ Satellite data published for field {event.field_id}")
 
     async def stop(self):
         await self.subscriber.close()
         await self.publisher.close()
+
 
 if __name__ == "__main__":
     service = SatelliteService()
@@ -674,6 +658,7 @@ export SERVICE_VERSION="1.0.0"
 import pytest
 from shared.events import FieldCreatedEvent
 
+
 def test_field_created_event():
     event = FieldCreatedEvent(
         field_id=uuid4(),
@@ -681,7 +666,7 @@ def test_field_created_event():
         tenant_id=uuid4(),
         name="Test Field",
         geometry_wkt="POLYGON((0 0, 0 1, 1 1, 1 0, 0 0))",
-        area_hectares=10.5
+        area_hectares=10.5,
     )
 
     assert event.name == "Test Field"

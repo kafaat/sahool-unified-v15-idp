@@ -84,8 +84,7 @@ import requests
 
 # Export analysis
 response = requests.get(
-    "http://localhost:8090/v1/export/analysis/FIELD_001",
-    params={"lat": 15.3694, "lon": 44.1910, "format": "geojson"}
+    "http://localhost:8090/v1/export/analysis/FIELD_001", params={"lat": 15.3694, "lon": 44.1910, "format": "geojson"}
 )
 
 # Save to file
@@ -98,13 +97,7 @@ from io import StringIO
 
 response = requests.get(
     "http://localhost:8090/v1/export/timeseries/FIELD_001",
-    params={
-        "lat": 15.3694,
-        "lon": 44.1910,
-        "start_date": "2023-11-01",
-        "end_date": "2023-12-15",
-        "format": "csv"
-    }
+    params={"lat": 15.3694, "lon": 44.1910, "start_date": "2023-11-01", "end_date": "2023-12-15", "format": "csv"},
 )
 
 df = pd.read_csv(StringIO(response.text))
@@ -173,7 +166,7 @@ Example: `sahool_field_analysis_FIELD_001_20231215_143022.geojson`
 
 ```python
 df = pd.read_csv("timeseries.csv")
-df.plot(x='date', y='ndvi')
+df.plot(x="date", y="ndvi")
 ```
 
 ---

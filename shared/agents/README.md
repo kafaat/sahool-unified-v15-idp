@@ -71,9 +71,9 @@ await orchestrator.initialize()
 
 # Simple query - agent selected automatically from keywords
 result = await orchestrator.query("متى أسقي القمح؟")
-print(result.final_answer)       # English answer
-print(result.final_answer_ar)    # Arabic answer
-print(result.agents_used)        # [AgentRole.IRRIGATION_EXPERT]
+print(result.final_answer)  # English answer
+print(result.final_answer_ar)  # Arabic answer
+print(result.agents_used)  # [AgentRole.IRRIGATION_EXPERT]
 print(f"Time: {result.total_time_ms:.0f}ms")
 
 # Query with field context

@@ -31,11 +31,7 @@ pip install nats-py
 ### Publishing Events
 
 ```python
-from shared.events import (
-    EventPublisher,
-    FieldCreatedEvent,
-    SAHOOL_FIELD_CREATED
-)
+from shared.events import EventPublisher, FieldCreatedEvent, SAHOOL_FIELD_CREATED
 
 # Create and connect publisher
 publisher = EventPublisher(service_name="field-service")
@@ -49,7 +45,7 @@ event = FieldCreatedEvent(
     name="North Field",
     name_ar="الحقل الشمالي",
     geometry_wkt="POLYGON(...)",
-    area_hectares=25.5
+    area_hectares=25.5,
 )
 
 # Publish
@@ -59,24 +55,18 @@ await publisher.publish_event(SAHOOL_FIELD_CREATED, event)
 ### Subscribing to Events
 
 ```python
-from shared.events import (
-    EventSubscriber,
-    FieldCreatedEvent,
-    SAHOOL_FIELD_CREATED
-)
+from shared.events import EventSubscriber, FieldCreatedEvent, SAHOOL_FIELD_CREATED
+
 
 # Create handler
 async def handle_field_created(event: FieldCreatedEvent):
     print(f"New field: {event.name}")
 
+
 # Subscribe
 subscriber = EventSubscriber(service_name="notification-service")
 await subscriber.connect()
-await subscriber.subscribe(
-    SAHOOL_FIELD_CREATED,
-    handle_field_created,
-    event_class=FieldCreatedEvent
-)
+await subscriber.subscribe(SAHOOL_FIELD_CREATED, handle_field_created, event_class=FieldCreatedEvent)
 
 # Run
 await subscriber.run()
@@ -216,11 +206,7 @@ SERVICE_VERSION=1.0.0
 from shared.events import PublisherConfig, EventPublisher
 
 config = PublisherConfig(
-    servers=["nats://localhost:4222"],
-    name="my-publisher",
-    enable_jetstream=True,
-    max_retry_attempts=3,
-    retry_delay=0.5
+    servers=["nats://localhost:4222"], name="my-publisher", enable_jetstream=True, max_retry_attempts=3, retry_delay=0.5
 )
 
 publisher = EventPublisher(config=config)
@@ -236,7 +222,7 @@ config = SubscriberConfig(
     name="my-subscriber",
     enable_jetstream=True,
     max_concurrent_messages=10,
-    enable_error_retry=True
+    enable_error_retry=True,
 )
 
 subscriber = EventSubscriber(config=config)
@@ -268,22 +254,14 @@ print(f"Subscriptions: {stats['active_subscriptions']}")
 
 ```python
 # Multiple instances share the load
-await subscriber.subscribe(
-    SAHOOL_SATELLITE_DATA_READY,
-    handle_satellite_data,
-    queue_group="satellite-processors"
-)
+await subscriber.subscribe(SAHOOL_SATELLITE_DATA_READY, handle_satellite_data, queue_group="satellite-processors")
 ```
 
 ### Durable Consumers (JetStream)
 
 ```python
 # Consumer survives restarts
-await subscriber.subscribe(
-    SAHOOL_FIELD_CREATED,
-    handle_field,
-    durable_name="analytics-consumer"
-)
+await subscriber.subscribe(SAHOOL_FIELD_CREATED, handle_field, durable_name="analytics-consumer")
 ```
 
 ### Context Managers

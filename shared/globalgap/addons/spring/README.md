@@ -37,16 +37,13 @@ from shared.globalgap.addons.spring import (
     # Checklist
     SPRING_CHECKLIST,
     calculate_spring_compliance,
-
     # Metrics
     WaterUsageMetric,
     WaterEfficiencyScore,
     IrrigationEfficiency,
-
     # Report Generation
     SpringReportGenerator,
     generate_spring_report,
-
     # Integration
     SpringIntegration,
     calculate_water_footprint,
@@ -77,10 +74,7 @@ Contains 20+ checklist items across 6 categories:
 from shared.globalgap.addons.spring import calculate_spring_compliance
 
 # List of compliant item IDs
-compliant_items = [
-    "WS.01", "WS.02", "WE.01", "WE.02", "IS.01",
-    "WQ.01", "LC.01", "MR.01"
-]
+compliant_items = ["WS.01", "WS.02", "WE.01", "WE.02", "IS.01", "WQ.01", "LC.01", "MR.01"]
 
 # Calculate compliance
 compliance = calculate_spring_compliance(compliant_items)
@@ -482,7 +476,8 @@ Benefits: 30-60% water savings vs. surface irrigation
 ```python
 # Ensure parent package is in path
 import sys
-sys.path.append('/home/user/sahool-unified-v15-idp')
+
+sys.path.append("/home/user/sahool-unified-v15-idp")
 
 from shared.globalgap.addons.spring import *
 ```

@@ -82,24 +82,28 @@ Manages the full lifecycle of boundary sharing and neighbor approval:
 ## Usage Example
 
 ```python
-from shared.field_boundaries.models import (
-    FieldBoundary, BoundaryType, BoundaryStatus, Polygon, BoundaryPoint
-)
+from shared.field_boundaries.models import FieldBoundary, BoundaryType, BoundaryStatus, Polygon, BoundaryPoint
 from shared.field_boundaries.geometry import calculate_geometry_metrics
 from shared.field_boundaries.mapping import MappingMode
 from shared.field_boundaries.sharing import PermissionLevel
 
 # Define a field boundary polygon
-polygon = Polygon(coordinates=[[
-    (46.70, 24.70), (46.80, 24.70),
-    (46.80, 24.80), (46.70, 24.80),
-    (46.70, 24.70),   # closed ring
-]])
+polygon = Polygon(
+    coordinates=[
+        [
+            (46.70, 24.70),
+            (46.80, 24.70),
+            (46.80, 24.80),
+            (46.70, 24.80),
+            (46.70, 24.70),  # closed ring
+        ]
+    ]
+)
 
 # Calculate area and perimeter
 metrics = calculate_geometry_metrics(polygon.coordinates[0])
-print(f"Area: {metrics.area_hectares:.2f} ha")       # e.g. 118.55 ha
-print(f"Perimeter: {metrics.perimeter_m:.0f} m")     # e.g. 43928 m
+print(f"Area: {metrics.area_hectares:.2f} ha")  # e.g. 118.55 ha
+print(f"Perimeter: {metrics.perimeter_m:.0f} m")  # e.g. 43928 m
 print(f"Centroid: {metrics.centroid_lon:.4f}, {metrics.centroid_lat:.4f}")
 
 # Create a FieldBoundary record

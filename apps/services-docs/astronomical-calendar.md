@@ -447,72 +447,72 @@ Returns comprehensive astronomical data for the current date.
 ### MoonPhase
 ```python
 class MoonPhase(BaseModel):
-    phase_key: str          # Phase identifier (new_moon, waxing_crescent, etc.)
-    name: str               # Arabic name
-    name_en: str            # English name
-    icon: str               # Emoji icon
-    illumination: float     # 0-100 percentage
-    age_days: float         # Moon age in days
-    is_waxing: bool         # True if waxing, False if waning
-    farming_good: bool      # True if good for farming
+    phase_key: str  # Phase identifier (new_moon, waxing_crescent, etc.)
+    name: str  # Arabic name
+    name_en: str  # English name
+    icon: str  # Emoji icon
+    illumination: float  # 0-100 percentage
+    age_days: float  # Moon age in days
+    is_waxing: bool  # True if waxing, False if waning
+    farming_good: bool  # True if good for farming
 ```
 
 ### LunarMansion
 ```python
 class LunarMansion(BaseModel):
-    number: int             # 1-28
-    name: str               # Arabic name
-    name_en: str            # English name
-    constellation: str      # Arabic zodiac constellation
-    constellation_en: str   # English zodiac constellation
-    element: str            # Element (نار, أرض, هواء, ماء)
-    farming: str            # Farming status description
-    farming_score: int      # 1-10 suitability score
-    crops: list[str]        # Recommended crops
-    activities: list[str]   # Recommended activities
-    avoid: list[str]        # Activities to avoid
-    description: str        # Full description
+    number: int  # 1-28
+    name: str  # Arabic name
+    name_en: str  # English name
+    constellation: str  # Arabic zodiac constellation
+    constellation_en: str  # English zodiac constellation
+    element: str  # Element (نار, أرض, هواء, ماء)
+    farming: str  # Farming status description
+    farming_score: int  # 1-10 suitability score
+    crops: list[str]  # Recommended crops
+    activities: list[str]  # Recommended activities
+    avoid: list[str]  # Activities to avoid
+    description: str  # Full description
 ```
 
 ### HijriDate
 ```python
 class HijriDate(BaseModel):
-    year: int               # Hijri year
-    month: int              # 1-12
-    day: int                # 1-30
-    month_name: str         # Arabic month name
-    month_name_en: str      # English month name
-    weekday: str            # Arabic weekday name
+    year: int  # Hijri year
+    month: int  # 1-12
+    day: int  # 1-30
+    month_name: str  # Arabic month name
+    month_name_en: str  # English month name
+    weekday: str  # Arabic weekday name
 ```
 
 ### ZodiacInfo
 ```python
 class ZodiacInfo(BaseModel):
-    name: str               # Arabic name
-    name_en: str            # English name
-    element: str            # Element
-    fertility: str          # Fertility description
-    score: int              # 1-10 farming suitability
+    name: str  # Arabic name
+    name_en: str  # English name
+    element: str  # Element
+    fertility: str  # Fertility description
+    score: int  # 1-10 farming suitability
 ```
 
 ### SeasonInfo
 ```python
 class SeasonInfo(BaseModel):
-    name: str               # Arabic name
-    name_en: str            # English name
-    description: str        # Description
-    main_crops: list[str]   # Main crops for season
-    activities: list[str]   # Recommended activities
+    name: str  # Arabic name
+    name_en: str  # English name
+    description: str  # Description
+    main_crops: list[str]  # Main crops for season
+    activities: list[str]  # Recommended activities
 ```
 
 ### FarmingRecommendation
 ```python
 class FarmingRecommendation(BaseModel):
-    activity: str           # Activity name
-    suitability: str        # Suitability description
+    activity: str  # Activity name
+    suitability: str  # Suitability description
     suitability_score: int  # 1-10
-    reason: str             # Reason for recommendation
-    best_time: str | None   # Best time of day
+    reason: str  # Reason for recommendation
+    best_time: str | None  # Best time of day
 ```
 
 ### DailyAstronomicalData
@@ -667,7 +667,7 @@ VERSION = "16.0.0"
 **Location:** Lines 44-46 (inside docstring)
 **Issue:** The error handling setup code appears inside the FastAPI description docstring:
 ```python
-description="""
+description = """
     ...
 # Setup unified error handling
 setup_exception_handlers(app)
@@ -684,6 +684,7 @@ app = FastAPI(...)
 
 # Setup unified error handling
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
 setup_exception_handlers(app)
 add_request_id_middleware(app)
 ```
@@ -722,6 +723,7 @@ except Exception as e:
 **Recommendation:**
 ```python
 from datetime import datetime, timezone
+
 datetime.now(timezone.utc)
 ```
 
@@ -733,7 +735,9 @@ datetime.now(timezone.utc)
 **Recommendation:** Add structured logging throughout:
 ```python
 import structlog
+
 logger = structlog.get_logger()
+
 
 @app.get("/v1/today")
 def get_today():
@@ -748,8 +752,9 @@ def get_today():
 ```python
 from prometheus_client import Counter, Histogram, generate_latest
 
-REQUEST_COUNT = Counter('astronomical_requests_total', 'Total requests', ['endpoint'])
-REQUEST_LATENCY = Histogram('astronomical_request_latency_seconds', 'Request latency')
+REQUEST_COUNT = Counter("astronomical_requests_total", "Total requests", ["endpoint"])
+REQUEST_LATENCY = Histogram("astronomical_request_latency_seconds", "Request latency")
+
 
 @app.get("/metrics")
 def metrics():

@@ -506,7 +506,8 @@ MAX_TIMESTAMP_DRIFT_MS = 5 * 60 * 1000  # 5 minutes
 NONCE_TTL_SECONDS = 300  # 5 minutes
 
 # Redis client
-redis_client = Redis(host='localhost', port=6379, decode_responses=True)
+redis_client = Redis(host="localhost", port=6379, decode_responses=True)
+
 
 async def validate_request_signature(request: Request):
     """Validate request signature"""
@@ -516,24 +517,18 @@ async def validate_request_signature(request: Request):
         return
 
     # Extract headers
-    signature = request.headers.get('x-signature')
-    timestamp = request.headers.get('x-timestamp')
-    nonce = request.headers.get('x-nonce')
-    version = request.headers.get('x-signature-version')
+    signature = request.headers.get("x-signature")
+    timestamp = request.headers.get("x-timestamp")
+    nonce = request.headers.get("x-nonce")
+    version = request.headers.get("x-signature-version")
 
     # Validate headers exist
     if not all([signature, timestamp, nonce]):
-        raise HTTPException(
-            status_code=401,
-            detail='Missing signature headers'
-        )
+        raise HTTPException(status_code=401, detail="Missing signature headers")
 
     # Validate version
-    if version != '1':
-        raise HTTPException(
-            status_code=401,
-            detail='Unsupported signature version'
-        )
+    if version != "1":
+        raise HTTPException(status_code=401, detail="Unsupported signature version")
 
     # Validate timestamp
     request_time = int(timestamp)
@@ -541,35 +536,21 @@ async def validate_request_signature(request: Request):
     time_drift = abs(now - request_time)
 
     if time_drift > MAX_TIMESTAMP_DRIFT_MS:
-        raise HTTPException(
-            status_code=401,
-            detail='Request timestamp expired'
-        )
+        raise HTTPException(status_code=401, detail="Request timestamp expired")
 
     # Check nonce
     if await check_nonce(nonce):
-        raise HTTPException(
-            status_code=401,
-            detail='Duplicate request detected'
-        )
+        raise HTTPException(status_code=401, detail="Duplicate request detected")
 
     # Get signing key
     signing_key = await get_user_signing_key(request.state.user.id)
     if not signing_key:
-        raise HTTPException(
-            status_code=401,
-            detail='Signing key not found'
-        )
+        raise HTTPException(status_code=401, detail="Signing key not found")
 
     # Build canonical request
     body = await request.body()
     canonical_request = build_canonical_request(
-        request.method,
-        request.url.path,
-        request.query_params,
-        timestamp,
-        nonce,
-        body
+        request.method, request.url.path, request.query_params, timestamp, nonce, body
     )
 
     # Calculate expected signature
@@ -577,63 +558,46 @@ async def validate_request_signature(request: Request):
 
     # Verify signature
     if not verify_signature(signature, expected_signature):
-        raise HTTPException(
-            status_code=401,
-            detail='Invalid signature'
-        )
+        raise HTTPException(status_code=401, detail="Invalid signature")
 
     # Store nonce
     await store_nonce(nonce)
 
 
-def build_canonical_request(
-    method: str,
-    path: str,
-    query_params: dict,
-    timestamp: str,
-    nonce: str,
-    body: bytes
-) -> str:
+def build_canonical_request(method: str, path: str, query_params: dict, timestamp: str, nonce: str, body: bytes) -> str:
     """Build canonical request string"""
     query_string = normalize_query_params(query_params)
     body_hash = calculate_body_hash(body)
 
-    return '\n'.join([
-        method.upper(),
-        path,
-        query_string,
-        timestamp,
-        nonce,
-        body_hash
-    ])
+    return "\n".join([method.upper(), path, query_string, timestamp, nonce, body_hash])
 
 
 def normalize_query_params(query_params: dict) -> str:
     """Normalize query parameters"""
     if not query_params:
-        return ''
+        return ""
 
     sorted_keys = sorted(query_params.keys())
     params = [f"{key}={query_params[key]}" for key in sorted_keys]
-    return '&'.join(params)
+    return "&".join(params)
 
 
 def calculate_body_hash(body: bytes) -> str:
     """Calculate SHA256 hash of body"""
     if not body:
-        body = b''
+        body = b""
 
     digest = hashlib.sha256(body).digest()
-    return base64.urlsafe_b64encode(digest).decode('utf-8').rstrip('=')
+    return base64.urlsafe_b64encode(digest).decode("utf-8").rstrip("=")
 
 
 def calculate_signature(canonical_request: str, signing_key: str) -> str:
     """Calculate HMAC-SHA256 signature"""
-    key_bytes = signing_key.encode('utf-8')
-    message_bytes = canonical_request.encode('utf-8')
+    key_bytes = signing_key.encode("utf-8")
+    message_bytes = canonical_request.encode("utf-8")
 
     signature = hmac.new(key_bytes, message_bytes, hashlib.sha256).digest()
-    return base64.urlsafe_b64encode(signature).decode('utf-8').rstrip('=')
+    return base64.urlsafe_b64encode(signature).decode("utf-8").rstrip("=")
 
 
 def verify_signature(provided: str, expected: str) -> bool:
@@ -653,7 +617,7 @@ async def check_nonce(nonce: str) -> bool:
 async def store_nonce(nonce: str):
     """Store nonce"""
     key = f"nonce:{nonce}"
-    redis_client.setex(key, NONCE_TTL_SECONDS, '1')
+    redis_client.setex(key, NONCE_TTL_SECONDS, "1")
 
 
 async def get_user_signing_key(user_id: str) -> Optional[str]:
@@ -665,11 +629,11 @@ async def get_user_signing_key(user_id: str) -> Optional[str]:
 def is_public_endpoint(path: str) -> bool:
     """Check if endpoint is public"""
     public_paths = [
-        '/auth/login',
-        '/auth/register',
-        '/auth/forgot-password',
-        '/health',
-        '/version',
+        "/auth/login",
+        "/auth/register",
+        "/auth/forgot-password",
+        "/health",
+        "/version",
     ]
     return any(public_path in path for public_path in public_paths)
 ```

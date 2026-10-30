@@ -106,6 +106,7 @@ from shared.auth.password_hasher import hash_password
 
 router = APIRouter()
 
+
 @router.post("/login")
 async def login(email: str, password: str, db: Session = Depends(get_db)):
     # Create migration helper
@@ -119,14 +120,12 @@ async def login(email: str, password: str, db: Session = Depends(get_db)):
 
     # If password needs migration, update it
     if result.needs_password_update and result.new_password_hash:
-        await helper.complete_migration(
-            result.user_id,
-            result.new_password_hash
-        )
+        await helper.complete_migration(result.user_id, result.new_password_hash)
 
     # Generate JWT and return
     token = create_access_token(result.user_id)
     return {"access_token": token}
+
 
 @router.post("/register")
 async def register(email: str, password: str, db: Session = Depends(get_db)):
@@ -223,11 +222,11 @@ python database/migrations/011_migrate_passwords_to_argon2.py
 from shared.auth.password_hasher import PasswordHasher
 
 hasher = PasswordHasher(
-    time_cost=2,        # Argon2 time cost (iterations)
+    time_cost=2,  # Argon2 time cost (iterations)
     memory_cost=65536,  # Memory usage in KiB (64 MB)
-    parallelism=4,      # Number of threads
-    hash_len=32,        # Hash length in bytes
-    salt_len=16         # Salt length in bytes
+    parallelism=4,  # Number of threads
+    hash_len=32,  # Hash length in bytes
+    salt_len=16,  # Salt length in bytes
 )
 
 # Hash a password
@@ -248,7 +247,7 @@ from shared.auth.password_hasher import (
     verify_password,
     needs_rehash,
     generate_otp,
-    generate_secure_token
+    generate_secure_token,
 )
 
 # Hash password (uses default settings)
@@ -402,9 +401,9 @@ npm install argon2
 ```python
 # Lower settings for resource-constrained environments
 hasher = PasswordHasher(
-    time_cost=1,        # Faster but less secure
+    time_cost=1,  # Faster but less secure
     memory_cost=32768,  # 32 MB instead of 64 MB
-    parallelism=2       # Fewer threads
+    parallelism=2,  # Fewer threads
 )
 ```
 

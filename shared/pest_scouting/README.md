@@ -55,12 +55,22 @@ Thresholds apply modifiers for growth stage, temperature, and virus vector prese
 
 ```python
 from shared.pest_scouting import (
-    get_pest_by_id, get_pests_by_crop, identify_by_symptoms,
-    get_threshold, assess_threshold, assess_scout_report,
-    generate_threshold_alert, generate_treatment_recommendation,
-    get_ipm_calendar, calculate_treatment_roi,
-    CropType, InfestationLevel, ScoutReport, ScoutObservation,
-    ScoutingMethod, PestLifeStage,
+    get_pest_by_id,
+    get_pests_by_crop,
+    identify_by_symptoms,
+    get_threshold,
+    assess_threshold,
+    assess_scout_report,
+    generate_threshold_alert,
+    generate_treatment_recommendation,
+    get_ipm_calendar,
+    calculate_treatment_roi,
+    CropType,
+    InfestationLevel,
+    ScoutReport,
+    ScoutObservation,
+    ScoutingMethod,
+    PestLifeStage,
 )
 from datetime import date
 
@@ -82,7 +92,7 @@ for p in candidates:
 assessment = assess_threshold(
     pest_id="APHID001",
     crop_type=CropType.TOMATO,
-    observed_value=12.5,         # 12.5% plants infested
+    observed_value=12.5,  # 12.5% plants infested
     growth_stage="flowering",
     temperature_c=30.0,
     virus_present=False,

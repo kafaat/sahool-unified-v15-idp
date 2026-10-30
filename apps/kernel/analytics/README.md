@@ -134,14 +134,11 @@ event = analytics.track_event(
     event_type=EventType.FIELD_VIEWED,
     field_id="field_001",
     governorate=Governorate.SANAA,
-    metadata={"field_name": "حقل الطماطم"}
+    metadata={"field_name": "حقل الطماطم"},
 )
 
 # الحصول على مقاييس المستخدم - Get user metrics
-metrics = analytics.get_user_engagement(
-    user_id="farmer_123",
-    period=TimePeriod.MONTHLY
-)
+metrics = analytics.get_user_engagement(user_id="farmer_123", period=TimePeriod.MONTHLY)
 
 print(f"Total Events: {metrics.total_events}")
 print(f"Fields Created: {metrics.fields_created}")
@@ -152,18 +149,10 @@ print(f"Recommendation Rate: {metrics.recommendation_application_rate:.2%}")
 
 ```python
 # تسجيل الدخول - Login
-analytics.track_session(
-    user_id="farmer_123",
-    session_id="session_001",
-    action="start"
-)
+analytics.track_session(user_id="farmer_123", session_id="session_001", action="start")
 
 # عرض حقل - View field
-analytics.track_event(
-    user_id="farmer_123",
-    event_type=EventType.FIELD_VIEWED,
-    field_id="field_001"
-)
+analytics.track_event(user_id="farmer_123", event_type=EventType.FIELD_VIEWED, field_id="field_001")
 
 # إنشاء حقل جديد - Create new field
 analytics.track_event(
@@ -171,29 +160,21 @@ analytics.track_event(
     event_type=EventType.FIELD_CREATED,
     field_id="field_002",
     crop_type="cucumber",
-    metadata={"area_ha": 2.5}
+    metadata={"area_ha": 2.5},
 )
 
 # عرض توصية - View recommendation
 analytics.track_event(
-    user_id="farmer_123",
-    event_type=EventType.RECOMMENDATION_VIEWED,
-    metadata={"recommendation_id": "rec_001"}
+    user_id="farmer_123", event_type=EventType.RECOMMENDATION_VIEWED, metadata={"recommendation_id": "rec_001"}
 )
 
 # تطبيق توصية - Apply recommendation
 analytics.track_event(
-    user_id="farmer_123",
-    event_type=EventType.RECOMMENDATION_APPLIED,
-    metadata={"recommendation_id": "rec_001"}
+    user_id="farmer_123", event_type=EventType.RECOMMENDATION_APPLIED, metadata={"recommendation_id": "rec_001"}
 )
 
 # تسجيل الخروج - Logout
-analytics.track_session(
-    user_id="farmer_123",
-    session_id="session_001",
-    action="end"
-)
+analytics.track_session(user_id="farmer_123", session_id="session_001", action="end")
 ```
 
 ### 3. المقاييس العامة - General Metrics
@@ -219,10 +200,7 @@ print(f"Avg Session: {avg_session:.2f} minutes")
 
 ```python
 # إحصائيات استخدام ميزة معينة - Feature usage statistics
-feature_usage = analytics.get_feature_usage(
-    feature_name="field_management",
-    period=TimePeriod.MONTHLY
-)
+feature_usage = analytics.get_feature_usage(feature_name="field_management", period=TimePeriod.MONTHLY)
 
 print(f"Total Uses: {feature_usage.total_uses}")
 print(f"Unique Users: {feature_usage.unique_users}")
@@ -262,9 +240,7 @@ for governorate, count in users_by_gov.items():
 fields_by_region = analytics.active_fields_by_region()
 
 # توزيع المحاصيل - Crop distribution
-crop_dist = analytics.crop_distribution(
-    governorate=Governorate.SANAA
-)
+crop_dist = analytics.crop_distribution(governorate=Governorate.SANAA)
 ```
 
 ### 7. معدلات الاحتفاظ - Retention Rates
@@ -273,11 +249,7 @@ crop_dist = analytics.crop_distribution(
 from datetime import date
 
 # تحليل معدل الاحتفاظ - Cohort retention analysis
-cohort_analysis = analytics.calculate_retention_rate(
-    cohort="2024-01",
-    cohort_period=date(2024, 1, 1),
-    days=90
-)
+cohort_analysis = analytics.calculate_retention_rate(cohort="2024-01", cohort_period=date(2024, 1, 1), days=90)
 
 print(f"Total Users: {cohort_analysis.total_users}")
 print(f"Day 1 Retention: {cohort_analysis.retention_day_1:.2%}")
@@ -363,7 +335,7 @@ analytics.track_event(
     event_type=EventType.CROP_PLANTED,
     field_id="field_001",
     crop_type="tomato",
-    metadata={"planting_date": "2024-01-01", "area_ha": 2.0}
+    metadata={"planting_date": "2024-01-01", "area_ha": 2.0},
 )
 
 # إضافة مستشعرات - Add sensors
@@ -371,7 +343,7 @@ analytics.track_event(
     user_id="farmer_123",
     event_type=EventType.SENSOR_ADDED,
     field_id="field_001",
-    metadata={"sensor_type": "soil_moisture"}
+    metadata={"sensor_type": "soil_moisture"},
 )
 
 # جدولة الري - Schedule irrigation
@@ -379,7 +351,7 @@ analytics.track_event(
     user_id="farmer_123",
     event_type=EventType.IRRIGATION_SCHEDULED,
     field_id="field_001",
-    metadata={"water_amount_mm": 25}
+    metadata={"water_amount_mm": 25},
 )
 
 # حصاد المحصول - Harvest crop
@@ -387,7 +359,7 @@ analytics.track_event(
     user_id="farmer_123",
     event_type=EventType.CROP_HARVESTED,
     field_id="field_001",
-    metadata={"yield_tons": 15.5, "harvest_date": "2024-06-01"}
+    metadata={"yield_tons": 15.5, "harvest_date": "2024-06-01"},
 )
 ```
 
@@ -457,6 +429,7 @@ class PostgresStorage:
     def get_user_events(self, user_id, start_date, end_date):
         # استرجاع أحداث المستخدم
         pass
+
 
 # استخدام التخزين المخصص
 storage = PostgresStorage("postgresql://...")

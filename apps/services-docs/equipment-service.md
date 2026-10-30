@@ -672,6 +672,7 @@ The following events should be implemented for proper integration with the SAHOO
 **Fix:**
 ```python
 from sqlalchemy import text
+
 db.execute(text("SELECT 1"))
 ```
 

@@ -39,8 +39,10 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import String, Boolean, ARRAY
 from datetime import datetime
 
+
 class Base(DeclarativeBase):
     pass
+
 
 class UserModel(Base):
     __tablename__ = "users"
@@ -66,9 +68,7 @@ class PostgresUserRepository(UserRepository):
         super().__init__()
         self.session_factory = session_factory
 
-    async def get_user_validation_data(
-        self, user_id: str
-    ) -> UserValidationData | None:
+    async def get_user_validation_data(self, user_id: str) -> UserValidationData | None:
         """Get user from PostgreSQL"""
         async with self.session_factory() as session:
             stmt = select(UserModel).where(UserModel.id == user_id)
@@ -95,11 +95,7 @@ class PostgresUserRepository(UserRepository):
             from sqlalchemy import update
             from datetime import datetime, timezone
 
-            stmt = (
-                update(UserModel)
-                .where(UserModel.id == user_id)
-                .values(last_login=datetime.now(timezone.utc))
-            )
+            stmt = update(UserModel).where(UserModel.id == user_id).values(last_login=datetime.now(timezone.utc))
             await session.execute(stmt)
             await session.commit()
             return True
@@ -167,6 +163,7 @@ app.add_middleware(
 # Routes
 # ============================================================
 
+
 @app.get("/")
 async def root():
     """Public endpoint"""
@@ -229,6 +226,7 @@ async def admin_settings(
     # Check admin role
     if not user.has_role("admin"):
         from fastapi import HTTPException, status
+
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin access required",
@@ -242,6 +240,7 @@ async def admin_settings(
 # ============================================================
 from shared.auth.user_cache import get_user_cache
 
+
 @app.post("/api/admin/cache/invalidate/{user_id}")
 async def invalidate_user_cache(
     user_id: str,
@@ -250,6 +249,7 @@ async def invalidate_user_cache(
     """Invalidate user cache (admin only)"""
     if not admin.has_role("admin"):
         from fastapi import HTTPException, status
+
         raise HTTPException(status_code=403, detail="Admin only")
 
     cache = get_user_cache()
@@ -265,6 +265,7 @@ async def clear_all_cache(admin: User = Depends(get_current_user)):
     """Clear all user cache (admin only)"""
     if not admin.has_role("admin"):
         from fastapi import HTTPException
+
         raise HTTPException(status_code=403, detail="Admin only")
 
     cache = get_user_cache()
@@ -282,6 +283,7 @@ from fastapi import Request
 from fastapi.responses import JSONResponse
 from shared.auth.models import AuthException
 
+
 @app.exception_handler(AuthException)
 async def auth_exception_handler(request: Request, exc: AuthException):
     """Handle authentication exceptions"""
@@ -293,6 +295,7 @@ async def auth_exception_handler(request: Request, exc: AuthException):
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(
         app,
         host="0.0.0.0",
@@ -601,6 +604,7 @@ CREATE TRIGGER update_users_updated_at BEFORE UPDATE
 ```python
 from shared.auth.user_cache import get_user_cache
 
+
 async def update_user_status(user_id: str, is_active: bool):
     # Update database
     # ...
@@ -643,6 +647,7 @@ from shared.auth.dependencies import RateLimiter
 # Create custom rate limiter
 strict_limiter = RateLimiter(requests=10, window_seconds=60)
 
+
 @app.post("/api/sensitive-operation")
 async def sensitive_op(user: User = Depends(get_current_user)):
     key = f"strict:{user.id}"
@@ -665,6 +670,7 @@ import pytest
 from httpx import AsyncClient
 from main import app
 
+
 @pytest.mark.asyncio
 async def test_protected_endpoint():
     async with AsyncClient(app=app, base_url="http://test") as client:
@@ -674,10 +680,7 @@ async def test_protected_endpoint():
 
         # With valid token
         token = "valid_jwt_token"
-        response = await client.get(
-            "/api/profile",
-            headers={"Authorization": f"Bearer {token}"}
-        )
+        response = await client.get("/api/profile", headers={"Authorization": f"Bearer {token}"})
         assert response.status_code == 200
 ```
 

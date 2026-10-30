@@ -98,10 +98,12 @@ from shared.libs.caching import CacheManager, cached
 # Initialize
 redis_client = get_redis_client()
 
+
 # Using decorator
 @cached(key_func=lambda user_id: f"user:{user_id}", ttl=300)
 async def get_user(user_id: str):
     return await db.query(User).filter(User.id == user_id).first()
+
 
 # Manual caching
 cache = CacheManager(redis_client)

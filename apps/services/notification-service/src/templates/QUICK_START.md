@@ -21,22 +21,22 @@ context = {
     "disease_name": "البياض الدقيقي",
     "field_name": "حقل القمح الشمالي",
     "field_id": "field_12345",
-    "confidence": 95
+    "confidence": 95,
 }
 
 # Format for push notification
 push_data = manager.format_for_push(
     template_id="disease_detected",
     context=context,
-    language="ar"  # Default is 'ar'
+    language="ar",  # Default is 'ar'
 )
 
 # Send via Firebase
 await firebase_client.send_notification(
     user_token=farmer_device_token,
-    title=push_data['notification']['title'],
-    body=push_data['notification']['body'],
-    data=push_data['data']
+    title=push_data["notification"]["title"],
+    body=push_data["notification"]["body"],
+    data=push_data["data"],
 )
 
 # Also send SMS for critical alerts
@@ -47,18 +47,10 @@ await sms_client.send(farmer_phone, sms_text)
 ### Step 3: Send an Irrigation Reminder
 
 ```python
-context = {
-    "field_name": "حقل الطماطم",
-    "field_id": "field_67890",
-    "water_amount": 5000
-}
+context = {"field_name": "حقل الطماطم", "field_id": "field_67890", "water_amount": 5000}
 
 # WhatsApp message
-whatsapp_msg = manager.format_for_whatsapp(
-    "irrigation_reminder",
-    context,
-    "ar"
-)
+whatsapp_msg = manager.format_for_whatsapp("irrigation_reminder", context, "ar")
 
 await whatsapp_client.send(farmer_phone, whatsapp_msg)
 ```
@@ -74,20 +66,13 @@ context = {
     "healthy_fields": 7,
     "tasks_pending": 4,
     "max_temp": 32,
-    "rain_probability": 20
+    "rain_probability": 20,
 }
 
-email_data = manager.format_for_email(
-    "daily_report",
-    context,
-    "ar"
-)
+email_data = manager.format_for_email("daily_report", context, "ar")
 
 await email_client.send(
-    to=farmer_email,
-    subject=email_data['subject'],
-    html=email_data['html_body'],
-    text=email_data['text_body']
+    to=farmer_email, subject=email_data["subject"], html=email_data["html_body"], text=email_data["text_body"]
 )
 ```
 
@@ -101,7 +86,7 @@ context = {
     "weather_description": "أمطار غزيرة ورياح قوية",
     "location": "صنعاء",
     "temperature": 18,
-    "humidity": 85
+    "humidity": 85,
 }
 
 # Multi-channel critical alert
@@ -121,7 +106,7 @@ context = {
     "field_name": "الحقل الأول",
     "field_id": "field_123",
     "estimated_yield": 2800,
-    "days_remaining": 5
+    "days_remaining": 5,
 }
 
 # Email with details
@@ -144,7 +129,7 @@ context = {
     "recommendation_text": "تقليل كمية الري بنسبة 20%",
     "expected_impact": "تحسين جودة الثمار بنسبة 15%",
     "benefit": "توفير 1000 لتر ماء أسبوعياً",
-    "confidence": 88
+    "confidence": 88,
 }
 
 push = manager.format_for_push("ai_recommendation", context, "ar")
@@ -185,21 +170,16 @@ await send_push(push)
 ```python
 from src.templates import get_template_manager
 
+
 class NotificationScheduler:
     def __init__(self):
         self.template_manager = get_template_manager()
 
     async def send_irrigation_reminder(self, field):
-        context = {
-            "field_name": field.name,
-            "field_id": field.id,
-            "water_amount": field.calculate_water_needed()
-        }
+        context = {"field_name": field.name, "field_id": field.id, "water_amount": field.calculate_water_needed()}
 
         push_data = self.template_manager.format_for_push(
-            "irrigation_reminder",
-            context,
-            language=field.owner.preferred_language
+            "irrigation_reminder", context, language=field.owner.preferred_language
         )
 
         await self.send_push_notification(field.owner, push_data)
@@ -210,6 +190,7 @@ class NotificationScheduler:
 ```python
 from src.templates import get_template_manager
 
+
 async def handle_disease_detection(self, message):
     template_manager = get_template_manager()
 
@@ -217,7 +198,7 @@ async def handle_disease_detection(self, message):
         "disease_name": message.disease_name_ar,
         "field_name": message.field_name,
         "field_id": message.field_id,
-        "confidence": message.confidence
+        "confidence": message.confidence,
     }
 
     # Multi-channel for critical alerts
@@ -236,17 +217,12 @@ async def handle_disease_detection(self, message):
 ```python
 from src.templates import get_template_manager
 
+
 class ChannelService:
     def __init__(self):
         self.template_manager = get_template_manager()
 
-    async def send_notification(
-        self,
-        user_id: str,
-        template_id: str,
-        context: dict,
-        channels: list[str] = ["push"]
-    ):
+    async def send_notification(self, user_id: str, template_id: str, context: dict, channels: list[str] = ["push"]):
         """Send notification via multiple channels"""
 
         user = await self.get_user(user_id)
@@ -255,28 +231,18 @@ class ChannelService:
         results = []
 
         if "push" in channels and user.device_token:
-            push = self.template_manager.format_for_push(
-                template_id, context, language
-            )
+            push = self.template_manager.format_for_push(template_id, context, language)
             result = await self.firebase_client.send(user.device_token, push)
             results.append(("push", result))
 
         if "sms" in channels and user.phone:
-            sms = self.template_manager.format_for_sms(
-                template_id, context, language
-            )
+            sms = self.template_manager.format_for_sms(template_id, context, language)
             result = await self.sms_client.send(user.phone, sms)
             results.append(("sms", result))
 
         if "email" in channels and user.email:
-            email = self.template_manager.format_for_email(
-                template_id, context, language
-            )
-            result = await self.email_client.send(
-                user.email,
-                email['subject'],
-                email['html_body']
-            )
+            email = self.template_manager.format_for_email(template_id, context, language)
+            result = await self.email_client.send(user.email, email["subject"], email["html_body"])
             results.append(("email", result))
 
         return results
@@ -345,10 +311,7 @@ if not template:
 ```python
 # Template will show {placeholder} if missing
 # Use safe defaults:
-context = {
-    "field_name": field.name or "حقل غير معروف",
-    "value": value or 0
-}
+context = {"field_name": field.name or "حقل غير معروف", "value": value or 0}
 ```
 
 ### SMS too long

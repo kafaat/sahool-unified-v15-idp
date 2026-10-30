@@ -60,8 +60,14 @@ Includes bilingual title/description, `TaskCategory`, `TaskPriority`, field assi
 
 ```python
 from shared.labor_management import (
-    create_worker, create_task, WorkerType, TaskCategory, TaskPriority,
-    SkillCategory, SkillLevel, WorkerSkill,
+    create_worker,
+    create_task,
+    WorkerType,
+    TaskCategory,
+    TaskPriority,
+    SkillCategory,
+    SkillLevel,
+    WorkerSkill,
 )
 
 worker = create_worker(
@@ -74,11 +80,13 @@ worker = create_worker(
     phone="+966501234567",
     worker_type=WorkerType.PERMANENT,
 )
-worker.skills.append(WorkerSkill(
-    category=SkillCategory.PESTICIDE_APPLICATION,
-    level=SkillLevel.EXPERT,
-    years_experience=5,
-))
+worker.skills.append(
+    WorkerSkill(
+        category=SkillCategory.PESTICIDE_APPLICATION,
+        level=SkillLevel.EXPERT,
+        years_experience=5,
+    )
+)
 
 task = create_task(
     tenant_id="farm_001",
@@ -115,7 +123,10 @@ for conflict in result.conflicts:
 
 ```python
 from shared.labor_management import (
-    SafetyComplianceManager, TaskCategory, PPEType, SafetyCertification,
+    SafetyComplianceManager,
+    TaskCategory,
+    PPEType,
+    SafetyCertification,
 )
 from datetime import datetime, timezone
 
@@ -161,8 +172,7 @@ heat = safety.assess_heat_stress(
     wind_speed_kmh=8.0,
 )
 print(f"Risk level : {heat.risk_level}")
-print(f"Work cycle : {heat.max_continuous_work_minutes} min work / "
-      f"{heat.required_break_minutes} min rest")
+print(f"Work cycle : {heat.max_continuous_work_minutes} min work / {heat.required_break_minutes} min rest")
 print(f"Water      : {heat.water_intake_liters_per_hour} L/hr")
 ```
 

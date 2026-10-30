@@ -55,6 +55,7 @@ app.add_middleware(TokenRevocationMiddleware)
 # Include revocation endpoints
 app.include_router(revocation_router)
 
+
 # Your routes...
 @app.get("/protected")
 async def protected():
@@ -98,8 +99,9 @@ from shared.auth import get_current_user, revoke_token, verify_token
 
 router = APIRouter()
 
+
 @router.post("/logout")
-async def logout(request: Request, user = Depends(get_current_user)):
+async def logout(request: Request, user=Depends(get_current_user)):
     # Get token
     token = request.headers["Authorization"].split(" ")[1]
     payload = verify_token(token)
@@ -141,8 +143,9 @@ export class AuthController {
 ```python
 from shared.auth import revoke_all_user_tokens
 
+
 @router.post("/logout-all")
-async def logout_all(user = Depends(get_current_user)):
+async def logout_all(user=Depends(get_current_user)):
     await revoke_all_user_tokens(user_id=user.id, reason="logout_all")
     return {"message": "Logged out from all devices"}
 ```

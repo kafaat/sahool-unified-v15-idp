@@ -689,7 +689,7 @@ async def create_data_model(request: DataModelCreateRequest):
             "tenant_id": request.tenant_id,
             "name": request.name,
             "timestamp": datetime.utcnow().isoformat(),
-        }
+        },
     )
     return response
 ```
@@ -709,6 +709,7 @@ async def create_data_model(request: DataModelCreateRequest):
 ```python
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
+
 
 @app.post("/api/v1/models", response_model=DataModelResponse)
 async def create_data_model(
@@ -802,7 +803,7 @@ assert data["detail"] == "Component not found"
 # But error response has:
 {
     "error": "Resource not found",
-    "detail": "Component not found"  # This should work
+    "detail": "Component not found",  # This should work
 }
 ```
 

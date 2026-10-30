@@ -61,9 +61,7 @@ pip install pydantic
 ```python
 from datetime import date
 from apps.kernel.field_ops.services.irrigation_scheduler import IrrigationScheduler
-from apps.kernel.field_ops.models.irrigation import (
-    CropType, GrowthStage, SoilType, IrrigationType
-)
+from apps.kernel.field_ops.models.irrigation import CropType, GrowthStage, SoilType, IrrigationType
 
 # إنشاء محدد الجدول
 scheduler = IrrigationScheduler()
@@ -76,7 +74,7 @@ water_requirement = scheduler.calculate_water_requirement(
     et0=5.0,  # mm/day
     effective_rainfall=2.0,  # mm/day
     soil_type=SoilType.LOAMY,
-    irrigation_type=IrrigationType.DRIP
+    irrigation_type=IrrigationType.DRIP,
 )
 
 print(f"الاحتياج المائي: {water_requirement:.2f} مم/يوم")
@@ -90,14 +88,14 @@ from apps.kernel.field_ops.models.irrigation import WeatherData
 # بيانات الطقس لصنعاء
 weather = WeatherData(
     date=date.today(),
-    temp_max=28.0,      # درجة مئوية
+    temp_max=28.0,  # درجة مئوية
     temp_min=15.0,
     humidity_mean=45.0,  # %
-    wind_speed=2.5,     # m/s
+    wind_speed=2.5,  # m/s
     solar_radiation=22.0,  # MJ/m²/day
-    rainfall=0.0,       # mm
-    latitude=15.35,     # صنعاء
-    elevation=2250      # متر
+    rainfall=0.0,  # mm
+    latitude=15.35,  # صنعاء
+    elevation=2250,  # متر
 )
 
 # حساب ET0
@@ -113,16 +111,18 @@ from datetime import date, timedelta
 # إنشاء توقعات الطقس لـ 7 أيام
 weather_forecast = []
 for i in range(7):
-    weather_forecast.append(WeatherData(
-        date=date.today() + timedelta(days=i),
-        temp_max=28.0 - i * 0.5,
-        temp_min=15.0 + i * 0.3,
-        humidity_mean=45.0,
-        wind_speed=2.5,
-        rainfall=0.0 if i < 5 else 10.0,  # مطر في اليوم الخامس
-        latitude=15.35,
-        elevation=2250
-    ))
+    weather_forecast.append(
+        WeatherData(
+            date=date.today() + timedelta(days=i),
+            temp_max=28.0 - i * 0.5,
+            temp_min=15.0 + i * 0.3,
+            humidity_mean=45.0,
+            wind_speed=2.5,
+            rainfall=0.0 if i < 5 else 10.0,  # مطر في اليوم الخامس
+            latitude=15.35,
+            elevation=2250,
+        )
+    )
 
 # إنشاء جدول الري
 schedule = scheduler.get_optimal_schedule(
@@ -135,7 +135,7 @@ schedule = scheduler.get_optimal_schedule(
     weather_forecast=weather_forecast,
     field_area_ha=2.5,  # هكتار
     optimize_for_cost=True,  # ري ليلي
-    electricity_night_discount=0.3  # خصم 30%
+    electricity_night_discount=0.3,  # خصم 30%
 )
 
 # عرض الجدول
@@ -165,7 +165,7 @@ soil_props = SoilProperties(
     wilting_point=0.13,
     root_depth=0.5,  # متر
     infiltration_rate=25.0,
-    bulk_density=1.4
+    bulk_density=1.4,
 )
 
 print(f"إجمالي المياه المتاحة: {soil_props.total_available_water:.1f} مم")
@@ -180,7 +180,7 @@ balance = scheduler.calculate_water_balance(
     growth_stage=GrowthStage.MID_SEASON,
     soil_properties=soil_props,
     irrigation_amount=15.0,  # مم
-    previous_balance=None
+    previous_balance=None,
 )
 
 print(f"\nتوازن المياه:")
@@ -200,7 +200,7 @@ recommendation = scheduler.get_irrigation_recommendation(
     soil_properties=soil_props,
     crop_type=CropType.TOMATO,
     growth_stage=GrowthStage.MID_SEASON,
-    weather_forecast=weather_forecast
+    weather_forecast=weather_forecast,
 )
 
 if recommendation.should_irrigate:

@@ -309,8 +309,7 @@ The `StockManager` implements First-In-First-Out batch consumption with transact
 async def consume_stock_fifo(self, item_id: str, quantity: float):
     async with self.db.tx() as transaction:
         batches = await transaction.batchlot.find_many(
-            where={"itemId": item_id, "remainingQty": {"gt": 0}},
-            order={"receivedDate": "asc"}
+            where={"itemId": item_id, "remainingQty": {"gt": 0}}, order={"receivedDate": "asc"}
         )
         # Consume from oldest batches first
 ```
@@ -556,7 +555,7 @@ apscheduler>=3.10.0
 **File:** `/home/user/sahool-unified-v15-idp/apps/services/inventory-service/src/inventory_analytics.py`
 ```python
 # Line 218
-InventoryItem.is_active is True,  # Should be == True
+(InventoryItem.is_active is True,)  # Should be == True
 ```
 
 **Impact:** May cause unexpected query behavior.

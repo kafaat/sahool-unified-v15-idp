@@ -522,9 +522,9 @@ et0_request = {
             "humidity_max_pct": 70,
             "wind_speed_2m_ms": 2.0,
             "solar_radiation_mjm2": 20.0,
-            "rainfall_mm": 0.0
+            "rainfall_mm": 0.0,
         }
-    ]
+    ],
 }
 response = client.post("/api/v1/irrigation/et0", json=et0_request)
 et0_result = response.json()
@@ -538,8 +538,8 @@ cycle_request = {
     "wilting_point": 0.12,
     "root_depth_m": 1.0,
     "depletion_fraction": 0.5,
-    "et0_mm_day": et0_result[0]['et0_mm'],
-    "ec_water": None
+    "et0_mm_day": et0_result[0]["et0_mm"],
+    "ec_water": None,
 }
 response = client.post("/api/v1/irrigation/cycle", json=cycle_request)
 cycle_result = response.json()
@@ -554,7 +554,7 @@ schedule_request = {
     "start_date": "2025-02-01",
     "days": 30,
     "field_area_ha": 5.0,
-    "irrigation_efficiency": 0.85
+    "irrigation_efficiency": 0.85,
 }
 response = client.post("/api/v1/irrigation/schedule", json=schedule_request)
 schedule_result = response.json()

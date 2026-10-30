@@ -418,6 +418,7 @@ from .weather_integration import (
 
 # Registered weather endpoints
 from .weather_endpoints import register_weather_endpoints
+
 register_weather_endpoints(app)
 ```
 
@@ -465,9 +466,7 @@ forecast = await weather_service.get_forecast(lat, lon, days=7)
 et0_mm = sum(day.et0_mm for day in forecast.daily if day.et0_mm)
 
 # Get GDD for phenology tracking
-gdd = await weather_service.get_growing_degree_days(
-    lat, lon, planting_date, datetime.now().date()
-)
+gdd = await weather_service.get_growing_degree_days(lat, lon, planting_date, datetime.now().date())
 ```
 
 ---

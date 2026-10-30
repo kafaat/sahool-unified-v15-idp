@@ -204,6 +204,7 @@ app.add_middleware(
 ```python
 from shared.middleware import get_correlation_id, get_request_context
 
+
 @app.get("/endpoint")
 async def my_endpoint(request: Request):
     correlation_id = get_correlation_id(request)

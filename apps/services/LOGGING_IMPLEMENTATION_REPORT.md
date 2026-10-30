@@ -397,6 +397,7 @@ npm install
 # 1. Add to imports
 import sys
 import os
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 from shared.logging_config import setup_logging, get_logger, RequestLoggingMiddleware
 

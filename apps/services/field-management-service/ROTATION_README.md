@@ -266,16 +266,13 @@ The service supports 15 crop families:
 
 ```python
 {
-  "min_years_between": 3,  # Wait 3 years before repeating
-  "good_predecessors": ["cereals", "root_crops", "brassicas"],
-  "bad_predecessors": ["legumes", "fodder"],
-  "nitrogen_effect": "fix",  # Fixes nitrogen in soil
-  "disease_risk": {
-    "root_rot": 0.4,
-    "fusarium": 0.3
-  },
-  "root_depth": "medium",
-  "nutrient_demand": "light"
+    "min_years_between": 3,  # Wait 3 years before repeating
+    "good_predecessors": ["cereals", "root_crops", "brassicas"],
+    "bad_predecessors": ["legumes", "fodder"],
+    "nitrogen_effect": "fix",  # Fixes nitrogen in soil
+    "disease_risk": {"root_rot": 0.4, "fusarium": 0.3},
+    "root_depth": "medium",
+    "nutrient_demand": "light",
 }
 ```
 
@@ -283,17 +280,13 @@ The service supports 15 crop families:
 
 ```python
 {
-  "min_years_between": 4,  # Wait 4 years before repeating
-  "good_predecessors": ["cereals", "legumes", "fodder"],
-  "bad_predecessors": ["solanaceae", "cucurbits"],
-  "nitrogen_effect": "heavy_deplete",  # Depletes nitrogen heavily
-  "disease_risk": {
-    "bacterial_wilt": 0.5,
-    "nematodes": 0.4,
-    "verticillium": 0.3
-  },
-  "root_depth": "deep",
-  "nutrient_demand": "heavy"
+    "min_years_between": 4,  # Wait 4 years before repeating
+    "good_predecessors": ["cereals", "legumes", "fodder"],
+    "bad_predecessors": ["solanaceae", "cucurbits"],
+    "nitrogen_effect": "heavy_deplete",  # Depletes nitrogen heavily
+    "disease_risk": {"bacterial_wilt": 0.5, "nematodes": 0.4, "verticillium": 0.3},
+    "root_depth": "deep",
+    "nutrient_demand": "heavy",
 }
 ```
 
@@ -382,10 +375,7 @@ field = await field_service.get_field(field_id)
 
 # Create rotation plan
 plan = await rotation_service.create_rotation_plan(
-    field_id=field.id,
-    field_name=field.name,
-    start_year=2025,
-    num_years=5
+    field_id=field.id, field_name=field.name, start_year=2025, num_years=5
 )
 ```
 

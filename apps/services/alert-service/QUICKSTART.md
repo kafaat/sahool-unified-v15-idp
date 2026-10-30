@@ -104,22 +104,13 @@ db = SessionLocal()
 
 # إنشاء تنبيه
 alert = Alert(
-    id=uuid4(),
-    field_id="field_123",
-    type="weather",
-    severity="high",
-    title="تنبيه طقس",
-    message="عاصفة متوقعة"
+    id=uuid4(), field_id="field_123", type="weather", severity="high", title="تنبيه طقس", message="عاصفة متوقعة"
 )
 created = repository.create_alert(db, alert)
 db.commit()
 
 # جلب تنبيهات
-alerts, total = repository.get_alerts_by_field(
-    db,
-    field_id="field_123",
-    status="active"
-)
+alerts, total = repository.get_alerts_by_field(db, field_id="field_123", status="active")
 
 # إغلاق session
 db.close()

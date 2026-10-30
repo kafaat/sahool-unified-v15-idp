@@ -16,11 +16,11 @@ import asyncio
 import logging
 import os
 import re
-
-from openai import AsyncOpenAI
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel, Field
 from datetime import UTC
+
+from fastapi import APIRouter, HTTPException
+from openai import AsyncOpenAI
+from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
 
@@ -579,14 +579,14 @@ import os as _os
 
 # Import schemas at module level so FastAPI can resolve them for body injection
 from ..models.analysis_schemas import (  # noqa: E402
-    ComprehensiveAnalysisRequest,
-    FieldAnalysisResponse,
+    ActionItem,
     AllIndicesPayload,
     AnalysisSections,
-    SectionContent,
-    ActionItem,
+    ComprehensiveAnalysisRequest,
+    FieldAnalysisResponse,
     ImageryPayload,
     MeteoPayload,
+    SectionContent,
     WeatherPayload,
 )
 
@@ -812,7 +812,8 @@ async def analyze_field_comprehensive(
         )
 
     # ── 1. Redis cache ─────────────────────────────────────────────────────────
-    from datetime import datetime, timezone as _tz
+    from datetime import datetime
+    from datetime import timezone as _tz
 
     today_str = datetime.now(UTC).strftime("%Y%m%d")
     cache_key = f"field_ai_v2:{req.field.id}:{today_str}"

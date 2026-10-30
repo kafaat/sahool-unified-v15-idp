@@ -43,7 +43,6 @@ app.add_middleware(
     require_tenant=False,
 )
 
-
 @app.get("/api/v1/fields")
 async def list_fields():
     ctx = get_request_context()
@@ -117,14 +116,11 @@ app.add_middleware(UnifiedContextMiddleware, service_name="my-service", service_
 
 # 2. Config policy at startup
 from shared.stability.config_policy import ConfigPolicyEngine, ConfigPolicy
-
-engine = ConfigPolicyEngine(
-    [
-        ConfigPolicy("DATABASE_URL", required=True, level="CRITICAL"),
-        ConfigPolicy("JWT_SECRET_KEY", required=True, min_length=32, level="CRITICAL"),
-        ConfigPolicy("NATS_URL", required=False, level="WARNING"),
-    ]
-)
+engine = ConfigPolicyEngine([
+    ConfigPolicy("DATABASE_URL", required=True, level="CRITICAL"),
+    ConfigPolicy("JWT_SECRET_KEY", required=True, min_length=32, level="CRITICAL"),
+    ConfigPolicy("NATS_URL", required=False, level="WARNING"),
+])
 report = engine.validate()
 if report.has_critical_violations:
     raise SystemExit(str(report))
@@ -132,16 +128,13 @@ if report.has_critical_violations:
 # 3. Health check
 checker = StabilityHealthCheck(db_pool=pool, nats_client=nc)
 
-
 @app.get("/healthz")
 async def health():
     return await checker.liveness()
 
-
 @app.get("/readyz")
 async def ready():
     return await checker.readiness()
-
 
 # 4. Contract validation (startup or CI)
 validator = ContractValidator()

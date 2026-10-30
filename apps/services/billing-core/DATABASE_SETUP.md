@@ -331,7 +331,6 @@ from src.database import get_db_context
 from src.repository import BillingRepository
 from src.models import SubscriptionStatus
 
-
 async def test_subscription():
     async with get_db_context() as db:
         repo = BillingRepository(db)
@@ -397,10 +396,10 @@ For production, use proper connection pooling:
 
 ```python
 # Configured in src/database.py
-POOL_SIZE = 50  # Adjust based on expected load
-MAX_OVERFLOW = 100  # Maximum connections
-POOL_TIMEOUT = 30  # Wait time for connection
-POOL_RECYCLE = 3600  # Recycle connections every hour
+POOL_SIZE = 50        # Adjust based on expected load
+MAX_OVERFLOW = 100    # Maximum connections
+POOL_TIMEOUT = 30     # Wait time for connection
+POOL_RECYCLE = 3600   # Recycle connections every hour
 ```
 
 ### 4. Monitoring

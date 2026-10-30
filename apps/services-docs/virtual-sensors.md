@@ -649,41 +649,41 @@ According to `governance/services.yaml`:
 ### GrowthStage
 ```python
 class GrowthStage(str, Enum):
-    INITIAL = "initial"  # المرحلة الأولية
-    DEVELOPMENT = "development"  # مرحلة النمو
-    MID_SEASON = "mid_season"  # منتصف الموسم
-    LATE_SEASON = "late_season"  # نهاية الموسم
+    INITIAL = "initial"        # المرحلة الأولية
+    DEVELOPMENT = "development" # مرحلة النمو
+    MID_SEASON = "mid_season"   # منتصف الموسم
+    LATE_SEASON = "late_season" # نهاية الموسم
 ```
 
 ### SoilType
 ```python
 class SoilType(str, Enum):
-    SANDY = "sandy"  # رملي
+    SANDY = "sandy"            # رملي
     SANDY_LOAM = "sandy_loam"  # رملي طميي
-    LOAM = "loam"  # طميي
-    CLAY_LOAM = "clay_loam"  # طيني طميي
-    CLAY = "clay"  # طيني
+    LOAM = "loam"              # طميي
+    CLAY_LOAM = "clay_loam"    # طيني طميي
+    CLAY = "clay"              # طيني
     SILTY_CLAY = "silty_clay"  # طيني غريني
 ```
 
 ### IrrigationMethod
 ```python
 class IrrigationMethod(str, Enum):
-    DRIP = "drip"  # تنقيط
-    SPRINKLER = "sprinkler"  # رش
-    SURFACE = "surface"  # سطحي
-    FLOOD = "flood"  # غمر
-    FURROW = "furrow"  # أخاديد
+    DRIP = "drip"           # تنقيط
+    SPRINKLER = "sprinkler" # رش
+    SURFACE = "surface"     # سطحي
+    FLOOD = "flood"         # غمر
+    FURROW = "furrow"       # أخاديد
 ```
 
 ### UrgencyLevel
 ```python
 class UrgencyLevel(str, Enum):
-    NONE = "none"  # لا حاجة
-    LOW = "low"  # منخفض
-    MEDIUM = "medium"  # متوسط
-    HIGH = "high"  # عالي
-    CRITICAL = "critical"  # حرج
+    NONE = "none"         # لا حاجة
+    LOW = "low"           # منخفض
+    MEDIUM = "medium"     # متوسط
+    HIGH = "high"         # عالي
+    CRITICAL = "critical" # حرج
 ```
 
 ---

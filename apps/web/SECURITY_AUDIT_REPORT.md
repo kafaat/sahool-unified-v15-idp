@@ -167,9 +167,9 @@ Proper security headers configured:
 response.set_cookie(
     key="access_token",
     value=token,
-    httponly=True,  # Prevents JavaScript access
-    secure=True,  # HTTPS only
-    samesite="strict",  # CSRF protection
+    httponly=True,    # Prevents JavaScript access
+    secure=True,      # HTTPS only
+    samesite="strict" # CSRF protection
 )
 ```
 

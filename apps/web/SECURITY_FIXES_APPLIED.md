@@ -158,10 +158,10 @@ The backend API should be updated to set authentication cookies with `httpOnly` 
 response.set_cookie(
     key="access_token",
     value=token,
-    httponly=True,  # ⚠️ REQUIRED - Prevents JS access
+    httponly=True,    # ⚠️ REQUIRED - Prevents JS access
     secure=True,
     samesite="strict",
-    max_age=604800,  # 7 days
+    max_age=604800    # 7 days
 )
 ```
 

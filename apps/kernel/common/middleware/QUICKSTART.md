@@ -33,12 +33,10 @@ app = FastAPI(title="My SAHOOL Service")
 # Setup rate limiting (one line!)
 limiter = setup_rate_limiting(app)
 
-
 # Your endpoints
 @app.get("/api/data")
 async def get_data():
     return {"data": "some data"}
-
 
 @app.get("/healthz")
 async def health():
@@ -77,13 +75,11 @@ Use the `@rate_limit` decorator for custom endpoint limits:
 ```python
 from apps.kernel.common.middleware import rate_limit
 
-
 @app.post("/api/heavy-task")
 @rate_limit(requests=5, period=60, strategy="token_bucket", burst=2)
 async def heavy_task(request: Request):
     # Only 5 requests/minute with 2 burst
     return {"status": "processing"}
-
 
 @app.get("/api/quick-query")
 @rate_limit(requests=100, period=60, strategy="fixed_window")
@@ -143,7 +139,6 @@ curl http://localhost:8000/api/data
 ```python
 from apps.kernel.common.middleware import get_rate_limit_stats, ClientIdentifier
 
-
 @app.get("/api/my-stats")
 async def my_stats(request: Request):
     client_id = ClientIdentifier.get_client_id(request)
@@ -168,13 +163,19 @@ async def reset_limits(client_id: str):
 from apps.kernel.common.middleware import ENDPOINT_CONFIGS, EndpointConfig
 
 # Heavy processing
-ENDPOINT_CONFIGS["/api/v1/analyze"] = EndpointConfig(requests=10, period=60, strategy="token_bucket", burst=2)
+ENDPOINT_CONFIGS["/api/v1/analyze"] = EndpointConfig(
+    requests=10, period=60, strategy="token_bucket", burst=2
+)
 
 # Standard queries
-ENDPOINT_CONFIGS["/api/v1/data"] = EndpointConfig(requests=60, period=60, strategy="sliding_window")
+ENDPOINT_CONFIGS["/api/v1/data"] = EndpointConfig(
+    requests=60, period=60, strategy="sliding_window"
+)
 
 # High-frequency sensor data
-ENDPOINT_CONFIGS["/api/v1/sensors"] = EndpointConfig(requests=100, period=60, strategy="fixed_window")
+ENDPOINT_CONFIGS["/api/v1/sensors"] = EndpointConfig(
+    requests=100, period=60, strategy="fixed_window"
+)
 ```
 
 ### Pattern 2: Organization-Based Rate Limiting
@@ -186,12 +187,13 @@ def org_based_identifier(request: Request) -> str:
         return f"org:{org_id}"
 
     from apps.kernel.common.middleware import ClientIdentifier
-
     return ClientIdentifier.get_client_id(request)
 
-
 # Setup with custom identifier
-limiter = setup_rate_limiting(app, identifier_func=org_based_identifier)
+limiter = setup_rate_limiting(
+    app,
+    identifier_func=org_based_identifier
+)
 ```
 
 ### Pattern 3: Manual Rate Limit Checks
@@ -205,16 +207,19 @@ async def conditional_endpoint(request: Request, action: str):
     if action == "expensive":
         allowed, remaining, reset = await limiter.check_rate_limit(
             client_id=client_id,
-            endpoint="/api/v1/analyze",  # Uses analyze limits
+            endpoint="/api/v1/analyze"  # Uses analyze limits
         )
     else:
         allowed, remaining, reset = await limiter.check_rate_limit(
             client_id=client_id,
-            endpoint="/api/v1/data",  # Uses data limits
+            endpoint="/api/v1/data"  # Uses data limits
         )
 
     if not allowed:
-        raise HTTPException(status_code=429, detail=f"Rate limit exceeded. Retry after {reset} seconds")
+        raise HTTPException(
+            status_code=429,
+            detail=f"Rate limit exceeded. Retry after {reset} seconds"
+        )
 
     return {"action": action, "remaining": remaining}
 ```
@@ -233,7 +238,6 @@ REDIS_URL=redis://localhost:6379/0
 ```python
 # Check Redis connection
 import redis.asyncio as redis
-
 client = redis.from_url("redis://localhost:6379/0")
 await client.ping()  # Should return True
 ```
@@ -244,7 +248,7 @@ await client.ping()  # Should return True
 # Check your limits are reasonable
 ENDPOINT_CONFIGS["/api/endpoint"] = EndpointConfig(
     requests=60,  # Not 6!
-    period=60,
+    period=60
 )
 ```
 
@@ -289,20 +293,30 @@ from apps.kernel.common.middleware import (
 )
 
 # Create app
-app = FastAPI(title="SAHOOL Agricultural Platform", version="1.0.0")
+app = FastAPI(
+    title="SAHOOL Agricultural Platform",
+    version="1.0.0"
+)
 
 # Configure endpoint-specific limits
-ENDPOINT_CONFIGS["/api/v1/satellite-analysis"] = EndpointConfig(requests=3, period=60, strategy="sliding_window")
+ENDPOINT_CONFIGS["/api/v1/satellite-analysis"] = EndpointConfig(
+    requests=3, period=60, strategy="sliding_window"
+)
 
-ENDPOINT_CONFIGS["/api/v1/weather"] = EndpointConfig(requests=60, period=60, strategy="sliding_window")
+ENDPOINT_CONFIGS["/api/v1/weather"] = EndpointConfig(
+    requests=60, period=60, strategy="sliding_window"
+)
 
-ENDPOINT_CONFIGS["/api/v1/sensors"] = EndpointConfig(requests=100, period=60, strategy="fixed_window")
+ENDPOINT_CONFIGS["/api/v1/sensors"] = EndpointConfig(
+    requests=100, period=60, strategy="fixed_window"
+)
 
 # Setup rate limiting
 limiter = setup_rate_limiting(
-    app, redis_url="redis://redis:6379/0", exclude_paths=["/healthz", "/readyz", "/metrics", "/docs"]
+    app,
+    redis_url="redis://redis:6379/0",
+    exclude_paths=["/healthz", "/readyz", "/metrics", "/docs"]
 )
-
 
 # Endpoints
 @app.get("/api/v1/weather")
@@ -310,18 +324,15 @@ async def get_weather(location: str):
     """60 requests/min - configured in ENDPOINT_CONFIGS"""
     return {"temperature": 25, "location": location}
 
-
 @app.get("/api/v1/sensors")
 async def get_sensors():
     """100 requests/min - configured in ENDPOINT_CONFIGS"""
     return {"sensors": []}
 
-
 @app.post("/api/v1/satellite-analysis")
 async def analyze_satellite(field_id: str):
     """3 requests/min - configured in ENDPOINT_CONFIGS"""
     return {"status": "analyzing", "field_id": field_id}
-
 
 @app.post("/api/v1/custom-heavy")
 @rate_limit(requests=5, period=60, strategy="token_bucket", burst=2)
@@ -329,12 +340,10 @@ async def custom_heavy(request: Request):
     """5 requests/min with 2 burst - uses decorator"""
     return {"status": "processing"}
 
-
 @app.get("/healthz")
 async def health():
     """Unlimited - excluded from rate limiting"""
     return {"status": "healthy"}
-
 
 # Run: uvicorn production_app:app --host 0.0.0.0 --port 8000
 ```

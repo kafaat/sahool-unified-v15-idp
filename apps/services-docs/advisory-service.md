@@ -828,7 +828,6 @@ SAHOOL Advisory Service - Main API Service
 Disease diagnosis, nutrient assessment, and fertilizer planning
 Port: 8093
 """
-
 # ...
 port = int(os.getenv("PORT", 8093))  # Change default to 8093
 ```
@@ -846,7 +845,6 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-
 @app.get("/healthz")
 def health():
     return {"status": "ok", "service": "advisory_service", "version": VERSION}
@@ -856,7 +854,6 @@ def health():
 ```python
 # In test files:
 from src.main import app  # Use relative import
-
 # Or
 from advisory_service.src.main import app  # Use package name
 ```

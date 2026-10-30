@@ -1272,7 +1272,9 @@ jaeger_exporter = JaegerExporter(
     agent_port=6831,
 )
 trace.set_tracer_provider(TracerProvider())
-trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(jaeger_exporter))
+trace.get_tracer_provider().add_span_processor(
+    BatchSpanProcessor(jaeger_exporter)
+)
 ```
 
 ---

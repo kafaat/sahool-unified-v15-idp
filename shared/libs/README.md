@@ -26,8 +26,8 @@ entry = write_audit_log(
     db=session,
     tenant_id=tenant_id,
     actor_id=user_id,
-    actor_type="user",  # "user" | "service" | "system"
-    action="field.create",  # dot-separated domain.action
+    actor_type="user",           # "user" | "service" | "system"
+    action="field.create",       # dot-separated domain.action
     resource_type="field",
     resource_id=str(field.id),
     correlation_id=correlation_id,
@@ -86,17 +86,14 @@ event = OutboxEvent(
     payload_json=json.dumps(envelope.to_json_dict()),
 )
 session.add(event)
-session.commit()  # Atomic with business data change
-
+session.commit()   # Atomic with business data change
 
 # Background worker: publish pending events to NATS/Kafka
 class NATSBusClient(EventBusClient):
     def publish(self, topic: str, message: str) -> None:
         nc.publish(topic, message.encode())
-
     def close(self) -> None:
         nc.close()
-
 
 published = publish_pending(db=session, bus=NATSBusClient(), batch_size=100)
 ```
@@ -134,7 +131,6 @@ await publisher.publish(envelope)
 
 # Convenience helper
 from shared.libs.events import publish_analysis_completed
-
 await publish_analysis_completed(field_id="...", tenant_id="...", ndvi=0.72)
 ```
 
@@ -150,12 +146,8 @@ pattern-based invalidation, and a `@cached` decorator.
 
 ```python
 from shared.libs.caching import (
-    CacheConfig,
-    CacheManager,
-    get_cache_manager,
-    cached,
-    invalidate_field_cache,
-    invalidate_tenant_cache,
+    CacheConfig, CacheManager, get_cache_manager, cached,
+    invalidate_field_cache, invalidate_tenant_cache,
 )
 
 # Global manager (auto-configured from ENV)
@@ -165,12 +157,10 @@ value = await cache.get("field:abc")
 await cache.delete("field:abc")
 await cache.invalidate_pattern("field:abc:*")
 
-
 # Decorator - auto-generates key from function name + args hash
 @cached(key_func=lambda field_id: f"field:{field_id}", ttl=600)
 async def get_field(field_id: str) -> dict:
     return await db.fetch_field(field_id)
-
 
 # Domain helpers
 await invalidate_field_cache("field-uuid")
@@ -189,18 +179,13 @@ backoff retries, FastAPI lifespan integration, and pool status reporting.
 
 ```python
 from shared.libs.database import (
-    DatabaseConfig,
-    DatabaseManager,
-    init_db,
-    close_db,
-    get_db_session,
-    database_lifespan,
+    DatabaseConfig, DatabaseManager, init_db, close_db,
+    get_db_session, database_lifespan,
 )
 
 # FastAPI app with managed DB lifecycle
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-
 
 @asynccontextmanager
 async def lifespan(app):
@@ -208,16 +193,13 @@ async def lifespan(app):
     yield
     await close_db()
 
-
 app = FastAPI(lifespan=lifespan)
-
 
 # FastAPI dependency injection
 @app.get("/fields")
 async def list_fields(session: AsyncSession = Depends(get_db_session)):
     result = await session.execute(select(Field))
     return result.scalars().all()
-
 
 # Pool status
 manager = get_db_manager()
@@ -233,12 +215,8 @@ Two pagination strategies with streaming support for large result sets.
 
 ```python
 from shared.libs.pagination import (
-    OffsetPage,
-    Page,
-    PaginationHelper,
-    Cursor,
-    create_pagination_params,
-    StreamingResponse,
+    OffsetPage, Page, PaginationHelper, Cursor,
+    create_pagination_params, StreamingResponse,
 )
 
 # Offset-based (for admin/reporting queries)
@@ -255,19 +233,16 @@ response = page.to_dict()  # includes pagination.has_next, has_previous
 cursor = Cursor.encode("2025-01-20T10:00:00Z")  # base64-encoded
 decoded = Cursor.decode(cursor)
 
-
 # FastAPI dependency
 @app.get("/events")
 async def list_events(params=Depends(create_pagination_params)):
     offset = PaginationHelper.calculate_offset(params["page"], params["page_size"])
     ...
 
-
 # Streaming NDJSON for very large exports
 async def generate():
     async for item in db.stream_all_records():
         yield item
-
 
 return StreamingResponse.stream_ndjson(generate())
 ```
@@ -303,13 +278,11 @@ api_key = client.get_secret_or_env(
 )
 
 # mTLS context for service-to-service calls
-ssl_ctx = build_mtls_ssl_context(
-    TlsConfig(
-        ca_cert="/certs/ca.pem",
-        client_cert="/certs/service.crt",
-        client_key="/certs/service.key",
-    )
-)
+ssl_ctx = build_mtls_ssl_context(TlsConfig(
+    ca_cert="/certs/ca.pem",
+    client_cert="/certs/service.crt",
+    client_key="/certs/service.key",
+))
 ```
 
 For testing use `MockVaultClient(secrets={"secret/database/postgres": {...}})`.

@@ -87,6 +87,7 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -94,28 +95,33 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install Ruff
-        run: pip install ruff
+        run: pip install ruff==0.15.11
 
       - name: Run Ruff auto-fix
         id: fix
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
           set +e
 
           # Capture current state
           BEFORE=$(git diff --stat)
 
-          # Fix linting issues (safe fixes only)
-          ruff check --fix --select E,F,I,UP,W,C4 \
-            --exclude archive/ \
-            --exclude .git \
-            --exclude .venv \
-            --exclude __pycache__ \
-            apps/ shared/ tools/ 2>/dev/null || true
-
-          # Fix formatting
-          ruff format \
-            --exclude archive/ \
-            apps/ shared/ tools/ 2>/dev/null || true
+          # Only format Python files changed by this PR; never sweep the repository.
+          changed_file=$(mktemp)
+          trap 'rm -f "$changed_file"' EXIT
+          git diff --name-only -z --diff-filter=ACMR "$BASE_SHA" HEAD -- '*.py' > "$changed_file" || exit 1
+          targets=()
+          while IFS= read -r -d '' path; do
+            case "$path" in
+              apps/*.py|shared/*.py|tools/*.py)
+                if [ -f "$path" ]; then targets+=("$path"); fi ;;
+            esac
+          done < "$changed_file"
+          if [ "${#targets[@]}" -gt 0 ]; then
+            ruff check --fix --select E,F,I,UP,W,C4 -- "${targets[@]}" || true
+            ruff format -- "${targets[@]}" || true
+          fi
 
           # Check if anything changed
           AFTER=$(git diff --stat)

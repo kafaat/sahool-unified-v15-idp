@@ -35,17 +35,19 @@ async def lifespan(app: FastAPI):
     # Database connection pool
     db_url = os.getenv("DATABASE_URL")
     if db_url:
-        app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
+        app.state.db_pool = await asyncpg.create_pool(
+            db_url, min_size=2, max_size=10
+        )
         app.state.db_connected = True
-
+    
     # NATS connection
     nats_url = os.getenv("NATS_URL")
     if nats_url:
         app.state.nc = await nats.connect(nats_url)
         app.state.nats_connected = True
-
+    
     yield
-
+    
     # Cleanup
     if hasattr(app.state, "db_pool"):
         await app.state.db_pool.close()
@@ -93,7 +95,6 @@ app.add_middleware(
 
 # Error handling
 from shared.errors_py import setup_exception_handlers, add_request_id_middleware
-
 setup_exception_handlers(app)
 add_request_id_middleware(app)
 ```
@@ -103,7 +104,6 @@ add_request_id_middleware(app)
 **Added:**
 ```python
 import structlog
-
 logger = structlog.get_logger()
 
 logger.info("Starting service...", version="16.0.0")
@@ -143,12 +143,10 @@ from pydantic import BaseModel
 
 router = APIRouter(prefix="/api/v1/drones", tags=["drones"])
 
-
 @router.get("/", response_model=List[DroneResponse])
 async def list_drones():
     """List all registered drones"""
     return []  # TODO: Implement database query
-
 
 @router.post("/", response_model=DroneResponse, status_code=201)
 async def register_drone(drone: DroneCreate):
@@ -187,13 +185,11 @@ HEALTHCHECK CMD curl -f http://localhost:3020/healthz || exit 1
 ```python
 # Before
 from src.api.endpoints import analysis, detection
-
 app.include_router(detection.router)
 app.include_router(analysis.router)
 
 # After
 from src.api.endpoints import analysis, batch, detection, models
-
 app.include_router(detection.router)
 app.include_router(analysis.router)
 app.include_router(batch.router)  # Added

@@ -237,7 +237,7 @@ Rs = (as + bs * (n/N)) * Ra
 # - الميل الشمسي (solar declination)
 # - المسافة الأرض-الشمس (Earth-Sun distance)
 
-Ra = (24 * 60 / π) * Gsc * dr * [ωs * sin(φ) * sin(δ) + cos(φ) * cos(δ) * sin(ωs)]
+Ra = (24*60/π) * Gsc * dr * [ωs * sin(φ) * sin(δ) + cos(φ) * cos(δ) * sin(ωs)]
 ```
 
 ### 3. ضغط البخار - Vapour Pressure
@@ -277,7 +277,7 @@ ea = es * (RH / 100)
 cost_per_m3 = 0.5  # ريال/م³
 
 if night_irrigation:
-    cost_per_m3 *= 1 - 0.30  # خصم 30%
+    cost_per_m3 *= (1 - 0.30)  # خصم 30%
 
 total_cost = water_volume_m3 * cost_per_m3
 ```

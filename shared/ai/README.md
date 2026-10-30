@@ -185,13 +185,11 @@ result = await adapter.embed("wheat irrigation schedule")
 print(f"Dimension: {result.dimension}, Latency: {result.latency_ms}ms")
 
 # Batch embedding
-results = await adapter.embed_batch(
-    [
-        "Wheat irrigation schedule",
-        "جدول ري القمح",
-        "Nitrogen fertilizer application",
-    ]
-)
+results = await adapter.embed_batch([
+    "Wheat irrigation schedule",
+    "جدول ري القمح",
+    "Nitrogen fertilizer application",
+])
 
 # Semantic similarity
 score = await adapter.similarity("wheat disease", "أمراض القمح")
@@ -199,7 +197,6 @@ print(f"Cross-lingual similarity: {score:.2f}")
 
 # Arabic-optimized provider (AraBERT family)
 from shared.ai import get_huggingface_provider, get_best_arabic_model
-
 provider = get_huggingface_provider()
 model = get_best_arabic_model()  # Returns best available Arabic model
 ```
@@ -212,26 +209,21 @@ Persistent vector database for RAG and semantic search, with SQLite and in-memor
 ```python
 from shared.ai import get_vector_store, VectorDocument, VectorStoreConfig, VectorStoreBackend
 
-store = get_vector_store(
-    VectorStoreConfig(
-        backend=VectorStoreBackend.SQLITE,
-        storage_path="/data/vectors/sahool.db",
-        dimension=384,  # all-MiniLM-L6-v2
-    )
-)
+store = get_vector_store(VectorStoreConfig(
+    backend=VectorStoreBackend.SQLITE,
+    storage_path="/data/vectors/sahool.db",
+    dimension=384,  # all-MiniLM-L6-v2
+))
 
 # Add documents
-await store.add_documents(
-    "advisory_kb",
-    [
-        VectorDocument(
-            id="doc-001",
-            content="Wheat requires 25 ppm nitrogen at tillering stage",
-            embedding=[...],
-            metadata={"crop": "wheat", "stage": "tillering"},
-        )
-    ],
-)
+await store.add_documents("advisory_kb", [
+    VectorDocument(
+        id="doc-001",
+        content="Wheat requires 25 ppm nitrogen at tillering stage",
+        embedding=[...],
+        metadata={"crop": "wheat", "stage": "tillering"},
+    )
+])
 
 # Semantic search
 results = await store.search("advisory_kb", query_embedding=[...], top_k=5)
@@ -322,15 +314,10 @@ print(f"Ratio: {result.compression_ratio:.1%} | {result.compressed_text}")
 
 # Persistent farm memory
 memory = FarmMemory(farm_id="FARM-001")
-await memory.store_event(
-    "treatment",
-    {
-        "field_id": "FIELD-003",
-        "crop": "wheat",
-        "product": "Urea 46%",
-        "rate_kg_ha": 46,
-    },
-)
+await memory.store_event("treatment", {
+    "field_id": "FIELD-003", "crop": "wheat",
+    "product": "Urea 46%", "rate_kg_ha": 46,
+})
 history = await memory.query_similar(crop="wheat", issue="nitrogen_deficiency")
 
 # LLM-as-Judge evaluation of AI advisories
@@ -350,27 +337,20 @@ Multi-agent swarm coordination, Q-Learning routing, and distributed consensus.
 
 ```python
 from shared.ai import (
-    AgentRouter,
-    AgentProfile,
-    AgentCapability,
-    SwarmCoordinator,
-    SwarmConfig,
-    SwarmTopology,
-    ConsensusManager,
-    MajorityVoting,
+    AgentRouter, AgentProfile, AgentCapability,
+    SwarmCoordinator, SwarmConfig, SwarmTopology,
+    ConsensusManager, MajorityVoting,
     CollectiveMemory,
 )
 
 # Register agents with capability profiles
 router = AgentRouter()
-router.register_agent(
-    AgentProfile(
-        agent_id="crop_advisor",
-        name="Crop Advisor",
-        name_ar="مستشار المحاصيل",
-        capabilities=[AgentCapability.CROP_ANALYSIS, AgentCapability.DISEASE_DETECTION],
-    )
-)
+router.register_agent(AgentProfile(
+    agent_id="crop_advisor",
+    name="Crop Advisor",
+    name_ar="مستشار المحاصيل",
+    capabilities=[AgentCapability.CROP_ANALYSIS, AgentCapability.DISEASE_DETECTION],
+))
 
 # Route a task to the best agent (Q-Learning adaptive routing)
 decision = await router.route(task)
@@ -398,14 +378,12 @@ from shared.ai.ultrarag import RAGPipeline, RAGRequest, RetrievalStrategy
 
 pipeline = RAGPipeline.from_config("config/rag-pipeline.yaml")
 
-result = await pipeline.run(
-    RAGRequest(
-        query="ما هي أعراض صدأ القمح؟",  # Arabic: wheat rust symptoms
-        strategy=RetrievalStrategy.ADAPTIVE,  # DENSE | SPARSE | HYBRID | ADAPTIVE | TRI_RAG
-        top_k=5,
-        rerank=True,
-    )
-)
+result = await pipeline.run(RAGRequest(
+    query="ما هي أعراض صدأ القمح؟",  # Arabic: wheat rust symptoms
+    strategy=RetrievalStrategy.ADAPTIVE,   # DENSE | SPARSE | HYBRID | ADAPTIVE | TRI_RAG
+    top_k=5,
+    rerank=True,
+))
 print(result.generated_answer)
 print(result.retrieved_chunks)  # Source attribution included
 ```
@@ -424,7 +402,7 @@ from shared.ai import get_registry, get_integrator, TaskType, discover_models
 registry = get_registry()
 
 # Browse models
-models = list_featured_models()  # Flagship models
+models = list_featured_models()         # Flagship models
 arabic_models = list_arabic_supported_models()  # Arabic-capable models
 oss_models = list_open_source_models()  # Open-source only
 
@@ -465,13 +443,11 @@ for issue in result.issues:
 # Layer 2: Tool call guardrails
 from shared.ai.guardrails import guard_tool_call, ToolCallContext
 
-decision = guard_tool_call(
-    ToolCallContext(
-        tool_name="execute_sql",
-        arguments={"query": "DROP TABLE users"},
-        agent_id="farm_advisor",
-    )
-)
+decision = guard_tool_call(ToolCallContext(
+    tool_name="execute_sql",
+    arguments={"query": "DROP TABLE users"},
+    agent_id="farm_advisor",
+))
 # decision.allowed == False  (DROP is in DANGEROUS_COMMANDS)
 
 # Layer 3: Circuit breaker for external services
@@ -494,13 +470,10 @@ memory = get_graph_memory()  # In-memory
 memory = get_persistent_graph_memory("/data/farm_graph.db")
 
 # Add entities via ECL pipeline
-await cognify(
-    memory,
-    [
-        {"type": EntityType.FIELD, "id": "FIELD-003", "area_ha": 8.5, "crop": "wheat"},
-        {"type": EntityType.TREATMENT, "product": "Urea 46%", "rate": 46, "date": "2026-01-14"},
-    ],
-)
+await cognify(memory, [
+    {"type": EntityType.FIELD, "id": "FIELD-003", "area_ha": 8.5, "crop": "wheat"},
+    {"type": EntityType.TREATMENT, "product": "Urea 46%", "rate": 46, "date": "2026-01-14"},
+])
 
 # Semantic + relationship search
 results = await graph_search(memory, "nitrogen deficiency treatment wheat")
@@ -543,10 +516,10 @@ Some components require optional dependencies. Check flags before use:
 
 ```python
 from shared.ai import (
-    LLM_MANAGER_AVAILABLE,  # requires: httpx
-    OLLAMA_AVAILABLE,  # requires: httpx
-    TRAINING_AVAILABLE,  # requires: httpx
-    CODE_LLM_AVAILABLE,  # requires: httpx + llm_provider
+    LLM_MANAGER_AVAILABLE,    # requires: httpx
+    OLLAMA_AVAILABLE,         # requires: httpx
+    TRAINING_AVAILABLE,       # requires: httpx
+    CODE_LLM_AVAILABLE,       # requires: httpx + llm_provider
     ORCHESTRATION_AVAILABLE,  # requires: orchestration subpackage
     MODELS_REGISTRY_AVAILABLE,
     TOOL_REGISTRY_AVAILABLE,

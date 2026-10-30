@@ -204,7 +204,7 @@ retriever = KnowledgeRetriever(embeddings)
 
 documents = [
     "Wheat requires 450-650mm of water during growing season...",
-    "Tomato early blight is caused by Alternaria solani...",
+    "Tomato early blight is caused by Alternaria solani..."
 ]
 
 retriever.add_documents(documents)

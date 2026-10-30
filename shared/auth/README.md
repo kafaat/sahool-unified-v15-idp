@@ -81,7 +81,6 @@ from shared.auth import get_current_user, User
 
 app = FastAPI()
 
-
 @app.get("/profile")
 async def get_profile(user: User = Depends(get_current_user)):
     return {"user_id": user.id, "roles": user.roles}
@@ -92,15 +91,18 @@ async def get_profile(user: User = Depends(get_current_user)):
 ```python
 from shared.auth import require_roles, User
 
-
 @app.post("/admin/settings")
-async def update_settings(settings: dict, user: User = Depends(require_roles("admin"))):
+async def update_settings(
+    settings: dict,
+    user: User = Depends(require_roles("admin"))
+):
     return {"message": "Settings updated"}
-
 
 # Multiple roles (user needs at least one)
 @app.get("/reports")
-async def get_reports(user: User = Depends(require_roles("admin", "manager"))):
+async def get_reports(
+    user: User = Depends(require_roles("admin", "manager"))
+):
     return {"reports": [...]}
 ```
 
@@ -109,9 +111,11 @@ async def get_reports(user: User = Depends(require_roles("admin", "manager"))):
 ```python
 from shared.auth import require_permissions, User
 
-
 @app.delete("/farms/{farm_id}")
-async def delete_farm(farm_id: str, user: User = Depends(require_permissions("farm:delete"))):
+async def delete_farm(
+    farm_id: str,
+    user: User = Depends(require_permissions("farm:delete"))
+):
     return {"message": "Farm deleted"}
 ```
 
@@ -120,9 +124,11 @@ async def delete_farm(farm_id: str, user: User = Depends(require_permissions("fa
 ```python
 from shared.auth import require_farm_access, User
 
-
 @app.get("/farms/{farm_id}/fields")
-async def get_farm_fields(farm_id: str, user: User = Depends(require_farm_access())):
+async def get_farm_fields(
+    farm_id: str,
+    user: User = Depends(require_farm_access())
+):
     # User has access to this farm
     return {"fields": [...]}
 ```
@@ -132,7 +138,6 @@ async def get_farm_fields(farm_id: str, user: User = Depends(require_farm_access
 ```python
 from shared.auth import create_token_pair
 
-
 # Login endpoint
 @app.post("/auth/login")
 async def login(credentials: LoginDto):
@@ -141,7 +146,10 @@ async def login(credentials: LoginDto):
 
     # Create tokens
     tokens = create_token_pair(
-        user_id=user.id, roles=user.roles, tenant_id=user.tenant_id, permissions=["farm:read", "farm:write"]
+        user_id=user.id,
+        roles=user.roles,
+        tenant_id=user.tenant_id,
+        permissions=["farm:read", "farm:write"]
     )
 
     return tokens
@@ -159,7 +167,6 @@ async def login(credentials: LoginDto):
 ```python
 from shared.auth import refresh_access_token, verify_token
 
-
 @app.post("/auth/refresh")
 async def refresh(refresh_token: str):
     # Verify refresh token
@@ -169,7 +176,11 @@ async def refresh(refresh_token: str):
     user = get_user_by_id(payload.user_id)
 
     # Create new access token
-    new_token = refresh_access_token(refresh_token=refresh_token, roles=user.roles, permissions=user.permissions)
+    new_token = refresh_access_token(
+        refresh_token=refresh_token,
+        roles=user.roles,
+        permissions=user.permissions
+    )
 
     return {"access_token": new_token}
 ```
@@ -186,11 +197,15 @@ app = FastAPI()
 app.add_middleware(
     JWTAuthMiddleware,
     exclude_paths=["/health", "/docs", "/auth/login"],
-    require_auth=False,  # Set to True to require auth on all routes
+    require_auth=False  # Set to True to require auth on all routes
 )
 
 # Add rate limiting
-app.add_middleware(RateLimitMiddleware, requests_per_minute=60, exclude_paths=["/health"])
+app.add_middleware(
+    RateLimitMiddleware,
+    requests_per_minute=60,
+    exclude_paths=["/health"]
+)
 ```
 
 ### 8. Optional Authentication
@@ -198,7 +213,6 @@ app.add_middleware(RateLimitMiddleware, requests_per_minute=60, exclude_paths=["
 ```python
 from typing import Optional
 from shared.auth import get_optional_user, User
-
 
 @app.get("/content")
 async def get_content(user: Optional[User] = Depends(get_optional_user)):
@@ -212,9 +226,10 @@ async def get_content(user: Optional[User] = Depends(get_optional_user)):
 ```python
 from shared.auth import rate_limit_dependency, User
 
-
 @app.post("/api/heavy-operation")
-async def heavy_operation(user: User = Depends(rate_limit_dependency)):
+async def heavy_operation(
+    user: User = Depends(rate_limit_dependency)
+):
     return {"message": "Operation completed"}
 ```
 
@@ -562,14 +577,19 @@ The following permissions are available:
 import pytest
 from shared.auth import create_access_token, verify_token
 
-
 def test_token_creation():
-    token = create_access_token(user_id="user123", roles=["farmer"], permissions=["farm:read"])
+    token = create_access_token(
+        user_id="user123",
+        roles=["farmer"],
+        permissions=["farm:read"]
+    )
     assert token is not None
 
-
 def test_token_verification():
-    token = create_access_token(user_id="user123", roles=["farmer"])
+    token = create_access_token(
+        user_id="user123",
+        roles=["farmer"]
+    )
     payload = verify_token(token)
     assert payload.user_id == "user123"
     assert "farmer" in payload.roles

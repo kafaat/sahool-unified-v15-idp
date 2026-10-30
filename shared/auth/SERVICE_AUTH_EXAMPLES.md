@@ -22,14 +22,19 @@ from shared.auth import create_service_token
 token = create_service_token(
     service_name="farm-service",
     target_service="field-service",
-    ttl=300,  # 5 minutes
+    ttl=300  # 5 minutes
 )
 
 # Use the token in HTTP requests
 import httpx
 
 async with httpx.AsyncClient() as client:
-    response = await client.get("http://field-service/api/fields", headers={"X-Service-Token": token})
+    response = await client.get(
+        "http://field-service/api/fields",
+        headers={
+            "X-Service-Token": token
+        }
+    )
 ```
 
 ### 2. Using ServiceToken Class
@@ -39,7 +44,10 @@ from shared.auth import ServiceToken
 
 # Create a token
 token = ServiceToken.create(
-    service_name="farm-service", target_service="field-service", ttl=600, extra_claims={"request_id": "req-123"}
+    service_name="farm-service",
+    target_service="field-service",
+    ttl=600,
+    extra_claims={"request_id": "req-123"}
 )
 
 # Verify a token
@@ -65,9 +73,8 @@ app.add_middleware(
     ServiceAuthMiddleware,
     current_service="field-service",  # Name of this service
     exclude_paths=["/health", "/docs", "/metrics"],
-    require_service_auth=False,  # Set to True to require service auth for all routes
+    require_service_auth=False  # Set to True to require service auth for all routes
 )
-
 
 @app.get("/internal/data")
 async def get_internal_data(request: Request):
@@ -86,17 +93,24 @@ from shared.auth import verify_service_request, require_service_auth
 
 router = APIRouter(prefix="/internal")
 
-
 # Require any valid service token
 @router.get("/data")
-async def get_data(service_info: dict = Depends(verify_service_request)):
+async def get_data(
+    service_info: dict = Depends(verify_service_request)
+):
     calling_service = service_info["service_name"]
-    return {"message": f"Called by {calling_service}", "data": [...]}
-
+    return {
+        "message": f"Called by {calling_service}",
+        "data": [...]
+    }
 
 # Require specific services
 @router.post("/process")
-async def process_data(service_info: dict = Depends(require_service_auth(["farm-service", "crop-service"]))):
+async def process_data(
+    service_info: dict = Depends(
+        require_service_auth(["farm-service", "crop-service"])
+    )
+):
     return {"status": "processed"}
 ```
 
@@ -129,36 +143,52 @@ import httpx
 app = FastAPI(title="Field Service")
 
 # Add middleware
-app.add_middleware(ServiceAuthMiddleware, current_service="field-service", exclude_paths=["/health"])
-
+app.add_middleware(
+    ServiceAuthMiddleware,
+    current_service="field-service",
+    exclude_paths=["/health"]
+)
 
 # Public endpoint
 @app.get("/health")
 async def health():
     return {"status": "healthy"}
 
-
 # Internal endpoint - any service can call
 @app.get("/internal/fields")
-async def get_fields(service_info: dict = Depends(verify_service_request)):
+async def get_fields(
+    service_info: dict = Depends(verify_service_request)
+):
     calling_service = service_info["service_name"]
-    return {"fields": [...], "called_by": calling_service}
-
+    return {
+        "fields": [...],
+        "called_by": calling_service
+    }
 
 # Internal endpoint - only specific services
 @app.post("/internal/update")
-async def update_field(service_info: dict = Depends(require_service_auth(["farm-service"]))):
+async def update_field(
+    service_info: dict = Depends(
+        require_service_auth(["farm-service"])
+    )
+):
     return {"status": "updated"}
-
 
 # Making calls to other services
 @app.get("/call-weather-service")
 async def call_weather():
     # Create token to call weather service
-    token = create_service_token(service_name="field-service", target_service="weather-service", ttl=300)
+    token = create_service_token(
+        service_name="field-service",
+        target_service="weather-service",
+        ttl=300
+    )
 
     async with httpx.AsyncClient() as client:
-        response = await client.get("http://weather-service/api/weather", headers={"X-Service-Token": token})
+        response = await client.get(
+            "http://weather-service/api/weather",
+            headers={"X-Service-Token": token}
+        )
         return response.json()
 ```
 
@@ -534,7 +564,6 @@ try {
 import pytest
 from shared.auth import create_service_token, verify_service_token
 
-
 def test_service_token_creation():
     token = create_service_token("farm-service", "field-service")
     assert token is not None
@@ -542,7 +571,6 @@ def test_service_token_creation():
     payload = verify_service_token(token)
     assert payload["service_name"] == "farm-service"
     assert payload["target_service"] == "field-service"
-
 
 def test_unauthorized_service():
     with pytest.raises(Exception):
@@ -591,13 +619,13 @@ describe("Service Authentication", () => {
 async def get_data():
     return {"data": [...]}
 
-
 # After
 from shared.auth import verify_service_request
 
-
 @app.get("/internal/data")
-async def get_data(service_info: dict = Depends(verify_service_request)):
+async def get_data(
+    service_info: dict = Depends(verify_service_request)
+):
     return {"data": [...]}
 ```
 
@@ -611,7 +639,10 @@ response = await client.get("http://other-service/internal/data")
 from shared.auth import create_service_token
 
 token = create_service_token("my-service", "other-service")
-response = await client.get("http://other-service/internal/data", headers={"X-Service-Token": token})
+response = await client.get(
+    "http://other-service/internal/data",
+    headers={"X-Service-Token": token}
+)
 ```
 
 ---

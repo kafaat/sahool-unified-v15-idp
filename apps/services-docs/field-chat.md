@@ -653,7 +653,11 @@ The following variables are referenced in docker-compose but **NOT** used in cod
 
 ```python
 # Default allowed origins
-ALLOWED_ORIGINS = ["https://sahool.io", "https://admin.sahool.io", "http://localhost:3000"]
+ALLOWED_ORIGINS = [
+    "https://sahool.io",
+    "https://admin.sahool.io",
+    "http://localhost:3000"
+]
 
 # Allowed methods
 ALLOWED_METHODS = ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
@@ -828,7 +832,7 @@ Should be centralized.
 
 ```python
 # repository.py line 142, 250
-last_message_at = (datetime.utcnow(),)  # Deprecated in Python 3.12
+last_message_at=datetime.utcnow(),  # Deprecated in Python 3.12
 ```
 
 ---
@@ -841,7 +845,6 @@ last_message_at = (datetime.utcnow(),)  # Deprecated in Python 3.12
 
 ```python
 from shared.auth.dependencies import get_current_user
-
 
 @router.post("/threads", response_model=ThreadResponse)
 async def create_thread(
@@ -864,7 +867,7 @@ Update all files to version 16.0.0:
 __version__ = "16.0.0"
 
 # src/main.py
-version = "16.0.0"
+version="16.0.0"
 ```
 
 #### 3. Wire WebSocket to Projection Worker
@@ -875,7 +878,6 @@ from .projections.worker import ChatProjectionWorker
 
 # Create worker with broadcast callback
 worker = ChatProjectionWorker(broadcast_callback=manager.broadcast)
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -1013,9 +1015,7 @@ pytest tests/test_health.py::TestHealthEndpoints -v
 def client():
     """Create test client"""
     from src.main import app
-
     return TestClient(app)
-
 
 @pytest.fixture
 def db_available():

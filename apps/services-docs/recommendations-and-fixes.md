@@ -122,14 +122,12 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 security = HTTPBearer()
 
-
 async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
     token = credentials.credentials
     # Verify JWT token
     if not is_valid_token(token):
         raise HTTPException(status_code=401, detail="Invalid token")
     return token
-
 
 @app.get("/api/v1/protected", dependencies=[Depends(verify_token)])
 async def protected_route():
@@ -163,10 +161,9 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
-
 class ChatMessage(Base):
     __tablename__ = "chat_messages"
-
+    
     id = Column(String, primary_key=True)
     conversation_id = Column(String, index=True)
     user_id = Column(String, index=True)
@@ -197,18 +194,18 @@ class ChatMessage(Base):
 import nats
 from nats.aio.client import Client as NATS
 
-
 async def publish_event(subject: str, data: dict):
     nc = await nats.connect(os.getenv("NATS_URL"))
     await nc.publish(subject, json.dumps(data).encode())
     await nc.close()
 
-
 # Usage
-await publish_event(
-    "crop.disease.detected",
-    {"field_id": "123", "disease": "leaf_blight", "severity": "high", "timestamp": datetime.utcnow().isoformat()},
-)
+await publish_event("crop.disease.detected", {
+    "field_id": "123",
+    "disease": "leaf_blight",
+    "severity": "high",
+    "timestamp": datetime.utcnow().isoformat()
+})
 ```
 
 ---
@@ -292,7 +289,7 @@ app = FastAPI(
     version="16.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
-    openapi_url="/openapi.json",
+    openapi_url="/openapi.json"
 )
 ```
 
@@ -349,7 +346,6 @@ limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-
 @app.get("/api/v1/data")
 @limiter.limit("100/minute")
 async def get_data(request: Request):
@@ -373,13 +369,12 @@ from fastapi import Request
 
 logger = logging.getLogger(__name__)
 
-
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     start_time = time.time()
-
+    
     response = await call_next(request)
-
+    
     process_time = time.time() - start_time
     logger.info(
         "Request completed",
@@ -389,9 +384,9 @@ async def log_requests(request: Request, call_next):
             "status_code": response.status_code,
             "process_time": process_time,
             "client_ip": request.client.host,
-        },
+        }
     )
-
+    
     return response
 ```
 
@@ -437,19 +432,21 @@ from prometheus_client import Counter, Histogram, generate_latest
 from fastapi import Response
 
 # Define metrics
-request_count = Counter("http_requests_total", "Total HTTP requests", ["method", "endpoint", "status"])
-request_duration = Histogram("http_request_duration_seconds", "HTTP request duration")
-
+request_count = Counter('http_requests_total', 'Total HTTP requests', ['method', 'endpoint', 'status'])
+request_duration = Histogram('http_request_duration_seconds', 'HTTP request duration')
 
 @app.middleware("http")
 async def metrics_middleware(request: Request, call_next):
     with request_duration.time():
         response = await call_next(request)
-
-    request_count.labels(method=request.method, endpoint=request.url.path, status=response.status_code).inc()
-
+    
+    request_count.labels(
+        method=request.method,
+        endpoint=request.url.path,
+        status=response.status_code
+    ).inc()
+    
     return response
-
 
 @app.get("/metrics")
 async def metrics():

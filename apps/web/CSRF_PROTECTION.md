@@ -154,13 +154,12 @@ The backend API must validate CSRF tokens:
 # Example for FastAPI/Python
 from fastapi import Request, HTTPException
 
-
 def validate_csrf_token(request: Request):
     # Get token from header
-    header_token = request.headers.get("X-CSRF-Token")
+    header_token = request.headers.get('X-CSRF-Token')
 
     # Get token from cookie
-    cookie_token = request.cookies.get("csrf_token")
+    cookie_token = request.cookies.get('csrf_token')
 
     # Validate
     if not header_token or not cookie_token:

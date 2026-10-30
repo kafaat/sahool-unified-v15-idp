@@ -105,7 +105,10 @@ from shared.terrain.cache import TerrainCache, generate_cache_key, cache_result
 from shared.terrain.batch import process_batch, format_batch_result
 
 # Validate incoming polygon against Saudi Arabia bounds
-polygon = {"type": "Polygon", "coordinates": [[[46.7, 24.7], [46.8, 24.7], [46.8, 24.8], [46.7, 24.8], [46.7, 24.7]]]}
+polygon = {
+    "type": "Polygon",
+    "coordinates": [[[46.7, 24.7], [46.8, 24.7], [46.8, 24.8], [46.7, 24.8], [46.7, 24.7]]]
+}
 validate_geojson_polygon(polygon, bounds=SAUDI_ARABIA_BOUNDS)
 
 # Parse geometry and get computed metrics
@@ -116,23 +119,19 @@ print(f"Centroid: {geom.centroid}")
 # Cache terrain results using the decorator
 cache = TerrainCache(namespace="terrain")
 
-
 @cache_result(cache, operation="slope", ttl=3600, key_params=["field_id"])
 async def calculate_slope(field_id: str, resolution: float) -> dict:
     # ... heavy computation (DEM processing, etc.) ...
     return {"slope_degrees": 1.2}
-
 
 result = await calculate_slope(field_id="FIELD-001", resolution=10.0)
 
 # Invalidate all cached entries for a specific field
 await cache.invalidate_field("FIELD-001")
 
-
 # Batch process multiple fields
 async def analyse_field(field_id: str) -> dict:
     return {"field_id": field_id, "status": "ok"}
-
 
 batch_result = await process_batch(
     items=["FIELD-001", "FIELD-002", "FIELD-003"],

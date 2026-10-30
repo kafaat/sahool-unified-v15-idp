@@ -105,7 +105,6 @@ engine.add_block_to_page(page.page_id, "crop_health_card")
 
 # AI component suggestions for the model
 from shared.lowcode import AIComponentSuggester
-
 suggester = AIComponentSuggester(engine)
 suggestions = suggester.suggest_components_for_model(field_model, purpose="form")
 # [{"field": "name", "component_id": "text_input", "confidence": 0.9}, ...]
@@ -119,25 +118,18 @@ schema = engine.export_schema()
 ```python
 from shared.lowcode import PluginBase, LowCodeEngine
 
-
 class IrrigationPlugin(PluginBase):
     @property
-    def plugin_id(self):
-        return "irrigation"
+    def plugin_id(self): return "irrigation"
 
     @property
-    def name(self):
-        return "Smart Irrigation"
+    def name(self): return "Smart Irrigation"
 
-    def on_install(self, engine):
-        pass
-
-    def on_activate(self, engine):
-        pass
+    def on_install(self, engine): pass
+    def on_activate(self, engine): pass
 
     def register_components(self):
-        return [...]  # Custom ComponentMaterial list
-
+        return [...]   # Custom ComponentMaterial list
 
 engine.install_plugin(IrrigationPlugin())
 ```

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel, Field
 
+
 # ── Incoming data ──────────────────────────────────────────────────────────────
 
 
@@ -22,7 +23,6 @@ class IndiceStats(BaseModel):
 
 class AllIndicesPayload(BaseModel):
     """37 agricultural spectral indices from CDSE/Sentinel-2."""
-
     # Vegetation Vigor (10)
     NDVI: IndiceStats = Field(default_factory=IndiceStats)
     EVI: IndiceStats = Field(default_factory=IndiceStats)
@@ -138,7 +138,6 @@ class WeatherPayload(BaseModel):
 
 class MeteoPayload(BaseModel):
     """Expanded Open-Meteo data with full agriculture parameters."""
-
     temperature_2m: float | None = None
     relative_humidity_2m: float | None = None
     apparent_temperature: float | None = None
@@ -196,20 +195,18 @@ class ActionItem(BaseModel):
 
 class SectionContent(BaseModel):
     """Content for one analysis section."""
-
-    title: str  # Arabic section title
-    title_en: str  # English section title
-    status: str  # "good" | "moderate" | "warning" | "critical"
-    status_color: str  # "green" | "yellow" | "orange" | "red"
-    summary: str  # 1-2 sentence Arabic summary
-    details: list[str] = Field(default_factory=list)  # Bullet points
+    title: str           # Arabic section title
+    title_en: str        # English section title
+    status: str          # "good" | "moderate" | "warning" | "critical"
+    status_color: str    # "green" | "yellow" | "orange" | "red"
+    summary: str         # 1-2 sentence Arabic summary
+    details: list[str] = Field(default_factory=list)   # Bullet points
     metrics: dict | None = None  # Key numeric values
-    confidence: float = 0.7  # 0-1
+    confidence: float = 0.7      # 0-1
 
 
 class AnalysisSections(BaseModel):
     """All 13 analysis sections."""
-
     health_overview: SectionContent
     vegetation_health: SectionContent
     water_stress: SectionContent
@@ -230,7 +227,7 @@ class FieldAnalysisResponse(BaseModel):
     analyzed_at: str
     cached: bool = False
     # Overall health
-    health_score: int = 0  # 0-100 composite
+    health_score: int = 0          # 0-100 composite
     health_class: str = "moderate"  # healthy | moderate | stressed | critical
     health_confidence: float = 0.7
     # Satellite imagery

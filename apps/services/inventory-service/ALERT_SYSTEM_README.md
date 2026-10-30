@@ -107,7 +107,6 @@ from alert_integration import setup_alert_endpoints, alert_check_job
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from nats_publisher import get_publisher, close_publisher
 
-
 # In lifespan function:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -123,7 +122,12 @@ async def lifespan(app: FastAPI):
 
     # Start scheduler
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(alert_check_job, "interval", hours=1, args=[alert_manager, app.state.nats_publisher])
+    scheduler.add_job(
+        alert_check_job,
+        'interval',
+        hours=1,
+        args=[alert_manager, app.state.nats_publisher]
+    )
     scheduler.start()
     app.state.scheduler = scheduler
 
@@ -368,11 +372,11 @@ The alert check runs every hour by default. To change:
 ```python
 scheduler.add_job(
     alert_check_job,
-    "interval",
+    'interval',
     hours=1,  # Change this value
-    id="alert_check",
+    id='alert_check',
     replace_existing=True,
-    args=[alert_manager, nats_publisher],
+    args=[alert_manager, nats_publisher]
 )
 ```
 

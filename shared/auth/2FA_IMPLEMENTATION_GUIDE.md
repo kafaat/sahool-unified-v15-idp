@@ -81,7 +81,7 @@ configure_twofa(
     enforcement_level=TwoFAEnforcementLevel.REQUIRED_FOR_ADMIN,
     grace_period_days=7,
     max_2fa_attempts=3,
-    lockout_duration_minutes=30,
+    lockout_duration_minutes=30
 )
 ```
 
@@ -90,30 +90,35 @@ configure_twofa(
 1. **OPTIONAL** - 2FA is completely optional
 
    ```python
-   enforcement_level = TwoFAEnforcementLevel.OPTIONAL
+   enforcement_level=TwoFAEnforcementLevel.OPTIONAL
    ```
 
 2. **RECOMMENDED** - 2FA is suggested but not enforced
 
    ```python
-   enforcement_level = TwoFAEnforcementLevel.RECOMMENDED
+   enforcement_level=TwoFAEnforcementLevel.RECOMMENDED
    ```
 
 3. **REQUIRED_FOR_ADMIN** - Required for admin and supervisor roles
 
    ```python
-   enforcement_level = TwoFAEnforcementLevel.REQUIRED_FOR_ADMIN
+   enforcement_level=TwoFAEnforcementLevel.REQUIRED_FOR_ADMIN
    ```
 
 4. **REQUIRED_FOR_ALL** - Required for all users
    ```python
-   enforcement_level = TwoFAEnforcementLevel.REQUIRED_FOR_ALL
+   enforcement_level=TwoFAEnforcementLevel.REQUIRED_FOR_ALL
    ```
 
 ### Preset Configurations
 
 ```python
-from shared.auth.twofa_config import get_production_config, get_development_config, get_strict_config, set_twofa_config
+from shared.auth.twofa_config import (
+    get_production_config,
+    get_development_config,
+    get_strict_config,
+    set_twofa_config
+)
 
 # Use production preset
 set_twofa_config(get_production_config())
@@ -155,16 +160,19 @@ Implement the 2FA methods in your user repository:
 ```python
 from shared.domain.users.service import UserService
 
-
 class DatabaseUserService(UserService):
     async def update_twofa_secret(self, user_id: str, secret: str):
         # Update user's 2FA secret in database
-        await db.execute("UPDATE users SET twofa_secret = $1 WHERE id = $2", secret, user_id)
+        await db.execute(
+            "UPDATE users SET twofa_secret = $1 WHERE id = $2",
+            secret, user_id
+        )
 
     async def enable_twofa(self, user_id: str, backup_codes: list[str]):
         # Enable 2FA and save backup codes
         await db.execute(
-            "UPDATE users SET twofa_enabled = true, twofa_backup_codes = $1 WHERE id = $2", backup_codes, user_id
+            "UPDATE users SET twofa_enabled = true, twofa_backup_codes = $1 WHERE id = $2",
+            backup_codes, user_id
         )
 
     # Implement other 2FA methods...
@@ -322,12 +330,10 @@ curl -X POST https://api.sahool.io/api/v1/auth/login \
 ```python
 from shared.auth.twofa_service import get_twofa_service
 
-
 def test_totp_generation():
     service = get_twofa_service()
     secret = service.generate_secret()
     assert len(secret) > 0
-
 
 def test_totp_verification():
     service = get_twofa_service()
@@ -335,12 +341,11 @@ def test_totp_verification():
     token = service.get_current_totp(secret)
     assert service.verify_totp(secret, token) == True
 
-
 def test_backup_codes():
     service = get_twofa_service()
     codes = service.generate_backup_codes(count=10)
     assert len(codes) == 10
-    assert all("-" in code for code in codes)
+    assert all('-' in code for code in codes)
 ```
 
 ## Troubleshooting

@@ -124,12 +124,10 @@ instrument_all(app=app, db_engine=engine)
 # Use decorator for custom tracing
 from shared.telemetry import trace_method
 
-
 @trace_method(name="process_field")
 async def process_field(field_id: str):
     # Your code here
     pass
-
 
 # Track business metrics
 from shared.telemetry import SahoolMetrics
@@ -280,25 +278,49 @@ from shared.telemetry import SahoolMetrics
 SahoolMetrics.track_field_created(tenant_id="tenant-123", field_type="agricultural")
 
 # Track satellite imagery request
-SahoolMetrics.track_satellite_request(provider="sentinel", status="success", duration=2.5)
+SahoolMetrics.track_satellite_request(
+    provider="sentinel",
+    status="success",
+    duration=2.5
+)
 
 # Track weather query
-SahoolMetrics.track_weather_query(provider="openweathermap", location="yemen", status="success")
+SahoolMetrics.track_weather_query(
+    provider="openweathermap",
+    location="yemen",
+    status="success"
+)
 
 # Track NDVI calculation
 SahoolMetrics.track_ndvi_calculation(field_id="field-123", duration=1.2)
 
 # Track AI recommendation
-SahoolMetrics.track_ai_recommendation(advisor_type="fertilizer", crop_type="wheat", duration=0.8)
+SahoolMetrics.track_ai_recommendation(
+    advisor_type="fertilizer",
+    crop_type="wheat",
+    duration=0.8
+)
 
 # Track IoT sensor reading
-SahoolMetrics.track_iot_reading(sensor_type="soil_moisture", field_id="field-123", value=45.5)
+SahoolMetrics.track_iot_reading(
+    sensor_type="soil_moisture",
+    field_id="field-123",
+    value=45.5
+)
 
 # Track notification
-SahoolMetrics.track_notification_sent(notification_type="alert", channel="sms", status="delivered")
+SahoolMetrics.track_notification_sent(
+    notification_type="alert",
+    channel="sms",
+    status="delivered"
+)
 
 # Track irrigation event
-SahoolMetrics.track_irrigation_event(field_id="field-123", event_type="automatic", water_amount=1000.0)
+SahoolMetrics.track_irrigation_event(
+    field_id="field-123",
+    event_type="automatic",
+    water_amount=1000.0
+)
 ```
 
 ### TypeScript (SahoolMetrics)

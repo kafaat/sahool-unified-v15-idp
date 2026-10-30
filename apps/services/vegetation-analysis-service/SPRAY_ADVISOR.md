@@ -335,7 +335,6 @@ curl "http://localhost:8090/v1/spray/conditions"
 import asyncio
 from src.spray_advisor import SprayAdvisor, SprayProduct
 
-
 async def main():
     advisor = SprayAdvisor()
 
@@ -344,12 +343,15 @@ async def main():
         latitude=15.3694,  # Sanaa
         longitude=44.1910,
         days=7,
-        product_type=SprayProduct.HERBICIDE,
+        product_type=SprayProduct.HERBICIDE
     )
 
     # Find best spray time
     best_window = await advisor.get_best_spray_time(
-        latitude=15.3694, longitude=44.1910, product_type=SprayProduct.INSECTICIDE, within_days=3
+        latitude=15.3694,
+        longitude=44.1910,
+        product_type=SprayProduct.INSECTICIDE,
+        within_days=3
     )
 
     if best_window:
@@ -358,7 +360,6 @@ async def main():
         print(f"Condition: {best_window.condition.value}")
 
     await advisor.close()
-
 
 asyncio.run(main())
 ```

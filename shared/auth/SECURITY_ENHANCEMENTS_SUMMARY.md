@@ -77,9 +77,9 @@ Checks performed:
 # User validation data
 UserValidationData(
     user_id="abc123",
-    is_active=True,  # ✅ Required
-    is_verified=True,  # ✅ Required
-    is_deleted=False,  # ❌ Rejected if True
+    is_active=True,      # ✅ Required
+    is_verified=True,    # ✅ Required
+    is_deleted=False,    # ❌ Rejected if True
     is_suspended=False,  # ❌ Rejected if True
 )
 ```
@@ -256,7 +256,10 @@ JWT_SECRET_KEY=your-secret-key
 ```python
 async def test_inactive_user_rejected():
     # Setup: Create inactive user
-    user_repo.add_test_user(user_id="test", is_active=False)
+    user_repo.add_test_user(
+        user_id="test",
+        is_active=False
+    )
 
     # Test: Should reject
     with pytest.raises(HTTPException) as exc:

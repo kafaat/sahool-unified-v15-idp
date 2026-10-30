@@ -425,7 +425,7 @@ shared/ai/agents/
 result = await advisor.get_specialized_advice(
     domain="irrigation",  # or fertilizer, pest, harvest
     task="Calculate water needs for wheat field",
-    context={"field_id": "F003"},
+    context={"field_id": "F003"}
 )
 ```
 
@@ -450,11 +450,17 @@ decision = await advisor.make_collaborative_decision(
 ```python
 # Record feedback for continuous improvement
 await advisor.record_farmer_feedback(
-    recommendation_id="rec_001", rating=4, outcome="success", comments="The irrigation advice worked well"
+    recommendation_id="rec_001",
+    rating=4,
+    outcome="success",
+    comments="The irrigation advice worked well"
 )
 
 # Get recommendations enhanced by past learning
-advice = await advisor.get_recommendation_with_learning(task="When should I irrigate?", context={"field_id": "F003"})
+advice = await advisor.get_recommendation_with_learning(
+    task="When should I irrigate?",
+    context={"field_id": "F003"}
+)
 ```
 
 ### Execution Flow
@@ -791,7 +797,7 @@ if agent_request.agent_type not in VALID_AGENT_TYPES:
 
 **Recommendation:** Add `offset` parameter:
 ```python
-offset: int = (Query(0, ge=0),)
+offset: int = Query(0, ge=0),
 ```
 
 #### 9. Coverage Configuration Excludes db.py
@@ -829,9 +835,9 @@ if execution_id not in executions or executions[execution_id].tenant_id != user.
 async def cleanup_old_executions():
     cutoff = datetime.utcnow() - timedelta(hours=24)
     to_remove = [
-        eid
-        for eid, e in executions.items()
-        if e.status in ["completed", "failed", "cancelled"] and e.completed_at and e.completed_at < cutoff
+        eid for eid, e in executions.items()
+        if e.status in ["completed", "failed", "cancelled"]
+        and e.completed_at and e.completed_at < cutoff
     ]
     for eid in to_remove:
         del executions[eid]

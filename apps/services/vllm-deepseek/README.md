@@ -55,7 +55,9 @@ provider = await get_vllm_provider(
     model="deepseek-ai/deepseek-coder-6.7b-instruct",
 )
 
-response = await provider.chat([{"role": "user", "content": "Explain NDVI calculation"}])
+response = await provider.chat([
+    {"role": "user", "content": "Explain NDVI calculation"}
+])
 ```
 
 ## Environment Variables | متغيرات البيئة

@@ -147,7 +147,7 @@ Returns current CORS configuration as a dictionary for debugging.
     "allowed_origins": ["https://sahool.app", ...],
     "cors_origins_env": "not set",
     "has_wildcard": false,
-    "origin_count": 4,
+    "origin_count": 4
 }
 ```
 

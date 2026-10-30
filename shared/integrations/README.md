@@ -73,10 +73,8 @@ All agents inherit from `BaseWeChatAgent` and accept an `AgentContext`.
 
 ```python
 from shared.integrations.wechat import (
-    WeChatMCPClient,
-    WeChatConfig,
-    ChatSummarizerAgent,
-    AutoReplierAgent,
+    WeChatMCPClient, WeChatConfig,
+    ChatSummarizerAgent, AutoReplierAgent,
 )
 
 config = WeChatConfig.from_env()
@@ -89,7 +87,7 @@ async with WeChatMCPClient(config) as client:
     await client.send_message(
         chat_id="farmer_001",
         content="Your irrigation schedule has been updated for tomorrow.",
-        content_ar="تم تحديث جدول الري الخاص بك لغد.",
+        content_ar="تم تحديث جدول الري الخاص بك لغد."
     )
 
     # Summarize the last 24 hours of chat
@@ -98,7 +96,10 @@ async with WeChatMCPClient(config) as client:
 
     # Auto-reply to incoming message
     replier = AutoReplierAgent(client)
-    reply = await replier.generate_reply(message="متى يجب أن أسقي القمح؟", chat_id="farmer_001")
+    reply = await replier.generate_reply(
+        message="متى يجب أن أسقي القمح؟",
+        chat_id="farmer_001"
+    )
 ```
 
 ## Environment Variables

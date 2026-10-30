@@ -63,18 +63,15 @@ require renaming `ENVIRONMENT` in source — visible diff, mandatory PR review.
 The introspection probe wants a simple two-method API:
 
 ```python
-async with admin_connection() as conn:
-    ...
-async with tenant_connection(tenant_id) as conn:
-    ...
+async with admin_connection() as conn: ...
+async with tenant_connection(tenant_id) as conn: ...
 ```
 
 The shared module's actual signature takes the pool as its first
 argument:
 
 ```python
-async with tenant_connection(pool, tenant_id="...") as conn:
-    ...
+async with tenant_connection(pool, tenant_id="...") as conn: ...
 ```
 
 `src/db_adapter.py` holds the singleton pool and exposes the simpler

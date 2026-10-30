@@ -67,7 +67,11 @@ from apps.kernel.common.middleware import setup_rate_limiting
 app = FastAPI()
 
 # Setup rate limiting
-limiter = setup_rate_limiting(app, redis_url="redis://localhost:6379/0", exclude_paths=["/healthz", "/metrics"])
+limiter = setup_rate_limiting(
+    app,
+    redis_url="redis://localhost:6379/0",
+    exclude_paths=["/healthz", "/metrics"]
+)
 ```
 
 ### Using Decorator | استخدام الديكوريتر
@@ -75,7 +79,6 @@ limiter = setup_rate_limiting(app, redis_url="redis://localhost:6379/0", exclude
 ```python
 from fastapi import Request
 from apps.kernel.common.middleware import rate_limit
-
 
 @app.get("/api/v1/analyze")
 @rate_limit(requests=10, period=60, strategy="token_bucket")
@@ -112,7 +115,12 @@ Default configurations are defined in `ENDPOINT_CONFIGS`:
 from apps.kernel.common.middleware import ENDPOINT_CONFIGS, EndpointConfig
 
 # Add custom endpoint configuration
-ENDPOINT_CONFIGS["/api/v1/custom"] = EndpointConfig(requests=20, period=60, burst=5, strategy="sliding_window")
+ENDPOINT_CONFIGS["/api/v1/custom"] = EndpointConfig(
+    requests=20,
+    period=60,
+    burst=5,
+    strategy="sliding_window"
+)
 ```
 
 ## Rate Limiting Strategies | استراتيجيات الحد من المعدل
@@ -213,9 +221,7 @@ def custom_identifier(request: Request) -> str:
 
     # Fallback to default
     from apps.kernel.common.middleware import ClientIdentifier
-
     return ClientIdentifier.get_client_id(request)
-
 
 # Use custom identifier
 setup_rate_limiting(app, identifier_func=custom_identifier)
@@ -261,12 +267,14 @@ X-RateLimit-Reset: 30
 ```python
 from apps.kernel.common.middleware import ClientIdentifier
 
-
 @app.post("/api/v1/custom")
 async def custom_endpoint(request: Request):
     client_id = ClientIdentifier.get_client_id(request)
 
-    allowed, remaining, reset = await limiter.check_rate_limit(client_id=client_id, endpoint="/api/v1/custom")
+    allowed, remaining, reset = await limiter.check_rate_limit(
+        client_id=client_id,
+        endpoint="/api/v1/custom"
+    )
 
     if not allowed:
         raise HTTPException(status_code=429, detail="Rate limit exceeded")
@@ -279,7 +287,6 @@ async def custom_endpoint(request: Request):
 ```python
 from apps.kernel.common.middleware import get_rate_limit_stats
 
-
 @app.get("/api/v1/stats")
 async def get_stats(request: Request):
     client_id = ClientIdentifier.get_client_id(request)
@@ -291,7 +298,10 @@ async def get_stats(request: Request):
 
 ```python
 # Reset specific endpoint for a client
-await limiter.reset_limits(client_id="user:123", endpoint="/api/v1/analyze")
+await limiter.reset_limits(
+    client_id="user:123",
+    endpoint="/api/v1/analyze"
+)
 
 # Reset all endpoints for a client
 await limiter.reset_limits(client_id="user:123")

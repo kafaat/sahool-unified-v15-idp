@@ -208,7 +208,9 @@ forecast = await weather.get_forecast(lat, lon, days=7)
 et0_total = sum(day.et0_mm for day in forecast.daily if day.et0_mm)
 
 # Get GDD for phenology tracking
-gdd = await weather.get_growing_degree_days(lat, lon, planting_date, today)
+gdd = await weather.get_growing_degree_days(
+    lat, lon, planting_date, today
+)
 
 # Pass to yield predictor
 yield_prediction = await yield_predictor.predict_yield(
@@ -219,7 +221,7 @@ yield_prediction = await yield_predictor.predict_yield(
         "et0_mm": et0_total,
         "gdd": gdd,
         "precipitation_mm": sum(day.precipitation_mm for day in forecast.daily),
-    },
+    }
 )
 ```
 
@@ -227,11 +229,19 @@ yield_prediction = await yield_predictor.predict_yield(
 
 ```python
 # Get soil moisture from SAR
-sar_result = await sar_processor.analyze_soil_moisture(field_id=field_id, latitude=lat, longitude=lon)
+sar_result = await sar_processor.analyze_soil_moisture(
+    field_id=field_id,
+    latitude=lat,
+    longitude=lon
+)
 
 # Get irrigation recommendation using soil moisture
 irrigation_advice = await weather.get_irrigation_recommendation(
-    latitude=lat, longitude=lon, crop_type=crop_type, growth_stage=growth_stage, soil_moisture=sar_result.soil_moisture
+    latitude=lat,
+    longitude=lon,
+    crop_type=crop_type,
+    growth_stage=growth_stage,
+    soil_moisture=sar_result.soil_moisture
 )
 ```
 

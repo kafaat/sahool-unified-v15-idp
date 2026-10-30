@@ -29,7 +29,6 @@ database (once). The DDL is idempotent (`CREATE TABLE IF NOT EXISTS`).
 ```python
 from shared.libs.outbox import OutboxPublisher, OutboxRelay
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # ... db_pool / nats_client init ...

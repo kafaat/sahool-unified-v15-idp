@@ -264,9 +264,9 @@ FAO-56 yield reduction factors:
 
 ```python
 WATER_STRESS_KY = {
-    "WHEAT": 1.05,  # Moderately sensitive
-    "CORN": 1.25,  # Highly sensitive
-    "SORGHUM": 0.9,  # Drought tolerant
+    "WHEAT": 1.05,    # Moderately sensitive
+    "CORN": 1.25,     # Highly sensitive
+    "SORGHUM": 0.9,   # Drought tolerant
 }
 ```
 

@@ -34,7 +34,7 @@ weather = WeatherData(
     wind_speed=2.5,
     rainfall=0.0,
     latitude=15.35,
-    elevation=2250,
+    elevation=2250
 )
 
 # حساب ET0
@@ -54,7 +54,7 @@ water_needed = scheduler.calculate_water_requirement(
     et0=5.0,
     effective_rainfall=0.0,
     soil_type=SoilType.LOAMY,
-    irrigation_type=IrrigationType.DRIP,
+    irrigation_type=IrrigationType.DRIP
 )
 
 print(f"Water needed: {water_needed:.2f} mm/day")
@@ -68,18 +68,16 @@ from datetime import timedelta
 # إنشاء توقعات طقس
 weather_forecast = []
 for i in range(7):
-    weather_forecast.append(
-        WeatherData(
-            date=date.today() + timedelta(days=i),
-            temp_max=28.0,
-            temp_min=15.0,
-            humidity_mean=45.0,
-            wind_speed=2.5,
-            rainfall=0.0,
-            latitude=15.35,
-            elevation=2250,
-        )
-    )
+    weather_forecast.append(WeatherData(
+        date=date.today() + timedelta(days=i),
+        temp_max=28.0,
+        temp_min=15.0,
+        humidity_mean=45.0,
+        wind_speed=2.5,
+        rainfall=0.0,
+        latitude=15.35,
+        elevation=2250
+    ))
 
 # إنشاء الجدول
 schedule = scheduler.get_optimal_schedule(
@@ -91,7 +89,7 @@ schedule = scheduler.get_optimal_schedule(
     irrigation_type=IrrigationType.DRIP,
     weather_forecast=weather_forecast,
     field_area_ha=1.0,
-    optimize_for_cost=True,
+    optimize_for_cost=True
 )
 
 # عرض النتائج

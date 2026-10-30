@@ -54,7 +54,6 @@ app.add_middleware(
 from fastapi import Request
 from shared.middleware.request_logging import get_correlation_id, get_request_context
 
-
 @app.get("/example")
 async def example_endpoint(request: Request):
     # Get correlation ID
@@ -286,7 +285,6 @@ When one service calls another, propagate the correlation ID:
 import httpx
 from fastapi import Request
 
-
 @app.get("/external-call")
 async def call_external_service(request: Request):
     correlation_id = get_correlation_id(request)
@@ -297,7 +295,7 @@ async def call_external_service(request: Request):
             headers={
                 "X-Correlation-ID": correlation_id,
                 "X-Tenant-ID": request.state.tenant_id,
-            },
+            }
         )
 
     return response.json()

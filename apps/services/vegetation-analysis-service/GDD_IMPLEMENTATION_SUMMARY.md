@@ -108,14 +108,13 @@ Successfully implemented a comprehensive Growing Degree Days (GDD) tracking syst
 
 ```python
 # Line 273: Updated version
-version = "15.8.0"
+version="15.8.0"
 
 # Line 274: Updated description
-description = "... Now with GDD (Growing Degree Days) tracking for 40+ Yemen crops."
+description="... Now with GDD (Growing Degree Days) tracking for 40+ Yemen crops."
 
 # Lines 282-284: Added GDD endpoint registration
 from .gdd_endpoints import register_gdd_endpoints
-
 register_gdd_endpoints(app)
 ```
 

@@ -189,20 +189,23 @@ curl "http://localhost:8090/v1/export/report/FIELD_001?lat=15.3694&lon=44.1910&r
 ```python
 import requests
 
-
-def export_field_analysis(field_id, lat, lon, format="geojson"):
+def export_field_analysis(field_id, lat, lon, format='geojson'):
     """Export field analysis to file"""
     url = f"http://localhost:8090/v1/export/analysis/{field_id}"
-    params = {"lat": lat, "lon": lon, "format": format}
+    params = {
+        'lat': lat,
+        'lon': lon,
+        'format': format
+    }
 
     response = requests.get(url, params=params)
 
     if response.status_code == 200:
         # Get filename from header
-        filename = response.headers.get("Content-Disposition", "").split("filename=")[1].strip('"')
+        filename = response.headers.get('Content-Disposition', '').split('filename=')[1].strip('"')
 
         # Save to file
-        with open(filename, "wb") as f:
+        with open(filename, 'wb') as f:
             f.write(response.content)
 
         print(f"Exported: {filename}")
@@ -212,9 +215,8 @@ def export_field_analysis(field_id, lat, lon, format="geojson"):
         print(f"Error: {response.status_code} - {response.text}")
         return None
 
-
 # Usage
-export_field_analysis("FIELD_001", 15.3694, 44.1910, format="geojson")
+export_field_analysis("FIELD_001", 15.3694, 44.1910, format='geojson')
 ```
 
 ### Export Time Series to Pandas DataFrame
@@ -224,35 +226,44 @@ import requests
 import pandas as pd
 from io import StringIO
 
-
 def export_timeseries_to_dataframe(field_id, lat, lon, start_date, end_date):
     """Export timeseries and load into pandas DataFrame"""
     url = f"http://localhost:8090/v1/export/timeseries/{field_id}"
-    params = {"lat": lat, "lon": lon, "start_date": start_date, "end_date": end_date, "format": "csv"}
+    params = {
+        'lat': lat,
+        'lon': lon,
+        'start_date': start_date,
+        'end_date': end_date,
+        'format': 'csv'
+    }
 
     response = requests.get(url, params=params)
 
     if response.status_code == 200:
         # Load CSV into DataFrame
         df = pd.read_csv(StringIO(response.text))
-        df["date"] = pd.to_datetime(df["date"])
+        df['date'] = pd.to_datetime(df['date'])
         return df
     else:
         print(f"Error: {response.status_code}")
         return None
 
-
 # Usage
-df = export_timeseries_to_dataframe("FIELD_001", 15.3694, 44.1910, "2023-11-01", "2023-12-15")
+df = export_timeseries_to_dataframe(
+    "FIELD_001",
+    15.3694,
+    44.1910,
+    "2023-11-01",
+    "2023-12-15"
+)
 
 # Analyze trends
 print(df.describe())
-print(df[["date", "ndvi", "health_score"]].head())
+print(df[['date', 'ndvi', 'health_score']].head())
 
 # Plot
 import matplotlib.pyplot as plt
-
-df.plot(x="date", y="ndvi", title="NDVI Over Time")
+df.plot(x='date', y='ndvi', title='NDVI Over Time')
 plt.show()
 ```
 
@@ -262,21 +273,19 @@ plt.show()
 import requests
 import concurrent.futures
 
-
 def export_field(field_data):
     """Export single field analysis"""
     field_id, lat, lon = field_data
     url = f"http://localhost:8090/v1/export/analysis/{field_id}"
-    params = {"lat": lat, "lon": lon, "format": "geojson"}
+    params = {'lat': lat, 'lon': lon, 'format': 'geojson'}
 
     response = requests.get(url, params=params)
     if response.status_code == 200:
         filename = f"{field_id}_analysis.geojson"
-        with open(filename, "wb") as f:
+        with open(filename, 'wb') as f:
             f.write(response.content)
         return field_id, True
     return field_id, False
-
 
 # List of fields to export
 fields = [

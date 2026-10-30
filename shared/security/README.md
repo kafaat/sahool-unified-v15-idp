@@ -57,7 +57,6 @@ tokens = create_token_pair(
 
 # Single access token with custom expiry
 from datetime import timedelta
-
 token = create_token(
     user_id="user-uuid",
     tenant_id="tenant-uuid",
@@ -82,30 +81,27 @@ from fastapi import Depends
 from shared.security import get_principal, get_optional_principal
 from shared.security.deps import get_tenant_id, get_user_id, Principal, TenantID
 
-
 # Require authentication — raises HTTP 401 if missing/invalid
 @router.get("/fields")
 async def list_fields(principal: dict = Depends(get_principal)):
     tenant_id = principal["tid"]
     ...
 
-
 # Typed aliases (equivalent, cleaner syntax)
 @router.get("/tasks")
-async def list_tasks(principal: Principal, tenant_id: TenantID): ...
-
+async def list_tasks(principal: Principal, tenant_id: TenantID):
+    ...
 
 # Optional auth — returns None for unauthenticated requests
 @router.get("/public-data")
-async def public_data(principal: dict | None = Depends(get_optional_principal)): ...
-
+async def public_data(principal: dict | None = Depends(get_optional_principal)):
+    ...
 
 # API key auth (for external integrations)
 from shared.security.deps import require_api_key
-
-
 @router.post("/webhook")
-async def webhook(api_key: str = Depends(require_api_key)): ...
+async def webhook(api_key: str = Depends(require_api_key)):
+    ...
 ```
 
 ---
@@ -158,18 +154,14 @@ Guards raise `HTTP 403` automatically on failure with bilingual error messages (
 ```python
 from shared.security import require, require_any, require_all
 from shared.security.guard import (
-    require_role,
-    require_tenant,
-    require_resource_access,
+    require_role, require_tenant, require_resource_access,
     require_owner_or_permission,
 )
-
 
 @router.post("/tasks")
 async def create_task(principal: dict = Depends(get_principal)):
     require(principal, "fieldops:task.create")
     ...
-
 
 @router.delete("/tasks/{task_id}")
 async def delete_task(task_id: str, principal: dict = Depends(get_principal)):
@@ -177,7 +169,6 @@ async def delete_task(task_id: str, principal: dict = Depends(get_principal)):
     # Enforce permission + tenant isolation in one call
     require_resource_access(principal, "fieldops:task.delete", task.tenant_id)
     ...
-
 
 @router.put("/users/{user_id}/profile")
 async def update_profile(user_id: str, principal: dict = Depends(get_principal)):
@@ -191,15 +182,15 @@ async def update_profile(user_id: str, principal: dict = Depends(get_principal))
 ```python
 from shared.security.guard import requires, requires_role
 
-
 @router.delete("/devices/{device_id}")
 @requires("iot:device.delete")
-async def delete_device(device_id: str, principal: dict = Depends(get_principal)): ...
-
+async def delete_device(device_id: str, principal: dict = Depends(get_principal)):
+    ...
 
 @router.get("/admin/users")
 @requires_role("admin")
-async def list_users(principal: dict = Depends(get_principal)): ...
+async def list_users(principal: dict = Depends(get_principal)):
+    ...
 ```
 
 ---
@@ -237,14 +228,11 @@ Custom policies can be registered at startup:
 from shared.security.policy_engine import get_policy_engine, RoutePolicy
 
 engine = get_policy_engine()
-engine.add_policy(
-    "/api/v1/reports/export",
-    RoutePolicy(
-        path_pattern="/api/v1/reports/export",
-        require_auth=True,
-        require_any_permission=["reports:export"],
-    ),
-)
+engine.add_policy("/api/v1/reports/export", RoutePolicy(
+    path_pattern="/api/v1/reports/export",
+    require_auth=True,
+    require_any_permission=["reports:export"],
+))
 ```
 
 ---
@@ -293,33 +281,22 @@ await audit_log(
 )
 
 # Auth events
-await audit_auth(
-    tenant_id, user_id, AuditAction.LOGIN_FAILED, success=False, ip_address=ip, error_message="bad password"
-)
+await audit_auth(tenant_id, user_id, AuditAction.LOGIN_FAILED,
+                 success=False, ip_address=ip, error_message="bad password")
 
 # Data change with before/after values
-await audit_data_change(
-    tenant_id,
-    user_id,
-    AuditAction.FIELD_UPDATED,
-    resource_type="field",
-    resource_id=field_id,
-    old_value={"name": "Old"},
-    new_value={"name": "New"},
-)
+await audit_data_change(tenant_id, user_id, AuditAction.FIELD_UPDATED,
+                        resource_type="field", resource_id=field_id,
+                        old_value={"name": "Old"}, new_value={"name": "New"})
 ```
 
 ### Querying the audit trail
 
 ```python
 from shared.security.audit import (
-    get_user_audit_trail,
-    get_resource_audit_trail,
-    get_security_events,
-    get_failed_logins,
-    validate_hash_chain,
-    get_compliance_report,
-    export_audit_logs,
+    get_user_audit_trail, get_resource_audit_trail,
+    get_security_events, get_failed_logins,
+    validate_hash_chain, get_compliance_report, export_audit_logs,
 )
 
 # Recent failed logins (last 24 hours)
@@ -380,7 +357,6 @@ Standard pattern for a protected FastAPI service:
 from fastapi import Depends
 from shared.security import get_principal, require, audit_log, AuditAction
 from shared.security.deps import TenantID
-
 
 @router.post("/fields")
 async def create_field(

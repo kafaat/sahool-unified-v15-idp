@@ -94,27 +94,57 @@ from templates import get_template_manager, NotificationChannel
 manager = get_template_manager()
 
 # Define context data
-context = {"disease_name": "البياض الدقيقي", "field_name": "حقل القمح", "field_id": "field_123", "confidence": 92}
+context = {
+    "disease_name": "البياض الدقيقي",
+    "field_name": "حقل القمح",
+    "field_id": "field_123",
+    "confidence": 92
+}
 
 # Render for Push notification (Arabic)
-push = manager.format_for_push(template_id="disease_detected", context=context, language="ar")
+push = manager.format_for_push(
+    template_id="disease_detected",
+    context=context,
+    language="ar"
+)
 
 # Send via Firebase/FCM
-send_push_notification(title=push["notification"]["title"], body=push["notification"]["body"], data=push["data"])
+send_push_notification(
+    title=push['notification']['title'],
+    body=push['notification']['body'],
+    data=push['data']
+)
 ```
 
 ### Multi-Channel Delivery
 
 ```python
 # SMS (max 160 chars)
-sms_text = manager.format_for_sms("irrigation_reminder", context, language="ar", max_length=160)
+sms_text = manager.format_for_sms(
+    "irrigation_reminder",
+    context,
+    language="ar",
+    max_length=160
+)
 
 # Email (HTML)
-email = manager.format_for_email("harvest_ready", context, language="ar")
-send_email(subject=email["subject"], html=email["html_body"], text=email["text_body"])
+email = manager.format_for_email(
+    "harvest_ready",
+    context,
+    language="ar"
+)
+send_email(
+    subject=email['subject'],
+    html=email['html_body'],
+    text=email['text_body']
+)
 
 # WhatsApp
-whatsapp_msg = manager.format_for_whatsapp("weather_alert", context, language="ar")
+whatsapp_msg = manager.format_for_whatsapp(
+    "weather_alert",
+    context,
+    language="ar"
+)
 ```
 
 ### Template Methods
@@ -129,7 +159,9 @@ template = manager.get_template("disease_detected", language="ar")
 
 ```python
 rendered = manager.render_template(
-    template_id="irrigation_reminder", context={"field_name": "الحقل الأول", "water_amount": 5000}, language="ar"
+    template_id="irrigation_reminder",
+    context={"field_name": "الحقل الأول", "water_amount": 5000},
+    language="ar"
 )
 # Returns: {"title": "...", "body": "...", "action_url": "...", ...}
 ```
@@ -144,7 +176,7 @@ custom = NotificationTemplate(
     category=TemplateCategory.ALERT,
     title={"ar": "تنبيه مخصص", "en": "Custom Alert"},
     body={"ar": "رسالة: {message}", "en": "Message: {message}"},
-    priority="high",
+    priority="high"
 )
 
 manager.register_template("custom_alert", custom)
@@ -236,18 +268,38 @@ Common placeholders used across templates:
 from templates import render_notification, NotificationChannel
 
 # Send disease alert via multiple channels
-context = {"disease_name": "صدأ القمح", "field_name": "الحقل الشرقي", "field_id": "field_789", "confidence": 95}
+context = {
+    "disease_name": "صدأ القمح",
+    "field_name": "الحقل الشرقي",
+    "field_id": "field_789",
+    "confidence": 95
+}
 
 # Push
-push_data = render_notification("disease_detected", context, language="ar", channel=NotificationChannel.PUSH)
+push_data = render_notification(
+    "disease_detected",
+    context,
+    language="ar",
+    channel=NotificationChannel.PUSH
+)
 await send_push(user_id, push_data)
 
 # SMS (for critical alerts)
-sms_text = render_notification("disease_detected", context, language="ar", channel=NotificationChannel.SMS)
+sms_text = render_notification(
+    "disease_detected",
+    context,
+    language="ar",
+    channel=NotificationChannel.SMS
+)
 await send_sms(user_phone, sms_text)
 
 # Email (for detailed info)
-email_data = render_notification("disease_detected", context, language="ar", channel=NotificationChannel.EMAIL)
+email_data = render_notification(
+    "disease_detected",
+    context,
+    language="ar",
+    channel=NotificationChannel.EMAIL
+)
 await send_email(user_email, email_data)
 ```
 

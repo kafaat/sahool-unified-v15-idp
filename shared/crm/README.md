@@ -68,8 +68,8 @@ farmer = await crm.create_farmer(
 deal = await crm.create_deal(
     farmer_id=farmer.farmer_id,
     crop_type="wheat",
-    expected_quantity=120,  # tons
-    expected_price=1850,  # SAR/ton
+    expected_quantity=120,   # tons
+    expected_price=1850,     # SAR/ton
 )
 
 # Advance through pipeline

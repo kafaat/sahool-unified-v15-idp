@@ -51,7 +51,10 @@ from shared.mcp.skills_server import SAHOOLSkillsTools
 tools = SAHOOLSkillsTools()
 
 # Use any skill tool
-result = await tools.crop_advisor(field_id="field-123", issue_type="disease_detection")
+result = await tools.crop_advisor(
+    field_id="field-123",
+    issue_type="disease_detection"
+)
 ```
 
 ### 3. Through MCP Client
@@ -60,7 +63,10 @@ result = await tools.crop_advisor(field_id="field-123", issue_type="disease_dete
 from shared.mcp.client import MCPClient
 
 async with MCPClient(server_url="http://localhost:8200") as client:
-    result = await client.call_tool("crop_advisor", {"field_id": "field-123", "issue_type": "pest_management"})
+    result = await client.call_tool(
+        "crop_advisor",
+        {"field_id": "field-123", "issue_type": "pest_management"}
+    )
 ```
 
 ## Skill Tools Reference
@@ -121,7 +127,7 @@ result = await tools.crop_advisor(
     issue_type="disease_detection",
     include_weather=True,
     include_history=True,
-    confidence_threshold=0.7,
+    confidence_threshold=0.7
 )
 ```
 
@@ -185,7 +191,10 @@ Access comprehensive agricultural documentation including growing guides, best p
 **Example**:
 ```python
 result = await tools.farm_documentation(
-    document_type="pest_management", crop_type="tomatoes", language="ar", include_images=True
+    document_type="pest_management",
+    crop_type="tomatoes",
+    language="ar",
+    include_images=True
 )
 ```
 
@@ -240,11 +249,14 @@ field_data = {
     "area": 50,
     "crop": "wheat",
     "soil": {...},
-    "history": [...],
+    "history": [...]
 }
 
 result = await tools.compress_context(
-    data=field_data, data_type="field", compression_strategy="hybrid", target_ratio=0.3
+    data=field_data,
+    data_type="field",
+    compression_strategy="hybrid",
+    target_ratio=0.3
 )
 
 print(f"Saved {result.data['tokens_saved']} tokens ({result.data['savings_percentage']:.1f}%)")
@@ -315,7 +327,7 @@ result = await tools.query_memory(
     memory_types=["recommendation", "observation"],
     time_range_days=60,
     limit=5,
-    min_relevance="high",
+    min_relevance="high"
 )
 
 for entry in result.data["entries"]:
@@ -330,7 +342,6 @@ for entry in result.data["entries"]:
 from shared.mcp.server import MCPServer
 from shared.mcp.skills_server import extend_mcp_server_with_skills
 
-
 async def main():
     # Create base server
     server = MCPServer(name="sahool-server", version="1.0.0")
@@ -341,10 +352,8 @@ async def main():
     # Run with stdio transport
     await server.run_stdio()
 
-
 if __name__ == "__main__":
     import asyncio
-
     asyncio.run(main())
 ```
 
@@ -355,7 +364,6 @@ from fastapi import FastAPI
 from shared.mcp.server import MCPServer
 from shared.mcp.skills_server import extend_mcp_server_with_skills
 
-
 async def lifespan(app: FastAPI):
     # Startup
     server = MCPServer()
@@ -365,9 +373,7 @@ async def lifespan(app: FastAPI):
     # Shutdown
     await server.close()
 
-
 app = FastAPI(lifespan=lifespan)
-
 
 @app.post("/mcp")
 async def handle_mcp(request: dict):
@@ -379,29 +385,42 @@ async def handle_mcp(request: dict):
 ```python
 from shared.mcp.client import MCPClient
 
-
 async def analyze_field(field_id: str):
     async with MCPClient(server_url="http://mcp-server:8200") as client:
         # Get crop advisory
-        advisory = await client.call_tool("crop_advisor", {"field_id": field_id, "issue_type": "disease_detection"})
+        advisory = await client.call_tool(
+            "crop_advisor",
+            {"field_id": field_id, "issue_type": "disease_detection"}
+        )
 
         # Get documentation
-        doc = await client.call_tool("farm_documentation", {"document_type": "best_practices", "crop_type": "wheat"})
+        doc = await client.call_tool(
+            "farm_documentation",
+            {"document_type": "best_practices", "crop_type": "wheat"}
+        )
 
         # Compress context for analysis
-        compressed = await client.call_tool("compress_context", {"data": advisory.data, "data_type": "field"})
+        compressed = await client.call_tool(
+            "compress_context",
+            {"data": advisory.data, "data_type": "field"}
+        )
 
         # Query memory for history
         history = await client.call_tool(
             "query_memory",
-            {"tenant_id": "tenant-001", "query": "previous issues with this field", "field_id": field_id, "limit": 10},
+            {
+                "tenant_id": "tenant-001",
+                "query": "previous issues with this field",
+                "field_id": field_id,
+                "limit": 10
+            }
         )
 
         return {
             "advisory": advisory,
             "documentation": doc,
             "compressed_size": compressed.data["compression_ratio"],
-            "history": history.data["entries"],
+            "history": history.data["entries"]
         }
 ```
 
@@ -498,7 +517,6 @@ tools = SAHOOLSkillsTools()  # Still works, with reduced features
 ```python
 # Verify SAHOOL_API_URL is configured
 import os
-
 print(os.getenv("SAHOOL_API_URL", "http://localhost:8000"))
 
 # Test connectivity

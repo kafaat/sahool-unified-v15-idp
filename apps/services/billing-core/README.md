@@ -136,7 +136,10 @@ if response.success:
     subscription = response.data
 
 # تسجيل استخدام
-await billing.post("/v1/tenants/tenant-123/usage", json={"usage_type": "ai_analysis", "amount": 1})
+await billing.post(
+    "/v1/tenants/tenant-123/usage",
+    json={"usage_type": "ai_analysis", "amount": 1}
+)
 ```
 
 ### cURL Examples

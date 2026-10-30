@@ -99,13 +99,8 @@ pip install pytest pytest-cov black mypy ruff
 ```python
 # test_imports.py
 from models.irrigation import (
-    CropType,
-    GrowthStage,
-    SoilType,
-    IrrigationType,
-    WeatherData,
-    SoilProperties,
-    IrrigationSchedule,
+    CropType, GrowthStage, SoilType, IrrigationType,
+    WeatherData, SoilProperties, IrrigationSchedule
 )
 from services.irrigation_scheduler import IrrigationScheduler
 
@@ -134,7 +129,7 @@ weather = WeatherData(
     wind_speed=2.0,
     rainfall=0.0,
     latitude=15.35,
-    elevation=2250,
+    elevation=2250
 )
 
 et0 = scheduler.calculate_et0_penman_monteith(weather)
@@ -162,7 +157,9 @@ You should see detailed output for all examples
 
 ```python
 from datetime import date, timedelta
-from models.irrigation import CropType, GrowthStage, SoilType, IrrigationType, WeatherData
+from models.irrigation import (
+    CropType, GrowthStage, SoilType, IrrigationType, WeatherData
+)
 from services.irrigation_scheduler import IrrigationScheduler
 
 # 1. إنشاء المحدد
@@ -171,18 +168,16 @@ scheduler = IrrigationScheduler()
 # 2. إعداد بيانات الطقس
 weather_forecast = []
 for i in range(7):
-    weather_forecast.append(
-        WeatherData(
-            date=date.today() + timedelta(days=i),
-            temp_max=28.0,
-            temp_min=15.0,
-            humidity_mean=45.0,
-            wind_speed=2.5,
-            rainfall=0.0,
-            latitude=15.35,  # صنعاء
-            elevation=2250,
-        )
-    )
+    weather_forecast.append(WeatherData(
+        date=date.today() + timedelta(days=i),
+        temp_max=28.0,
+        temp_min=15.0,
+        humidity_mean=45.0,
+        wind_speed=2.5,
+        rainfall=0.0,
+        latitude=15.35,  # صنعاء
+        elevation=2250
+    ))
 
 # 3. إنشاء جدول الري
 schedule = scheduler.get_optimal_schedule(
@@ -194,7 +189,7 @@ schedule = scheduler.get_optimal_schedule(
     irrigation_type=IrrigationType.DRIP,
     weather_forecast=weather_forecast,
     field_area_ha=1.0,
-    optimize_for_cost=True,
+    optimize_for_cost=True
 )
 
 # 4. عرض النتائج
@@ -213,11 +208,12 @@ print(f"التكلفة المقدرة: {schedule.estimated_electricity_cost:.2f}
 # في main.py الخاص بخدمة field-ops
 from fastapi import FastAPI, HTTPException
 from apps.kernel.field_ops.services.irrigation_scheduler import IrrigationScheduler
-from apps.kernel.field_ops.models.irrigation import CropType, GrowthStage, SoilType, IrrigationType, WeatherData
+from apps.kernel.field_ops.models.irrigation import (
+    CropType, GrowthStage, SoilType, IrrigationType, WeatherData
+)
 
 app = FastAPI()
 scheduler = IrrigationScheduler()
-
 
 @app.post("/irrigation/schedule")
 async def create_irrigation_schedule(
@@ -228,7 +224,7 @@ async def create_irrigation_schedule(
     soil_type: SoilType,
     irrigation_type: IrrigationType,
     weather_forecast: list[WeatherData],
-    field_area_ha: float,
+    field_area_ha: float
 ):
     """إنشاء جدول ري محسّن - Create optimized irrigation schedule"""
     try:
@@ -240,12 +236,11 @@ async def create_irrigation_schedule(
             soil_type=soil_type,
             irrigation_type=irrigation_type,
             weather_forecast=weather_forecast,
-            field_area_ha=field_area_ha,
+            field_area_ha=field_area_ha
         )
         return schedule
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @app.get("/irrigation/et0")
 async def calculate_et0(weather: WeatherData):
@@ -260,7 +255,6 @@ async def calculate_et0(weather: WeatherData):
 # مثال مع PostgreSQL
 import asyncpg
 from datetime import date
-
 
 async def save_irrigation_schedule(pool, schedule):
     """حفظ جدول الري في قاعدة البيانات"""
@@ -281,7 +275,7 @@ async def save_irrigation_schedule(pool, schedule):
             schedule.end_date,
             schedule.total_water_mm,
             schedule.total_water_m3,
-            schedule.optimization_score,
+            schedule.optimization_score
         )
 
         # حفظ الأحداث
@@ -298,7 +292,7 @@ async def save_irrigation_schedule(pool, schedule):
                 event.water_amount_mm,
                 event.duration_minutes,
                 event.is_night_irrigation,
-                event.priority,
+                event.priority
             )
 
         return schedule_id
@@ -311,20 +305,17 @@ async def save_irrigation_schedule(pool, schedule):
 import nats
 import json
 
-
 async def publish_irrigation_event(nc, event):
     """نشر حدث ري عبر NATS"""
     await nc.publish(
         "sahool.irrigation.scheduled",
-        json.dumps(
-            {
-                "field_id": event.field_id,
-                "scheduled_date": event.scheduled_date.isoformat(),
-                "water_amount_m3": event.water_amount_m3,
-                "is_night": event.is_night_irrigation,
-                "priority": event.priority,
-            }
-        ).encode(),
+        json.dumps({
+            "field_id": event.field_id,
+            "scheduled_date": event.scheduled_date.isoformat(),
+            "water_amount_m3": event.water_amount_m3,
+            "is_night": event.is_night_irrigation,
+            "priority": event.priority
+        }).encode()
     )
 ```
 
@@ -374,13 +365,13 @@ print(f"عجز: {balance.water_deficit}")
 # مثال صحيح:
 weather = WeatherData(
     date=date.today(),  # date object, not string
-    temp_max=28.0,  # float
-    temp_min=15.0,  # float
+    temp_max=28.0,      # float
+    temp_min=15.0,      # float
     humidity_mean=45.0,
     wind_speed=2.5,
     rainfall=0.0,
     latitude=15.35,
-    elevation=2250,
+    elevation=2250
 )
 ```
 

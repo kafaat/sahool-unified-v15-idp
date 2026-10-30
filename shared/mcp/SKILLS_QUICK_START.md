@@ -7,12 +7,14 @@
 ```python
 from shared.mcp.skills_server import SAHOOLSkillsTools
 
-
 async def demo():
     tools = SAHOOLSkillsTools()
 
     # Get crop advisor
-    result = await tools.crop_advisor(field_id="field-123", issue_type="disease_detection")
+    result = await tools.crop_advisor(
+        field_id="field-123",
+        issue_type="disease_detection"
+    )
     print(result.data["recommendations"])
 
     await tools.close()
@@ -23,7 +25,6 @@ async def demo():
 ```python
 from shared.mcp.server import MCPServer
 from shared.mcp.skills_server import extend_mcp_server_with_skills
-
 
 async def main():
     server = MCPServer()
@@ -37,7 +38,10 @@ async def main():
 from shared.mcp.client import MCPClient
 
 async with MCPClient(server_url="http://localhost:8200") as client:
-    result = await client.call_tool("crop_advisor", {"field_id": "field-123", "issue_type": "pest_management"})
+    result = await client.call_tool(
+        "crop_advisor",
+        {"field_id": "field-123", "issue_type": "pest_management"}
+    )
 ```
 
 ## Available Skills
@@ -51,19 +55,30 @@ await tools.crop_advisor(field_id="...", issue_type="disease_detection")
 ### farm_documentation
 Access agricultural guides
 ```python
-await tools.farm_documentation(document_type="pest_management", crop_type="tomatoes")
+await tools.farm_documentation(
+    document_type="pest_management",
+    crop_type="tomatoes"
+)
 ```
 
 ### compress_context
 Reduce AI context tokens by 60-80%
 ```python
-await tools.compress_context(data=field_data, data_type="field", compression_strategy="hybrid")
+await tools.compress_context(
+    data=field_data,
+    data_type="field",
+    compression_strategy="hybrid"
+)
 ```
 
 ### query_memory
 Search farm memory and history
 ```python
-await tools.query_memory(tenant_id="tenant-001", query="irrigation for wheat", field_id="field-123")
+await tools.query_memory(
+    tenant_id="tenant-001",
+    query="irrigation for wheat",
+    field_id="field-123"
+)
 ```
 
 ## Configuration
@@ -89,7 +104,6 @@ python -m shared.mcp.examples_skills
 Run specific example:
 ```python
 from shared.mcp.examples_skills import example_direct_skills_usage
-
 await example_direct_skills_usage()
 ```
 
@@ -97,7 +111,11 @@ await example_direct_skills_usage()
 
 ### Get Disease Recommendations
 ```python
-result = await tools.crop_advisor(field_id="field-123", issue_type="disease_detection", confidence_threshold=0.7)
+result = await tools.crop_advisor(
+    field_id="field-123",
+    issue_type="disease_detection",
+    confidence_threshold=0.7
+)
 # result.data["recommendations"]
 ```
 
@@ -106,7 +124,7 @@ result = await tools.crop_advisor(field_id="field-123", issue_type="disease_dete
 result = await tools.compress_context(
     data=large_field_data,
     data_type="field",
-    target_ratio=0.3,  # 70% reduction
+    target_ratio=0.3  # 70% reduction
 )
 print(f"Saved {result.data['tokens_saved']} tokens")
 ```
@@ -118,13 +136,17 @@ result = await tools.query_memory(
     query="wheat disease treatment",
     memory_types=["recommendation"],
     time_range_days=30,
-    limit=5,
+    limit=5
 )
 ```
 
 ### Get Growing Guide (Arabic)
 ```python
-result = await tools.farm_documentation(document_type="growing_guide", crop_type="wheat", language="ar")
+result = await tools.farm_documentation(
+    document_type="growing_guide",
+    crop_type="wheat",
+    language="ar"
+)
 ```
 
 ## Error Handling

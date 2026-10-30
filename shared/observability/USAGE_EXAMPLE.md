@@ -63,7 +63,6 @@ setup_observability_middleware(
 app.include_router(create_metrics_router(metrics.registry))
 app.include_router(create_health_router())
 
-
 # Your service endpoints
 @app.get("/")
 async def root():
@@ -78,14 +77,12 @@ async def root():
 ```python
 from shared.observability import get_tracer, trace_function
 
-
 # Using decorator
 @trace_function("process_field_data")
 async def process_field(field_id: str):
     logger.info(f"Processing field {field_id}")
     # Your processing logic
     return {"field_id": field_id, "status": "processed"}
-
 
 # Using context manager
 async def complex_operation(field_id: str):
@@ -110,7 +107,6 @@ import time
 
 agent_metrics = AgentMetrics()
 
-
 @app.post("/ai/crop-advice")
 async def get_crop_advice(field_id: str):
     tracer = get_tracer()
@@ -123,10 +119,13 @@ async def get_crop_advice(field_id: str):
             "agent.name": "crop_advisor",
             "agent.model": "gpt-4",
             "field.id": field_id,
-        },
+        }
     ):
         # Make AI call
-        response = await call_openai_api(model="gpt-4", prompt=f"Provide crop advice for field {field_id}")
+        response = await call_openai_api(
+            model="gpt-4",
+            prompt=f"Provide crop advice for field {field_id}"
+        )
 
         # Calculate cost
         cost = CostTracker.calculate_cost(
@@ -159,7 +158,7 @@ async def get_crop_advice(field_id: str):
             "metadata": {
                 "tokens_used": response.usage.total_tokens,
                 "cost_usd": cost,
-            },
+            }
         }
 ```
 
@@ -172,25 +171,28 @@ metrics = MetricsCollector("crop_service")
 
 # Create custom metrics
 irrigation_events = metrics.create_counter(
-    "irrigation_events", "Total irrigation events", labels=["field_id", "event_type"]
+    "irrigation_events",
+    "Total irrigation events",
+    labels=["field_id", "event_type"]
 )
 
 ndvi_processing_time = metrics.create_histogram(
     "ndvi_processing_seconds",
     "NDVI processing duration",
     labels=["field_size"],
-    buckets=[0.1, 0.5, 1.0, 2.0, 5.0, 10.0],
+    buckets=[0.1, 0.5, 1.0, 2.0, 5.0, 10.0]
 )
-
 
 # Use custom metrics
 @app.post("/irrigation/start")
 async def start_irrigation(field_id: str):
-    irrigation_events.labels(field_id=field_id, event_type="start").inc()
+    irrigation_events.labels(
+        field_id=field_id,
+        event_type="start"
+    ).inc()
 
     # Your logic
     return {"status": "irrigation started"}
-
 
 @app.post("/ndvi/process")
 async def process_ndvi(field_id: str, field_size: str):
@@ -207,7 +209,6 @@ async def process_ndvi(field_id: str, field_size: str):
 from shared.observability import get_logger, set_request_context
 
 logger = get_logger("my-service")
-
 
 @app.middleware("http")
 async def add_request_context(request, call_next):
@@ -226,11 +227,14 @@ async def add_request_context(request, call_next):
     response = await call_next(request)
     return response
 
-
 # All logs will include request_id, tenant_id, user_id
 @app.get("/fields/{field_id}")
 async def get_field(field_id: str):
-    logger.info(f"Fetching field data", field_id=field_id, operation="get_field")
+    logger.info(
+        f"Fetching field data",
+        field_id=field_id,
+        operation="get_field"
+    )
     # Your logic
     return {"field_id": field_id}
 ```
@@ -261,7 +265,6 @@ logger.info("User data", **safe_data)
 from shared.observability import AgentMetrics
 
 agent_metrics = AgentMetrics()
-
 
 @app.get("/ai/cached-advice/{field_id}")
 async def get_cached_advice(field_id: str):
@@ -374,18 +377,15 @@ USER_ID_HEADER=X-User-ID
 import pytest
 from shared.observability import setup_logging, MetricsCollector
 
-
 def test_logging():
     logger = setup_logging("test-service", json_output=False)
     logger.info("Test message")
     # No exceptions = success
 
-
 def test_metrics():
     metrics = MetricsCollector("test-service")
     metrics.record_request("GET", "/test", 200, 0.1)
     # Verify metrics are recorded
-
 
 def test_sensitive_masking():
     from shared.observability import SensitiveDataMasker

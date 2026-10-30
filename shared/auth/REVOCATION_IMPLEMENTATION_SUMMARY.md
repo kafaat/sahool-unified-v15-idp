@@ -28,14 +28,14 @@ A comprehensive Redis-based token revocation system has been implemented with fu
 **Key Functions:**
 
 ```python
--revoke_token(jti, expires_in, reason, user_id)
--is_token_revoked(jti)
--revoke_all_user_tokens(user_id, reason)
--is_user_token_revoked(user_id, token_issued_at)
--revoke_all_tenant_tokens(tenant_id, reason)
--is_revoked(jti, user_id, tenant_id, issued_at)
--get_stats()
--health_check()
+- revoke_token(jti, expires_in, reason, user_id)
+- is_token_revoked(jti)
+- revoke_all_user_tokens(user_id, reason)
+- is_user_token_revoked(user_id, token_issued_at)
+- revoke_all_tenant_tokens(tenant_id, reason)
+- is_revoked(jti, user_id, tenant_id, issued_at)
+- get_stats()
+- health_check()
 ```
 
 #### 2. `/shared/auth/revocation_middleware.py`
@@ -208,13 +208,13 @@ async publicRoute() {}
 **New Exports:**
 
 ```python
--RedisTokenRevocationStore
--get_revocation_store
--revoke_token
--revoke_all_user_tokens
--is_token_revoked
--TokenRevocationMiddleware
--RevocationCheckDependency
+- RedisTokenRevocationStore
+- get_revocation_store
+- revoke_token
+- revoke_all_user_tokens
+- is_token_revoked
+- TokenRevocationMiddleware
+- RevocationCheckDependency
 ```
 
 ## Architecture | البنية المعمارية

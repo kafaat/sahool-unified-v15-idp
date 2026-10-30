@@ -37,20 +37,24 @@ shared/globalgap/
 ```python
 from shared.globalgap import (
     # Constants
-    IFA_VERSION,  # "6.0"
-    COMPLIANCE_THRESHOLDS,  # Major Must: 100%, Minor Must: 95%
+    IFA_VERSION,              # "6.0"
+    COMPLIANCE_THRESHOLDS,    # Major Must: 100%, Minor Must: 95%
     CERTIFICATE_VALIDITY_DAYS,
+
     # Models
     ChecklistItem,
     ChecklistCategory,
     AuditFinding,
     NonConformance,
+
     # Validators
     validate_ggn_number,
     check_major_must_compliance,
+
     # Checklist
     IFA_V6_CHECKLIST,
     calculate_compliance_score,
+
     # API Client
     GlobalGAPClient,
     CertificateInfo,
@@ -71,17 +75,17 @@ from shared.globalgap import (
 
 ```python
 class ChecklistItem(BaseModel):
-    id: str  # Control point number (e.g., "CB.1.1")
-    category_code: str  # Category code
-    subcategory: str  # Subcategory
-    title_en: str  # English title
-    title_ar: str  # Arabic title
-    description_en: str  # English description
-    description_ar: str  # Arabic description
-    compliance_level: str  # "major_must" | "minor_must" | "recommendation"
-    evidence_required: list  # Required evidence types
-    guidance_en: str  # English guidance
-    guidance_ar: str  # Arabic guidance
+    id: str                    # Control point number (e.g., "CB.1.1")
+    category_code: str         # Category code
+    subcategory: str           # Subcategory
+    title_en: str              # English title
+    title_ar: str              # Arabic title
+    description_en: str        # English description
+    description_ar: str        # Arabic description
+    compliance_level: str      # "major_must" | "minor_must" | "recommendation"
+    evidence_required: list    # Required evidence types
+    guidance_en: str           # English guidance
+    guidance_ar: str           # Arabic guidance
 ```
 
 ## API Client

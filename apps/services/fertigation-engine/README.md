@@ -642,15 +642,13 @@ The service publishes NATS events for downstream consumers (advisory, notificati
 if nc:  # NATS connection available
     await nc.publish(
         f"sahool.{tenant_id}.fertigation.plan_created",
-        json.dumps(
-            {
-                "crop": req.crop,
-                "phase": req.growth_phase.value,
-                "n_kg": result.n_adjusted_kg_ha,
-                "ec_total": result.ec_total,
-                "timestamp": datetime.utcnow().isoformat(),
-            }
-        ).encode(),
+        json.dumps({
+            "crop": req.crop,
+            "phase": req.growth_phase.value,
+            "n_kg": result.n_adjusted_kg_ha,
+            "ec_total": result.ec_total,
+            "timestamp": datetime.utcnow().isoformat(),
+        }).encode()
     )
 ```
 

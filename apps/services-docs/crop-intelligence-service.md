@@ -392,15 +392,13 @@ if nats_url:
 # On observation creation
 await app.state.nc.publish(
     f"sahool.{tenant_id}.crop.observation.created",
-    json.dumps(
-        {
-            "field_id": field_id,
-            "zone_id": zone_id,
-            "observation_id": observation_id,
-            "indices": indices,
-            "timestamp": datetime.utcnow().isoformat(),
-        }
-    ).encode(),
+    json.dumps({
+        "field_id": field_id,
+        "zone_id": zone_id,
+        "observation_id": observation_id,
+        "indices": indices,
+        "timestamp": datetime.utcnow().isoformat()
+    }).encode()
 )
 ```
 
@@ -440,11 +438,11 @@ await app.state.nc.publish(
 ```python
 # Combined factor calculation
 combined_factor = (
-    ndvi_factor * 0.35
-    + evi_factor * 0.20
-    + water_factor * water_sens * 0.20
-    + nitrogen_factor * 0.15
-    + savi_factor * 0.10
+    ndvi_factor * 0.35 +
+    evi_factor * 0.20 +
+    water_factor * water_sens * 0.20 +
+    nitrogen_factor * 0.15 +
+    savi_factor * 0.10
 )
 
 predicted_yield = base_yield + (max_yield - base_yield) * combined_factor
@@ -457,7 +455,6 @@ If ML models are to be used, implement:
 1. **Model Loading** in lifespan:
 ```python
 import tensorflow as tf
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -747,7 +744,7 @@ humidity_pct: float | None = Field(default=None, ge=0, le=100)
 **Issue**: Allows DELETE and PATCH methods that aren't used
 
 ```python
-allow_methods = (["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],)
+allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
 # Should be: allow_methods=["GET", "POST", "OPTIONS"],
 ```
 

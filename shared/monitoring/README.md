@@ -23,7 +23,6 @@ from shared.monitoring.metrics import setup_metrics, get_registry, track_db_quer
 
 # Attach to FastAPI app - adds /metrics endpoint + HTTP middleware
 from fastapi import FastAPI
-
 app = FastAPI()
 setup_metrics(app, service_name="advisory-service")
 
@@ -43,18 +42,17 @@ latency_histogram = registry.histogram(
 )
 latency_histogram.observe(0.42)
 
-
 # Decorator for database queries
 @track_db_query
-async def fetch_crop_data(field_id: str): ...
-
+async def fetch_crop_data(field_id: str):
+    ...
 
 # Decorator for external calls
 from shared.monitoring.metrics import track_external_call
 
-
 @track_external_call("sentinel-hub")
-async def fetch_ndvi(field_id: str): ...
+async def fetch_ndvi(field_id: str):
+    ...
 ```
 
 The `/metrics` endpoint emits standard Prometheus text format including
@@ -71,7 +69,7 @@ Requires `prometheus_client` to be installed; degrades gracefully if absent.
 ```python
 from shared.monitoring.agricultural_metrics import get_agricultural_metrics
 
-agri = get_agricultural_metrics()  # singleton
+agri = get_agricultural_metrics()   # singleton
 
 # Record an NDVI calculation from Sentinel-2
 agri.record_ndvi_calculation(
@@ -88,7 +86,7 @@ agri.record_weather_update(
     region="riyadh",
     temperature=28.5,
     humidity=35.0,
-    et0=5.5,  # Reference evapotranspiration mm/day
+    et0=5.5,        # Reference evapotranspiration mm/day
 )
 
 # Record disease detection from YOLO vision service
@@ -145,10 +143,8 @@ burn-rate alert rule export.
 
 ```python
 from shared.monitoring.sli_slo import (
-    get_slo_registry,
-    get_service_slos,
-    ServiceTier,
-    SLIType,
+    get_slo_registry, get_service_slos,
+    ServiceTier, SLIType,
 )
 
 # Platform-wide registry (pre-populated for all known services)
@@ -156,7 +152,7 @@ registry = get_slo_registry()
 
 # Look up SLOs for a service
 slos = get_service_slos("field-management-service")
-print(slos.tier)  # ServiceTier.ESSENTIAL
+print(slos.tier)           # ServiceTier.ESSENTIAL
 for slo in slos.slos:
     print(slo.name, slo.target, slo.error_budget_percent)
     # field-management-service_availability  0.995  0.5%
@@ -192,13 +188,8 @@ signaling, and optional `psutil`-based performance metrics.
 
 ```python
 from shared.monitoring.health_enhanced import (
-    EnhancedHealthChecker,
-    DependencyType,
-    CheckSeverity,
-    check_postgres,
-    check_redis,
-    check_nats,
-    check_disk_space,
+    EnhancedHealthChecker, DependencyType, CheckSeverity,
+    check_postgres, check_redis, check_nats, check_disk_space,
     create_health_router,
 )
 
@@ -235,7 +226,7 @@ checker.register_readiness_check(
 )
 checker.register_readiness_check(
     name="disk",
-    check_func=check_disk_space,  # threshold_percent=85 default
+    check_func=check_disk_space,      # threshold_percent=85 default
     dependency_type=DependencyType.STORAGE,
     severity=CheckSeverity.WARNING,
 )
@@ -246,7 +237,6 @@ app.include_router(create_health_router(checker))
 
 # Graceful shutdown (stops readiness from returning 200)
 import signal
-
 signal.signal(signal.SIGTERM, lambda *_: checker.begin_graceful_shutdown())
 ```
 
@@ -264,11 +254,8 @@ domain-specific convenience methods.
 
 ```python
 from shared.monitoring.structured_logging import (
-    get_structured_logger,
-    LogCategory,
-    set_log_context,
-    clear_log_context,
-    log_operation,
+    get_structured_logger, LogCategory,
+    set_log_context, clear_log_context, log_operation,
 )
 
 logger = get_structured_logger("advisory-service")
@@ -290,14 +277,14 @@ logger.log_ai_inference("crop-health-model", duration_ms=85.0, success=True)
 logger.log_sensor_reading("SENSOR-01", "soil_moisture", 42.5, unit="%")
 
 # Generic structured logging
-logger.info("Advisory generated", LogCategory.ADVISORY, crop_type="wheat", field_id="FIELD-003", confidence=0.91)
+logger.info("Advisory generated", LogCategory.ADVISORY,
+            crop_type="wheat", field_id="FIELD-003", confidence=0.91)
 logger.error("Inference failed", crop_type="wheat", model="yolo26")
-
 
 # Timing decorator (sync + async)
 @log_operation("ndvi_analysis", category=LogCategory.NDVI)
-async def run_ndvi(field_id: str): ...
-
+async def run_ndvi(field_id: str):
+    ...
 
 clear_log_context()
 ```

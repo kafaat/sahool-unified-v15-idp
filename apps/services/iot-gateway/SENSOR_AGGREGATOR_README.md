@@ -119,7 +119,11 @@ aggregator = SensorAggregator()
 
 # Create sample readings
 readings = create_sample_readings(
-    device_id="sensor_001", field_id="field_001", sensor_type="air_temperature", count=50, base_value=25.0
+    device_id="sensor_001",
+    field_id="field_001",
+    sensor_type="air_temperature",
+    count=50,
+    base_value=25.0
 )
 
 # Detect outliers using Z-Score method
@@ -141,11 +145,17 @@ from models.sensor_data import TimeGranularity
 aggregator = SensorAggregator()
 
 # Define time range
-time_range = (datetime.now(timezone.utc) - timedelta(hours=24), datetime.now(timezone.utc))
+time_range = (
+    datetime.now(timezone.utc) - timedelta(hours=24),
+    datetime.now(timezone.utc)
+)
 
 # Aggregate by field
 aggregated = aggregator.aggregate_by_field(
-    field_id="field_highland_001", time_range=time_range, readings=readings, granularity=TimeGranularity.DAILY
+    field_id="field_highland_001",
+    time_range=time_range,
+    readings=readings,
+    granularity=TimeGranularity.DAILY
 )
 
 for agg in aggregated:
@@ -161,7 +171,11 @@ for agg in aggregated:
 aggregator = SensorAggregator()
 
 # Check sensor health (last 24 hours of readings)
-health = aggregator.check_sensor_status(device_id="sensor_temp_001", readings=readings, expected_interval_minutes=15)
+health = aggregator.check_sensor_status(
+    device_id="sensor_temp_001",
+    readings=readings,
+    expected_interval_minutes=15
+)
 
 print(f"Status: {health.status.value}")
 print(f"Quality Score: {health.data_quality_score}%")
@@ -207,7 +221,7 @@ rainfall_readings = [
         sensor_type="rainfall",
         value=5.5,
         unit="mm",
-        timestamp="2024-01-01T12:00:00Z",
+        timestamp="2024-01-01T12:00:00Z"
     ),
     # ... more readings
 ]
@@ -219,7 +233,7 @@ agg = aggregator._aggregate_readings(
     sensor_type="rainfall",
     time_range=time_range,
     readings=rainfall_readings,
-    granularity=TimeGranularity.WEEKLY,
+    granularity=TimeGranularity.WEEKLY
 )
 
 print(f"Weekly Rainfall: {agg.cumulative_sum} mm")
@@ -233,15 +247,15 @@ print(f"Daily Average: {agg.mean} mm")
 ```python
 @dataclass
 class SensorReading:
-    device_id: str  # معرف الجهاز
-    field_id: str  # معرف الحقل
-    sensor_type: str  # نوع المستشعر
-    value: float  # القيمة
-    unit: str  # الوحدة
-    timestamp: str  # وقت القراءة
-    metadata: Optional[Dict]  # بيانات إضافية
+    device_id: str           # معرف الجهاز
+    field_id: str            # معرف الحقل
+    sensor_type: str         # نوع المستشعر
+    value: float             # القيمة
+    unit: str                # الوحدة
+    timestamp: str           # وقت القراءة
+    metadata: Optional[Dict] # بيانات إضافية
     quality_score: Optional[float]  # نقاط الجودة (0-100)
-    is_outlier: bool = False  # هل هي قيمة شاذة
+    is_outlier: bool = False        # هل هي قيمة شاذة
 ```
 
 ### AggregatedData
@@ -290,10 +304,10 @@ class SensorHealth:
     timestamp: str
 
     # Metrics
-    data_quality_score: float  # 0-100
-    uptime_percentage: float  # 0-100
-    battery_level: Optional[float]  # 0-100
-    signal_strength: Optional[float]  # dBm
+    data_quality_score: float        # 0-100
+    uptime_percentage: float         # 0-100
+    battery_level: Optional[float]   # 0-100
+    signal_strength: Optional[float] # dBm
 
     # Issues
     drift_detected: bool
@@ -321,7 +335,7 @@ aggregate_by_sensor_type(sensor_type, time_range, readings, granularity)
 calculate_statistics(readings)
 
 # Detect outliers
-detect_outliers(readings, method="zscore", threshold=3.0)
+detect_outliers(readings, method='zscore', threshold=3.0)
 ```
 
 ### Time-based Aggregations | التجميع الزمني
@@ -399,7 +413,6 @@ from models.sensor_data import SensorReading
 
 # Initialize aggregator
 aggregator = SensorAggregator()
-
 
 # Process incoming MQTT data
 async def handle_mqtt_message(msg: MqttMessage):

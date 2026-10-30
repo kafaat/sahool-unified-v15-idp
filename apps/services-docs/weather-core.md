@@ -766,10 +766,10 @@ version="15.3.3",
 
 ```python
 # multi_provider.py line 228, 444, 602
-timestamp = datetime.utcnow().isoformat()
+timestamp=datetime.utcnow().isoformat()
 
 # open_meteo.py line 123, 277
-timestamp = datetime.utcnow().isoformat()
+timestamp=datetime.utcnow().isoformat()
 ```
 
 `datetime.utcnow()` is deprecated in Python 3.12+. Use `datetime.now(UTC)` instead (already correctly used in `publish.py`).
@@ -828,7 +828,7 @@ When auth is unavailable, endpoints still work but without authentication. This 
 **Location:** `/home/user/sahool-unified-v15-idp/apps/services/weather-core/src/providers/multi_provider.py`
 
 ```python
-precipitation_mm = (daily.get("precipitation_sum", [0])[i] or 0,)
+precipitation_mm=daily.get("precipitation_sum", [0])[i] or 0,
 ```
 
 This assumes `daily.get()` returns a list with at least `i` elements. If the API returns fewer elements, this will cause an IndexError.

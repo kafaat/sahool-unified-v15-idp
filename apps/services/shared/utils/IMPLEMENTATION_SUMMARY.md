@@ -399,20 +399,36 @@ python3 fallback_examples.py
 ### Critical Service (Fail Fast)
 
 ```python
-fm.register_fallback("payment", payment_fallback, failure_threshold=3, recovery_timeout=60, success_threshold=5)
+fm.register_fallback(
+    "payment",
+    payment_fallback,
+    failure_threshold=3,
+    recovery_timeout=60,
+    success_threshold=5
+)
 ```
 
 ### Standard Service
 
 ```python
-fm.register_fallback("weather", weather_fallback, failure_threshold=5, recovery_timeout=30, success_threshold=3)
+fm.register_fallback(
+    "weather",
+    weather_fallback,
+    failure_threshold=5,
+    recovery_timeout=30,
+    success_threshold=3
+)
 ```
 
 ### Flaky Service (More Tolerant)
 
 ```python
 fm.register_fallback(
-    "external_sensor", sensor_fallback, failure_threshold=10, recovery_timeout=120, success_threshold=3
+    "external_sensor",
+    sensor_fallback,
+    failure_threshold=10,
+    recovery_timeout=120,
+    success_threshold=3
 )
 ```
 

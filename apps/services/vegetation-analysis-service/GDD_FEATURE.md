@@ -382,14 +382,18 @@ Display progress in farmer app:
 import httpx
 from datetime import date
 
-
 async def track_wheat_field():
     base_url = "http://localhost:8090"
 
     # Get GDD chart for wheat field
     response = await httpx.get(
         f"{base_url}/v1/gdd/chart/field123",
-        params={"crop_code": "WHEAT", "planting_date": "2024-03-01", "lat": 15.37, "lon": 44.19},
+        params={
+            "crop_code": "WHEAT",
+            "planting_date": "2024-03-01",
+            "lat": 15.37,
+            "lon": 44.19
+        }
     )
 
     chart = response.json()
@@ -399,9 +403,9 @@ async def track_wheat_field():
     print(f"Harvest in: {chart['harvest_prediction']['days_remaining']} days")
 
     # Check if flowering stage reached
-    for milestone in chart["milestones"]:
-        if milestone["stage_name_en"] == "Flowering":
-            if milestone["is_reached"]:
+    for milestone in chart['milestones']:
+        if milestone['stage_name_en'] == 'Flowering':
+            if milestone['is_reached']:
                 print(f"Flowering occurred on {milestone['reached_date']}")
             else:
                 print(f"Flowering expected in {milestone['days_remaining']} days")

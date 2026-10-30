@@ -57,12 +57,8 @@ Priority queue-based scheduler (min-heap). Supports:
 
 ```python
 from shared.batch_operations import (
-    BatchOperation,
-    BatchOperationType,
-    BatchExecutor,
-    BatchConfig,
-    FieldOperationItem,
-    IrrigationParams,
+    BatchOperation, BatchOperationType, BatchExecutor,
+    BatchConfig, FieldOperationItem, IrrigationParams,
     RollbackStrategy,
 )
 
@@ -84,10 +80,9 @@ batch = BatchOperation(
 # Execute with progress callback
 executor = BatchExecutor()
 
-
 async def on_progress(progress):
-    print(f"Progress: {progress.percent_complete:.1f}% ({progress.completed_items}/{progress.total_items})")
-
+    print(f"Progress: {progress.percent_complete:.1f}% "
+          f"({progress.completed_items}/{progress.total_items})")
 
 executor.set_progress_callback(on_progress)
 result = await executor.execute(batch)
@@ -111,11 +106,7 @@ result = await execute_irrigation_batch(
 
 ```python
 from shared.batch_operations import (
-    BatchScheduler,
-    ScheduleType,
-    RecurrencePattern,
-    start_scheduler,
-    stop_scheduler,
+    BatchScheduler, ScheduleType, RecurrencePattern, start_scheduler, stop_scheduler,
 )
 from datetime import datetime, timezone, timedelta
 

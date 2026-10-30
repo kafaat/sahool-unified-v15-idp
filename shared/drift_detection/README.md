@@ -111,11 +111,8 @@ delta_report = await compare_with_baseline(engine, baseline)
 
 ```python
 from shared.drift_detection import (
-    DriftDetectionEngine,
-    AutoRemediationEngine,
-    QualityGatesEngine,
-    DriftCategory,
-    DriftSeverity,
+    DriftDetectionEngine, AutoRemediationEngine, QualityGatesEngine,
+    DriftCategory, DriftSeverity,
 )
 
 # Initialize

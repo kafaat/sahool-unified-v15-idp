@@ -144,7 +144,6 @@ print(f"Enabled providers: {len([p for p in config.providers.values() if p.enabl
 import asyncio
 from forecast_integration import WeatherForecastService
 
-
 async def main():
     # Initialize service
     service = WeatherForecastService()
@@ -161,14 +160,18 @@ async def main():
     # Clean up
     await service.close()
 
-
 asyncio.run(main())
 ```
 
 ### Alert Detection | كشف التنبيهات
 
 ```python
-from forecast_integration import detect_frost_risk, detect_heat_wave, detect_heavy_rain, detect_drought_conditions
+from forecast_integration import (
+    detect_frost_risk,
+    detect_heat_wave,
+    detect_heavy_rain,
+    detect_drought_conditions
+)
 
 # Detect frost risk
 frost_alerts = detect_frost_risk(daily_forecast)
@@ -185,7 +188,7 @@ rain_alerts = detect_heavy_rain(daily_forecast)
 # Detect drought (with optional history)
 drought_alerts = detect_drought_conditions(
     forecast=daily_forecast,
-    history=historical_data,  # Optional
+    history=historical_data  # Optional
 )
 ```
 
@@ -196,7 +199,7 @@ from forecast_integration import (
     calculate_gdd,
     calculate_chill_hours,
     calculate_evapotranspiration,
-    calculate_agricultural_indices,
+    calculate_agricultural_indices
 )
 
 # Calculate indices for a day
@@ -218,19 +221,19 @@ gdd = calculate_gdd(
     tmin=20.0,
     tmax=35.0,
     base_temp=10.0,  # Optional, default: 10°C
-    upper_limit=30.0,  # Optional, default: 30°C
+    upper_limit=30.0  # Optional, default: 30°C
 )
 
 # Chill Hours
 chill_hours = calculate_chill_hours(
     hourly_temps=[5.0, 6.5, 7.0, 8.0, 5.5],
-    threshold=7.2,  # Optional, default: 7.2°C
+    threshold=7.2  # Optional, default: 7.2°C
 )
 
 # Evapotranspiration
 et0 = calculate_evapotranspiration(
     forecast=day_forecast,
-    method="penman_monteith",  # or "hargreaves"
+    method="penman_monteith"  # or "hargreaves"
 )
 ```
 
@@ -245,9 +248,8 @@ from forecast_integration import (
     detect_frost_risk,
     detect_heat_wave,
     detect_heavy_rain,
-    calculate_agricultural_indices,
+    calculate_agricultural_indices
 )
-
 
 @app.post("/weather/forecast/agricultural")
 async def get_agricultural_forecast(req: LocationRequest, days: int = 7):
@@ -255,14 +257,18 @@ async def get_agricultural_forecast(req: LocationRequest, days: int = 7):
     Get agricultural weather forecast with alerts and indices
     الحصول على توقعات الطقس الزراعية مع التنبيهات والمؤشرات
     """
-    if not hasattr(app.state, "forecast_service"):
+    if not hasattr(app.state, 'forecast_service'):
         app.state.forecast_service = WeatherForecastService()
 
     # Fetch forecast
-    daily, hourly, provider = await app.state.forecast_service.fetch_forecast(req.lat, req.lon, days)
+    daily, hourly, provider = await app.state.forecast_service.fetch_forecast(
+        req.lat, req.lon, days
+    )
 
     if not daily:
-        raise ExternalServiceException.weather_service(details={"error": "Failed to fetch forecast"})
+        raise ExternalServiceException.weather_service(
+            details={"error": "Failed to fetch forecast"}
+        )
 
     # Detect alerts
     alerts = []
@@ -271,7 +277,10 @@ async def get_agricultural_forecast(req: LocationRequest, days: int = 7):
     alerts.extend(detect_heavy_rain(daily))
 
     # Calculate indices
-    indices = [calculate_agricultural_indices(day, hourly).to_dict() for day in daily]
+    indices = [
+        calculate_agricultural_indices(day, hourly).to_dict()
+        for day in daily
+    ]
 
     return {
         "field_id": req.field_id,
@@ -294,7 +303,7 @@ async def get_agricultural_forecast(req: LocationRequest, days: int = 7):
             "total_gdd": sum(i["gdd"] for i in indices),
             "avg_eto": sum(i["eto"] for i in indices) / len(indices),
             "total_rain": sum(f.precipitation_mm for f in daily),
-        },
+        }
     }
 ```
 
@@ -319,7 +328,7 @@ class AgriculturalAlert:
     recommendations_en: List[str]
     recommendations_ar: List[str]
     impact_score: float  # 0-10
-    confidence: float  # 0-1
+    confidence: float    # 0-1
 ```
 
 ### AgriculturalIndices
@@ -328,11 +337,11 @@ class AgriculturalAlert:
 @dataclass
 class AgriculturalIndices:
     date: str
-    gdd: float  # Growing Degree Days
-    chill_hours: float  # Chill Hours
-    eto: float  # Evapotranspiration (mm)
-    heat_stress_hours: float  # Hours > 35°C
-    moisture_deficit_mm: float  # ET0 - Precipitation
+    gdd: float                    # Growing Degree Days
+    chill_hours: float           # Chill Hours
+    eto: float                   # Evapotranspiration (mm)
+    heat_stress_hours: float     # Hours > 35°C
+    moisture_deficit_mm: float   # ET0 - Precipitation
 ```
 
 ## Provider Adapters | محولات المزودين
@@ -401,7 +410,12 @@ The service automatically falls back to alternative providers if the primary fai
 Configure rate limits in config.py:
 
 ```python
-ProviderConfig(name="OpenWeatherMap", rate_limit_per_day=1000, timeout_seconds=30, max_retries=3)
+ProviderConfig(
+    name="OpenWeatherMap",
+    rate_limit_per_day=1000,
+    timeout_seconds=30,
+    max_retries=3
+)
 ```
 
 ## Best Practices | أفضل الممارسات
@@ -439,7 +453,6 @@ print(f"Frost threshold: {config.thresholds.frost_medium_c}°C")
 ```python
 # Enable caching
 import os
-
 os.environ["WEATHER_CACHE_ENABLED"] = "true"
 os.environ["WEATHER_CACHE_FORECAST_TTL"] = "120"  # 2 hours
 ```

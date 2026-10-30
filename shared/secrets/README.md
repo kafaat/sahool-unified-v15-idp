@@ -103,13 +103,11 @@ creds = await client.get_secret("database/credentials")  # returns dict
 password = await client.get_secret("database/credentials", "password")
 
 # Batch fetch
-secrets_map = await client.get_secrets_batch(
-    [
-        "database/credentials",
-        "auth/jwt_secret",
-        "external/anthropic_api_key",
-    ]
-)
+secrets_map = await client.get_secrets_batch([
+    "database/credentials",
+    "auth/jwt_secret",
+    "external/anthropic_api_key",
+])
 
 # Audit logging
 event = SecretAccessEvent(

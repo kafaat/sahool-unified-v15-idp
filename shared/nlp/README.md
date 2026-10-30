@@ -73,11 +73,11 @@ from shared.nlp import ArabicNLPProcessor, IntentClassifier, EntityExtractor
 
 # Full pipeline
 processor = ArabicNLPProcessor()
-await processor.initialize()  # loads AraBERT if available
+await processor.initialize()   # loads AraBERT if available
 
 result = processor.process("القمح يعاني من اصفرار الأوراق")
 
-print(result["is_arabic"])  # True
+print(result["is_arabic"])          # True
 print(result["intent"]["primary"])  # "crop_disease"
 print(result["intent"]["confidence"])  # ~0.85
 
@@ -86,13 +86,13 @@ for entity in result["entities"]:
 # قمح  crop
 # اصفرار  disease
 
-print(result["sentiment"]["label"])  # "neutral"
+print(result["sentiment"]["label"])    # "neutral"
 print(result["sentiment"]["is_urgent"])  # False
 
 # Quick intent only
 classifier = IntentClassifier()
 intent = classifier.classify("متى أسقي القمح؟")
-print(intent.intent)  # AgriculturalIntent.IRRIGATION
+print(intent.intent)      # AgriculturalIntent.IRRIGATION
 print(intent.confidence)  # ~0.80
 
 # Entity extraction only

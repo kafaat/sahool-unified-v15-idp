@@ -750,12 +750,10 @@ async def ready():
 ```python
 # Change from:
 from datetime import datetime
-
 datetime.utcnow()
 
 # To:
 from datetime import datetime, timezone
-
 datetime.now(timezone.utc)
 ```
 
@@ -770,9 +768,12 @@ datetime.now(timezone.utc)
 # Add auth middleware for protected endpoints
 from shared.auth.dependencies import get_current_user
 
-
 @app.post("/mcp")
-async def handle_mcp_request(request: Request, user: User = Depends(get_current_user)): ...
+async def handle_mcp_request(
+    request: Request,
+    user: User = Depends(get_current_user)
+):
+    ...
 ```
 
 ### 5. **LOW: Error Status Code Inconsistency**
@@ -799,7 +800,8 @@ return JSONResponse(
 ```python
 if data.get("jsonrpc") != "2.0":
     return JSONResponse(
-        content={"jsonrpc": "2.0", "error": {"code": -32600, "message": "Invalid Request"}}, status_code=200
+        content={"jsonrpc": "2.0", "error": {"code": -32600, "message": "Invalid Request"}},
+        status_code=200
     )
 ```
 
@@ -816,7 +818,6 @@ This will fail if `second + timeout_seconds > 59`.
 **Recommendation:**
 ```python
 from datetime import timedelta
-
 expires_at = (datetime.utcnow() + timedelta(seconds=timeout_seconds)).isoformat()
 ```
 
@@ -832,8 +833,7 @@ async def cleanup_expired_agents():
     async with self._agent_lock:
         now = datetime.utcnow()
         expired = [
-            aid
-            for aid, agent in self._agents.items()
+            aid for aid, agent in self._agents.items()
             if (now - agent.last_active).total_seconds() > self.config.agent.agent_timeout_seconds
         ]
         for aid in expired:
@@ -908,9 +908,9 @@ async with httpx.AsyncClient() as client:
             "params": {
                 "protocolVersion": "2024-11-05",
                 "capabilities": {},
-                "clientInfo": {"name": "my-client", "version": "1.0.0"},
-            },
-        },
+                "clientInfo": {"name": "my-client", "version": "1.0.0"}
+            }
+        }
     )
 ```
 
@@ -923,8 +923,15 @@ response = await client.post(
         "jsonrpc": "2.0",
         "id": 2,
         "method": "tools/call",
-        "params": {"name": "get_weather_forecast", "arguments": {"latitude": 15.5527, "longitude": 48.5164, "days": 7}},
-    },
+        "params": {
+            "name": "get_weather_forecast",
+            "arguments": {
+                "latitude": 15.5527,
+                "longitude": 48.5164,
+                "days": 7
+            }
+        }
+    }
 )
 ```
 

@@ -684,18 +684,9 @@ def calculate_crop_et(et0, crop, stage):
 ### Water Need Calculation
 
 ```python
-def calculate_water_need(
-    crop,
-    stage,
-    area_ha,
-    soil_type,
-    method,
-    current_moisture,
-    days_since_irrigation,
-    temperature=30,
-    humidity=50,
-    rainfall_forecast=0,
-):
+def calculate_water_need(crop, stage, area_ha, soil_type, method,
+                         current_moisture, days_since_irrigation,
+                         temperature=30, humidity=50, rainfall_forecast=0):
     """
     1. Get base ET from crop data table
     2. Adjust for temperature and humidity
@@ -890,7 +881,10 @@ async def lifespan(app: FastAPI):
 ```python
 # Add NATS connection and publish on plan generation
 async def publish_irrigation_plan(plan: IrrigationPlan):
-    await app.state.nc.publish(f"sahool.{tenant_id}.IrrigationPlanProposed.v1", plan.json().encode())
+    await app.state.nc.publish(
+        f"sahool.{tenant_id}.IrrigationPlanProposed.v1",
+        plan.json().encode()
+    )
 ```
 
 #### 3. No Authentication
@@ -919,7 +913,6 @@ app = FastAPI(
     title="SAHOOL Smart Irrigation Service | خدمة الري الذكي",
     version="15.3.0",  # <-- Old version
 )
-
 
 @app.get("/healthz")
 def health():
@@ -967,7 +960,6 @@ async def lifespan(app: FastAPI):
     # Startup
     yield
     # Shutdown
-
 
 app = FastAPI(lifespan=lifespan)
 ```
@@ -1018,7 +1010,6 @@ WATER_COST_PER_M3 = float(os.getenv("WATER_COST_PER_M3", "150"))
 **Recommendation**: Use `TestClient` with actual `main.app`:
 ```python
 from src.main import app
-
 client = TestClient(app)
 ```
 

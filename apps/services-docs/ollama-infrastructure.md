@@ -279,7 +279,11 @@ from shared.ai.ollama_client import OllamaClient, OllamaConfig
 
 # Initialize client
 config = OllamaConfig(
-    base_url="http://ollama:11434", default_model="codellama:13b", timeout=120.0, max_retries=3, retry_delay=1.0
+    base_url="http://ollama:11434",
+    default_model="codellama:13b",
+    timeout=120.0,
+    max_retries=3,
+    retry_delay=1.0
 )
 client = OllamaClient(config)
 
@@ -290,7 +294,7 @@ if await client.is_available():
         prompt="Review this code...",
         model="codellama:13b",
         system="You are an expert code reviewer",
-        options={"temperature": 0.1},
+        options={"temperature": 0.1}
     )
     print(response.response)
     print(f"Tokens/sec: {response.tokens_per_second}")
@@ -299,18 +303,33 @@ if await client.is_available():
 ### Helper Functions
 
 ```python
-from shared.ai.ollama_client import analyze_code_with_ollama, fix_code_with_ollama, generate_tests_with_ollama
+from shared.ai.ollama_client import (
+    analyze_code_with_ollama,
+    fix_code_with_ollama,
+    generate_tests_with_ollama
+)
 
 # Analyze code
-analysis = await analyze_code_with_ollama(code="def foo(): pass", language="python", model="codellama:13b")
+analysis = await analyze_code_with_ollama(
+    code="def foo(): pass",
+    language="python",
+    model="codellama:13b"
+)
 
 # Fix code
 fixed = await fix_code_with_ollama(
-    code="x= 1", error="E225 missing whitespace", language="python", model="deepseek-coder:6.7b"
+    code="x= 1",
+    error="E225 missing whitespace",
+    language="python",
+    model="deepseek-coder:6.7b"
 )
 
 # Generate tests
-tests = await generate_tests_with_ollama(code="def add(a, b): return a + b", language="python", framework="pytest")
+tests = await generate_tests_with_ollama(
+    code="def add(a, b): return a + b",
+    language="python",
+    framework="pytest"
+)
 ```
 
 ---
@@ -334,20 +353,37 @@ tests = await generate_tests_with_ollama(code="def add(a, b): return a + b", lan
 ### Training Example
 
 ```python
-from shared.ai.model_training import DatasetBuilder, ModelTrainer, TrainingConfig
+from shared.ai.model_training import (
+    DatasetBuilder,
+    ModelTrainer,
+    TrainingConfig
+)
 
 # Build dataset
 builder = DatasetBuilder()
-builder.add_code_fix_example(original="x= 1", fixed="x = 1", error_message="E225 missing whitespace")
+builder.add_code_fix_example(
+    original="x= 1",
+    fixed="x = 1",
+    error_message="E225 missing whitespace"
+)
 builder.add_agricultural_advisory_example(
-    query="When should I irrigate wheat?", response="Irrigate every 10-14 days during tillering", crop_type="wheat"
+    query="When should I irrigate wheat?",
+    response="Irrigate every 10-14 days during tillering",
+    crop_type="wheat"
 )
 
-dataset = builder.build(name="sahool-fixes", name_ar="fixes sahool")
+dataset = builder.build(
+    name="sahool-fixes",
+    name_ar="fixes sahool"
+)
 
 # Train model
 trainer = ModelTrainer(ollama_url="http://ollama:11434")
-config = TrainingConfig(base_model="codellama:7b", output_model="sahool-codefix:latest", epochs=3)
+config = TrainingConfig(
+    base_model="codellama:7b",
+    output_model="sahool-codefix:latest",
+    epochs=3
+)
 
 job = await trainer.create_training_job(dataset, config)
 job = await trainer.start_training(job.id)

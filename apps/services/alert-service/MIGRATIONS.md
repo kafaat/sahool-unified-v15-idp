@@ -187,7 +187,6 @@ alembic revision -m "Custom data migration"
 from src.database import get_db
 from sqlalchemy.orm import Session
 
-
 @app.get("/alerts")
 def get_alerts(db: Session = Depends(get_db)):
     # استخدام db هنا
@@ -204,12 +203,23 @@ from uuid import uuid4
 
 # إنشاء تنبيه
 alert = Alert(
-    id=uuid4(), field_id="field_123", type="weather", severity="high", title="تنبيه طقس", message="عاصفة متوقعة"
+    id=uuid4(),
+    field_id="field_123",
+    type="weather",
+    severity="high",
+    title="تنبيه طقس",
+    message="عاصفة متوقعة"
 )
 created = create_alert(db, alert)
 
 # جلب تنبيهات حقل
-alerts, total = get_alerts_by_field(db, field_id="field_123", status="active", skip=0, limit=10)
+alerts, total = get_alerts_by_field(
+    db,
+    field_id="field_123",
+    status="active",
+    skip=0,
+    limit=10
+)
 ```
 
 ### التحقق من الاتصال
@@ -241,11 +251,10 @@ alembic upgrade head
 
 ```python
 def upgrade() -> None:
-    op.add_column("alerts", sa.Column("new_field", sa.String()))
-
+    op.add_column('alerts', sa.Column('new_field', sa.String()))
 
 def downgrade() -> None:
-    op.drop_column("alerts", "new_field")
+    op.drop_column('alerts', 'new_field')
 ```
 
 ### 4. اختبر downgrade
@@ -265,7 +274,6 @@ alembic upgrade head
 
 ```python
 from alembic import op
-
 
 def upgrade():
     connection = op.get_bind()
@@ -330,7 +338,7 @@ alembic upgrade head
 ### 2. استخدم SSL للإنتاج
 
 ```python
-DATABASE_URL = "postgresql://user:pass@host:5432/db?sslmode=require"
+DATABASE_URL="postgresql://user:pass@host:5432/db?sslmode=require"
 ```
 
 ### 3. قيّد صلاحيات المستخدم

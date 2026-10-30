@@ -164,13 +164,16 @@ app.include_router(revocation_router)
 ```python
 from shared.auth.token_revocation import revoke_token
 
-
 @app.post("/logout")
 async def logout(request: Request):
     token = extract_token(request)
     payload = verify_token(token)
 
-    await revoke_token(jti=payload.jti, expires_in=3600, reason="user_logout")
+    await revoke_token(
+        jti=payload.jti,
+        expires_in=3600,
+        reason="user_logout"
+    )
 
     return {"message": "Logged out successfully"}
 ```
@@ -180,13 +183,15 @@ async def logout(request: Request):
 ```python
 from shared.auth.token_revocation import revoke_all_user_tokens
 
-
 @app.post("/change-password")
 async def change_password(user_id: str):
     # Update password...
 
     # Revoke all existing tokens
-    await revoke_all_user_tokens(user_id=user_id, reason="password_change")
+    await revoke_all_user_tokens(
+        user_id=user_id,
+        reason="password_change"
+    )
 
     return {"message": "Password changed"}
 ```
@@ -587,7 +592,6 @@ docker logs redis-container
 import pytest
 from shared.auth.token_revocation import RedisTokenRevocationStore
 
-
 @pytest.mark.asyncio
 async def test_token_revocation():
     store = RedisTokenRevocationStore()
@@ -640,12 +644,10 @@ Test the full flow:
 ```python
 # Before (in-memory)
 from shared.security.token_revocation import TokenRevocationService
-
 service = TokenRevocationService()
 
 # After (Redis)
 from shared.auth.token_revocation import get_revocation_store
-
 store = await get_revocation_store()
 ```
 

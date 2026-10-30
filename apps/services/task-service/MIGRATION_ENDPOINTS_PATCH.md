@@ -146,7 +146,10 @@ async def update_task(
         # Fetch task type
         task = repo.get_task_by_id(task_id, tenant_id)
         if task:
-            astro_data = await fetch_astronomical_data(update_data["due_date"], TaskType(task.task_type))
+            astro_data = await fetch_astronomical_data(
+                update_data["due_date"],
+                TaskType(task.task_type)
+            )
             update_data["astronomical_score"] = astro_data.get("score")
             update_data["moon_phase_at_due_date"] = astro_data.get("moon_phase_ar")
             update_data["lunar_mansion_at_due_date"] = astro_data.get("lunar_mansion_ar")

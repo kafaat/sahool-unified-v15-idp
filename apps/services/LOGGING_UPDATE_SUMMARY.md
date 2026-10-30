@@ -155,7 +155,6 @@ correlationId: 550e8400-e29b-41d4-a716-446655440000
 # In main.py
 import sys
 import os
-
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 from shared.logging_config import setup_logging, get_logger, RequestLoggingMiddleware
 

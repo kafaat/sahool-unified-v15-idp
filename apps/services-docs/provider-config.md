@@ -800,13 +800,12 @@ def decrypt_api_key(encrypted_key: str) -> str:
 from shared.auth.dependencies import get_current_user, get_tenant_id
 from shared.auth.models import User
 
-
 @app.get("/config/{tenant_id}")
 async def get_tenant_config(
     tenant_id: str,
     session: Session = Depends(get_db_session),
     current_user: User = Depends(get_current_user),
-    user_tenant: str = Depends(get_tenant_id),
+    user_tenant: str = Depends(get_tenant_id)
 ):
     # Verify user has access to this tenant
     if user_tenant != tenant_id and not current_user.is_admin:
@@ -848,11 +847,8 @@ def test_health_check(self, client):
 from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 from fastapi.responses import Response
 
-PROVIDER_CHECKS = Counter(
-    "provider_health_checks_total", "Total provider health checks", ["provider_type", "provider_name", "status"]
-)
-CHECK_DURATION = Histogram("provider_health_check_duration_seconds", "Health check duration")
-
+PROVIDER_CHECKS = Counter('provider_health_checks_total', 'Total provider health checks', ['provider_type', 'provider_name', 'status'])
+CHECK_DURATION = Histogram('provider_health_check_duration_seconds', 'Health check duration')
 
 @app.get("/metrics")
 async def metrics():
@@ -866,7 +862,6 @@ async def metrics():
 ```python
 from contextlib import asynccontextmanager
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
@@ -879,15 +874,24 @@ async def lifespan(app: FastAPI):
     if cache_manager and cache_manager.redis_client:
         cache_manager.redis_client.close()
 
-
-app = FastAPI(title="SAHOOL Provider Configuration Service", lifespan=lifespan)
+app = FastAPI(
+    title="SAHOOL Provider Configuration Service",
+    lifespan=lifespan
+)
 ```
 
 #### 8. Fix Test Satellite Provider List
 
 ```python
 def test_all_satellite_provider_ids_valid(self, client):
-    valid_ids = ["sentinel_hub", "planet_labs", "maxar", "landsat", "google_earth_engine", "copernicus"]
+    valid_ids = [
+        "sentinel_hub",
+        "planet_labs",
+        "maxar",
+        "landsat",
+        "google_earth_engine",
+        "copernicus"
+    ]
 ```
 
 ---

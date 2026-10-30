@@ -88,10 +88,13 @@ from shared.irrigation import quick_start, IrrigationGoal, IrrigationGoalType
 engine = quick_start(farm_id="FARM-001", farmer_id="farmer-123")
 
 engine.human_sets_goals(
-    goals=[IrrigationGoal(goal_type=IrrigationGoalType.WATER_SAVING, target_reduction=0.3, priority=1)],
+    goals=[IrrigationGoal(goal_type=IrrigationGoalType.WATER_SAVING,
+                          target_reduction=0.3, priority=1)],
 )
 
-program = await engine.ai_generates_program(context={"crop_type": "wheat", "growth_stage": "tillering"})
+program = await engine.ai_generates_program(
+    context={"crop_type": "wheat", "growth_stage": "tillering"}
+)
 
 engine.human_reviews_program(program)
 ```
@@ -101,11 +104,9 @@ engine.human_reviews_program(program)
 ```python
 from shared.irrigation import (
     HMCIrrigationEngine,
-    IrrigationGoal,
-    IrrigationGoalType,
+    IrrigationGoal, IrrigationGoalType,
     EcologicalConstraint,
-    ExperienceRule,
-    ExperienceSource,
+    ExperienceRule, ExperienceSource,
 )
 
 engine = HMCIrrigationEngine(farm_id="FARM-001", farmer_id="farmer-123")
@@ -114,24 +115,25 @@ session_id = engine.start_decision_session()
 # Phase 1: Set goals and constraints
 engine.human_sets_goals(
     goals=[IrrigationGoal(goal_type=IrrigationGoalType.WATER_SAVING)],
-    constraints=[EcologicalConstraint(water_quota_reduction=0.3, soil_salinity_limit=4.0)],
+    constraints=[EcologicalConstraint(water_quota_reduction=0.3,
+                                      soil_salinity_limit=4.0)],
 )
 
 # Phase 2: AI generates irrigation program
-program = await engine.ai_generates_program(context={"crop_type": "wheat", "growth_stage": "tillering"})
+program = await engine.ai_generates_program(
+    context={"crop_type": "wheat", "growth_stage": "tillering"}
+)
 
 # Phase 3: Farmer reviews and injects local knowledge
 engine.human_reviews_program(program)
-engine.human_injects_experience(
-    [
-        ExperienceRule(
-            condition="cold_wave",
-            action="reduce_irrigation_20%",
-            source=ExperienceSource.FARMER,
-            rationale="Cold reduces evapotranspiration",
-        )
-    ]
-)
+engine.human_injects_experience([
+    ExperienceRule(
+        condition="cold_wave",
+        action="reduce_irrigation_20%",
+        source=ExperienceSource.FARMER,
+        rationale="Cold reduces evapotranspiration",
+    )
+])
 
 # Phase 4: Calibration via simulation
 result = engine.run_calibration_cycle()

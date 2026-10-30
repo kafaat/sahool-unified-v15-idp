@@ -57,12 +57,8 @@ Uses operating hours, service history, and component wear models to:
 
 ```python
 from shared.equipment_maintenance import (
-    Equipment,
-    EquipmentType,
-    EquipmentStatus,
-    EquipmentSpecs,
-    MaintenanceScheduler,
-    AgriculturalSeason,
+    Equipment, EquipmentType, EquipmentStatus, EquipmentSpecs,
+    MaintenanceScheduler, AgriculturalSeason,
     get_default_tractor_schedules,
 )
 from datetime import date
@@ -112,9 +108,7 @@ print(f"Estimated hours: {summary.total_estimated_hours}")
 
 ```python
 from shared.equipment_maintenance import (
-    PredictiveMaintenanceEngine,
-    UsageMetrics,
-    RiskLevel,
+    PredictiveMaintenanceEngine, UsageMetrics, RiskLevel,
 )
 from datetime import datetime, timezone
 
@@ -128,7 +122,7 @@ metrics = UsageMetrics(
     engine_hours=1250.0,
     fuel_consumed_liters=380.0,
     distance_km=1200.0,
-    load_factor=0.75,  # 75% of rated capacity
+    load_factor=0.75,           # 75% of rated capacity
     idle_hours=120.0,
     harsh_operations=8,
 )

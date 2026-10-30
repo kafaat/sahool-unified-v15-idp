@@ -26,7 +26,10 @@ result = await client.send_task(
     agent_card=agent_card,
     task_type="crop-disease-diagnosis",
     task_description="Diagnose disease",
-    parameters={"crop_type": "tomato", "symptoms": {"leaf_condition": "yellow spots"}},
+    parameters={
+        "crop_type": "tomato",
+        "symptoms": {"leaf_condition": "yellow spots"}
+    }
 )
 
 print(f"Result: {result.result}")
@@ -37,7 +40,6 @@ print(f"Result: {result.result}")
 ```python
 from a2a.agent import A2AAgent, AgentCapability
 from a2a.protocol import TaskMessage
-
 
 class MyAgent(A2AAgent):
     def get_capabilities(self):
@@ -51,7 +53,6 @@ class MyAgent(A2AAgent):
             )
         ]
 
-
 # Initialize
 agent = MyAgent(
     agent_id="my-agent",
@@ -59,14 +60,12 @@ agent = MyAgent(
     version="1.0.0",
     description="My A2A agent",
     provider="Me",
-    task_endpoint="http://localhost:8000/a2a/tasks",
+    task_endpoint="http://localhost:8000/a2a/tasks"
 )
-
 
 # Register handler
 async def my_handler(task: TaskMessage) -> dict:
     return {"status": "done", "input": task.parameters}
-
 
 agent.register_task_handler("my-task", my_handler)
 ```
@@ -93,7 +92,10 @@ app.include_router(router)
 
 ```python
 async for update in client.stream_task(
-    agent_card=agent_card, task_type="field-analysis", task_description="Analyze field", parameters={"field_id": "123"}
+    agent_card=agent_card,
+    task_type="field-analysis",
+    task_description="Analyze field",
+    parameters={"field_id": "123"}
 ):
     if update.is_final:
         print(f"Done: {update.result}")
@@ -105,10 +107,16 @@ async for update in client.stream_task(
 
 ```python
 # Discover multiple agents
-agents = await discovery.discover_multiple(["http://localhost:8001", "http://localhost:8002", "http://localhost:8003"])
+agents = await discovery.discover_multiple([
+    "http://localhost:8001",
+    "http://localhost:8002",
+    "http://localhost:8003"
+])
 
 # Find agents with specific capability
-disease_agents = discovery.get_agents_by_capability("crop-disease-diagnosis")
+disease_agents = discovery.get_agents_by_capability(
+    "crop-disease-diagnosis"
+)
 
 # Search by tags
 agri_agents = discovery.search_agents(tags=["agriculture"])
@@ -118,11 +126,22 @@ agri_agents = discovery.search_agents(tags=["agriculture"])
 
 ```python
 tasks = [
-    {"task_type": "task-1", "task_description": "First task", "parameters": {"data": "value1"}},
-    {"task_type": "task-2", "task_description": "Second task", "parameters": {"data": "value2"}},
+    {
+        "task_type": "task-1",
+        "task_description": "First task",
+        "parameters": {"data": "value1"}
+    },
+    {
+        "task_type": "task-2",
+        "task_description": "Second task",
+        "parameters": {"data": "value2"}
+    }
 ]
 
-results = await client.batch_send_tasks(tasks=tasks, agent_card=agent_card)
+results = await client.batch_send_tasks(
+    tasks=tasks,
+    agent_card=agent_card
+)
 
 for result in results:
     print(f"Task {result.task_id}: {result.state}")
@@ -139,7 +158,7 @@ result1 = await client.send_task(
     task_type="general-query",
     task_description="First question",
     parameters={"question": "How to grow wheat?"},
-    conversation_id=conversation_id,
+    conversation_id=conversation_id
 )
 
 # Turn 2 - continues same conversation
@@ -148,7 +167,7 @@ result2 = await client.send_task(
     task_type="disease-check",
     task_description="Follow-up",
     parameters={"crop_type": "wheat"},
-    conversation_id=conversation_id,
+    conversation_id=conversation_id
 )
 ```
 
@@ -201,7 +220,13 @@ result = await client.send_task(
     agent_card=advisor,
     task_type="crop-disease-diagnosis",
     task_description="Diagnose tomato disease",
-    parameters={"crop_type": "tomato", "symptoms": {"leaf_condition": "yellow spots", "color_changes": "browning"}},
+    parameters={
+        "crop_type": "tomato",
+        "symptoms": {
+            "leaf_condition": "yellow spots",
+            "color_changes": "browning"
+        }
+    }
 )
 
 print(f"Diagnosis: {result.result['diagnosis']}")
@@ -249,7 +274,7 @@ else:
 client = A2AClient(
     sender_agent_id="my-app",
     timeout=60,  # seconds
-    max_retries=3,
+    max_retries=3
 )
 ```
 

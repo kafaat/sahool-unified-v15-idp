@@ -206,13 +206,13 @@ Creates multiple tasks at once from AI/ML recommendations.
 
 ```python
 class NdviAlertTaskRequest(BaseModel):
-    field_id: str  # Required: Field ID
-    zone_id: str | None  # Optional: Specific zone
-    ndvi_value: float  # Required: Current NDVI (-1 to 1)
+    field_id: str              # Required: Field ID
+    zone_id: str | None        # Optional: Specific zone
+    ndvi_value: float          # Required: Current NDVI (-1 to 1)
     previous_ndvi: float | None  # Optional: Previous NDVI for comparison
-    alert_type: str  # Required: 'drop', 'critical', or 'anomaly'
+    alert_type: str            # Required: 'drop', 'critical', or 'anomaly'
     auto_assign: bool = False  # Auto-assign to field manager
-    assigned_to: str | None  # Specific assignee
+    assigned_to: str | None    # Specific assignee
     alert_metadata: dict | None  # Additional context
 ```
 
@@ -220,27 +220,27 @@ class NdviAlertTaskRequest(BaseModel):
 
 ```python
 class TaskSuggestion(BaseModel):
-    task_type: TaskType  # Task type enum
-    priority: TaskPriority  # Priority level
-    title: str  # English title
-    title_ar: str  # Arabic title
-    description: str  # English description
-    description_ar: str  # Arabic description
-    reason: str  # Why this task
-    reason_ar: str  # Arabic reason
-    confidence: float  # 0.0 to 1.0
-    suggested_due_days: int  # Days until due
-    metadata: dict | None  # Additional data
+    task_type: TaskType        # Task type enum
+    priority: TaskPriority     # Priority level
+    title: str                 # English title
+    title_ar: str              # Arabic title
+    description: str           # English description
+    description_ar: str        # Arabic description
+    reason: str                # Why this task
+    reason_ar: str             # Arabic reason
+    confidence: float          # 0.0 to 1.0
+    suggested_due_days: int    # Days until due
+    metadata: dict | None      # Additional data
 ```
 
 ### TaskAutoCreateRequest
 
 ```python
 class TaskAutoCreateRequest(BaseModel):
-    field_id: str  # Field for tasks
+    field_id: str              # Field for tasks
     suggestions: list[TaskSuggestion]  # Task suggestions
     auto_assign: bool = False  # Auto-assign flag
-    assigned_to: str | None  # Specific assignee
+    assigned_to: str | None    # Specific assignee
 ```
 
 ---

@@ -41,7 +41,9 @@ database/
 from apps.kernel.common.database import MigrationManager
 
 # Create migration manager / إنشاء مدير الهجرة
-manager = MigrationManager(database_url="postgresql://user:password@localhost/sahool")
+manager = MigrationManager(
+    database_url="postgresql://user:password@localhost/sahool"
+)
 ```
 
 ### 2. Run Migrations / تشغيل الهجرات
@@ -63,7 +65,7 @@ print(f"Pending migrations: {status['pending_migrations']}")
 # Seed database with sample data / تعبئة قاعدة البيانات ببيانات نموذجية
 result = manager.seed_data(environment="development")
 
-if result["success"]:
+if result['success']:
     print(f"Created {result['fields']} fields in {result['farms']} farms")
     print(f"تم إنشاء {result['fields']} حقل في {result['farms']} مزرعة")
 ```
@@ -76,10 +78,16 @@ if result["success"]:
 
 ```python
 # Manual migration / هجرة يدوية
-manager.create_migration(name="add_weather_data", description="Add weather data tracking tables")
+manager.create_migration(
+    name="add_weather_data",
+    description="Add weather data tracking tables"
+)
 
 # Auto-generate from models / إنشاء تلقائي من النماذج
-manager.create_migration(name="auto_update", autogenerate=True)
+manager.create_migration(
+    name="auto_update",
+    autogenerate=True
+)
 ```
 
 #### Rollback Migrations / التراجع عن الهجرات
@@ -98,10 +106,10 @@ manager.rollback(steps=3)
 # Check for unauthorized changes / التحقق من التغييرات غير المصرح بها
 validation = manager.validate_checksums()
 
-if validation["has_conflicts"]:
+if validation['has_conflicts']:
     print("⚠️  Warning: Migration files have been modified!")
     print("⚠️  تحذير: تم تعديل ملفات الهجرة!")
-    for conflict in validation["conflicts"]:
+    for conflict in validation['conflicts']:
         print(f"  - {conflict['revision']}")
 ```
 
@@ -109,7 +117,6 @@ if validation["has_conflicts"]:
 
 ```python
 from apps.kernel.common.database import PostGISMigrationHelper
-
 
 # In migration upgrade() function / في دالة upgrade() للهجرة
 def upgrade():
@@ -119,10 +126,19 @@ def upgrade():
     PostGISMigrationHelper.enable_postgis_extension(conn)
 
     # Add spatial column / إضافة عمود مكاني
-    PostGISMigrationHelper.add_geography_column(conn, table="fields", column="location", geometry_type="POINT")
+    PostGISMigrationHelper.add_geography_column(
+        conn,
+        table="fields",
+        column="location",
+        geometry_type="POINT"
+    )
 
     # Create spatial index / إنشاء فهرس مكاني
-    PostGISMigrationHelper.create_spatial_index(conn, table="fields", column="location")
+    PostGISMigrationHelper.create_spatial_index(
+        conn,
+        table="fields",
+        column="location"
+    )
 ```
 
 ## Database Schema / مخطط قاعدة البيانات
@@ -234,10 +250,9 @@ SAHOOL Database Migration Script
 import os
 from apps.kernel.common.database import MigrationManager
 
-
 def main():
     # Get database URL from environment / الحصول على عنوان URL من البيئة
-    database_url = os.getenv("DATABASE_URL")
+    database_url = os.getenv('DATABASE_URL')
     if not database_url:
         print("Error: DATABASE_URL not set")
         print("خطأ: DATABASE_URL غير محدد")
@@ -251,7 +266,7 @@ def main():
     print("تشغيل الهجرات...")
     result = manager.run_migrations()
 
-    if result["success"]:
+    if result['success']:
         print(f"✓ Migrations completed in {result['execution_time_ms']}ms")
         print(f"✓ اكتملت الهجرات في {result['execution_time_ms']}ms")
     else:
@@ -259,17 +274,16 @@ def main():
         print(f"✗ فشلت الهجرة: {result.get('error')}")
 
     # Seed development data (if needed) / تعبئة بيانات التطوير (إذا لزم الأمر)
-    if os.getenv("SEED_DATA") == "true":
+    if os.getenv('SEED_DATA') == 'true':
         print("\\nSeeding development data...")
         print("\\nتعبئة بيانات التطوير...")
         seed_result = manager.seed_data(environment="development")
 
-        if seed_result["success"]:
+        if seed_result['success']:
             print(f"✓ Created {seed_result['farms']} farms with {seed_result['fields']} fields")
             print(f"✓ تم إنشاء {seed_result['farms']} مزرعة مع {seed_result['fields']} حقل")
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
 ```
 
@@ -314,20 +328,18 @@ Creates tables for:
 ```python
 def upgrade():
     # Add column / إضافة عمود
-    op.add_column("fields", sa.Column("elevation", sa.Float()))
+    op.add_column('fields', sa.Column('elevation', sa.Float()))
 
     # Migrate existing data / ترحيل البيانات الموجودة
     conn = op.get_bind()
-    conn.execute(
-        text("""
+    conn.execute(text("""
         UPDATE fields
         SET elevation = 0
         WHERE elevation IS NULL
-    """)
-    )
+    """))
 
     # Add constraint / إضافة قيد
-    op.alter_column("fields", "elevation", nullable=False)
+    op.alter_column('fields', 'elevation', nullable=False)
 ```
 
 ## Troubleshooting / استكشاف الأخطاء
@@ -345,7 +357,7 @@ def upgrade():
 # Validate checksums / التحقق من checksums
 result = manager.validate_checksums()
 
-if result["has_conflicts"]:
+if result['has_conflicts']:
     # Do not modify applied migrations! / لا تعدل الهجرات المطبقة!
     # Create new migration instead / أنشئ هجرة جديدة بدلاً من ذلك
     print("Create new migration to fix issues")

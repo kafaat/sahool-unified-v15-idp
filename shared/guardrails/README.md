@@ -88,7 +88,11 @@ setup_guardrails(app, config)
 from shared.guardrails import input_filter, output_filter, TrustLevel
 
 # Filter user input
-result = input_filter.filter_input(text=user_prompt, trust_level=TrustLevel.BASIC, mask_pii=True)
+result = input_filter.filter_input(
+    text=user_prompt,
+    trust_level=TrustLevel.BASIC,
+    mask_pii=True
+)
 
 if not result.is_safe:
     return {"error": result.violations, "error_ar": result.violations_ar}
@@ -100,7 +104,7 @@ ai_response = await call_ai_model(result.filtered_text)
 output_result = output_filter.filter_output(
     text=ai_response,
     trust_level=TrustLevel.BASIC,
-    language="ar",  # or "en"
+    language="ar"  # or "en"
 )
 
 return {"response": output_result.filtered_output}
@@ -129,12 +133,12 @@ filter = InputFilter()
 result = filter.filter_input(
     text="What's the best fertilizer for wheat? My email is farmer@test.com",
     trust_level=TrustLevel.BASIC,
-    mask_pii=True,
+    mask_pii=True
 )
 
-print(result.is_safe)  # True
-print(result.filtered_text)  # Email masked: "fa**********om"
-print(result.warnings)  # ["PII detected and masked: {'email': 1}"]
+print(result.is_safe)           # True
+print(result.filtered_text)     # Email masked: "fa**********om"
+print(result.warnings)          # ["PII detected and masked: {'email': 1}"]
 ```
 
 ### Output Filter (`output_filter.py`)
@@ -156,7 +160,9 @@ from shared.guardrails import OutputFilter, TrustLevel
 
 filter = OutputFilter()
 result = filter.filter_output(
-    text="I think maybe wheat grows best in November, possibly December", trust_level=TrustLevel.BASIC, language="en"
+    text="I think maybe wheat grows best in November, possibly December",
+    trust_level=TrustLevel.BASIC,
+    language="en"
 )
 
 print(result.has_hallucination_markers)  # True
@@ -186,7 +192,11 @@ pm = PolicyManager()
 
 # Determine user trust level
 trust_level = pm.get_user_trust_level(
-    user_id="user123", roles=["farmer", "verified"], is_premium=True, is_verified=True, account_age_days=120
+    user_id="user123",
+    roles=["farmer", "verified"],
+    is_premium=True,
+    is_verified=True,
+    account_age_days=120
 )
 # Returns: TrustLevel.PREMIUM
 
@@ -211,14 +221,14 @@ FastAPI middleware for automatic request/response filtering.
 
 ```python
 class GuardrailsConfig:
-    enabled: bool = True  # Enable/disable guardrails
-    log_violations: bool = True  # Log violations
-    block_violations: bool = True  # Block unsafe requests
-    mask_pii: bool = True  # Mask PII in inputs/outputs
-    add_disclaimers: bool = True  # Add AI disclaimers
-    strict_topic_check: bool = False  # Require agriculture topics
-    exclude_paths: list[str]  # Paths to skip
-    strict_paths: list[str]  # Paths requiring strict checks
+    enabled: bool = True                    # Enable/disable guardrails
+    log_violations: bool = True             # Log violations
+    block_violations: bool = True           # Block unsafe requests
+    mask_pii: bool = True                   # Mask PII in inputs/outputs
+    add_disclaimers: bool = True            # Add AI disclaimers
+    strict_topic_check: bool = False        # Require agriculture topics
+    exclude_paths: list[str]                # Paths to skip
+    strict_paths: list[str]                 # Paths requiring strict checks
 ```
 
 ## Topic Policies
@@ -375,7 +385,7 @@ user_violations = violation_logger.get_user_violations(user_id="user123")
 
 # Implement custom alerts
 for violation in violations:
-    if violation["metadata"].get("injection_patterns"):
+    if violation['metadata'].get('injection_patterns'):
         send_security_alert(violation)
 ```
 
@@ -449,12 +459,11 @@ For advanced filtering, integrate ML models:
 # Example: Perspective API for toxicity
 from shared.guardrails import ToxicityFilter
 
-
 class MLToxicityFilter(ToxicityFilter):
     async def analyze(self, text: str):
         # Call Perspective API
         response = await perspective_api.analyze(text)
-        return response["toxicity_score"], response["categories"]
+        return response['toxicity_score'], response['categories']
 ```
 
 ## Bilingual Support

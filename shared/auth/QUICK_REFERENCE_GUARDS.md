@@ -12,7 +12,6 @@ from shared.auth import get_current_user, User
 
 app = FastAPI()
 
-
 @app.get("/profile")
 async def profile(user: User = Depends(get_current_user)):
     """Protected endpoint with DB validation + caching"""
@@ -23,7 +22,6 @@ async def profile(user: User = Depends(get_current_user)):
 
 ```python
 from shared.auth import rate_limit_dependency
-
 
 @app.post("/api/resource")
 async def create(user: User = Depends(rate_limit_dependency)):
@@ -36,7 +34,6 @@ async def create(user: User = Depends(rate_limit_dependency)):
 ```python
 from shared.auth import init_user_cache, set_user_repository
 from shared.auth import UserRepository, UserValidationData
-
 
 @app.on_event("startup")
 async def startup():
@@ -201,7 +198,6 @@ from shared.auth.dependencies import RateLimiter
 
 custom_limiter = RateLimiter(requests=10, window_seconds=60)
 
-
 @app.post("/sensitive")
 async def sensitive(user: User = Depends(get_current_user)):
     if not custom_limiter.is_allowed(f"custom:{user.id}")[0]:
@@ -274,7 +270,10 @@ try {
 @pytest.mark.asyncio
 async def test_protected_endpoint():
     async with AsyncClient(app=app) as client:
-        response = await client.get("/profile", headers={"Authorization": f"Bearer {valid_token}"})
+        response = await client.get(
+            "/profile",
+            headers={"Authorization": f"Bearer {valid_token}"}
+        )
         assert response.status_code == 200
 ```
 

@@ -235,7 +235,10 @@ Hot, dry, windy, rain                       0.0/100  DANGEROUS       ✅
 ```python
 # Get weekly forecast for herbicide application
 forecast = await advisor.get_spray_forecast(
-    latitude=15.3694, longitude=44.1910, days=7, product_type=SprayProduct.HERBICIDE
+    latitude=15.3694,
+    longitude=44.1910,
+    days=7,
+    product_type=SprayProduct.HERBICIDE
 )
 # Returns best windows accounting for highland conditions
 ```
@@ -245,7 +248,10 @@ forecast = await advisor.get_spray_forecast(
 ```python
 # Find best time for insecticide in next 3 days
 best_time = await advisor.get_best_spray_time(
-    latitude=14.8022, longitude=42.9511, product_type=SprayProduct.INSECTICIDE, within_days=3
+    latitude=14.8022,
+    longitude=42.9511,
+    product_type=SprayProduct.INSECTICIDE,
+    within_days=3
 )
 # Accounts for coastal high humidity and winds
 ```
@@ -255,7 +261,10 @@ best_time = await advisor.get_best_spray_time(
 ```python
 # Farmer wants to spray tomorrow at 9 AM
 evaluation = await advisor.evaluate_spray_time(
-    latitude=13.5795, longitude=44.0202, target_datetime=tomorrow_9am, product_type=SprayProduct.FUNGICIDE
+    latitude=13.5795,
+    longitude=44.0202,
+    target_datetime=tomorrow_9am,
+    product_type=SprayProduct.FUNGICIDE
 )
 # Gets score, condition, risks, and recommendations
 ```

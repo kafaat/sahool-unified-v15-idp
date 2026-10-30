@@ -11,11 +11,9 @@ from shared.utils.fallback_manager import get_fallback_manager
 
 fm = get_fallback_manager()
 
-
 # Your API call
 def fetch_weather(location):
     return requests.get(f"https://api.weather.com/{location}").json()
-
 
 # Protected with automatic fallback!
 result = fm.execute_with_fallback("weather", fetch_weather, "Sanaa")
@@ -28,16 +26,13 @@ That's it! If the API fails, it automatically uses the weather fallback. ✅
 ```python
 from shared.utils.fallback_manager import circuit_breaker, with_fallback
 
-
 def my_fallback():
     return {"status": "unavailable"}
-
 
 @with_fallback(my_fallback)
 @circuit_breaker(failure_threshold=5, recovery_timeout=30)
 def get_data():
     return external_api_call()
-
 
 # Call normally
 result = get_data()
@@ -128,9 +123,9 @@ result = fm.execute_with_fallback("my_service", primary_fn)
 fm.register_fallback(
     service_name="my_service",
     fallback_fn=my_fallback,
-    failure_threshold=5,  # Failures before circuit opens
-    recovery_timeout=30,  # Seconds before retry
-    success_threshold=3,  # Successes to close circuit
+    failure_threshold=5,    # Failures before circuit opens
+    recovery_timeout=30,    # Seconds before retry
+    success_threshold=3     # Successes to close circuit
 )
 ```
 
@@ -156,8 +151,7 @@ from shared.utils.fallback_manager import get_fallback_manager
 app = Flask(__name__)
 fm = get_fallback_manager()
 
-
-@app.route("/weather/<location>")
+@app.route('/weather/<location>')
 def get_weather(location):
     def fetch():
         response = requests.get(f"{WEATHER_API}/{location}")
@@ -170,8 +164,7 @@ def get_weather(location):
     except Exception as e:
         return jsonify({"error": str(e)}), 503
 
-
-@app.route("/health/circuits")
+@app.route('/health/circuits')
 def circuit_health():
     return jsonify(fm.get_all_statuses())
 ```

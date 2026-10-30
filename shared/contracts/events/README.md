@@ -74,7 +74,7 @@ All events are wrapped in a standard envelope:
     "occurred_at": "2025-01-01T00:00:00Z",
     "schema_ref": "events.field.created:v1",
     "producer": "field_suite",
-    "payload": {...},
+    "payload": { ... }
 }
 ```
 

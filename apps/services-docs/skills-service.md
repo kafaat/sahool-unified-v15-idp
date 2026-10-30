@@ -334,7 +334,7 @@ Evaluate skill performance against configurable metrics.
 #### CompressRequest
 ```python
 class CompressRequest(BaseModel):
-    skill_id: str  # Required - Unique identifier for the skill
+    skill_id: str           # Required - Unique identifier for the skill
     skill_data: dict[str, Any]  # Required - The skill data to compress
     compression_level: int = 1  # Optional - 1-9 (1=fastest, 9=best)
     target_size_kb: int = None  # Optional - Target compressed size in KB
@@ -343,17 +343,17 @@ class CompressRequest(BaseModel):
 #### MemoryStoreRequest
 ```python
 class MemoryStoreRequest(BaseModel):
-    skill_id: str  # Required - Unique skill identifier
+    skill_id: str           # Required - Unique skill identifier
     namespace: str = "default"  # Optional - Memory namespace
     skill_data: dict[str, Any]  # Required - Skill data to store
-    ttl_seconds: int = 3600  # Optional - TTL in seconds (0=permanent)
+    ttl_seconds: int = 3600     # Optional - TTL in seconds (0=permanent)
     metadata: dict[str, Any] = {}  # Optional - Metadata
 ```
 
 #### MemoryRecallRequest
 ```python
 class MemoryRecallRequest(BaseModel):
-    skill_id: str  # Required - Skill ID to recall
+    skill_id: str           # Required - Skill ID to recall
     namespace: str = "default"  # Optional - Memory namespace
     include_metadata: bool = False  # Optional - Include metadata in response
 ```
@@ -361,7 +361,7 @@ class MemoryRecallRequest(BaseModel):
 #### EvaluateRequest
 ```python
 class EvaluateRequest(BaseModel):
-    skill_id: str  # Required - Skill ID to evaluate
+    skill_id: str           # Required - Skill ID to evaluate
     input_data: dict[str, Any]  # Required - Test input data
     expected_output: dict[str, Any] = None  # Optional - Expected output
     metrics: list[str] = ["accuracy", "latency"]  # Metrics to evaluate
@@ -837,14 +837,17 @@ Add PostgreSQL connection in main.py lifespan:
 ```python
 import asyncpg
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Database connection
     db_url = os.getenv("DATABASE_URL")
     if db_url:
         try:
-            app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
+            app.state.db_pool = await asyncpg.create_pool(
+                db_url,
+                min_size=2,
+                max_size=10
+            )
             print("Database connected")
         except Exception as e:
             print(f"Database connection failed: {e}")
@@ -873,7 +876,6 @@ Add NATS connection and event handlers:
 import nats
 from nats.aio.client import Client as NATS
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # NATS connection
@@ -896,12 +898,10 @@ async def lifespan(app: FastAPI):
     if hasattr(app.state, "nc") and app.state.nc:
         await app.state.nc.close()
 
-
 async def handle_indicators(msg):
     """Handle field indicators computed events"""
     # Process for skills assessment
     pass
-
 
 async def handle_task_completed(msg):
     """Handle task completion events"""
@@ -928,30 +928,25 @@ async def assess_farmer_skills(request: AssessmentRequest):
     """Evaluate farmer competency levels"""
     pass
 
-
 @app.post("/learning-path")
 async def generate_learning_path(request: LearningPathRequest):
     """Generate personalized learning recommendations"""
     pass
-
 
 @app.get("/progress/{farmer_id}")
 async def get_skill_progress(farmer_id: str):
     """Monitor skill development over time"""
     pass
 
-
 @app.get("/competencies")
 async def get_competency_matrix():
     """Map agricultural competencies and skill levels"""
     pass
 
-
 @app.post("/adaptive")
 async def adaptive_learning(request: AdaptiveLearningRequest):
     """Adjust learning content based on performance"""
     pass
-
 
 @app.get("/benchmarking/{farmer_id}")
 async def peer_benchmarking(farmer_id: str):
@@ -1008,14 +1003,15 @@ Replace simulated memory operations with actual Redis:
 ```python
 import redis.asyncio as redis
 
-
 @app.post("/memory/store")
 async def store_in_memory(request: MemoryStoreRequest):
     redis_client = await redis.from_url(os.getenv("REDIS_URL", "redis://localhost:6379"))
 
     key = f"skill:{request.namespace}:{request.skill_id}"
     await redis_client.set(
-        key, json.dumps(request.skill_data), ex=request.ttl_seconds if request.ttl_seconds > 0 else None
+        key,
+        json.dumps(request.skill_data),
+        ex=request.ttl_seconds if request.ttl_seconds > 0 else None
     )
 
     return MemoryStoreResponse(...)
@@ -1032,12 +1028,10 @@ Replace deprecated `datetime.utcnow()`:
 ```python
 # Before
 from datetime import datetime
-
 stored_at = datetime.utcnow().isoformat()
 
 # After
 from datetime import datetime, timezone
-
 stored_at = datetime.now(timezone.utc).isoformat()
 ```
 

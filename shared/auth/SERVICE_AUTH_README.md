@@ -52,14 +52,17 @@ from shared.auth import create_service_token
 token = create_service_token(
     service_name="farm-service",
     target_service="field-service",
-    ttl=300,  # 5 دقائق
+    ttl=300  # 5 دقائق
 )
 
 # استخدام الـ token في طلب HTTP
 import httpx
 
 async with httpx.AsyncClient() as client:
-    response = await client.get("http://field-service/api/fields", headers={"X-Service-Token": token})
+    response = await client.get(
+        "http://field-service/api/fields",
+        headers={"X-Service-Token": token}
+    )
 ```
 
 #### 2. إضافة Middleware للخدمة
@@ -70,7 +73,11 @@ from shared.auth import ServiceAuthMiddleware
 
 app = FastAPI()
 
-app.add_middleware(ServiceAuthMiddleware, current_service="field-service", exclude_paths=["/health", "/docs"])
+app.add_middleware(
+    ServiceAuthMiddleware,
+    current_service="field-service",
+    exclude_paths=["/health", "/docs"]
+)
 ```
 
 #### 3. حماية Endpoints
@@ -81,16 +88,20 @@ from shared.auth import verify_service_request, require_service_auth
 
 router = APIRouter()
 
-
 # أي خدمة مصادق عليها يمكنها الاستدعاء
 @router.get("/internal/data")
-async def get_data(service_info: dict = Depends(verify_service_request)):
+async def get_data(
+    service_info: dict = Depends(verify_service_request)
+):
     return {"data": [...]}
-
 
 # خدمات محددة فقط
 @router.post("/internal/update")
-async def update_data(service_info: dict = Depends(require_service_auth(["farm-service"]))):
+async def update_data(
+    service_info: dict = Depends(
+        require_service_auth(["farm-service"])
+    )
+):
     return {"status": "updated"}
 ```
 

@@ -43,7 +43,10 @@ result = await helper.authenticate_and_migrate(email, password)
 if result.success:
     if result.needs_password_update:
         # Update password in database
-        user_repository.update_password_hash(result.user_id, result.new_password_hash)
+        user_repository.update_password_hash(
+            result.user_id,
+            result.new_password_hash
+        )
     # Generate JWT and return
     return {"access_token": create_token(result.user_id)}
 else:
@@ -200,11 +203,11 @@ npm test tests/test_password_hasher.test.ts
 from shared.auth.password_hasher import PasswordHasher
 
 hasher = PasswordHasher(
-    time_cost=3,  # More iterations = slower but more secure
-    memory_cost=131072,  # 128 MB
-    parallelism=8,  # More threads
+    time_cost=3,        # More iterations = slower but more secure
+    memory_cost=131072, # 128 MB
+    parallelism=8,      # More threads
     hash_len=32,
-    salt_len=16,
+    salt_len=16
 )
 ```
 

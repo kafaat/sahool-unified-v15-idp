@@ -35,7 +35,6 @@ Redis-primary with automatic in-memory LRU fallback.
 @cache(ttl=300, prefix="weather")
 async def get_forecast(location_id: str): ...
 
-
 @cache_response(ttl=60, key_func=lambda req: req.path_params["field_id"])
 async def get_field_ndvi(request: Request): ...
 ```
@@ -71,15 +70,10 @@ async def get_field_ndvi(request: Request): ...
 ```python
 @log_operation("create_field")
 async def create_field(data): ...
-
-
 # Logs: start, success/error, duration_ms
-
 
 @log_performance(threshold_ms=500)
 async def expensive_query(): ...
-
-
 # Logs warning if execution exceeds threshold
 ```
 
@@ -141,16 +135,10 @@ ErrorResponse(code="E1001", message="Invalid input", details={...})
 
 ```python
 from shared.service_enhancements import (
-    setup_service,
-    ServiceConfig,
-    cache,
-    ServiceLogger,
-    get_service_logger,
-    PaginatedResponse,
-    ErrorResponse,
-    ValidatedModel,
-    validate_coordinates,
-    validate_input,
+    setup_service, ServiceConfig,
+    cache, ServiceLogger, get_service_logger,
+    PaginatedResponse, ErrorResponse,
+    ValidatedModel, validate_coordinates, validate_input,
 )
 
 # Service bootstrap
@@ -159,13 +147,11 @@ app = setup_service(config)
 
 logger = get_service_logger("field_service")
 
-
 # Cached endpoint
 @cache(ttl=120, prefix="fields")
 async def get_field_ndvi(field_id: str) -> dict:
     logger.info("fetching NDVI", field_id=field_id)
     ...
-
 
 # Validated input model
 class CreateFieldRequest(ValidatedModel):
@@ -178,7 +164,6 @@ class CreateFieldRequest(ValidatedModel):
     def check_coords(cls, v, info):
         validate_coordinates(info.data.get("latitude", v), info.data.get("longitude", v))
         return v
-
 
 # Paginated response
 @app.get("/api/v1/fields")

@@ -150,18 +150,21 @@ curl "http://localhost:8090/v1/gdd/crops"
 import httpx
 import asyncio
 
-
 async def track_field():
     async with httpx.AsyncClient() as client:
         response = await client.get(
             "http://localhost:8090/v1/gdd/chart/field123",
-            params={"crop_code": "WHEAT", "planting_date": "2024-03-01", "lat": 15.37, "lon": 44.19},
+            params={
+                "crop_code": "WHEAT",
+                "planting_date": "2024-03-01",
+                "lat": 15.37,
+                "lon": 44.19
+            }
         )
         data = response.json()
         print(f"Total GDD: {data['current_status']['total_gdd']}")
         print(f"Stage: {data['current_stage']['name_en']}")
         print(f"Harvest: {data['harvest_prediction']['estimated_date']}")
-
 
 asyncio.run(track_field())
 ```

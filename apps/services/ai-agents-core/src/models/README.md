@@ -75,22 +75,24 @@ for img, (disease, confidence, bbox) in zip(images, results):
 ```python
 import asyncio
 
-
 async def analyze_field():
     # Process all images from a field - معالجة جميع الصور من حقل
     field_images = ["field_1.jpg", "field_2.jpg", "field_3.jpg"]
 
-    report = await model.process_field_images(field_id="FIELD-001", images=field_images, min_confidence=0.5)
+    report = await model.process_field_images(
+        field_id="FIELD-001",
+        images=field_images,
+        min_confidence=0.5
+    )
 
     print(f"Field Status: {report['field_status_ar']}")
     print(f"Health Percentage: {report['health_percentage']:.1f}%")
     print(f"Diseased Images: {report['total_diseased']}/{report['total_images']}")
 
     # Print recommendations - طباعة التوصيات
-    for rec in report["recommendations"]:
+    for rec in report['recommendations']:
         print(f"\nDisease: {rec['disease_ar']}")
         print(f"Treatment: {rec['treatment_ar']}")
-
 
 # Run analysis - تشغيل التحليل
 asyncio.run(analyze_field())
@@ -103,14 +105,17 @@ asyncio.run(analyze_field())
 image = "/path/to/image.jpg"
 predictions = model.get_top_k_predictions(image, k=3)
 
-visualized = model.visualize_predictions(image, predictions, output_path="/path/to/output.jpg")
+visualized = model.visualize_predictions(
+    image,
+    predictions,
+    output_path="/path/to/output.jpg"
+)
 ```
 
 ### Model Management / إدارة النماذج
 
 ```python
 import asyncio
-
 
 async def download_and_load_model():
     # Download latest model - تحميل أحدث نموذج
@@ -126,7 +131,6 @@ async def download_and_load_model():
     metrics = model.get_metrics()
     print(f"Total Predictions: {metrics['total_predictions']}")
     print(f"Avg Inference Time: {metrics['avg_inference_time_ms']:.2f}ms")
-
 
 asyncio.run(download_and_load_model())
 ```
@@ -146,7 +150,6 @@ disease_model = DiseaseCNNModel()
 disease_model.load_model("/path/to/model.h5")
 disease_model.warm_up_model()
 
-
 @app.post("/api/v1/detect-disease")
 async def detect_disease(file: UploadFile = File(...)):
     """
@@ -160,8 +163,11 @@ async def detect_disease(file: UploadFile = File(...)):
     # Get predictions - الحصول على التنبؤات
     predictions = disease_model.get_top_k_predictions(image, k=3)
 
-    return {"success": True, "predictions": predictions, "model_version": disease_model.get_model_version()}
-
+    return {
+        "success": True,
+        "predictions": predictions,
+        "model_version": disease_model.get_model_version()
+    }
 
 @app.post("/api/v1/analyze-field")
 async def analyze_field(field_id: str, files: List[UploadFile] = File(...)):
@@ -177,9 +183,16 @@ async def analyze_field(field_id: str, files: List[UploadFile] = File(...)):
         images.append(image)
 
     # Process field - معالجة الحقل
-    report = await disease_model.process_field_images(field_id=field_id, images=images, min_confidence=0.6)
+    report = await disease_model.process_field_images(
+        field_id=field_id,
+        images=images,
+        min_confidence=0.6
+    )
 
-    return {"success": True, "report": report}
+    return {
+        "success": True,
+        "report": report
+    }
 ```
 
 ## Configuration / الإعدادات

@@ -446,48 +446,48 @@ The Alert Service (Arabic: khidmat at-tanbihat) is the centralized alert managem
 #### AlertType
 ```python
 class AlertType(str, Enum):
-    WEATHER = "weather"  # Weather alerts
-    PEST = "pest"  # Pest alerts
-    DISEASE = "disease"  # Disease alerts
-    IRRIGATION = "irrigation"  # Irrigation alerts
-    FERTILIZER = "fertilizer"  # Fertilization alerts
-    HARVEST = "harvest"  # Harvest timing alerts
-    NDVI_LOW = "ndvi_low"  # Low NDVI alerts
-    NDVI_ANOMALY = "ndvi_anomaly"  # NDVI anomaly detection
-    SOIL_MOISTURE = "soil_moisture"  # Soil moisture alerts
-    EQUIPMENT = "equipment"  # Equipment alerts
-    GENERAL = "general"  # General alerts
+    WEATHER = "weather"           # Weather alerts
+    PEST = "pest"                 # Pest alerts
+    DISEASE = "disease"           # Disease alerts
+    IRRIGATION = "irrigation"     # Irrigation alerts
+    FERTILIZER = "fertilizer"     # Fertilization alerts
+    HARVEST = "harvest"           # Harvest timing alerts
+    NDVI_LOW = "ndvi_low"         # Low NDVI alerts
+    NDVI_ANOMALY = "ndvi_anomaly" # NDVI anomaly detection
+    SOIL_MOISTURE = "soil_moisture" # Soil moisture alerts
+    EQUIPMENT = "equipment"       # Equipment alerts
+    GENERAL = "general"           # General alerts
 ```
 
 #### AlertSeverity
 ```python
 class AlertSeverity(str, Enum):
     CRITICAL = "critical"  # Requires immediate action
-    HIGH = "high"  # Requires urgent attention
-    MEDIUM = "medium"  # Needs review
-    LOW = "low"  # For awareness
-    INFO = "info"  # Informational
+    HIGH = "high"          # Requires urgent attention
+    MEDIUM = "medium"      # Needs review
+    LOW = "low"            # For awareness
+    INFO = "info"          # Informational
 ```
 
 #### AlertStatus
 ```python
 class AlertStatus(str, Enum):
-    ACTIVE = "active"  # New, unacknowledged
-    ACKNOWLEDGED = "acknowledged"  # Seen by user
-    DISMISSED = "dismissed"  # Ignored by user
-    RESOLVED = "resolved"  # Issue fixed
-    EXPIRED = "expired"  # Past expiration date
+    ACTIVE = "active"           # New, unacknowledged
+    ACKNOWLEDGED = "acknowledged" # Seen by user
+    DISMISSED = "dismissed"     # Ignored by user
+    RESOLVED = "resolved"       # Issue fixed
+    EXPIRED = "expired"         # Past expiration date
 ```
 
 #### ConditionOperator
 ```python
 class ConditionOperator(str, Enum):
-    EQ = "eq"  # Equals
-    NE = "ne"  # Not equals
-    GT = "gt"  # Greater than
-    GTE = "gte"  # Greater than or equals
-    LT = "lt"  # Less than
-    LTE = "lte"  # Less than or equals
+    EQ = "eq"   # Equals
+    NE = "ne"   # Not equals
+    GT = "gt"   # Greater than
+    GTE = "gte" # Greater than or equals
+    LT = "lt"   # Less than
+    LTE = "lte" # Less than or equals
 ```
 
 ### Response Models
@@ -781,7 +781,7 @@ extra_metadata: Mapped[dict | None] = mapped_column(
 )
 
 # main.py line 409
-metadata = (alert_data.metadata or {},)  # Should be extra_metadata
+metadata=alert_data.metadata or {},  # Should be extra_metadata
 ```
 
 **Recommendation**: Rename `extra_metadata` to `metadata` in db_models.py, or update the main.py mapping to use `extra_metadata`.
@@ -844,7 +844,7 @@ topics = [
     AlertTopics.WEATHER_ALERT,
     AlertTopics.IOT_THRESHOLD,
     AlertTopics.CROP_HEALTH_ALERT,  # No handler
-    AlertTopics.IRRIGATION_ALERT,  # No handler
+    AlertTopics.IRRIGATION_ALERT,   # No handler
 ]
 ```
 
@@ -873,7 +873,6 @@ topics = [
 **Recommendation**: Update to use timezone-aware datetime:
 ```python
 from datetime import UTC, datetime
-
 alert.created_at = datetime.now(UTC)
 ```
 

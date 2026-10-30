@@ -47,8 +47,8 @@ The `CostTracker` class maintains:
 Default budget limits (can be modified in `cost_tracker.py`):
 
 ```python
-daily_limit: float = 100.0  # $100/day
-monthly_limit: float = 2000.0  # $2000/month
+daily_limit: float = 100.0      # $100/day
+monthly_limit: float = 2000.0   # $2000/month
 per_request_limit: float = 1.0  # $1/request
 ```
 
@@ -96,7 +96,11 @@ if not within_budget:
     print(f"Budget exceeded: {message}")
 
 # Calculate cost for a hypothetical request
-cost = cost_tracker.calculate_cost(model="claude-3-5-sonnet-20241022", input_tokens=1000, output_tokens=500)
+cost = cost_tracker.calculate_cost(
+    model="claude-3-5-sonnet-20241022",
+    input_tokens=1000,
+    output_tokens=500
+)
 ```
 
 ## LLM Response Fields
@@ -109,10 +113,10 @@ class LLMResponse:
     content: str
     provider: str
     model: str
-    tokens_used: int  # Total tokens
-    input_tokens: int  # NEW: Input tokens
-    output_tokens: int  # NEW: Output tokens
-    cost: float  # NEW: Cost in USD
+    tokens_used: int       # Total tokens
+    input_tokens: int      # NEW: Input tokens
+    output_tokens: int     # NEW: Output tokens
+    cost: float           # NEW: Cost in USD
     latency_ms: float
     finish_reason: str
 ```

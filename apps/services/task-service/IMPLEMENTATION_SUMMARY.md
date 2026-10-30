@@ -46,7 +46,6 @@ All NDVI-Task integration endpoints have been successfully added to the task-ser
 ```python
 class NdviAlertTaskRequest(BaseModel):
     """Create task from NDVI alert"""
-
     field_id: str
     zone_id: Optional[str]
     ndvi_value: float
@@ -56,10 +55,8 @@ class NdviAlertTaskRequest(BaseModel):
     assigned_to: Optional[str]
     alert_metadata: Optional[dict]
 
-
 class TaskSuggestion(BaseModel):
     """Task suggestion based on field health"""
-
     task_type: TaskType
     priority: TaskPriority
     title: str
@@ -72,10 +69,8 @@ class TaskSuggestion(BaseModel):
     suggested_due_days: int
     metadata: Optional[dict]
 
-
 class TaskAutoCreateRequest(BaseModel):
     """Batch create tasks from recommendations"""
-
     field_id: str
     suggestions: list[TaskSuggestion]
     auto_assign: bool = False
@@ -103,7 +98,6 @@ def calculate_ndvi_priority(
     - Z-score > 2 → MEDIUM
     """
 
-
 def generate_ndvi_task_content(
     alert_type: str,
     ndvi_value: float,
@@ -117,7 +111,6 @@ def generate_ndvi_task_content(
     Returns:
         (title, title_ar, description, description_ar)
     """
-
 
 async def send_task_notification(
     tenant_id: str,

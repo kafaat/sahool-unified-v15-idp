@@ -38,7 +38,6 @@ shared/scraping/
 ```python
 # Quick custom config
 from shared.scraping import create_config
-
 config = create_config(headless=True, proxy_server="http://proxy:8080", max_retries=5)
 ```
 

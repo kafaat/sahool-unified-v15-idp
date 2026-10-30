@@ -221,7 +221,6 @@ class CloudMaskResult:
     scl_distribution: Dict[str, float]
     recommendation: str
 
-
 @dataclass
 class ClearObservation:
     date: datetime
@@ -230,7 +229,6 @@ class ClearObservation:
     satellite: str
     shadow_cover: float
     clear_pixels: float
-
 
 class SCLClass(Enum):
     NO_DATA = 0
@@ -317,7 +315,10 @@ masker = get_cloud_masker()
 
 # Analyze cloud cover
 result = await masker.analyze_cloud_cover(
-    field_id="field_123", latitude=15.5527, longitude=44.2075, date=datetime(2024, 3, 15)
+    field_id="field_123",
+    latitude=15.5527,
+    longitude=44.2075,
+    date=datetime(2024, 3, 15)
 )
 
 print(f"Cloud cover: {result.cloud_cover_percent}%")

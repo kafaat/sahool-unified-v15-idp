@@ -175,7 +175,11 @@ async def search_producers(
 **Example:**
 
 ```python
-producers = await client.search_producers(query="organic farm", country="SA", product_category="vegetables")
+producers = await client.search_producers(
+    query="organic farm",
+    country="SA",
+    product_category="vegetables"
+)
 ```
 
 ##### batch_verify_certificates
@@ -200,12 +204,10 @@ async def batch_verify_certificates(
 **Example:**
 
 ```python
-results = await client.batch_verify_certificates(
-    [
-        "4063061891234",
-        "4063061891235",
-    ]
-)
+results = await client.batch_verify_certificates([
+    "4063061891234",
+    "4063061891235",
+])
 for ggn, cert in results.items():
     print(f"{ggn}: {cert.status}")
 ```
@@ -391,7 +393,7 @@ The client includes built-in rate limiting using a token bucket algorithm:
 
 ```python
 client = GlobalGAPClient(
-    rate_limit=10,  # 10 requests
+    rate_limit=10,         # 10 requests
     rate_limit_period=60,  # per 60 seconds
 )
 ```
@@ -463,7 +465,6 @@ except GlobalGAPAPIError as e:
 ```python
 from shared.globalgap import GlobalGAPClient
 
-
 async def verify_farm_certificate(farm_id: str, ggn: str):
     """Verify and update farm certification status"""
 
@@ -482,7 +483,7 @@ async def verify_farm_certificate(farm_id: str, ggn: str):
                         "globalgap.cb_name": cert.cb_name,
                         "globalgap.products": cert.product_categories,
                     }
-                },
+                }
             )
 
             # Send notification if expiring soon
@@ -493,7 +494,10 @@ async def verify_farm_certificate(farm_id: str, ggn: str):
 
         except CertificateNotFound:
             # Mark as not certified
-            await db.farms.update_one({"_id": farm_id}, {"$set": {"globalgap.status": "not_found"}})
+            await db.farms.update_one(
+                {"_id": farm_id},
+                {"$set": {"globalgap.status": "not_found"}}
+            )
             raise
 ```
 
@@ -501,7 +505,6 @@ async def verify_farm_certificate(farm_id: str, ggn: str):
 
 ```python
 from shared.globalgap import GlobalGAPClient
-
 
 async def monitor_certificates():
     """Daily job to check all farm certificates"""
@@ -527,7 +530,7 @@ async def monitor_certificates():
                         "globalgap.status": cert.status.value,
                         "globalgap.last_checked": datetime.now(),
                     }
-                },
+                }
             )
 
             # Alert if expired or expiring soon
@@ -544,7 +547,6 @@ from fastapi import APIRouter, HTTPException
 from shared.globalgap import GlobalGAPClient, CertificateNotFound, InvalidGGN
 
 router = APIRouter()
-
 
 @router.get("/certificates/{ggn}")
 async def get_certificate(ggn: str, lang: str = "en"):
@@ -568,7 +570,10 @@ async def get_certificate(ggn: str, lang: str = "en"):
 
         except (CertificateNotFound, InvalidGGN) as e:
             error = e.to_dict(lang=lang)
-            raise HTTPException(status_code=error["status_code"], detail=error)
+            raise HTTPException(
+                status_code=error["status_code"],
+                detail=error
+            )
 ```
 
 ## Testing / الاختبار
@@ -578,7 +583,6 @@ async def get_certificate(ggn: str, lang: str = "en"):
 ```python
 import pytest
 from shared.globalgap import GlobalGAPClient, CertificateStatus
-
 
 @pytest.mark.asyncio
 async def test_verify_certificate_mock():
@@ -590,7 +594,6 @@ async def test_verify_certificate_mock():
         assert cert.ggn == "4063061891234"
         assert cert.status == CertificateStatus.VALID
         assert cert.is_valid() is True
-
 
 @pytest.mark.asyncio
 async def test_invalid_ggn():
@@ -612,7 +615,6 @@ async def test_real_api():
     """Test with real GlobalGAP API (requires API key)"""
 
     import os
-
     api_key = os.getenv("GLOBALGAP_API_KEY")
 
     if not api_key:

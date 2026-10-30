@@ -187,8 +187,8 @@ print(f"Language: {decision.language.value}")
 
 # Get localized content
 content = get_localized_content(request, Language.ARABIC)
-print(content["title"])  # Arabic title
-print(content["body"])  # Arabic body
+print(content["title"])   # Arabic title
+print(content["body"])    # Arabic body
 
 # Query all users subscribed to frost alerts
 subscribers = await manager.get_users_subscribed_to_alert(AlertType.WEATHER_FROST)

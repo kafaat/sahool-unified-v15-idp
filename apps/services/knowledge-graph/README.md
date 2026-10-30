@@ -255,14 +255,14 @@ curl -X POST "http://localhost:8140/api/v1/relationships/add" \
 
 ```python
 {
-    "id": "wheat",
-    "name_en": "Wheat",
-    "name_ar": "القمح",
-    "description_en": "Winter cereal grain",
-    "description_ar": "حبوب القمح الشتوية",
-    "growing_season": "winter",
-    "family": "Poaceae",
-    "attributes": {},
+  "id": "wheat",
+  "name_en": "Wheat",
+  "name_ar": "القمح",
+  "description_en": "Winter cereal grain",
+  "description_ar": "حبوب القمح الشتوية",
+  "growing_season": "winter",
+  "family": "Poaceae",
+  "attributes": {}
 }
 ```
 
@@ -270,14 +270,14 @@ curl -X POST "http://localhost:8140/api/v1/relationships/add" \
 
 ```python
 {
-    "id": "powdery-mildew",
-    "name_en": "Powdery Mildew",
-    "name_ar": "البياض الدقيقي",
-    "pathogen_type": "fungal",
-    "symptoms_en": ["White powder coating", "Leaf distortion"],
-    "symptoms_ar": ["طلاء أبيض ناعم", "تشويه الأوراق"],
-    "severity_level": 7,
-    "incubation_days": 7,
+  "id": "powdery-mildew",
+  "name_en": "Powdery Mildew",
+  "name_ar": "البياض الدقيقي",
+  "pathogen_type": "fungal",
+  "symptoms_en": ["White powder coating", "Leaf distortion"],
+  "symptoms_ar": ["طلاء أبيض ناعم", "تشويه الأوراق"],
+  "severity_level": 7,
+  "incubation_days": 7
 }
 ```
 
@@ -285,15 +285,15 @@ curl -X POST "http://localhost:8140/api/v1/relationships/add" \
 
 ```python
 {
-    "id": "sulfur-dust",
-    "name_en": "Sulfur Dust",
-    "name_ar": "مسحوق الكبريت",
-    "treatment_type": "fungicide",
-    "active_ingredient": "Sulfur",
-    "concentration": "100%",
-    "application_method": "dust",
-    "safety_level": 1,
-    "cost_per_liter": 5.0,
+  "id": "sulfur-dust",
+  "name_en": "Sulfur Dust",
+  "name_ar": "مسحوق الكبريت",
+  "treatment_type": "fungicide",
+  "active_ingredient": "Sulfur",
+  "concentration": "100%",
+  "application_method": "dust",
+  "safety_level": 1,
+  "cost_per_liter": 5.0
 }
 ```
 
@@ -301,14 +301,14 @@ curl -X POST "http://localhost:8140/api/v1/relationships/add" \
 
 ```python
 {
-    "id": "rel-powdery-mildew-wheat-affects",
-    "source_type": "disease",
-    "source_id": "powdery-mildew",
-    "target_type": "crop",
-    "target_id": "wheat",
-    "relationship_type": "affects",
-    "confidence": 0.95,
-    "evidence": ["Research paper XYZ", "Field observation"],
+  "id": "rel-powdery-mildew-wheat-affects",
+  "source_type": "disease",
+  "source_id": "powdery-mildew",
+  "target_type": "crop",
+  "target_id": "wheat",
+  "relationship_type": "affects",
+  "confidence": 0.95,
+  "evidence": ["Research paper XYZ", "Field observation"]
 }
 ```
 

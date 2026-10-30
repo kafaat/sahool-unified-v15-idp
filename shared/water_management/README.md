@@ -93,32 +93,16 @@ shared/water_management/
 
 ```python
 from shared.water_management import (
-    WaterSource,
-    WaterSourceType,
-    WaterSourceStatus,
-    WaterAllocation,
-    WaterRight,
-    WaterRightType,
-    IrrigationEvent,
-    IrrigationMethod,
-    WaterConsumptionRecord,
-    WaterLevelReading,
-    WaterLevelMonitor,
-    WaterLevelTrend,
-    WaterQualityMonitor,
-    WaterQualityTest,
-    WaterQualityParameter,
-    GroundwaterMonitor,
-    AquiferStatus,
-    IrrigationEfficiencyCalculator,
-    IrrigationEfficiencyMetrics,
-    WaterConservationCalculator,
-    EfficiencyBenchmarks,
-    WaterReportGenerator,
-    MEWAComplianceReport,
-    FarmWaterSummaryReport,
-    SaudiWaterStandards,
-    ComplianceStatus,
+    WaterSource, WaterSourceType, WaterSourceStatus,
+    WaterAllocation, WaterRight, WaterRightType,
+    IrrigationEvent, IrrigationMethod, WaterConsumptionRecord,
+    WaterLevelReading, WaterLevelMonitor, WaterLevelTrend,
+    WaterQualityMonitor, WaterQualityTest, WaterQualityParameter,
+    GroundwaterMonitor, AquiferStatus,
+    IrrigationEfficiencyCalculator, IrrigationEfficiencyMetrics,
+    WaterConservationCalculator, EfficiencyBenchmarks,
+    WaterReportGenerator, MEWAComplianceReport, FarmWaterSummaryReport,
+    SaudiWaterStandards, ComplianceStatus,
 )
 from datetime import datetime, UTC
 
@@ -129,7 +113,7 @@ well = WaterSource(
     name="Well Alpha",
     name_ar="بئر ألفا",
     source_type=WaterSourceType.WELL,
-    capacity_m3=500.0,  # Daily pumping capacity
+    capacity_m3=500.0,        # Daily pumping capacity
     status=WaterSourceStatus.ACTIVE,
     depth_m=120.0,
     static_level_m=45.0,
@@ -142,7 +126,7 @@ reading = WaterLevelReading(
     source_id="WELL-001",
     tenant_id="tenant_001",
     timestamp=datetime.now(UTC),
-    depth_m=47.5,  # Water now at 47.5 m depth (was 45 m - declining)
+    depth_m=47.5,          # Water now at 47.5 m depth (was 45 m - declining)
     static_level_m=47.5,
     dynamic_level_m=52.0,
     drawdown_m=4.5,
@@ -155,7 +139,7 @@ gw_monitor = GroundwaterMonitor()
 status = gw_monitor.assess_aquifer(
     well_id="WELL-001",
     level_readings=historical_level_readings,
-    permit_level_m=50.0,  # Regulatory limit
+    permit_level_m=50.0,   # Regulatory limit
 )
 print(f"Aquifer: {status.value}")  # AquiferStatus.STRESSED
 

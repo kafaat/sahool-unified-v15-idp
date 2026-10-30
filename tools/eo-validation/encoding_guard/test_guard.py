@@ -187,7 +187,7 @@ class GuardTests(unittest.TestCase):
         for band in ["red", "nir", "scl"]:
             with self.subTest(band=band):
                 p = self.fixture()
-                self.change_json(p, "c1_item.json", lambda x: x["assets"][band].update({"proj:epsg": 4326}))
+                self.change_json(p, "c1_item.json", lambda x, band=band: x["assets"][band].update({"proj:epsg": 4326}))
                 with self.assertRaisesRegex(Rejected, "CRS declaration mismatch"):
                     compare(p)
 
@@ -195,7 +195,9 @@ class GuardTests(unittest.TestCase):
         for band in ["red", "nir", "scl"]:
             with self.subTest(band=band):
                 p = self.fixture()
-                self.change_json(p, "c1_item.json", lambda x: x["assets"][band].update({"proj:code": "EPSG:4326"}))
+                self.change_json(
+                    p, "c1_item.json", lambda x, band=band: x["assets"][band].update({"proj:code": "EPSG:4326"})
+                )
                 with self.assertRaisesRegex(Rejected, "CRS code mismatch"):
                     compare(p)
 
@@ -209,7 +211,7 @@ class GuardTests(unittest.TestCase):
         for epsg in [None, True, 0, -32638, 10**400]:
             with self.subTest(epsg=str(epsg)[:20]):
                 p = self.fixture()
-                self.change_json(p, "old_item.json", lambda x: x["properties"].update({"proj:epsg": epsg}))
+                self.change_json(p, "old_item.json", lambda x, epsg=epsg: x["properties"].update({"proj:epsg": epsg}))
                 with self.assertRaisesRegex(Rejected, "missing/invalid EPSG"):
                     compare(p)
 
@@ -224,7 +226,7 @@ class GuardTests(unittest.TestCase):
             with self.subTest(field=field):
                 p = self.fixture()
 
-                def mutate(x):
+                def mutate(x, field=field, value=value):
                     for b in ["red", "nir"]:
                         x["assets"][b]["raster:bands"][0][field] = value
 

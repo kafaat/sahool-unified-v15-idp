@@ -149,13 +149,11 @@ from shared.events.subjects import SAHOOL_FIELD_CREATED
 subscriber = EventSubscriber()
 await subscriber.connect()
 
-
 async def handle_field_created(event: FieldCreatedEvent):
     # Your handler logic
     # If this fails, it will be retried automatically
     # After max retries, moved to DLQ
     print(f"Processing field: {event.name}")
-
 
 await subscriber.subscribe(
     SAHOOL_FIELD_CREATED,
@@ -554,12 +552,12 @@ Restrict DLQ management endpoints:
 from fastapi import Depends
 from auth import require_admin
 
-
 @router.post("/dlq/replay/{seq}")
 async def replay_message(
     seq: int,
-    user=Depends(require_admin),  # Only admins
-): ...
+    user = Depends(require_admin),  # Only admins
+):
+    ...
 ```
 
 ### Data Privacy

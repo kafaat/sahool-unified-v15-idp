@@ -54,10 +54,17 @@ from shared.mcp import MCPClient, MCPClientContext
 # Using context manager
 async with MCPClientContext(server_url="http://localhost:8200") as client:
     # Get weather forecast
-    weather = await client.get_weather_forecast(latitude=15.5527, longitude=48.5164, days=7)
+    weather = await client.get_weather_forecast(
+        latitude=15.5527,
+        longitude=48.5164,
+        days=7
+    )
 
     # Analyze crop health
-    health = await client.analyze_crop_health(field_id="field-123", analysis_type="ndvi")
+    health = await client.analyze_crop_health(
+        field_id="field-123",
+        analysis_type="ndvi"
+    )
 ```
 
 ### 3. Agricultural Tools (`tools.py`)
@@ -81,7 +88,14 @@ tools = SAHOOLTools(base_url="http://localhost:8000")
 definitions = tools.get_tool_definitions()
 
 # Invoke a tool
-result = await tools.invoke_tool("get_weather_forecast", {"latitude": 15.5527, "longitude": 48.5164, "days": 7})
+result = await tools.invoke_tool(
+    "get_weather_forecast",
+    {
+        "latitude": 15.5527,
+        "longitude": 48.5164,
+        "days": 7
+    }
+)
 ```
 
 ### 4. Resource Providers (`resources.py`)
@@ -146,7 +160,11 @@ async with MCPClientContext(server_url="http://localhost:8200") as client:
     print(f"Available tools: {[t['name'] for t in tools]}")
 
     # Call a tool
-    result = await client.get_weather_forecast(latitude=15.5527, longitude=48.5164, days=7)
+    result = await client.get_weather_forecast(
+        latitude=15.5527,
+        longitude=48.5164,
+        days=7
+    )
     print(result)
 ```
 
@@ -159,7 +177,11 @@ Get weather forecast for a location.
 **Input:**
 
 ```python
-{"latitude": 15.5527, "longitude": 48.5164, "days": 7}
+{
+    "latitude": 15.5527,
+    "longitude": 48.5164,
+    "days": 7
+}
 ```
 
 **Output:**
@@ -167,8 +189,13 @@ Get weather forecast for a location.
 ```python
 {
     "success": True,
-    "data": {"location": {...}, "forecast": [...], "advisories": [...], "summary": "..."},
-    "metadata": {...},
+    "data": {
+        "location": {...},
+        "forecast": [...],
+        "advisories": [...],
+        "summary": "..."
+    },
+    "metadata": {...}
 }
 ```
 
@@ -182,7 +209,7 @@ Analyze crop health using satellite imagery.
 {
     "field_id": "field-123",
     "analysis_type": "ndvi",
-    "date": "2025-12-28",  # optional
+    "date": "2025-12-28"  # optional
 }
 ```
 
@@ -196,8 +223,8 @@ Analyze crop health using satellite imagery.
         "health_status": "healthy",
         "stress_areas": [...],
         "disease_risk": {...},
-        "recommendations": [...],
-    },
+        "recommendations": [...]
+    }
 }
 ```
 
@@ -208,7 +235,11 @@ Get comprehensive field data.
 **Input:**
 
 ```python
-{"field_id": "field-123", "include_history": True, "include_sensors": True}
+{
+    "field_id": "field-123",
+    "include_history": True,
+    "include_sensors": True
+}
 ```
 
 **Output:**
@@ -222,8 +253,8 @@ Get comprehensive field data.
         "area_hectares": 10.5,
         "boundaries": {...},
         "soil_properties": {...},
-        "current_crop": {...},
-    },
+        "current_crop": {...}
+    }
 }
 ```
 
@@ -234,7 +265,12 @@ Calculate irrigation requirements.
 **Input:**
 
 ```python
-{"field_id": "field-123", "crop_type": "wheat", "soil_moisture": 45.5, "growth_stage": "flowering"}
+{
+    "field_id": "field-123",
+    "crop_type": "wheat",
+    "soil_moisture": 45.5,
+    "growth_stage": "flowering"
+}
 ```
 
 **Output:**
@@ -247,8 +283,8 @@ Calculate irrigation requirements.
         "water_amount_mm": 25.0,
         "duration_minutes": 120,
         "next_irrigation_date": "2025-12-30",
-        "soil_moisture_target": 60.0,
-    },
+        "soil_moisture_target": 60.0
+    }
 }
 ```
 
@@ -262,8 +298,13 @@ Get fertilizer recommendations.
 {
     "field_id": "field-123",
     "crop_type": "corn",
-    "soil_test": {"nitrogen_ppm": 20, "phosphorus_ppm": 15, "potassium_ppm": 150, "ph": 6.5},
-    "target_yield": 8.5,
+    "soil_test": {
+        "nitrogen_ppm": 20,
+        "phosphorus_ppm": 15,
+        "potassium_ppm": 150,
+        "ph": 6.5
+    },
+    "target_yield": 8.5
 }
 ```
 
@@ -277,8 +318,8 @@ Get fertilizer recommendations.
         "application_schedule": [...],
         "total_cost_estimate": 500.0,
         "organic_alternatives": [...],
-        "warnings": [...],
-    },
+        "warnings": [...]
+    }
 }
 ```
 

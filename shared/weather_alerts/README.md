@@ -85,7 +85,7 @@ forecasts = [
         temperature_min=5.0,
         temperature_max=28.0,
         humidity=42.0,
-        wind_speed=22.0,  # High wind
+        wind_speed=22.0,          # High wind
         precipitation_probability=0.0,
     ),
 ]

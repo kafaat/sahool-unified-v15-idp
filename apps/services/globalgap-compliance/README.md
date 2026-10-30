@@ -199,16 +199,16 @@ NOT_ASSESSED = "not_assessed"
 
 ### Severity Levels | مستويات الخطورة
 ```python
-CRITICAL = "critical"  # Immediate action required
-MAJOR = "major"  # Major Must failure
-MINOR = "minor"  # Minor Must failure
+CRITICAL = "critical"    # Immediate action required
+MAJOR = "major"          # Major Must failure
+MINOR = "minor"          # Minor Must failure
 OBSERVATION = "observation"  # Recommendation
 ```
 
 ### Compliance Levels | مستويات الامتثال
 ```python
-MAJOR_MUST = "major_must"  # 100% required - No certification if failed
-MINOR_MUST = "minor_must"  # 95% required
+MAJOR_MUST = "major_must"      # 100% required - No certification if failed
+MINOR_MUST = "minor_must"      # 95% required
 RECOMMENDATION = "recommendation"  # Best practice
 ```
 

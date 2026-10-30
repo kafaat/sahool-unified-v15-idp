@@ -103,13 +103,9 @@ def predictor(
 
 ```python
 from shared.calibration import (
-    BayesianCalibration,
-    CalibrationConfig,
-    CalibrationTarget,
-    CalibrationObservation,
-    TimestampedObservation,
-    ParameterBound,
-    ValidationMetrics,
+    BayesianCalibration, CalibrationConfig,
+    CalibrationTarget, CalibrationObservation, TimestampedObservation,
+    ParameterBound, ValidationMetrics,
 )
 from shared.calibration.adapters import CropGrowthAdapter
 
@@ -124,7 +120,7 @@ targets = [
                     TimestampedObservation(t="2025-02-15", value=1.8, std=0.2),
                     TimestampedObservation(t="2025-03-01", value=3.2, std=0.3),
                     TimestampedObservation(t="2025-04-01", value=4.5, std=0.4),
-                ],
+                ]
             )
         ],
         weight=1.0,
@@ -133,9 +129,9 @@ targets = [
 
 # Define parameter search space
 bounds = [
-    ParameterBound(name="rue", min_val=1.5, max_val=3.5, initial=2.5),
+    ParameterBound(name="rue",    min_val=1.5, max_val=3.5, initial=2.5),
     ParameterBound(name="t_base", min_val=0.0, max_val=5.0, initial=0.0),
-    ParameterBound(name="sla", min_val=15.0, max_val=35.0, initial=25.0),
+    ParameterBound(name="sla",    min_val=15.0, max_val=35.0, initial=25.0),
 ]
 
 # Build predictor from crop growth model

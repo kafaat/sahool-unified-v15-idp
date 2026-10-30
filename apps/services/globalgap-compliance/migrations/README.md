@@ -65,19 +65,17 @@ psql $DATABASE_URL -f migrations/002_add_indexes.sql
 import asyncpg
 import asyncio
 
-
 async def run_migrations():
-    conn = await asyncpg.connect("postgresql://user:password@host:port/database")
+    conn = await asyncpg.connect('postgresql://user:password@host:port/database')
 
     # Read and execute migration files
-    with open("migrations/001_initial_schema.sql", "r") as f:
+    with open('migrations/001_initial_schema.sql', 'r') as f:
         await conn.execute(f.read())
 
-    with open("migrations/002_add_indexes.sql", "r") as f:
+    with open('migrations/002_add_indexes.sql', 'r') as f:
         await conn.execute(f.read())
 
     await conn.close()
-
 
 asyncio.run(run_migrations())
 ```
@@ -136,19 +134,31 @@ globalgap_registrations (1) ──→ (*) compliance_records
 The `src/database.py` module provides repository classes for easy database access:
 
 ```python
-from src.database import registrations_repo, compliance_repo, checklist_repo, non_conformance_repo, init_db
+from src.database import (
+    registrations_repo,
+    compliance_repo,
+    checklist_repo,
+    non_conformance_repo,
+    init_db
+)
 
 # Initialize database connection pool
 await init_db()
 
 # Create a new registration
 registration = await registrations_repo.create(
-    farm_id=farm_uuid, ggn="4052852000000", certificate_status="ACTIVE", scope="FRUIT_VEGETABLES"
+    farm_id=farm_uuid,
+    ggn="4052852000000",
+    certificate_status="ACTIVE",
+    scope="FRUIT_VEGETABLES"
 )
 
 # Create compliance record
 compliance = await compliance_repo.create(
-    registration_id=registration["id"], checklist_version="6.0", audit_date=date.today(), overall_compliance=95.5
+    registration_id=registration['id'],
+    checklist_version="6.0",
+    audit_date=date.today(),
+    overall_compliance=95.5
 )
 
 # Get active registrations

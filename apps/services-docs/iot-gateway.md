@@ -729,15 +729,15 @@ Published for device alerts (offline, low battery, etc).
 ```python
 @dataclass
 class SensorReading:
-    device_id: str  # معرف الجهاز
-    field_id: str  # معرف الحقل
-    sensor_type: str  # نوع المستشعر
-    value: float  # القيمة
-    unit: str  # الوحدة
-    timestamp: str  # وقت القراءة
-    metadata: dict | None  # بيانات إضافية
+    device_id: str        # معرف الجهاز
+    field_id: str         # معرف الحقل
+    sensor_type: str      # نوع المستشعر
+    value: float          # القيمة
+    unit: str             # الوحدة
+    timestamp: str        # وقت القراءة
+    metadata: dict | None # بيانات إضافية
     quality_score: float | None  # نقاط الجودة (0-100)
-    is_outlier: bool  # هل هي قيمة شاذة
+    is_outlier: bool      # هل هي قيمة شاذة
 ```
 
 ### Device
@@ -748,10 +748,10 @@ class Device:
     device_id: str
     tenant_id: str
     field_id: str
-    device_type: str  # soil_sensor, weather_station, etc.
+    device_type: str       # soil_sensor, weather_station, etc.
     name_ar: str
     name_en: str
-    status: str  # online, offline, warning, error, unknown
+    status: str            # online, offline, warning, error, unknown
     last_seen: str | None
     last_reading: dict | None
     firmware_version: str | None
@@ -828,7 +828,7 @@ class SensorHealth:
 
     # Health metrics
     data_quality_score: float  # 0-100
-    uptime_percentage: float  # 0-100
+    uptime_percentage: float   # 0-100
     battery_level: float | None
     signal_strength: float | None  # dBm
 
@@ -1244,7 +1244,6 @@ len(sorted_readings)  # Result discarded
 3. **Add Thread Safety to Global State**
    ```python
    import asyncio
-
    _registry_lock = asyncio.Lock()
    ```
 
@@ -1261,10 +1260,8 @@ len(sorted_readings)  # Result discarded
 6. **Add Input Sanitization**
    ```python
    import re
-
-
    def sanitize_id(value: str) -> str:
-       return re.sub(r"[^a-zA-Z0-9_-]", "", value)
+       return re.sub(r'[^a-zA-Z0-9_-]', '', value)
    ```
 
 7. **Improve Error Handling**

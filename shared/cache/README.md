@@ -145,32 +145,32 @@ if redis.ping():
 
 ```python
 # تعيين قيمة
-redis.set("user:1000", "Ahmed", ex=3600)  # تنتهي بعد ساعة
+redis.set('user:1000', 'Ahmed', ex=3600)  # تنتهي بعد ساعة
 
 # قراءة قيمة (من Slave)
-value = redis.get("user:1000", use_slave=True)
+value = redis.get('user:1000', use_slave=True)
 print(f"User: {value}")
 
 # حذف مفتاح
-redis.delete("user:1000")
+redis.delete('user:1000')
 
 # التحقق من وجود مفتاح
-exists = redis.exists("user:1000")
+exists = redis.exists('user:1000')
 ```
 
 #### Hash Operations
 
 ```python
 # تعيين قيم Hash
-redis.hset("user:1000:profile", "name", "Ahmed")
-redis.hset("user:1000:profile", "email", "ahmed@example.com")
-redis.hset("user:1000:profile", "age", "30")
+redis.hset('user:1000:profile', 'name', 'Ahmed')
+redis.hset('user:1000:profile', 'email', 'ahmed@example.com')
+redis.hset('user:1000:profile', 'age', '30')
 
 # قراءة قيمة واحدة
-name = redis.hget("user:1000:profile", "name")
+name = redis.hget('user:1000:profile', 'name')
 
 # قراءة جميع القيم
-profile = redis.hgetall("user:1000:profile")
+profile = redis.hgetall('user:1000:profile')
 print(profile)
 # {'name': 'Ahmed', 'email': 'ahmed@example.com', 'age': '30'}
 ```
@@ -179,24 +179,24 @@ print(profile)
 
 ```python
 # إضافة عناصر
-redis.rpush("notifications:1000", "Welcome!", "New message")
+redis.rpush('notifications:1000', 'Welcome!', 'New message')
 
 # قراءة القائمة
-notifications = redis.lrange("notifications:1000", 0, -1)
+notifications = redis.lrange('notifications:1000', 0, -1)
 print(notifications)  # ['Welcome!', 'New message']
 
 # إزالة أول عنصر
-first = redis.lpop("notifications:1000")
+first = redis.lpop('notifications:1000')
 ```
 
 #### Set Operations
 
 ```python
 # إضافة إلى مجموعة
-redis.sadd("user:1000:interests", "farming", "technology", "agriculture")
+redis.sadd('user:1000:interests', 'farming', 'technology', 'agriculture')
 
 # قراءة المجموعة
-interests = redis.smembers("user:1000:interests")
+interests = redis.smembers('user:1000:interests')
 print(interests)  # {'farming', 'technology', 'agriculture'}
 ```
 
@@ -205,9 +205,9 @@ print(interests)  # {'farming', 'technology', 'agriculture'}
 ```python
 # استخدام Pipeline لعمليات متعددة
 with redis.pipeline() as pipe:
-    pipe.set("key1", "value1")
-    pipe.set("key2", "value2")
-    pipe.set("key3", "value3")
+    pipe.set('key1', 'value1')
+    pipe.set('key2', 'value2')
+    pipe.set('key3', 'value3')
     results = pipe.execute()
 ```
 
@@ -539,14 +539,14 @@ ports:
 # استخدام Pipeline للعمليات المتعددة
 with redis.pipeline() as pipe:
     for i in range(1000):
-        pipe.set(f"key:{i}", f"value:{i}")
+        pipe.set(f'key:{i}', f'value:{i}')
     pipe.execute()
 
 # استخدام Slave للقراءة
-value = redis.get("key", use_slave=True)
+value = redis.get('key', use_slave=True)
 
 # تعيين TTL للبيانات المؤقتة
-redis.set("session:123", "data", ex=3600)
+redis.set('session:123', 'data', ex=3600)
 ```
 
 ### 3. التوافرية | Availability
@@ -554,7 +554,7 @@ redis.set("session:123", "data", ex=3600)
 ```python
 # استخدام Circuit Breaker
 try:
-    redis.set("key", "value")
+    redis.set('key', 'value')
 except Exception as e:
     # التعامل مع الخطأ
     logger.error(f"Redis error: {e}")
@@ -562,7 +562,7 @@ except Exception as e:
 
 # فحص الصحة الدوري
 health = redis.health_check()
-if health["status"] != "healthy":
+if health['status'] != 'healthy':
     alert_team(health)
 ```
 
@@ -571,7 +571,6 @@ if health["status"] != "healthy":
 ```python
 # إضافة Logging
 import logging
-
 logging.basicConfig(level=logging.INFO)
 
 # مراقبة الأداء
@@ -581,7 +580,7 @@ import time
 redis = get_redis_client()
 
 start = time.time()
-redis.set("test", "value")
+redis.set('test', 'value')
 duration = time.time() - start
 
 if duration > 0.1:  # 100ms
@@ -665,10 +664,8 @@ from functools import wraps
 from shared.cache import get_redis_client
 import json
 
-
 def cache_result(key_prefix: str, ttl: int = 3600):
     """Cache function results in Redis"""
-
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -689,14 +686,11 @@ def cache_result(key_prefix: str, ttl: int = 3600):
             redis.set(cache_key, json.dumps(result), ex=ttl)
 
             return result
-
         return wrapper
-
     return decorator
 
-
 # الاستخدام
-@cache_result("user:profile", ttl=3600)
+@cache_result('user:profile', ttl=3600)
 def get_user_profile(user_id: int):
     # استعلام من Database (بطيء)
     return db.query(f"SELECT * FROM users WHERE id = {user_id}")
@@ -707,7 +701,6 @@ def get_user_profile(user_id: int):
 ```python
 from shared.cache import get_redis_client
 import time
-
 
 class RateLimiter:
     def __init__(self, max_requests: int = 100, window: int = 60):
@@ -735,11 +728,10 @@ class RateLimiter:
         request_count = results[2]
         return request_count <= self.max_requests
 
-
 # الاستخدام
 limiter = RateLimiter(max_requests=100, window=60)
 
-if limiter.is_allowed("user:1000"):
+if limiter.is_allowed('user:1000'):
     # معالجة الطلب
     process_request()
 else:
@@ -754,7 +746,6 @@ from shared.cache import get_redis_client
 import time
 import uuid
 
-
 class DistributedLock:
     def __init__(self, lock_name: str, timeout: int = 10):
         self.redis = get_redis_client()
@@ -768,7 +759,12 @@ class DistributedLock:
 
         while time.time() < end_time:
             # محاولة الحصول على القفل
-            if self.redis.set(self.lock_name, self.identifier, nx=True, ex=self.timeout):
+            if self.redis.set(
+                self.lock_name,
+                self.identifier,
+                nx=True,
+                ex=self.timeout
+            ):
                 return True
 
             # انتظار قصير قبل المحاولة مرة أخرى
@@ -785,9 +781,8 @@ class DistributedLock:
             return True
         return False
 
-
 # الاستخدام
-lock = DistributedLock("process:export", timeout=30)
+lock = DistributedLock('process:export', timeout=30)
 
 if lock.acquire():
     try:

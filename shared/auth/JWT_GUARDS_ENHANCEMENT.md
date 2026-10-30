@@ -83,7 +83,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 app = FastAPI()
 
-
 @app.on_event("startup")
 async def startup():
     # Initialize Redis cache
@@ -95,7 +94,9 @@ async def startup():
             # Implement your database query here
             # Example:
             async with get_db_session() as session:
-                result = await session.execute(select(User).where(User.id == user_id))
+                result = await session.execute(
+                    select(User).where(User.id == user_id)
+                )
                 user = result.scalar_one_or_none()
 
                 if not user:
@@ -108,8 +109,8 @@ async def startup():
                     is_verified=user.is_verified,
                     roles=user.roles,
                     tenant_id=user.tenant_id,
-                    is_deleted=getattr(user, "is_deleted", False),
-                    is_suspended=getattr(user, "is_suspended", False),
+                    is_deleted=getattr(user, 'is_deleted', False),
+                    is_suspended=getattr(user, 'is_suspended', False),
                 )
 
     set_user_repository(MyUserRepository())
@@ -128,12 +129,10 @@ from shared.auth.models import User
 
 router = APIRouter()
 
-
 @router.get("/profile")
 async def get_profile(user: User = Depends(get_current_user)):
     """Get user profile - with caching and validation"""
     return {"user_id": user.id, "email": user.email}
-
 
 @router.post("/heavy-operation")
 async def heavy_operation(user: User = Depends(rate_limit_dependency)):
@@ -374,7 +373,6 @@ import pytest
 from shared.auth.user_repository import InMemoryUserRepository
 from shared.auth.dependencies import get_current_user
 
-
 @pytest.fixture
 def user_repo():
     repo = InMemoryUserRepository()
@@ -387,13 +385,11 @@ def user_repo():
     )
     return repo
 
-
 async def test_user_validation(user_repo):
     # Test user validation
     user_data = await user_repo.get_user_validation_data("test123")
     assert user_data is not None
     assert user_data.email == "test@example.com"
-
 
 async def test_inactive_user_rejected(user_repo):
     repo.add_test_user(

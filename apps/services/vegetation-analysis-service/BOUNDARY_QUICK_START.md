@@ -46,7 +46,8 @@ import httpx
 
 async with httpx.AsyncClient() as client:
     response = await client.post(
-        "http://localhost:8090/v1/boundaries/detect", params={"lat": 15.5527, "lon": 44.2075, "radius_m": 500}
+        "http://localhost:8090/v1/boundaries/detect",
+        params={"lat": 15.5527, "lon": 44.2075, "radius_m": 500}
     )
     boundaries = response.json()
 ```
@@ -85,7 +86,8 @@ coords = [[44.207, 15.552], [44.208, 15.552], [44.208, 15.553], [44.207, 15.553]
 
 async with httpx.AsyncClient() as client:
     response = await client.post(
-        "http://localhost:8090/v1/boundaries/refine", params={"coords": json.dumps(coords), "buffer_m": 50}
+        "http://localhost:8090/v1/boundaries/refine",
+        params={"coords": json.dumps(coords), "buffer_m": 50}
     )
     refined = response.json()
 ```
@@ -122,7 +124,10 @@ previous = [[44.207, 15.552], [44.208, 15.552], [44.208, 15.553], [44.207, 15.55
 async with httpx.AsyncClient() as client:
     response = await client.get(
         "http://localhost:8090/v1/boundaries/field_12345/changes",
-        params={"since_date": "2023-07-01", "previous_coords": json.dumps(previous)},
+        params={
+            "since_date": "2023-07-01",
+            "previous_coords": json.dumps(previous)
+        }
     )
     changes = response.json()
 ```
@@ -198,11 +203,11 @@ from src.field_boundary_detector import FieldBoundaryDetector
 detector = FieldBoundaryDetector()
 
 # Sensitivity
-detector.ndvi_threshold = 0.25  # Lower = more sensitive
-detector.edge_sensitivity = 0.15  # Lower = more edges detected
+detector.ndvi_threshold = 0.25      # Lower = more sensitive
+detector.edge_sensitivity = 0.15    # Lower = more edges detected
 
 # Size filters
-detector.min_area_hectares = 0.1  # Minimum field size
+detector.min_area_hectares = 0.1    # Minimum field size
 detector.max_area_hectares = 500.0  # Maximum field size
 
 # Simplification
@@ -232,7 +237,9 @@ selected = boundaries[0]
 ```python
 # Check if field has expanded
 change = await detect_boundary_change(
-    field_id="field_123", previous_coords=last_year_coords, current_date=datetime.now()
+    field_id="field_123",
+    previous_coords=last_year_coords,
+    current_date=datetime.now()
 )
 
 if change.change_type == "expansion":

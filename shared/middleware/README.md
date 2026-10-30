@@ -45,17 +45,17 @@ rate_limit_middleware(app)
 ```python
 from shared.middleware import rate_limit, rate_limit_by_tenant
 
-
 # Decorator-based rate limiting
 @router.get("/fields")
 @rate_limit(requests_per_minute=60)
-async def list_fields(): ...
-
+async def list_fields():
+    ...
 
 # Tenant-scoped rate limiting
 @router.get("/advisory")
 @rate_limit_by_tenant(requests_per_minute=30)
-async def get_advisory(): ...
+async def get_advisory():
+    ...
 ```
 
 | Tier | Requests/min | Requests/hour |

@@ -182,7 +182,6 @@ Standardize all services to implement:
 def liveness():
     return {"status": "ok"}
 
-
 @app.get("/readyz")
 def readiness():
     return {
@@ -190,7 +189,6 @@ def readiness():
         "database": getattr(app.state, "db_connected", False),
         "nats": getattr(app.state, "nats_connected", False),
     }
-
 
 @app.get("/health")
 def health():
@@ -252,7 +250,7 @@ Many services create new Redis connections per request instead of using connecti
 **Current Pattern:**
 ```python
 # Bad: Creates new connection per request
-redis = Redis(host="redis", port=6379)
+redis = Redis(host='redis', port=6379)
 ```
 
 **Fix:**
@@ -261,7 +259,7 @@ redis = Redis(host="redis", port=6379)
 from redis import ConnectionPool, Redis
 
 pool = ConnectionPool(
-    host="redis",
+    host='redis',
     port=6379,
     max_connections=10,
     decode_responses=True,

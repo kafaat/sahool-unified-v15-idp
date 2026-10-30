@@ -46,25 +46,22 @@ Calculates final price from a `GradePriceMatrix` by applying grade base prices a
 
 ```python
 from shared.harvest_quality import (
-    QualityGradingEngine,
-    QUALITY_STANDARDS,
+    QualityGradingEngine, QUALITY_STANDARDS,
     QualityGrade,
 )
 
 engine = QualityGradingEngine()
 engine.set_standard(QUALITY_STANDARDS["wheat"])
 
-result = engine.calculate_grade(
-    {
-        "moisture": 12.5,  # % - target <= 12.5 for Grade 1
-        "protein": 13.0,  # %
-        "test_weight": 79.0,  # kg/hl
-        "foreign_matter": 0.8,  # %
-        "damaged_kernels": 1.5,  # %
-    }
-)
+result = engine.calculate_grade({
+    "moisture":         12.5,   # % - target <= 12.5 for Grade 1
+    "protein":          13.0,   # %
+    "test_weight":      79.0,   # kg/hl
+    "foreign_matter":    0.8,   # %
+    "damaged_kernels":   1.5,   # %
+})
 
-print(f"Overall grade : {result.overall_grade.value}")  # e.g. "grade_1"
+print(f"Overall grade : {result.overall_grade.value}")   # e.g. "grade_1"
 print(f"Score         : {result.grade_score:.1f}/100")
 for param, test in result.parameter_results.items():
     print(f"  {param}: {test.result} (value={test.measured_value})")
@@ -74,17 +71,15 @@ for param, test in result.parameter_results.items():
 
 ```python
 from shared.harvest_quality import (
-    QualityPricingEngine,
-    PRICE_MATRICES,
-    calculate_quick_price,
-    get_grade_price_breakdown,
+    QualityPricingEngine, PRICE_MATRICES,
+    calculate_quick_price, get_grade_price_breakdown,
     Currency,
 )
 
 pricing = QualityPricingEngine()
 price_calc = pricing.calculate_price(
     grade=result.overall_grade,
-    quantity=5000,  # kg
+    quantity=5000,          # kg
     test_values={"moisture": 12.5, "protein": 13.0},
     price_matrix=PRICE_MATRICES["wheat"],
 )
@@ -120,7 +115,8 @@ buyers = [
 matcher = BuyerMatchingEngine()
 matches = matcher.find_matches(result, buyers)
 for m in matches:
-    print(f"{m.buyer_name}: meets_requirements={m.meets_requirements}, premium={m.price_premium_percent}%")
+    print(f"{m.buyer_name}: meets_requirements={m.meets_requirements}, "
+          f"premium={m.price_premium_percent}%")
 ```
 
 ### Analyze Quality Trends
@@ -134,7 +130,7 @@ records: list[QualityTestRecord] = load_records_from_db(field_id="FIELD-003")
 analyzer = QualityTrendAnalyzer()
 trend = analyzer.analyze(records, window_size=5)
 
-print(f"Direction  : {trend.trend_direction.value}")  # improving / stable / declining
+print(f"Direction  : {trend.trend_direction.value}")   # improving / stable / declining
 print(f"Avg grade  : {trend.average_grade_score:.1f}/100")
 for param, direction in trend.parameter_trends.items():
     print(f"  {param}: {direction.value}")

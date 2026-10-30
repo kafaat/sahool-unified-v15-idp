@@ -111,7 +111,11 @@ print(f"احتياج مائي: {stage_info.water_requirement}")
 
 ```python
 tasks = service.get_upcoming_tasks(
-    field_id="field_001", crop_type="tomato", planting_date=planting_date, region="tihama", days=14
+    field_id="field_001",
+    crop_type="tomato",
+    planting_date=planting_date,
+    region="tihama",
+    days=14
 )
 
 for task in tasks:
@@ -232,14 +236,14 @@ print(f"الآفات الشائعة: {', '.join(schedule['common_pests_ar'])}")
 ```python
 @dataclass
 class CropCalendar:
-    crop_type: str  # نوع المحصول
-    name_en: str  # الاسم الإنجليزي
-    name_ar: str  # الاسم العربي
-    crop_category: str  # الفئة
-    planting_windows: Dict  # نوافذ الزراعة
-    growth_stages: Dict  # مراحل النمو
-    total_cycle_days: int  # إجمالي الدورة
-    is_perennial: bool  # معمر؟
+    crop_type: str              # نوع المحصول
+    name_en: str                # الاسم الإنجليزي
+    name_ar: str                # الاسم العربي
+    crop_category: str          # الفئة
+    planting_windows: Dict      # نوافذ الزراعة
+    growth_stages: Dict         # مراحل النمو
+    total_cycle_days: int       # إجمالي الدورة
+    is_perennial: bool          # معمر؟
 ```
 
 ### GrowthStageInfo
@@ -247,14 +251,14 @@ class CropCalendar:
 ```python
 @dataclass
 class GrowthStageInfo:
-    stage_name: str  # اسم المرحلة
-    name_ar: str  # الاسم العربي
-    duration_days: int  # المدة بالأيام
-    order: int  # الترتيب
-    water_requirement: str  # احتياج مائي
-    critical_tasks: List[str]  # المهام الحرجة
-    start_day: int  # يوم البداية
-    end_day: int  # يوم النهاية
+    stage_name: str             # اسم المرحلة
+    name_ar: str                # الاسم العربي
+    duration_days: int          # المدة بالأيام
+    order: int                  # الترتيب
+    water_requirement: str      # احتياج مائي
+    critical_tasks: List[str]   # المهام الحرجة
+    start_day: int              # يوم البداية
+    end_day: int                # يوم النهاية
 ```
 
 ### Task
@@ -262,17 +266,17 @@ class GrowthStageInfo:
 ```python
 @dataclass
 class Task:
-    task_id: str  # معرّف المهمة
-    field_id: str  # معرّف الحقل
-    crop_type: str  # نوع المحصول
-    task_type: str  # نوع المهمة
-    task_name_ar: str  # الاسم العربي
-    scheduled_date: date  # تاريخ الجدولة
-    growth_stage: str  # مرحلة النمو
-    priority: int  # الأولوية (1-4)
-    description: str  # الوصف
-    quantity: float  # الكمية
-    unit: str  # الوحدة
+    task_id: str                # معرّف المهمة
+    field_id: str               # معرّف الحقل
+    crop_type: str              # نوع المحصول
+    task_type: str              # نوع المهمة
+    task_name_ar: str           # الاسم العربي
+    scheduled_date: date        # تاريخ الجدولة
+    growth_stage: str           # مرحلة النمو
+    priority: int               # الأولوية (1-4)
+    description: str            # الوصف
+    quantity: float             # الكمية
+    unit: str                   # الوحدة
 ```
 
 ## أمثلة متقدمة - Advanced Examples
@@ -290,7 +294,6 @@ for w in windows:
 
 # 2. افترض الزراعة قبل 50 يوم
 from datetime import date, timedelta
-
 planting_date = date.today() - timedelta(days=50)
 
 # 3. تحديد المرحلة الحالية
@@ -300,7 +303,11 @@ print(f"احتياج مائي: {stage_info.water_requirement}")
 
 # 4. الحصول على المهام القادمة
 tasks = service.get_upcoming_tasks(
-    field_id="field_001", crop_type="tomato", planting_date=planting_date, region="tihama", days=14
+    field_id="field_001",
+    crop_type="tomato",
+    planting_date=planting_date,
+    region="tihama",
+    days=14
 )
 
 print(f"\nالمهام القادمة ({len(tasks)} مهمة):")
@@ -362,7 +369,7 @@ schedule = irrigation_service.get_optimal_schedule(
     growth_stage=stage_name,  # من التقويم الزراعي
     soil_type="loamy",
     irrigation_type="drip",
-    weather_forecast=weather_data,
+    weather_forecast=weather_data
 )
 ```
 

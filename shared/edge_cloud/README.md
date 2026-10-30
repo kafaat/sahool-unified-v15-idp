@@ -102,7 +102,7 @@ from shared.edge_cloud import (
 system = get_cooperative_system(
     farm_id="FARM-001",
     location="Field A, Zone 1",
-    offline_autonomy=True,  # Enable autonomous offline operation
+    offline_autonomy=True,        # Enable autonomous offline operation
 )
 
 # Register IoT devices

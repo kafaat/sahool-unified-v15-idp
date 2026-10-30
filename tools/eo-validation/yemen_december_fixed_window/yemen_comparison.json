@@ -1,0 +1,104 @@
+{
+  "scope": "Yemen diagnostic window near Al Hazm, not user farm boundary; one acquisition; SCL algorithmic mask, C1 comparator not ground truth; no CDSE raster or performance validation",
+  "center_lon_lat": [
+    44.80563036416886,
+    16.153458253998664
+  ],
+  "DN_differences": {
+    "red": {
+      "pixels": 65536,
+      "min": 1000.0,
+      "q25": 1000.0,
+      "median": 1000.0,
+      "q75": 1000.0,
+      "max": 1000.0,
+      "exact_1000_count": 65536
+    },
+    "nir": {
+      "pixels": 65536,
+      "min": 1000.0,
+      "q25": 1000.0,
+      "median": 1000.0,
+      "q75": 1000.0,
+      "max": 1000.0,
+      "exact_1000_count": 65536
+    }
+  },
+  "SCL_agreement_fraction": 1.0,
+  "histograms": {
+    "old": {
+      "4": 12520,
+      "5": 53016
+    },
+    "c1": {
+      "4": 12520,
+      "5": 53016
+    }
+  },
+  "unfiltered": {
+    "selected_pixels": 65536,
+    "numeric_common_pixels": 65536,
+    "numerically_excluded": 0,
+    "old_no_offset": {
+      "mean_signed": -1.5177983381849808e-17,
+      "median_absolute": 5.551115123125783e-17,
+      "p95_absolute": 1.6653345369377348e-16,
+      "max_absolute": 3.3306690738754696e-16,
+      "rmse": 8.238766630761053e-17,
+      "outside_minus1_plus1": 0
+    },
+    "old_metadata": {
+      "mean_signed": 0.15966389222254004,
+      "median_absolute": 0.09799906235964267,
+      "p95_absolute": 0.4928758357955434,
+      "max_absolute": 0.9695538329120446,
+      "rmse": 0.2154179143654081,
+      "outside_minus1_plus1": 6492
+    },
+    "c1_outside_minus1_plus1": 0
+  },
+  "land_SCL4_5": {
+    "selected_pixels": 65536,
+    "numeric_common_pixels": 65536,
+    "numerically_excluded": 0,
+    "old_no_offset": {
+      "mean_signed": -1.5177983381849808e-17,
+      "median_absolute": 5.551115123125783e-17,
+      "p95_absolute": 1.6653345369377348e-16,
+      "max_absolute": 3.3306690738754696e-16,
+      "rmse": 8.238766630761053e-17,
+      "outside_minus1_plus1": 0
+    },
+    "old_metadata": {
+      "mean_signed": 0.15966389222254004,
+      "median_absolute": 0.09799906235964267,
+      "p95_absolute": 0.4928758357955434,
+      "max_absolute": 0.9695538329120446,
+      "rmse": 0.2154179143654081,
+      "outside_minus1_plus1": 6492
+    },
+    "c1_outside_minus1_plus1": 0
+  },
+  "vegetation_only_diagnostic": {
+    "selected_pixels": 12520,
+    "numeric_common_pixels": 12520,
+    "numerically_excluded": 0,
+    "old_no_offset": {
+      "mean_signed": -1.61057713137016e-17,
+      "median_absolute": 0.0,
+      "p95_absolute": 2.220446049250313e-16,
+      "max_absolute": 3.3306690738754696e-16,
+      "rmse": 9.674051567079478e-17,
+      "outside_minus1_plus1": 0
+    },
+    "old_metadata": {
+      "mean_signed": 0.40238779671821895,
+      "median_absolute": 0.39670103431682496,
+      "p95_absolute": 0.6171675465030828,
+      "max_absolute": 0.9695538329120446,
+      "rmse": 0.4220938577898819,
+      "outside_minus1_plus1": 6398
+    },
+    "c1_outside_minus1_plus1": 0
+  }
+}

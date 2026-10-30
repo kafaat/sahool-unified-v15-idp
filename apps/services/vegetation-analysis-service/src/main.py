@@ -33,6 +33,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field, field_validator
+
 from shared.auth.dependencies import get_current_user, get_optional_user
 from shared.auth.models import User
 

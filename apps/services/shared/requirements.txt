@@ -18,7 +18,8 @@ psycopg2-binary>=2.9.0
 asyncpg>=0.30.0
 
 # Authentication & Security
-PyJWT==2.11.0
+# Keep aligned with auth/requirements.txt; guarded by test_shared_pyjwt_security.py.
+PyJWT==2.15.1
 bcrypt>=4.2.0,<5.0.0
 passlib[bcrypt]==1.7.4
 

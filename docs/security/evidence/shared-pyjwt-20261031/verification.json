@@ -1,0 +1,1856 @@
+{
+  "schema_version": 1,
+  "checked_at_utc": "2026-10-31T15:56:41.045089+00:00",
+  "scope": "Two requirements-based shared-auth installation paths; local tests and metadata resolution, no production deployment or complete repository remediation.",
+  "base_commit": "c796f25eb86c6cadb2adb365c3ba439fa17b8acc",
+  "experimental_branch_head_observed": "dfe38784bd46c39f961e03c0fb9f1c538da7353f",
+  "runtime": {
+    "python": "3.12.14",
+    "pyjwt": "2.15.1",
+    "pytest": "9.0.3",
+    "pip-audit": "2.10.1",
+    "ruff": "0.15.11",
+    "uv": "uv 0.13.4 (x86_64-unknown-linux-gnu)"
+  },
+  "changed_input_sha256": {
+    "apps/services/shared/requirements.txt": "68110db42a2a88d33f8f0daebcf559c7afbc023e9dfa04bb1edce42e6f36dabf",
+    "apps/services/shared/auth/requirements.txt": "05f61da354c87f1ca580216801253303468f8ff07f284f75769af177468735f5",
+    "tests/unit/auth/test_shared_pyjwt_security.py": "3a91800b5dc254f004886d7dcd0c93d9da50a66281389ba171b01a3b78679ba8",
+    ".github/workflows/shared-pyjwt-security.yml": "376c1f9c6ba2a50f52e3c40daf865455814391836e6f92f6d06168379ad0db6f"
+  },
+  "unchanged_from_base_sha256": {
+    "pyproject.toml": "81ca6c155447f3aed1c6126af022bba2c0c4cbc171114c727ff569d0d8bf36db",
+    "uv.lock": "b4c2e05e9f5bea54d9467accb4499dfe77371a570f061a77f85fc6f1bc8fafa8",
+    "constraints.txt": "d36b2eaec110b4002e0d41ddfcde5156c1a48670ee2f6600d47944386bce2b0f",
+    "docker/constraints-ai.txt": "321d775b91ce99dec41169f8c7172d7034c8dee3d9fc74a70635cf65b8e42fd0",
+    "apps/services/field-management-service/constraints.txt": "a36740bb7313285eef4e380c406baebe1c9a9e76c34001559db2602a15c9e210",
+    "requirements/infrastructure.txt": "26d393af9fb729a11f5e9dc8e7836346ece0c9daa41c31cb1953d7dd4c194984",
+    "apps/services/shared/auth/jwt.py": "0660bd06c42b7a78d008d359e4edf29576591cd9f4b6254e0f525c8cc2762adc",
+    "apps/services/shared/auth/dependencies.py": "d4887ab94623914b1dfb2554967c8c9e7448a66810f237d2d4c74f6aec4373a1"
+  },
+  "issue_1562": {
+    "state": "closed",
+    "state_reason": "not_planned",
+    "closed_at": "2026-07-13T07:20:30Z",
+    "closure": "stale automation; no remediation proof"
+  },
+  "references": [
+    "https://github.com/advisories/GHSA-752w-5fwx-jx9f",
+    "https://pypi.org/project/PyJWT/2.15.1/",
+    "https://pyjwt.readthedocs.io/en/stable/changelog.html",
+    "https://github.com/jpadilla/pyjwt/security/advisories/GHSA-42vr-xj54-vc7v",
+    "https://github.com/jpadilla/pyjwt/security/advisories/GHSA-x33g-cr3x-6449"
+  ],
+  "test_runs": [
+    {
+      "name": "auth-regression",
+      "command": "python -m pytest tests/unit/auth tests/unit/test_shared_auth.py tests/unit/test_jwt_handler_comprehensive.py tests/unit/shared/test_auth_jwt_handler.py tests/unit/shared/test_auth_jwt_handler_extended.py tests/unit/shared/auth/test_jwt_handler.py tests/unit/shared/test_auth_dependencies.py tests/unit/shared/test_auth_dependencies_extended.py tests/unit/shared/test_jwt.py -q --tb=short --timeout=30",
+      "exit_code": 0,
+      "junit": {
+        "tests": 341,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "stdout": "============================= test session starts ==============================\nplatform linux -- Python 3.12.14, pytest-9.0.3, pluggy-1.7.0\nrootdir: ${REPO}\nconfigfile: pyproject.toml\nplugins: mock-3.15.1, platformdirs-4.14.2, anyio-4.15.1, cov-7.1.0, timeout-2.4.0, asyncio-1.3.0\ntimeout: 30.0s\ntimeout method: signal\ntimeout func_only: False\nasyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 341 items\n\ntests/unit/auth/test_auth_endpoints.py ................................. [  9%]\n................                                                         [ 14%]\ntests/unit/auth/test_auth_flow_bugs.py ...............................   [ 23%]\ntests/unit/auth/test_shared_pyjwt_security.py .......................... [ 31%]\n.............                                                            [ 34%]\ntests/unit/test_shared_auth.py ........................                  [ 41%]\ntests/unit/test_jwt_handler_comprehensive.py ........................... [ 49%]\n.........                                                                [ 52%]\ntests/unit/shared/test_auth_jwt_handler.py ............................  [ 60%]\ntests/unit/shared/test_auth_jwt_handler_extended.py ...................  [ 66%]\ntests/unit/shared/auth/test_jwt_handler.py ............................. [ 74%]\n...............                                                          [ 79%]\ntests/unit/shared/test_auth_dependencies.py .......................      [ 85%]\ntests/unit/shared/test_auth_dependencies_extended.py ................... [ 91%]\n...........                                                              [ 94%]\ntests/unit/shared/test_jwt.py ..................                         [100%]\n\n=============================== warnings summary ===============================\n../pyjwt-venv/lib/python3.12/site-packages/fastapi/testclient.py:1\n  ${VENV}/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\n    from starlette.testclient import TestClient as TestClient  # noqa\n\ntests/unit/test_shared_auth.py: 16 warnings\n  ${VENV}/lib/python3.12/site-packages/jwt/api_jwt.py:149: InsecureKeyLengthWarning: The HMAC key is 31 bytes long, which is below the minimum recommended length of 32 bytes for SHA256. See RFC 7518 Section 3.2.\n    return self._jws.encode(\n\ntests/unit/test_shared_auth.py: 13 warnings\n  ${VENV}/lib/python3.12/site-packages/jwt/api_jwt.py:370: InsecureKeyLengthWarning: The HMAC key is 31 bytes long, which is below the minimum recommended length of 32 bytes for SHA256. See RFC 7518 Section 3.2.\n    decoded = self.decode_complete(\n\ntests/unit/test_shared_auth.py::TestVerifyToken::test_verify_invalid_signature\n  ${VENV}/lib/python3.12/site-packages/jwt/api_jwt.py:149: InsecureKeyLengthWarning: The HMAC key is 18 bytes long, which is below the minimum recommended length of 32 bytes for SHA256. See RFC 7518 Section 3.2.\n    return self._jws.encode(\n\ntests/unit/test_shared_auth.py::TestVerifyToken::test_verify_invalid_signature\n  ${VENV}/lib/python3.12/site-packages/jwt/api_jwt.py:370: InsecureKeyLengthWarning: The HMAC key is 18 bytes long, which is below the minimum recommended length of 32 bytes for SHA256. See RFC 7518 Section 3.2.\n    decoded = self.decode_complete(\n\ntests/unit/test_jwt_handler_comprehensive.py::TestAlgorithmConfusionPrevention::test_reject_rs256_algorithm\n  ${VENV}/lib/python3.12/site-packages/jwt/api_jwt.py:149: InsecureKeyLengthWarning: The HMAC key is 43 bytes long, which is below the minimum recommended length of 48 bytes for SHA384. See RFC 7518 Section 3.2.\n    return self._jws.encode(\n\ntests/unit/shared/auth/test_jwt_handler.py::TestDecodeTokenUnsafe::test_decode_unsafe_does_not_verify\n  ${VENV}/lib/python3.12/site-packages/jwt/api_jwt.py:149: InsecureKeyLengthWarning: The HMAC key is 12 bytes long, which is below the minimum recommended length of 32 bytes for SHA256. See RFC 7518 Section 3.2.\n    return self._jws.encode(\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n- generated xml file: ${EVIDENCE}/auth-regression.xml -\n================= 341 passed, 34 warnings in 89.70s (0:01:29) ==================\n"
+    },
+    {
+      "name": "copilot-auth",
+      "command": "python -m pytest apps/services/copilot-api/tests/test_deps.py -q --tb=short",
+      "exit_code": 0,
+      "junit": {
+        "tests": 11,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "stdout": "============================= test session starts ==============================\nplatform linux -- Python 3.12.14, pytest-9.0.3, pluggy-1.7.0\nrootdir: ${REPO}\nconfigfile: pyproject.toml\nplugins: mock-3.15.1, platformdirs-4.14.2, anyio-4.15.1, cov-7.1.0, timeout-2.4.0, asyncio-1.3.0\nasyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 11 items\n\napps/services/copilot-api/tests/test_deps.py ...........                 [100%]\n\n- generated xml file: ${EVIDENCE}/copilot-auth.xml -\n============================== 11 passed in 0.59s ==============================\n"
+    },
+    {
+      "name": "collection-regression",
+      "command": "python -m pytest tests/unit/auth/test_shared_pyjwt_security.py tests/unit/services/__init__.py -q --tb=short --timeout=30",
+      "exit_code": 0,
+      "junit": {
+        "tests": 39,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "stdout": "============================= test session starts ==============================\nplatform linux -- Python 3.12.14, pytest-9.0.3, pluggy-1.7.0\nrootdir: ${REPO}\nconfigfile: pyproject.toml\nplugins: mock-3.15.1, platformdirs-4.14.2, anyio-4.15.1, cov-7.1.0, timeout-2.4.0, asyncio-1.3.0\ntimeout: 30.0s\ntimeout method: signal\ntimeout func_only: False\nasyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollected 39 items\n\ntests/unit/auth/test_shared_pyjwt_security.py .......................... [ 66%]\n.............                                                            [100%]\n\n=============================== warnings summary ===============================\n../pyjwt-venv/lib/python3.12/site-packages/fastapi/testclient.py:1\n  ${VENV}/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\n    from starlette.testclient import TestClient as TestClient  # noqa\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n- generated xml file: ${EVIDENCE}/collection-regression.xml -\n======================== 39 passed, 1 warning in 0.49s =========================\n"
+    }
+  ],
+  "distinct_passing_tests": 352,
+  "repeated_new_tests_with_service_namespace_fixture": 39,
+  "differential": [
+    {
+      "python": "3.12.14",
+      "pyjwt": "2.10.1",
+      "pyjwt_module": "${EVIDENCE}/historical-2.10.1/jwt/__init__.py",
+      "consumer_module": "${REPO}/apps/services/shared/auth/jwt.py",
+      "fixture_sha256": "b896605694b2fcbd7d4404072076f83a56aef89ece94a8694b6fc6aa16915e12",
+      "cases": {
+        "valid_control": {
+          "token_sha256": "5590e6f3cb0d2f7fba2a80af40e355733bad65c339211fa11d51bc818337b0c9",
+          "accepted": true,
+          "user_id": "farmer-123",
+          "tenant_id": "tenant-456",
+          "verify_token": true
+        },
+        "unknown_crit": {
+          "token_sha256": "d905d19270bd003265ff974a77a17fe2854b54b0d9f020e2139bd9c71b4870ee",
+          "accepted": true,
+          "user_id": "farmer-123",
+          "tenant_id": "tenant-456",
+          "verify_token": true
+        }
+      },
+      "expected_behavior_confirmed": true
+    },
+    {
+      "python": "3.12.14",
+      "pyjwt": "2.11.0",
+      "pyjwt_module": "${EVIDENCE}/historical-2.11.0/jwt/__init__.py",
+      "consumer_module": "${REPO}/apps/services/shared/auth/jwt.py",
+      "fixture_sha256": "b896605694b2fcbd7d4404072076f83a56aef89ece94a8694b6fc6aa16915e12",
+      "cases": {
+        "valid_control": {
+          "token_sha256": "5590e6f3cb0d2f7fba2a80af40e355733bad65c339211fa11d51bc818337b0c9",
+          "accepted": true,
+          "user_id": "farmer-123",
+          "tenant_id": "tenant-456",
+          "verify_token": true
+        },
+        "unknown_crit": {
+          "token_sha256": "d905d19270bd003265ff974a77a17fe2854b54b0d9f020e2139bd9c71b4870ee",
+          "accepted": true,
+          "user_id": "farmer-123",
+          "tenant_id": "tenant-456",
+          "verify_token": true
+        }
+      },
+      "expected_behavior_confirmed": true
+    },
+    {
+      "python": "3.12.14",
+      "pyjwt": "2.15.1",
+      "pyjwt_module": "${VENV}/lib/python3.12/site-packages/jwt/__init__.py",
+      "consumer_module": "${REPO}/apps/services/shared/auth/jwt.py",
+      "fixture_sha256": "b896605694b2fcbd7d4404072076f83a56aef89ece94a8694b6fc6aa16915e12",
+      "cases": {
+        "valid_control": {
+          "token_sha256": "5590e6f3cb0d2f7fba2a80af40e355733bad65c339211fa11d51bc818337b0c9",
+          "accepted": true,
+          "user_id": "farmer-123",
+          "tenant_id": "tenant-456",
+          "verify_token": true
+        },
+        "unknown_crit": {
+          "token_sha256": "d905d19270bd003265ff974a77a17fe2854b54b0d9f020e2139bd9c71b4870ee",
+          "accepted": false,
+          "exception_type": "ValueError",
+          "error": "Invalid token: Unsupported critical extension: x-sahool-required-policy",
+          "verify_token": false
+        }
+      },
+      "expected_behavior_confirmed": true
+    }
+  ],
+  "negative_controls": [
+    {
+      "version": "2.10.1",
+      "expected_exit_code": 1,
+      "junit": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_________________ test_unknown_critical_extension_is_rejected __________________\n\nconfig = AuthConfig(secret_key='shared-auth-security-test-key-with-at-least-64-bytes-for-hs512-testing', algorithm='HS256', acc...d_require_special=False, session_max_age=86400, oauth2_enabled=False, google_client_id=None, google_client_secret=None)\nshared_jwt = <module '_sahool_pyjwt_security_auth.jwt' from '${REPO}/apps/services/shared/auth/jwt.py'>\npayload = {'aud': 'sahool-api', 'email': 'farmer@example.test', 'exp': 1793462378, 'iat': 1793462077, ...}\nclient = <starlette.testclient.TestClient object at 0x7f876b13bb00>\n\n    def test_unknown_critical_extension_is_rejected(config, shared_jwt, payload, client):\n        \"\"\"CVE-2026-32597: correctly signed unsupported crit must fail closed.\"\"\"\n        # A valid control proves that signature, issuer, audience and claims match.\n        valid = jwt.encode(payload, config.secret_key, algorithm=\"HS256\")\n        assert shared_jwt.decode_token(valid).user_id == payload[\"sub\"]\n        token = jwt.encode(\n            payload,\n            config.secret_key,\n            algorithm=\"HS256\",\n            headers={\"crit\": [\"x-sahool-required-policy\"], \"x-sahool-required-policy\": \"test-policy\"},\n        )\n>       _assert_rejected_by_shared_auth(token, client, shared_jwt, match=\"Unsupported critical extension\")\n\ntests/unit/auth/test_shared_pyjwt_security.py:306: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\ntoken = 'eyJhbGciOiJIUzI1NiIsImNyaXQiOlsieC1zYWhvb2wtcmVxdWlyZWQtcG9saWN5Il0sInR5cCI6IkpXVCIsIngtc2Fob29sLXJlcXVpcmVkLXBvbGlje...CIsImF1ZCI6InNhaG9vbC1hcGkiLCJpYXQiOjE3OTM0NjIwNzcsImV4cCI6MTc5MzQ2MjM3OH0.GMBuXzLiF1NI6W-cvgQtVoeYE_p208zpHpo2mESLNCM'\nclient = <starlette.testclient.TestClient object at 0x7f876b13bb00>\nshared_jwt = <module '_sahool_pyjwt_security_auth.jwt' from '${REPO}/apps/services/shared/auth/jwt.py'>\nmatch = 'Unsupported critical extension'\n\n    def _assert_rejected_by_shared_auth(\n        token: str, client: TestClient, shared_jwt: ModuleType, match: str = \"Invalid token\"\n    ) -> None:\n>       with pytest.raises(ValueError, match=match):\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       Failed: DID NOT RAISE <class 'ValueError'>\n\ntests/unit/auth/test_shared_pyjwt_security.py:180: Failed\n=============================== warnings summary ===============================\n../pyjwt-venv/lib/python3.12/site-packages/fastapi/testclient.py:1\n  ${VENV}/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\n    from starlette.testclient import TestClient as TestClient  # noqa\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n=========================== short test summary info ============================\nFAILED tests/unit/auth/test_shared_pyjwt_security.py::test_unknown_critical_extension_is_rejected\n1 failed, 1 warning in 0.34s\n"
+    },
+    {
+      "version": "2.11.0",
+      "expected_exit_code": 1,
+      "junit": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "stdout": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_________________ test_unknown_critical_extension_is_rejected __________________\n\nconfig = AuthConfig(secret_key='shared-auth-security-test-key-with-at-least-64-bytes-for-hs512-testing', algorithm='HS256', acc...d_require_special=False, session_max_age=86400, oauth2_enabled=False, google_client_id=None, google_client_secret=None)\nshared_jwt = <module '_sahool_pyjwt_security_auth.jwt' from '${REPO}/apps/services/shared/auth/jwt.py'>\npayload = {'aud': 'sahool-api', 'email': 'farmer@example.test', 'exp': 1793462379, 'iat': 1793462078, ...}\nclient = <starlette.testclient.TestClient object at 0x7f9aaa6c8560>\n\n    def test_unknown_critical_extension_is_rejected(config, shared_jwt, payload, client):\n        \"\"\"CVE-2026-32597: correctly signed unsupported crit must fail closed.\"\"\"\n        # A valid control proves that signature, issuer, audience and claims match.\n        valid = jwt.encode(payload, config.secret_key, algorithm=\"HS256\")\n        assert shared_jwt.decode_token(valid).user_id == payload[\"sub\"]\n        token = jwt.encode(\n            payload,\n            config.secret_key,\n            algorithm=\"HS256\",\n            headers={\"crit\": [\"x-sahool-required-policy\"], \"x-sahool-required-policy\": \"test-policy\"},\n        )\n>       _assert_rejected_by_shared_auth(token, client, shared_jwt, match=\"Unsupported critical extension\")\n\ntests/unit/auth/test_shared_pyjwt_security.py:306: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\ntoken = 'eyJhbGciOiJIUzI1NiIsImNyaXQiOlsieC1zYWhvb2wtcmVxdWlyZWQtcG9saWN5Il0sInR5cCI6IkpXVCIsIngtc2Fob29sLXJlcXVpcmVkLXBvbGlje...CIsImF1ZCI6InNhaG9vbC1hcGkiLCJpYXQiOjE3OTM0NjIwNzgsImV4cCI6MTc5MzQ2MjM3OX0.T1EpNk7seDEnrATX9OQNKAe-cdcNRVdwTawwkQAFpz0'\nclient = <starlette.testclient.TestClient object at 0x7f9aaa6c8560>\nshared_jwt = <module '_sahool_pyjwt_security_auth.jwt' from '${REPO}/apps/services/shared/auth/jwt.py'>\nmatch = 'Unsupported critical extension'\n\n    def _assert_rejected_by_shared_auth(\n        token: str, client: TestClient, shared_jwt: ModuleType, match: str = \"Invalid token\"\n    ) -> None:\n>       with pytest.raises(ValueError, match=match):\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       Failed: DID NOT RAISE <class 'ValueError'>\n\ntests/unit/auth/test_shared_pyjwt_security.py:180: Failed\n=============================== warnings summary ===============================\n../pyjwt-venv/lib/python3.12/site-packages/fastapi/testclient.py:1\n  ${VENV}/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\n    from starlette.testclient import TestClient as TestClient  # noqa\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n=========================== short test summary info ============================\nFAILED tests/unit/auth/test_shared_pyjwt_security.py::test_unknown_critical_extension_is_rejected\n1 failed, 1 warning in 0.37s\n"
+    },
+    {
+      "version": "2.15.1",
+      "expected_exit_code": 0,
+      "junit": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "stdout": ".                                                                        [100%]\n=============================== warnings summary ===============================\n../pyjwt-venv/lib/python3.12/site-packages/fastapi/testclient.py:1\n  ${VENV}/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\n    from starlette.testclient import TestClient as TestClient  # noqa\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n1 passed, 1 warning in 0.38s\n"
+    }
+  ],
+  "baseline_manifest_guard": {
+    "rejected": true,
+    "error": "${EVIDENCE}/baseline-manifests/manifest-0.txt: PyJWT is outside the reviewed secure 2.x range",
+    "base_commit": "c796f25eb86c6cadb2adb365c3ba439fa17b8acc",
+    "baseline_pins": [
+      "==2.11.0",
+      "==2.10.1"
+    ],
+    "candidate_manifests_accepted": true
+  },
+  "differential_commands": [
+    {
+      "name": "install-pyjwt-2.10.1",
+      "command": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv pip install --python ${VENV}/bin/python --target ${EVIDENCE}/historical-2.10.1 --no-deps --index-url https://pypi.org/simple --cache-dir ${EVIDENCE}/uv-differential-cache PyJWT==2.10.1",
+      "cwd": "${REPO}",
+      "started_at_utc": "2026-10-31T15:54:37.739451+00:00",
+      "elapsed_seconds": 0.009,
+      "exit_code": 0,
+      "expected_exit": 0,
+      "expectation_met": true,
+      "stdout": "install-pyjwt-2.10.1.stdout.log",
+      "stderr": "install-pyjwt-2.10.1.stderr.log"
+    },
+    {
+      "name": "install-pyjwt-2.11.0",
+      "command": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv pip install --python ${VENV}/bin/python --target ${EVIDENCE}/historical-2.11.0 --no-deps --index-url https://pypi.org/simple --cache-dir ${EVIDENCE}/uv-differential-cache PyJWT==2.11.0",
+      "cwd": "${REPO}",
+      "started_at_utc": "2026-10-31T15:54:37.749152+00:00",
+      "elapsed_seconds": 0.008,
+      "exit_code": 0,
+      "expected_exit": 0,
+      "expectation_met": true,
+      "stdout": "install-pyjwt-2.11.0.stdout.log",
+      "stderr": "install-pyjwt-2.11.0.stderr.log"
+    },
+    {
+      "name": "differential-pyjwt-2.10.1",
+      "command": "${VENV}/bin/python ${EVIDENCE}/differential_probe.py",
+      "cwd": "${REPO}",
+      "started_at_utc": "2026-10-31T15:54:37.758064+00:00",
+      "elapsed_seconds": 0.301,
+      "exit_code": 0,
+      "expected_exit": 0,
+      "expectation_met": true,
+      "stdout": "differential-pyjwt-2.10.1.stdout.log",
+      "stderr": "differential-pyjwt-2.10.1.stderr.log",
+      "test_environment": {
+        "PYTHONPATH": "${EVIDENCE}/historical-2.10.1:${REPO}",
+        "EXPECTED_PYJWT_VERSION": "2.10.1"
+      }
+    },
+    {
+      "name": "critical-regression-2.10.1",
+      "command": "${VENV}/bin/python -m pytest tests/unit/auth/test_shared_pyjwt_security.py::test_unknown_critical_extension_is_rejected -q -o addopts= --junitxml ${EVIDENCE}/critical-regression-2.10.1.xml",
+      "cwd": "${REPO}",
+      "started_at_utc": "2026-10-31T15:54:38.059878+00:00",
+      "elapsed_seconds": 0.68,
+      "exit_code": 1,
+      "expected_exit": 1,
+      "expectation_met": true,
+      "stdout": "critical-regression-2.10.1.stdout.log",
+      "stderr": "critical-regression-2.10.1.stderr.log",
+      "test_environment": {
+        "PYTHONPATH": "${EVIDENCE}/historical-2.10.1:${REPO}",
+        "EXPECTED_PYJWT_VERSION": "2.10.1"
+      }
+    },
+    {
+      "name": "differential-pyjwt-2.11.0",
+      "command": "${VENV}/bin/python ${EVIDENCE}/differential_probe.py",
+      "cwd": "${REPO}",
+      "started_at_utc": "2026-10-31T15:54:38.740246+00:00",
+      "elapsed_seconds": 0.342,
+      "exit_code": 0,
+      "expected_exit": 0,
+      "expectation_met": true,
+      "stdout": "differential-pyjwt-2.11.0.stdout.log",
+      "stderr": "differential-pyjwt-2.11.0.stderr.log",
+      "test_environment": {
+        "PYTHONPATH": "${EVIDENCE}/historical-2.11.0:${REPO}",
+        "EXPECTED_PYJWT_VERSION": "2.11.0"
+      }
+    },
+    {
+      "name": "critical-regression-2.11.0",
+      "command": "${VENV}/bin/python -m pytest tests/unit/auth/test_shared_pyjwt_security.py::test_unknown_critical_extension_is_rejected -q -o addopts= --junitxml ${EVIDENCE}/critical-regression-2.11.0.xml",
+      "cwd": "${REPO}",
+      "started_at_utc": "2026-10-31T15:54:39.082063+00:00",
+      "elapsed_seconds": 0.923,
+      "exit_code": 1,
+      "expected_exit": 1,
+      "expectation_met": true,
+      "stdout": "critical-regression-2.11.0.stdout.log",
+      "stderr": "critical-regression-2.11.0.stderr.log",
+      "test_environment": {
+        "PYTHONPATH": "${EVIDENCE}/historical-2.11.0:${REPO}",
+        "EXPECTED_PYJWT_VERSION": "2.11.0"
+      }
+    },
+    {
+      "name": "differential-pyjwt-2.15.1",
+      "command": "${VENV}/bin/python ${EVIDENCE}/differential_probe.py",
+      "cwd": "${REPO}",
+      "started_at_utc": "2026-10-31T15:54:40.005073+00:00",
+      "elapsed_seconds": 0.388,
+      "exit_code": 0,
+      "expected_exit": 0,
+      "expectation_met": true,
+      "stdout": "differential-pyjwt-2.15.1.stdout.log",
+      "stderr": "differential-pyjwt-2.15.1.stderr.log",
+      "test_environment": {
+        "PYTHONPATH": "${REPO}",
+        "EXPECTED_PYJWT_VERSION": "2.15.1"
+      }
+    },
+    {
+      "name": "critical-regression-2.15.1",
+      "command": "${VENV}/bin/python -m pytest tests/unit/auth/test_shared_pyjwt_security.py::test_unknown_critical_extension_is_rejected -q -o addopts= --junitxml ${EVIDENCE}/critical-regression-2.15.1.xml",
+      "cwd": "${REPO}",
+      "started_at_utc": "2026-10-31T15:54:40.393909+00:00",
+      "elapsed_seconds": 0.846,
+      "exit_code": 0,
+      "expected_exit": 0,
+      "expectation_met": true,
+      "stdout": "critical-regression-2.15.1.stdout.log",
+      "stderr": "critical-regression-2.15.1.stderr.log",
+      "test_environment": {
+        "PYTHONPATH": "${REPO}",
+        "EXPECTED_PYJWT_VERSION": "2.15.1"
+      }
+    },
+    {
+      "name": "baseline-manifest-0",
+      "command": "git show c796f25eb86c6cadb2adb365c3ba439fa17b8acc:apps/services/shared/requirements.txt",
+      "cwd": "${REPO}",
+      "started_at_utc": "2026-10-31T15:54:41.240903+00:00",
+      "elapsed_seconds": 0.002,
+      "exit_code": 0,
+      "expected_exit": 0,
+      "expectation_met": true,
+      "stdout": "baseline-manifest-0.stdout.log",
+      "stderr": "baseline-manifest-0.stderr.log"
+    },
+    {
+      "name": "baseline-manifest-1",
+      "command": "git show c796f25eb86c6cadb2adb365c3ba439fa17b8acc:apps/services/shared/auth/requirements.txt",
+      "cwd": "${REPO}",
+      "started_at_utc": "2026-10-31T15:54:41.244173+00:00",
+      "elapsed_seconds": 0.002,
+      "exit_code": 0,
+      "expected_exit": 0,
+      "expectation_met": true,
+      "stdout": "baseline-manifest-1.stdout.log",
+      "stderr": "baseline-manifest-1.stderr.log"
+    },
+    {
+      "name": "pip-audit-pyjwt-2.11.0",
+      "command": "${VENV}/bin/python -m pip_audit --no-deps --disable-pip --strict --format json --progress-spinner off --cache-dir ${EVIDENCE}/audit-cache-2.11.0 -r ${EVIDENCE}/pyjwt-2.11.0.txt -o ${EVIDENCE}/pip-audit-pyjwt-2.11.0.json",
+      "cwd": "${REPO}",
+      "started_at_utc": "2026-10-31T15:54:41.570847+00:00",
+      "elapsed_seconds": 0.446,
+      "exit_code": 1,
+      "expected_exit": 1,
+      "expectation_met": true,
+      "stdout": "pip-audit-pyjwt-2.11.0.stdout.log",
+      "stderr": "pip-audit-pyjwt-2.11.0.stderr.log"
+    },
+    {
+      "name": "pip-audit-pyjwt-2.15.1",
+      "command": "${VENV}/bin/python -m pip_audit --no-deps --disable-pip --strict --format json --progress-spinner off --cache-dir ${EVIDENCE}/audit-cache-2.15.1 -r ${EVIDENCE}/pyjwt-2.15.1.txt -o ${EVIDENCE}/pip-audit-pyjwt-2.15.1.json",
+      "cwd": "${REPO}",
+      "started_at_utc": "2026-10-31T15:54:41.571159+00:00",
+      "elapsed_seconds": 0.474,
+      "exit_code": 0,
+      "expected_exit": 0,
+      "expectation_met": true,
+      "stdout": "pip-audit-pyjwt-2.15.1.stdout.log",
+      "stderr": "pip-audit-pyjwt-2.15.1.stderr.log"
+    },
+    {
+      "name": "pip-audit-pyjwt-2.10.1",
+      "command": "${VENV}/bin/python -m pip_audit --no-deps --disable-pip --strict --format json --progress-spinner off --cache-dir ${EVIDENCE}/audit-cache-2.10.1 -r ${EVIDENCE}/pyjwt-2.10.1.txt -o ${EVIDENCE}/pip-audit-pyjwt-2.10.1.json",
+      "cwd": "${REPO}",
+      "started_at_utc": "2026-10-31T15:54:41.570260+00:00",
+      "elapsed_seconds": 0.483,
+      "exit_code": 1,
+      "expected_exit": 1,
+      "expectation_met": true,
+      "stdout": "pip-audit-pyjwt-2.10.1.stdout.log",
+      "stderr": "pip-audit-pyjwt-2.10.1.stderr.log"
+    }
+  ],
+  "security_scan": {
+    "tool": "pip-audit 2.10.1",
+    "service": "pypi",
+    "no_ignored_advisories": true,
+    "reports": [
+      {
+        "scope": "single package PyJWT 2.10.1",
+        "exit_code": 1,
+        "raw_report_sha256": "63cbe133102def49d6fb582a40d6fde1f402d9bc11bc908343177c2aea12ea5f",
+        "report": {
+          "dependencies": [
+            {
+              "name": "pyjwt",
+              "version": "2.10.1",
+              "vulns": [
+                {
+                  "id": "PYSEC-2026-120",
+                  "fix_versions": [
+                    "2.12.0"
+                  ],
+                  "aliases": [
+                    "CVE-2026-32597",
+                    "GHSA-752w-5fwx-jx9f"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-120",
+                  "fix_versions": [
+                    "2.12.0"
+                  ],
+                  "aliases": [
+                    "CVE-2026-32597",
+                    "GHSA-752w-5fwx-jx9f"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2025-183",
+                  "fix_versions": [],
+                  "aliases": [
+                    "CVE-2025-45768"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-179",
+                  "fix_versions": [
+                    "2.13.0"
+                  ],
+                  "aliases": [
+                    "GHSA-xgmm-8j9v-c9wx",
+                    "CVE-2026-48526"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-175",
+                  "fix_versions": [
+                    "2.13.0"
+                  ],
+                  "aliases": [
+                    "GHSA-993g-76c3-p5m4",
+                    "CVE-2026-48522"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-177",
+                  "fix_versions": [
+                    "2.13.0"
+                  ],
+                  "aliases": [
+                    "CVE-2026-48524",
+                    "GHSA-fhv5-28vv-h8m8"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-178",
+                  "fix_versions": [
+                    "2.13.0"
+                  ],
+                  "aliases": [
+                    "GHSA-w7vc-732c-9m39",
+                    "CVE-2026-48525"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-176",
+                  "fix_versions": [
+                    "2.12.1"
+                  ],
+                  "aliases": [
+                    "GHSA-jq35-7prp-9v3f",
+                    "CVE-2026-48523"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-177",
+                  "fix_versions": [
+                    "2.13.0"
+                  ],
+                  "aliases": [
+                    "CVE-2026-48524",
+                    "GHSA-fhv5-28vv-h8m8"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-179",
+                  "fix_versions": [
+                    "2.13.0"
+                  ],
+                  "aliases": [
+                    "GHSA-xgmm-8j9v-c9wx",
+                    "CVE-2026-48526"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-176",
+                  "fix_versions": [
+                    "2.13.0"
+                  ],
+                  "aliases": [
+                    "GHSA-jq35-7prp-9v3f",
+                    "CVE-2026-48523"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-178",
+                  "fix_versions": [
+                    "2.13.0"
+                  ],
+                  "aliases": [
+                    "GHSA-w7vc-732c-9m39",
+                    "CVE-2026-48525"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-4145",
+                  "fix_versions": [
+                    "2.14.0"
+                  ],
+                  "aliases": [
+                    "GHSA-ffc3-869f-jxw9",
+                    "CVE-2026-102268"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-4149",
+                  "fix_versions": [
+                    "2.14.0"
+                  ],
+                  "aliases": [
+                    "CVE-2026-102271",
+                    "GHSA-p4g4-x82p-q773"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-4152",
+                  "fix_versions": [
+                    "2.14.0"
+                  ],
+                  "aliases": [
+                    "CVE-2026-102274",
+                    "GHSA-w6j9-cwv2-h6wq"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-4144",
+                  "fix_versions": [
+                    "2.14.0"
+                  ],
+                  "aliases": [
+                    "GHSA-9v7f-9g4p-ffgj",
+                    "CVE-2026-102267"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-4148",
+                  "fix_versions": [
+                    "2.14.0"
+                  ],
+                  "aliases": [
+                    "CVE-2026-102270",
+                    "GHSA-jwrc-g2q2-pq5p"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-4140",
+                  "fix_versions": [
+                    "2.14.0"
+                  ],
+                  "aliases": [
+                    "CVE-2026-101917",
+                    "GHSA-2gx3-rcp4-g85q"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-4141",
+                  "fix_versions": [
+                    "2.15.0"
+                  ],
+                  "aliases": [
+                    "CVE-2026-101918",
+                    "GHSA-42vr-xj54-vc7v"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-4147",
+                  "fix_versions": [
+                    "2.14.0"
+                  ],
+                  "aliases": [
+                    "GHSA-hxm8-2xgr-2p9m",
+                    "CVE-2026-102269"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-4183",
+                  "fix_versions": [
+                    "2.15.0"
+                  ],
+                  "aliases": [
+                    "GHSA-x33g-cr3x-6449",
+                    "CVE-2026-102275"
+                  ]
+                },
+                {
+                  "id": "GHSA-pxh4-856f-4h89",
+                  "fix_versions": [
+                    "2.14.0"
+                  ],
+                  "aliases": []
+                }
+              ]
+            }
+          ],
+          "fixes": []
+        },
+        "omitted_fields": [
+          "vulnerability description (IDs, aliases and fix versions retained)"
+        ]
+      },
+      {
+        "scope": "single package PyJWT 2.11.0",
+        "exit_code": 1,
+        "raw_report_sha256": "f52f2e8d38d4cef4005ea2c5b88dd4f5f0032635a0277650be4da1cf8272a694",
+        "report": {
+          "dependencies": [
+            {
+              "name": "pyjwt",
+              "version": "2.11.0",
+              "vulns": [
+                {
+                  "id": "PYSEC-2026-120",
+                  "fix_versions": [
+                    "2.12.0"
+                  ],
+                  "aliases": [
+                    "CVE-2026-32597",
+                    "GHSA-752w-5fwx-jx9f"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-120",
+                  "fix_versions": [
+                    "2.12.0"
+                  ],
+                  "aliases": [
+                    "CVE-2026-32597",
+                    "GHSA-752w-5fwx-jx9f"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-179",
+                  "fix_versions": [
+                    "2.13.0"
+                  ],
+                  "aliases": [
+                    "CVE-2026-48526",
+                    "GHSA-xgmm-8j9v-c9wx"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-175",
+                  "fix_versions": [
+                    "2.13.0"
+                  ],
+                  "aliases": [
+                    "CVE-2026-48522",
+                    "GHSA-993g-76c3-p5m4"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-177",
+                  "fix_versions": [
+                    "2.13.0"
+                  ],
+                  "aliases": [
+                    "CVE-2026-48524",
+                    "GHSA-fhv5-28vv-h8m8"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-178",
+                  "fix_versions": [
+                    "2.13.0"
+                  ],
+                  "aliases": [
+                    "CVE-2026-48525",
+                    "GHSA-w7vc-732c-9m39"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-176",
+                  "fix_versions": [
+                    "2.12.1"
+                  ],
+                  "aliases": [
+                    "CVE-2026-48523",
+                    "GHSA-jq35-7prp-9v3f"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-177",
+                  "fix_versions": [
+                    "2.13.0"
+                  ],
+                  "aliases": [
+                    "CVE-2026-48524",
+                    "GHSA-fhv5-28vv-h8m8"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-179",
+                  "fix_versions": [
+                    "2.13.0"
+                  ],
+                  "aliases": [
+                    "CVE-2026-48526",
+                    "GHSA-xgmm-8j9v-c9wx"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-176",
+                  "fix_versions": [
+                    "2.13.0"
+                  ],
+                  "aliases": [
+                    "CVE-2026-48523",
+                    "GHSA-jq35-7prp-9v3f"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-178",
+                  "fix_versions": [
+                    "2.13.0"
+                  ],
+                  "aliases": [
+                    "CVE-2026-48525",
+                    "GHSA-w7vc-732c-9m39"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-4145",
+                  "fix_versions": [
+                    "2.14.0"
+                  ],
+                  "aliases": [
+                    "GHSA-ffc3-869f-jxw9",
+                    "CVE-2026-102268"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-4146",
+                  "fix_versions": [],
+                  "aliases": [
+                    "CVE-2026-103001",
+                    "GHSA-gvp8-978c-rx2q"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-4149",
+                  "fix_versions": [
+                    "2.14.0"
+                  ],
+                  "aliases": [
+                    "GHSA-p4g4-x82p-q773",
+                    "CVE-2026-102271"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-4152",
+                  "fix_versions": [
+                    "2.14.0"
+                  ],
+                  "aliases": [
+                    "CVE-2026-102274",
+                    "GHSA-w6j9-cwv2-h6wq"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-4144",
+                  "fix_versions": [
+                    "2.14.0"
+                  ],
+                  "aliases": [
+                    "CVE-2026-102267",
+                    "GHSA-9v7f-9g4p-ffgj"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-4148",
+                  "fix_versions": [
+                    "2.14.0"
+                  ],
+                  "aliases": [
+                    "CVE-2026-102270",
+                    "GHSA-jwrc-g2q2-pq5p"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-4140",
+                  "fix_versions": [
+                    "2.14.0"
+                  ],
+                  "aliases": [
+                    "GHSA-2gx3-rcp4-g85q",
+                    "CVE-2026-101917"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-4141",
+                  "fix_versions": [
+                    "2.15.0"
+                  ],
+                  "aliases": [
+                    "CVE-2026-101918",
+                    "GHSA-42vr-xj54-vc7v"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-4147",
+                  "fix_versions": [
+                    "2.14.0"
+                  ],
+                  "aliases": [
+                    "CVE-2026-102269",
+                    "GHSA-hxm8-2xgr-2p9m"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-4183",
+                  "fix_versions": [
+                    "2.15.0"
+                  ],
+                  "aliases": [
+                    "GHSA-x33g-cr3x-6449",
+                    "CVE-2026-102275"
+                  ]
+                },
+                {
+                  "id": "GHSA-pxh4-856f-4h89",
+                  "fix_versions": [
+                    "2.14.0"
+                  ],
+                  "aliases": []
+                }
+              ]
+            }
+          ],
+          "fixes": []
+        },
+        "omitted_fields": [
+          "vulnerability description (IDs, aliases and fix versions retained)"
+        ]
+      },
+      {
+        "scope": "single package PyJWT 2.15.1",
+        "exit_code": 0,
+        "raw_report_sha256": "7415180021878b0710e9452200a8e1a6bbc04796beb1ef1d98525fdba57ad025",
+        "report": {
+          "dependencies": [
+            {
+              "name": "pyjwt",
+              "version": "2.15.1",
+              "vulns": []
+            }
+          ],
+          "fixes": []
+        },
+        "omitted_fields": [
+          "vulnerability description (IDs, aliases and fix versions retained)"
+        ]
+      },
+      {
+        "scope": "full shared/auth requirements with root constraints",
+        "exit_code": 0,
+        "raw_report_sha256": "114a297a4b51b3adeac769ecf878aeae7677278430fcf043034c32592aa12c9f",
+        "report": {
+          "dependencies": [
+            {
+              "name": "pyjwt",
+              "version": "2.15.1",
+              "vulns": []
+            },
+            {
+              "name": "argon2-cffi",
+              "version": "23.1.0",
+              "vulns": []
+            },
+            {
+              "name": "pydantic",
+              "version": "2.13.1",
+              "vulns": []
+            },
+            {
+              "name": "passlib",
+              "version": "1.7.4",
+              "vulns": []
+            },
+            {
+              "name": "pydantic-core",
+              "version": "2.46.1",
+              "vulns": []
+            },
+            {
+              "name": "bcrypt",
+              "version": "4.3.0",
+              "vulns": []
+            },
+            {
+              "name": "fastapi",
+              "version": "0.135.1",
+              "vulns": []
+            },
+            {
+              "name": "redis",
+              "version": "7.4.1",
+              "vulns": []
+            },
+            {
+              "name": "starlette",
+              "version": "1.10.0",
+              "vulns": []
+            },
+            {
+              "name": "anyio",
+              "version": "4.15.1",
+              "vulns": []
+            },
+            {
+              "name": "annotated-doc",
+              "version": "0.0.5",
+              "vulns": []
+            },
+            {
+              "name": "annotated-types",
+              "version": "0.8.0",
+              "vulns": []
+            },
+            {
+              "name": "hiredis",
+              "version": "3.5.0",
+              "vulns": []
+            },
+            {
+              "name": "idna",
+              "version": "3.20",
+              "vulns": []
+            },
+            {
+              "name": "typing-extensions",
+              "version": "4.16.0",
+              "vulns": []
+            },
+            {
+              "name": "typing-inspection",
+              "version": "0.4.4",
+              "vulns": []
+            },
+            {
+              "name": "argon2-cffi-bindings",
+              "version": "26.1.0",
+              "vulns": []
+            },
+            {
+              "name": "cffi",
+              "version": "2.1.1",
+              "vulns": []
+            },
+            {
+              "name": "pycparser",
+              "version": "3.12",
+              "vulns": []
+            }
+          ],
+          "fixes": []
+        },
+        "omitted_fields": [
+          "vulnerability description (IDs, aliases and fix versions retained)"
+        ]
+      },
+      {
+        "scope": "full shared requirements with root constraints",
+        "exit_code": 1,
+        "raw_report_sha256": "b330deab4c0ec5867772a57398f410783f6ec6f33141d919ef866f1b62c70a1d",
+        "report": {
+          "dependencies": [
+            {
+              "name": "pydantic",
+              "version": "2.13.1",
+              "vulns": []
+            },
+            {
+              "name": "httpx",
+              "version": "0.28.1",
+              "vulns": []
+            },
+            {
+              "name": "sqlalchemy",
+              "version": "2.0.49",
+              "vulns": []
+            },
+            {
+              "name": "pyjwt",
+              "version": "2.15.1",
+              "vulns": []
+            },
+            {
+              "name": "passlib",
+              "version": "1.7.4",
+              "vulns": []
+            },
+            {
+              "name": "python-dotenv",
+              "version": "1.2.2",
+              "vulns": []
+            },
+            {
+              "name": "python-multipart",
+              "version": "0.0.26",
+              "vulns": [
+                {
+                  "id": "PYSEC-2026-3039",
+                  "fix_versions": [
+                    "0.0.27"
+                  ],
+                  "aliases": [
+                    "GHSA-pp6c-gr5w-3c5g",
+                    "CVE-2026-42561"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-3040",
+                  "fix_versions": [
+                    "0.0.31"
+                  ],
+                  "aliases": [
+                    "CVE-2026-53540",
+                    "GHSA-v9pg-7xvm-68hf"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-3036",
+                  "fix_versions": [
+                    "0.0.30"
+                  ],
+                  "aliases": [
+                    "GHSA-5rvq-cxj2-64vf",
+                    "CVE-2026-53539"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-3037",
+                  "fix_versions": [
+                    "0.0.30"
+                  ],
+                  "aliases": [
+                    "CVE-2026-53538",
+                    "GHSA-6jv3-5f52-599m"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-3037",
+                  "fix_versions": [
+                    "0.0.30"
+                  ],
+                  "aliases": [
+                    "CVE-2026-53538",
+                    "GHSA-6jv3-5f52-599m"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-3036",
+                  "fix_versions": [
+                    "0.0.30"
+                  ],
+                  "aliases": [
+                    "GHSA-5rvq-cxj2-64vf",
+                    "CVE-2026-53539"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-3040",
+                  "fix_versions": [
+                    "0.0.31"
+                  ],
+                  "aliases": [
+                    "CVE-2026-53540",
+                    "GHSA-v9pg-7xvm-68hf"
+                  ]
+                },
+                {
+                  "id": "PYSEC-2026-3039",
+                  "fix_versions": [
+                    "0.0.27"
+                  ],
+                  "aliases": [
+                    "GHSA-pp6c-gr5w-3c5g",
+                    "CVE-2026-42561"
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "prometheus-client",
+              "version": "0.25.0",
+              "vulns": []
+            },
+            {
+              "name": "pydantic-core",
+              "version": "2.46.1",
+              "vulns": []
+            },
+            {
+              "name": "fastapi",
+              "version": "0.135.1",
+              "vulns": []
+            },
+            {
+              "name": "uvicorn",
+              "version": "0.54.0",
+              "vulns": []
+            },
+            {
+              "name": "bcrypt",
+              "version": "4.3.0",
+              "vulns": []
+            },
+            {
+              "name": "nats-py",
+              "version": "2.14.0",
+              "vulns": []
+            },
+            {
+              "name": "redis",
+              "version": "7.4.1",
+              "vulns": []
+            },
+            {
+              "name": "structlog",
+              "version": "25.5.0",
+              "vulns": []
+            },
+            {
+              "name": "httpcore",
+              "version": "1.0.9",
+              "vulns": []
+            },
+            {
+              "name": "starlette",
+              "version": "1.10.0",
+              "vulns": []
+            },
+            {
+              "name": "anyio",
+              "version": "4.15.1",
+              "vulns": []
+            },
+            {
+              "name": "psycopg2-binary",
+              "version": "2.9.11",
+              "vulns": []
+            },
+            {
+              "name": "asyncpg",
+              "version": "0.31.0",
+              "vulns": []
+            },
+            {
+              "name": "annotated-doc",
+              "version": "0.0.5",
+              "vulns": []
+            },
+            {
+              "name": "annotated-types",
+              "version": "0.8.0",
+              "vulns": []
+            },
+            {
+              "name": "click",
+              "version": "8.5.0",
+              "vulns": []
+            },
+            {
+              "name": "greenlet",
+              "version": "3.5.6",
+              "vulns": []
+            },
+            {
+              "name": "h11",
+              "version": "0.16.0",
+              "vulns": []
+            },
+            {
+              "name": "hiredis",
+              "version": "3.5.0",
+              "vulns": []
+            },
+            {
+              "name": "httptools",
+              "version": "0.9.0",
+              "vulns": []
+            },
+            {
+              "name": "idna",
+              "version": "3.20",
+              "vulns": []
+            },
+            {
+              "name": "pyyaml",
+              "version": "6.0.3",
+              "vulns": []
+            },
+            {
+              "name": "typing-extensions",
+              "version": "4.16.0",
+              "vulns": []
+            },
+            {
+              "name": "typing-inspection",
+              "version": "0.4.4",
+              "vulns": []
+            },
+            {
+              "name": "uvloop",
+              "version": "0.23.0",
+              "vulns": []
+            },
+            {
+              "name": "watchfiles",
+              "version": "1.3.0",
+              "vulns": []
+            },
+            {
+              "name": "websockets",
+              "version": "17.4",
+              "vulns": []
+            },
+            {
+              "name": "certifi",
+              "version": "2026.10.23",
+              "vulns": []
+            }
+          ],
+          "fixes": []
+        },
+        "omitted_fields": [
+          "vulnerability description (IDs, aliases and fix versions retained)"
+        ]
+      }
+    ]
+  },
+  "consumer_resolution": {
+    "started_at_utc": "2026-10-31T15:49:18.746671+00:00",
+    "finished_at_utc": "2026-10-31T15:49:19.949666+00:00",
+    "target": "PyJWT==2.15.1",
+    "scope": "Metadata-only requirements resolution; no install, source build, or root uv.lock edit.",
+    "uv_version": "uv 0.13.4 (x86_64-unknown-linux-gnu)",
+    "base_commit": "c796f25eb86c6cadb2adb365c3ba439fa17b8acc",
+    "results": [
+      {
+        "name": "shared",
+        "python": "3.11",
+        "platform": "x86_64-unknown-linux-gnu",
+        "requirements": "apps/services/shared/requirements.txt",
+        "command": [
+          "uv",
+          "pip",
+          "compile",
+          "--python-version",
+          "3.11",
+          "--python-platform",
+          "x86_64-unknown-linux-gnu",
+          "--no-build",
+          "--cache-dir",
+          "${EVIDENCE}/uv-resolution-cache",
+          "--no-progress",
+          "-c",
+          "constraints.txt",
+          "-c",
+          "${EVIDENCE}/target-pyjwt.txt",
+          "apps/services/shared/requirements.txt",
+          "-o",
+          "${EVIDENCE}/resolution/shared-py3.11.txt"
+        ],
+        "cwd": "${REPO}",
+        "exit_code": 0,
+        "duration_seconds": 0.721,
+        "resolved_package_count": 36,
+        "pyjwt": "pyjwt==2.15.1",
+        "requirements_sha256": "68110db42a2a88d33f8f0daebcf559c7afbc023e9dfa04bb1edce42e6f36dabf",
+        "constraints_sha256": "d36b2eaec110b4002e0d41ddfcde5156c1a48670ee2f6600d47944386bce2b0f",
+        "target_constraint_sha256": "270194faeba0ff4c134d3d17d661ecb6ed4a0b1652c2554dc133cf5955e659fd",
+        "resolved_output": "${EVIDENCE}/resolution/shared-py3.11.txt",
+        "log": "${EVIDENCE}/resolution/shared-py3.11.log",
+        "resolved_output_sha256": "9e346275aedb0e8bfa70aa8d4543cb40d47e2b6ebde351e95fbf6702cb406094",
+        "resolved_pins": [
+          "annotated-doc==0.0.5",
+          "annotated-types==0.8.0",
+          "anyio==4.15.1",
+          "async-timeout==5.0.1",
+          "asyncpg==0.31.0",
+          "bcrypt==4.3.0",
+          "certifi==2026.10.23",
+          "click==8.5.0",
+          "fastapi==0.135.1",
+          "greenlet==3.5.6",
+          "h11==0.16.0",
+          "hiredis==3.5.0",
+          "httpcore==1.0.9",
+          "httptools==0.9.0",
+          "httpx==0.28.1",
+          "idna==3.20",
+          "nats-py==2.14.0",
+          "passlib==1.7.4",
+          "prometheus-client==0.25.0",
+          "psycopg2-binary==2.9.11",
+          "pydantic==2.13.1",
+          "pydantic-core==2.46.1",
+          "pyjwt==2.15.1",
+          "python-dotenv==1.2.2",
+          "python-multipart==0.0.26",
+          "pyyaml==6.0.3",
+          "redis==7.4.1",
+          "sqlalchemy==2.0.49",
+          "starlette==1.10.0",
+          "structlog==25.5.0",
+          "typing-extensions==4.16.0",
+          "typing-inspection==0.4.4",
+          "uvicorn==0.54.0",
+          "uvloop==0.23.0",
+          "watchfiles==1.3.0",
+          "websockets==17.4"
+        ],
+        "normalized_log_sha256": "cff5aae283bcfec00b8722b9fbf4a3a22181816bf0d5ac225e6f53abd47a8ffb"
+      },
+      {
+        "name": "shared",
+        "python": "3.12",
+        "platform": "x86_64-unknown-linux-gnu",
+        "requirements": "apps/services/shared/requirements.txt",
+        "command": [
+          "uv",
+          "pip",
+          "compile",
+          "--python-version",
+          "3.12",
+          "--python-platform",
+          "x86_64-unknown-linux-gnu",
+          "--no-build",
+          "--cache-dir",
+          "${EVIDENCE}/uv-resolution-cache",
+          "--no-progress",
+          "-c",
+          "constraints.txt",
+          "-c",
+          "${EVIDENCE}/target-pyjwt.txt",
+          "apps/services/shared/requirements.txt",
+          "-o",
+          "${EVIDENCE}/resolution/shared-py3.12.txt"
+        ],
+        "cwd": "${REPO}",
+        "exit_code": 0,
+        "duration_seconds": 0.675,
+        "resolved_package_count": 35,
+        "pyjwt": "pyjwt==2.15.1",
+        "requirements_sha256": "68110db42a2a88d33f8f0daebcf559c7afbc023e9dfa04bb1edce42e6f36dabf",
+        "constraints_sha256": "d36b2eaec110b4002e0d41ddfcde5156c1a48670ee2f6600d47944386bce2b0f",
+        "target_constraint_sha256": "270194faeba0ff4c134d3d17d661ecb6ed4a0b1652c2554dc133cf5955e659fd",
+        "resolved_output": "${EVIDENCE}/resolution/shared-py3.12.txt",
+        "log": "${EVIDENCE}/resolution/shared-py3.12.log",
+        "resolved_output_sha256": "9cff0dbd402bb50750d8c67a7f1d7a05cdbdbdafff591571971c051794dcafbb",
+        "resolved_pins": [
+          "annotated-doc==0.0.5",
+          "annotated-types==0.8.0",
+          "anyio==4.15.1",
+          "asyncpg==0.31.0",
+          "bcrypt==4.3.0",
+          "certifi==2026.10.23",
+          "click==8.5.0",
+          "fastapi==0.135.1",
+          "greenlet==3.5.6",
+          "h11==0.16.0",
+          "hiredis==3.5.0",
+          "httpcore==1.0.9",
+          "httptools==0.9.0",
+          "httpx==0.28.1",
+          "idna==3.20",
+          "nats-py==2.14.0",
+          "passlib==1.7.4",
+          "prometheus-client==0.25.0",
+          "psycopg2-binary==2.9.11",
+          "pydantic==2.13.1",
+          "pydantic-core==2.46.1",
+          "pyjwt==2.15.1",
+          "python-dotenv==1.2.2",
+          "python-multipart==0.0.26",
+          "pyyaml==6.0.3",
+          "redis==7.4.1",
+          "sqlalchemy==2.0.49",
+          "starlette==1.10.0",
+          "structlog==25.5.0",
+          "typing-extensions==4.16.0",
+          "typing-inspection==0.4.4",
+          "uvicorn==0.54.0",
+          "uvloop==0.23.0",
+          "watchfiles==1.3.0",
+          "websockets==17.4"
+        ],
+        "normalized_log_sha256": "a4a53a3e5f528a5fa19d9a4e649ef9b47ccbb10fd0ac19f77e91ae0c5d51bce2"
+      },
+      {
+        "name": "auth",
+        "python": "3.11",
+        "platform": "x86_64-unknown-linux-gnu",
+        "requirements": "apps/services/shared/auth/requirements.txt",
+        "command": [
+          "uv",
+          "pip",
+          "compile",
+          "--python-version",
+          "3.11",
+          "--python-platform",
+          "x86_64-unknown-linux-gnu",
+          "--no-build",
+          "--cache-dir",
+          "${EVIDENCE}/uv-resolution-cache",
+          "--no-progress",
+          "-c",
+          "constraints.txt",
+          "-c",
+          "${EVIDENCE}/target-pyjwt.txt",
+          "apps/services/shared/auth/requirements.txt",
+          "-o",
+          "${EVIDENCE}/resolution/auth-py3.11.txt"
+        ],
+        "cwd": "${REPO}",
+        "exit_code": 0,
+        "duration_seconds": 0.729,
+        "resolved_package_count": 20,
+        "pyjwt": "pyjwt==2.15.1",
+        "requirements_sha256": "05f61da354c87f1ca580216801253303468f8ff07f284f75769af177468735f5",
+        "constraints_sha256": "d36b2eaec110b4002e0d41ddfcde5156c1a48670ee2f6600d47944386bce2b0f",
+        "target_constraint_sha256": "270194faeba0ff4c134d3d17d661ecb6ed4a0b1652c2554dc133cf5955e659fd",
+        "resolved_output": "${EVIDENCE}/resolution/auth-py3.11.txt",
+        "log": "${EVIDENCE}/resolution/auth-py3.11.log",
+        "resolved_output_sha256": "6e40d642e0a3afee447468a213a36a683ca714c3eef841a07d0de0db130c7653",
+        "resolved_pins": [
+          "annotated-doc==0.0.5",
+          "annotated-types==0.8.0",
+          "anyio==4.15.1",
+          "argon2-cffi==23.1.0",
+          "argon2-cffi-bindings==26.1.0",
+          "async-timeout==5.0.1",
+          "bcrypt==4.3.0",
+          "cffi==2.1.1",
+          "fastapi==0.135.1",
+          "hiredis==3.5.0",
+          "idna==3.20",
+          "passlib==1.7.4",
+          "pycparser==3.12",
+          "pydantic==2.13.1",
+          "pydantic-core==2.46.1",
+          "pyjwt==2.15.1",
+          "redis==7.4.1",
+          "starlette==1.10.0",
+          "typing-extensions==4.16.0",
+          "typing-inspection==0.4.4"
+        ],
+        "normalized_log_sha256": "8cf89a2e299014b827e7a2d396df6d2559350f08aedaa68f4ccec7be0d82c6a2"
+      },
+      {
+        "name": "auth",
+        "python": "3.12",
+        "platform": "x86_64-unknown-linux-gnu",
+        "requirements": "apps/services/shared/auth/requirements.txt",
+        "command": [
+          "uv",
+          "pip",
+          "compile",
+          "--python-version",
+          "3.12",
+          "--python-platform",
+          "x86_64-unknown-linux-gnu",
+          "--no-build",
+          "--cache-dir",
+          "${EVIDENCE}/uv-resolution-cache",
+          "--no-progress",
+          "-c",
+          "constraints.txt",
+          "-c",
+          "${EVIDENCE}/target-pyjwt.txt",
+          "apps/services/shared/auth/requirements.txt",
+          "-o",
+          "${EVIDENCE}/resolution/auth-py3.12.txt"
+        ],
+        "cwd": "${REPO}",
+        "exit_code": 0,
+        "duration_seconds": 0.115,
+        "resolved_package_count": 19,
+        "pyjwt": "pyjwt==2.15.1",
+        "requirements_sha256": "05f61da354c87f1ca580216801253303468f8ff07f284f75769af177468735f5",
+        "constraints_sha256": "d36b2eaec110b4002e0d41ddfcde5156c1a48670ee2f6600d47944386bce2b0f",
+        "target_constraint_sha256": "270194faeba0ff4c134d3d17d661ecb6ed4a0b1652c2554dc133cf5955e659fd",
+        "resolved_output": "${EVIDENCE}/resolution/auth-py3.12.txt",
+        "log": "${EVIDENCE}/resolution/auth-py3.12.log",
+        "resolved_output_sha256": "e63d286a9d2bf3e1b4d131471d3a884c92ac70f1e18d381a53f245a675dd9fea",
+        "resolved_pins": [
+          "annotated-doc==0.0.5",
+          "annotated-types==0.8.0",
+          "anyio==4.15.1",
+          "argon2-cffi==23.1.0",
+          "argon2-cffi-bindings==26.1.0",
+          "bcrypt==4.3.0",
+          "cffi==2.1.1",
+          "fastapi==0.135.1",
+          "hiredis==3.5.0",
+          "idna==3.20",
+          "passlib==1.7.4",
+          "pycparser==3.12",
+          "pydantic==2.13.1",
+          "pydantic-core==2.46.1",
+          "pyjwt==2.15.1",
+          "redis==7.4.1",
+          "starlette==1.10.0",
+          "typing-extensions==4.16.0",
+          "typing-inspection==0.4.4"
+        ],
+        "normalized_log_sha256": "8885466697f50aadeb20de6cb4e0fe192ce3bc8433f127f43de7640f58c010ee"
+      },
+      {
+        "name": "irrigation-smart",
+        "python": "3.11",
+        "platform": "x86_64-unknown-linux-gnu",
+        "requirements": "apps/services/irrigation-smart/requirements.txt",
+        "command": [
+          "uv",
+          "pip",
+          "compile",
+          "--python-version",
+          "3.11",
+          "--python-platform",
+          "x86_64-unknown-linux-gnu",
+          "--no-build",
+          "--cache-dir",
+          "${EVIDENCE}/uv-resolution-cache",
+          "--no-progress",
+          "-c",
+          "constraints.txt",
+          "-c",
+          "${EVIDENCE}/target-pyjwt.txt",
+          "apps/services/irrigation-smart/requirements.txt",
+          "-o",
+          "${EVIDENCE}/resolution/irrigation-smart-py3.11.txt"
+        ],
+        "cwd": "${REPO}",
+        "exit_code": 0,
+        "duration_seconds": 0.166,
+        "resolved_package_count": 30,
+        "pyjwt": "pyjwt==2.15.1",
+        "requirements_sha256": "9549c15827530e72594a486a577ff899091f7afbb4ca0d1313d584b109440d47",
+        "constraints_sha256": "d36b2eaec110b4002e0d41ddfcde5156c1a48670ee2f6600d47944386bce2b0f",
+        "target_constraint_sha256": "270194faeba0ff4c134d3d17d661ecb6ed4a0b1652c2554dc133cf5955e659fd",
+        "resolved_output": "${EVIDENCE}/resolution/irrigation-smart-py3.11.txt",
+        "log": "${EVIDENCE}/resolution/irrigation-smart-py3.11.log",
+        "resolved_output_sha256": "7a589226c9a5f7dad44a68ce58e5bc6d761bdce4f283fef1280a32976a584c63",
+        "resolved_pins": [
+          "annotated-doc==0.0.5",
+          "annotated-types==0.8.0",
+          "anyio==4.15.1",
+          "asyncpg==0.31.0",
+          "certifi==2026.10.23",
+          "cffi==2.1.1",
+          "click==8.5.0",
+          "cryptography==46.0.7",
+          "fastapi==0.135.1",
+          "h11==0.16.0",
+          "httpcore==1.0.9",
+          "httptools==0.9.0",
+          "httpx==0.28.1",
+          "idna==3.20",
+          "nats-py==2.14.0",
+          "prometheus-client==0.25.0",
+          "pycparser==3.12",
+          "pydantic==2.13.1",
+          "pydantic-core==2.46.1",
+          "pyjwt==2.15.1",
+          "python-dotenv==1.2.2",
+          "pyyaml==6.0.3",
+          "starlette==1.10.0",
+          "structlog==25.5.0",
+          "typing-extensions==4.16.0",
+          "typing-inspection==0.4.4",
+          "uvicorn==0.54.0",
+          "uvloop==0.23.0",
+          "watchfiles==1.3.0",
+          "websockets==17.4"
+        ],
+        "normalized_log_sha256": "db3010270c47b7aaea56c4519b5434ae16253ec0c3871f4f9aecc31d5321a64c"
+      },
+      {
+        "name": "advisory-service",
+        "python": "3.11",
+        "platform": "x86_64-unknown-linux-gnu",
+        "requirements": "apps/services/advisory-service/requirements.txt",
+        "command": [
+          "uv",
+          "pip",
+          "compile",
+          "--python-version",
+          "3.11",
+          "--python-platform",
+          "x86_64-unknown-linux-gnu",
+          "--no-build",
+          "--cache-dir",
+          "${EVIDENCE}/uv-resolution-cache",
+          "--no-progress",
+          "-c",
+          "constraints.txt",
+          "-c",
+          "${EVIDENCE}/target-pyjwt.txt",
+          "apps/services/advisory-service/requirements.txt",
+          "-o",
+          "${EVIDENCE}/resolution/advisory-service-py3.11.txt"
+        ],
+        "cwd": "${REPO}",
+        "exit_code": 0,
+        "duration_seconds": 0.27,
+        "resolved_package_count": 45,
+        "pyjwt": "pyjwt==2.15.1",
+        "requirements_sha256": "fb70c98458a7a278a516142af1076802860cafb43c610f201e0dff473c8297a7",
+        "constraints_sha256": "d36b2eaec110b4002e0d41ddfcde5156c1a48670ee2f6600d47944386bce2b0f",
+        "target_constraint_sha256": "270194faeba0ff4c134d3d17d661ecb6ed4a0b1652c2554dc133cf5955e659fd",
+        "resolved_output": "${EVIDENCE}/resolution/advisory-service-py3.11.txt",
+        "log": "${EVIDENCE}/resolution/advisory-service-py3.11.log",
+        "resolved_output_sha256": "6d1144f4dbe66bac5938d5911a89977b6b1ec9b321b83dd19c3f4a1bc1f56095",
+        "resolved_pins": [
+          "annotated-doc==0.0.5",
+          "annotated-types==0.8.0",
+          "anyio==4.15.1",
+          "async-timeout==5.0.1",
+          "bcrypt==4.3.0",
+          "certifi==2026.10.23",
+          "cffi==2.1.1",
+          "click==8.5.0",
+          "coverage==7.17.0",
+          "cryptography==46.0.7",
+          "fastapi==0.135.1",
+          "h11==0.16.0",
+          "hiredis==3.5.0",
+          "httpcore==1.0.9",
+          "httptools==0.9.0",
+          "httpx==0.28.1",
+          "idna==3.20",
+          "iniconfig==2.3.1",
+          "nats-py==2.14.0",
+          "packaging==26.3",
+          "pillow==12.2.0",
+          "pluggy==1.7.0",
+          "prometheus-client==0.25.0",
+          "pycparser==3.12",
+          "pydantic==2.13.1",
+          "pydantic-core==2.46.1",
+          "pygments==2.21.0",
+          "pyjwt==2.15.1",
+          "pyotp==2.10.0",
+          "pytest==9.0.3",
+          "pytest-asyncio==1.3.0",
+          "pytest-cov==7.1.0",
+          "pytest-mock==3.15.1",
+          "python-dotenv==1.2.2",
+          "pyyaml==6.0.3",
+          "qrcode==8.2",
+          "redis==7.4.1",
+          "starlette==1.10.0",
+          "structlog==25.5.0",
+          "typing-extensions==4.16.0",
+          "typing-inspection==0.4.4",
+          "uvicorn==0.54.0",
+          "uvloop==0.23.0",
+          "watchfiles==1.3.0",
+          "websockets==17.4"
+        ],
+        "normalized_log_sha256": "9f2b24c833b233c99b7db158da3a6e336ca7c727402ec8e5a63102a38df87beb"
+      },
+      {
+        "name": "weather-service",
+        "python": "3.11",
+        "platform": "x86_64-unknown-linux-gnu",
+        "requirements": "apps/services/weather-service/requirements.txt",
+        "command": [
+          "uv",
+          "pip",
+          "compile",
+          "--python-version",
+          "3.11",
+          "--python-platform",
+          "x86_64-unknown-linux-gnu",
+          "--no-build",
+          "--cache-dir",
+          "${EVIDENCE}/uv-resolution-cache",
+          "--no-progress",
+          "-c",
+          "constraints.txt",
+          "-c",
+          "${EVIDENCE}/target-pyjwt.txt",
+          "apps/services/weather-service/requirements.txt",
+          "-o",
+          "${EVIDENCE}/resolution/weather-service-py3.11.txt"
+        ],
+        "cwd": "${REPO}",
+        "exit_code": 0,
+        "duration_seconds": 0.218,
+        "resolved_package_count": 33,
+        "pyjwt": "pyjwt==2.15.1",
+        "requirements_sha256": "f5e24c82e34c570a1fdcd1ecdd681f34f496ac21da1622991495f40b1d53cb1f",
+        "constraints_sha256": "d36b2eaec110b4002e0d41ddfcde5156c1a48670ee2f6600d47944386bce2b0f",
+        "target_constraint_sha256": "270194faeba0ff4c134d3d17d661ecb6ed4a0b1652c2554dc133cf5955e659fd",
+        "resolved_output": "${EVIDENCE}/resolution/weather-service-py3.11.txt",
+        "log": "${EVIDENCE}/resolution/weather-service-py3.11.log",
+        "resolved_output_sha256": "af5d012faf4611601dd52a984b8bff536f20398773e719ed869a1626a9d71e63",
+        "resolved_pins": [
+          "annotated-doc==0.0.5",
+          "annotated-types==0.8.0",
+          "anyio==4.15.1",
+          "async-timeout==5.0.1",
+          "certifi==2026.10.23",
+          "cffi==2.1.1",
+          "click==8.5.0",
+          "cryptography==46.0.7",
+          "fastapi==0.135.1",
+          "h11==0.16.0",
+          "httpcore==1.0.9",
+          "httptools==0.9.0",
+          "httpx==0.28.1",
+          "idna==3.20",
+          "nats-py==2.14.0",
+          "prometheus-client==0.25.0",
+          "pycparser==3.12",
+          "pydantic==2.13.1",
+          "pydantic-core==2.46.1",
+          "pyjwt==2.15.1",
+          "python-dateutil==2.9.0.post0",
+          "python-dotenv==1.2.2",
+          "pyyaml==6.0.3",
+          "redis==7.4.1",
+          "six==1.17.0",
+          "starlette==1.10.0",
+          "structlog==25.5.0",
+          "typing-extensions==4.16.0",
+          "typing-inspection==0.4.4",
+          "uvicorn==0.54.0",
+          "uvloop==0.23.0",
+          "watchfiles==1.3.0",
+          "websockets==17.4"
+        ],
+        "normalized_log_sha256": "48da2227d2cc2d3a8d4faf29f1e28e139edcfdedb7ce19a30c6a1058769bc974"
+      },
+      {
+        "name": "community-service",
+        "python": "3.11",
+        "platform": "x86_64-unknown-linux-gnu",
+        "requirements": "apps/services/community-service/requirements.txt",
+        "command": [
+          "uv",
+          "pip",
+          "compile",
+          "--python-version",
+          "3.11",
+          "--python-platform",
+          "x86_64-unknown-linux-gnu",
+          "--no-build",
+          "--cache-dir",
+          "${EVIDENCE}/uv-resolution-cache",
+          "--no-progress",
+          "-c",
+          "constraints.txt",
+          "-c",
+          "${EVIDENCE}/target-pyjwt.txt",
+          "apps/services/community-service/requirements.txt",
+          "-o",
+          "${EVIDENCE}/resolution/community-service-py3.11.txt"
+        ],
+        "cwd": "${REPO}",
+        "exit_code": 0,
+        "duration_seconds": 0.315,
+        "resolved_package_count": 37,
+        "pyjwt": "pyjwt==2.15.1",
+        "requirements_sha256": "c9990b406a415c1bad923c76684f499b45658fc869bb0e64de50b80bf618670c",
+        "constraints_sha256": "d36b2eaec110b4002e0d41ddfcde5156c1a48670ee2f6600d47944386bce2b0f",
+        "target_constraint_sha256": "270194faeba0ff4c134d3d17d661ecb6ed4a0b1652c2554dc133cf5955e659fd",
+        "resolved_output": "${EVIDENCE}/resolution/community-service-py3.11.txt",
+        "log": "${EVIDENCE}/resolution/community-service-py3.11.log",
+        "resolved_output_sha256": "ec08873681de408bd6e2127cf9a1ed456fa7312df4021d6e343eee18b34da269",
+        "resolved_pins": [
+          "annotated-doc==0.0.5",
+          "annotated-types==0.8.0",
+          "anyio==4.15.1",
+          "async-timeout==5.0.1",
+          "asyncpg==0.31.0",
+          "certifi==2026.10.23",
+          "cffi==2.1.1",
+          "click==8.5.0",
+          "cryptography==46.0.7",
+          "deprecated==1.3.1",
+          "fastapi==0.135.1",
+          "h11==0.16.0",
+          "httpcore==1.0.9",
+          "httptools==0.9.0",
+          "httpx==0.28.1",
+          "idna==3.20",
+          "limits==5.8.0",
+          "nats-py==2.14.0",
+          "packaging==26.3",
+          "prometheus-client==0.25.0",
+          "pycparser==3.12",
+          "pydantic==2.13.1",
+          "pydantic-core==2.46.1",
+          "pyjwt==2.15.1",
+          "python-dotenv==1.2.2",
+          "pyyaml==6.0.3",
+          "redis==7.4.1",
+          "slowapi==0.1.10",
+          "starlette==1.10.0",
+          "structlog==25.5.0",
+          "typing-extensions==4.16.0",
+          "typing-inspection==0.4.4",
+          "uvicorn==0.54.0",
+          "uvloop==0.23.0",
+          "watchfiles==1.3.0",
+          "websockets==17.4",
+          "wrapt==2.5.2"
+        ],
+        "normalized_log_sha256": "4606d828ad3b6809457ab712aa4c3d3902b33c79bcf9224ab5ceec06462ab8a1"
+      }
+    ],
+    "all_passed": true
+  },
+  "other_checks": {
+    "pip_check": "No broken requirements found.",
+    "ruff_check": "passed",
+    "ruff_format": "passed",
+    "workflow_yaml_parse": "passed",
+    "diff_check": "passed",
+    "independent_final_review": "approved; namespace collection regression verified"
+  },
+  "limitations": [
+    "Root uv.lock remains on PyJWT 2.11.0; its separate TensorFlow/NumPy/Python resolver conflict was not changed or bypassed.",
+    "Full shared requirements audit remains nonzero due to unchanged python-multipart 0.0.26: 8 raw records, 4 distinct CVEs.",
+    "Dependency-resolution checks are not image builds or deployed service tests.",
+    "Only Python 3.12.14 was executed locally; the dedicated GitHub Actions matrix covers 3.11 and 3.12.",
+    "GitHub Actions results are not included in this local pre-publication snapshot."
+  ],
+  "path_normalization": "${REPO}, ${EVIDENCE}, ${VENV} replace local scratch prefixes in retained textual output."
+}

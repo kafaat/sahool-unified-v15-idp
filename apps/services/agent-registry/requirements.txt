@@ -14,7 +14,7 @@ redis>=7.1.0,<8.0.0
 
 # Validation
 pydantic==2.13.1
-pydantic-settings==2.13.1
+pydantic-settings==2.14.2
 
 # Environment
 python-dotenv==1.2.2

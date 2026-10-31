@@ -7,7 +7,10 @@ on:
       - 'shared/auth/**'
       - 'shared/security/**'
       - 'tests/unit/auth/**'
+      - 'tests/unit/security/test_dependency_security_regressions.py'
       - 'tests/unit/test_shared_auth.py'
+      - 'packages/shared-crypto/**'
+      - 'apps/services/ai-advisor/src/config.py'
       - 'apps/services/copilot-api/src/api/deps.py'
       - 'apps/services/copilot-api/tests/test_deps.py'
       - 'constraints.txt'
@@ -20,7 +23,10 @@ on:
       - 'shared/auth/**'
       - 'shared/security/**'
       - 'tests/unit/auth/**'
+      - 'tests/unit/security/test_dependency_security_regressions.py'
       - 'tests/unit/test_shared_auth.py'
+      - 'packages/shared-crypto/**'
+      - 'apps/services/ai-advisor/src/config.py'
       - 'apps/services/copilot-api/src/api/deps.py'
       - 'apps/services/copilot-api/tests/test_deps.py'
       - 'constraints.txt'
@@ -57,7 +63,7 @@ jobs:
             -r apps/services/shared/auth/requirements.txt \
             pytest==9.0.3 pytest-asyncio==1.3.0 pytest-timeout==2.4.0 \
             packaging==26.3 pip-audit==2.10.1 ruff==0.15.11 \
-            email-validator 'cryptography>=44.0.1,<47.0.0'
+            email-validator 'cryptography>=50.0.2,<51.0.0' 'pydantic-settings>=2.14.2,<3.0.0'
           python -m pip check
 
       - name: Record the exact installed PyJWT for the scoped audit
@@ -81,12 +87,15 @@ jobs:
 
       - name: Lint the new regression tests
         run: |
-          ruff check tests/unit/auth/test_shared_pyjwt_security.py
-          ruff format --check tests/unit/auth/test_shared_pyjwt_security.py
+          ruff check tests/unit/auth/test_shared_pyjwt_security.py \
+            tests/unit/security/test_dependency_security_regressions.py
+          ruff format --check tests/unit/auth/test_shared_pyjwt_security.py \
+            tests/unit/security/test_dependency_security_regressions.py
 
       - name: Test the affected module and existing JWT callers
         run: |
           python -m pytest tests/unit/auth/ tests/unit/test_shared_auth.py \
+            tests/unit/security/test_dependency_security_regressions.py \
             -q --tb=short --timeout=30 --junitxml=pyjwt-evidence/auth.xml
           python -m pytest apps/services/copilot-api/tests/test_deps.py \
             -q --tb=short --timeout=30 --junitxml=pyjwt-evidence/copilot.xml

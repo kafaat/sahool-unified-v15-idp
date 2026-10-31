@@ -16,8 +16,8 @@ asyncio-throttle>=1.0.0
 # Vector Database
 qdrant-client>=1.9.0,<2.0.0  # CVE-2024-3829 (input validation) fixed in 1.9.0
 # Embeddings (local, offline-first)
-sentence-transformers>=2.2.0,<6.0.0
-torch>=2.6.0,<2.7.0  # CVE-2025-32434 (CRITICAL) fixed in 2.6.0
+sentence-transformers>=6.0.0,<7.0.0  # CVE-2026-68770: explicit trust required for custom model code
+torch>=2.13.0,<2.15.0  # Current security fixes; retain Python 3.10 compatibility
 # Scientific Computing (required by torch/sentence-transformers)
 numpy>=1.26.0,<2.5.0
 # Caching & Message Queue

@@ -1,0 +1,254 @@
+name: Python Lock Security
+
+on:
+  pull_request:
+    paths:
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - 'constraints.txt'
+      - 'scripts/ci/check_python_lock_runtime.py'
+      - 'tests/unit/test_python_lock_consistency.py'
+      - 'tests/unit/test_infrastructure_fixes.py'
+      - 'tests/unit/test_ndvi_calculation.py'
+      - 'apps/kernel/common/queue/tasks/**'
+      - 'apps/services/ai-advisor/requirements.txt'
+      - 'apps/services/ai-advisor/src/**'
+      - 'apps/services/ai-advisor/tests/test_embedding_dependency_security.py'
+      - 'apps/services/copilot-api/requirements.txt'
+      - 'apps/services/copilot-api/src/rag/embeddings.py'
+      - 'docker/constraints-ai.txt'
+      - '.github/workflows/python-lock-security.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - 'constraints.txt'
+      - 'scripts/ci/check_python_lock_runtime.py'
+      - 'tests/unit/test_python_lock_consistency.py'
+      - 'tests/unit/test_infrastructure_fixes.py'
+      - 'tests/unit/test_ndvi_calculation.py'
+      - 'apps/kernel/common/queue/tasks/**'
+      - 'apps/services/ai-advisor/requirements.txt'
+      - 'apps/services/ai-advisor/src/**'
+      - 'apps/services/ai-advisor/tests/test_embedding_dependency_security.py'
+      - 'apps/services/copilot-api/requirements.txt'
+      - 'apps/services/copilot-api/src/rag/embeddings.py'
+      - 'docker/constraints-ai.txt'
+      - '.github/workflows/python-lock-security.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  frozen-runtime:
+    name: Frozen extras / Python ${{ matrix.python }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        # TensorFlow 2.21 has no CPython 3.14 wheel. Keep its dependency and the
+        # project's >=3.11 policy intact; a metadata lock is not wheel availability.
+        python: ['3.11', '3.12', '3.13']
+    env:
+      TF_NUM_INTEROP_THREADS: '1'
+      TF_NUM_INTRAOP_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      TF_CPP_MIN_LOG_LEVEL: '2'
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONNOUSERSITE: '1'
+      AUDIT_PYTHON: ${{ matrix.python }}
+    steps:
+      - uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98 # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install the pinned resolver
+        run: |
+          mkdir -p python-lock-evidence
+          python -m pip install uv==0.13.4
+          uv --version > python-lock-evidence/uv-version.txt
+          python --version > python-lock-evidence/python-version.txt
+
+      - name: Validate and install the frozen root extras
+        run: |
+          uv lock --check --python '${{ matrix.python }}'
+          uv sync --all-extras --frozen --python '${{ matrix.python }}'
+          uv pip check --python .venv/bin/python
+          uv pip freeze --python .venv/bin/python > python-lock-evidence/environment.txt
+          sha256sum pyproject.toml uv.lock constraints.txt > python-lock-evidence/input-sha256.txt
+
+      - name: Check lock and runtime regression sources
+        run: |
+          .venv/bin/ruff check tests/unit/test_python_lock_consistency.py \
+            tests/unit/test_infrastructure_fixes.py scripts/ci/check_python_lock_runtime.py
+          .venv/bin/ruff format --check tests/unit/test_python_lock_consistency.py \
+            tests/unit/test_infrastructure_fixes.py scripts/ci/check_python_lock_runtime.py
+
+      - name: Exercise the real crypto, image and numerical runtimes
+        run: |
+          .venv/bin/python -B -m pytest \
+            tests/unit/test_python_lock_consistency.py \
+            tests/unit/test_infrastructure_fixes.py::TestDependencyConstraints \
+            tests/unit/test_ndvi_calculation.py \
+            scripts/ci/check_python_lock_runtime.py \
+            -p no:cacheprovider -q --tb=short \
+            --junitxml=python-lock-evidence/runtime.xml
+
+      - name: Audit the complete frozen environment
+        if: always()
+        run: |
+          test -s python-lock-evidence/environment.txt
+          uv tool run --python "$AUDIT_PYTHON" --from pip-audit==2.10.1 pip-audit \
+            -r python-lock-evidence/environment.txt --no-deps --disable-pip \
+            --strict --progress-spinner off --format json --desc off \
+            -o python-lock-evidence/full-lock-audit.json
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          report = json.loads(Path('python-lock-evidence/full-lock-audit.json').read_text())
+          dependencies = report['dependencies']
+          assert dependencies and not any(dep.get('vulns') or dep.get('skip_reason') for dep in dependencies)
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as stream:
+              stream.write('### Complete frozen environment audit\n\n')
+              stream.write(f'{len(dependencies)} installed packages audited; no known vulnerabilities found.\n')
+          PY
+
+      - name: Preserve runtime and complete audit evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: python-lock-${{ matrix.python }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: python-lock-evidence/
+          if-no-files-found: warn
+
+  cpu-embedding:
+    name: CPU embedding consumers and model-loading security
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      HF_HUB_OFFLINE: '1'
+      OMP_NUM_THREADS: '1'
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONNOUSERSITE: '1'
+    steps:
+      - uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98 # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.11'
+
+      - name: Install the constrained CPU embedding environment
+        run: |
+          mkdir -p python-lock-evidence/embedding
+          python -m pip install uv==0.13.4
+          uv venv "$RUNNER_TEMP/embedding-venv" --python 3.11
+          uv pip install --python "$RUNNER_TEMP/embedding-venv/bin/python" \
+            --find-links https://download.pytorch.org/whl/cpu/torch/ \
+            -c docker/constraints-ai.txt \
+            'torch==2.13.0+cpu' 'sentence-transformers==6.0.0' 'numpy>=1.26,<2' \
+            pytest==9.0.3 pytest-asyncio==1.3.0 structlog pydantic-settings 'setuptools>=84.1.0'
+          uv pip check --python "$RUNNER_TEMP/embedding-venv/bin/python"
+          uv pip freeze --python "$RUNNER_TEMP/embedding-venv/bin/python" \
+            > python-lock-evidence/embedding/environment.txt
+
+      - name: Require real offline loading and encoding in both consumers
+        run: |
+          "$RUNNER_TEMP/embedding-venv/bin/python" -m pytest \
+            apps/services/ai-advisor/tests/test_embedding_dependency_security.py \
+            -q -o addopts='' --junitxml=python-lock-evidence/embedding/current.xml
+
+      - name: Audit the complete installed CPU embedding environment
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          evidence = Path('python-lock-evidence/embedding')
+          source = evidence / 'environment.txt'
+          lines = source.read_text().splitlines()
+          installed = 'torch==2.13.0+cpu'
+          assert lines.count(installed) == 1, 'The tested official CPU build must be recorded exactly once'
+          assert sum(line.startswith('torch==') for line in lines) == 1
+          # PyPI advisory lookup uses the upstream release version. Preserve the
+          # actual installed CPU build separately; no package is omitted.
+          normalized = ['torch==2.13.0' if line == installed else line for line in lines]
+          (evidence / 'audit-requirements.txt').write_text('\n'.join(normalized) + '\n')
+          (evidence / 'audit-normalization.json').write_text(json.dumps({
+              'source_sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
+              'installed': installed, 'advisory_lookup': 'torch==2.13.0',
+              'reason': 'Official CPU build suffix; PyPI publishes the upstream release metadata',
+              'packages_omitted': [],
+          }, indent=2) + '\n')
+          PY
+          uv tool run --python 3.11 --from pip-audit==2.10.1 pip-audit \
+            -r python-lock-evidence/embedding/audit-requirements.txt \
+            --no-deps --disable-pip --strict --progress-spinner off \
+            --format json --desc off -o python-lock-evidence/embedding/full-audit.json
+
+      - name: Prove the regression rejects the previous model loader
+        run: |
+          # This isolated source overlay is a negative control, never the
+          # candidate environment. Its dependency requirements are checked below.
+          uv pip install --python "$RUNNER_TEMP/embedding-venv/bin/python" \
+            --target "$RUNNER_TEMP/embedding-baseline" --no-deps sentence-transformers==5.6.0
+          python - <<'PY'
+          import json
+          import os
+          import subprocess
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+
+          evidence = Path('python-lock-evidence/embedding')
+          python = str(Path(os.environ['RUNNER_TEMP']) / 'embedding-venv/bin/python')
+          environment = {**os.environ, 'PYTHONPATH': str(Path(os.environ['RUNNER_TEMP']) / 'embedding-baseline')}
+          validation = '''
+          from importlib.metadata import requires, version
+          from packaging.markers import default_environment
+          from packaging.requirements import Requirement
+          import sentence_transformers
+          assert sentence_transformers.__version__ == '5.6.0'
+          for value in requires('sentence-transformers'):
+              requirement = Requirement(value)
+              if requirement.marker is None or requirement.marker.evaluate({**default_environment(), 'extra': ''}):
+                  assert version(requirement.name) in requirement.specifier, value
+          '''
+          import textwrap
+          subprocess.run([python, '-c', textwrap.dedent(validation)], env=environment, check=True, timeout=120)
+          report = evidence / 'baseline-5.6.0.xml'
+          command = [python, '-m', 'pytest',
+              'apps/services/ai-advisor/tests/test_embedding_dependency_security.py',
+              '-q', '-o', 'addopts=', f'--junitxml={report}']
+          result = subprocess.run(command, env=environment, text=True, capture_output=True, timeout=180)
+          (evidence / 'baseline-5.6.0.log').write_text(result.stdout + result.stderr)
+          assert result.returncode == 1, f'Expected the known security regression, got exit {result.returncode}'
+          suites = ET.parse(report).getroot().findall('testsuite')
+          counts = {name: sum(int(suite.get(name, '0')) for suite in suites)
+                    for name in ('tests', 'failures', 'errors', 'skipped')}
+          assert counts == {'tests': 5, 'failures': 1, 'errors': 0, 'skipped': 0}, counts
+          failures = [case.get('name') for suite in suites for case in suite.findall('testcase')
+                      if case.find('failure') is not None]
+          assert failures == ['test_untrusted_local_model_cannot_execute_custom_python'], failures
+          (evidence / 'differential.json').write_text(json.dumps({
+              'command': command, 'baseline_exit_code': result.returncode,
+              'baseline_counts': counts, 'baseline_failures': failures,
+              'candidate': '6.0.0', 'baseline': '5.6.0',
+          }, indent=2) + '\n')
+          PY
+
+      - name: Preserve embedding tests, audit and differential evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: python-embedding-${{ github.sha }}-${{ github.run_attempt }}
+          path: python-lock-evidence/embedding/
+          if-no-files-found: warn

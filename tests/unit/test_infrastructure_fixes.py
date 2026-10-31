@@ -11,10 +11,13 @@ Validates:
 """
 
 import re
+import tomllib
 from pathlib import Path
 
 import pytest
 import yaml
+from packaging.requirements import Requirement
+from packaging.version import Version
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Paths
@@ -219,23 +222,22 @@ class TestDependencyConstraints:
     """Verify critical dependency version constraints."""
 
     def test_numpy_upper_bound_below_2_5(self, pyproject_content):
-        """NumPy must be pinned <2.5.0 for TensorFlow 2.20 compatibility."""
-        match = re.search(r'"numpy>=[\d.]+,<([\d.]+)"', pyproject_content)
-        assert match, "NumPy constraint not found in pyproject.toml"
-        upper = match.group(1)
-        major, minor = [int(x) for x in upper.split(".")[:2]]
-        # <2.5.0 means upper bound is 2.5.0 exclusive, which is safe
-        assert (major, minor) <= (2, 5), f"NumPy upper bound is {upper}, must be <=2.5.0 for TensorFlow compatibility"
-        # Must NOT allow 3.0+ which definitely breaks TF
-        assert major < 3, f"NumPy upper bound {upper} allows 3.x which breaks TensorFlow"
+        """Every Python-specific NumPy range retains the tested <2.5 bound."""
+        dependencies = tomllib.loads(pyproject_content)["project"]["optional-dependencies"]["ml"]
+        requirements = [Requirement(value) for value in dependencies if Requirement(value).name == "numpy"]
+        assert requirements, "NumPy constraint not found in pyproject.toml"
+        for requirement in requirements:
+            upper_bounds = [Version(spec.version) for spec in requirement.specifier if spec.operator == "<"]
+            assert upper_bounds and min(upper_bounds) <= Version("2.5.0"), str(requirement)
 
     def test_numpy_lower_bound_at_least_1_26(self, pyproject_content):
-        """NumPy must have lower bound >= 1.26.0."""
-        match = re.search(r'"numpy>=([\d.]+),', pyproject_content)
-        assert match, "NumPy lower bound not found"
-        lower = match.group(1)
-        parts = [int(x) for x in lower.split(".")]
-        assert parts[0] >= 1 and parts[1] >= 26, f"NumPy lower bound {lower} should be >= 1.26.0"
+        """Every NumPy branch meets TensorFlow's minimum dependency version."""
+        dependencies = tomllib.loads(pyproject_content)["project"]["optional-dependencies"]["ml"]
+        requirements = [Requirement(value) for value in dependencies if Requirement(value).name == "numpy"]
+        assert requirements, "NumPy lower bound not found"
+        for requirement in requirements:
+            lower_bounds = [Version(spec.version) for spec in requirement.specifier if spec.operator == ">="]
+            assert lower_bounds and max(lower_bounds) >= Version("1.26.0"), str(requirement)
 
     def test_tensorflow_version_pinned(self, pyproject_content):
         """TensorFlow must be explicitly pinned."""

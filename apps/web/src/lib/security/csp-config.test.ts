@@ -45,14 +45,16 @@ describe('CSP Directives', () => {
     process.env.NODE_ENV = originalEnv;
   });
 
-  it('should include nonce in script-src when provided', () => {
+  it('should preserve inline hydration compatibility without an unapplied script nonce', () => {
     const directives = getCSPDirectives('test-nonce-123');
-    expect(directives['script-src']).toContain("'nonce-test-nonce-123'");
+    expect(directives['script-src']).not.toContain("'nonce-test-nonce-123'");
+    expect(directives['script-src']).toContain("'unsafe-inline'");
   });
 
-  it('should include nonce in style-src when provided', () => {
+  it('should preserve inline styles without an unapplied style nonce', () => {
     const directives = getCSPDirectives('test-nonce-123');
-    expect(directives['style-src']).toContain("'nonce-test-nonce-123'");
+    expect(directives['style-src']).not.toContain("'nonce-test-nonce-123'");
+    expect(directives['style-src']).toContain("'unsafe-inline'");
   });
 
   it('should have script-src array', () => {
@@ -70,10 +72,11 @@ describe('CSP Directives', () => {
     expect(directives['style-src']).toContain('https://fonts.googleapis.com');
   });
 
-  it('should include strict-dynamic in script-src with nonce (non-dev)', () => {
-    // In test environment (not development), strict-dynamic may be added
+  it('should not enable strict-dynamic without nonce propagation', () => {
+    // Current renderer emits inline scripts without propagated nonces.
     const directives = getCSPDirectives('test-nonce');
-    expect(directives['script-src']).toContain("'nonce-test-nonce'");
+    expect(directives['script-src']).not.toContain("'nonce-test-nonce'");
+    expect(directives['script-src']).not.toContain("'strict-dynamic'");
   });
 
   it('should block object-src', () => {
@@ -136,9 +139,9 @@ describe('CSP Header Building', () => {
     expect(header).toContain('block-all-mixed-content');
   });
 
-  it('should include nonce in header', () => {
+  it('should omit unapplied nonce from header', () => {
     const header = buildCSPHeader(getCSPDirectives('abc123'));
-    expect(header).toContain("'nonce-abc123'");
+    expect(header).not.toContain("'nonce-abc123'");
   });
 });
 

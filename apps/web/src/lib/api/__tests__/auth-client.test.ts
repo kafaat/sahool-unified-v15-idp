@@ -95,7 +95,7 @@ describe('AuthApiClient', () => {
       await authApiClient.login('  Test@Sahool.COM  ', 'password123');
 
       expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('/api/v1/auth/login'),
+        '/api/auth/login',
         expect.objectContaining({
           method: 'POST',
           body: expect.stringContaining('"email":"test@sahool.com"'),
@@ -175,7 +175,7 @@ describe('AuthApiClient', () => {
       expect(result.error).toBe('Request timeout');
     });
 
-    it('should handle non-JSON responses', async () => {
+    it('should reject non-JSON login responses', async () => {
       const { authApiClient } = await import('../auth-client');
 
       global.fetch = vi.fn().mockResolvedValue({
@@ -186,7 +186,8 @@ describe('AuthApiClient', () => {
 
       const result = await authApiClient.login('user@sahool.com', 'password');
 
-      expect(result.success).toBe(true);
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Invalid JSON response from server');
     });
 
     it('should handle invalid JSON response', async () => {
@@ -202,6 +203,48 @@ describe('AuthApiClient', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Invalid JSON response from server');
+    });
+
+    it.each([null, [], 'not a payload', 42])('rejects malformed JSON payload %j', async (payload) => {
+      const { authApiClient } = await import('../auth-client');
+      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => payload });
+      const result = await authApiClient.login('user@sahool.com', 'password');
+      expect(result).toEqual({ success: false, error: 'Invalid JSON response from server' });
+    });
+
+    it('rejects invalid JSON during registration instead of reporting success', async () => {
+      const { authApiClient } = await import('../auth-client');
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true, json: async () => { throw new SyntaxError('bad JSON'); },
+      });
+      const result = await authApiClient.register({
+        email: 'user@sahool.com', password: 'password', firstName: 'A', lastName: 'B',
+      });
+      expect(result).toEqual({ success: false, error: 'Invalid JSON response from server' });
+    });
+
+    it.each([{}, { success: false }, { access_token: 'token' }, { access_token: '', user: { id: '1' } }])(
+      'rejects incomplete login payload %j', async (payload) => {
+        const { authApiClient } = await import('../auth-client');
+        global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => payload });
+        expect((await authApiClient.login('user@sahool.com', 'password')).success).toBe(false);
+      },
+    );
+
+    it.each([{}, { success: false }, { success: true }])('rejects incomplete registration payload %j', async (payload) => {
+      const { authApiClient } = await import('../auth-client');
+      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => payload });
+      const result = await authApiClient.register({ email: 'user@sahool.com', password: 'password', firstName: 'A', lastName: 'B' });
+      expect(result.success).toBe(false);
+    });
+
+    it('accepts the enumeration-safe registration envelope without tokens', async () => {
+      const { authApiClient } = await import('../auth-client');
+      const payload = { success: true, message: 'If this email is new, you will receive a verification link.' };
+      global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => payload });
+      const result = await authApiClient.register({ email: 'user@sahool.com', password: 'password', firstName: 'A', lastName: 'B' });
+      expect(result.success).toBe(true);
+      expect(result.data).toEqual(payload);
     });
 
     it('should handle error response with message field', async () => {

@@ -41,6 +41,13 @@ interface LoginResponse {
   user: AuthUser & { firstName?: string; lastName?: string; tenantId?: string };
 }
 
+// The login consumer creates a session and reads user identity immediately.
+function isLoginPayload(data: Partial<LoginResponse>): data is LoginResponse {
+  return typeof data.access_token === 'string' && data.access_token.trim().length > 0
+    && !!data.user && typeof data.user === 'object'
+    && typeof data.user.id === 'string' && data.user.id.trim().length > 0;
+}
+
 // ---------------------------------------------------------------------------
 // Config
 // ---------------------------------------------------------------------------
@@ -185,9 +192,20 @@ class AuthApiClient {
       } finally {
         clearTimeout(timeoutId);
       }
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        return { success: false as const, error: data?.error || data?.message || 'Login failed' };
+      let data: Partial<LoginResponse> & { success?: boolean; error?: string; message?: string };
+      try {
+        data = await response.json();
+        if (!data || typeof data !== 'object' || Array.isArray(data)) {
+          throw new Error('Invalid response');
+        }
+      } catch {
+        return { success: false as const, error: 'Invalid JSON response from server' };
+      }
+      if (!response.ok || data.success === false) {
+        return { success: false as const, error: data?.error || data?.message || `Request failed with status ${response.status}` };
+      }
+      if (!isLoginPayload(data)) {
+        return { success: false as const, error: 'Invalid login response from server' };
       }
       return { success: true as const, data: data as LoginResponse };
     } catch (error) {
@@ -269,9 +287,22 @@ class AuthApiClient {
       } finally {
         clearTimeout(timeoutId);
       }
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok) {
+      let data: Partial<LoginResponse> & { success?: boolean; error?: string; message?: string };
+      try {
+        data = await response.json();
+        if (!data || typeof data !== 'object' || Array.isArray(data)) {
+          throw new Error('Invalid response');
+        }
+      } catch {
+        return { success: false as const, error: 'Invalid JSON response from server' };
+      }
+      if (!response.ok || data.success === false) {
         return { success: false as const, error: data?.error || data?.message || 'Registration failed' };
+      }
+      // Existing-account registration intentionally returns no tokens, to avoid
+      // account enumeration. Accept that explicit success envelope as well.
+      if (!isLoginPayload(data) && !(data.success === true && typeof data.message === 'string' && data.message.trim())) {
+        return { success: false as const, error: 'Invalid registration response from server' };
       }
       return { success: true as const, data: data as LoginResponse };
     } catch (error) {

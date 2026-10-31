@@ -76,7 +76,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           # Fetch all open PRs
-          PR_DATA=$(gh pr list --state open --json number,title,headRefName,baseRefName,mergeable,statusCheckRollup,updatedAt,createdAt)
+          PR_DATA=$(python3 scripts/ci/fetch_pr_status.py)
           
           TOTAL_PRS=$(echo "$PR_DATA" | jq 'length')
           echo "total_prs=$TOTAL_PRS" >> $GITHUB_OUTPUT
@@ -86,7 +86,7 @@ jobs:
           echo "conflicted_prs=$CONFLICTED" >> $GITHUB_OUTPUT
           
           # Count PRs with failing CI (handle null statusCheckRollup)
-          FAILING_CI=$(echo "$PR_DATA" | jq '[.[] | select(any(.statusCheckRollup // []; .conclusion == "FAILURE"))] | length')
+          FAILING_CI=$(echo "$PR_DATA" | jq '[.[] | select(any((.statusCheckRollup // [])[]; .conclusion == "FAILURE"))] | length')
           echo "failing_ci_prs=$FAILING_CI" >> $GITHUB_OUTPUT
           
           # Count stale PRs (not updated in 7+ days)

@@ -2,7 +2,8 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import maplibregl, { type MapLayerMouseEvent } from 'maplibre-gl';
+import * as maplibregl from 'maplibre-gl';
+import type { MapLayerMouseEvent } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { apiClient } from '@/lib/api';
 import type { Field } from '@/lib/api/types';

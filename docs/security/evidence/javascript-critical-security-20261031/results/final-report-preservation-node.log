@@ -1,0 +1,39 @@
+✔ patched dependencies in apps/services/chat-service/package-lock.json (10.020486ms)
+✔ patched dependencies in apps/services/code-review-agent/package-lock.json (2.561175ms)
+✔ patched dependencies in apps/services/crop-growth-model/package-lock.json (5.221565ms)
+✔ patched dependencies in apps/services/disaster-assessment/package-lock.json (4.683701ms)
+✔ patched dependencies in apps/services/field-management-service/package-lock.json (4.366813ms)
+✔ patched dependencies in apps/services/lai-estimation/package-lock.json (4.001833ms)
+✔ patched dependencies in apps/services/marketplace-service/package-lock.json (3.513572ms)
+✔ patched dependencies in apps/services/yield-prediction/package-lock.json (3.530376ms)
+✔ patched dependencies in archive/deprecated-services/community-chat/package-lock.json (3.112068ms)
+✔ patched dependencies in archive/kernel-legacy/kernel/services/field_core/package-lock.json (2.155174ms)
+✔ patched dependencies in package-lock.json (14.685439ms)
+✔ patched dependencies in packages/shared-audit/package-lock.json (1.476892ms)
+✔ patched dependencies in packages/shared-crypto/package-lock.json (2.154914ms)
+✔ patched dependencies in packages/shared-db/package-lock.json (0.476434ms)
+✔ patched dependencies in packages/shared-events/package-lock.json (0.404197ms)
+✔ proxy-addr rejects a spoofed forwarded client through ::ffff:10.0.0.0/8 from 198.51.100.23 (2.008457ms)
+✔ proxy-addr rejects a spoofed forwarded client through ::ffff:10.0.0.0/8 from ::ffff:198.51.100.23 (0.603822ms)
+✔ proxy-addr rejects a spoofed forwarded client through ::/1 from 198.51.100.23 (0.298762ms)
+✔ proxy-addr rejects a spoofed forwarded client through ::/1 from ::ffff:198.51.100.23 (1.615447ms)
+✔ proxy-addr preserves legitimate proxy forwarding through 10.0.0.0/8 (0.318401ms)
+✔ proxy-addr preserves legitimate proxy forwarding through ::ffff:10.0.0.0/104 (0.254126ms)
+✔ Handlebars still renders valid parsed templates and escapes user content (7.389539ms)
+✔ Handlebars denies the Function constructor even when it is an own prototype property (0.915092ms)
+✔ Handlebars rejects an executable blockParams length in an untrusted AST (1.129779ms)
+✔ the actual Vitest worker pool ignores an inherited worker filename (86.227482ms)
+✔ web: installed Next.js matches the declared patched version (1.371737ms)
+✔ web: Sentry cannot bypass authorization outside its exact envelope route (593.358969ms)
+✔ web: Next.js image optimizer uses patched Sharp and performs native image conversion (60.685044ms)
+✔ admin: installed Next.js matches the declared patched version (0.761455ms)
+✔ admin: Sentry cannot bypass authorization outside its exact envelope route (160.413214ms)
+✔ admin: Next.js image optimizer uses patched Sharp and performs native image conversion (4.640417ms)
+ℹ tests 31
+ℹ suites 0
+ℹ pass 31
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1112.008491

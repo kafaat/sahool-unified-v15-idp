@@ -1,0 +1,75 @@
+[
+  {
+    "target": "next@15.5.28",
+    "exit_code": 0,
+    "metadata": {
+      "version": "15.5.28",
+      "engines": {
+        "node": "^18.18.0 || ^19.8.0 || >= 20.0.0"
+      },
+      "dist.integrity": "sha512-JjhLBBY1PNnuwPtcZ7t8yxVeJVYvD2Jyp633J+gRCNbzSt7N0E+xqCf6uQiff3+3qmUkwcF/ksfSsK1xsZ76Tw==",
+      "peerDependencies": {
+        "sass": "^1.3.0",
+        "react": "^18.2.0 || 19.0.0-rc-de68d2f4-20241204 || ^19.0.0",
+        "react-dom": "^18.2.0 || 19.0.0-rc-de68d2f4-20241204 || ^19.0.0",
+        "@playwright/test": "^1.51.1",
+        "@opentelemetry/api": "^1.1.0",
+        "babel-plugin-react-compiler": "*"
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "target": "@sentry/nextjs@9.47.2",
+    "exit_code": 0,
+    "metadata": {
+      "version": "9.47.2",
+      "engines": {
+        "node": ">=18"
+      },
+      "dist.integrity": "sha512-wi54QHijfM2e6+E+r2HUJ2yDHnP+2zIG7LDQmJmq/1zRj0nl9vERWKzw1agz87+yxh5iMDmo2DMJFy0lllyR2A==",
+      "peerDependencies": {
+        "next": "^13.2.0 || ^14.0 || ^15.0.0-rc.0"
+      }
+    },
+    "stderr": ""
+  },
+  {
+    "target": "maplibre-gl@6.4.1",
+    "exit_code": 0,
+    "metadata": {
+      "version": "6.4.1",
+      "engines": {
+        "npm": ">=8.1.0",
+        "node": ">=16.14.0"
+      },
+      "dist.integrity": "sha512-KzxQKtfBu/pSz1C+yW1hNS9eyj2h2lC7ufdAi6/SEt177n3oAfDfmUmslRfJdXY7ReAFBcnvwsqmiyoDhtA9GQ=="
+    },
+    "stderr": ""
+  },
+  {
+    "target": "proxy-addr@2.0.8",
+    "exit_code": 0,
+    "metadata": {
+      "version": "2.0.8",
+      "engines": {
+        "node": ">= 0.10"
+      },
+      "dist.integrity": "sha512-5nnx0yGyVUcY6t9RnWcARWtwT9F1D8O9rt08htPvnd49W1IgZtmLkhu9WfMzQj1cFxjHIO6connUNVW5k7AVyQ=="
+    },
+    "stderr": ""
+  },
+  {
+    "target": "eslint-config-next@15.5.28",
+    "exit_code": 0,
+    "metadata": {
+      "version": "15.5.28",
+      "dist.integrity": "sha512-FQkDceHNJVfMa2rKbBQKyVILq7nG/zd2TxKsjecJAIv/dOcqaZynK5shwQCt6qrZFFae/EukOFggSP0jtNSLAA==",
+      "peerDependencies": {
+        "eslint": "^7.23.0 || ^8.0.0 || ^9.0.0",
+        "typescript": ">=3.3.1"
+      }
+    },
+    "stderr": ""
+  }
+]

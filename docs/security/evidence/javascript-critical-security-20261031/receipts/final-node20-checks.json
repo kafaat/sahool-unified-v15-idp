@@ -1,0 +1,103 @@
+[
+  {
+    "label": "final-node20-npm-ci",
+    "command": [
+      "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+      "/workspace/scratch/882204c263d7/js-security-tools/node_modules/npm/bin/npm-cli.js",
+      "--cache",
+      "/tmp/sahool-js-security-npm-cache",
+      "ci",
+      "--ignore-scripts",
+      "--no-audit",
+      "--no-fund"
+    ],
+    "cwd": "/workspace/scratch/882204c263d7/javascript-security-fix",
+    "exit_code": 0,
+    "seconds": 54.651,
+    "log_sha256": "cbdee56fec33ece057e111f94e258a2aa0c20cb82a1dee21c424e6397323f13d",
+    "root_lock_sha256": "4efcc25c1d00362b6ffcb042d8bba7176a85aa99edc178fe59ba9187a92bc86a"
+  },
+  {
+    "label": "final-node20-npm-audit",
+    "command": [
+      "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+      "/workspace/scratch/882204c263d7/js-security-tools/node_modules/npm/bin/npm-cli.js",
+      "--cache",
+      "/tmp/sahool-js-security-npm-cache",
+      "audit",
+      "--audit-level=critical",
+      "--json"
+    ],
+    "cwd": "/workspace/scratch/882204c263d7/javascript-security-fix",
+    "exit_code": 0,
+    "seconds": 9.251,
+    "log_sha256": "e70aeaf3df5e41cd0336d06f10078a5f678e1bb5ca18fa2075566790a6219d4b",
+    "root_lock_sha256": "4efcc25c1d00362b6ffcb042d8bba7176a85aa99edc178fe59ba9187a92bc86a"
+  },
+  {
+    "label": "final-node20-security-regressions",
+    "command": [
+      "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+      "--test",
+      "--test-reporter=spec",
+      "--test-reporter-destination=stdout",
+      "--test-reporter=junit",
+      "--test-reporter-destination=test-results/javascript-security-node.xml",
+      "tests/security/javascript-dependencies.test.cjs"
+    ],
+    "cwd": "/workspace/scratch/882204c263d7/javascript-security-fix",
+    "exit_code": 0,
+    "seconds": 0.916,
+    "log_sha256": "0241cd3c3c9eef14569eb34d3872a08b2f172b8505ddacc53b8110bfdf5742ea",
+    "root_lock_sha256": "4efcc25c1d00362b6ffcb042d8bba7176a85aa99edc178fe59ba9187a92bc86a"
+  },
+  {
+    "label": "final-node20-browser-regressions",
+    "command": [
+      "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+      "node_modules/playwright/cli.js",
+      "test",
+      "--config",
+      "tests/security/javascript-browser.playwright.config.ts"
+    ],
+    "cwd": "/workspace/scratch/882204c263d7/javascript-security-fix",
+    "exit_code": 0,
+    "seconds": 8.21,
+    "log_sha256": "563a4bdf5c1c45ec9264e272f94b4a2a97054b69e480b6f36d0503c9380ef735",
+    "root_lock_sha256": "4efcc25c1d00362b6ffcb042d8bba7176a85aa99edc178fe59ba9187a92bc86a"
+  },
+  {
+    "label": "final-node20-shared-hooks-coverage",
+    "command": [
+      "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+      "/workspace/scratch/882204c263d7/javascript-security-fix/node_modules/vitest/vitest.mjs",
+      "run",
+      "--coverage",
+      "--reporter=default",
+      "--reporter=junit",
+      "--outputFile.junit=/workspace/scratch/882204c263d7/js-security-evidence/final-node20-shared-hooks.xml"
+    ],
+    "cwd": "/workspace/scratch/882204c263d7/javascript-security-fix/packages/shared-hooks",
+    "exit_code": 0,
+    "seconds": 2.231,
+    "log_sha256": "34fe6136a0e8c399c6f42b638cc81495c177178e494f523323635a6c7abdd3c5",
+    "root_lock_sha256": "4efcc25c1d00362b6ffcb042d8bba7176a85aa99edc178fe59ba9187a92bc86a"
+  },
+  {
+    "label": "final-node20-shared-ui-coverage",
+    "command": [
+      "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+      "/workspace/scratch/882204c263d7/javascript-security-fix/node_modules/vitest/vitest.mjs",
+      "run",
+      "--coverage",
+      "--reporter=default",
+      "--reporter=junit",
+      "--outputFile.junit=/workspace/scratch/882204c263d7/js-security-evidence/final-node20-shared-ui.xml"
+    ],
+    "cwd": "/workspace/scratch/882204c263d7/javascript-security-fix/packages/shared-ui",
+    "exit_code": 0,
+    "seconds": 2.042,
+    "log_sha256": "8c6ab8fdd36a7146ec3271ddecdfefd85d2668fa8fa6ff2a318b79fe05ed5e6d",
+    "root_lock_sha256": "4efcc25c1d00362b6ffcb042d8bba7176a85aa99edc178fe59ba9187a92bc86a"
+  }
+]

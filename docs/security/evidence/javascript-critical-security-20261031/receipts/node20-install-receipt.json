@@ -1,0 +1,9 @@
+{
+  "version": "v20.20.2",
+  "archive_url": "https://nodejs.org/dist/v20.20.2/node-v20.20.2-linux-x64.tar.xz",
+  "checksum_url": "https://nodejs.org/dist/v20.20.2/SHASUMS256.txt",
+  "sha256": "df770b2a6f130ed8627c9782c988fda9669fa23898329a61a871e32f965e007d",
+  "official_sha256": "df770b2a6f130ed8627c9782c988fda9669fa23898329a61a871e32f965e007d",
+  "verified": true,
+  "binary": "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node"
+}

@@ -1,0 +1,202 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-10-31T20:41:51.823138+00:00",
+  "repository": "kafaat/sahool-unified-v15-idp",
+  "base_commit": "ab53c98596daca1740d2ac5a5dbd48db7b24e34f",
+  "candidate_identity": {
+    "kind": "uncommitted working tree",
+    "source_manifest": "source-manifest.json",
+    "source_manifest_sha256": "7151770aa79596bcadf8d5b89d5dc690e21b33a971680281c64d49a836df5abe",
+    "changed_source_files": 33,
+    "root_lock_sha256": "4efcc25c1d00362b6ffcb042d8bba7176a85aa99edc178fe59ba9187a92bc86a",
+    "documentation_excluded_from_source_hashes": true
+  },
+  "tools": {
+    "node": "20.20.2",
+    "npm": "10.9.0",
+    "vitest": "3.2.7",
+    "coverage_v8": "3.2.7",
+    "tinypool_from_vitest": "2.1.2",
+    "trivy": "0.69.3",
+    "node_release_archive_sha256": "df770b2a6f130ed8627c9782c988fda9669fa23898329a61a871e32f965e007d",
+    "node_release_receipt": "receipts/node20-install-receipt.json"
+  },
+  "npm_audit": {
+    "command": "npm audit --audit-level=critical --json",
+    "exit_code": 0,
+    "counts": {
+      "info": 0,
+      "low": 11,
+      "moderate": 88,
+      "high": 34,
+      "critical": 0,
+      "total": 133
+    },
+    "complete_report": "reports/npm-audit-final.json",
+    "report_sha256": "e70aeaf3df5e41cd0336d06f10078a5f678e1bb5ca18fa2075566790a6219d4b",
+    "report_bytes": 150574,
+    "claim": "No critical npm findings in this root audit;133 noncritical findings remain."
+  },
+  "trivy": {
+    "database_sha256": "d81ea576fbcd02c304b980d8eec4dd1a372648b648bfb876f48790d63ee58f93",
+    "database_updated_at": "2026-10-31T13:09:00.83322165Z",
+    "severity_filter": "CRITICAL",
+    "database_updates_disabled": true,
+    "baseline_critical_results": 26,
+    "javascript_targeted_results": 16,
+    "javascript_remaining_results": 10,
+    "javascript_remaining_are_exact_baseline_python_findings": true,
+    "javascript_scan_exit_code": 1,
+    "composite_critical_results": 0,
+    "composite_scan_exit_code": 0,
+    "composite_kind": "Dependency-manifest-only projection, not a Git merge, build, container image or deployment",
+    "python_commit": "a5372955f0becf5810c46e3159bbaabe741fc8e1",
+    "python_tree": "cd60192df2a3bf39b1fdf0d1f5d17d112fd6349d",
+    "original_dependency_inputs": 206,
+    "composite_dependency_files": 218,
+    "language_inputs_in_both_projections": 110,
+    "python_overlay_files": 48,
+    "comparisons": [
+      "trivy/javascript-sixteen-findings-comparison.json",
+      "trivy/python-js-composite-comparison.json"
+    ],
+    "composite_sarif": "trivy/python-js-composite-critical.sarif",
+    "composite_sarif_sha256": "dd2c893a3c525b05f7365200a18361438548d91fc5e9c2416629f8891bbbc9fd",
+    "input_provenance": "trivy/composite-source-manifest.json"
+  },
+  "acceptance": {
+    "root_clean_install": {
+      "exit_code": 0,
+      "seconds": 54.651,
+      "ignore_scripts": true,
+      "receipt": "receipts/final-node20-checks.json"
+    },
+    "security_tests": {
+      "passed": 31,
+      "failed": 0,
+      "skipped": 0,
+      "junit": "results/javascript-security-node.xml"
+    },
+    "browser_tests": {
+      "passed": 2,
+      "failed": 0,
+      "junit": "results/javascript-security-browser.xml",
+      "scope": "Actual MapView/MapLibre in Chromium with native WebGL2, local API/tile fixture; not a full deployed Next.js browser session"
+    },
+    "shared_coverage": {
+      "passed": 83,
+      "hooks": {
+        "passed": 60,
+        "statements_percent": 30.68,
+        "branches_percent": 85.24,
+        "functions_percent": 83.33,
+        "lines_percent": 30.68
+      },
+      "ui": {
+        "passed": 23,
+        "statements_percent": 11,
+        "branches_percent": 87.3,
+        "functions_percent": 90.32,
+        "lines_percent": 11
+      }
+    },
+    "shared_package_build": {
+      "exit_code": 0,
+      "seconds": 15.694
+    },
+    "typechecks": {
+      "web_exit_code": 0,
+      "admin_exit_code": 0
+    },
+    "next_web_build": {
+      "exit_code": 0,
+      "seconds": 146.17,
+      "receipt": "receipts/final-node20-web-production-build.json"
+    },
+    "storybook": {
+      "exit_code": 0,
+      "seconds": 17.874069452285767,
+      "launch_environment_has_NEXT_PRIVATE_LOCAL_WEBPACK": false,
+      "diagnostic_preload": false,
+      "stories": 16,
+      "docs": 3,
+      "receipt": "receipts/admin-storybook-config-only-receipt.json",
+      "diagnosis": "receipts/admin-storybook-diagnosis.json"
+    },
+    "standalone_locks": {
+      "passed": 11,
+      "check_kind": "npm ci --dry-run --offline --ignore-scripts --workspaces=false",
+      "actual_independent_installs": false,
+      "lock_hashes_unchanged": true,
+      "receipt": "receipts/final-standalone-lock-consistency.json"
+    },
+    "negative_control": {
+      "base_commit": "ab53c98596daca1740d2ac5a5dbd48db7b24e34f",
+      "executed_cases": 12,
+      "passed": 3,
+      "failed": 9,
+      "excluded_by_name_filter": 19,
+      "exit_code": 1,
+      "scope": "proxy-addr,Handlebars,actualVitestworker,Sentry",
+      "receipt": "receipts/old-packages-negative-controls-peer-resolved.json",
+      "log": "results/old-packages-negative-controls-peer-resolved.log"
+    },
+    "browser_evidence_preservation": {
+      "unchanged": true,
+      "preserved_reports": [
+        "npm-audit.json",
+        "javascript-security-node.xml",
+        "shared-hooks.xml",
+        "shared-ui.xml"
+      ],
+      "browser_junit_sha256": "1bb7633df65010f875cc88f5b6a4f74db5e16314cec63e554bc4796d4e756d27",
+      "receipt": "receipts/browser-evidence-preservation.json"
+    }
+  },
+  "consumer_suite_results": "consumer-test-results.json",
+  "app_final_run_receipt": "receipts/final-app-runner-acceptance.json",
+  "limitations": [
+    "133 noncritical root npm audit findings remain.",
+    "JavaScript branch retains10 baselinePythonCRITICAL findings; zero applies only to the separately identified manifest composition at the fixed database.",
+    "Web19 failing assertions plus Sidebar collection error and Admin2 failures remain on this branch; frontend PR1998 is separate.",
+    "Crop and field-management include test compilation defects; marketplace has a NATS readiness expectation failure.",
+    "Chat278 cases passed but process required termination after open handles; command exit was-15.",
+    "Eleven standalone checks are dry-runs, not actual standalone installs.",
+    "The old-package negative run selects12 behavior cases;19 cases were intentionally filtered.",
+    "Baseline Storybook reused preserved old dependencies; no fresh baseline npm ci was claimed.",
+    "Trivy projection is not an integration build, runtime image, deployment, or all-severity clean statement."
+  ],
+  "artifact_manifest": {
+    "path": "artifact-manifest.json",
+    "sha256": "19641e936a4010cb248259438f70306f215a51f3f37ef9547091559b022cb77d"
+  },
+  "document_writes_only": true,
+  "validation": {
+    "whitespace": {
+      "unrestricted_staged_exit_code": 2,
+      "source_and_documentation_staged_exit_code": 0,
+      "unstaged_documentation_correction_exit_code": 0,
+      "staged_command": [
+        "git",
+        "diff",
+        "--cached",
+        "--check",
+        "--",
+        ".",
+        ":(exclude,glob)docs/security/evidence/javascript-critical-security-20261031/**/*.log"
+      ],
+      "excluded_raw_log_files": 8,
+      "raw_logs_with_reported_whitespace": [
+        "docs/security/evidence/javascript-critical-security-20261031/results/final-node20-shared-hooks-coverage.log",
+        "docs/security/evidence/javascript-critical-security-20261031/results/final-node20-shared-ui-coverage.log",
+        "docs/security/evidence/javascript-critical-security-20261031/results/old-packages-negative-controls-peer-resolved.log",
+        "docs/security/evidence/javascript-critical-security-20261031/trivy/baseline-projection-trivy.log",
+        "docs/security/evidence/javascript-critical-security-20261031/trivy/javascript-final-trivy.log",
+        "docs/security/evidence/javascript-critical-security-20261031/trivy/python-js-composite-trivy.log"
+      ],
+      "raw_logs_preserved_byte_for_byte": true,
+      "earlier_check_limit": "The earlier unstaged git diff --check did not include then-untracked evidence files. It was not a clean check of all delivery artifacts."
+    }
+  },
+  "staging_or_committing_performed_by_evidence_author": false
+}

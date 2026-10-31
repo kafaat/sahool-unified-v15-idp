@@ -9,7 +9,7 @@
  */
 
 import React, { useRef, useEffect, useState, type RefObject } from 'react';
-import maplibregl from 'maplibre-gl';
+import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { NdviTileLayer, NdviColorLegend, NdviLoadingOverlay } from '../components/NdviTileLayer';
 import { Calendar, Eye, EyeOff } from 'lucide-react';

@@ -1,0 +1,8 @@
+<testsuites id="" name="" tests="2" failures="0" skipped="0" errors="0" time="7.464921">
+<testsuite name="maplibre.spec.ts" timestamp="2026-10-31T20:32:29.240Z" hostname="" tests="2" failures="0" skipped="0" time="5.58" errors="0">
+<testcase name="real attribution controls strip consecutive executable attributes and preserve safe credit links" classname="maplibre.spec.ts" time="1.51">
+</testcase>
+<testcase name="the actual dashboard renders NDVI fields, supports layer selection and keeps popup names as text" classname="maplibre.spec.ts" time="4.07">
+</testcase>
+</testsuite>
+</testsuites>

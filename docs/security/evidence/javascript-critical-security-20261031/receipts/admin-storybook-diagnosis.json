@@ -1,0 +1,176 @@
+{
+  "baseline": {
+    "receipt": {
+      "command": [
+        "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+        "--require",
+        "/workspace/scratch/882204c263d7/js-security-evidence/trace-webpack-errors.cjs",
+        "/workspace/scratch/882204c263d7/javascript-main-baseline/node_modules/storybook/bin/index.cjs",
+        "build",
+        "--output-dir",
+        "/workspace/scratch/882204c263d7/js-security-evidence/storybook-baseline-traced-output",
+        "--disable-telemetry"
+      ],
+      "working_directory": "/workspace/scratch/882204c263d7/javascript-main-baseline/apps/admin",
+      "exit_code": 1,
+      "seconds": 3.0039772987365723,
+      "source_commit": "ab53c98596daca1740d2ac5a5dbd48db7b24e34f",
+      "node_path": "/tmp/sahool-post-frontend/apps/admin/node_modules",
+      "node_version": "v20.20.2",
+      "lock_sha256_before": "9b0c80a351358bafc145ec73b11c768f3c370fe04bb0cb4b7169f1081ba96b5e",
+      "lock_sha256_after": "9b0c80a351358bafc145ec73b11c768f3c370fe04bb0cb4b7169f1081ba96b5e",
+      "diagnostic_preload_sha256": "a61cf0f657dc62aeac54dda171995f78f715f7a0c03ce199fc13461d9f44c37d"
+    },
+    "original_errors": [
+      {
+        "name": "ModuleNotFoundError",
+        "message": "Module not found: TypeError: Cannot read properties of undefined (reading 'tap')",
+        "stack": "ModuleNotFoundError: Module not found: TypeError: Cannot read properties of undefined (reading 'tap')\n    at /tmp/sahool-post-frontend/apps/admin/node_modules/next/dist/compiled/webpack/bundle5.js:29:89507\n    at /tmp/sahool-post-frontend/apps/admin/node_modules/next/dist/compiled/webpack/bundle5.js:29:426239\n    at eval (eval at create (/tmp/sahool-post-frontend/apps/admin/node_modules/next/dist/compiled/webpack/bundle5.js:14:9224), <anonymous>:10:1)\n    at /tmp/sahool-post-frontend/apps/admin/node_modules/next/dist/compiled/webpack/bundle5.js:29:419889\n    at eval (eval at create (/tmp/sahool-post-frontend/apps/admin/node_modules/next/dist/compiled/webpack/bundle5.js:14:9224), <anonymous>:9:1)\n    at /tmp/sahool-post-frontend/apps/admin/node_modules/next/dist/compiled/webpack/bundle5.js:29:424076\n    at /tmp/sahool-post-frontend/apps/admin/node_modules/next/dist/compiled/webpack/bundle5.js:29:417323\n    at /tmp/sahool-post-frontend/apps/admin/node_modules/next/dist/compiled/webpack/bundle5.js:29:424295\n    at done (/tmp/sahool-post-frontend/apps/admin/node_modules/next/dist/compiled/neo-async/async.js:1:10300)\n    at /tmp/sahool-post-frontend/apps/admin/node_modules/next/dist/compiled/webpack/bundle5.js:29:430159",
+        "error": {
+          "name": "TypeError",
+          "message": "Cannot read properties of undefined (reading 'tap')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'tap')\n    at applyDefineKey (/tmp/sahool-post-frontend/node_modules/webpack/lib/DefinePlugin.js:526:64)\n    at walkDefinitions (/tmp/sahool-post-frontend/node_modules/webpack/lib/DefinePlugin.js:492:8)\n    at handler (/tmp/sahool-post-frontend/node_modules/webpack/lib/DefinePlugin.js:777:6)\n    at Hook.eval [as call] (eval at create (/tmp/sahool-post-frontend/apps/admin/node_modules/next/dist/compiled/webpack/bundle5.js:14:9002), <anonymous>:59:1)\n    at Hook.CALL_DELEGATE [as _call] (/tmp/sahool-post-frontend/apps/admin/node_modules/next/dist/compiled/webpack/bundle5.js:14:6272)\n    at NormalModuleFactory.createParser (/tmp/sahool-post-frontend/apps/admin/node_modules/next/dist/compiled/webpack/bundle5.js:29:430563)\n    at NormalModuleFactory.getParser (/tmp/sahool-post-frontend/apps/admin/node_modules/next/dist/compiled/webpack/bundle5.js:29:430324)\n    at /tmp/sahool-post-frontend/apps/admin/node_modules/next/dist/compiled/webpack/bundle5.js:29:423919\n    at /tmp/sahool-post-frontend/apps/admin/node_modules/next/dist/compiled/webpack/bundle5.js:29:417323\n    at /tmp/sahool-post-frontend/apps/admin/node_modules/next/dist/compiled/webpack/bundle5.js:29:424295"
+        }
+      }
+    ],
+    "log_sha256": "5883a61fcea0a70b6ccec4d4354623de2d6bfafd1bca4e11334b16b58392e5bc",
+    "storybook_config_sha256": "5df466139abfcf38285889a24cc165baeadf99adaf2a1e0c68b9543c179ba919",
+    "next_config_sha256": "372cfc66bbf887083f8a0745a79cc6799f8ad9f98bc3b29f9a0e4a78058b559c"
+  },
+  "candidate": {
+    "receipt": {
+      "command": [
+        "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+        "--require",
+        "/workspace/scratch/882204c263d7/js-security-evidence/trace-webpack-errors.cjs",
+        "/workspace/scratch/882204c263d7/javascript-security-fix/apps/admin/node_modules/storybook/bin/index.cjs",
+        "build",
+        "--output-dir",
+        "/workspace/scratch/882204c263d7/js-security-evidence/storybook-candidate-traced-unrestricted-output",
+        "--disable-telemetry"
+      ],
+      "working_directory": "/workspace/scratch/882204c263d7/javascript-security-fix/apps/admin",
+      "exit_code": 1,
+      "seconds": 2.723949670791626,
+      "node_version": "v20.20.2",
+      "lock_sha256_before": "4efcc25c1d00362b6ffcb042d8bba7176a85aa99edc178fe59ba9187a92bc86a",
+      "lock_sha256_after": "4efcc25c1d00362b6ffcb042d8bba7176a85aa99edc178fe59ba9187a92bc86a"
+    },
+    "original_errors": [
+      {
+        "name": "ModuleNotFoundError",
+        "message": "Module not found: TypeError: Cannot read properties of undefined (reading 'tap')",
+        "stack": "ModuleNotFoundError: Module not found: TypeError: Cannot read properties of undefined (reading 'tap')\n    at /workspace/scratch/882204c263d7/javascript-security-fix/node_modules/next/dist/compiled/webpack/bundle5.js:29:89507\n    at /workspace/scratch/882204c263d7/javascript-security-fix/node_modules/next/dist/compiled/webpack/bundle5.js:29:426239\n    at eval (eval at create (/workspace/scratch/882204c263d7/javascript-security-fix/node_modules/next/dist/compiled/webpack/bundle5.js:14:9224), <anonymous>:10:1)\n    at /workspace/scratch/882204c263d7/javascript-security-fix/node_modules/next/dist/compiled/webpack/bundle5.js:29:419889\n    at eval (eval at create (/workspace/scratch/882204c263d7/javascript-security-fix/node_modules/next/dist/compiled/webpack/bundle5.js:14:9224), <anonymous>:9:1)\n    at /workspace/scratch/882204c263d7/javascript-security-fix/node_modules/next/dist/compiled/webpack/bundle5.js:29:424076\n    at /workspace/scratch/882204c263d7/javascript-security-fix/node_modules/next/dist/compiled/webpack/bundle5.js:29:417323\n    at /workspace/scratch/882204c263d7/javascript-security-fix/node_modules/next/dist/compiled/webpack/bundle5.js:29:424295\n    at done (/workspace/scratch/882204c263d7/javascript-security-fix/node_modules/next/dist/compiled/neo-async/async.js:1:10300)\n    at /workspace/scratch/882204c263d7/javascript-security-fix/node_modules/next/dist/compiled/webpack/bundle5.js:29:430159",
+        "error": {
+          "name": "TypeError",
+          "message": "Cannot read properties of undefined (reading 'tap')",
+          "stack": "TypeError: Cannot read properties of undefined (reading 'tap')\n    at applyDefineKey (/workspace/scratch/882204c263d7/javascript-security-fix/node_modules/webpack/lib/DefinePlugin.js:526:64)\n    at walkDefinitions (/workspace/scratch/882204c263d7/javascript-security-fix/node_modules/webpack/lib/DefinePlugin.js:492:8)\n    at handler (/workspace/scratch/882204c263d7/javascript-security-fix/node_modules/webpack/lib/DefinePlugin.js:777:6)\n    at Hook.eval [as call] (eval at create (/workspace/scratch/882204c263d7/javascript-security-fix/node_modules/next/dist/compiled/webpack/bundle5.js:14:9002), <anonymous>:59:1)\n    at Hook.CALL_DELEGATE [as _call] (/workspace/scratch/882204c263d7/javascript-security-fix/node_modules/next/dist/compiled/webpack/bundle5.js:14:6272)\n    at NormalModuleFactory.createParser (/workspace/scratch/882204c263d7/javascript-security-fix/node_modules/next/dist/compiled/webpack/bundle5.js:29:430563)\n    at NormalModuleFactory.getParser (/workspace/scratch/882204c263d7/javascript-security-fix/node_modules/next/dist/compiled/webpack/bundle5.js:29:430324)\n    at /workspace/scratch/882204c263d7/javascript-security-fix/node_modules/next/dist/compiled/webpack/bundle5.js:29:423919\n    at /workspace/scratch/882204c263d7/javascript-security-fix/node_modules/next/dist/compiled/webpack/bundle5.js:29:417323\n    at /workspace/scratch/882204c263d7/javascript-security-fix/node_modules/next/dist/compiled/webpack/bundle5.js:29:424295"
+        }
+      }
+    ],
+    "log_sha256": "e8bc6cbb5dd63b43aeb11b5e6ed22460f310d1ac31e4c833efe25b1218f19236",
+    "storybook_config_sha256": "5df466139abfcf38285889a24cc165baeadf99adaf2a1e0c68b9543c179ba919",
+    "next_config_sha256": "372cfc66bbf887083f8a0745a79cc6799f8ad9f98bc3b29f9a0e4a78058b559c"
+  },
+  "conclusion": "The same missing parser hook is reproduced before and after the security upgrade. This is an existing Storybook/Next webpack compatibility defect.",
+  "first_cause": "External webpack5.105.4 DefinePlugin.js:526:64 invokes parser.hooks.collectDestructuringAssignmentProperties.tap on the Next-bundled webpack5.98.0 parser, which has no such hook.",
+  "version_matrix": [
+    {
+      "next": "15.5.14",
+      "storybook": "8.6.18",
+      "external_webpack": "5.105.4",
+      "compiled_webpack": "5.98.0",
+      "compiled_parser_has_hook": false,
+      "external_parser_has_hook": true
+    },
+    {
+      "next": "15.5.28",
+      "storybook": "8.6.19",
+      "external_webpack": "5.105.4",
+      "compiled_webpack": "5.98.0",
+      "compiled_parser_has_hook": false,
+      "external_parser_has_hook": true
+    }
+  ],
+  "limitations": [
+    "Baseline reuses existing installed dependencies, not a fresh npm ci. NODE_PATH only exposes the already-installed Next15.5.14 peer to its hoisted Storybook preset.",
+    "Diagnostic preload logs errors and forwards identical callbacks; it does not change module resolution or compilation logic.",
+    "The first candidate attempt inside the restricted sandbox failed at os.networkInterfaces; unrestricted local execution reproduced the actual compiler defect."
+  ],
+  "compatibility_experiment": {
+    "command": [
+      "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+      "/workspace/scratch/882204c263d7/javascript-security-fix/apps/admin/node_modules/storybook/bin/index.cjs",
+      "build",
+      "--output-dir",
+      "/workspace/scratch/882204c263d7/js-security-evidence/storybook-candidate-local-webpack-output",
+      "--disable-telemetry"
+    ],
+    "working_directory": "/workspace/scratch/882204c263d7/javascript-security-fix/apps/admin",
+    "environment_overrides": {
+      "NEXT_PRIVATE_LOCAL_WEBPACK": "true",
+      "STORYBOOK_DISABLE_TELEMETRY": "1"
+    },
+    "diagnostic_preload": false,
+    "exit_code": 0,
+    "seconds": 17.956134796142578,
+    "node_version": "v20.20.2",
+    "lock_sha256_before": "4efcc25c1d00362b6ffcb042d8bba7176a85aa99edc178fe59ba9187a92bc86a",
+    "lock_sha256_after": "4efcc25c1d00362b6ffcb042d8bba7176a85aa99edc178fe59ba9187a92bc86a",
+    "storybook_version": "8.6.19",
+    "next_version": "15.5.28",
+    "webpack_used": "5.105.4",
+    "output_directory": "/workspace/scratch/882204c263d7/js-security-evidence/storybook-candidate-local-webpack-output",
+    "index_sha256": "4d20973e0fd27281a1aca4a0c05daa86f6c4a447d379f0ebae4495c45dd7de93",
+    "index_entry_counts": {
+      "docs": 3,
+      "story": 16
+    },
+    "warnings": [
+      "WARN unable to find package.json for react-leaflet",
+      "WARN asset size limit: The following asset(s) exceed the recommended size limit (244 KiB).",
+      "WARN This can impact web performance.",
+      "WARN Assets: ",
+      "WARN   735.bf0e4ee8.iframe.bundle.js (371 KiB)",
+      "WARN   458.bcf02f03.iframe.bundle.js (812 KiB)",
+      "WARN   84.d21c1a6c.iframe.bundle.js (2 MiB)",
+      "WARN   878.3f9ae2da.iframe.bundle.js (975 KiB)",
+      "WARN entrypoint size limit: The following entrypoint(s) combined asset size exceeds the recommended limit (244 KiB). This can impact web performance.",
+      "WARN Entrypoints:",
+      "WARN   main (2.18 MiB)",
+      "WARN       runtime~main.2503cf76.iframe.bundle.js",
+      "WARN       84.d21c1a6c.iframe.bundle.js",
+      "WARN       main.cdcba127.iframe.bundle.js",
+      "WARN "
+    ],
+    "recommendation": "Set NEXT_PRIVATE_LOCAL_WEBPACK=true only for Storybook startup/build (CI environment or a small cross-platform wrapper), so compiler and plugins use the same existing external Webpack. Retain an actual Storybook build gate because this is a Next internal switch. Do not set it globally for production or downgrade packages."
+  },
+  "config_only_fix_verified": {
+    "command": [
+      "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+      "/workspace/scratch/882204c263d7/javascript-security-fix/apps/admin/node_modules/storybook/bin/index.cjs",
+      "build",
+      "--output-dir",
+      "/workspace/scratch/882204c263d7/js-security-evidence/storybook-config-only-output",
+      "--disable-telemetry"
+    ],
+    "working_directory": "/workspace/scratch/882204c263d7/javascript-security-fix/apps/admin",
+    "launch_environment_has_NEXT_PRIVATE_LOCAL_WEBPACK": false,
+    "inherited_variable_was_removed": false,
+    "diagnostic_preload": false,
+    "exit_code": 0,
+    "seconds": 17.874069452285767,
+    "node_version": "v20.20.2",
+    "lock_sha256_before": "4efcc25c1d00362b6ffcb042d8bba7176a85aa99edc178fe59ba9187a92bc86a",
+    "lock_sha256_after": "4efcc25c1d00362b6ffcb042d8bba7176a85aa99edc178fe59ba9187a92bc86a",
+    "storybook_config_sha256": "bcc4e73c11808aff41e6550e955f533536775a5a0599d90c61f04e88637d1325",
+    "storybook_config_sha256_after": "bcc4e73c11808aff41e6550e955f533536775a5a0599d90c61f04e88637d1325",
+    "index_counts": {
+      "docs": 3,
+      "story": 16
+    },
+    "index_sha256": "4d20973e0fd27281a1aca4a0c05daa86f6c4a447d379f0ebae4495c45dd7de93",
+    "source_file": "apps/admin/.storybook/main.ts",
+    "scope": "Only the Storybook config selects the existing local compiler. No inherited variable, diagnostic preload, manifest, lock, or production Next config change."
+  }
+}

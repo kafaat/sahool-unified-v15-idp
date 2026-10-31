@@ -469,7 +469,7 @@ async def _run_agent(
         )
         return response.choices[0].message.content or ""
     except Exception as exc:
-        logger.error("OpenRouter API call failed [model=%s]: %s", _model, exc)
+        logger.error("OpenRouter API call failed [model=%s] error_type=%s", _model, type(exc).__name__)
         raise
 
 
@@ -530,9 +530,7 @@ async def analyze_field(req: AnalyzeFieldRequest) -> AnalyzeFieldResponse:
     has_weather = req.weather is not None
     has_meteo = req.meteo is not None
     logger.info(
-        "AI analysis started — field=%s indice=%s cdse_value=%s weather=%s meteo=%s model=%s",
-        req.field.id,
-        req.indice,
+        "AI analysis started — cdse_value=%s weather=%s meteo=%s model=%s",
         f"{req.cdse.value:.4f}" if has_cdse else "null",
         "yes" if has_weather else "null",
         "yes" if has_meteo else "null",
@@ -547,7 +545,7 @@ async def analyze_field(req: AnalyzeFieldRequest) -> AnalyzeFieldResponse:
         veg_text, weather_text, reco_text = await asyncio.gather(veg_task, weather_task, reco_task)
 
     except Exception as exc:
-        logger.error("Multi-agent analysis failed: %s", exc)
+        logger.error("Multi-agent analysis failed error_type=%s", type(exc).__name__)
         raise HTTPException(
             status_code=502,
             detail=f"AI analysis failed: {exc}",
@@ -823,12 +821,12 @@ async def analyze_field_comprehensive(
         try:
             cached = await redis.get(cache_key)
             if cached:
-                logger.info("cache_hit field=%s", req.field.id)
+                logger.info("field_analysis_cache_hit")
                 data = json.loads(cached)
                 data["cached"] = True
                 return FieldAnalysisResponse(**data)
         except Exception as _ce:
-            logger.warning("Redis read failed: %s", _ce)
+            logger.warning("Redis read failed error_type=%s", type(_ce).__name__)
 
     # ── 2. AgriGuard health scoring ────────────────────────────────────────────
     from ..services.model_loader import get_agri_scorer
@@ -1026,8 +1024,7 @@ NDVI متقطع منخفض + متغير + متغير = إصابة آفات
 ⚠️ أعد JSON فقط بدون أي نص قبله أو بعده. جميع القيم النصية بالعربية مع المصطلحات التقنية بالإنجليزية بين قوسين. استبدل القيم ... بأرقام فعلية من البيانات المقدمة. اضبط confidence بين 0 و1 حسب اكتمال البيانات."""
 
     logger.info(
-        "comprehensive_unified_analysis field=%s health=%s score=%d model=%s",
-        req.field.id,
+        "comprehensive_unified_analysis health=%s score=%d model=%s",
         health_class,
         health_score,
         MODEL_PRIMARY,
@@ -1041,7 +1038,7 @@ NDVI متقطع منخفض + متغير + متغير = إصابة آفات
             model=MODEL_PRIMARY,
         )
     except Exception as exc:
-        logger.error("Unified analysis LLM failed: %s", exc)
+        logger.error("Unified analysis LLM failed error_type=%s", type(exc).__name__)
         raise HTTPException(status_code=502, detail=f"AI analysis failed: {exc}")
 
     # ── Parse JSON response ────────────────────────────────────────────────────
@@ -1112,6 +1109,6 @@ NDVI متقطع منخفض + متغير + متغير = إصابة آفات
         try:
             await redis.setex(cache_key, _CACHE_TTL_SECONDS, response.model_dump_json())
         except Exception as _se:
-            logger.warning("Redis write failed: %s", _se)
+            logger.warning("Redis write failed error_type=%s", type(_se).__name__)
 
     return response

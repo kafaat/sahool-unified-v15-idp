@@ -1,11 +1,13 @@
 """Regression checks for annotation resolution and lazy model imports."""
 
+import asyncio
 import importlib
 import sys
 import types
 import unittest
 from pathlib import Path
 from typing import get_type_hints
+from unittest.mock import AsyncMock, patch
 
 SOURCE = Path(__file__).resolve().parents[1] / "src"
 PACKAGE = "_field_intelligence_type_contracts"
@@ -35,6 +37,28 @@ class ModelTypeContracts(unittest.TestCase):
     def test_weather_block_handles_absent_inputs(self):
         api = importlib.import_module(PACKAGE + ".api.ai_analysis")
         self.assertIsInstance(api._build_meteo_block(None, None), str)
+
+    def test_request_and_provider_text_cannot_inject_log_lines(self):
+        api = importlib.import_module(PACKAGE + ".api.ai_analysis")
+        forged = "field\r\nFORGED_EVENT"
+        req = api.AnalyzeFieldRequest(
+            field=api.FieldInfo(id=forged, name="Field", lat=16.0, lng=45.0),
+            cdse=api.CdseStats(indice="NDVI", value=0.4),
+            indice=forged,
+        )
+        with (
+            patch.dict(api.os.environ, {"OPENROUTER_API_KEY": "test-only"}),
+            patch.object(api, "_run_agent", new=AsyncMock(side_effect=RuntimeError(forged))),
+            self.assertLogs(api.logger, level="INFO") as captured,
+            self.assertRaises(api.HTTPException),
+        ):
+            asyncio.run(api.analyze_field(req))
+        self.assertGreaterEqual(len(captured.records), 2)
+        for record in captured.records:
+            message = record.getMessage()
+            self.assertNotIn("FORGED_EVENT", message)
+            self.assertNotIn("\r", message)
+            self.assertNotIn("\n", message)
 
     def test_importing_loader_does_not_import_model_implementations(self):
         loader = importlib.import_module(PACKAGE + ".services.model_loader")

@@ -4,8 +4,10 @@ import argparse
 import hashlib
 import json
 import platform
+import shutil
 import subprocess
 import sys
+import tempfile
 import uuid
 from pathlib import Path
 
@@ -131,65 +133,70 @@ def main():
         print(json.dumps({"status": "BLOCKED", "reason": str(exc)}))
         return 2
     run_id = uuid.uuid4().hex
-    stages = [
-        (
-            "unit",
-            [
-                sys.executable,
-                "-B",
-                str(ROOT / "unit_harness.py"),
-                "--output",
-                str(output / "unit.json"),
-                "--run-id",
-                run_id,
-            ],
-        ),
-        (
-            "independent",
-            [
-                sys.executable,
-                "-B",
-                str(ROOT / "encoding_guard_review/review.py"),
-                "--evidence-root",
-                str(ROOT),
-                "--output",
-                str(output / "independent.json"),
-                "--run-id",
-                run_id,
-            ],
-        ),
-    ]
     completed = []
-    for name, command in stages:
-        stage = {"stage": name, "exit_code": None, "receipt_valid": False}
-        try:
-            # Interpreter/scripts are fixed above; CLI output paths are absolute argv values.
-            # No shell parses these values, including spaces or shell metacharacters.
-            result = subprocess.run(
-                command,  # nosemgrep: python.lang.security.audit.dangerous-subprocess-use-tainted-env-args.dangerous-subprocess-use-tainted-env-args
-                cwd=ROOT,
-                capture_output=True,
-                text=True,
-                timeout=120,
-                check=False,
-                shell=False,
-            )
-            (output / (name + ".log")).write_text(result.stdout + result.stderr)
-            stage["exit_code"] = result.returncode
-            require(result.returncode == 0, "Subprocess failed")
-            data = json.loads((output / (name + ".json")).read_text())
-            if name == "unit":
-                validate_unit(data, expected, before, manifest_hash, run_id)
-            else:
-                validate_independent(data, before, run_id)
-            stage["receipt_valid"] = True
-        except subprocess.TimeoutExpired:
-            stage["reason"] = "timeout"
-        except (OSError, ValueError, KeyError, TypeError) as exc:
-            stage["reason"] = str(exc)
-        completed.append(stage)
-        if not stage["receipt_valid"]:
-            break
+    with tempfile.TemporaryDirectory(prefix="eo-validation-") as directory:
+        work = Path(directory)
+        stages = [
+            (
+                "unit",
+                [
+                    sys.executable,
+                    "-B",
+                    str(ROOT / "unit_harness.py"),
+                    "--output",
+                    str(work / "unit.json"),
+                    "--run-id",
+                    run_id,
+                ],
+            ),
+            (
+                "independent",
+                [
+                    sys.executable,
+                    "-B",
+                    str(ROOT / "encoding_guard_review/review.py"),
+                    "--evidence-root",
+                    str(ROOT),
+                    "--output",
+                    str(work / "independent.json"),
+                    "--run-id",
+                    run_id,
+                ],
+            ),
+        ]
+        for name, command in stages:
+            stage = {"stage": name, "exit_code": None, "receipt_valid": False}
+            try:
+                # Child paths belong to this private temporary directory, never CLI input.
+                result = subprocess.run(
+                    command,
+                    cwd=ROOT,
+                    capture_output=True,
+                    text=True,
+                    timeout=120,
+                    check=False,
+                    shell=False,
+                )
+                (work / (name + ".log")).write_text(result.stdout + result.stderr)
+                shutil.copyfile(work / (name + ".log"), output / (name + ".log"))
+                stage["exit_code"] = result.returncode
+                child_receipt = work / (name + ".json")
+                if child_receipt.is_file():
+                    shutil.copyfile(child_receipt, output / (name + ".json"))
+                require(result.returncode == 0, "Subprocess failed")
+                data = json.loads(child_receipt.read_text())
+                if name == "unit":
+                    validate_unit(data, expected, before, manifest_hash, run_id)
+                else:
+                    validate_independent(data, before, run_id)
+                stage["receipt_valid"] = True
+            except subprocess.TimeoutExpired:
+                stage["reason"] = "timeout"
+            except (OSError, ValueError, KeyError, TypeError) as exc:
+                stage["reason"] = str(exc)
+            completed.append(stage)
+            if not stage["receipt_valid"]:
+                break
     passed = len(completed) == 2 and all(x["receipt_valid"] for x in completed)
     final_integrity_reason = None
     try:

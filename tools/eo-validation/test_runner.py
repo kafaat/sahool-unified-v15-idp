@@ -1,8 +1,16 @@
 """Adversarial receipt contracts: successful exit is insufficient."""
 
 import copy
+import hashlib
+import json
+import subprocess
+import sys
+import tempfile
 import unittest
+from pathlib import Path
+from unittest.mock import patch
 
+import run_checks
 from run_checks import INDEPENDENT_CASES, validate_independent, validate_unit
 
 
@@ -45,6 +53,41 @@ class RunnerGateTests(unittest.TestCase):
     def test_valid_receipts(self):
         self.unit_check(self.unit)
         self.review_check(self.review)
+
+    def test_child_output_paths_are_private_and_receipts_are_exported(self):
+        child_paths = []
+        manifest_hash = hashlib.sha256((run_checks.ROOT / "manifest.json").read_bytes()).hexdigest()
+
+        def execute(command, **kwargs):
+            receipt_path = Path(command[command.index("--output") + 1])
+            child_paths.append(receipt_path)
+            self.assertNotIn(str(output), command)
+            self.assertNotEqual(receipt_path.parent, output)
+            self.assertEqual(command[0], sys.executable)
+            self.assertIs(kwargs["shell"], False)
+            self.assertEqual(kwargs["timeout"], 120)
+            receipt = copy.deepcopy(self.unit if receipt_path.name == "unit.json" else self.review)
+            receipt["run_id"] = command[command.index("--run-id") + 1]
+            if receipt_path.name == "unit.json":
+                receipt["manifest_sha256"] = manifest_hash
+            receipt_path.write_text(json.dumps(receipt))
+            return subprocess.CompletedProcess(command, 0, "stage stdout", "stage stderr")
+
+        with tempfile.TemporaryDirectory() as parent:
+            output = Path(parent) / "results $(touch injected); echo payload"
+            with (
+                patch.object(sys, "argv", ["run_checks", "--output-dir", str(output)]),
+                patch.object(run_checks, "verify_manifest", return_value=self.inputs),
+                patch.object(run_checks, "expected_test_ids", return_value=self.expected),
+                patch.object(run_checks.subprocess, "run", side_effect=execute),
+            ):
+                self.assertEqual(run_checks.main(), 0)
+            self.assertEqual(len(child_paths), 2)
+            self.assertTrue(all(not path.parent.exists() for path in child_paths))
+            for name in ("unit", "independent"):
+                self.assertTrue((output / (name + ".json")).is_file())
+                self.assertEqual((output / (name + ".log")).read_text(), "stage stdoutstage stderr")
+            self.assertEqual(json.loads((output / "result.json").read_text())["status"], "PASSED_OFFLINE_RESEARCH_ONLY")
 
     def test_zero_unit_tests_not_success(self):
         self.unit.update(tests_run=0, executed_ids=[])

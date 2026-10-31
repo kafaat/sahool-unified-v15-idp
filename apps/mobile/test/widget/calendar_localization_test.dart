@@ -35,7 +35,9 @@ void main() {
         Directionality.of(tester.element(find.byType(TableCalendar))),
         language == 'ar' ? TextDirection.rtl : TextDirection.ltr,
       );
-      await tester.tap(find.text(DateFormat.d(language).format(focusedDay)));
+      // TableCalendar's default day cells use day.day even for Arabic; its
+      // localized month header and layout direction are checked above.
+      await tester.tap(find.text('${focusedDay.day}'));
       await tester.pumpAndSettle();
       expect(isSameDay(selectedDay, focusedDay), isTrue);
       expect(tester.takeException(), isNull);

@@ -239,22 +239,30 @@ jobs:
 
       - name: Run tests with coverage
         id: pytest
+        shell: bash
         run: |
+          # Capture failures now, then enforce them after the reports are uploaded.
+          set +e
           pytest tests/smoke/ tests/unit/ -v --tb=short --timeout=60 \
             --cov=shared --cov=apps/services \
             --cov-report=xml --cov-report=term-missing \
+            --junitxml=test-results.xml \
             2>&1 | tee test-output.txt
-
-          EXIT_CODE=${PIPESTATUS[0]}
+          TEST_PIPELINE_STATUS=("${PIPESTATUS[@]}")
+          set -e
+          PYTEST_EXIT_CODE=${TEST_PIPELINE_STATUS[0]}
+          LOG_EXIT_CODE=${TEST_PIPELINE_STATUS[1]}
+          echo "pytest_exit_code=$PYTEST_EXIT_CODE" >> "$GITHUB_OUTPUT"
+          echo "log_exit_code=$LOG_EXIT_CODE" >> "$GITHUB_OUTPUT"
 
           # Extract coverage
           COV=$(grep "^TOTAL" test-output.txt | awk '{print $NF}' | tr -d '%' || echo "0")
-          echo "coverage=$COV" >> $GITHUB_OUTPUT
+          echo "coverage=${COV:-0}" >> "$GITHUB_OUTPUT"
 
-          if [ $EXIT_CODE -eq 0 ]; then
-            echo "pass=true" >> $GITHUB_OUTPUT
+          if [ "$PYTEST_EXIT_CODE" -eq 0 ] && [ "$LOG_EXIT_CODE" -eq 0 ]; then
+            echo "pass=true" >> "$GITHUB_OUTPUT"
           else
-            echo "pass=false" >> $GITHUB_OUTPUT
+            echo "pass=false" >> "$GITHUB_OUTPUT"
           fi
 
       - uses: actions/upload-artifact@v7
@@ -264,6 +272,30 @@ jobs:
           path: |
             coverage.xml
             test-output.txt
+            test-results.xml
+          if-no-files-found: error
+
+      - name: Enforce test result after report upload
+        if: always()
+        shell: bash
+        env:
+          TEST_STEP_OUTCOME: ${{ steps.pytest.outcome }}
+          TESTS_PASS: ${{ steps.pytest.outputs.pass }}
+          PYTEST_EXIT_CODE: ${{ steps.pytest.outputs.pytest_exit_code }}
+          LOG_EXIT_CODE: ${{ steps.pytest.outputs.log_exit_code }}
+        run: |
+          if [ "$TEST_STEP_OUTCOME" != "success" ]; then
+            echo "::error::Test execution did not complete successfully; reports were uploaded where available."
+            exit 1
+          fi
+          if [[ "$PYTEST_EXIT_CODE" =~ ^[1-9][0-9]{0,2}$ ]] && (( PYTEST_EXIT_CODE <= 255 )); then
+            echo "::error::pytest failed with exit code $PYTEST_EXIT_CODE; see the test-reports artifact."
+            exit "$PYTEST_EXIT_CODE"
+          fi
+          if [ "$TESTS_PASS" != "true" ] || [ "$PYTEST_EXIT_CODE" != "0" ] || [ "$LOG_EXIT_CODE" != "0" ]; then
+            echo "::error::Missing or unsuccessful test/logging result; refusing a passing gate."
+            exit 1
+          fi
 
   # ═══════════════════════════════════════════
   # Stage 5: Quality Gate Summary (aggregates everything)
@@ -286,6 +318,7 @@ jobs:
           NEWMAN_PASS: ${{ needs.contract-testing.outputs.newman_pass }}
           BANDIT_ISSUES: ${{ needs.security-scan.outputs.bandit_issues }}
           SEMGREP_ISSUES: ${{ needs.security-scan.outputs.semgrep_issues }}
+          TESTS_RESULT: ${{ needs.tests.result }}
           TESTS_PASS: ${{ needs.tests.outputs.python_pass }}
           COVERAGE: ${{ needs.tests.outputs.coverage }}
         run: |
@@ -337,9 +370,9 @@ jobs:
           echo "### Gate Decision" >> quality-report.md
 
           GATE="✅ PASS"
-          if [ "$SPEC_VALID" = "false" ]; then GATE="❌ BLOCKED — OpenAPI spec invalid"; fi
-          if [ "$TESTS_PASS" = "false" ]; then GATE="❌ BLOCKED — Tests failing"; fi
           if [ "${BANDIT_ISSUES:-0}" -gt 10 ] 2>/dev/null; then GATE="⚠️ WARNING — High security findings"; fi
+          if [ "$SPEC_VALID" = "false" ]; then GATE="❌ BLOCKED — OpenAPI spec invalid"; fi
+          if [ "$TESTS_RESULT" != "success" ] || [ "$TESTS_PASS" != "true" ]; then GATE="❌ BLOCKED — Tests failing or incomplete"; fi
 
           echo "**$GATE**" >> quality-report.md
           echo "" >> quality-report.md
@@ -353,3 +386,15 @@ jobs:
         uses: marocchino/sticky-pull-request-comment@v3
         with:
           path: quality-report.md
+
+      - name: Enforce aggregated test result after reporting
+        if: always()
+        shell: bash
+        env:
+          TESTS_RESULT: ${{ needs.tests.result }}
+          TESTS_PASS: ${{ needs.tests.outputs.python_pass }}
+        run: |
+          if [ "$TESTS_RESULT" != "success" ] || [ "$TESTS_PASS" != "true" ]; then
+            echo "::error::Tests failed or did not report success; see the quality report and test-reports artifact."
+            exit 1
+          fi

@@ -21,6 +21,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Reject tracked local agent worktrees
+        run: python3 scripts/ci/check_repository_worktrees.py
+
       - name: Block forbidden paths
         run: |
           echo "🔍 Checking for forbidden paths..."

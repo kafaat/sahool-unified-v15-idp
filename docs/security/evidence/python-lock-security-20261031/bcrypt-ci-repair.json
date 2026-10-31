@@ -1,0 +1,272 @@
+{
+  "schema_version": 1,
+  "date_utc": "2026-10-31",
+  "purpose": "Declare the mandatory bcrypt dependency of the real shared-crypto module in every broad CI test-install path.",
+  "observed_pr": {
+    "number": 1997,
+    "head_sha": "c147df6530ea6e1823061c192619f7bf3eb95263",
+    "reviewed_tree": "cd60192df2a3bf39b1fdf0d1f5d17d112fd6349d",
+    "failing_test": "tests/unit/security/test_dependency_security_regressions.py::test_shared_crypto_encryption_roundtrip_and_tamper_rejection",
+    "exception": "ModuleNotFoundError: No module named 'bcrypt'",
+    "import_location": "packages/shared-crypto/src/sqlalchemy_encryption.py:25",
+    "jobs": [
+      {
+        "name": "Quality Gate / Stage 4 - Tests",
+        "url": "https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41237801285/job/124645312670",
+        "failed": 1,
+        "passed": 13278,
+        "skipped": 30
+      },
+      {
+        "name": "CI Pipeline / Tests with Coverage",
+        "url": "https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41237801309/job/124647078117",
+        "failed": 1,
+        "passed": 12926,
+        "skipped": 22
+      }
+    ]
+  },
+  "changed_declarations": [
+    "requirements/testing.txt",
+    ".github/workflows/ci.yml",
+    ".github/workflows/quality-gate.yml"
+  ],
+  "declared_requirement": "bcrypt>=4.2.0,<5.0.0",
+  "baseline": {
+    "probe": {
+      "python": "3.11.17 (main, Oct 14 2026, 01:05:33) [Clang 23.1.3 ]",
+      "bcrypt_available": false
+    },
+    "result": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    },
+    "expected_failure": true,
+    "receipt": {
+      "repository_head": "a5372955f0becf5810c46e3159bbaabe741fc8e1",
+      "source_sha256": {
+        "requirements/testing.txt": "c3e3a4f7b70fe8996c39fd7110eca5ac7380b30d73730fa05857d916f75c28a2",
+        "constraints.txt": "2a213f08d2282b78e7218b9892b0593cd4ff73d30c2db9659fdac4117692b34f",
+        ".github/workflows/ci.yml": "424adccf9a46063a7244828bd515dd8775eb7f3ee6d21e497ec91b92418c2418",
+        ".github/workflows/quality-gate.yml": "932041f1eb8e109b400175303c42634d2ec12e4b42331a58e7f067adaa7f7e2a",
+        "tests/unit/security/test_dependency_security_regressions.py": "d1a5fa7a2caa5be3f41730616134c51d14ea1a0113ea587df7d3ee63e38bd0f1",
+        "packages/shared-crypto/src/sqlalchemy_encryption.py": "73b0b92083c699e1bf715e8f6181bf6e1d4d965ca4c624d0919fcfd753d6b8ff",
+        "uv.lock": "831299956612d4366b8806387f8d23df2ac61d7f5b2aee1b234e9064d97e39ef"
+      },
+      "steps": [
+        {
+          "label": "create",
+          "command": [
+            "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+            "venv",
+            "--python",
+            "/root/.local/share/uv/python/cpython-3.11.17-linux-x86_64-gnu/bin/python3.11",
+            "/workspace/scratch/882204c263d7/python-lock-evidence/bcrypt-ci-environment/venv"
+          ],
+          "exit_code": 0,
+          "seconds": 0.01
+        },
+        {
+          "label": "baseline-install",
+          "command": [
+            "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+            "pip",
+            "install",
+            "--python",
+            "/workspace/scratch/882204c263d7/python-lock-evidence/bcrypt-ci-environment/venv/bin/python",
+            "-c",
+            "/workspace/scratch/882204c263d7/python-lock-fix/constraints.txt",
+            "-r",
+            "/workspace/scratch/882204c263d7/python-lock-evidence/bcrypt-ci-environment/baseline-testing.txt"
+          ],
+          "exit_code": 0,
+          "seconds": 1.11
+        },
+        {
+          "label": "baseline-probe",
+          "command": [
+            "/workspace/scratch/882204c263d7/python-lock-evidence/bcrypt-ci-environment/venv/bin/python",
+            "-c",
+            "import importlib.util,json,sys; print(json.dumps({\"python\":sys.version,\"bcrypt_available\":importlib.util.find_spec(\"bcrypt\") is not None})); assert importlib.util.find_spec(\"bcrypt\") is None"
+          ],
+          "exit_code": 0,
+          "seconds": 0.02
+        },
+        {
+          "label": "baseline-test",
+          "command": [
+            "/workspace/scratch/882204c263d7/python-lock-evidence/bcrypt-ci-environment/venv/bin/python",
+            "-B",
+            "-m",
+            "pytest",
+            "tests/unit/security/test_dependency_security_regressions.py::test_shared_crypto_encryption_roundtrip_and_tamper_rejection",
+            "-q",
+            "-o",
+            "addopts=",
+            "-p",
+            "no:cacheprovider",
+            "--junitxml=/workspace/scratch/882204c263d7/python-lock-evidence/bcrypt-ci-environment/baseline-test.xml"
+          ],
+          "exit_code": 1,
+          "seconds": 1.42
+        }
+      ]
+    }
+  },
+  "fixed": {
+    "probe": {
+      "python": "3.11.17 (main, Oct 14 2026, 01:05:33) [Clang 23.1.3 ]",
+      "bcrypt_version": "4.3.0"
+    },
+    "same_regression": {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "full_security_regression_module": {
+      "tests": 19,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "test_counts_overlap": true,
+    "pip_check_exit": 0,
+    "installed_distribution_count": 55,
+    "installed_environment_sha256": "04a98934acf65deb22977ef738f2c6095e9c7cdc20e3b9b3d5770e14eb136b34",
+    "receipt": {
+      "source_sha256": {
+        "requirements/testing.txt": "3ead97cf472ae709822b658fe6479043e309ab09f89c224ed3c30719e94faf0a",
+        "constraints.txt": "2a213f08d2282b78e7218b9892b0593cd4ff73d30c2db9659fdac4117692b34f",
+        ".github/workflows/ci.yml": "1510cb04450fe759f21442b50abb7cfe5004d65166e346d0e2039837ad4abd5b",
+        ".github/workflows/quality-gate.yml": "79b7c7acf723efbc3f454b190918b1472c3ef729f829cc40ffa022970e4a6a1c",
+        "tests/unit/security/test_dependency_security_regressions.py": "d1a5fa7a2caa5be3f41730616134c51d14ea1a0113ea587df7d3ee63e38bd0f1",
+        "packages/shared-crypto/src/sqlalchemy_encryption.py": "73b0b92083c699e1bf715e8f6181bf6e1d4d965ca4c624d0919fcfd753d6b8ff",
+        "uv.lock": "831299956612d4366b8806387f8d23df2ac61d7f5b2aee1b234e9064d97e39ef"
+      },
+      "steps": [
+        {
+          "label": "fixed-install",
+          "command": [
+            "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+            "pip",
+            "install",
+            "--python",
+            "/workspace/scratch/882204c263d7/python-lock-evidence/bcrypt-ci-environment/venv/bin/python",
+            "-c",
+            "/workspace/scratch/882204c263d7/python-lock-fix/constraints.txt",
+            "-r",
+            "/workspace/scratch/882204c263d7/python-lock-fix/requirements/testing.txt"
+          ],
+          "exit_code": 0,
+          "seconds": 0.16
+        },
+        {
+          "label": "fixed-probe",
+          "command": [
+            "/workspace/scratch/882204c263d7/python-lock-evidence/bcrypt-ci-environment/venv/bin/python",
+            "-c",
+            "import bcrypt,json,sys; print(json.dumps({\"python\":sys.version,\"bcrypt_version\":bcrypt.__version__}))"
+          ],
+          "exit_code": 0,
+          "seconds": 0.02
+        },
+        {
+          "label": "fixed-test",
+          "command": [
+            "/workspace/scratch/882204c263d7/python-lock-evidence/bcrypt-ci-environment/venv/bin/python",
+            "-B",
+            "-m",
+            "pytest",
+            "tests/unit/security/test_dependency_security_regressions.py::test_shared_crypto_encryption_roundtrip_and_tamper_rejection",
+            "-q",
+            "-o",
+            "addopts=",
+            "-p",
+            "no:cacheprovider",
+            "--junitxml=/workspace/scratch/882204c263d7/python-lock-evidence/bcrypt-ci-environment/fixed-test.xml"
+          ],
+          "exit_code": 0,
+          "seconds": 1.72
+        },
+        {
+          "label": "fixed-regressions",
+          "command": [
+            "/workspace/scratch/882204c263d7/python-lock-evidence/bcrypt-ci-environment/venv/bin/python",
+            "-B",
+            "-m",
+            "pytest",
+            "tests/unit/security/test_dependency_security_regressions.py",
+            "-q",
+            "-o",
+            "addopts=",
+            "-p",
+            "no:cacheprovider",
+            "--junitxml=/workspace/scratch/882204c263d7/python-lock-evidence/bcrypt-ci-environment/fixed-regressions.xml"
+          ],
+          "exit_code": 0,
+          "seconds": 2.3
+        },
+        {
+          "label": "fixed-pip-check",
+          "command": [
+            "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+            "pip",
+            "check",
+            "--python",
+            "/workspace/scratch/882204c263d7/python-lock-evidence/bcrypt-ci-environment/venv/bin/python"
+          ],
+          "exit_code": 0,
+          "seconds": 0.01
+        },
+        {
+          "label": "fixed-freeze",
+          "command": [
+            "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+            "pip",
+            "freeze",
+            "--python",
+            "/workspace/scratch/882204c263d7/python-lock-evidence/bcrypt-ci-environment/venv/bin/python"
+          ],
+          "exit_code": 0,
+          "seconds": 0.01
+        }
+      ]
+    }
+  },
+  "preserved_source_hashes": {
+    "constraints.txt": "2a213f08d2282b78e7218b9892b0593cd4ff73d30c2db9659fdac4117692b34f",
+    "uv.lock": "831299956612d4366b8806387f8d23df2ac61d7f5b2aee1b234e9064d97e39ef",
+    "tests/unit/security/test_dependency_security_regressions.py": "d1a5fa7a2caa5be3f41730616134c51d14ea1a0113ea587df7d3ee63e38bd0f1",
+    "packages/shared-crypto/src/sqlalchemy_encryption.py": "73b0b92083c699e1bf715e8f6181bf6e1d4d965ca4c624d0919fcfd753d6b8ff"
+  },
+  "validation": {
+    "actionlint": {
+      "paths": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/quality-gate.yml"
+      ],
+      "exit_code": 0
+    },
+    "git_diff_check_exit_code": 0
+  },
+  "evidence_hashes": {
+    "baseline-probe.stdout.log": "bf8953a828fcbc05649c55e5dac1f346dbb0bd8528fcf04b419835899153cea6",
+    "baseline-test.stdout.log": "342f89235b04862c97b449c2d2ae33ca3e2872d13b79dd5fcf16af8a0987d128",
+    "baseline-test.xml": "66a60cc081476d75c836cfc121aaeaa59143669bb254c54741afe0c6cc34fdf9",
+    "fixed-probe.stdout.log": "f5db8f928204b0ab3877dbf5ac20f837bf3a6a98ed7a93ab7643783cc0cd5c98",
+    "fixed-test.xml": "4bead88c1cd539f5f67fb47b6324bbea9d880260f4d793401c15c5318acffeb7",
+    "fixed-regressions.stdout.log": "6002bd8df5aab2c3fa268624c7572cf649f62d1e351f960fd4bdba8a2ad6c9fc",
+    "fixed-regressions.xml": "73027c6741dc2adc45eaa32823414932079b1c5008482485556f95d5535117fb",
+    "fixed-pip-check.stderr.log": "dba255c0db3cf757a1bec1188506f6852a74bb41d1445c91bfa4013362dcdfbd",
+    "fixed-freeze.stdout.log": "04a98934acf65deb22977ef738f2c6095e9c7cdc20e3b9b3d5770e14eb136b34"
+  },
+  "limitations": [
+    "This focused local check does not rerun or replace either remote CI job.",
+    "All 19 security cases remain mandatory and unchanged; the one-test check is included in the 19-case module.",
+    "Root frozen lock, Python support policy, security gates and production code are unchanged.",
+    "Independent unchanged frontend issues on the observed head remain: Flutter intl SDK pin mismatch, 19 web unit failures plus one failed suite, and E2E readiness probing 3000 while the server listens on3040."
+  ]
+}

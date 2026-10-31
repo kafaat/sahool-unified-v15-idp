@@ -203,6 +203,53 @@ therefore records the actual installed `2.13.0+cpu` build, normalizes that one
 entry to upstream `2.13.0` for advisory lookup, and preserves the mapping and
 original environment hash. No package or advisory is excluded.
 
+## CI test environment completeness follow-up
+
+On PR #1997 head `c147df6530ea6e1823061c192619f7bf3eb95263`, the dedicated
+frozen-runtime and shared-auth jobs passed. The broader
+[Quality Gate](https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41237801285/job/124645312670)
+and [CI Pipeline](https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41237801309/job/124647078117)
+each exposed one missing test-environment dependency. The real shared-crypto
+consumer imports `bcrypt`, but those jobs' installation lists did not include it.
+The unchanged encryption roundtrip/tamper regression failed at that import,
+before executing its AES-GCM/HMAC assertions.
+
+The follow-up declares `bcrypt>=4.2.0,<5.0.0` in `requirements/testing.txt`,
+the CI Pipeline's direct dependency list and the Quality Gate's fallback list.
+This matches the existing root constraint and frozen dependency. The lock,
+Python support policy, production code and regression assertions are unchanged.
+
+| Focused reproduction on fresh Python 3.11.17 | Result |
+| --- | --- |
+| Original testing requirements plus current constraints | Normal installation succeeds; `bcrypt` is absent |
+| Original environment, exact failing regression | 1 expected failure: `ModuleNotFoundError: No module named 'bcrypt'` |
+| Updated testing requirements, same regression | 1 passed |
+| Updated environment, complete dependency-security regression module | 19 passed, 0 skipped |
+| `uv pip check`, Actionlint and diff whitespace check | Passed |
+
+The single regression is included in the 19-case module; these counts are not
+additive. [bcrypt-ci-repair.json](bcrypt-ci-repair.json) records the commands,
+versions, exit codes, JUnit counts, source hashes and preserved negative control.
+These focused local results do not substitute for the next remote CI run.
+
+To reproduce the fixed test environment from the repository root:
+
+```bash
+uv venv --python 3.11 /tmp/sahool-bcrypt-ci
+uv pip install --python /tmp/sahool-bcrypt-ci/bin/python \
+  -c constraints.txt -r requirements/testing.txt
+PYTHONPATH=. /tmp/sahool-bcrypt-ci/bin/python -B -m pytest \
+  tests/unit/security/test_dependency_security_regressions.py \
+  -q -o addopts='' -p no:cacheprovider --junitxml=/tmp/bcrypt-ci-tests.xml
+uv pip check --python /tmp/sahool-bcrypt-ci/bin/python
+```
+
+The separate frontend failures observed on that head remain outside this
+test-environment fix: Flutter's SDK `intl` pin conflicts with the app's range,
+web tests expose existing CSP/authentication contract and mock issues, and the
+E2E readiness check probes port 3000 while the web server listens on 3040.
+The Python PR does not change those frontend sources or their workflow.
+
 ## Remaining boundaries
 
 TensorFlow 2.21.0 has no published CPython 3.14 wheel. The universal metadata lock

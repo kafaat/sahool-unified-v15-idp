@@ -1061,7 +1061,6 @@ jobs:
 
       - name: Run code generation
         uses: ./.github/actions/flutter-codegen
-        continue-on-error: true
         with:
           working-directory: apps/mobile
           clean-first: 'true'
@@ -1070,13 +1069,11 @@ jobs:
         run: |
           cd ios
           pod install --repo-update || pod install
-        continue-on-error: true
 
       - name: Build iOS (No Codesign)
         run: |
           echo "Building iOS app (no codesign)..."
           flutter build ios --debug --no-codesign
-        continue-on-error: true
 
   # =============================================================================
   # Job 5: E2E Tests for Web (Playwright)

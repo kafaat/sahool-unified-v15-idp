@@ -432,7 +432,7 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
 
             // Governorate dropdown
             DropdownButtonFormField<String>(
-              initialValue: _selectedGovernorate,
+              value: _selectedGovernorate,
               decoration: InputDecoration(
                 labelText: 'المحافظة *',
                 prefixIcon: const Icon(Icons.location_city_rounded),
@@ -470,7 +470,7 @@ class _FarmCreationScreenState extends ConsumerState<FarmCreationScreen> {
             // District dropdown — only shown after governorate is selected
             if (_selectedGovernorate != null)
               DropdownButtonFormField<String>(
-                initialValue: _selectedDistrict,
+                value: _selectedDistrict,
                 decoration: InputDecoration(
                   labelText: 'المديرية',
                   prefixIcon: const Icon(Icons.place_rounded),

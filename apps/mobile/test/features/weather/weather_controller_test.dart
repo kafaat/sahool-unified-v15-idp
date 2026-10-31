@@ -618,14 +618,17 @@ void main() {
 
     test('filteredImpactsProvider should filter impacts by status', () async {
       // Arrange
+      final mockApi = MockWeatherApi();
       final container = ProviderContainer(
         overrides: [
-          weatherApiProvider.overrideWithValue(MockWeatherApi()),
+          weatherApiWithTokenProvider.overrideWith((ref) async => mockApi),
         ],
       );
       addTearDown(container.dispose);
 
-      final mockApi = container.read(weatherApiProvider) as MockWeatherApi;
+      // Wait for the authenticated dependency before creating the notifier.
+      // Overriding the legacy fallback provider would still call the network.
+      await container.read(weatherApiWithTokenProvider.future);
       final impacts = WeatherFixtures.agriculturalImpactsJson
           .map((json) => AgriculturalImpact.fromJson(json))
           .toList();
@@ -650,6 +653,7 @@ void main() {
       filtered = container.read(filteredImpactsProvider);
       expect(filtered, hasLength(1)); // Only harvesting is unfavorable
       expect(filtered.first.category, equals('harvesting'));
+      verify(() => mockApi.getAgriculturalImpacts('field-001')).called(1);
     });
   });
 

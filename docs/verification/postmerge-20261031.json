@@ -283,7 +283,41 @@
       "sdk": "Flutter 3.27.1 / Dart 3.6",
       "scope": "localized month header, text direction, date selection; not full app acceptance"
     },
-    "full_app_acceptance": "PENDING",
+    "full_app_acceptance": "Full local unit/widget suite passed; native builds and device/emulator acceptance require separate results",
     "local_lock_matches_ci_byte_for_byte": true
+  },
+  "mobile_followup_validation": {
+    "tested_local_commit": "a4b9ad8ab5469e37541f9a41ed06017ad141f2f6",
+    "tested_tree": "b08b40f1c5cf273d6d5d73a5bc292b54ead819b8",
+    "command": "flutter test --no-pub --reporter expanded",
+    "sdk": "Flutter 3.27.1 / Dart 3.6",
+    "full_unit_widget_suite": {
+      "passed": 2721,
+      "failed": 0,
+      "skipped": 0,
+      "exit_code": 0,
+      "seconds": 38
+    },
+    "log_sha256": "b55053ce48fd31603a9e828cb8d758b77bee94680d2f664c66204ea3f1917415",
+    "environment": "CI unit .env fixture; real SQLite library; CI=true BOT=true suppress metadata probing",
+    "auth_tests": {
+      "passed": 168,
+      "production_auth_policy": "unchanged; tests distinguish JWT expiry from optional cached expiry",
+      "validation_bypass_mutation": "both new rejection cases fail"
+    },
+    "field_weather_tests": {
+      "passed": 86,
+      "new_disposal_regressions": 9,
+      "before_fix_regressions_failed": 9
+    },
+    "root_compile_errors_fixed": 4,
+    "farm_selection_widget_test": "passed",
+    "targeted_analyzer_errors": 0,
+    "ios_gate": "code generation, CocoaPods and build failures now propagate",
+    "prior_ci_limits": {
+      "ios_build": "failed under advisory step on 00d4f3; do not interpret that job success as build acceptance",
+      "mobile_emulator": "not run: KVM unavailable",
+      "nested_app_analysis": "separate nested app issues remain; analysis step is advisory"
+    }
   }
 }

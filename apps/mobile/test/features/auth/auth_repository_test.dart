@@ -296,7 +296,7 @@ void main() {
         expect(result, isFalse);
       });
 
-      test('should return false when token expiry is null', () async {
+      test('should use valid JWT expiry when cached expiry is null', () async {
         // Arrange
         authService = AuthService(
           secureStorage: mockSecureStorage,
@@ -313,7 +313,8 @@ void main() {
         final result = await authService.isLoggedIn();
 
         // Assert
-        expect(result, isFalse);
+        expect(result, isTrue);
+        verifyNever(() => mockTokenManager.refreshToken());
       });
 
       test('should return true when valid token exists', () async {

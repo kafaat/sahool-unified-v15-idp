@@ -47,12 +47,15 @@ class WeatherNotifier extends StateNotifier<WeatherState> {
   WeatherNotifier(this._api) : super(const WeatherState());
 
   Future<void> loadWeather(String fieldId) async {
+    if (!mounted) return;
     state = state.copyWith(isLoading: true, error: null);
 
     try {
       final data = await _api.getFieldWeather(fieldId);
+      if (!mounted) return;
       state = state.copyWith(isLoading: false, data: data);
     } catch (e) {
+      if (!mounted) return;
       state = state.copyWith(
         isLoading: false,
         error: e.toString(),
@@ -61,12 +64,15 @@ class WeatherNotifier extends StateNotifier<WeatherState> {
   }
 
   Future<void> loadWeatherByLocation(double lat, double lon) async {
+    if (!mounted) return;
     state = state.copyWith(isLoading: true, error: null);
 
     try {
       final data = await _api.getWeatherByCoordinates(lat, lon);
+      if (!mounted) return;
       state = state.copyWith(isLoading: false, data: data);
     } catch (e) {
+      if (!mounted) return;
       state = state.copyWith(
         isLoading: false,
         error: e.toString(),
@@ -129,12 +135,15 @@ class AlertsNotifier extends StateNotifier<AlertsState> {
   AlertsNotifier(this._api) : super(const AlertsState());
 
   Future<void> loadAlerts(String fieldId) async {
+    if (!mounted) return;
     state = state.copyWith(isLoading: true, error: null);
 
     try {
       final alerts = await _api.getWeatherAlerts(fieldId);
+      if (!mounted) return;
       state = state.copyWith(isLoading: false, alerts: alerts);
     } catch (e) {
+      if (!mounted) return;
       state = state.copyWith(
         isLoading: false,
         error: e.toString(),
@@ -183,12 +192,15 @@ class ImpactsNotifier extends StateNotifier<ImpactsState> {
   ImpactsNotifier(this._api) : super(const ImpactsState());
 
   Future<void> loadImpacts(String fieldId) async {
+    if (!mounted) return;
     state = state.copyWith(isLoading: true, error: null);
 
     try {
       final impacts = await _api.getAgriculturalImpacts(fieldId);
+      if (!mounted) return;
       state = state.copyWith(isLoading: false, impacts: impacts);
     } catch (e) {
+      if (!mounted) return;
       state = state.copyWith(
         isLoading: false,
         error: e.toString(),

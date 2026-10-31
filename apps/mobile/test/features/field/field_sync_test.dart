@@ -513,7 +513,7 @@ void main() {
         expect(features, isEmpty);
       });
 
-      test('should include tenant_id in query parameters', () async {
+      test('should leave tenant scoping to authenticated API context', () async {
         // Arrange
         when(() => mockApiClient.get(
           any(),
@@ -525,15 +525,13 @@ void main() {
 
         // Assert
         verify(() => mockApiClient.get(
-          '/fields',
-          queryParameters: {
-            'tenant_id': 'test_tenant',
-            'format': 'geojson',
-          },
+          '/api/v1/fields',
+          // The server derives tenantId from the authenticated request.
+          queryParameters: {'limit': 100},
         )).called(1);
       });
 
-      test('should include farm_id when provided', () async {
+      test('should use backend camelCase farmId filter when provided', () async {
         // Arrange
         when(() => mockApiClient.get(
           any(),
@@ -548,11 +546,10 @@ void main() {
 
         // Assert
         verify(() => mockApiClient.get(
-          '/fields',
+          '/api/v1/fields',
           queryParameters: {
-            'tenant_id': 'test_tenant',
-            'farm_id': 'farm_001',
-            'format': 'geojson',
+            'farmId': 'farm_001',
+            'limit': 100,
           },
         )).called(1);
       });

@@ -55,6 +55,7 @@ describe('Token Refresh Proxy Route', () => {
     vi.clearAllMocks();
     process.env = {
       ...originalEnv,
+      API_GATEWAY_URL: '',
       NEXT_PUBLIC_API_URL: 'http://localhost:8000',
       NODE_ENV: 'test',
     };
@@ -104,8 +105,11 @@ describe('Token Refresh Proxy Route', () => {
 
     expect(response.status).toBe(401);
     expect(body.success).toBe(false);
-    expect(mockCookieStore.delete).toHaveBeenCalledWith('access_token');
-    expect(mockCookieStore.delete).toHaveBeenCalledWith('refresh_token');
+    for (const name of ['access_token', 'refresh_token']) {
+      expect(response.cookies.get(name)?.value).toBe('');
+      expect(response.cookies.get(name)?.expires?.getTime()).toBe(0);
+    }
+    expect(response.headers.get('set-cookie')).toContain('access_token=;');
   });
 
   it('should return 401 when backend returns no access_token', async () => {
@@ -139,15 +143,13 @@ describe('Token Refresh Proxy Route', () => {
     expect(response.status).toBe(200);
     expect(body.success).toBe(true);
     expect(body.access_token).toBe('new-access-token');
-    expect(mockCookieStore.set).toHaveBeenCalledWith(
-      'access_token',
-      'new-access-token',
-      expect.objectContaining({
-        httpOnly: true,
-        sameSite: 'strict',
-        path: '/',
-      })
-    );
+    expect(response.cookies.get('access_token')).toMatchObject({
+      value: 'new-access-token',
+      httpOnly: true,
+      sameSite: 'strict',
+      path: '/',
+    });
+    expect(response.headers.get('set-cookie')).toContain('HttpOnly');
   });
 
   it('should support nested data.data.access_token response format', async () => {
@@ -176,13 +178,8 @@ describe('Token Refresh Proxy Route', () => {
     vi.resetModules();
 
     const { POST } = await import('../refresh/route');
-    await POST(createRequest());
-
-    expect(mockCookieStore.set).toHaveBeenCalledWith(
-      'access_token',
-      'token',
-      expect.objectContaining({ maxAge: 1800 })
-    );
+    const response = await POST(createRequest());
+    expect(response.cookies.get('access_token')).toMatchObject({ value: 'token', maxAge: 1800 });
   });
 
   it('should return 500 on unexpected errors', async () => {
@@ -213,7 +210,7 @@ describe('Token Refresh Proxy Route', () => {
       'http://localhost:8000/api/v1/auth/refresh',
       expect.objectContaining({
         method: 'POST',
-        body: JSON.stringify({ refresh_token: 'my-refresh-token' }),
+        body: JSON.stringify({ refreshToken: 'my-refresh-token' }),
       })
     );
   });

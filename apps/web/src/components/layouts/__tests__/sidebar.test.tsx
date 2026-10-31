@@ -100,6 +100,7 @@ vi.mock('lucide-react', () => {
   );
   return {
     LayoutDashboard: IconMock,
+    DatabaseZap: IconMock,
     Sprout: IconMock,
     FileText: IconMock,
     TrendingUp: IconMock,

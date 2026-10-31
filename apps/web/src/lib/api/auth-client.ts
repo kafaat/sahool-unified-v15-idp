@@ -41,6 +41,61 @@ interface LoginResponse {
   user: AuthUser & { firstName?: string; lastName?: string; tenantId?: string };
 }
 
+interface RegistrationAcknowledgement {
+  success: true;
+  message: string;
+  access_token?: never;
+  refresh_token?: never;
+}
+
+function isJsonObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+async function readAuthPayload(response: Response): Promise<Record<string, unknown> | null> {
+  try {
+    const data: unknown = await response.json();
+    return isJsonObject(data) ? data : null;
+  } catch {
+    return null;
+  }
+}
+
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
+function getAuthError(data: Record<string, unknown>, fallback: string): string {
+  if (isNonEmptyString(data.error)) return data.error;
+  if (isNonEmptyString(data.message)) return data.message;
+  return fallback;
+}
+
+function isLoginPayload(
+  data: Record<string, unknown>
+): data is Record<string, unknown> & LoginResponse {
+  // The auth store immediately creates a session and consumes the user's ID.
+  return (
+    isNonEmptyString(data.access_token)
+    && isJsonObject(data.user)
+    && isNonEmptyString(data.user.id)
+  );
+}
+
+function isRegistrationAcknowledgement(
+  data: Record<string, unknown>
+): data is Record<string, unknown> & RegistrationAcknowledgement {
+  // Existing-account registration deliberately returns a token-free success
+  // envelope to avoid revealing whether an email address is registered.
+  return (
+    data.success === true
+    && isNonEmptyString(data.message)
+    && data.access_token === undefined
+    && data.refresh_token === undefined
+    && data.user === undefined
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Config
 // ---------------------------------------------------------------------------
@@ -185,11 +240,22 @@ class AuthApiClient {
       } finally {
         clearTimeout(timeoutId);
       }
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        return { success: false as const, error: data?.error || data?.message || 'Login failed' };
+      const data = await readAuthPayload(response);
+      if (!data) {
+        return { success: false as const, error: 'Invalid JSON response from server' };
       }
-      return { success: true as const, data: data as LoginResponse };
+      if (!response.ok || data.success === false) {
+        return {
+          success: false as const,
+          error: getAuthError(
+            data, response.ok ? 'Login failed' : `Request failed with status ${response.status}`
+          ),
+        };
+      }
+      if (!isLoginPayload(data)) {
+        return { success: false as const, error: 'Invalid login response from server' };
+      }
+      return { success: true as const, data };
     } catch (error) {
       if (error instanceof Error && error.name === 'AbortError') {
         return { success: false as const, error: 'Request timeout' };
@@ -269,11 +335,22 @@ class AuthApiClient {
       } finally {
         clearTimeout(timeoutId);
       }
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        return { success: false as const, error: data?.error || data?.message || 'Registration failed' };
+      const data = await readAuthPayload(response);
+      if (!data) {
+        return { success: false as const, error: 'Invalid JSON response from server' };
       }
-      return { success: true as const, data: data as LoginResponse };
+      if (!response.ok || data.success === false) {
+        return {
+          success: false as const,
+          error: getAuthError(
+            data, response.ok ? 'Registration failed' : `Request failed with status ${response.status}`
+          ),
+        };
+      }
+      if (!isLoginPayload(data) && !isRegistrationAcknowledgement(data)) {
+        return { success: false as const, error: 'Invalid registration response from server' };
+      }
+      return { success: true as const, data };
     } catch (error) {
       if (error instanceof Error && error.name === 'AbortError') {
         return { success: false as const, error: 'Request timeout' };

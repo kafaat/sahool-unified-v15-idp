@@ -233,3 +233,15 @@ The recorded vulnerable baseline produces the event-gate codes shown above. A
 fresh database or different dependency tree produces a separate current result;
 retain its own metadata, digest and reports. Missing or invalid reports must
 return `2`, including on pull requests.
+
+## EO input-manifest follow-up
+
+PR #2000's EO job correctly rejected a stale hash after two comments were added
+to its requirements file. The NumPy pin, Python policy, guard, expected test IDs,
+and sample data were unchanged. After the official runner passed on an isolated
+copy of the reviewed inputs, only `files.requirements.txt` in the existing EO
+manifest was refreshed. The real worktree then passed the same gate: **39 unit
+cases and 18 independent cases**, with no failures, errors, or skips and unchanged
+inputs. Both Ruff checks passed. [The follow-up receipt](eo-manifest-followup.json)
+preserves the original failure, exact hash change, commands, and validated receipts.
+The result remains `PASSED_OFFLINE_RESEARCH_ONLY`, with production approval false.

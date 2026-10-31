@@ -1,0 +1,106 @@
+name: Shared PyJWT Security
+
+on:
+  pull_request:
+    paths:
+      - 'apps/services/shared/**'
+      - 'shared/auth/**'
+      - 'shared/security/**'
+      - 'tests/unit/auth/**'
+      - 'tests/unit/test_shared_auth.py'
+      - 'apps/services/copilot-api/src/api/deps.py'
+      - 'apps/services/copilot-api/tests/test_deps.py'
+      - 'constraints.txt'
+      - 'pyproject.toml'
+      - '.github/workflows/shared-pyjwt-security.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'apps/services/shared/**'
+      - 'shared/auth/**'
+      - 'shared/security/**'
+      - 'tests/unit/auth/**'
+      - 'tests/unit/test_shared_auth.py'
+      - 'apps/services/copilot-api/src/api/deps.py'
+      - 'apps/services/copilot-api/tests/test_deps.py'
+      - 'constraints.txt'
+      - 'pyproject.toml'
+      - '.github/workflows/shared-pyjwt-security.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  shared-pyjwt:
+    name: Shared auth / Python ${{ matrix.python }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.11', '3.12']
+    env:
+      ENVIRONMENT: test
+      JWT_SECRET_KEY: test-secret-key-for-unit-tests-only-32chars
+      JWT_ALGORITHM: HS256
+    steps:
+      - uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98 # v6.0.2
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install the actual shared requirements with existing constraints
+        run: |
+          python -m pip install -c constraints.txt \
+            -r apps/services/shared/requirements.txt \
+            -r apps/services/shared/auth/requirements.txt \
+            pytest==9.0.3 pytest-asyncio==1.3.0 pytest-timeout==2.4.0 \
+            packaging==26.3 pip-audit==2.10.1 ruff==0.15.11 \
+            email-validator 'cryptography>=44.0.1,<47.0.0'
+          python -m pip check
+
+      - name: Record the exact installed PyJWT for the scoped audit
+        run: |
+          mkdir -p pyjwt-evidence
+          python - <<'PY'
+          from importlib.metadata import version
+          from pathlib import Path
+          from packaging.requirements import Requirement
+          from packaging.utils import canonicalize_name
+
+          path = Path('apps/services/shared/requirements.txt')
+          requirements = [Requirement(line.partition('#')[0].strip())
+                          for line in path.read_text().splitlines()
+                          if line.partition('#')[0].strip()]
+          pin, = [req for req in requirements if canonicalize_name(req.name) == 'pyjwt']
+          assert version('PyJWT') in pin.specifier
+          Path('pyjwt-evidence/pyjwt.txt').write_text(f'PyJWT=={version("PyJWT")}\n')
+          PY
+          python -m pip freeze > pyjwt-evidence/environment.txt
+
+      - name: Lint the new regression tests
+        run: |
+          ruff check tests/unit/auth/test_shared_pyjwt_security.py
+          ruff format --check tests/unit/auth/test_shared_pyjwt_security.py
+
+      - name: Test the affected module and existing JWT callers
+        run: |
+          python -m pytest tests/unit/auth/ tests/unit/test_shared_auth.py \
+            -q --tb=short --timeout=30 --junitxml=pyjwt-evidence/auth.xml
+          python -m pytest apps/services/copilot-api/tests/test_deps.py \
+            -q --tb=short --timeout=30 --junitxml=pyjwt-evidence/copilot.xml
+
+      - name: Audit the pinned PyJWT (PyJWT scope only)
+        run: |
+          python -m pip_audit -r pyjwt-evidence/pyjwt.txt \
+            --no-deps --disable-pip --strict --progress-spinner off \
+            --format json --desc off -o pyjwt-evidence/pyjwt-audit.json
+
+      - name: Preserve test and audit evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: shared-pyjwt-${{ matrix.python }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: pyjwt-evidence/
+          if-no-files-found: warn

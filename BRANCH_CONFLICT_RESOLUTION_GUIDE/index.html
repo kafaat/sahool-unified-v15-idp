@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1219,7 +1219,7 @@ git<span class="w"> </span>merge<span class="w"> </span>origin/main
 <span class="c1"># Step 3: Resolve conflicts</span>
 <span class="c1"># Edit conflicting files</span>
 <span class="c1"># git add &lt;resolved-files&gt;</span>
-<span class="c1"># git commit -m &quot;Merge main into copilot/fix-ci-workflow-issues&quot;</span>
+<span class="c1"># git commit -m "Merge main into copilot/fix-ci-workflow-issues"</span>
 
 <span class="c1"># Step 4: Push</span>
 git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>copilot/fix-ci-workflow-issues
@@ -1235,7 +1235,7 @@ git<span class="w"> </span>merge<span class="w"> </span>origin/main
 
 <span class="c1"># Step 3: Resolve conflicts and commit</span>
 <span class="c1"># git add &lt;resolved-files&gt;</span>
-<span class="c1"># git commit -m &quot;Merge main into copilot/final-project-review&quot;</span>
+<span class="c1"># git commit -m "Merge main into copilot/final-project-review"</span>
 
 <span class="c1"># Step 4: Push</span>
 git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>copilot/final-project-review
@@ -1247,18 +1247,18 @@ git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </
 <div class="codehilite"><pre><span></span><code><span class="ch">#!/bin/bash</span>
 <span class="c1"># check-conflicts.sh</span>
 
-<span class="nv">BRANCHES</span><span class="o">=(</span><span class="s2">&quot;copilot/fix-ci-workflow-issues&quot;</span><span class="w"> </span><span class="s2">&quot;copilot/final-project-review&quot;</span><span class="o">)</span>
+<span class="nv">BRANCHES</span><span class="o">=(</span><span class="s2">"copilot/fix-ci-workflow-issues"</span><span class="w"> </span><span class="s2">"copilot/final-project-review"</span><span class="o">)</span>
 
-<span class="k">for</span><span class="w"> </span>branch<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">BRANCHES</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
-<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Checking </span><span class="nv">$branch</span><span class="s2">...&quot;</span>
+<span class="k">for</span><span class="w"> </span>branch<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">BRANCHES</span><span class="p">[@]</span><span class="si">}</span><span class="s2">"</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"Checking </span><span class="nv">$branch</span><span class="s2">..."</span>
 <span class="w">    </span>git<span class="w"> </span>fetch<span class="w"> </span>origin<span class="w"> </span><span class="nv">$branch</span>
 <span class="w">    </span>git<span class="w"> </span>fetch<span class="w"> </span>origin<span class="w"> </span>main
 
 <span class="w">    </span><span class="c1"># Try merge simulation</span>
 <span class="w">    </span>git<span class="w"> </span>checkout<span class="w"> </span>main
-<span class="w">    </span>git<span class="w"> </span>merge<span class="w"> </span>--no-commit<span class="w"> </span>--no-ff<span class="w"> </span>origin/<span class="nv">$branch</span><span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;conflict&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;No conflicts&quot;</span>
+<span class="w">    </span>git<span class="w"> </span>merge<span class="w"> </span>--no-commit<span class="w"> </span>--no-ff<span class="w"> </span>origin/<span class="nv">$branch</span><span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">"conflict"</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"No conflicts"</span>
 <span class="w">    </span>git<span class="w"> </span>merge<span class="w"> </span>--abort<span class="w"> </span><span class="m">2</span>&gt;/dev/null
-<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;---&quot;</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"---"</span>
 <span class="k">done</span>
 </code></pre></div>
 
@@ -1266,10 +1266,10 @@ git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </
 <div class="codehilite"><pre><span></span><code><span class="ch">#!/bin/bash</span>
 <span class="c1"># find-conflict-markers.sh</span>
 
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Searching for conflict markers in repository...&quot;</span>
-grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD&quot;</span><span class="w"> </span>--include<span class="o">=</span><span class="s2">&quot;*.py&quot;</span><span class="w"> </span>--include<span class="o">=</span><span class="s2">&quot;*.js&quot;</span><span class="w"> </span>--include<span class="o">=</span><span class="s2">&quot;*.ts&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--include<span class="o">=</span><span class="s2">&quot;*.yaml&quot;</span><span class="w"> </span>--include<span class="o">=</span><span class="s2">&quot;*.yml&quot;</span><span class="w"> </span>--include<span class="o">=</span><span class="s2">&quot;*.json&quot;</span><span class="w"> </span>--include<span class="o">=</span><span class="s2">&quot;*.md&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--include<span class="o">=</span><span class="s2">&quot;Dockerfile&quot;</span><span class="w"> </span>.<span class="w"> </span><span class="m">2</span>&gt;/dev/null
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"Searching for conflict markers in repository..."</span>
+grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">"&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD"</span><span class="w"> </span>--include<span class="o">=</span><span class="s2">"*.py"</span><span class="w"> </span>--include<span class="o">=</span><span class="s2">"*.js"</span><span class="w"> </span>--include<span class="o">=</span><span class="s2">"*.ts"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--include<span class="o">=</span><span class="s2">"*.yaml"</span><span class="w"> </span>--include<span class="o">=</span><span class="s2">"*.yml"</span><span class="w"> </span>--include<span class="o">=</span><span class="s2">"*.json"</span><span class="w"> </span>--include<span class="o">=</span><span class="s2">"*.md"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--include<span class="o">=</span><span class="s2">"Dockerfile"</span><span class="w"> </span>.<span class="w"> </span><span class="m">2</span>&gt;/dev/null
 </code></pre></div>
 
 <hr />
@@ -1405,10 +1405,10 @@ git<span class="w"> </span>diff<span class="w"> </span>origin/main...copilot/fin
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1479,22 +1479,22 @@
 <span class="c1"># Replace TODO at line 201 with:</span>
 async<span class="w"> </span>def<span class="w"> </span>validate_jwt_token<span class="o">(</span>token:<span class="w"> </span>str<span class="o">)</span><span class="w"> </span>-&gt;<span class="w"> </span>dict:
 <span class="w">    </span>try:
-<span class="w">        </span><span class="nv">payload</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>jwt.decode<span class="o">(</span>token,<span class="w"> </span>JWT_SECRET,<span class="w"> </span><span class="nv">algorithms</span><span class="o">=[</span><span class="s2">&quot;HS256&quot;</span><span class="o">])</span>
+<span class="w">        </span><span class="nv">payload</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>jwt.decode<span class="o">(</span>token,<span class="w"> </span>JWT_SECRET,<span class="w"> </span><span class="nv">algorithms</span><span class="o">=[</span><span class="s2">"HS256"</span><span class="o">])</span>
 <span class="w">        </span><span class="k">return</span><span class="w"> </span>payload
 <span class="w">    </span>except<span class="w"> </span>jwt.InvalidTokenError:
-<span class="w">        </span>raise<span class="w"> </span>WebSocketDisconnect<span class="o">(</span><span class="nv">code</span><span class="o">=</span><span class="m">4001</span>,<span class="w"> </span><span class="nv">reason</span><span class="o">=</span><span class="s2">&quot;Invalid token&quot;</span><span class="o">)</span>
+<span class="w">        </span>raise<span class="w"> </span>WebSocketDisconnect<span class="o">(</span><span class="nv">code</span><span class="o">=</span><span class="m">4001</span>,<span class="w"> </span><span class="nv">reason</span><span class="o">=</span><span class="s2">"Invalid token"</span><span class="o">)</span>
 
 <span class="c1"># 2. Fix CORS - Example for FastAPI</span>
 app.add_middleware<span class="o">(</span>
 <span class="w">    </span>CORSMiddleware,
 <span class="w">    </span><span class="nv">allow_origins</span><span class="o">=[</span>
-<span class="w">        </span><span class="s2">&quot;https://admin.sahool.io&quot;</span>,
-<span class="w">        </span><span class="s2">&quot;https://app.sahool.io&quot;</span>,
-<span class="w">        </span><span class="s2">&quot;http://localhost:3000&quot;</span>,<span class="w">  </span><span class="c1"># dev only</span>
+<span class="w">        </span><span class="s2">"https://admin.sahool.io"</span>,
+<span class="w">        </span><span class="s2">"https://app.sahool.io"</span>,
+<span class="w">        </span><span class="s2">"http://localhost:3000"</span>,<span class="w">  </span><span class="c1"># dev only</span>
 <span class="w">    </span><span class="o">]</span>,
 <span class="w">    </span><span class="nv">allow_credentials</span><span class="o">=</span>True,
-<span class="w">    </span><span class="nv">allow_methods</span><span class="o">=[</span><span class="s2">&quot;*&quot;</span><span class="o">]</span>,
-<span class="w">    </span><span class="nv">allow_headers</span><span class="o">=[</span><span class="s2">&quot;*&quot;</span><span class="o">]</span>,
+<span class="w">    </span><span class="nv">allow_methods</span><span class="o">=[</span><span class="s2">"*"</span><span class="o">]</span>,
+<span class="w">    </span><span class="nv">allow_headers</span><span class="o">=[</span><span class="s2">"*"</span><span class="o">]</span>,
 <span class="o">)</span>
 
 <span class="c1"># 3. Remove hardcoded password</span>
@@ -1809,10 +1809,10 @@ POSTGRES_PASSWORD:<span class="w"> </span><span class="si">${</span><span class=
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1119,7 +1119,7 @@
 <h1 id="docker-network-configuration-fix">Docker Network Configuration Fix<a class="headerlink" href="#docker-network-configuration-fix" title="Permanent link">&para;</a></h1>
 <h2 id="problem">Problem<a class="headerlink" href="#problem" title="Permanent link">&para;</a></h2>
 <p>When running <code>docker compose up -d &lt;service-name&gt;</code> for individual services, users encountered the following warning:</p>
-<div class="codehilite"><pre><span></span><code><span class="nv">time</span><span class="o">=</span><span class="s2">&quot;2026-02-04T23:04:05+03:00&quot;</span><span class="w"> </span><span class="nv">level</span><span class="o">=</span><span class="nv">warning</span><span class="w"> </span><span class="nv">msg</span><span class="o">=</span><span class="s2">&quot;a network with name sahool-network exists but was not created for project \&quot;</span><span class="nv">sahool</span>\<span class="s2">&quot;.\nSet `external: true` to use an existing network&quot;</span>
+<div class="codehilite"><pre><span></span><code><span class="nv">time</span><span class="o">=</span><span class="s2">"2026-02-04T23:04:05+03:00"</span><span class="w"> </span><span class="nv">level</span><span class="o">=</span><span class="nv">warning</span><span class="w"> </span><span class="nv">msg</span><span class="o">=</span><span class="s2">"a network with name sahool-network exists but was not created for project \"</span><span class="nv">sahool</span>\<span class="s2">".\nSet `external: true` to use an existing network"</span>
 </code></pre></div>
 
 <p>Additionally, dependent services like <code>terrain-core-service</code> would fail to start when starting services like <code>leveling-optimizer-service</code>.</p>
@@ -1246,7 +1246,7 @@ docker<span class="w"> </span>network<span class="w"> </span>ls<span class="w"> 
 docker<span class="w"> </span>network<span class="w"> </span>inspect<span class="w"> </span>sahool-network
 
 <span class="c1"># Ensure services are on the same network</span>
-docker<span class="w"> </span>compose<span class="w"> </span>config<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-A<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="s2">&quot;networks:&quot;</span>
+docker<span class="w"> </span>compose<span class="w"> </span>config<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-A<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="s2">"networks:"</span>
 </code></pre></div>
 
 <h3 id="warning-still-appears">Warning Still Appears<a class="headerlink" href="#warning-still-appears" title="Permanent link">&para;</a></h3>
@@ -1319,10 +1319,10 @@ make<span class="w"> </span>up
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

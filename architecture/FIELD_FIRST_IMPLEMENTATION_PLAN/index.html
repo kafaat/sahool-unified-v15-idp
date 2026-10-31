@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1177,21 +1177,21 @@
 <span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">field-service</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">labels</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;sahool.layer=field-critical&quot;</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;sahool.priority=1&quot;</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;sahool.offline=required&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"sahool.layer=field-critical"</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"sahool.priority=1"</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"sahool.offline=required"</span>
 
 <span class="w">  </span><span class="nt">indicators-service</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">labels</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;sahool.layer=bridge&quot;</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;sahool.priority=2&quot;</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;sahool.offline=optional&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"sahool.layer=bridge"</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"sahool.priority=2"</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"sahool.offline=optional"</span>
 
 <span class="w">  </span><span class="nt">crop-health-ai</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">labels</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;sahool.layer=analysis&quot;</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;sahool.priority=3&quot;</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;sahool.offline=not-required&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"sahool.layer=analysis"</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"sahool.priority=3"</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"sahool.offline=not-required"</span>
 </code></pre></div>
 
 <h4 id="13-service-registry">1.3 إنشاء Service Registry<a class="headerlink" href="#13-service-registry" title="Permanent link">&para;</a></h4>
@@ -1236,32 +1236,32 @@
 <div class="codehilite"><pre><span></span><code><span class="c1"># apps/services/indicators-service/src/bridge.py</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">AnalysisBridge</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    تحويل مخرجات التحليل إلى إجراءات قابلة للتنفيذ</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">transform_ndvi_to_action</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ndvi_result</span><span class="p">:</span> <span class="n">NDVIResult</span><span class="p">,</span>
         <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FieldAction</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        NDVI → Risk Assessment → Recommended Action → Task</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">risk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_risk</span><span class="p">(</span><span class="n">ndvi_result</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">risk</span><span class="o">.</span><span class="n">level</span> <span class="o">==</span> <span class="s2">&quot;high&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">risk</span><span class="o">.</span><span class="n">level</span> <span class="o">==</span> <span class="s2">"high"</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">FieldAction</span><span class="p">(</span>
-                <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;urgent_inspection&quot;</span><span class="p">,</span>
-                <span class="n">title</span><span class="o">=</span><span class="s2">&quot;فحص عاجل مطلوب&quot;</span><span class="p">,</span>
-                <span class="n">description</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;انخفاض NDVI بنسبة </span><span class="si">{</span><span class="n">risk</span><span class="o">.</span><span class="n">drop_percent</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="s2">"urgent_inspection"</span><span class="p">,</span>
+                <span class="n">title</span><span class="o">=</span><span class="s2">"فحص عاجل مطلوب"</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="sa">f</span><span class="s2">"انخفاض NDVI بنسبة </span><span class="si">{</span><span class="n">risk</span><span class="o">.</span><span class="n">drop_percent</span><span class="si">}</span><span class="s2">%"</span><span class="p">,</span>
                 <span class="n">deadline</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">48</span><span class="p">),</span>
                 <span class="n">offline_executable</span><span class="o">=</span><span class="kc">True</span>
             <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">FieldAction</span><span class="p">(</span>
-            <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;routine_check&quot;</span><span class="p">,</span>
-            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;فحص روتيني&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="s2">"routine_check"</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">"فحص روتيني"</span><span class="p">,</span>
             <span class="n">offline_executable</span><span class="o">=</span><span class="kc">True</span>
         <span class="p">)</span>
 
@@ -1270,15 +1270,15 @@
         <span class="n">forecast</span><span class="p">:</span> <span class="n">WeatherForecast</span><span class="p">,</span>
         <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IrrigationAdvice</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Weather Forecast → ET0 Calculation → Irrigation Schedule</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">et0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_et0</span><span class="p">(</span><span class="n">forecast</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">IrrigationAdvice</span><span class="p">(</span>
-            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;irrigate&quot;</span> <span class="k">if</span> <span class="n">et0</span> <span class="o">&gt;</span> <span class="n">threshold</span> <span class="k">else</span> <span class="s2">&quot;skip&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">"irrigate"</span> <span class="k">if</span> <span class="n">et0</span> <span class="o">&gt;</span> <span class="n">threshold</span> <span class="k">else</span> <span class="s2">"skip"</span><span class="p">,</span>
             <span class="n">amount_mm</span><span class="o">=</span><span class="n">et0</span> <span class="o">*</span> <span class="n">crop_coefficient</span><span class="p">,</span>
-            <span class="n">timing</span><span class="o">=</span><span class="s2">&quot;صباحاً&quot;</span> <span class="k">if</span> <span class="n">forecast</span><span class="o">.</span><span class="n">temp_max</span> <span class="o">&gt;</span> <span class="mi">35</span> <span class="k">else</span> <span class="s2">&quot;أي وقت&quot;</span><span class="p">,</span>
+            <span class="n">timing</span><span class="o">=</span><span class="s2">"صباحاً"</span> <span class="k">if</span> <span class="n">forecast</span><span class="o">.</span><span class="n">temp_max</span> <span class="o">&gt;</span> <span class="mi">35</span> <span class="k">else</span> <span class="s2">"أي وقت"</span><span class="p">,</span>
             <span class="n">offline_executable</span><span class="o">=</span><span class="kc">True</span>
         <span class="p">)</span>
 </code></pre></div>
@@ -1287,36 +1287,36 @@
 <div class="codehilite"><pre><span></span><code><span class="c1"># apps/services/shared/action_templates.py</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">ActionTemplate</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    قوالب الإجراءات الميدانية</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">TEMPLATES</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;water_stress&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;title_ar&quot;</span><span class="p">:</span> <span class="s2">&quot;إجهاد مائي محتمل&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;title_en&quot;</span><span class="p">:</span> <span class="s2">&quot;Potential Water Stress&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;ري خلال 48 ساعة&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;priority&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;offline_data&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;last_irrigation&quot;</span><span class="p">,</span> <span class="s2">&quot;soil_moisture&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;proof_required&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;photo&quot;</span><span class="p">,</span> <span class="s2">&quot;meter_reading&quot;</span><span class="p">]</span>
+        <span class="s2">"water_stress"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"title_ar"</span><span class="p">:</span> <span class="s2">"إجهاد مائي محتمل"</span><span class="p">,</span>
+            <span class="s2">"title_en"</span><span class="p">:</span> <span class="s2">"Potential Water Stress"</span><span class="p">,</span>
+            <span class="s2">"action"</span><span class="p">:</span> <span class="s2">"ري خلال 48 ساعة"</span><span class="p">,</span>
+            <span class="s2">"priority"</span><span class="p">:</span> <span class="s2">"high"</span><span class="p">,</span>
+            <span class="s2">"offline_data"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"last_irrigation"</span><span class="p">,</span> <span class="s2">"soil_moisture"</span><span class="p">],</span>
+            <span class="s2">"proof_required"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"photo"</span><span class="p">,</span> <span class="s2">"meter_reading"</span><span class="p">]</span>
         <span class="p">},</span>
 
-        <span class="s2">&quot;pest_detection&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;title_ar&quot;</span><span class="p">:</span> <span class="s2">&quot;اشتباه آفة&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;title_en&quot;</span><span class="p">:</span> <span class="s2">&quot;Suspected Pest&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;فحص ومعالجة&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;priority&quot;</span><span class="p">:</span> <span class="s2">&quot;urgent&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;offline_data&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;pest_history&quot;</span><span class="p">,</span> <span class="s2">&quot;treatment_options&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;proof_required&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;photo&quot;</span><span class="p">,</span> <span class="s2">&quot;notes&quot;</span><span class="p">]</span>
+        <span class="s2">"pest_detection"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"title_ar"</span><span class="p">:</span> <span class="s2">"اشتباه آفة"</span><span class="p">,</span>
+            <span class="s2">"title_en"</span><span class="p">:</span> <span class="s2">"Suspected Pest"</span><span class="p">,</span>
+            <span class="s2">"action"</span><span class="p">:</span> <span class="s2">"فحص ومعالجة"</span><span class="p">,</span>
+            <span class="s2">"priority"</span><span class="p">:</span> <span class="s2">"urgent"</span><span class="p">,</span>
+            <span class="s2">"offline_data"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"pest_history"</span><span class="p">,</span> <span class="s2">"treatment_options"</span><span class="p">],</span>
+            <span class="s2">"proof_required"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"photo"</span><span class="p">,</span> <span class="s2">"notes"</span><span class="p">]</span>
         <span class="p">},</span>
 
-        <span class="s2">&quot;harvest_ready&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;title_ar&quot;</span><span class="p">:</span> <span class="s2">&quot;جاهز للحصاد&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;title_en&quot;</span><span class="p">:</span> <span class="s2">&quot;Ready for Harvest&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;بدء الحصاد&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;priority&quot;</span><span class="p">:</span> <span class="s2">&quot;normal&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;offline_data&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;yield_estimate&quot;</span><span class="p">,</span> <span class="s2">&quot;market_prices&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;proof_required&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">,</span> <span class="s2">&quot;photo&quot;</span><span class="p">]</span>
+        <span class="s2">"harvest_ready"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"title_ar"</span><span class="p">:</span> <span class="s2">"جاهز للحصاد"</span><span class="p">,</span>
+            <span class="s2">"title_en"</span><span class="p">:</span> <span class="s2">"Ready for Harvest"</span><span class="p">,</span>
+            <span class="s2">"action"</span><span class="p">:</span> <span class="s2">"بدء الحصاد"</span><span class="p">,</span>
+            <span class="s2">"priority"</span><span class="p">:</span> <span class="s2">"normal"</span><span class="p">,</span>
+            <span class="s2">"offline_data"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"yield_estimate"</span><span class="p">,</span> <span class="s2">"market_prices"</span><span class="p">],</span>
+            <span class="s2">"proof_required"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"weight"</span><span class="p">,</span> <span class="s2">"photo"</span><span class="p">]</span>
         <span class="p">}</span>
     <span class="p">}</span>
 </code></pre></div>
@@ -1325,14 +1325,14 @@
 <div class="codehilite"><pre><span></span><code><span class="c1"># apps/services/indicators-service/src/pipeline.py</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">AnalysisPipeline</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Analysis → Bridge → Field Pipeline</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">AnalysisEvent</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        معالجة حدث تحليلي وتحويله لمهمة ميدانية</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># 1. Normalize</span>
         <span class="n">normalized</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
 
@@ -1423,7 +1423,7 @@
 <span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">isOnline</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">hasData</span><span class="p">)</span>
 <span class="w">              </span><span class="n">StaleDataBanner</span><span class="p">(</span>
 <span class="w">                </span><span class="nl">lastUpdated:</span><span class="w"> </span><span class="n">lastUpdated</span><span class="o">!</span><span class="p">,</span>
-<span class="w">                </span><span class="nl">message:</span><span class="w"> </span><span class="s1">&#39;البيانات قديمة - ستُحدّث عند الاتصال&#39;</span><span class="p">,</span>
+<span class="w">                </span><span class="nl">message:</span><span class="w"> </span><span class="s1">'البيانات قديمة - ستُحدّث عند الاتصال'</span><span class="p">,</span>
 <span class="w">              </span><span class="p">),</span>
 <span class="w">            </span><span class="n">child</span><span class="p">,</span>
 <span class="w">          </span><span class="p">],</span>
@@ -1448,7 +1448,7 @@
 <span class="w">          </span><span class="n">SizedBox</span><span class="p">(</span><span class="nl">width:</span><span class="w"> </span><span class="m">8</span><span class="p">),</span>
 <span class="w">          </span><span class="n">Expanded</span><span class="p">(</span>
 <span class="w">            </span><span class="nl">child:</span><span class="w"> </span><span class="n">Text</span><span class="p">(</span>
-<span class="w">              </span><span class="s1">&#39;</span><span class="si">$</span><span class="n">message</span><span class="s1"> (</span><span class="si">${</span><span class="n">_formatAge</span><span class="p">(</span><span class="n">lastUpdated</span><span class="p">)</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">,</span>
+<span class="w">              </span><span class="s1">'</span><span class="si">$</span><span class="n">message</span><span class="s1"> (</span><span class="si">${</span><span class="n">_formatAge</span><span class="p">(</span><span class="n">lastUpdated</span><span class="p">)</span><span class="si">}</span><span class="s1">)'</span><span class="p">,</span>
 <span class="w">              </span><span class="nl">style:</span><span class="w"> </span><span class="n">TextStyle</span><span class="p">(</span><span class="nl">fontSize:</span><span class="w"> </span><span class="m">12</span><span class="p">),</span>
 <span class="w">            </span><span class="p">),</span>
 <span class="w">          </span><span class="p">),</span>
@@ -1459,9 +1459,9 @@
 
 <span class="w">  </span><span class="kt">String</span><span class="w"> </span><span class="n">_formatAge</span><span class="p">(</span><span class="n">DateTime</span><span class="w"> </span><span class="n">dt</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DateTime</span><span class="p">.</span><span class="n">now</span><span class="p">().</span><span class="n">difference</span><span class="p">(</span><span class="n">dt</span><span class="p">);</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">diff</span><span class="p">.</span><span class="n">inHours</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;منذ </span><span class="si">${</span><span class="n">diff</span><span class="p">.</span><span class="n">inMinutes</span><span class="si">}</span><span class="s1"> دقيقة&#39;</span><span class="p">;</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">diff</span><span class="p">.</span><span class="n">inDays</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;منذ </span><span class="si">${</span><span class="n">diff</span><span class="p">.</span><span class="n">inHours</span><span class="si">}</span><span class="s1"> ساعة&#39;</span><span class="p">;</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;منذ </span><span class="si">${</span><span class="n">diff</span><span class="p">.</span><span class="n">inDays</span><span class="si">}</span><span class="s1"> يوم&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">diff</span><span class="p">.</span><span class="n">inHours</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s1">'منذ </span><span class="si">${</span><span class="n">diff</span><span class="p">.</span><span class="n">inMinutes</span><span class="si">}</span><span class="s1"> دقيقة'</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">diff</span><span class="p">.</span><span class="n">inDays</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s1">'منذ </span><span class="si">${</span><span class="n">diff</span><span class="p">.</span><span class="n">inHours</span><span class="si">}</span><span class="s1"> ساعة'</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s1">'منذ </span><span class="si">${</span><span class="n">diff</span><span class="p">.</span><span class="n">inDays</span><span class="si">}</span><span class="s1"> يوم'</span><span class="p">;</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1507,8 +1507,8 @@
 <div class="codehilite"><pre><span></span><code><span class="c1">// test/integration/offline_scenarios_test.dart</span>
 
 <span class="kt">void</span><span class="w"> </span><span class="n">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;Offline Scenarios&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">test</span><span class="p">(</span><span class="s1">&#39;Task creation works offline&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">group</span><span class="p">(</span><span class="s1">'Offline Scenarios'</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">test</span><span class="p">(</span><span class="s1">'Task creation works offline'</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="c1">// Simulate offline</span>
 <span class="w">      </span><span class="kd">await</span><span class="w"> </span><span class="n">networkController</span><span class="p">.</span><span class="n">goOffline</span><span class="p">();</span>
 
@@ -1520,7 +1520,7 @@
 <span class="w">      </span><span class="n">expect</span><span class="p">(</span><span class="kd">await</span><span class="w"> </span><span class="n">outbox</span><span class="p">.</span><span class="n">count</span><span class="p">(),</span><span class="w"> </span><span class="m">1</span><span class="p">);</span>
 <span class="w">    </span><span class="p">});</span>
 
-<span class="w">    </span><span class="n">test</span><span class="p">(</span><span class="s1">&#39;Analysis shows stale data offline&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">test</span><span class="p">(</span><span class="s1">'Analysis shows stale data offline'</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="c1">// Cache analysis</span>
 <span class="w">      </span><span class="kd">await</span><span class="w"> </span><span class="n">analysisCache</span><span class="p">.</span><span class="n">cache</span><span class="p">(</span><span class="n">testAnalysis</span><span class="p">);</span>
 
@@ -1538,7 +1538,7 @@
 <span class="w">      </span><span class="n">expect</span><span class="p">(</span><span class="n">stale</span><span class="p">.</span><span class="n">isStale</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">);</span>
 <span class="w">    </span><span class="p">});</span>
 
-<span class="w">    </span><span class="n">test</span><span class="p">(</span><span class="s1">&#39;Sync resumes on reconnect&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">test</span><span class="p">(</span><span class="s1">'Sync resumes on reconnect'</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="c1">// Create offline tasks</span>
 <span class="w">      </span><span class="kd">await</span><span class="w"> </span><span class="n">networkController</span><span class="p">.</span><span class="n">goOffline</span><span class="p">();</span>
 <span class="w">      </span><span class="kd">await</span><span class="w"> </span><span class="n">taskService</span><span class="p">.</span><span class="n">create</span><span class="p">(</span><span class="n">task1</span><span class="p">);</span>
@@ -1580,7 +1580,7 @@
 <span class="gu">### سيناريو 3: بيانات تحليلية قديمة</span>
 
 <span class="k">- [ ]</span> عرض NDVI محفوظ
-<span class="k">- [ ]</span> التحقق من مؤشر &quot;قديم&quot;
+<span class="k">- [ ]</span> التحقق من مؤشر "قديم"
 <span class="k">- [ ]</span> تنفيذ مهمة بناءً على بيانات قديمة
 <span class="k">- [ ]</span> تحديث عند الاتصال
 </code></pre></div>
@@ -1738,10 +1738,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

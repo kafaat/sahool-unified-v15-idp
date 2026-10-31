@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1258,7 +1258,7 @@
 <div class="codehilite"><pre><span></span><code><span class="c1"># shared/contracts/action_template.py</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">ActionTemplate</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;قالب الإجراء الموحد&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""قالب الإجراء الموحد"""</span>
 
     <span class="n">action_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()))</span>
     <span class="n">action_type</span><span class="p">:</span> <span class="n">ActionType</span>  <span class="c1"># IRRIGATION, FERTILIZATION, SPRAY, INSPECTION</span>
@@ -1322,12 +1322,12 @@
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">publish_ndvi_computed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ndvi_value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="n">ActionTemplate</span><span class="p">):</span>
         <span class="n">envelope</span> <span class="o">=</span> <span class="n">EventEnvelope</span><span class="p">(</span>
-            <span class="n">event_type</span><span class="o">=</span><span class="s2">&quot;ndvi.computed.v1&quot;</span><span class="p">,</span>
+            <span class="n">event_type</span><span class="o">=</span><span class="s2">"ndvi.computed.v1"</span><span class="p">,</span>
             <span class="n">data</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;field_id&quot;</span><span class="p">:</span> <span class="n">field_id</span><span class="p">,</span>
-                <span class="s2">&quot;ndvi_value&quot;</span><span class="p">:</span> <span class="n">ndvi_value</span><span class="p">,</span>
-                <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="n">action</span><span class="o">.</span><span class="n">dict</span><span class="p">()</span> <span class="k">if</span> <span class="n">action</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+                <span class="s2">"field_id"</span><span class="p">:</span> <span class="n">field_id</span><span class="p">,</span>
+                <span class="s2">"ndvi_value"</span><span class="p">:</span> <span class="n">ndvi_value</span><span class="p">,</span>
+                <span class="s2">"action"</span><span class="p">:</span> <span class="n">action</span><span class="o">.</span><span class="n">dict</span><span class="p">()</span> <span class="k">if</span> <span class="n">action</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">"timestamp"</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
             <span class="p">}</span>
         <span class="p">)</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">producer</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">envelope</span><span class="p">)</span>
@@ -1344,10 +1344,10 @@
 <p><strong>الهدف:</strong> مكونات موحدة للتعامل مع حالة عدم الاتصال</p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// packages/shared-ui/src/components/offline/index.ts</span>
 
-<span class="k">export</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">OfflineBanner</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./OfflineBanner&quot;</span><span class="p">;</span>
-<span class="k">export</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">StaleDataBadge</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./StaleDataBadge&quot;</span><span class="p">;</span>
-<span class="k">export</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SyncStatusIndicator</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./SyncStatusIndicator&quot;</span><span class="p">;</span>
-<span class="k">export</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">OfflineAwareWrapper</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./OfflineAwareWrapper&quot;</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">OfflineBanner</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"./OfflineBanner"</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">StaleDataBadge</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"./StaleDataBadge"</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SyncStatusIndicator</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"./SyncStatusIndicator"</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">OfflineAwareWrapper</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"./OfflineAwareWrapper"</span><span class="p">;</span>
 </code></pre></div>
 
 <div class="codehilite"><pre><span></span><code><span class="c1">// packages/shared-ui/src/components/offline/OfflineAwareWrapper.tsx</span>
@@ -1370,7 +1370,7 @@
 <span class="w">    </span><span class="p">(</span><span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">lastUpdated</span><span class="p">.</span><span class="nx">getTime</span><span class="p">())</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="nx">staleThresholdMinutes</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">60</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1000</span><span class="p">;</span>
 
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
-<span class="w">    </span><span class="o">&lt;</span><span class="nx">div</span><span class="w"> </span><span class="nx">className</span><span class="o">=</span><span class="s2">&quot;relative&quot;</span><span class="o">&gt;</span>
+<span class="w">    </span><span class="o">&lt;</span><span class="nx">div</span><span class="w"> </span><span class="nx">className</span><span class="o">=</span><span class="s2">"relative"</span><span class="o">&gt;</span>
 <span class="w">      </span><span class="p">{</span><span class="o">!</span><span class="nx">isOnline</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">&lt;</span><span class="nx">OfflineBanner</span><span class="w"> </span><span class="o">/&gt;</span><span class="p">}</span>
 <span class="w">      </span><span class="p">{</span><span class="nx">isStale</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">&lt;</span><span class="nx">StaleDataBadge</span><span class="w"> </span><span class="nx">lastUpdated</span><span class="o">=</span><span class="p">{</span><span class="nx">lastUpdated</span><span class="p">}</span><span class="w"> </span><span class="o">/&gt;</span><span class="p">}</span>
 <span class="w">      </span><span class="p">{</span><span class="o">!</span><span class="nx">isOnline</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">offlineFallback</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">offlineFallback</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">children</span><span class="p">}</span>
@@ -1394,7 +1394,7 @@
 <div class="codehilite"><pre><span></span><code><span class="c1"># apps/services/satellite-service/src/historical.py</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">HistoricalAnalyzer</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;محلل البيانات التاريخية&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""محلل البيانات التاريخية"""</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">compare_seasons</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1402,7 +1402,7 @@
         <span class="n">current_date</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span>
         <span class="n">lookback_years</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SeasonalComparison</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;مقارنة الموسم الحالي بالمواسم السابقة&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""مقارنة الموسم الحالي بالمواسم السابقة"""</span>
 
         <span class="n">current_season</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_season_data</span><span class="p">(</span><span class="n">field_id</span><span class="p">,</span> <span class="n">current_date</span><span class="p">)</span>
         <span class="n">historical_seasons</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1421,7 +1421,7 @@
         <span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">detect_chronic_issues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ChronicIssue</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;اكتشاف المشاكل المزمنة في الحقل&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""اكتشاف المشاكل المزمنة في الحقل"""</span>
 
         <span class="c1"># Analyze 3 years of data</span>
         <span class="n">issues</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1432,7 +1432,7 @@
             <span class="k">if</span> <span class="n">zone</span><span class="o">.</span><span class="n">avg_ndvi</span> <span class="o">&lt;</span> <span class="mf">0.4</span> <span class="ow">and</span> <span class="n">zone</span><span class="o">.</span><span class="n">consistency</span> <span class="o">&gt;</span> <span class="mf">0.7</span><span class="p">:</span>
                 <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ChronicIssue</span><span class="p">(</span>
                     <span class="n">zone_geometry</span><span class="o">=</span><span class="n">zone</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span>
-                    <span class="n">issue_type</span><span class="o">=</span><span class="s2">&quot;chronic_low_vigor&quot;</span><span class="p">,</span>
+                    <span class="n">issue_type</span><span class="o">=</span><span class="s2">"chronic_low_vigor"</span><span class="p">,</span>
                     <span class="n">severity</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_calculate_severity</span><span class="p">(</span><span class="n">zone</span><span class="p">),</span>
                     <span class="n">recommended_actions</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_suggest_remediation</span><span class="p">(</span><span class="n">zone</span><span class="p">)</span>
                 <span class="p">))</span>
@@ -1478,18 +1478,18 @@ GET /api/v1/fields/{field_id}/chronic-issues
 
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Check for offline support</span>
 <span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">          </span><span class="no">if grep -r &quot;fetch\|axios&quot; apps/mobile/; then</span>
-<span class="w">            </span><span class="no">if ! grep -r &quot;OfflineAware\|offline\|cache&quot; apps/mobile/; then</span>
-<span class="w">              </span><span class="no">echo &quot;::warning::Mobile code uses network calls without offline handling&quot;</span>
+<span class="w">          </span><span class="no">if grep -r "fetch\|axios" apps/mobile/; then</span>
+<span class="w">            </span><span class="no">if ! grep -r "OfflineAware\|offline\|cache" apps/mobile/; then</span>
+<span class="w">              </span><span class="no">echo "::warning::Mobile code uses network calls without offline handling"</span>
 <span class="w">            </span><span class="no">fi</span>
 <span class="w">          </span><span class="no">fi</span>
 
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Check analysis services</span>
 <span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
 <span class="w">          </span><span class="no">for service in apps/services/*-advisor apps/services/*-engine; do</span>
-<span class="w">            </span><span class="no">if [ -d &quot;$service&quot; ]; then</span>
-<span class="w">              </span><span class="no">if ! grep -q &quot;ActionTemplate&quot; &quot;$service/src/main.py&quot;; then</span>
-<span class="w">                </span><span class="no">echo &quot;::warning::$service does not output ActionTemplate&quot;</span>
+<span class="w">            </span><span class="no">if [ -d "$service" ]; then</span>
+<span class="w">              </span><span class="no">if ! grep -q "ActionTemplate" "$service/src/main.py"; then</span>
+<span class="w">                </span><span class="no">echo "::warning::$service does not output ActionTemplate"</span>
 <span class="w">              </span><span class="no">fi</span>
 <span class="w">            </span><span class="no">fi</span>
 <span class="w">          </span><span class="no">done</span>
@@ -1502,16 +1502,16 @@ GET /api/v1/fields/{field_id}/chronic-issues
 <div class="codehilite"><pre><span></span><code><span class="c1"># shared/playbooks/engine.py</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">PlaybookEngine</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;محرك Playbooks للإجراءات التلقائية&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""محرك Playbooks للإجراءات التلقائية"""</span>
 
     <span class="n">playbooks</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;drought_response&quot;</span><span class="p">:</span> <span class="n">DroughtResponsePlaybook</span><span class="p">(),</span>
-        <span class="s2">&quot;disease_outbreak&quot;</span><span class="p">:</span> <span class="n">DiseaseOutbreakPlaybook</span><span class="p">(),</span>
-        <span class="s2">&quot;yield_optimization&quot;</span><span class="p">:</span> <span class="n">YieldOptimizationPlaybook</span><span class="p">()</span>
+        <span class="s2">"drought_response"</span><span class="p">:</span> <span class="n">DroughtResponsePlaybook</span><span class="p">(),</span>
+        <span class="s2">"disease_outbreak"</span><span class="p">:</span> <span class="n">DiseaseOutbreakPlaybook</span><span class="p">(),</span>
+        <span class="s2">"yield_optimization"</span><span class="p">:</span> <span class="n">YieldOptimizationPlaybook</span><span class="p">()</span>
     <span class="p">}</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">EventEnvelope</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;تفعيل Playbook بناءً على الحدث&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""تفعيل Playbook بناءً على الحدث"""</span>
 
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">playbook</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">playbooks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">playbook</span><span class="o">.</span><span class="n">matches</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
@@ -1519,19 +1519,19 @@ GET /api/v1/fields/{field_id}/chronic-issues
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">DroughtResponsePlaybook</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Playbook الاستجابة للجفاف&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Playbook الاستجابة للجفاف"""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">matches</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">EventEnvelope</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">(</span>
-            <span class="n">event</span><span class="o">.</span><span class="n">event_type</span> <span class="o">==</span> <span class="s2">&quot;ndvi.computed.v1&quot;</span> <span class="ow">and</span>
-            <span class="n">event</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ndvi_value&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.3</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">event_type</span> <span class="o">==</span> <span class="s2">"ndvi.computed.v1"</span> <span class="ow">and</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ndvi_value"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.3</span>
         <span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
-            <span class="n">event</span><span class="o">.</span><span class="n">event_type</span> <span class="o">==</span> <span class="s2">&quot;weather.alert.v1&quot;</span> <span class="ow">and</span>
-            <span class="n">event</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;alert_type&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;drought&quot;</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">event_type</span> <span class="o">==</span> <span class="s2">"weather.alert.v1"</span> <span class="ow">and</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"alert_type"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"drought"</span>
         <span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">EventEnvelope</span><span class="p">):</span>
-        <span class="n">field_id</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;field_id&quot;</span><span class="p">]</span>
+        <span class="n">field_id</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">"field_id"</span><span class="p">]</span>
 
         <span class="c1"># Step 1: Get irrigation recommendation</span>
         <span class="n">irrigation</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">irrigation_service</span><span class="o">.</span><span class="n">get_emergency_schedule</span><span class="p">(</span><span class="n">field_id</span><span class="p">)</span>
@@ -1540,7 +1540,7 @@ GET /api/v1/fields/{field_id}/chronic-issues
         <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">ActionTemplate</span><span class="p">(</span>
                 <span class="n">action_type</span><span class="o">=</span><span class="n">ActionType</span><span class="o">.</span><span class="n">IRRIGATION</span><span class="p">,</span>
-                <span class="n">title_ar</span><span class="o">=</span><span class="s2">&quot;ري طوارئ - جفاف&quot;</span><span class="p">,</span>
+                <span class="n">title_ar</span><span class="o">=</span><span class="s2">"ري طوارئ - جفاف"</span><span class="p">,</span>
                 <span class="n">urgency</span><span class="o">=</span><span class="n">UrgencyLevel</span><span class="o">.</span><span class="n">CRITICAL</span><span class="p">,</span>
                 <span class="n">steps</span><span class="o">=</span><span class="n">irrigation</span><span class="o">.</span><span class="n">steps</span>
             <span class="p">)</span>
@@ -1549,14 +1549,14 @@ GET /api/v1/fields/{field_id}/chronic-issues
         <span class="c1"># Step 3: Notify</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">notification_service</span><span class="o">.</span><span class="n">send_critical_alert</span><span class="p">(</span>
             <span class="n">field_id</span><span class="o">=</span><span class="n">field_id</span><span class="p">,</span>
-            <span class="n">alert_type</span><span class="o">=</span><span class="s2">&quot;drought_response&quot;</span><span class="p">,</span>
+            <span class="n">alert_type</span><span class="o">=</span><span class="s2">"drought_response"</span><span class="p">,</span>
             <span class="n">tasks</span><span class="o">=</span><span class="n">tasks</span>
         <span class="p">)</span>
 
         <span class="c1"># Step 4: Log playbook execution</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">audit_service</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
-            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;playbook.executed&quot;</span><span class="p">,</span>
-            <span class="n">playbook</span><span class="o">=</span><span class="s2">&quot;drought_response&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">"playbook.executed"</span><span class="p">,</span>
+            <span class="n">playbook</span><span class="o">=</span><span class="s2">"drought_response"</span><span class="p">,</span>
             <span class="n">field_id</span><span class="o">=</span><span class="n">field_id</span>
         <span class="p">)</span>
 </code></pre></div>
@@ -1567,14 +1567,14 @@ GET /api/v1/fields/{field_id}/chronic-issues
 <div class="codehilite"><pre><span></span><code><span class="c1"># apps/services/analytics-service/src/operations.py</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">OperationsAnalytics</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;تحليلات العمليات&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""تحليلات العمليات"""</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_recommendation_effectiveness</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">tenant_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">date_range</span><span class="p">:</span> <span class="n">DateRange</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EffectivenessReport</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;قياس فعالية التوصيات&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""قياس فعالية التوصيات"""</span>
 
         <span class="c1"># Get all recommendations issued</span>
         <span class="n">recommendations</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_recommendations</span><span class="p">(</span>
@@ -1583,8 +1583,8 @@ GET /api/v1/fields/{field_id}/chronic-issues
         <span class="p">)</span>
 
         <span class="c1"># Track execution</span>
-        <span class="n">executed</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">recommendations</span> <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;executed&quot;</span><span class="p">]</span>
-        <span class="n">ignored</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">recommendations</span> <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;ignored&quot;</span><span class="p">]</span>
+        <span class="n">executed</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">recommendations</span> <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">"executed"</span><span class="p">]</span>
+        <span class="n">ignored</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">recommendations</span> <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">"ignored"</span><span class="p">]</span>
 
         <span class="c1"># Calculate outcomes</span>
         <span class="k">return</span> <span class="n">EffectivenessReport</span><span class="p">(</span>
@@ -1775,10 +1775,10 @@ apps/services/analytics-service/             # Operations Analytics
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

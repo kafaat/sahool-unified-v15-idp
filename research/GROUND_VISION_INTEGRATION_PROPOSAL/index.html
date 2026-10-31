@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1255,7 +1255,7 @@
 <h3 id="32">3.2 نموذج البيانات<a class="headerlink" href="#32" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># models/camera.py</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">TowerCamera</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tower camera registration model&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Tower camera registration model"""</span>
     <span class="n">camera_id</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">tower_id</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">location</span><span class="p">:</span> <span class="n">Point</span>  <span class="c1"># PostGIS Point</span>
@@ -1269,21 +1269,21 @@
 
 <span class="c1"># models/detection.py</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">FieldOperationDetection</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Detected agricultural operation&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Detected agricultural operation"""</span>
     <span class="n">detection_id</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">operation_type</span><span class="p">:</span> <span class="n">OperationType</span>  <span class="c1"># HARVEST, TILLAGE, IRRIGATION, PLANTING, SPRAYING</span>
     <span class="n">operation_type_ar</span><span class="p">:</span> <span class="nb">str</span>  <span class="c1"># حصاد، حراثة، ري، زراعة، رش</span>
     <span class="n">confidence</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">bounding_box</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Point</span><span class="p">]</span>  <span class="c1"># Geo-referenced polygon</span>
-    <span class="n">equipment_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>  <span class="c1"># e.g., &quot;combine_harvester&quot;</span>
+    <span class="n">equipment_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>  <span class="c1"># e.g., "combine_harvester"</span>
     <span class="n">detected_at</span><span class="p">:</span> <span class="n">datetime</span>
     <span class="n">source_frame_id</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">camera_id</span><span class="p">:</span> <span class="nb">str</span>
 
 <span class="c1"># models/timeline_entry.py</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">CropTimelineEntry</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Crop growth stage timeline entry&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Crop growth stage timeline entry"""</span>
     <span class="n">entry_id</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">crop_type</span><span class="p">:</span> <span class="nb">str</span>
@@ -1359,12 +1359,12 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.spatial.transform</span><span class="w"> </span><span class="kn">import</span> <span class="n">Rotation</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">QuaternionGeoProjector</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Direct pixel-to-geocoordinate transformation using quaternions.</span>
 <span class="sd">    Avoids gimbal lock issues with traditional Euler angles.</span>
 
 <span class="sd">    Based on: Qin et al. (2026) - Quaternion-based georeferencing for tower cameras</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1379,7 +1379,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">dem</span> <span class="o">=</span> <span class="n">dem_service</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">pixel_to_geo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Transform image pixel (u, v) to geographic coordinates (lon, lat).</span>
 
 <span class="sd">        Algorithm:</span>
@@ -1387,7 +1387,7 @@
 <span class="sd">        2. Apply inverse rotation using quaternion</span>
 <span class="sd">        3. Compute ray-terrain intersection using DEM</span>
 <span class="sd">        4. Convert local ENU to WGS84</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Step 1: Pixel to normalized camera coords</span>
         <span class="n">pixel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">])</span>
         <span class="n">K_inv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">)</span>
@@ -1410,9 +1410,9 @@
         <span class="n">image</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
         <span class="n">resolution_m</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">Affine</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Generate orthorectified image with geotransform.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Compute ground footprint corners</span>
         <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
         <span class="n">corners_pixel</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">h</span><span class="p">)]</span>
@@ -1430,14 +1430,14 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">segment_anything</span><span class="w"> </span><span class="kn">import</span> <span class="n">SamPredictor</span><span class="p">,</span> <span class="n">sam_model_registry</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">GISGuidedSAMSegmenter</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Field boundary extraction using SAM guided by GIS reference data.</span>
 
 <span class="sd">    Based on: Qin et al. (2026) - Iterative point prompt refinement</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sam_checkpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;cuda&quot;</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sam</span> <span class="o">=</span> <span class="n">sam_model_registry</span><span class="p">[</span><span class="s2">&quot;vit_h&quot;</span><span class="p">](</span><span class="n">checkpoint</span><span class="o">=</span><span class="n">sam_checkpoint</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sam_checkpoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"cuda"</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sam</span> <span class="o">=</span> <span class="n">sam_model_registry</span><span class="p">[</span><span class="s2">"vit_h"</span><span class="p">](</span><span class="n">checkpoint</span><span class="o">=</span><span class="n">sam_checkpoint</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sam</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">predictor</span> <span class="o">=</span> <span class="n">SamPredictor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sam</span><span class="p">)</span>
 
@@ -1449,7 +1449,7 @@
         <span class="n">max_iterations</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
         <span class="n">iou_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.85</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Polygon</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Iteratively refine field segmentation using GIS reference.</span>
 
 <span class="sd">        Algorithm:</span>
@@ -1458,7 +1458,7 @@
 <span class="sd">        3. Run SAM segmentation</span>
 <span class="sd">        4. Evaluate IoU with reference</span>
 <span class="sd">        5. If IoU &lt; threshold, add more prompts and repeat</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">predictor</span><span class="o">.</span><span class="n">set_image</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
 
         <span class="c1"># Project reference to image coords</span>
@@ -1509,11 +1509,11 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">base64</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">CropTimelineReasoner</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Multimodal LLM-based crop timeline analysis.</span>
 
 <span class="sd">    Based on: Qin et al. (2026) - Change-triggered MLLM invocation</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1529,11 +1529,11 @@
         <span class="n">frames</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">TimeSeriesFrame</span><span class="p">],</span>
         <span class="n">context</span><span class="p">:</span> <span class="n">FieldContext</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CropTimelineAnalysis</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Analyze temporal sequence to identify crop stages and events.</span>
 
 <span class="sd">        Only invokes expensive MLLM when significant change detected.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Check if change is significant enough to warrant MLLM</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
             <span class="n">change_score</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">change_detector</span><span class="o">.</span><span class="n">compute_change</span><span class="p">(</span>
@@ -1549,9 +1549,9 @@
         <span class="c1"># Encode images for multimodal input</span>
         <span class="n">image_data</span> <span class="o">=</span> <span class="p">[</span>
             <span class="p">{</span>
-                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;image&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">image_bytes</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(),</span>
-                <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">f</span><span class="o">.</span><span class="n">timestamp</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+                <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"image"</span><span class="p">,</span>
+                <span class="s2">"data"</span><span class="p">:</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">image_bytes</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(),</span>
+                <span class="s2">"timestamp"</span><span class="p">:</span> <span class="n">f</span><span class="o">.</span><span class="n">timestamp</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
             <span class="p">}</span>
             <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">frames</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">:]</span>  <span class="c1"># Last 5 frames for context</span>
         <span class="p">]</span>
@@ -1582,7 +1582,7 @@
         <span class="n">frames</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">TimeSeriesFrame</span><span class="p">],</span>
         <span class="n">context</span><span class="p">:</span> <span class="n">FieldContext</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"""</span>
 <span class="s2">        أنت خبير زراعي متخصص في تحليل صور الحقول الزراعية.</span>
 
 <span class="s2">        ## السياق</span>
@@ -1603,7 +1603,7 @@
 <span class="s2">        الصور مرتبة زمنياً من الأقدم إلى الأحدث.</span>
 
 <span class="s2">        أجب بتنسيق JSON المحدد.</span>
-<span class="s2">        &quot;&quot;&quot;</span>
+<span class="s2">        """</span>
 </code></pre></div>
 
 <hr />
@@ -1785,7 +1785,7 @@
 <span class="w">  </span><span class="nt">volumes</span><span class="p">:</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./models:/models:ro</span>
 <span class="w">  </span><span class="nt">ports</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;8180:8180&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"8180:8180"</span>
 <span class="w">  </span><span class="nt">depends_on</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">postgres</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">condition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">service_healthy</span>
@@ -1933,10 +1933,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1207,7 +1207,7 @@ make<span class="w"> </span>dev<span class="w">           </span><span class="c1
 cp<span class="w"> </span>.env.example<span class="w"> </span>.env
 
 <span class="c1"># Verify required variables</span>
-cat<span class="w"> </span>.env<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s2">&quot;^(DATABASE_URL|JWT_SECRET|NATS_URL)&quot;</span>
+cat<span class="w"> </span>.env<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s2">"^(DATABASE_URL|JWT_SECRET|NATS_URL)"</span>
 </code></pre></div>
 
 <hr />
@@ -1393,7 +1393,7 @@ make<span class="w"> </span>db-shell<span class="w">  </span><span class="c1"># 
 <span class="nb">echo</span><span class="w"> </span><span class="nv">$POSTGRES_PASSWORD</span>
 
 <span class="c1"># Test connection</span>
-psql<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$DATABASE_URL</span><span class="s2">&quot;</span>
+psql<span class="w"> </span><span class="s2">"</span><span class="nv">$DATABASE_URL</span><span class="s2">"</span>
 </code></pre></div>
 
 <ol>
@@ -1441,7 +1441,7 @@ ls<span class="w"> </span>-la<span class="w"> </span>apps/services/*/prisma/migr
 <hr />
 <h3 id="issue-postgis-extension-not-available">Issue: PostGIS extension not available<a class="headerlink" href="#issue-postgis-extension-not-available" title="Permanent link">&para;</a></h3>
 <p><strong>Symptoms:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="nx">ERROR</span><span class="p">:</span><span class="w"> </span><span class="k">type</span><span class="w"> </span><span class="s">&quot;geometry&quot;</span><span class="w"> </span><span class="nx">does</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="nx">exist</span>
+<div class="codehilite"><pre><span></span><code><span class="nx">ERROR</span><span class="p">:</span><span class="w"> </span><span class="k">type</span><span class="w"> </span><span class="s">"geometry"</span><span class="w"> </span><span class="nx">does</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="nx">exist</span>
 </code></pre></div>
 
 <p><strong>Solutions:</strong></p>
@@ -1469,7 +1469,7 @@ ls<span class="w"> </span>-la<span class="w"> </span>apps/services/*/prisma/migr
 <li><strong>Check query performance:</strong></li>
 </ol>
 <div class="codehilite"><pre><span></span><code><span class="c1">-- Enable query logging</span>
-<span class="k">SET</span><span class="w"> </span><span class="n">log_min_duration_statement</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;100ms&#39;</span><span class="p">;</span>
+<span class="k">SET</span><span class="w"> </span><span class="n">log_min_duration_statement</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'100ms'</span><span class="p">;</span>
 
 <span class="c1">-- Analyze slow query</span>
 <span class="k">EXPLAIN</span><span class="w"> </span><span class="k">ANALYZE</span><span class="w"> </span><span class="o">&lt;</span><span class="n">your_query</span><span class="o">&gt;</span><span class="p">;</span>
@@ -1517,14 +1517,14 @@ curl<span class="w"> </span>http://localhost:4222<span class="w">  </span><span 
 <li><strong>Missing environment variables:</strong></li>
 </ol>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Check required variables</span>
-docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>&lt;container&gt;<span class="w"> </span>env<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s2">&quot;(DATABASE|JWT|NATS)&quot;</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>&lt;container&gt;<span class="w"> </span>env<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s2">"(DATABASE|JWT|NATS)"</span>
 </code></pre></div>
 
 <ol>
 <li><strong>Import errors:</strong></li>
 </ol>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Check for Python import errors in logs</span>
-docker<span class="w"> </span>logs<span class="w"> </span>&lt;service&gt;<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;ImportError\|ModuleNotFoundError&quot;</span>
+docker<span class="w"> </span>logs<span class="w"> </span>&lt;service&gt;<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">"ImportError\|ModuleNotFoundError"</span>
 </code></pre></div>
 
 <hr />
@@ -1567,7 +1567,7 @@ curl<span class="w"> </span>http://localhost:6379<span class="w">  </span><span 
 curl<span class="w"> </span>http://localhost:8222/varz
 
 <span class="c1"># Check subscriptions</span>
-nats<span class="w"> </span>sub<span class="w"> </span><span class="s2">&quot;sahool.&gt;&quot;</span><span class="w"> </span>--count<span class="w"> </span><span class="m">5</span>
+nats<span class="w"> </span>sub<span class="w"> </span><span class="s2">"sahool.&gt;"</span><span class="w"> </span>--count<span class="w"> </span><span class="m">5</span>
 </code></pre></div>
 
 <ol>
@@ -1597,7 +1597,7 @@ nats<span class="w"> </span>sub<span class="w"> </span>ls
 <li><strong>Check token expiration:</strong></li>
 </ol>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Decode JWT (paste token)</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;YOUR_TOKEN&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>cut<span class="w"> </span>-d<span class="s1">&#39;.&#39;</span><span class="w"> </span>-f2<span class="w"> </span><span class="p">|</span><span class="w"> </span>base64<span class="w"> </span>-d<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"YOUR_TOKEN"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>cut<span class="w"> </span>-d<span class="s1">'.'</span><span class="w"> </span>-f2<span class="w"> </span><span class="p">|</span><span class="w"> </span>base64<span class="w"> </span>-d<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq
 </code></pre></div>
 
 <ol>
@@ -1611,7 +1611,7 @@ nats<span class="w"> </span>sub<span class="w"> </span>ls
 <li><strong>Refresh token:</strong></li>
 </ol>
 <div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8000/api/v1/auth/refresh<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer &lt;refresh_token&gt;&quot;</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Authorization: Bearer &lt;refresh_token&gt;"</span>
 </code></pre></div>
 
 <hr />
@@ -1626,7 +1626,7 @@ CORS policy blocked
 <li><strong>Check allowed origins:</strong></li>
 </ol>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Verify CORS configuration</span>
-grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;CORS\|allow_origins&quot;</span><span class="w"> </span>apps/
+grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">"CORS\|allow_origins"</span><span class="w"> </span>apps/
 </code></pre></div>
 
 <ol>
@@ -1634,15 +1634,15 @@ grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;COR
 </ol>
 <div class="codehilite"><pre><span></span><code><span class="c1"># In FastAPI service</span>
 <span class="n">origins</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;http://localhost:3000&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;https://app.sahool.com&quot;</span><span class="p">,</span>
+    <span class="s2">"http://localhost:3000"</span><span class="p">,</span>
+    <span class="s2">"https://app.sahool.com"</span><span class="p">,</span>
 <span class="p">]</span>
 </code></pre></div>
 
 <ol>
 <li><strong>Check Kong CORS plugin:</strong></li>
 </ol>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>http://localhost:8001/plugins<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data[] | select(.name==&quot;cors&quot;)&#39;</span>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>http://localhost:8001/plugins<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">'.data[] | select(.name=="cors")'</span>
 </code></pre></div>
 
 <hr />
@@ -1689,13 +1689,13 @@ grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;COR
 <ol>
 <li><strong>Verify service registration:</strong></li>
 </ol>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>http://localhost:8001/services<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data[].name&#39;</span>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>http://localhost:8001/services<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">'.data[].name'</span>
 </code></pre></div>
 
 <ol>
 <li><strong>Check routes:</strong></li>
 </ol>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>http://localhost:8001/routes<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data[].paths&#39;</span>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>http://localhost:8001/routes<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">'.data[].paths'</span>
 </code></pre></div>
 
 <ol>
@@ -1709,7 +1709,7 @@ curl<span class="w"> </span>http://localhost:8080/healthz
 <h3 id="issue-kong-plugins-not-working">Issue: Kong plugins not working<a class="headerlink" href="#issue-kong-plugins-not-working" title="Permanent link">&para;</a></h3>
 <p><strong>Diagnosis:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># List active plugins</span>
-curl<span class="w"> </span>http://localhost:8001/plugins<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data[].name&#39;</span>
+curl<span class="w"> </span>http://localhost:8001/plugins<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">'.data[].name'</span>
 
 <span class="c1"># Check plugin status</span>
 curl<span class="w"> </span>http://localhost:8001/plugins/&lt;plugin_id&gt;
@@ -1725,7 +1725,7 @@ curl<span class="w"> </span>http://localhost:8001/plugins/&lt;plugin_id&gt;
 <ol>
 <li><strong>Check plugin logs:</strong></li>
 </ol>
-<div class="codehilite"><pre><span></span><code>docker<span class="w"> </span>logs<span class="w"> </span>sahool-kong<span class="w"> </span>--tail<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;plugin&quot;</span>
+<div class="codehilite"><pre><span></span><code>docker<span class="w"> </span>logs<span class="w"> </span>sahool-kong<span class="w"> </span>--tail<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">"plugin"</span>
 </code></pre></div>
 
 <hr />
@@ -1821,7 +1821,7 @@ flutter<span class="w"> </span>build<span class="w"> </span>apk
 <hr />
 <h3 id="issue-drift-database-errors">Issue: Drift database errors<a class="headerlink" href="#issue-drift-database-errors" title="Permanent link">&para;</a></h3>
 <p><strong>Symptoms:</strong></p>
-<div class="codehilite"><pre><span></span><code>Error: Getter not found: &#39;TasksCompanion&#39;
+<div class="codehilite"><pre><span></span><code>Error: Getter not found: 'TasksCompanion'
 </code></pre></div>
 
 <p><strong>Solutions:</strong></p>
@@ -1848,7 +1848,7 @@ dart<span class="w"> </span>run<span class="w"> </span>build_runner<span class="
 <li><strong>Check API URL:</strong></li>
 </ol>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Verify base URL in api_config.dart</span>
-<span class="k">const</span><span class="w"> </span><span class="n">baseUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;https://api.sahool.com&#39;</span><span class="p">;</span>
+<span class="k">const</span><span class="w"> </span><span class="n">baseUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'https://api.sahool.com'</span><span class="p">;</span>
 </code></pre></div>
 
 <ol>
@@ -1904,7 +1904,7 @@ npm<span class="w"> </span>run<span class="w"> </span>build
 <li><strong>Verify WebSocket URL:</strong></li>
 </ol>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Should use wss:// in production</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">wsUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;wss://api.sahool.com/ws&#39;</span><span class="p">;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">wsUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'wss://api.sahool.com/ws'</span><span class="p">;</span>
 </code></pre></div>
 
 <hr />
@@ -1912,7 +1912,7 @@ npm<span class="w"> </span>run<span class="w"> </span>build
 <h3 id="issue-slow-api-responses">Issue: Slow API responses<a class="headerlink" href="#issue-slow-api-responses" title="Permanent link">&para;</a></h3>
 <p><strong>Diagnosis:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Check response times</span>
-curl<span class="w"> </span>-w<span class="w"> </span><span class="s2">&quot;@curl-format.txt&quot;</span><span class="w"> </span>http://localhost:8000/api/v1/fields
+curl<span class="w"> </span>-w<span class="w"> </span><span class="s2">"@curl-format.txt"</span><span class="w"> </span>http://localhost:8000/api/v1/fields
 </code></pre></div>
 
 <p><strong>Solutions:</strong></p>
@@ -1926,7 +1926,7 @@ redis-cli<span class="w"> </span>ping
 <ol>
 <li><strong>Check database indexes:</strong></li>
 </ol>
-<div class="codehilite"><pre><span></span><code><span class="k">EXPLAIN</span><span class="w"> </span><span class="k">ANALYZE</span><span class="w"> </span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">tenant_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;xxx&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">EXPLAIN</span><span class="w"> </span><span class="k">ANALYZE</span><span class="w"> </span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">tenant_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'xxx'</span><span class="p">;</span>
 </code></pre></div>
 
 <ol>
@@ -1968,13 +1968,13 @@ python<span class="w"> </span>-m<span class="w"> </span>memory_profiler<span cla
 <ol>
 <li><strong>Check logs thoroughly:</strong></li>
 </ol>
-<div class="codehilite"><pre><span></span><code>make<span class="w"> </span>logs<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;error\|exception\|failed&quot;</span>
+<div class="codehilite"><pre><span></span><code>make<span class="w"> </span>logs<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">"error\|exception\|failed"</span>
 </code></pre></div>
 
 <ol>
 <li><strong>Search documentation:</strong></li>
 </ol>
-<div class="codehilite"><pre><span></span><code>grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;your_error_message&quot;</span><span class="w"> </span>docs/
+<div class="codehilite"><pre><span></span><code>grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">"your_error_message"</span><span class="w"> </span>docs/
 </code></pre></div>
 
 <ol>
@@ -2035,10 +2035,10 @@ python<span class="w"> </span>-m<span class="w"> </span>memory_profiler<span cla
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

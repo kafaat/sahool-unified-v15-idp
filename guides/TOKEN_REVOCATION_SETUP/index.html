@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1141,19 +1141,19 @@ nano<span class="w"> </span>.env
 
 <p><strong>Minimum required configuration:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="err">#</span><span class="w"> </span><span class="k">Database</span>
-<span class="n">DATABASE_URL</span><span class="o">=</span><span class="ss">&quot;postgresql://user:password@localhost:5432/sahool_users&quot;</span>
+<span class="n">DATABASE_URL</span><span class="o">=</span><span class="ss">"postgresql://user:password@localhost:5432/sahool_users"</span>
 
 <span class="err">#</span><span class="w"> </span><span class="n">JWT</span>
-<span class="n">JWT_SECRET_KEY</span><span class="o">=</span><span class="ss">&quot;your-super-secret-jwt-key-at-least-32-characters-long&quot;</span>
-<span class="n">JWT_ALGORITHM</span><span class="o">=</span><span class="ss">&quot;HS256&quot;</span>
-<span class="n">JWT_ACCESS_TOKEN_EXPIRE_MINUTES</span><span class="o">=</span><span class="ss">&quot;30&quot;</span>
-<span class="n">JWT_REFRESH_TOKEN_EXPIRE_DAYS</span><span class="o">=</span><span class="ss">&quot;7&quot;</span>
+<span class="n">JWT_SECRET_KEY</span><span class="o">=</span><span class="ss">"your-super-secret-jwt-key-at-least-32-characters-long"</span>
+<span class="n">JWT_ALGORITHM</span><span class="o">=</span><span class="ss">"HS256"</span>
+<span class="n">JWT_ACCESS_TOKEN_EXPIRE_MINUTES</span><span class="o">=</span><span class="ss">"30"</span>
+<span class="n">JWT_REFRESH_TOKEN_EXPIRE_DAYS</span><span class="o">=</span><span class="ss">"7"</span>
 
 <span class="err">#</span><span class="w"> </span><span class="n">Redis</span>
-<span class="n">REDIS_URL</span><span class="o">=</span><span class="ss">&quot;redis://localhost:6379&quot;</span>
+<span class="n">REDIS_URL</span><span class="o">=</span><span class="ss">"redis://localhost:6379"</span>
 
 <span class="err">#</span><span class="w"> </span><span class="n">Token</span><span class="w"> </span><span class="n">Revocation</span>
-<span class="n">TOKEN_REVOCATION_ENABLED</span><span class="o">=</span><span class="ss">&quot;true&quot;</span>
+<span class="n">TOKEN_REVOCATION_ENABLED</span><span class="o">=</span><span class="ss">"true"</span>
 </code></pre></div>
 
 <h3 id="3-start-redis">3. Start Redis<a class="headerlink" href="#3-start-redis" title="Permanent link">&para;</a></h3>
@@ -1187,31 +1187,31 @@ npm<span class="w"> </span>run<span class="w"> </span>start:dev
 <p><strong>Test the API:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># 1. Login</span>
 curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3020/api/v1/auth/login<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
-<span class="s1">    &quot;email&quot;: &quot;test@sahool.com&quot;,</span>
-<span class="s1">    &quot;password&quot;: &quot;TestPassword123!&quot;</span>
-<span class="s1">  }&#39;</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "email": "test@sahool.com",</span>
+<span class="s1">    "password": "TestPassword123!"</span>
+<span class="s1">  }'</span>
 
 <span class="c1"># Copy the access_token from response</span>
 
 <span class="c1"># 2. Access protected endpoint</span>
 curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3020/api/v1/auth/me<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_ACCESS_TOKEN&quot;</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Authorization: Bearer YOUR_ACCESS_TOKEN"</span>
 
 <span class="c1"># Should return user info</span>
 
 <span class="c1"># 3. Logout (revoke token)</span>
 curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3020/api/v1/auth/logout<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_ACCESS_TOKEN&quot;</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Authorization: Bearer YOUR_ACCESS_TOKEN"</span>
 
-<span class="c1"># Should return: {&quot;success&quot;: true, &quot;message&quot;: &quot;Logged out successfully&quot;}</span>
+<span class="c1"># Should return: {"success": true, "message": "Logged out successfully"}</span>
 
 <span class="c1"># 4. Try using the same token again</span>
 curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3020/api/v1/auth/me<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_ACCESS_TOKEN&quot;</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Authorization: Bearer YOUR_ACCESS_TOKEN"</span>
 
-<span class="c1"># Should return 401 Unauthorized with &quot;token_revoked&quot; error</span>
+<span class="c1"># Should return 401 Unauthorized with "token_revoked" error</span>
 </code></pre></div>
 
 <p><strong>Check Redis:</strong></p>
@@ -1225,7 +1225,7 @@ KEYS<span class="w"> </span>revoked:token:*
 GET<span class="w"> </span>revoked:token:&lt;jti&gt;
 
 <span class="c1"># Output should show:</span>
-<span class="c1"># {&quot;revokedAt&quot;:1234567890,&quot;reason&quot;:&quot;user_logout&quot;,&quot;userId&quot;:&quot;...&quot;}</span>
+<span class="c1"># {"revokedAt":1234567890,"reason":"user_logout","userId":"..."}</span>
 
 <span class="c1"># Check TTL (Time To Live)</span>
 TTL<span class="w"> </span>revoked:token:&lt;jti&gt;
@@ -1236,12 +1236,12 @@ TTL<span class="w"> </span>revoked:token:&lt;jti&gt;
 <h3 id="6-configure-other-services-optional">6. Configure Other Services (Optional)<a class="headerlink" href="#6-configure-other-services-optional" title="Permanent link">&para;</a></h3>
 <p>To enable token revocation in other services (e.g., marketplace-service, iot-service):</p>
 <p><strong>Update the service's <code>app.module.ts</code>:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Module</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/common&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">APP_GUARD</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/core&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">JwtModule</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/jwt&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">TokenRevocationGuard</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/nestjs-auth/guards/token-revocation.guard&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">RedisTokenRevocationStore</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/nestjs-auth/services/token-revocation&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">JWTConfig</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/nestjs-auth/config/jwt.config&quot;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Module</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@nestjs/common"</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">APP_GUARD</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@nestjs/core"</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">JwtModule</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@nestjs/jwt"</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">TokenRevocationGuard</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@sahool/nestjs-auth/guards/token-revocation.guard"</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">RedisTokenRevocationStore</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@sahool/nestjs-auth/services/token-revocation"</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">JWTConfig</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@sahool/nestjs-auth/config/jwt.config"</span><span class="p">;</span>
 
 <span class="kd">@Module</span><span class="p">({</span>
 <span class="w">  </span><span class="nx">imports</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
@@ -1262,7 +1262,7 @@ TTL<span class="w"> </span>revoked:token:&lt;jti&gt;
 <span class="w">      </span><span class="nx">useFactory</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">redisUrl</span><span class="w"> </span><span class="o">=</span>
 <span class="w">          </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">REDIS_URL</span><span class="w"> </span><span class="o">||</span>
-<span class="w">          </span><span class="sb">`redis://</span><span class="si">${</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">REDIS_HOST</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">&quot;localhost&quot;</span><span class="si">}</span><span class="sb">:</span><span class="si">${</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">REDIS_PORT</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="mf">6379</span><span class="si">}</span><span class="sb">`</span><span class="p">;</span>
+<span class="w">          </span><span class="sb">`redis://</span><span class="si">${</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">REDIS_HOST</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">"localhost"</span><span class="si">}</span><span class="sb">:</span><span class="si">${</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">REDIS_PORT</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="mf">6379</span><span class="si">}</span><span class="sb">`</span><span class="p">;</span>
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">RedisTokenRevocationStore</span><span class="p">(</span><span class="nx">redisUrl</span><span class="p">);</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">    </span><span class="p">},</span>
@@ -1273,18 +1273,18 @@ TTL<span class="w"> </span>revoked:token:&lt;jti&gt;
 </code></pre></div>
 
 <p><strong>Add Redis config to service's <code>.env</code>:</strong></p>
-<div class="codehilite"><pre><span></span><code>REDIS_URL=&quot;redis://localhost:6379&quot;
-TOKEN_REVOCATION_ENABLED=&quot;true&quot;
+<div class="codehilite"><pre><span></span><code>REDIS_URL="redis://localhost:6379"
+TOKEN_REVOCATION_ENABLED="true"
 </code></pre></div>
 
 <h3 id="7-update-frontend-environment">7. Update Frontend Environment<a class="headerlink" href="#7-update-frontend-environment" title="Permanent link">&para;</a></h3>
 <p>For admin and web apps, add backend URL:</p>
 <p><strong><code>apps/admin/.env.local</code>:</strong></p>
-<div class="codehilite"><pre><span></span><code>USER_SERVICE_URL=&quot;http://localhost:3020&quot;
+<div class="codehilite"><pre><span></span><code>USER_SERVICE_URL="http://localhost:3020"
 </code></pre></div>
 
 <p><strong><code>apps/web/.env.local</code>:</strong></p>
-<div class="codehilite"><pre><span></span><code>USER_SERVICE_URL=&quot;http://localhost:3020&quot;
+<div class="codehilite"><pre><span></span><code>USER_SERVICE_URL="http://localhost:3020"
 </code></pre></div>
 
 <h2 id="verification-checklist">Verification Checklist<a class="headerlink" href="#verification-checklist" title="Permanent link">&para;</a></h2>
@@ -1313,10 +1313,10 @@ TOKEN_REVOCATION_ENABLED=&quot;true&quot;
 <p><strong>Solution:</strong>
 Generate a secure secret:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Generate random secret</span>
-node<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;console.log(require(&#39;crypto&#39;).randomBytes(32).toString(&#39;base64&#39;))&quot;</span>
+node<span class="w"> </span>-e<span class="w"> </span><span class="s2">"console.log(require('crypto').randomBytes(32).toString('base64'))"</span>
 
 <span class="c1"># Add to .env</span>
-<span class="nv">JWT_SECRET_KEY</span><span class="o">=</span><span class="s2">&quot;&lt;generated_secret&gt;&quot;</span>
+<span class="nv">JWT_SECRET_KEY</span><span class="o">=</span><span class="s2">"&lt;generated_secret&gt;"</span>
 </code></pre></div>
 
 <h3 id="token-missing-jti">Token Missing JTI<a class="headerlink" href="#token-missing-jti" title="Permanent link">&para;</a></h3>
@@ -1346,13 +1346,13 @@ npm<span class="w"> </span>link<span class="w"> </span>@sahool/nestjs-auth
 <h3 id="redis-configuration">Redis Configuration<a class="headerlink" href="#redis-configuration" title="Permanent link">&para;</a></h3>
 <p><strong>High Availability Setup:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="err">#</span><span class="w"> </span><span class="n">Redis</span><span class="w"> </span><span class="n">Sentinel</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="n">Cluster</span>
-<span class="n">REDIS_URL</span><span class="o">=</span><span class="ss">&quot;redis://sentinel1:26379,sentinel2:26379,sentinel3:26379&quot;</span>
+<span class="n">REDIS_URL</span><span class="o">=</span><span class="ss">"redis://sentinel1:26379,sentinel2:26379,sentinel3:26379"</span>
 
 <span class="err">#</span><span class="w"> </span><span class="k">With</span><span class="w"> </span><span class="n">password</span>
-<span class="n">REDIS_URL</span><span class="o">=</span><span class="ss">&quot;redis://:password@host:6379&quot;</span>
+<span class="n">REDIS_URL</span><span class="o">=</span><span class="ss">"redis://:password@host:6379"</span>
 
 <span class="err">#</span><span class="w"> </span><span class="n">Redis</span><span class="w"> </span><span class="n">Cluster</span>
-<span class="n">REDIS_CLUSTER_NODES</span><span class="o">=</span><span class="ss">&quot;host1:6379,host2:6379,host3:6379&quot;</span>
+<span class="n">REDIS_CLUSTER_NODES</span><span class="o">=</span><span class="ss">"host1:6379,host2:6379,host3:6379"</span>
 </code></pre></div>
 
 <h3 id="security-checklist">Security Checklist<a class="headerlink" href="#security-checklist" title="Permanent link">&para;</a></h3>
@@ -1369,14 +1369,14 @@ npm<span class="w"> </span>link<span class="w"> </span>@sahool/nestjs-auth
 </ul>
 <h3 id="performance-optimization">Performance Optimization<a class="headerlink" href="#performance-optimization" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="gh">#</span> Increase token expiration to reduce revocation checks
-JWT_ACCESS_TOKEN_EXPIRE_MINUTES=&quot;60&quot;
+JWT_ACCESS_TOKEN_EXPIRE_MINUTES="60"
 
 <span class="gh">#</span> Use Redis connection pooling
-REDIS_MAX_CONNECTIONS=&quot;50&quot;
-REDIS_MIN_CONNECTIONS=&quot;10&quot;
+REDIS_MAX_CONNECTIONS="50"
+REDIS_MIN_CONNECTIONS="10"
 
 <span class="gh">#</span> Enable Redis persistence
-REDIS_SAVE=&quot;900 1 300 10 60 10000&quot;
+REDIS_SAVE="900 1 300 10 60 10000"
 </code></pre></div>
 
 <h2 id="monitoring">Monitoring<a class="headerlink" href="#monitoring" title="Permanent link">&para;</a></h2>
@@ -1419,13 +1419,13 @@ redis-cli<span class="w"> </span>ping
 <h3 id="logging">Logging<a class="headerlink" href="#logging" title="Permanent link">&para;</a></h3>
 <p>Check logs for:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Token revocations</span>
-grep<span class="w"> </span><span class="s2">&quot;Token revoked&quot;</span><span class="w"> </span>/var/log/user-service.log
+grep<span class="w"> </span><span class="s2">"Token revoked"</span><span class="w"> </span>/var/log/user-service.log
 
 <span class="c1"># Revoked token access attempts</span>
-grep<span class="w"> </span><span class="s2">&quot;Revoked token access attempt&quot;</span><span class="w"> </span>/var/log/user-service.log
+grep<span class="w"> </span><span class="s2">"Revoked token access attempt"</span><span class="w"> </span>/var/log/user-service.log
 
 <span class="c1"># Redis connection issues</span>
-grep<span class="w"> </span><span class="s2">&quot;Redis error&quot;</span><span class="w"> </span>/var/log/user-service.log
+grep<span class="w"> </span><span class="s2">"Redis error"</span><span class="w"> </span>/var/log/user-service.log
 </code></pre></div>
 
 <h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
@@ -1505,10 +1505,10 @@ grep<span class="w"> </span><span class="s2">&quot;Redis error&quot;</span><span
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

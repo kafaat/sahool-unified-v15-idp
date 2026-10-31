@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1364,24 +1364,24 @@ GET http://localhost:8001/a2a/conversations/{conversation_id}
 
 <span class="c1"># Discover agent</span>
 <span class="n">discovery</span> <span class="o">=</span> <span class="n">AgentDiscovery</span><span class="p">()</span>
-<span class="n">agent_card</span> <span class="o">=</span> <span class="k">await</span> <span class="n">discovery</span><span class="o">.</span><span class="n">discover_agent</span><span class="p">(</span><span class="s2">&quot;http://localhost:8001&quot;</span><span class="p">)</span>
+<span class="n">agent_card</span> <span class="o">=</span> <span class="k">await</span> <span class="n">discovery</span><span class="o">.</span><span class="n">discover_agent</span><span class="p">(</span><span class="s2">"http://localhost:8001"</span><span class="p">)</span>
 
 <span class="c1"># Create client</span>
-<span class="n">client</span> <span class="o">=</span> <span class="n">A2AClient</span><span class="p">(</span><span class="n">sender_agent_id</span><span class="o">=</span><span class="s2">&quot;my-app&quot;</span><span class="p">)</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">A2AClient</span><span class="p">(</span><span class="n">sender_agent_id</span><span class="o">=</span><span class="s2">"my-app"</span><span class="p">)</span>
 
 <span class="c1"># Send task</span>
 <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">send_task</span><span class="p">(</span>
     <span class="n">agent_card</span><span class="o">=</span><span class="n">agent_card</span><span class="p">,</span>
-    <span class="n">task_type</span><span class="o">=</span><span class="s2">&quot;crop-disease-diagnosis&quot;</span><span class="p">,</span>
-    <span class="n">task_description</span><span class="o">=</span><span class="s2">&quot;Diagnose tomato disease&quot;</span><span class="p">,</span>
+    <span class="n">task_type</span><span class="o">=</span><span class="s2">"crop-disease-diagnosis"</span><span class="p">,</span>
+    <span class="n">task_description</span><span class="o">=</span><span class="s2">"Diagnose tomato disease"</span><span class="p">,</span>
     <span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;crop_type&quot;</span><span class="p">:</span> <span class="s2">&quot;tomato&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;symptoms&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;leaf_condition&quot;</span><span class="p">:</span> <span class="s2">&quot;yellow spots&quot;</span><span class="p">}</span>
+        <span class="s2">"crop_type"</span><span class="p">:</span> <span class="s2">"tomato"</span><span class="p">,</span>
+        <span class="s2">"symptoms"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"leaf_condition"</span><span class="p">:</span> <span class="s2">"yellow spots"</span><span class="p">}</span>
     <span class="p">}</span>
 <span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Diagnosis: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;diagnosis&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Confidence: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;confidence&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Diagnosis: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s1">'diagnosis'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Confidence: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">result</span><span class="p">[</span><span class="s1">'confidence'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div>
 
 <h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
@@ -1499,10 +1499,10 @@ GET http://localhost:8001/a2a/conversations/{conversation_id}
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

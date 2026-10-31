@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1272,7 +1272,7 @@ equipment, CRM, logistics, etc.) have <strong>no Kong-level JWT validation</stro
 <strong>Severity</strong>: P0 Critical
 <strong>Category</strong>: Security / CORS</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">origins</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;*&quot;</span><span class="w">  </span><span class="c1"># Replace with ${KONG_CORS_ORIGINS:-*} in production</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"*"</span><span class="w">  </span><span class="c1"># Replace with ${KONG_CORS_ORIGINS:-*} in production</span>
 </code></pre></div>
 
 <p>The CORS origin is set to <code>"*"</code> (wildcard) and relies on a comment instructing operators
@@ -1358,7 +1358,7 @@ very large but have no size limits beyond the global 10MB.</p>
 <strong>Severity</strong>: P1 High
 <strong>Category</strong>: Security / Data Exposure</p>
 <div class="codehilite"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">notification-farmers-route</span>
-<span class="w">  </span><span class="nt">paths</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;/api/v1/farmers&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">paths</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"/api/v1/farmers"</span><span class="p p-Indicator">]</span>
 </code></pre></div>
 
 <p>This route maps <code>/api/v1/farmers</code> to the notification-service, which could conflict with
@@ -1455,11 +1455,11 @@ also expose <code>/health</code> (which overlaps). 5 services use <code>/health/
 <h3 id="api-016-inconsistent-error-response-format">API-016: Inconsistent error response format<a class="headerlink" href="#api-016-inconsistent-error-response-format" title="Permanent link">&para;</a></h3>
 <p><strong>Severity</strong>: P2 Medium</p>
 <p>Services using <code>shared.errors_py</code> return the unified format:</p>
-<div class="codehilite"><pre><span></span><code><span class="p">{</span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;code&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;E1001&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;message_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">}}</span>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span><span class="nt">"success"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"E1001"</span><span class="p">,</span><span class="w"> </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="p">,</span><span class="w"> </span><span class="nt">"message_ar"</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="p">}}</span>
 </code></pre></div>
 
 <p>But 18+ services also raise raw <code>HTTPException</code> directly, returning:</p>
-<div class="codehilite"><pre><span></span><code><span class="p">{</span><span class="nt">&quot;detail&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">}</span>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span><span class="nt">"detail"</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="p">}</span>
 </code></pre></div>
 
 <p>This creates inconsistent error formats for API consumers.</p>
@@ -1575,10 +1575,10 @@ supporting both.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

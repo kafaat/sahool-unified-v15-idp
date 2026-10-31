@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1462,7 +1462,7 @@
 <hr />
 <h2 id="integration-guide">Integration Guide | دليل التكامل<a class="headerlink" href="#integration-guide" title="Permanent link">&para;</a></h2>
 <h3 id="adding-voice-button-to-a-screen">Adding Voice Button to a Screen<a class="headerlink" href="#adding-voice-button-to-a-screen" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="s1">&#39;package:sahool_field_app/core/voice/voice.dart&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="s1">'package:sahool_field_app/core/voice/voice.dart'</span><span class="p">;</span>
 
 <span class="kd">class</span><span class="w"> </span><span class="nc">MyScreen</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="n">ConsumerWidget</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="nd">@override</span>
@@ -1477,7 +1477,7 @@
 <span class="w">          </span><span class="n">FloatingVoiceButton</span><span class="p">(</span>
 <span class="w">            </span><span class="nl">onCommand:</span><span class="w"> </span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">              </span><span class="c1">// Handle command result</span>
-<span class="w">              </span><span class="n">print</span><span class="p">(</span><span class="s1">&#39;Command: </span><span class="si">${</span><span class="n">command</span><span class="p">.</span><span class="n">type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">);</span>
+<span class="w">              </span><span class="n">print</span><span class="p">(</span><span class="s1">'Command: </span><span class="si">${</span><span class="n">command</span><span class="p">.</span><span class="n">type</span><span class="si">}</span><span class="s1">'</span><span class="p">);</span>
 <span class="w">            </span><span class="p">},</span>
 <span class="w">          </span><span class="p">),</span>
 <span class="w">        </span><span class="p">],</span>
@@ -1502,13 +1502,13 @@
 <span class="w">    </span><span class="n">registerVoiceHandler</span><span class="p">(</span>
 <span class="w">      </span><span class="n">VoiceCommandType</span><span class="p">.</span><span class="n">selectField</span><span class="p">,</span>
 <span class="w">      </span><span class="p">(</span><span class="n">command</span><span class="p">,</span><span class="w"> </span><span class="n">context</span><span class="p">)</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="kd">final</span><span class="w"> </span><span class="n">fieldId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">command</span><span class="p">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">&#39;fieldId&#39;</span><span class="p">];</span>
+<span class="w">        </span><span class="kd">final</span><span class="w"> </span><span class="n">fieldId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">command</span><span class="p">.</span><span class="n">parameters</span><span class="p">[</span><span class="s1">'fieldId'</span><span class="p">];</span>
 <span class="w">        </span><span class="c1">// Custom handling</span>
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">CommandHandlerResult</span><span class="p">(</span>
 <span class="w">          </span><span class="nl">command:</span><span class="w"> </span><span class="n">command</span><span class="p">,</span>
 <span class="w">          </span><span class="nl">status:</span><span class="w"> </span><span class="n">CommandExecutionStatus</span><span class="p">.</span><span class="n">success</span><span class="p">,</span>
-<span class="w">          </span><span class="nl">messageAr:</span><span class="w"> </span><span class="s1">&#39;تم تحديد الحقل&#39;</span><span class="p">,</span>
-<span class="w">          </span><span class="nl">messageEn:</span><span class="w"> </span><span class="s1">&#39;Field selected&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nl">messageAr:</span><span class="w"> </span><span class="s1">'تم تحديد الحقل'</span><span class="p">,</span>
+<span class="w">          </span><span class="nl">messageEn:</span><span class="w"> </span><span class="s1">'Field selected'</span><span class="p">,</span>
 <span class="w">        </span><span class="p">);</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">    </span><span class="p">);</span>
@@ -1533,7 +1533,7 @@
 <span class="w">      </span><span class="n">next</span><span class="p">.</span><span class="n">whenData</span><span class="p">((</span><span class="n">result</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">result</span><span class="p">.</span><span class="n">isSuccess</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">          </span><span class="n">ScaffoldMessenger</span><span class="p">.</span><span class="n">of</span><span class="p">(</span><span class="n">context</span><span class="p">).</span><span class="n">showSnackBar</span><span class="p">(</span>
-<span class="w">            </span><span class="n">SnackBar</span><span class="p">(</span><span class="nl">content:</span><span class="w"> </span><span class="n">Text</span><span class="p">(</span><span class="n">result</span><span class="p">.</span><span class="n">messageAr</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)),</span>
+<span class="w">            </span><span class="n">SnackBar</span><span class="p">(</span><span class="nl">content:</span><span class="w"> </span><span class="n">Text</span><span class="p">(</span><span class="n">result</span><span class="p">.</span><span class="n">messageAr</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="s1">''</span><span class="p">)),</span>
 <span class="w">          </span><span class="p">);</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">      </span><span class="p">});</span>
@@ -1551,7 +1551,7 @@
 <span class="n">enum</span><span class="w"> </span><span class="n">VoiceCommandType</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="c1">// ... existing commands</span>
 
-<span class="w">  </span><span class="n">myNewCommand</span><span class="p">(</span><span class="s1">&#39;my_new_command&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Category&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;التصنيف&#39;</span><span class="p">),</span>
+<span class="w">  </span><span class="n">myNewCommand</span><span class="p">(</span><span class="s1">'my_new_command'</span><span class="p">,</span><span class="w"> </span><span class="s1">'Category'</span><span class="p">,</span><span class="w"> </span><span class="s1">'التصنيف'</span><span class="p">),</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1559,29 +1559,29 @@
 <div class="codehilite"><pre><span></span><code><span class="c1">// In VoiceCommandRegistry.commands</span>
 <span class="n">VoiceCommandDefinition</span><span class="p">(</span>
 <span class="w">  </span><span class="nl">type:</span><span class="w"> </span><span class="n">VoiceCommandType</span><span class="p">.</span><span class="n">myNewCommand</span><span class="p">,</span>
-<span class="w">  </span><span class="nl">nameEn:</span><span class="w"> </span><span class="s1">&#39;My New Command&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nl">nameAr:</span><span class="w"> </span><span class="s1">&#39;أمري الجديد&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nl">descriptionEn:</span><span class="w"> </span><span class="s1">&#39;Description of what this command does&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nl">descriptionAr:</span><span class="w"> </span><span class="s1">&#39;وصف ما يفعله هذا الأمر&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nl">patternsEn:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;my new command&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;do my thing&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;execute new&#39;</span><span class="p">],</span>
-<span class="w">  </span><span class="nl">patternsAr:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;أمري الجديد&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;نفذ أمري&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;شغل الجديد&#39;</span><span class="p">],</span>
-<span class="w">  </span><span class="nl">examplesEn:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;My new command&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Do my thing&#39;</span><span class="p">],</span>
-<span class="w">  </span><span class="nl">examplesAr:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;أمري الجديد&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;نفذ أمري&#39;</span><span class="p">],</span>
+<span class="w">  </span><span class="nl">nameEn:</span><span class="w"> </span><span class="s1">'My New Command'</span><span class="p">,</span>
+<span class="w">  </span><span class="nl">nameAr:</span><span class="w"> </span><span class="s1">'أمري الجديد'</span><span class="p">,</span>
+<span class="w">  </span><span class="nl">descriptionEn:</span><span class="w"> </span><span class="s1">'Description of what this command does'</span><span class="p">,</span>
+<span class="w">  </span><span class="nl">descriptionAr:</span><span class="w"> </span><span class="s1">'وصف ما يفعله هذا الأمر'</span><span class="p">,</span>
+<span class="w">  </span><span class="nl">patternsEn:</span><span class="w"> </span><span class="p">[</span><span class="s1">'my new command'</span><span class="p">,</span><span class="w"> </span><span class="s1">'do my thing'</span><span class="p">,</span><span class="w"> </span><span class="s1">'execute new'</span><span class="p">],</span>
+<span class="w">  </span><span class="nl">patternsAr:</span><span class="w"> </span><span class="p">[</span><span class="s1">'أمري الجديد'</span><span class="p">,</span><span class="w"> </span><span class="s1">'نفذ أمري'</span><span class="p">,</span><span class="w"> </span><span class="s1">'شغل الجديد'</span><span class="p">],</span>
+<span class="w">  </span><span class="nl">examplesEn:</span><span class="w"> </span><span class="p">[</span><span class="s1">'My new command'</span><span class="p">,</span><span class="w"> </span><span class="s1">'Do my thing'</span><span class="p">],</span>
+<span class="w">  </span><span class="nl">examplesAr:</span><span class="w"> </span><span class="p">[</span><span class="s1">'أمري الجديد'</span><span class="p">,</span><span class="w"> </span><span class="s1">'نفذ أمري'</span><span class="p">],</span>
 <span class="p">),</span>
 </code></pre></div>
 
 <h3 id="3-add-handler">3. Add Handler<a class="headerlink" href="#3-add-handler" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1">// In voice_command_handler.dart _defaultCommandHandler</span>
 <span class="k">case</span><span class="w"> </span><span class="n">VoiceCommandType</span><span class="p">.</span><span class="nl">myNewCommand:</span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">_navigateTo</span><span class="p">(</span><span class="n">command</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;/my-route&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nl">messageAr:</span><span class="w"> </span><span class="s1">&#39;جاري تنفيذ الأمر&#39;</span><span class="p">,</span><span class="w"> </span><span class="nl">messageEn:</span><span class="w"> </span><span class="s1">&#39;Executing command&#39;</span><span class="p">);</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">_navigateTo</span><span class="p">(</span><span class="n">command</span><span class="p">,</span><span class="w"> </span><span class="s1">'/my-route'</span><span class="p">,</span>
+<span class="w">      </span><span class="nl">messageAr:</span><span class="w"> </span><span class="s1">'جاري تنفيذ الأمر'</span><span class="p">,</span><span class="w"> </span><span class="nl">messageEn:</span><span class="w"> </span><span class="s1">'Executing command'</span><span class="p">);</span>
 </code></pre></div>
 
 <h3 id="4-add-feedback-response-optional">4. Add Feedback Response (Optional)<a class="headerlink" href="#4-add-feedback-response-optional" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1">// In voice_feedback.dart _predefinedResponses</span>
 <span class="n">VoiceCommandType</span><span class="p">.</span><span class="nl">myNewCommand:</span><span class="w"> </span><span class="n">VoiceFeedbackResponse</span><span class="p">(</span>
-<span class="w">  </span><span class="nl">arabicText:</span><span class="w"> </span><span class="s1">&#39;جاري تنفيذ الأمر الجديد&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nl">englishText:</span><span class="w"> </span><span class="s1">&#39;Executing new command&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nl">arabicText:</span><span class="w"> </span><span class="s1">'جاري تنفيذ الأمر الجديد'</span><span class="p">,</span>
+<span class="w">  </span><span class="nl">englishText:</span><span class="w"> </span><span class="s1">'Executing new command'</span><span class="p">,</span>
 <span class="p">),</span>
 </code></pre></div>
 
@@ -1708,10 +1708,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

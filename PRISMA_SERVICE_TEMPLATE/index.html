@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1121,50 +1121,50 @@
 <hr />
 <h2 id="1-packagejson-configuration">1. package.json Configuration<a class="headerlink" href="#1-packagejson-configuration" title="Permanent link">&para;</a></h2>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;your-service-name&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;16.0.0&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;scripts&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;start&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;node dist/index.js&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;build&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;prisma generate &amp;&amp; tsc&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;dev&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;prisma generate &amp;&amp; ts-node-dev --respawn src/index.ts&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;test&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;jest&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"your-service-name"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"16.0.0"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"scripts"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"start"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node dist/index.js"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"build"</span><span class="p">:</span><span class="w"> </span><span class="s2">"prisma generate &amp;&amp; tsc"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"dev"</span><span class="p">:</span><span class="w"> </span><span class="s2">"prisma generate &amp;&amp; ts-node-dev --respawn src/index.ts"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"test"</span><span class="p">:</span><span class="w"> </span><span class="s2">"jest"</span><span class="p">,</span>
 
-<span class="w">    </span><span class="nt">&quot;prisma:generate&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;prisma generate&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;prisma:migrate&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;prisma migrate dev&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;prisma:migrate:deploy&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;prisma migrate deploy&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;prisma:migrate:status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;prisma migrate status&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;prisma:migrate:reset&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;prisma migrate reset&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;prisma:db:push&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;prisma db push&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;prisma:db:pull&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;prisma db pull&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;prisma:studio&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;prisma studio&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;prisma:seed&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ts-node prisma/seed.ts&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;db:setup&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;npm run prisma:migrate:deploy &amp;&amp; npm run prisma:generate&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;db:reset&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;npm run prisma:migrate:reset -- --force&quot;</span>
+<span class="w">    </span><span class="nt">"prisma:generate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"prisma generate"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"prisma:migrate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"prisma migrate dev"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"prisma:migrate:deploy"</span><span class="p">:</span><span class="w"> </span><span class="s2">"prisma migrate deploy"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"prisma:migrate:status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"prisma migrate status"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"prisma:migrate:reset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"prisma migrate reset"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"prisma:db:push"</span><span class="p">:</span><span class="w"> </span><span class="s2">"prisma db push"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"prisma:db:pull"</span><span class="p">:</span><span class="w"> </span><span class="s2">"prisma db pull"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"prisma:studio"</span><span class="p">:</span><span class="w"> </span><span class="s2">"prisma studio"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"prisma:seed"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ts-node prisma/seed.ts"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"db:setup"</span><span class="p">:</span><span class="w"> </span><span class="s2">"npm run prisma:migrate:deploy &amp;&amp; npm run prisma:generate"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"db:reset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"npm run prisma:migrate:reset -- --force"</span>
 <span class="w">  </span><span class="p">},</span>
-<span class="w">  </span><span class="nt">&quot;dependencies&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;@prisma/client&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^5.22.0&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;express&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^4.21.2&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;pg&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^8.13.1&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;dotenv&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^16.4.7&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;cors&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^2.8.5&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;uuid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^11.0.3&quot;</span>
+<span class="w">  </span><span class="nt">"dependencies"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"@prisma/client"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^5.22.0"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"express"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^4.21.2"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"pg"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^8.13.1"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"dotenv"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^16.4.7"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"cors"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^2.8.5"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"uuid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^11.0.3"</span>
 <span class="w">  </span><span class="p">},</span>
-<span class="w">  </span><span class="nt">&quot;devDependencies&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;prisma&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^5.22.0&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;typescript&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^5.7.2&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;@types/node&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^22.10.2&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;@types/express&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^5.0.0&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;ts-node-dev&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^2.0.0&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;ts-node&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^10.9.2&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;jest&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^29.7.0&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;ts-jest&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^29.1.1&quot;</span>
+<span class="w">  </span><span class="nt">"devDependencies"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"prisma"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^5.22.0"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"typescript"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^5.7.2"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"@types/node"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^22.10.2"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"@types/express"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^5.0.0"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"ts-node-dev"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^2.0.0"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"ts-node"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^10.9.2"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"jest"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^29.7.0"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"ts-jest"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^29.1.1"</span>
 <span class="w">  </span><span class="p">},</span>
-<span class="w">  </span><span class="nt">&quot;prisma&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;schema&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;prisma/schema.prisma&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;seed&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ts-node prisma/seed.ts&quot;</span>
+<span class="w">  </span><span class="nt">"prisma"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"schema"</span><span class="p">:</span><span class="w"> </span><span class="s2">"prisma/schema.prisma"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"seed"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ts-node prisma/seed.ts"</span>
 <span class="w">  </span><span class="p">},</span>
-<span class="w">  </span><span class="nt">&quot;engines&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;node&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&gt;=20.0.0&quot;</span>
+<span class="w">  </span><span class="nt">"engines"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"node"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&gt;=20.0.0"</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1179,12 +1179,12 @@
 <span class="c1">// ═══════════════════════════════════════════════════════════════════════════</span>
 
 <span class="n">generator</span><span class="w"> </span><span class="n">client</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="n">provider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;prisma-client-js&quot;</span>
+<span class="w">  </span><span class="n">provider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"prisma-client-js"</span>
 <span class="p">}</span>
 
 <span class="n">datasource</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="n">provider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;postgresql&quot;</span>
-<span class="w">  </span><span class="n">url</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">env</span><span class="p">(</span><span class="s">&quot;DATABASE_URL&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">provider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"postgresql"</span>
+<span class="w">  </span><span class="n">url</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">env</span><span class="p">(</span><span class="s">"DATABASE_URL"</span><span class="p">)</span>
 <span class="p">}</span>
 
 <span class="c1">// ─────────────────────────────────────────────────────────────────────────────</span>
@@ -1196,7 +1196,7 @@
 
 <span class="w">  </span><span class="c1">// Basic Info</span>
 <span class="w">  </span><span class="n">name</span><span class="w">     </span><span class="n">String</span><span class="w">  </span><span class="p">@</span><span class="n">db</span><span class="p">.</span><span class="n">VarChar</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span>
-<span class="w">  </span><span class="n">tenantId</span><span class="w"> </span><span class="n">String</span><span class="w">  </span><span class="p">@</span><span class="n">map</span><span class="p">(</span><span class="s">&quot;tenant_id&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">@</span><span class="n">db</span><span class="p">.</span><span class="n">VarChar</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="w">  </span><span class="n">tenantId</span><span class="w"> </span><span class="n">String</span><span class="w">  </span><span class="p">@</span><span class="n">map</span><span class="p">(</span><span class="s">"tenant_id"</span><span class="p">)</span><span class="w"> </span><span class="p">@</span><span class="n">db</span><span class="p">.</span><span class="n">VarChar</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
 
 <span class="w">  </span><span class="c1">// Status</span>
 <span class="w">  </span><span class="n">status</span><span class="w">   </span><span class="n">Status</span><span class="w">  </span><span class="p">@</span><span class="k">default</span><span class="p">(</span><span class="n">active</span><span class="p">)</span>
@@ -1205,16 +1205,16 @@
 <span class="w">  </span><span class="n">metadata</span><span class="w"> </span><span class="n">Json</span><span class="o">?</span><span class="w">   </span><span class="p">@</span><span class="n">db</span><span class="p">.</span><span class="n">JsonB</span>
 
 <span class="w">  </span><span class="c1">// Timestamps</span>
-<span class="w">  </span><span class="n">createdAt</span><span class="w"> </span><span class="n">DateTime</span><span class="w"> </span><span class="p">@</span><span class="k">default</span><span class="p">(</span><span class="n">now</span><span class="p">())</span><span class="w"> </span><span class="p">@</span><span class="n">map</span><span class="p">(</span><span class="s">&quot;created_at&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">@</span><span class="n">db</span><span class="p">.</span><span class="n">Timestamptz</span>
-<span class="w">  </span><span class="n">updatedAt</span><span class="w"> </span><span class="n">DateTime</span><span class="w"> </span><span class="p">@</span><span class="n">updatedAt</span><span class="w"> </span><span class="p">@</span><span class="n">map</span><span class="p">(</span><span class="s">&quot;updated_at&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">@</span><span class="n">db</span><span class="p">.</span><span class="n">Timestamptz</span>
+<span class="w">  </span><span class="n">createdAt</span><span class="w"> </span><span class="n">DateTime</span><span class="w"> </span><span class="p">@</span><span class="k">default</span><span class="p">(</span><span class="n">now</span><span class="p">())</span><span class="w"> </span><span class="p">@</span><span class="n">map</span><span class="p">(</span><span class="s">"created_at"</span><span class="p">)</span><span class="w"> </span><span class="p">@</span><span class="n">db</span><span class="p">.</span><span class="n">Timestamptz</span>
+<span class="w">  </span><span class="n">updatedAt</span><span class="w"> </span><span class="n">DateTime</span><span class="w"> </span><span class="p">@</span><span class="n">updatedAt</span><span class="w"> </span><span class="p">@</span><span class="n">map</span><span class="p">(</span><span class="s">"updated_at"</span><span class="p">)</span><span class="w"> </span><span class="p">@</span><span class="n">db</span><span class="p">.</span><span class="n">Timestamptz</span>
 
 <span class="w">  </span><span class="c1">// Relations</span>
 <span class="w">  </span><span class="c1">// relatedEntities RelatedEntity[]</span>
 
 <span class="w">  </span><span class="c1">// Indexes</span>
-<span class="w">  </span><span class="p">@@</span><span class="n">index</span><span class="p">([</span><span class="n">tenantId</span><span class="p">],</span><span class="w"> </span><span class="n">name</span><span class="o">:</span><span class="w"> </span><span class="s">&quot;idx_entity_tenant&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="p">@@</span><span class="n">index</span><span class="p">([</span><span class="n">status</span><span class="p">],</span><span class="w"> </span><span class="n">name</span><span class="o">:</span><span class="w"> </span><span class="s">&quot;idx_entity_status&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="p">@@</span><span class="n">map</span><span class="p">(</span><span class="s">&quot;example_entities&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">@@</span><span class="n">index</span><span class="p">([</span><span class="n">tenantId</span><span class="p">],</span><span class="w"> </span><span class="n">name</span><span class="o">:</span><span class="w"> </span><span class="s">"idx_entity_tenant"</span><span class="p">)</span>
+<span class="w">  </span><span class="p">@@</span><span class="n">index</span><span class="p">([</span><span class="n">status</span><span class="p">],</span><span class="w"> </span><span class="n">name</span><span class="o">:</span><span class="w"> </span><span class="s">"idx_entity_status"</span><span class="p">)</span>
+<span class="w">  </span><span class="p">@@</span><span class="n">map</span><span class="p">(</span><span class="s">"example_entities"</span><span class="p">)</span>
 <span class="p">}</span>
 
 <span class="c1">// Enums</span>
@@ -1223,19 +1223,19 @@
 <span class="w">  </span><span class="n">inactive</span>
 <span class="w">  </span><span class="n">deleted</span>
 
-<span class="w">  </span><span class="p">@@</span><span class="n">map</span><span class="p">(</span><span class="s">&quot;status&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">@@</span><span class="n">map</span><span class="p">(</span><span class="s">"status"</span><span class="p">)</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <h3 id="postgresql-with-postgis-extension">PostgreSQL with PostGIS Extension<a class="headerlink" href="#postgresql-with-postgis-extension" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="n">generator</span><span class="w"> </span><span class="n">client</span><span class="w"> </span><span class="err">{</span>
-<span class="w">  </span><span class="n">provider</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="ss">&quot;prisma-client-js&quot;</span>
-<span class="w">  </span><span class="n">previewFeatures</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="n">&quot;postgresqlExtensions&quot;</span><span class="o">]</span>
+<span class="w">  </span><span class="n">provider</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="ss">"prisma-client-js"</span>
+<span class="w">  </span><span class="n">previewFeatures</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="n">"postgresqlExtensions"</span><span class="o">]</span>
 <span class="err">}</span>
 
 <span class="n">datasource</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="err">{</span>
-<span class="w">  </span><span class="n">provider</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="ss">&quot;postgresql&quot;</span>
-<span class="w">  </span><span class="n">url</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="n">env</span><span class="p">(</span><span class="ss">&quot;DATABASE_URL&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">provider</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="ss">"postgresql"</span>
+<span class="w">  </span><span class="n">url</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="n">env</span><span class="p">(</span><span class="ss">"DATABASE_URL"</span><span class="p">)</span>
 <span class="w">  </span><span class="n">extensions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="n">postgis</span><span class="o">]</span>
 <span class="err">}</span>
 
@@ -1243,13 +1243,13 @@
 <span class="w">  </span><span class="n">id</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nv">@id</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">uuid</span><span class="p">())</span><span class="w"> </span><span class="nv">@db</span><span class="p">.</span><span class="n">Uuid</span>
 
 <span class="w">  </span><span class="o">//</span><span class="w"> </span><span class="n">Geospatial</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="p">(</span><span class="n">PostGIS</span><span class="p">)</span>
-<span class="w">  </span><span class="n">location</span><span class="w"> </span><span class="n">Unsupported</span><span class="p">(</span><span class="ss">&quot;geometry(Point, 4326)&quot;</span><span class="p">)</span><span class="vm">?</span>
-<span class="w">  </span><span class="n">boundary</span><span class="w"> </span><span class="n">Unsupported</span><span class="p">(</span><span class="ss">&quot;geometry(Polygon, 4326)&quot;</span><span class="p">)</span><span class="vm">?</span>
+<span class="w">  </span><span class="n">location</span><span class="w"> </span><span class="n">Unsupported</span><span class="p">(</span><span class="ss">"geometry(Point, 4326)"</span><span class="p">)</span><span class="vm">?</span>
+<span class="w">  </span><span class="n">boundary</span><span class="w"> </span><span class="n">Unsupported</span><span class="p">(</span><span class="ss">"geometry(Polygon, 4326)"</span><span class="p">)</span><span class="vm">?</span>
 
 <span class="w">  </span><span class="o">//</span><span class="w"> </span><span class="n">Regular</span><span class="w"> </span><span class="n">fields</span>
 <span class="w">  </span><span class="n">name</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nv">@db</span><span class="p">.</span><span class="nc">VarChar</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span>
 
-<span class="w">  </span><span class="nb">@@map</span><span class="p">(</span><span class="ss">&quot;geo_entities&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="nb">@@map</span><span class="p">(</span><span class="ss">"geo_entities"</span><span class="p">)</span>
 <span class="err">}</span>
 </code></pre></div>
 
@@ -1257,28 +1257,28 @@
 <h2 id="3-prisma-client-setup">3. Prisma Client Setup<a class="headerlink" href="#3-prisma-client-setup" title="Permanent link">&para;</a></h2>
 <p><strong>File</strong>: <code>src/lib/prisma.ts</code> (or <code>src/prisma/prisma.service.ts</code> for NestJS)</p>
 <h3 id="expressnodejs">Express/Node.js<a class="headerlink" href="#expressnodejs" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PrismaClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@prisma/client&quot;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PrismaClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@prisma/client"</span><span class="p">;</span>
 
 <span class="c1">// Create Prisma Client instance</span>
 <span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">prisma</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">PrismaClient</span><span class="p">({</span>
 <span class="w">  </span><span class="nx">log</span><span class="o">:</span>
-<span class="w">    </span><span class="kt">process.env.NODE_ENV</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s2">&quot;production&quot;</span>
-<span class="w">      </span><span class="o">?</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;query&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;info&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;warn&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;error&quot;</span><span class="p">]</span>
-<span class="w">      </span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">],</span>
+<span class="w">    </span><span class="kt">process.env.NODE_ENV</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s2">"production"</span>
+<span class="w">      </span><span class="o">?</span><span class="w"> </span><span class="p">[</span><span class="s2">"query"</span><span class="p">,</span><span class="w"> </span><span class="s2">"info"</span><span class="p">,</span><span class="w"> </span><span class="s2">"warn"</span><span class="p">,</span><span class="w"> </span><span class="s2">"error"</span><span class="p">]</span>
+<span class="w">      </span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"error"</span><span class="p">],</span>
 <span class="p">});</span>
 
 <span class="c1">// Graceful shutdown</span>
-<span class="nx">process</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;beforeExit&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="nx">process</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">"beforeExit"</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">$disconnect</span><span class="p">();</span>
 <span class="p">});</span>
 
 <span class="c1">// Export types for convenience</span>
-<span class="k">export</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Prisma</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@prisma/client&quot;</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Prisma</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@prisma/client"</span><span class="p">;</span>
 </code></pre></div>
 
 <h3 id="nestjs-module">NestJS Module<a class="headerlink" href="#nestjs-module" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Injectable</span><span class="p">,</span><span class="w"> </span><span class="nx">OnModuleInit</span><span class="p">,</span><span class="w"> </span><span class="nx">OnModuleDestroy</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/common&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PrismaClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@prisma/client&quot;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Injectable</span><span class="p">,</span><span class="w"> </span><span class="nx">OnModuleInit</span><span class="p">,</span><span class="w"> </span><span class="nx">OnModuleDestroy</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@nestjs/common"</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PrismaClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@prisma/client"</span><span class="p">;</span>
 
 <span class="kd">@Injectable</span><span class="p">()</span>
 <span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">PrismaService</span>
@@ -1288,9 +1288,9 @@
 <span class="w">  </span><span class="kr">constructor</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">super</span><span class="p">({</span>
 <span class="w">      </span><span class="nx">log</span><span class="o">:</span>
-<span class="w">        </span><span class="kt">process.env.NODE_ENV</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s2">&quot;production&quot;</span>
-<span class="w">          </span><span class="o">?</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;query&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;info&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;warn&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;error&quot;</span><span class="p">]</span>
-<span class="w">          </span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">],</span>
+<span class="w">        </span><span class="kt">process.env.NODE_ENV</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s2">"production"</span>
+<span class="w">          </span><span class="o">?</span><span class="w"> </span><span class="p">[</span><span class="s2">"query"</span><span class="p">,</span><span class="w"> </span><span class="s2">"info"</span><span class="p">,</span><span class="w"> </span><span class="s2">"warn"</span><span class="p">,</span><span class="w"> </span><span class="s2">"error"</span><span class="p">]</span>
+<span class="w">          </span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"error"</span><span class="p">],</span>
 <span class="w">    </span><span class="p">});</span>
 <span class="w">  </span><span class="p">}</span>
 
@@ -1308,10 +1308,10 @@
 <h2 id="4-environment-configuration">4. Environment Configuration<a class="headerlink" href="#4-environment-configuration" title="Permanent link">&para;</a></h2>
 <p><strong>File</strong>: <code>.env</code></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Database</span>
-<span class="nv">DATABASE_URL</span><span class="o">=</span><span class="s2">&quot;postgresql://sahool:sahool@postgres:5432/your_service_db&quot;</span>
+<span class="nv">DATABASE_URL</span><span class="o">=</span><span class="s2">"postgresql://sahool:sahool@postgres:5432/your_service_db"</span>
 
 <span class="c1"># Database Pool Settings (optional)</span>
-<span class="c1"># DATABASE_URL=&quot;postgresql://user:pass@host:5432/db?connection_limit=10&amp;pool_timeout=20&quot;</span>
+<span class="c1"># DATABASE_URL="postgresql://user:pass@host:5432/db?connection_limit=10&amp;pool_timeout=20"</span>
 
 <span class="c1"># Application</span>
 <span class="nv">NODE_ENV</span><span class="o">=</span>development
@@ -1323,7 +1323,7 @@
 </code></pre></div>
 
 <p><strong>File</strong>: <code>.env.example</code></p>
-<div class="codehilite"><pre><span></span><code><span class="nv">DATABASE_URL</span><span class="o">=</span><span class="s2">&quot;postgresql://username:password@localhost:5432/database_name&quot;</span>
+<div class="codehilite"><pre><span></span><code><span class="nv">DATABASE_URL</span><span class="o">=</span><span class="s2">"postgresql://username:password@localhost:5432/database_name"</span>
 <span class="nv">NODE_ENV</span><span class="o">=</span>development
 <span class="nv">PORT</span><span class="o">=</span><span class="m">3000</span>
 </code></pre></div>
@@ -1332,74 +1332,74 @@
 <h2 id="5-typescript-configuration">5. TypeScript Configuration<a class="headerlink" href="#5-typescript-configuration" title="Permanent link">&para;</a></h2>
 <p><strong>File</strong>: <code>tsconfig.json</code></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;compilerOptions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ES2022&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;module&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;commonjs&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;lib&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;ES2022&quot;</span><span class="p">],</span>
-<span class="w">    </span><span class="nt">&quot;outDir&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;./dist&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;rootDir&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;./src&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;strict&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;esModuleInterop&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;skipLibCheck&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;forceConsistentCasingInFileNames&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;resolveJsonModule&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;declaration&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;declarationMap&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;sourceMap&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">  </span><span class="nt">"compilerOptions"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"target"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ES2022"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"module"</span><span class="p">:</span><span class="w"> </span><span class="s2">"commonjs"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"lib"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"ES2022"</span><span class="p">],</span>
+<span class="w">    </span><span class="nt">"outDir"</span><span class="p">:</span><span class="w"> </span><span class="s2">"./dist"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"rootDir"</span><span class="p">:</span><span class="w"> </span><span class="s2">"./src"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"strict"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"esModuleInterop"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"skipLibCheck"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"forceConsistentCasingInFileNames"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"resolveJsonModule"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"declaration"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"declarationMap"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"sourceMap"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="w">  </span><span class="p">},</span>
-<span class="w">  </span><span class="nt">&quot;include&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;src/**/*&quot;</span><span class="p">],</span>
-<span class="w">  </span><span class="nt">&quot;exclude&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;node_modules&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;dist&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;**/*.test.ts&quot;</span><span class="p">]</span>
+<span class="w">  </span><span class="nt">"include"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"src/**/*"</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">"exclude"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"node_modules"</span><span class="p">,</span><span class="w"> </span><span class="s2">"dist"</span><span class="p">,</span><span class="w"> </span><span class="s2">"**/*.test.ts"</span><span class="p">]</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <hr />
 <h2 id="6-usage-examples">6. Usage Examples<a class="headerlink" href="#6-usage-examples" title="Permanent link">&para;</a></h2>
 <h3 id="basic-crud-operations">Basic CRUD Operations<a class="headerlink" href="#basic-crud-operations" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">prisma</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./lib/prisma&quot;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">prisma</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"./lib/prisma"</span><span class="p">;</span>
 
 <span class="c1">// Create</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">newEntity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">exampleEntity</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
 <span class="w">  </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Example&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">tenantId</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;tenant-123&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;active&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">"Example"</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">tenantId</span><span class="o">:</span><span class="w"> </span><span class="s2">"tenant-123"</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="s2">"active"</span><span class="p">,</span>
 <span class="w">  </span><span class="p">},</span>
 <span class="p">});</span>
 
 <span class="c1">// Read - Find Unique</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">entity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">exampleEntity</span><span class="p">.</span><span class="nx">findUnique</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;entity-id&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s2">"entity-id"</span><span class="w"> </span><span class="p">},</span>
 <span class="p">});</span>
 
 <span class="c1">// Read - Find Many</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">entities</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">exampleEntity</span><span class="p">.</span><span class="nx">findMany</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">tenantId</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;tenant-123&quot;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">  </span><span class="nx">orderBy</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createdAt</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;desc&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">tenantId</span><span class="o">:</span><span class="w"> </span><span class="s2">"tenant-123"</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">orderBy</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createdAt</span><span class="o">:</span><span class="w"> </span><span class="s2">"desc"</span><span class="w"> </span><span class="p">},</span>
 <span class="w">  </span><span class="nx">take</span><span class="o">:</span><span class="w"> </span><span class="kt">10</span><span class="p">,</span>
 <span class="p">});</span>
 
 <span class="c1">// Update</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">updated</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">exampleEntity</span><span class="p">.</span><span class="nx">update</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;entity-id&quot;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">  </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Updated Name&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s2">"entity-id"</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">"Updated Name"</span><span class="w"> </span><span class="p">},</span>
 <span class="p">});</span>
 
 <span class="c1">// Delete</span>
 <span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">exampleEntity</span><span class="p">.</span><span class="ow">delete</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;entity-id&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s2">"entity-id"</span><span class="w"> </span><span class="p">},</span>
 <span class="p">});</span>
 
 <span class="c1">// Soft Delete (update status)</span>
 <span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">exampleEntity</span><span class="p">.</span><span class="nx">update</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;entity-id&quot;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">  </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;deleted&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s2">"entity-id"</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="s2">"deleted"</span><span class="w"> </span><span class="p">},</span>
 <span class="p">});</span>
 </code></pre></div>
 
 <h3 id="with-relations">With Relations<a class="headerlink" href="#with-relations" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Include relations</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">entityWithRelations</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">exampleEntity</span><span class="p">.</span><span class="nx">findUnique</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;entity-id&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s2">"entity-id"</span><span class="w"> </span><span class="p">},</span>
 <span class="w">  </span><span class="nx">include</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">relatedEntities</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">otherRelation</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
@@ -1414,10 +1414,10 @@
 <span class="c1">// Create with relations</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">newEntity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">exampleEntity</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
 <span class="w">  </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Example&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">tenantId</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;tenant-123&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">"Example"</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">tenantId</span><span class="o">:</span><span class="w"> </span><span class="s2">"tenant-123"</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">relatedEntities</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">create</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Related 1&quot;</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Related 2&quot;</span><span class="w"> </span><span class="p">}],</span>
+<span class="w">      </span><span class="nx">create</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">"Related 1"</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">"Related 2"</span><span class="w"> </span><span class="p">}],</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">  </span><span class="p">},</span>
 <span class="w">  </span><span class="nx">include</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
@@ -1438,7 +1438,7 @@
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">entity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">tx</span><span class="p">.</span><span class="nx">exampleEntity</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="p">});</span>
 <span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">tx</span><span class="p">.</span><span class="nx">auditLog</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
 <span class="w">    </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">action</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;create&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">action</span><span class="o">:</span><span class="w"> </span><span class="s2">"create"</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">entityId</span><span class="o">:</span><span class="w"> </span><span class="kt">entity.id</span><span class="p">,</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">  </span><span class="p">});</span>
@@ -1465,15 +1465,15 @@
 <hr />
 <h2 id="7-seed-data-template">7. Seed Data Template<a class="headerlink" href="#7-seed-data-template" title="Permanent link">&para;</a></h2>
 <p><strong>File</strong>: <code>prisma/seed.ts</code></p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PrismaClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@prisma/client&quot;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PrismaClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@prisma/client"</span><span class="p">;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">prisma</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">PrismaClient</span><span class="p">();</span>
 
 <span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Seeding database...&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">"Seeding database..."</span><span class="p">);</span>
 
 <span class="w">  </span><span class="c1">// Clear existing data (development only)</span>
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NODE_ENV</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">&quot;development&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NODE_ENV</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">"development"</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">exampleEntity</span><span class="p">.</span><span class="nx">deleteMany</span><span class="p">();</span>
 <span class="w">  </span><span class="p">}</span>
 
@@ -1481,16 +1481,16 @@
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">entities</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nb">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">([</span>
 <span class="w">    </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">exampleEntity</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
 <span class="w">      </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Example 1&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">tenantId</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;tenant-123&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;active&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">"Example 1"</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">tenantId</span><span class="o">:</span><span class="w"> </span><span class="s2">"tenant-123"</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="s2">"active"</span><span class="p">,</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">    </span><span class="p">}),</span>
 <span class="w">    </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">exampleEntity</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
 <span class="w">      </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Example 2&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">tenantId</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;tenant-123&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;active&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">"Example 2"</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">tenantId</span><span class="o">:</span><span class="w"> </span><span class="s2">"tenant-123"</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="s2">"active"</span><span class="p">,</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">    </span><span class="p">}),</span>
 <span class="w">  </span><span class="p">]);</span>
@@ -1500,7 +1500,7 @@
 
 <span class="nx">main</span><span class="p">()</span>
 <span class="w">  </span><span class="p">.</span><span class="k">catch</span><span class="p">((</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s2">&quot;Error seeding database:&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">e</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s2">"Error seeding database:"</span><span class="p">,</span><span class="w"> </span><span class="nx">e</span><span class="p">);</span>
 <span class="w">    </span><span class="nx">process</span><span class="p">.</span><span class="nx">exit</span><span class="p">(</span><span class="mf">1</span><span class="p">);</span>
 <span class="w">  </span><span class="p">})</span>
 <span class="w">  </span><span class="p">.</span><span class="k">finally</span><span class="p">(</span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
@@ -1539,11 +1539,11 @@
 <span class="k">EXPOSE</span><span class="w"> </span><span class="s">3000</span>
 
 <span class="c"># Start command</span>
-<span class="k">CMD</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;sh&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;-c&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;npx prisma migrate deploy &amp;&amp; npm start&quot;</span><span class="p">]</span>
+<span class="k">CMD</span><span class="w"> </span><span class="p">[</span><span class="s2">"sh"</span><span class="p">,</span><span class="w"> </span><span class="s2">"-c"</span><span class="p">,</span><span class="w"> </span><span class="s2">"npx prisma migrate deploy &amp;&amp; npm start"</span><span class="p">]</span>
 </code></pre></div>
 
 <p><strong>File</strong>: <code>docker-compose.yml</code></p>
-<div class="codehilite"><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.8&quot;</span>
+<div class="codehilite"><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"3.8"</span>
 
 <span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">postgres</span><span class="p">:</span>
@@ -1553,14 +1553,14 @@
 <span class="w">      </span><span class="nt">POSTGRES_PASSWORD</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool</span>
 <span class="w">      </span><span class="nt">POSTGRES_DB</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">your_service_db</span>
 <span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;5432:5432&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"5432:5432"</span>
 <span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgres_data:/var/lib/postgresql/data</span>
 
 <span class="w">  </span><span class="nt">app</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.</span>
 <span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;3000:3000&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"3000:3000"</span>
 <span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">DATABASE_URL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgresql://sahool:sahool@postgres:5432/your_service_db</span>
 <span class="w">      </span><span class="nt">NODE_ENV</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">development</span>
@@ -1578,23 +1578,23 @@
 <h2 id="9-testing-configuration">9. Testing Configuration<a class="headerlink" href="#9-testing-configuration" title="Permanent link">&para;</a></h2>
 <p><strong>File</strong>: <code>jest.config.js</code></p>
 <div class="codehilite"><pre><span></span><code><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">preset</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;ts-jest&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">testEnvironment</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;node&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">roots</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;&lt;rootDir&gt;/src&quot;</span><span class="p">],</span>
-<span class="w">  </span><span class="nx">testMatch</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;**/__tests__/**/*.ts&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;**/?(*.)+(spec|test).ts&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nx">preset</span><span class="o">:</span><span class="w"> </span><span class="s2">"ts-jest"</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">testEnvironment</span><span class="o">:</span><span class="w"> </span><span class="s2">"node"</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">roots</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"&lt;rootDir&gt;/src"</span><span class="p">],</span>
+<span class="w">  </span><span class="nx">testMatch</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"**/__tests__/**/*.ts"</span><span class="p">,</span><span class="w"> </span><span class="s2">"**/?(*.)+(spec|test).ts"</span><span class="p">],</span>
 <span class="w">  </span><span class="nx">collectCoverageFrom</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="s2">&quot;src/**/*.ts&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="s2">&quot;!src/**/*.d.ts&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="s2">&quot;!src/**/*.test.ts&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="s2">&quot;!src/**/__tests__/**&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"src/**/*.ts"</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"!src/**/*.d.ts"</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"!src/**/*.test.ts"</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"!src/**/__tests__/**"</span><span class="p">,</span>
 <span class="w">  </span><span class="p">],</span>
-<span class="w">  </span><span class="nx">setupFilesAfterEnv</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;&lt;rootDir&gt;/src/test/setup.ts&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nx">setupFilesAfterEnv</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"&lt;rootDir&gt;/src/test/setup.ts"</span><span class="p">],</span>
 <span class="p">};</span>
 </code></pre></div>
 
 <p><strong>File</strong>: <code>src/test/setup.ts</code></p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PrismaClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@prisma/client&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">mockDeep</span><span class="p">,</span><span class="w"> </span><span class="nx">DeepMockProxy</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;jest-mock-extended&quot;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PrismaClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@prisma/client"</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">mockDeep</span><span class="p">,</span><span class="w"> </span><span class="nx">DeepMockProxy</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"jest-mock-extended"</span><span class="p">;</span>
 
 <span class="k">export</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="nx">MockPrisma</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">DeepMockProxy</span><span class="o">&lt;</span><span class="nx">PrismaClient</span><span class="o">&gt;</span><span class="p">;</span>
 
@@ -1613,7 +1613,7 @@ npm<span class="w"> </span>install
 createdb<span class="w"> </span>your_service_db
 
 <span class="c1"># 3. Set DATABASE_URL</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;DATABASE_URL=postgresql://sahool:sahool@localhost:5432/your_service_db&quot;</span><span class="w"> </span>&gt;<span class="w"> </span>.env
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"DATABASE_URL=postgresql://sahool:sahool@localhost:5432/your_service_db"</span><span class="w"> </span>&gt;<span class="w"> </span>.env
 
 <span class="c1"># 4. Create initial migration</span>
 npm<span class="w"> </span>run<span class="w"> </span>prisma:migrate:dev<span class="w"> </span>--name<span class="w"> </span>init
@@ -1737,10 +1737,10 @@ npm<span class="w"> </span>start
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

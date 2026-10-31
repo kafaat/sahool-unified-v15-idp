@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1240,8 +1240,8 @@ psql<span class="w"> </span>-U<span class="w"> </span>postgres<span class="w"> <
 <div class="codehilite"><pre><span></span><code><span class="c1">-- Check if indexes exist</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="n">indexname</span><span class="p">,</span><span class="w"> </span><span class="n">tablename</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">pg_indexes</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">indexname</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">&#39;idx_fields_current_crop%&#39;</span>
-<span class="w">   </span><span class="k">OR</span><span class="w"> </span><span class="n">indexname</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">&#39;idx_%_metadata_gin&#39;</span><span class="p">;</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">indexname</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'idx_fields_current_crop%'</span>
+<span class="w">   </span><span class="k">OR</span><span class="w"> </span><span class="n">indexname</span><span class="w"> </span><span class="k">LIKE</span><span class="w"> </span><span class="s1">'idx_%_metadata_gin'</span><span class="p">;</span>
 </code></pre></div>
 
 <h3 id="security-headers-middleware-middleware">Security Headers Middleware | Middleware رؤوس الأمان<a class="headerlink" href="#security-headers-middleware-middleware" title="Permanent link">&para;</a></h3>
@@ -1249,7 +1249,7 @@ psql<span class="w"> </span>-U<span class="w"> </span>postgres<span class="w"> <
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastAPI</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">shared.middleware.security_headers</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_security_headers</span>
 
-<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;My Service&quot;</span><span class="p">)</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"My Service"</span><span class="p">)</span>
 
 <span class="c1"># Add security headers (automatic configuration)</span>
 <span class="n">setup_security_headers</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
@@ -1266,23 +1266,23 @@ psql<span class="w"> </span>-U<span class="w"> </span>postgres<span class="w"> <
 
 <h4 id="custom-configuration">Custom Configuration | تكوين مخصص:<a class="headerlink" href="#custom-configuration" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Custom CSP policy for web apps with inline scripts</span>
-<span class="c1"># Use nonces or hashes instead of &#39;unsafe-inline&#39; when possible</span>
+<span class="c1"># Use nonces or hashes instead of 'unsafe-inline' when possible</span>
 <span class="n">setup_security_headers</span><span class="p">(</span>
     <span class="n">app</span><span class="p">,</span>
     <span class="n">enable_hsts</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Force HTTPS</span>
     <span class="n">enable_csp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">csp_policy</span><span class="o">=</span><span class="p">(</span>
-        <span class="s2">&quot;default-src &#39;self&#39;; &quot;</span>
-        <span class="s2">&quot;script-src &#39;self&#39; &#39;nonce-</span><span class="si">{random}</span><span class="s2">&#39;; &quot;</span>  <span class="c1"># Use nonces for inline scripts</span>
-        <span class="s2">&quot;style-src &#39;self&#39; &#39;nonce-</span><span class="si">{random}</span><span class="s2">&#39;; &quot;</span>
-        <span class="s2">&quot;img-src &#39;self&#39; https://cdn.example.com&quot;</span>
+        <span class="s2">"default-src 'self'; "</span>
+        <span class="s2">"script-src 'self' 'nonce-</span><span class="si">{random}</span><span class="s2">'; "</span>  <span class="c1"># Use nonces for inline scripts</span>
+        <span class="s2">"style-src 'self' 'nonce-</span><span class="si">{random}</span><span class="s2">'; "</span>
+        <span class="s2">"img-src 'self' https://cdn.example.com"</span>
     <span class="p">)</span>
 <span class="p">)</span>
 
 <span class="c1"># Using environment variables</span>
 <span class="c1"># ENABLE_HSTS=true</span>
 <span class="c1"># ENABLE_CSP=true</span>
-<span class="c1"># CSP_POLICY=&quot;default-src &#39;self&#39;; script-src &#39;self&#39;&quot;</span>
+<span class="c1"># CSP_POLICY="default-src 'self'; script-src 'self'"</span>
 </code></pre></div>
 
 <p><strong>Security Note:</strong> The default CSP policy does NOT include <code>unsafe-inline</code> or <code>unsafe-eval</code> for maximum security. If your application requires inline scripts or styles, use CSP nonces or hashes instead.</p>
@@ -1292,12 +1292,12 @@ psql<span class="w"> </span>-U<span class="w"> </span>postgres<span class="w"> <
 <div class="codehilite"><pre><span></span><code><span class="c1">-- Test current_crop_id index</span>
 <span class="k">EXPLAIN</span><span class="w"> </span><span class="k">ANALYZE</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">geo</span><span class="p">.</span><span class="n">fields</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">current_crop_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;some-uuid&#39;</span><span class="p">::</span><span class="n">uuid</span><span class="p">;</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">current_crop_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'some-uuid'</span><span class="p">::</span><span class="n">uuid</span><span class="p">;</span>
 
 <span class="c1">-- Test metadata GIN index</span>
 <span class="k">EXPLAIN</span><span class="w"> </span><span class="k">ANALYZE</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">geo</span><span class="p">.</span><span class="n">fields</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">metadata</span><span class="w"> </span><span class="o">@&gt;</span><span class="w"> </span><span class="s1">&#39;{&quot;irrigation&quot;: &quot;drip&quot;}&#39;</span><span class="p">;</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">metadata</span><span class="w"> </span><span class="o">@&gt;</span><span class="w"> </span><span class="s1">'{"irrigation": "drip"}'</span><span class="p">;</span>
 </code></pre></div>
 
 <p>Expected output should show "Index Scan" instead of "Seq Scan".</p>
@@ -1310,7 +1310,7 @@ curl<span class="w"> </span>-I<span class="w"> </span>http://localhost:8095/heal
 <span class="c1"># X-Content-Type-Options: nosniff</span>
 <span class="c1"># Referrer-Policy: strict-origin-when-cross-origin</span>
 <span class="c1"># X-XSS-Protection: 1; mode=block</span>
-<span class="c1"># Content-Security-Policy: default-src &#39;self&#39;; ...</span>
+<span class="c1"># Content-Security-Policy: default-src 'self'; ...</span>
 <span class="c1"># Permissions-Policy: geolocation=(), microphone=(), ...</span>
 </code></pre></div>
 
@@ -1480,10 +1480,10 @@ curl<span class="w"> </span>-I<span class="w"> </span>http://localhost:8095/heal
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

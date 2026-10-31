@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1380,7 +1380,7 @@ GET    /api/v1/advice/stats
 <h2 id="3-admin-frontend-2510">القسم 3: واجهة Admin Frontend | التقييم: 2.5/10 ⚠️<a class="headerlink" href="#3-admin-frontend-2510" title="Permanent link">&para;</a></h2>
 <h3 id="31">3.1 ما يوجد<a class="headerlink" href="#31" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code>apps/admin/src/lib/api-gateway/index.ts
-  → &quot;ai-advisor&quot; service مُعرف (port 8091, health, retry, circuit-breaker) ✅
+  → "ai-advisor" service مُعرف (port 8091, health, retry, circuit-breaker) ✅
 
 apps/admin/src/config/api.ts
   → منافذ الخدمات مُعرفة (indicators: 8091, cropHealth: 8095) ✅
@@ -1636,13 +1636,13 @@ Database              ❌ ذاكرة     N/A     N/A      ✅ SQLCipher
 
 <p><strong>مثال تنفيذ الصفحة</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// apps/web/src/app/(dashboard)/copilot/page.tsx</span>
-<span class="s1">&#39;use client&#39;</span><span class="p">;</span>
+<span class="s1">'use client'</span><span class="p">;</span>
 
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">useState</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;react&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">useAskAdvisor</span><span class="p">,</span><span class="w"> </span><span class="nx">useAdvisorHistory</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@/features/advisor&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ChatInterface</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@/components/copilot/ChatInterface&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">QuickQuestions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@/components/copilot/QuickQuestions&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ContextSelector</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@/components/copilot/ContextSelector&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">useState</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'react'</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">useAskAdvisor</span><span class="p">,</span><span class="w"> </span><span class="nx">useAdvisorHistory</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@/features/advisor'</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ChatInterface</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@/components/copilot/ChatInterface'</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">QuickQuestions</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@/components/copilot/QuickQuestions'</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ContextSelector</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@/components/copilot/ContextSelector'</span><span class="p">;</span>
 
 <span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">CopilotPage</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">fieldId</span><span class="p">,</span><span class="w"> </span><span class="nx">setFieldId</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useState</span><span class="p">&lt;</span><span class="nt">string</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="na">null</span><span class="p">&gt;(</span><span class="kc">null</span><span class="p">);</span>
@@ -1653,14 +1653,14 @@ Database              ❌ ذاكرة     N/A     N/A      ✅ SQLCipher
 <span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">askAdvisor</span><span class="p">({</span>
 <span class="w">      </span><span class="nx">query</span><span class="o">:</span><span class="w"> </span><span class="kt">message</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">field_id</span><span class="o">:</span><span class="w"> </span><span class="kt">fieldId</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">language</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;ar&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">language</span><span class="o">:</span><span class="w"> </span><span class="s1">'ar'</span><span class="p">,</span>
 <span class="w">    </span><span class="p">});</span>
 <span class="w">  </span><span class="p">};</span>
 
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
-<span class="w">    </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;flex flex-col h-[calc(100vh-64px)]&quot;</span><span class="p">&gt;</span>
-<span class="w">      </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;flex items-center justify-between p-4 border-b&quot;</span><span class="p">&gt;</span>
-<span class="w">        </span><span class="p">&lt;</span><span class="nt">h1</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;text-xl font-semibold&quot;</span><span class="p">&gt;</span><span class="nx">المستشار</span><span class="w"> </span><span class="nx">الذكي</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">AI</span><span class="w"> </span><span class="nx">Advisor</span><span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+<span class="w">    </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">"flex flex-col h-[calc(100vh-64px)]"</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">"flex items-center justify-between p-4 border-b"</span><span class="p">&gt;</span>
+<span class="w">        </span><span class="p">&lt;</span><span class="nt">h1</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">"text-xl font-semibold"</span><span class="p">&gt;</span><span class="nx">المستشار</span><span class="w"> </span><span class="nx">الذكي</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">AI</span><span class="w"> </span><span class="nx">Advisor</span><span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
 <span class="w">        </span><span class="p">&lt;</span><span class="nt">ContextSelector</span><span class="w"> </span><span class="na">value</span><span class="o">=</span><span class="p">{</span><span class="nx">fieldId</span><span class="p">}</span><span class="w"> </span><span class="na">onChange</span><span class="o">=</span><span class="p">{</span><span class="nx">setFieldId</span><span class="p">}</span><span class="w"> </span><span class="p">/&gt;</span>
 <span class="w">      </span><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
 
@@ -1736,8 +1736,8 @@ Database              ❌ ذاكرة     N/A     N/A      ✅ SQLCipher
         <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span>
             <span class="n">status_code</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_401_UNAUTHORIZED</span><span class="p">,</span>
             <span class="n">detail</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Invalid authentication token&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;error_ar&quot;</span><span class="p">:</span> <span class="s2">&quot;رمز المصادقة غير صالح&quot;</span>
+                <span class="s2">"error"</span><span class="p">:</span> <span class="s2">"Invalid authentication token"</span><span class="p">,</span>
+                <span class="s2">"error_ar"</span><span class="p">:</span> <span class="s2">"رمز المصادقة غير صالح"</span>
             <span class="p">}</span>
         <span class="p">)</span>
 </code></pre></div>
@@ -1748,10 +1748,10 @@ Database              ❌ ذاكرة     N/A     N/A      ✅ SQLCipher
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">publish_chat_event</span><span class="p">(</span><span class="n">nc</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
-    <span class="n">subject</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;sahool.copilot.</span><span class="si">{</span><span class="n">event_type</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">subject</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"sahool.copilot.</span><span class="si">{</span><span class="n">event_type</span><span class="si">}</span><span class="s2">"</span>
     <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
-        <span class="s2">&quot;service&quot;</span><span class="p">:</span> <span class="s2">&quot;copilot-api&quot;</span><span class="p">,</span>
+        <span class="s2">"timestamp"</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+        <span class="s2">"service"</span><span class="p">:</span> <span class="s2">"copilot-api"</span><span class="p">,</span>
         <span class="o">**</span><span class="n">data</span>
     <span class="p">}</span>
     <span class="k">await</span> <span class="n">nc</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
@@ -1759,23 +1759,23 @@ Database              ❌ ذاكرة     N/A     N/A      ✅ SQLCipher
 
 <p><strong>مثال تنفيذ True Streaming</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># src/api/v1/chat.py - True LLM Streaming</span>
-<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/chat/stream&quot;</span><span class="p">)</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">"/chat/stream"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">chat_stream</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">ChatRequest</span><span class="p">):</span>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">generate</span><span class="p">():</span>
         <span class="k">async</span> <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">ollama_stream</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">message</span><span class="p">):</span>
-            <span class="k">yield</span> <span class="sa">f</span><span class="s2">&quot;data: </span><span class="si">{</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;content&#39;</span><span class="p">:</span><span class="w"> </span><span class="n">chunk</span><span class="p">})</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">&quot;</span>
-        <span class="k">yield</span> <span class="s2">&quot;data: [DONE]</span><span class="se">\n\n</span><span class="s2">&quot;</span>
-    <span class="k">return</span> <span class="n">StreamingResponse</span><span class="p">(</span><span class="n">generate</span><span class="p">(),</span> <span class="n">media_type</span><span class="o">=</span><span class="s2">&quot;text/event-stream&quot;</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="sa">f</span><span class="s2">"data: </span><span class="si">{</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">'content'</span><span class="p">:</span><span class="w"> </span><span class="n">chunk</span><span class="p">})</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">"</span>
+        <span class="k">yield</span> <span class="s2">"data: [DONE]</span><span class="se">\n\n</span><span class="s2">"</span>
+    <span class="k">return</span> <span class="n">StreamingResponse</span><span class="p">(</span><span class="n">generate</span><span class="p">(),</span> <span class="n">media_type</span><span class="o">=</span><span class="s2">"text/event-stream"</span><span class="p">)</span>
 
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">ollama_stream</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
         <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span>
-            <span class="s2">&quot;POST&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">OLLAMA_URL</span><span class="si">}</span><span class="s2">/api/chat&quot;</span><span class="p">,</span>
-            <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">model</span><span class="p">,</span> <span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">],</span> <span class="s2">&quot;stream&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+            <span class="s2">"POST"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">OLLAMA_URL</span><span class="si">}</span><span class="s2">/api/chat"</span><span class="p">,</span>
+            <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s2">"model"</span><span class="p">:</span> <span class="n">model</span><span class="p">,</span> <span class="s2">"messages"</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">],</span> <span class="s2">"stream"</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
         <span class="p">)</span> <span class="k">as</span> <span class="n">response</span><span class="p">:</span>
             <span class="k">async</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">aiter_lines</span><span class="p">():</span>
                 <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">content</span> <span class="o">:=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;content&quot;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">content</span> <span class="o">:=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"message"</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"content"</span><span class="p">):</span>
                     <span class="k">yield</span> <span class="n">content</span>
 </code></pre></div>
 
@@ -1991,10 +1991,10 @@ Database              ❌ ذاكرة     N/A     N/A      ✅ SQLCipher
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

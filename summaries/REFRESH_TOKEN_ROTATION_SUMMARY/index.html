@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1239,10 +1239,10 @@
 
 <span class="c1">// Token stored in database with:</span>
 <span class="p">{</span>
-<span class="w">  </span><span class="nx">jti</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;abc123&quot;</span><span class="p">,</span><span class="w">           </span><span class="c1">// Unique token ID</span>
-<span class="w">  </span><span class="nx">family</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;xyz789&quot;</span><span class="p">,</span><span class="w">        </span><span class="c1">// Token family ID</span>
-<span class="w">  </span><span class="nx">userId</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;usr_456&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">token</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;eyJ...&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">jti</span><span class="o">:</span><span class="w"> </span><span class="s2">"abc123"</span><span class="p">,</span><span class="w">           </span><span class="c1">// Unique token ID</span>
+<span class="w">  </span><span class="nx">family</span><span class="o">:</span><span class="w"> </span><span class="s2">"xyz789"</span><span class="p">,</span><span class="w">        </span><span class="c1">// Token family ID</span>
+<span class="w">  </span><span class="nx">userId</span><span class="o">:</span><span class="w"> </span><span class="s2">"usr_456"</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">token</span><span class="o">:</span><span class="w"> </span><span class="s2">"eyJ..."</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">expiresAt</span><span class="o">:</span><span class="w"> </span><span class="kt">Date</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">used</span><span class="o">:</span><span class="w"> </span><span class="kt">false</span><span class="p">,</span><span class="w">             </span><span class="c1">// Not used yet</span>
 <span class="w">  </span><span class="nx">revoked</span><span class="o">:</span><span class="w"> </span><span class="kt">false</span>
@@ -1277,7 +1277,7 @@
 
 <span class="w">  </span><span class="c1">// All tokens in family are now revoked</span>
 <span class="w">  </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">UnauthorizedException</span><span class="p">(</span>
-<span class="w">    </span><span class="s2">&quot;Token reuse detected - all tokens invalidated&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"Token reuse detected - all tokens invalidated"</span><span class="p">,</span>
 <span class="w">  </span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1366,14 +1366,14 @@
 <span class="err">Content-Type: application/json</span>
 
 <span class="err">{</span>
-<span class="err">  &quot;refreshToken&quot;: &quot;eyJ...&quot;</span>
+<span class="err">  "refreshToken": "eyJ..."</span>
 <span class="err">}</span>
 
 <span class="err">Response:</span>
 <span class="err">{</span>
-<span class="err">  &quot;access_token&quot;: &quot;eyJ...&quot;,</span>
-<span class="err">  &quot;expires_in&quot;: 1800,</span>
-<span class="err">  &quot;token_type&quot;: &quot;Bearer&quot;</span>
+<span class="err">  "access_token": "eyJ...",</span>
+<span class="err">  "expires_in": 1800,</span>
+<span class="err">  "token_type": "Bearer"</span>
 <span class="err">  // ❌ Same refresh token reused</span>
 <span class="err">}</span>
 </code></pre></div>
@@ -1383,15 +1383,15 @@
 <span class="err">Content-Type: application/json</span>
 
 <span class="err">{</span>
-<span class="err">  &quot;refreshToken&quot;: &quot;eyJ...&quot;</span>
+<span class="err">  "refreshToken": "eyJ..."</span>
 <span class="err">}</span>
 
 <span class="err">Response:</span>
 <span class="err">{</span>
-<span class="err">  &quot;access_token&quot;: &quot;eyJ...&quot;,</span>
-<span class="err">  &quot;refresh_token&quot;: &quot;eyJ...&quot;,  // ✅ NEW rotated token</span>
-<span class="err">  &quot;expires_in&quot;: 1800,</span>
-<span class="err">  &quot;token_type&quot;: &quot;Bearer&quot;</span>
+<span class="err">  "access_token": "eyJ...",</span>
+<span class="err">  "refresh_token": "eyJ...",  // ✅ NEW rotated token</span>
+<span class="err">  "expires_in": 1800,</span>
+<span class="err">  "token_type": "Bearer"</span>
 <span class="err">}</span>
 </code></pre></div>
 
@@ -1436,13 +1436,13 @@
 <h3 id="test-successful-rotation">Test Successful Rotation<a class="headerlink" href="#test-successful-rotation" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># 1. Login</span>
 curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3000/api/v1/auth/login<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;email&quot;:&quot;test@sahool.com&quot;,&quot;password&quot;:&quot;password123&quot;}&#39;</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"email":"test@sahool.com","password":"password123"}'</span>
 
 <span class="c1"># 2. Refresh (should return new refresh token)</span>
 curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3000/api/v1/auth/refresh<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;refreshToken&quot;:&quot;TOKEN_FROM_STEP_1&quot;}&#39;</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"refreshToken":"TOKEN_FROM_STEP_1"}'</span>
 
 <span class="c1"># ✅ Should succeed and return new tokens</span>
 </code></pre></div>
@@ -1450,24 +1450,24 @@ curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </spa
 <h3 id="test-reuse-detection">Test Reuse Detection<a class="headerlink" href="#test-reuse-detection" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># 3. Try to reuse old token again</span>
 curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3000/api/v1/auth/refresh<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;refreshToken&quot;:&quot;TOKEN_FROM_STEP_1&quot;}&#39;</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"refreshToken":"TOKEN_FROM_STEP_1"}'</span>
 
 <span class="c1"># ❌ Should fail with 401:</span>
-<span class="c1"># &quot;Token reuse detected - all tokens in family have been invalidated&quot;</span>
+<span class="c1"># "Token reuse detected - all tokens in family have been invalidated"</span>
 </code></pre></div>
 
 <h3 id="check-database">Check Database<a class="headerlink" href="#check-database" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1">-- View token rotation history</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="n">jti</span><span class="p">,</span><span class="w"> </span><span class="n">family</span><span class="p">,</span><span class="w"> </span><span class="n">used</span><span class="p">,</span><span class="w"> </span><span class="n">used_at</span><span class="p">,</span><span class="w"> </span><span class="n">replaced_by</span><span class="p">,</span><span class="w"> </span><span class="n">revoked</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">refresh_tokens</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">user_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;your-user-id&#39;</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">user_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'your-user-id'</span>
 <span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">created_at</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
 
 <span class="c1">-- View token family</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="n">jti</span><span class="p">,</span><span class="w"> </span><span class="n">used</span><span class="p">,</span><span class="w"> </span><span class="n">revoked</span><span class="p">,</span><span class="w"> </span><span class="n">created_at</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">refresh_tokens</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">family</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;family-id&#39;</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">family</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'family-id'</span>
 <span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">created_at</span><span class="p">;</span>
 </code></pre></div>
 
@@ -1574,10 +1574,10 @@ npm<span class="w"> </span>run<span class="w"> </span>dev
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

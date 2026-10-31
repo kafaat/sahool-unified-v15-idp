@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1274,7 +1274,7 @@
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">patterns</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="sr">/&lt;script/gi</span><span class="p">,</span><span class="w"> </span><span class="sr">/&lt;\/script&gt;/gi</span><span class="p">,</span><span class="w"> </span><span class="sr">/javascript:/gi</span><span class="p">];</span>
 <span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="nx">pattern</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nx">patterns</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nx">pattern</span><span class="p">.</span><span class="nx">test</span><span class="p">(</span><span class="nx">result</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">result</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="nx">pattern</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">);</span>
+<span class="w">      </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">result</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="nx">pattern</span><span class="p">,</span><span class="w"> </span><span class="s1">''</span><span class="p">);</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">result</span><span class="p">;</span>
@@ -1288,10 +1288,10 @@
 - <code>apps/admin/src/lib/validation.ts</code>
 - <code>apps/admin/package.json</code></p>
 <p><strong>Change:</strong> Replaced manual regex sanitization with DOMPurify library for robust XSS protection.</p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">DOMPurify</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;dompurify&quot;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">DOMPurify</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"dompurify"</span><span class="p">;</span>
 
 <span class="kd">function</span><span class="w"> </span><span class="nx">sanitizeInput</span><span class="p">(</span><span class="nx">input</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="ow">typeof</span><span class="w"> </span><span class="nx">input</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nx">input</span><span class="p">;</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="ow">typeof</span><span class="w"> </span><span class="nx">input</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s2">"string"</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nx">input</span><span class="p">;</span>
 
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">sanitized</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">DOMPurify</span><span class="p">.</span><span class="nx">sanitize</span><span class="p">(</span><span class="nx">input</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">ALLOWED_TAGS</span><span class="o">:</span><span class="w"> </span><span class="p">[],</span>
@@ -1299,14 +1299,14 @@
 <span class="w">    </span><span class="nx">KEEP_CONTENT</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
 <span class="w">  </span><span class="p">});</span>
 
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">sanitized</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">).</span><span class="nx">trim</span><span class="p">();</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">sanitized</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g</span><span class="p">,</span><span class="w"> </span><span class="s2">""</span><span class="p">).</span><span class="nx">trim</span><span class="p">();</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <p><strong>Dependencies Added:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;dompurify&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^3.2.4&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;@types/dompurify&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^3.2.0&quot;</span>
+<span class="w">  </span><span class="nt">"dompurify"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^3.2.4"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"@types/dompurify"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^3.2.0"</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1321,11 +1321,11 @@
 <div class="codehilite"><pre><span></span><code><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Security Audit</span>
 <span class="nt">on</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">push</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">main</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">develop</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&#39;release/**&#39;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">main</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">develop</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">'release/**'</span><span class="p p-Indicator">]</span>
 <span class="w">  </span><span class="nt">pull_request</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">main</span><span class="p p-Indicator">]</span>
 <span class="w">  </span><span class="nt">schedule</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">cron</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;0</span><span class="nv"> </span><span class="s">6</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">1&#39;</span><span class="w">  </span><span class="c1"># Weekly on Monday</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">cron</span><span class="p">:</span><span class="w"> </span><span class="s">'0</span><span class="nv"> </span><span class="s">6</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">1'</span><span class="w">  </span><span class="c1"># Weekly on Monday</span>
 </code></pre></div>
 
 <hr />
@@ -1367,10 +1367,10 @@ NODE_ENV=development
 </ul>
 <p><strong>Change:</strong> Fixed API URL fallbacks from port <code>3000</code> to Kong Gateway port <code>8000</code></p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Before</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">backendUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">USER_SERVICE_URL</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">&quot;http://localhost:3000&quot;</span><span class="p">;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">backendUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">USER_SERVICE_URL</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">"http://localhost:3000"</span><span class="p">;</span>
 
 <span class="c1">// After</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">backendUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NEXT_PUBLIC_API_URL</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">&quot;http://localhost:8000&quot;</span><span class="p">;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">backendUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NEXT_PUBLIC_API_URL</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">"http://localhost:8000"</span><span class="p">;</span>
 </code></pre></div>
 
 <h4 id="web-app-configuration">Web App Configuration:<a class="headerlink" href="#web-app-configuration" title="Permanent link">&para;</a></h4>
@@ -1384,15 +1384,15 @@ NODE_ENV=development
 <p><strong>Issue:</strong> WebSocket port was <code>8090</code> (incorrect) instead of <code>8081</code> (ws-gateway)</p>
 <p><strong>Fix:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">getDefaultWsUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="ow">typeof</span><span class="w"> </span><span class="nb">window</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">&quot;undefined&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s2">&quot;ws://localhost:8081&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="ow">typeof</span><span class="w"> </span><span class="nb">window</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">"undefined"</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s2">"ws://localhost:8081"</span><span class="p">;</span>
 
-<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">protocol</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">protocol</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">&quot;https:&quot;</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s2">&quot;wss:&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;ws:&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">protocol</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">protocol</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">"https:"</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s2">"wss:"</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">"ws:"</span><span class="p">;</span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">host</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">hostname</span><span class="p">;</span>
-<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NODE_ENV</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">&quot;production&quot;</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;:8081&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NODE_ENV</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">"production"</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s2">""</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s2">":8081"</span><span class="p">;</span>
 
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NODE_ENV</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">&quot;production&quot;</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NODE_ENV</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">"production"</span>
 <span class="w">    </span><span class="o">?</span><span class="w"> </span><span class="sb">`</span><span class="si">${</span><span class="nx">protocol</span><span class="si">}</span><span class="sb">//</span><span class="si">${</span><span class="nx">host</span><span class="si">}${</span><span class="nx">port</span><span class="si">}</span><span class="sb">`</span>
-<span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;ws://localhost:8081&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="s2">"ws://localhost:8081"</span><span class="p">;</span>
 <span class="p">};</span>
 </code></pre></div>
 
@@ -1609,10 +1609,10 @@ curl<span class="w"> </span>http://localhost:8000/healthz
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

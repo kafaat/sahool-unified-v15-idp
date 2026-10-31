@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1205,13 +1205,13 @@
 docker<span class="w"> </span>compose<span class="w"> </span>restart<span class="w"> </span>pgbouncer
 
 <span class="c1"># Verify configuration</span>
-docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-pgbouncer<span class="w"> </span>cat<span class="w"> </span>/etc/pgbouncer/pgbouncer.ini<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s2">&quot;max_db_connections|client_idle_timeout&quot;</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-pgbouncer<span class="w"> </span>cat<span class="w"> </span>/etc/pgbouncer/pgbouncer.ini<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s2">"max_db_connections|client_idle_timeout"</span>
 
 <span class="c1"># Test connection</span>
-<span class="nv">PGPASSWORD</span><span class="o">=</span><span class="nv">$POSTGRES_PASSWORD</span><span class="w"> </span>psql<span class="w"> </span>-h<span class="w"> </span><span class="m">127</span>.0.0.1<span class="w"> </span>-p<span class="w"> </span><span class="m">6432</span><span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SELECT 1;&quot;</span>
+<span class="nv">PGPASSWORD</span><span class="o">=</span><span class="nv">$POSTGRES_PASSWORD</span><span class="w"> </span>psql<span class="w"> </span>-h<span class="w"> </span><span class="m">127</span>.0.0.1<span class="w"> </span>-p<span class="w"> </span><span class="m">6432</span><span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">"SELECT 1;"</span>
 
 <span class="c1"># Check pool status</span>
-<span class="nv">PGPASSWORD</span><span class="o">=</span><span class="nv">$POSTGRES_PASSWORD</span><span class="w"> </span>psql<span class="w"> </span>-h<span class="w"> </span><span class="m">127</span>.0.0.1<span class="w"> </span>-p<span class="w"> </span><span class="m">6432</span><span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>pgbouncer<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SHOW POOLS;&quot;</span>
+<span class="nv">PGPASSWORD</span><span class="o">=</span><span class="nv">$POSTGRES_PASSWORD</span><span class="w"> </span>psql<span class="w"> </span>-h<span class="w"> </span><span class="m">127</span>.0.0.1<span class="w"> </span>-p<span class="w"> </span><span class="m">6432</span><span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>pgbouncer<span class="w"> </span>-c<span class="w"> </span><span class="s2">"SHOW POOLS;"</span>
 </code></pre></div>
 
 <h3 id="health-check">Health Check<a class="headerlink" href="#health-check" title="Permanent link">&para;</a></h3>
@@ -1347,10 +1347,10 @@ docker<span class="w"> </span>compose<span class="w"> </span>restart<span class=
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

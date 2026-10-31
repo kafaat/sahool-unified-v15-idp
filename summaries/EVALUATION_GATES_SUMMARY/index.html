@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1190,10 +1190,10 @@
 <li>Post-deployment (staging) - validates production quality</li>
 </ul>
 <p><strong>Configurable parameters:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="nt">threshold-accuracy</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.85&quot;</span><span class="w"> </span><span class="c1"># 85% minimum accuracy</span>
-<span class="nt">threshold-latency</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2000&quot;</span><span class="w"> </span><span class="c1"># 2000ms max latency</span>
-<span class="nt">threshold-cost</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.50&quot;</span><span class="w"> </span><span class="c1"># $0.50 max cost per request</span>
-<span class="nt">threshold-success-rate</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.95&quot;</span><span class="w"> </span><span class="c1"># 95% minimum success rate</span>
+<div class="codehilite"><pre><span></span><code><span class="nt">threshold-accuracy</span><span class="p">:</span><span class="w"> </span><span class="s">"0.85"</span><span class="w"> </span><span class="c1"># 85% minimum accuracy</span>
+<span class="nt">threshold-latency</span><span class="p">:</span><span class="w"> </span><span class="s">"2000"</span><span class="w"> </span><span class="c1"># 2000ms max latency</span>
+<span class="nt">threshold-cost</span><span class="p">:</span><span class="w"> </span><span class="s">"0.50"</span><span class="w"> </span><span class="c1"># $0.50 max cost per request</span>
+<span class="nt">threshold-success-rate</span><span class="p">:</span><span class="w"> </span><span class="s">"0.95"</span><span class="w"> </span><span class="c1"># 95% minimum success rate</span>
 </code></pre></div>
 
 <h3 id="2-canary-deployment">2. Canary Deployment<a class="headerlink" href="#2-canary-deployment" title="Permanent link">&para;</a></h3>
@@ -1268,26 +1268,26 @@
 </ul>
 <h2 id="evaluation-thresholds">Evaluation Thresholds<a class="headerlink" href="#evaluation-thresholds" title="Permanent link">&para;</a></h2>
 <h3 id="quality-gates-pr-checks">Quality Gates (PR Checks)<a class="headerlink" href="#quality-gates-pr-checks" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="nt">threshold-accuracy</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.85&quot;</span><span class="w"> </span><span class="c1"># 85%</span>
-<span class="nt">threshold-latency</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2000&quot;</span><span class="w"> </span><span class="c1"># 2000ms</span>
-<span class="nt">threshold-cost</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.50&quot;</span><span class="w"> </span><span class="c1"># $0.50</span>
-<span class="nt">threshold-success-rate</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.95&quot;</span><span class="w"> </span><span class="c1"># 95%</span>
+<div class="codehilite"><pre><span></span><code><span class="nt">threshold-accuracy</span><span class="p">:</span><span class="w"> </span><span class="s">"0.85"</span><span class="w"> </span><span class="c1"># 85%</span>
+<span class="nt">threshold-latency</span><span class="p">:</span><span class="w"> </span><span class="s">"2000"</span><span class="w"> </span><span class="c1"># 2000ms</span>
+<span class="nt">threshold-cost</span><span class="p">:</span><span class="w"> </span><span class="s">"0.50"</span><span class="w"> </span><span class="c1"># $0.50</span>
+<span class="nt">threshold-success-rate</span><span class="p">:</span><span class="w"> </span><span class="s">"0.95"</span><span class="w"> </span><span class="c1"># 95%</span>
 </code></pre></div>
 
 <p><strong>Purpose:</strong> Ensure code quality before merge</p>
 <h3 id="staging-pre-deployment">Staging Pre-deployment<a class="headerlink" href="#staging-pre-deployment" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="nt">threshold-accuracy</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.80&quot;</span><span class="w"> </span><span class="c1"># 80% (more lenient)</span>
-<span class="nt">threshold-latency</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2500&quot;</span><span class="w"> </span><span class="c1"># 2500ms</span>
-<span class="nt">threshold-cost</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.60&quot;</span><span class="w"> </span><span class="c1"># $0.60</span>
-<span class="nt">threshold-success-rate</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.90&quot;</span><span class="w"> </span><span class="c1"># 90%</span>
+<div class="codehilite"><pre><span></span><code><span class="nt">threshold-accuracy</span><span class="p">:</span><span class="w"> </span><span class="s">"0.80"</span><span class="w"> </span><span class="c1"># 80% (more lenient)</span>
+<span class="nt">threshold-latency</span><span class="p">:</span><span class="w"> </span><span class="s">"2500"</span><span class="w"> </span><span class="c1"># 2500ms</span>
+<span class="nt">threshold-cost</span><span class="p">:</span><span class="w"> </span><span class="s">"0.60"</span><span class="w"> </span><span class="c1"># $0.60</span>
+<span class="nt">threshold-success-rate</span><span class="p">:</span><span class="w"> </span><span class="s">"0.90"</span><span class="w"> </span><span class="c1"># 90%</span>
 </code></pre></div>
 
 <p><strong>Purpose:</strong> Block problematic deployments early</p>
 <h3 id="staging-post-deployment">Staging Post-deployment<a class="headerlink" href="#staging-post-deployment" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="nt">threshold-accuracy</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.85&quot;</span><span class="w"> </span><span class="c1"># 85% (stricter)</span>
-<span class="nt">threshold-latency</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2000&quot;</span><span class="w"> </span><span class="c1"># 2000ms</span>
-<span class="nt">threshold-cost</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.50&quot;</span><span class="w"> </span><span class="c1"># $0.50</span>
-<span class="nt">threshold-success-rate</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.95&quot;</span><span class="w"> </span><span class="c1"># 95%</span>
+<div class="codehilite"><pre><span></span><code><span class="nt">threshold-accuracy</span><span class="p">:</span><span class="w"> </span><span class="s">"0.85"</span><span class="w"> </span><span class="c1"># 85% (stricter)</span>
+<span class="nt">threshold-latency</span><span class="p">:</span><span class="w"> </span><span class="s">"2000"</span><span class="w"> </span><span class="c1"># 2000ms</span>
+<span class="nt">threshold-cost</span><span class="p">:</span><span class="w"> </span><span class="s">"0.50"</span><span class="w"> </span><span class="c1"># $0.50</span>
+<span class="nt">threshold-success-rate</span><span class="p">:</span><span class="w"> </span><span class="s">"0.95"</span><span class="w"> </span><span class="c1"># 95%</span>
 </code></pre></div>
 
 <p><strong>Purpose:</strong> Validate production-readiness with live API</p>
@@ -1460,24 +1460,24 @@ DATABASE_URL_PRODUCTION     # Database connection for production
 <p>Create test datasets in <code>tests/golden-datasets/</code>:</p>
 <p><strong>Example: <code>tests/golden-datasets/agro-advisor.json</code></strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Agro Advisor Tests&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.0&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;test_cases&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Agro Advisor Tests"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.0"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"test_cases"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;test_001&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;crop_recommendation&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;input&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;What crops are suitable for Yemen climate?&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;expected_output&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;coffee, qat, grapes, mangoes&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;max_latency_ms&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2000</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;max_cost&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.1</span>
+<span class="w">      </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"test_001"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"crop_recommendation"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"input"</span><span class="p">:</span><span class="w"> </span><span class="s2">"What crops are suitable for Yemen climate?"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"expected_output"</span><span class="p">:</span><span class="w"> </span><span class="s2">"coffee, qat, grapes, mangoes"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"max_latency_ms"</span><span class="p">:</span><span class="w"> </span><span class="mi">2000</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"max_cost"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.1</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;test_002&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;soil_analysis&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;input&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Analyze soil pH for wheat cultivation&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;expected_output&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;optimal pH range 6.0-7.5&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;max_latency_ms&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1500</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;max_cost&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.08</span>
+<span class="w">      </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"test_002"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"soil_analysis"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"input"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Analyze soil pH for wheat cultivation"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"expected_output"</span><span class="p">:</span><span class="w"> </span><span class="s2">"optimal pH range 6.0-7.5"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"max_latency_ms"</span><span class="p">:</span><span class="w"> </span><span class="mi">1500</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"max_cost"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.08</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">]</span>
 <span class="p">}</span>
@@ -1665,10 +1665,10 @@ DATABASE_URL_PRODUCTION     # Database connection for production
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

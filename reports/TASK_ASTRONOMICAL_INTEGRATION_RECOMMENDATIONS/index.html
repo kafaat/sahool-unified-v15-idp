@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1170,37 +1170,37 @@
 <div class="codehilite"><pre><span></span><code><span class="c1"># apps/services/task-service/src/main.py</span>
 
 <span class="c1"># Endpoint 1: اقتراح أفضل الأيام للنشاط</span>
-<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/v1/tasks/suggest-dates/</span><span class="si">{activity}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/v1/tasks/suggest-dates/</span><span class="si">{activity}</span><span class="s2">"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">suggest_dates_for_activity</span><span class="p">(</span>
     <span class="n">activity</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>  <span class="c1"># زراعة، ري، حصاد، تسميد</span>
     <span class="n">days</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
     <span class="n">field_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    يستدعي خدمة التقويم الفلكي ويعيد أفضل الأيام للنشاط المحدد</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">pass</span>
 
 <span class="c1"># Endpoint 2: إنشاء مهمة مع توصية فلكية</span>
-<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/v1/tasks/create-with-recommendation&quot;</span><span class="p">)</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">"/v1/tasks/create-with-recommendation"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create_task_with_recommendation</span><span class="p">(</span>
     <span class="n">task</span><span class="p">:</span> <span class="n">TaskCreate</span><span class="p">,</span>
     <span class="n">use_astronomical</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    ينشئ مهمة مع ربطها بالتوصية الفلكية المناسبة</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">pass</span>
 
 <span class="c1"># Endpoint 3: التحقق من ملاءمة التاريخ</span>
-<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/v1/tasks/validate-date&quot;</span><span class="p">)</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/v1/tasks/validate-date"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">validate_task_date</span><span class="p">(</span>
     <span class="n">date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">activity</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    يتحقق من ملاءمة التاريخ للنشاط بناءً على التقويم الفلكي</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">pass</span>
 </code></pre></div>
 
@@ -1230,13 +1230,13 @@
 <div class="codehilite"><pre><span></span><code><span class="c1"># apps/services/task-service/src/hooks/astronomical_integration.py</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">AstronomicalTaskHook</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Hook يُنفذ عند إنشاء أو تحديث مهمة</span>
 <span class="sd">    لإضافة البيانات الفلكية المناسبة</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">on_task_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Task</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;عند إنشاء مهمة جديدة&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""عند إنشاء مهمة جديدة"""</span>
         <span class="n">astro_data</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fetch_astronomical_data</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">due_date</span><span class="p">)</span>
         <span class="n">task</span><span class="o">.</span><span class="n">moon_phase_at_due_date</span> <span class="o">=</span> <span class="n">astro_data</span><span class="o">.</span><span class="n">moon_phase</span><span class="o">.</span><span class="n">name_ar</span>
         <span class="n">task</span><span class="o">.</span><span class="n">lunar_mansion_at_due_date</span> <span class="o">=</span> <span class="n">astro_data</span><span class="o">.</span><span class="n">lunar_mansion</span><span class="o">.</span><span class="n">name</span>
@@ -1244,18 +1244,18 @@
         <span class="k">return</span> <span class="n">task</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">on_task_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">,</span> <span class="n">changes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Task</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;عند تحديث تاريخ الاستحقاق&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="s1">&#39;due_date&#39;</span> <span class="ow">in</span> <span class="n">changes</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""عند تحديث تاريخ الاستحقاق"""</span>
+        <span class="k">if</span> <span class="s1">'due_date'</span> <span class="ow">in</span> <span class="n">changes</span><span class="p">:</span>
             <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_task_create</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">task</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_type</span><span class="p">:</span> <span class="n">TaskType</span><span class="p">,</span> <span class="n">astro_data</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;حساب درجة ملاءمة التاريخ للنشاط&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""حساب درجة ملاءمة التاريخ للنشاط"""</span>
         <span class="n">activity_map</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">TaskType</span><span class="o">.</span><span class="n">PLANTING</span><span class="p">:</span> <span class="s2">&quot;زراعة&quot;</span><span class="p">,</span>
-            <span class="n">TaskType</span><span class="o">.</span><span class="n">IRRIGATION</span><span class="p">:</span> <span class="s2">&quot;ري&quot;</span><span class="p">,</span>
-            <span class="n">TaskType</span><span class="o">.</span><span class="n">HARVEST</span><span class="p">:</span> <span class="s2">&quot;حصاد&quot;</span><span class="p">,</span>
-            <span class="n">TaskType</span><span class="o">.</span><span class="n">FERTILIZATION</span><span class="p">:</span> <span class="s2">&quot;تسميد&quot;</span><span class="p">,</span>
+            <span class="n">TaskType</span><span class="o">.</span><span class="n">PLANTING</span><span class="p">:</span> <span class="s2">"زراعة"</span><span class="p">,</span>
+            <span class="n">TaskType</span><span class="o">.</span><span class="n">IRRIGATION</span><span class="p">:</span> <span class="s2">"ري"</span><span class="p">,</span>
+            <span class="n">TaskType</span><span class="o">.</span><span class="n">HARVEST</span><span class="p">:</span> <span class="s2">"حصاد"</span><span class="p">,</span>
+            <span class="n">TaskType</span><span class="o">.</span><span class="n">FERTILIZATION</span><span class="p">:</span> <span class="s2">"تسميد"</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="n">activity</span> <span class="o">=</span> <span class="n">activity_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">task_type</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">astro_data</span><span class="o">.</span><span class="n">recommendations</span><span class="p">:</span>
@@ -1268,21 +1268,21 @@
 <div class="codehilite"><pre><span></span><code><span class="c1"># apps/services/task-service/src/services/auto_task_generator.py</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">AutoTaskGenerator</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    مولد المهام التلقائي بناءً على التقويم الفلكي</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">generate_weekly_suggestions</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">crop_type</span><span class="p">:</span> <span class="nb">str</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">TaskSuggestion</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        يولد اقتراحات مهام أسبوعية بناءً على:</span>
 <span class="sd">        - نوع المحصول</span>
 <span class="sd">        - التقويم الفلكي</span>
 <span class="sd">        - الموسم الحالي</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">weekly_forecast</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">astronomical_api</span><span class="o">.</span><span class="n">get_weekly_forecast</span><span class="p">()</span>
         <span class="n">suggestions</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -1318,15 +1318,15 @@
 <span class="w">  </span><span class="nx">fieldId</span>
 <span class="p">}</span><span class="o">:</span><span class="w"> </span><span class="nx">AstronomicalDatePickerProps</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="kt">bestDays</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useQuery</span><span class="p">({</span>
-<span class="w">    </span><span class="nx">queryKey</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;best-days&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">activity</span><span class="p">],</span>
+<span class="w">    </span><span class="nx">queryKey</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">'best-days'</span><span class="p">,</span><span class="w"> </span><span class="nx">activity</span><span class="p">],</span>
 <span class="w">    </span><span class="nx">queryFn</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">taskApi</span><span class="p">.</span><span class="nx">suggestDates</span><span class="p">(</span><span class="nx">activity</span><span class="p">,</span><span class="w"> </span><span class="mf">30</span><span class="p">)</span>
 <span class="w">  </span><span class="p">});</span>
 
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
-<span class="w">    </span><span class="o">&lt;</span><span class="nx">div</span><span class="w"> </span><span class="nx">className</span><span class="o">=</span><span class="s2">&quot;astronomical-date-picker&quot;</span><span class="o">&gt;</span>
+<span class="w">    </span><span class="o">&lt;</span><span class="nx">div</span><span class="w"> </span><span class="nx">className</span><span class="o">=</span><span class="s2">"astronomical-date-picker"</span><span class="o">&gt;</span>
 <span class="w">      </span><span class="o">&lt;</span><span class="nx">h4</span><span class="o">&gt;</span><span class="nx">أفضل</span><span class="w"> </span><span class="nx">الأيام</span><span class="w"> </span><span class="nx">لـ</span><span class="w"> </span><span class="p">{</span><span class="nx">activityLabels</span><span class="p">[</span><span class="nx">activity</span><span class="p">]}</span><span class="o">&lt;</span><span class="err">/h4&gt;</span>
 
-<span class="w">      </span><span class="o">&lt;</span><span class="nx">div</span><span class="w"> </span><span class="nx">className</span><span class="o">=</span><span class="s2">&quot;best-days-grid&quot;</span><span class="o">&gt;</span>
+<span class="w">      </span><span class="o">&lt;</span><span class="nx">div</span><span class="w"> </span><span class="nx">className</span><span class="o">=</span><span class="s2">"best-days-grid"</span><span class="o">&gt;</span>
 <span class="w">        </span><span class="p">{</span><span class="nx">bestDays</span><span class="o">?</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">day</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">(</span>
 <span class="w">          </span><span class="o">&lt;</span><span class="nx">DayCard</span>
 <span class="w">            </span><span class="nx">key</span><span class="o">=</span><span class="p">{</span><span class="nx">day</span><span class="p">.</span><span class="nx">date</span><span class="p">}</span>
@@ -1363,12 +1363,12 @@
 <span class="w">        </span><span class="o">&lt;</span><span class="nx">TaskDetails</span><span class="w"> </span><span class="nx">task</span><span class="o">=</span><span class="p">{</span><span class="nx">task</span><span class="p">}</span><span class="w"> </span><span class="o">/&gt;</span>
 
 <span class="w">        </span><span class="p">{</span><span class="nx">task</span><span class="p">.</span><span class="nx">moon_phase_at_due_date</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span>
-<span class="w">          </span><span class="o">&lt;</span><span class="nx">div</span><span class="w"> </span><span class="nx">className</span><span class="o">=</span><span class="s2">&quot;astro-info&quot;</span><span class="o">&gt;</span>
+<span class="w">          </span><span class="o">&lt;</span><span class="nx">div</span><span class="w"> </span><span class="nx">className</span><span class="o">=</span><span class="s2">"astro-info"</span><span class="o">&gt;</span>
 <span class="w">            </span><span class="o">&lt;</span><span class="nx">MoonPhaseIcon</span><span class="w"> </span><span class="nx">phase</span><span class="o">=</span><span class="p">{</span><span class="nx">task</span><span class="p">.</span><span class="nx">moon_phase_at_due_date</span><span class="p">}</span><span class="w"> </span><span class="o">/&gt;</span>
 <span class="w">            </span><span class="o">&lt;</span><span class="nx">span</span><span class="o">&gt;</span><span class="p">{</span><span class="nx">task</span><span class="p">.</span><span class="nx">moon_phase_at_due_date</span><span class="p">}</span><span class="o">&lt;</span><span class="err">/span&gt;</span>
 
 <span class="w">            </span><span class="p">{</span><span class="nx">task</span><span class="p">.</span><span class="nx">lunar_mansion_at_due_date</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span>
-<span class="w">              </span><span class="o">&lt;</span><span class="nx">span</span><span class="w"> </span><span class="nx">className</span><span class="o">=</span><span class="s2">&quot;lunar-mansion&quot;</span><span class="o">&gt;</span>
+<span class="w">              </span><span class="o">&lt;</span><span class="nx">span</span><span class="w"> </span><span class="nx">className</span><span class="o">=</span><span class="s2">"lunar-mansion"</span><span class="o">&gt;</span>
 <span class="w">                </span><span class="p">{</span><span class="nx">task</span><span class="p">.</span><span class="nx">lunar_mansion_at_due_date</span><span class="p">}</span>
 <span class="w">              </span><span class="o">&lt;</span><span class="err">/span&gt;</span>
 <span class="w">            </span><span class="p">)}</span>
@@ -1376,7 +1376,7 @@
 <span class="w">        </span><span class="p">)}</span>
 
 <span class="w">        </span><span class="p">{</span><span class="nx">task</span><span class="p">.</span><span class="nx">optimal_time_of_day</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span>
-<span class="w">          </span><span class="o">&lt;</span><span class="nx">div</span><span class="w"> </span><span class="nx">className</span><span class="o">=</span><span class="s2">&quot;optimal-time&quot;</span><span class="o">&gt;</span>
+<span class="w">          </span><span class="o">&lt;</span><span class="nx">div</span><span class="w"> </span><span class="nx">className</span><span class="o">=</span><span class="s2">"optimal-time"</span><span class="o">&gt;</span>
 <span class="w">            </span><span class="nx">أفضل</span><span class="w"> </span><span class="nx">وقت</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="nx">task</span><span class="p">.</span><span class="nx">optimal_time_of_day</span><span class="p">}</span>
 <span class="w">          </span><span class="o">&lt;</span><span class="err">/div&gt;</span>
 <span class="w">        </span><span class="p">)}</span>
@@ -1414,7 +1414,7 @@
 <span class="w">            </span><span class="p">},</span>
 <span class="w">          </span><span class="p">),</span>
 <span class="w">          </span><span class="nl">loading:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">CircularProgressIndicator</span><span class="p">(),</span>
-<span class="w">          </span><span class="nl">error:</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="p">,</span><span class="w"> </span><span class="n">_</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Text</span><span class="p">(</span><span class="s1">&#39;خطأ في تحميل البيانات&#39;</span><span class="p">),</span>
+<span class="w">          </span><span class="nl">error:</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="p">,</span><span class="w"> </span><span class="n">_</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Text</span><span class="p">(</span><span class="s1">'خطأ في تحميل البيانات'</span><span class="p">),</span>
 <span class="w">        </span><span class="p">),</span>
 
 <span class="w">        </span><span class="c1">// عرض طور القمر للتاريخ المحدد</span>
@@ -1521,7 +1521,7 @@
 <span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">Task</span><span class="w"> </span><span class="kr">Service</span>
 <span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">Astronomical</span><span class="w"> </span><span class="n">Calendar</span>
 
-<span class="w">    </span><span class="n">U</span><span class="o">-&gt;&gt;</span><span class="n">W</span><span class="o">:</span><span class="w"> </span><span class="err">ينقر</span><span class="w"> </span><span class="s">&quot;إضافة مهمة زراعة&quot;</span>
+<span class="w">    </span><span class="n">U</span><span class="o">-&gt;&gt;</span><span class="n">W</span><span class="o">:</span><span class="w"> </span><span class="err">ينقر</span><span class="w"> </span><span class="s">"إضافة مهمة زراعة"</span>
 <span class="w">    </span><span class="n">W</span><span class="o">-&gt;&gt;</span><span class="n">T</span><span class="o">:</span><span class="w"> </span><span class="n">GET</span><span class="w"> </span><span class="o">/</span><span class="n">suggest</span><span class="o">-</span><span class="n">dates</span><span class="o">/</span><span class="err">زراعة</span>
 <span class="w">    </span><span class="n">T</span><span class="o">-&gt;&gt;</span><span class="n">A</span><span class="o">:</span><span class="w"> </span><span class="n">GET</span><span class="w"> </span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="kr">best</span><span class="o">-</span><span class="n">days</span><span class="o">?</span><span class="n">activity</span><span class="o">=</span><span class="err">زراعة</span>
 <span class="w">    </span><span class="n">A</span><span class="o">--&gt;&gt;</span><span class="n">T</span><span class="o">:</span><span class="w"> </span><span class="err">قائمة</span><span class="w"> </span><span class="err">أفضل</span><span class="w"> </span><span class="err">الأيام</span>
@@ -1549,7 +1549,7 @@
 <span class="w">    </span><span class="n">T</span><span class="o">-&gt;&gt;</span><span class="n">T</span><span class="o">:</span><span class="w"> </span><span class="err">حساب</span><span class="w"> </span><span class="err">درجة</span><span class="w"> </span><span class="err">الملاءمة</span>
 
 <span class="w">    </span><span class="n">alt</span><span class="w"> </span><span class="err">التاريخ</span><span class="w"> </span><span class="err">مناسب</span><span class="w"> </span><span class="p">(</span><span class="n">score</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">6</span><span class="p">)</span>
-<span class="w">        </span><span class="n">T</span><span class="o">--&gt;&gt;</span><span class="n">W</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="n">suitable</span><span class="o">:</span><span class="w"> </span><span class="kr">true</span><span class="p">,</span><span class="w"> </span><span class="n">score</span><span class="o">:</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="n">reason</span><span class="o">:</span><span class="w"> </span><span class="s">&quot;...&quot;</span><span class="p">}</span>
+<span class="w">        </span><span class="n">T</span><span class="o">--&gt;&gt;</span><span class="n">W</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="n">suitable</span><span class="o">:</span><span class="w"> </span><span class="kr">true</span><span class="p">,</span><span class="w"> </span><span class="n">score</span><span class="o">:</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="n">reason</span><span class="o">:</span><span class="w"> </span><span class="s">"..."</span><span class="p">}</span>
 <span class="w">        </span><span class="n">W</span><span class="o">--&gt;&gt;</span><span class="n">U</span><span class="o">:</span><span class="w"> </span><span class="err">✅</span><span class="w"> </span><span class="err">التاريخ</span><span class="w"> </span><span class="err">مناسب</span><span class="w"> </span><span class="err">للري</span>
 <span class="w">    </span><span class="n">else</span><span class="w"> </span><span class="err">التاريخ</span><span class="w"> </span><span class="err">غير</span><span class="w"> </span><span class="err">مناسب</span>
 <span class="w">        </span><span class="n">T</span><span class="o">--&gt;&gt;</span><span class="n">W</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="n">suitable</span><span class="o">:</span><span class="w"> </span><span class="kr">false</span><span class="p">,</span><span class="w"> </span><span class="n">score</span><span class="o">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="n">alternatives</span><span class="o">:</span><span class="w"> </span><span class="p">[...]}</span>
@@ -1722,10 +1722,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

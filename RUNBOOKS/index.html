@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1166,7 +1166,7 @@
 <p><strong>Symptoms</strong>: Readiness check fails with database error</p>
 <p><strong>Solution</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Check database connectivity</span>
-kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>&lt;pod-name&gt;<span class="w"> </span>--<span class="w"> </span>psql<span class="w"> </span>-h<span class="w"> </span>postgres<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SELECT 1&quot;</span>
+kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>&lt;pod-name&gt;<span class="w"> </span>--<span class="w"> </span>psql<span class="w"> </span>-h<span class="w"> </span>postgres<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">"SELECT 1"</span>
 
 <span class="c1"># Check database pod status</span>
 kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-l<span class="w"> </span><span class="nv">app</span><span class="o">=</span>postgres
@@ -1241,14 +1241,14 @@ kubectl<span class="w"> </span>edit<span class="w"> </span>deployment<span class
 <p><strong>Symptoms</strong>: Errors contain "database" or "query"</p>
 <p><strong>Solution</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Check database connection pool</span>
-curl<span class="w"> </span>http://&lt;service-url&gt;/debug/vars<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.database&#39;</span>
+curl<span class="w"> </span>http://&lt;service-url&gt;/debug/vars<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">'.database'</span>
 
 <span class="c1"># Review slow queries</span>
-kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>postgres-0<span class="w"> </span>--<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>postgres-0<span class="w"> </span>--<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
 <span class="s2">  SELECT query, calls, total_time, mean_time</span>
 <span class="s2">  FROM pg_stat_statements</span>
 <span class="s2">  ORDER BY total_time DESC</span>
-<span class="s2">  LIMIT 10;&quot;</span>
+<span class="s2">  LIMIT 10;"</span>
 
 <span class="c1"># Restart service to reset connection pool</span>
 kubectl<span class="w"> </span>rollout<span class="w"> </span>restart<span class="w"> </span>deployment/&lt;service-name&gt;
@@ -1271,10 +1271,10 @@ kubectl<span class="w"> </span><span class="nb">set</span><span class="w"> </spa
 <p><strong>Symptoms</strong>: 400 errors, validation failures</p>
 <p><strong>Solution</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Review recent input changes</span>
-kubectl<span class="w"> </span>logs<span class="w"> </span>&lt;pod-name&gt;<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-B<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="s2">&quot;validation error&quot;</span>
+kubectl<span class="w"> </span>logs<span class="w"> </span>&lt;pod-name&gt;<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-B<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="s2">"validation error"</span>
 
 <span class="c1"># Check API schema version</span>
-curl<span class="w"> </span>http://&lt;service-url&gt;/<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.version&#39;</span>
+curl<span class="w"> </span>http://&lt;service-url&gt;/<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">'.version'</span>
 
 <span class="c1"># Rollback if recent deployment</span>
 kubectl<span class="w"> </span>rollout<span class="w"> </span>undo<span class="w"> </span>deployment/&lt;service-name&gt;
@@ -1329,12 +1329,12 @@ kubectl<span class="w"> </span>rollout<span class="w"> </span>undo<span class="w
 <p><strong>Symptoms</strong>: Database query time high</p>
 <p><strong>Solution</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Add missing indexes</span>
-kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>postgres-0<span class="w"> </span>--<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
-<span class="s2">  CREATE INDEX CONCURRENTLY idx_fields_user_id ON fields(user_id);&quot;</span>
+kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>postgres-0<span class="w"> </span>--<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
+<span class="s2">  CREATE INDEX CONCURRENTLY idx_fields_user_id ON fields(user_id);"</span>
 
 <span class="c1"># Analyze query plan</span>
-kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>postgres-0<span class="w"> </span>--<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
-<span class="s2">  EXPLAIN ANALYZE &lt;slow-query&gt;;&quot;</span>
+kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>postgres-0<span class="w"> </span>--<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
+<span class="s2">  EXPLAIN ANALYZE &lt;slow-query&gt;;"</span>
 
 <span class="c1"># Increase connection pool size</span>
 kubectl<span class="w"> </span><span class="nb">set</span><span class="w"> </span>env<span class="w"> </span>deployment/&lt;service-name&gt;<span class="w"> </span><span class="nv">DB_POOL_SIZE</span><span class="o">=</span><span class="m">50</span>
@@ -1406,18 +1406,18 @@ kubectl<span class="w"> </span><span class="nb">set</span><span class="w"> </spa
 
 <h4 id="connection-leaks">Connection Leaks<a class="headerlink" href="#connection-leaks" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Check for idle connections</span>
-kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>postgres-0<span class="w"> </span>--<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>postgres-0<span class="w"> </span>--<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
 <span class="s2">  SELECT pid, usename, application_name, state, state_change</span>
 <span class="s2">  FROM pg_stat_activity</span>
-<span class="s2">  WHERE state = &#39;idle in transaction&#39;</span>
-<span class="s2">  AND state_change &lt; NOW() - INTERVAL &#39;5 minutes&#39;;&quot;</span>
+<span class="s2">  WHERE state = 'idle in transaction'</span>
+<span class="s2">  AND state_change &lt; NOW() - INTERVAL '5 minutes';"</span>
 
 <span class="c1"># Kill long-running idle connections</span>
-kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>postgres-0<span class="w"> </span>--<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>postgres-0<span class="w"> </span>--<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
 <span class="s2">  SELECT pg_terminate_backend(pid)</span>
 <span class="s2">  FROM pg_stat_activity</span>
-<span class="s2">  WHERE state = &#39;idle in transaction&#39;</span>
-<span class="s2">  AND state_change &lt; NOW() - INTERVAL &#39;10 minutes&#39;;&quot;</span>
+<span class="s2">  WHERE state = 'idle in transaction'</span>
+<span class="s2">  AND state_change &lt; NOW() - INTERVAL '10 minutes';"</span>
 
 <span class="c1"># Restart service to reset pool</span>
 kubectl<span class="w"> </span>rollout<span class="w"> </span>restart<span class="w"> </span>deployment/&lt;service-name&gt;
@@ -1500,7 +1500,7 @@ kubectl<span class="w"> </span>rollout<span class="w"> </span>restart<span class
 <h3 id="solutions_2">Solutions<a class="headerlink" href="#solutions_2" title="Permanent link">&para;</a></h3>
 <h4 id="invalid-jwt-secret">Invalid JWT Secret<a class="headerlink" href="#invalid-jwt-secret" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Verify all services use same secret</span>
-kubectl<span class="w"> </span>get<span class="w"> </span>deployments<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{range .items[*]}{.metadata.name}{&quot;\t&quot;}{.spec.template.spec.containers[0].env[?(@.name==&quot;JWT_SECRET_KEY&quot;)].value}{&quot;\n&quot;}{end}&#39;</span>
+kubectl<span class="w"> </span>get<span class="w"> </span>deployments<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">'{range .items[*]}{.metadata.name}{"\t"}{.spec.template.spec.containers[0].env[?(@.name=="JWT_SECRET_KEY")].value}{"\n"}{end}'</span>
 
 <span class="c1"># Update secret</span>
 kubectl<span class="w"> </span>create<span class="w"> </span>secret<span class="w"> </span>generic<span class="w"> </span>jwt-secret<span class="w"> </span><span class="se">\</span>
@@ -1616,10 +1616,10 @@ kubectl<span class="w"> </span><span class="nb">set</span><span class="w"> </spa
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1588,7 +1588,7 @@
 </table>
 <p><strong>التنفيذ</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># 1. إنشاء .env.test</span>
-cat<span class="w"> </span>&gt;<span class="w"> </span>.env.test<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>.env.test<span class="w"> </span><span class="s">&lt;&lt; 'EOF'</span>
 <span class="s">POSTGRES_PASSWORD=test_password_123</span>
 <span class="s">REDIS_PASSWORD=test_redis_pass</span>
 <span class="s">JWT_SECRET_KEY=test-secret-key-for-unit-tests-only-32chars</span>
@@ -1597,7 +1597,7 @@ cat<span class="w"> </span>&gt;<span class="w"> </span>.env.test<span class="w">
 <span class="s">EOF</span>
 
 <span class="c1"># 2. إضافة لـ .gitignore</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;.env.test&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>.gitignore
+<span class="nb">echo</span><span class="w"> </span><span class="s2">".env.test"</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>.gitignore
 
 <span class="c1"># 3. تعديل docker-compose.test.yml لاستخدام متغيرات</span>
 <span class="c1"># استبدال POSTGRES_PASSWORD: test_password_123</span>
@@ -1750,24 +1750,24 @@ cat<span class="w"> </span>&gt;<span class="w"> </span>.env.test<span class="w">
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span>
             <span class="n">status_code</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_401_UNAUTHORIZED</span><span class="p">,</span>
-            <span class="n">detail</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Invalid token&quot;</span><span class="p">,</span> <span class="s2">&quot;error_ar&quot;</span><span class="p">:</span> <span class="s2">&quot;رمز غير صالح&quot;</span><span class="p">}</span>
+            <span class="n">detail</span><span class="o">=</span><span class="p">{</span><span class="s2">"error"</span><span class="p">:</span> <span class="s2">"Invalid token"</span><span class="p">,</span> <span class="s2">"error_ar"</span><span class="p">:</span> <span class="s2">"رمز غير صالح"</span><span class="p">}</span>
         <span class="p">)</span>
 </code></pre></div>
 
 <p><strong>التنفيذ - NATS Events</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># copilot-api/src/events/publisher.py</span>
 <span class="n">COPILOT_EVENTS</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;chat_started&quot;</span><span class="p">:</span>   <span class="s2">&quot;sahool.copilot.chat_started&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;chat_completed&quot;</span><span class="p">:</span> <span class="s2">&quot;sahool.copilot.chat_completed&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;tool_executed&quot;</span><span class="p">:</span>  <span class="s2">&quot;sahool.copilot.tool_executed&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;tool_blocked&quot;</span><span class="p">:</span>   <span class="s2">&quot;sahool.copilot.tool_blocked&quot;</span><span class="p">,</span>
+    <span class="s2">"chat_started"</span><span class="p">:</span>   <span class="s2">"sahool.copilot.chat_started"</span><span class="p">,</span>
+    <span class="s2">"chat_completed"</span><span class="p">:</span> <span class="s2">"sahool.copilot.chat_completed"</span><span class="p">,</span>
+    <span class="s2">"tool_executed"</span><span class="p">:</span>  <span class="s2">"sahool.copilot.tool_executed"</span><span class="p">,</span>
+    <span class="s2">"tool_blocked"</span><span class="p">:</span>   <span class="s2">"sahool.copilot.tool_blocked"</span><span class="p">,</span>
 <span class="p">}</span>
 
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">publish_copilot_event</span><span class="p">(</span><span class="n">nc</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
     <span class="n">subject</span> <span class="o">=</span> <span class="n">COPILOT_EVENTS</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span>
     <span class="k">await</span> <span class="n">nc</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span>
-        <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
-        <span class="s2">&quot;service&quot;</span><span class="p">:</span> <span class="s2">&quot;copilot-api&quot;</span><span class="p">,</span>
+        <span class="s2">"timestamp"</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+        <span class="s2">"service"</span><span class="p">:</span> <span class="s2">"copilot-api"</span><span class="p">,</span>
         <span class="o">**</span><span class="n">data</span>
     <span class="p">})</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
 </code></pre></div>
@@ -1775,12 +1775,12 @@ cat<span class="w"> </span>&gt;<span class="w"> </span>.env.test<span class="w">
 <p><strong>التنفيذ - Prompt Injection Detection</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># copilot-api/src/core/prompt_guard.py</span>
 <span class="n">INJECTION_PATTERNS</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="sa">r</span><span class="s2">&quot;ignore\s+(previous|all|above)\s+instructions&quot;</span><span class="p">,</span>
-    <span class="sa">r</span><span class="s2">&quot;تجاهل\s+(التعليمات|الأوامر)\s+السابقة&quot;</span><span class="p">,</span>
-    <span class="sa">r</span><span class="s2">&quot;you\s+are\s+now\s+(?:a|an)&quot;</span><span class="p">,</span>
-    <span class="sa">r</span><span class="s2">&quot;system\s*:\s*&quot;</span><span class="p">,</span>
-    <span class="sa">r</span><span class="s2">&quot;&lt;\|im_start\|&gt;&quot;</span><span class="p">,</span>
-    <span class="sa">r</span><span class="s2">&quot;ADMIN_OVERRIDE&quot;</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">"ignore\s+(previous|all|above)\s+instructions"</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">"تجاهل\s+(التعليمات|الأوامر)\s+السابقة"</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">"you\s+are\s+now\s+(?:a|an)"</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">"system\s*:\s*"</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">"&lt;\|im_start\|&gt;"</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">"ADMIN_OVERRIDE"</span><span class="p">,</span>
 <span class="p">]</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">detect_prompt_injection</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -1906,27 +1906,27 @@ cat<span class="w"> </span>&gt;<span class="w"> </span>.env.test<span class="w">
 <span class="kn">from</span><span class="w"> </span><span class="nn">shared.auth.dependencies</span><span class="w"> </span><span class="kn">import</span> <span class="n">verify_jwt_token</span>
 
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">websocket_auth</span><span class="p">(</span><span class="n">websocket</span><span class="p">:</span> <span class="n">WebSocket</span><span class="p">):</span>
-    <span class="n">token</span> <span class="o">=</span> <span class="n">websocket</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;token&quot;</span><span class="p">)</span>
+    <span class="n">token</span> <span class="o">=</span> <span class="n">websocket</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"token"</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">token</span><span class="p">:</span>
-        <span class="k">await</span> <span class="n">websocket</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">4001</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;Authentication required&quot;</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">websocket</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">4001</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s2">"Authentication required"</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">payload</span> <span class="o">=</span> <span class="n">verify_jwt_token</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">payload</span>
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-        <span class="k">await</span> <span class="n">websocket</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">4003</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;Invalid token&quot;</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">websocket</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">4003</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s2">"Invalid token"</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
 </code></pre></div>
 
 <div class="codehilite"><pre><span></span><code><span class="c1">// Next.js CSP middleware</span>
 <span class="c1">// apps/web/src/middleware.ts</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">NextResponse</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;next/server&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">NextResponse</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'next/server'</span><span class="p">;</span>
 
 <span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">middleware</span><span class="p">(</span><span class="nx">request</span><span class="o">:</span><span class="w"> </span><span class="kt">Request</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">NextResponse</span><span class="p">.</span><span class="nx">next</span><span class="p">();</span>
 <span class="w">  </span><span class="nx">response</span><span class="p">.</span><span class="nx">headers</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span>
-<span class="w">    </span><span class="s1">&#39;Content-Security-Policy&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="s2">&quot;default-src &#39;self&#39;; script-src &#39;self&#39; &#39;unsafe-inline&#39;; style-src &#39;self&#39; &#39;unsafe-inline&#39;; img-src &#39;self&#39; data: blob:; connect-src &#39;self&#39; wss://*.sahool.app https://*.sahool.app;&quot;</span>
+<span class="w">    </span><span class="s1">'Content-Security-Policy'</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' wss://*.sahool.app https://*.sahool.app;"</span>
 <span class="w">  </span><span class="p">);</span>
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">response</span><span class="p">;</span>
 <span class="p">}</span>
@@ -1995,11 +1995,11 @@ cat<span class="w"> </span>&gt;<span class="w"> </span>.env.test<span class="w">
 </table>
 <p><strong>التنفيذ - Web Copilot Page</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// apps/web/src/app/(dashboard)/copilot/page.tsx</span>
-<span class="s1">&#39;use client&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">useState</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;react&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">useAskAdvisor</span><span class="p">,</span><span class="w"> </span><span class="nx">useAdvisorHistory</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@/features/advisor&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ChatInterface</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@/components/copilot/ChatInterface&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ContextSelector</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@/components/copilot/ContextSelector&#39;</span><span class="p">;</span>
+<span class="s1">'use client'</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">useState</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'react'</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">useAskAdvisor</span><span class="p">,</span><span class="w"> </span><span class="nx">useAdvisorHistory</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@/features/advisor'</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ChatInterface</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@/components/copilot/ChatInterface'</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ContextSelector</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@/components/copilot/ContextSelector'</span><span class="p">;</span>
 
 <span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">CopilotPage</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">fieldId</span><span class="p">,</span><span class="w"> </span><span class="nx">setFieldId</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useState</span><span class="p">&lt;</span><span class="nt">string</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="na">null</span><span class="p">&gt;(</span><span class="kc">null</span><span class="p">);</span>
@@ -2007,9 +2007,9 @@ cat<span class="w"> </span>&gt;<span class="w"> </span>.env.test<span class="w">
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="kt">history</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useAdvisorHistory</span><span class="p">();</span>
 
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
-<span class="w">    </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;flex flex-col h-[calc(100vh-64px)]&quot;</span><span class="p">&gt;</span>
-<span class="w">      </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;flex items-center justify-between p-4 border-b&quot;</span><span class="p">&gt;</span>
-<span class="w">        </span><span class="p">&lt;</span><span class="nt">h1</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;text-xl font-semibold&quot;</span><span class="p">&gt;</span><span class="nx">المستشار</span><span class="w"> </span><span class="nx">الذكي</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">AI</span><span class="w"> </span><span class="nx">Advisor</span><span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+<span class="w">    </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">"flex flex-col h-[calc(100vh-64px)]"</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">"flex items-center justify-between p-4 border-b"</span><span class="p">&gt;</span>
+<span class="w">        </span><span class="p">&lt;</span><span class="nt">h1</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">"text-xl font-semibold"</span><span class="p">&gt;</span><span class="nx">المستشار</span><span class="w"> </span><span class="nx">الذكي</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">AI</span><span class="w"> </span><span class="nx">Advisor</span><span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
 <span class="w">        </span><span class="p">&lt;</span><span class="nt">ContextSelector</span><span class="w"> </span><span class="na">value</span><span class="o">=</span><span class="p">{</span><span class="nx">fieldId</span><span class="p">}</span><span class="w"> </span><span class="na">onChange</span><span class="o">=</span><span class="p">{</span><span class="nx">setFieldId</span><span class="p">}</span><span class="w"> </span><span class="p">/&gt;</span>
 <span class="w">      </span><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
 <span class="w">      </span><span class="p">&lt;</span><span class="nt">ChatInterface</span>
@@ -2024,31 +2024,31 @@ cat<span class="w"> </span>&gt;<span class="w"> </span>.env.test<span class="w">
 
 <p><strong>التنفيذ - True Streaming</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># copilot-api - True LLM streaming via Ollama</span>
-<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/chat/stream&quot;</span><span class="p">)</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">"/chat/stream"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">chat_stream</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">ChatRequest</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="n">Depends</span><span class="p">(</span><span class="n">get_current_user</span><span class="p">)):</span>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">generate</span><span class="p">():</span>
         <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
             <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span>
-                <span class="s2">&quot;POST&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">OLLAMA_URL</span><span class="si">}</span><span class="s2">/api/chat&quot;</span><span class="p">,</span>
-                <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">model</span><span class="p">,</span> <span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="n">messages</span><span class="p">,</span> <span class="s2">&quot;stream&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+                <span class="s2">"POST"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">OLLAMA_URL</span><span class="si">}</span><span class="s2">/api/chat"</span><span class="p">,</span>
+                <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s2">"model"</span><span class="p">:</span> <span class="n">model</span><span class="p">,</span> <span class="s2">"messages"</span><span class="p">:</span> <span class="n">messages</span><span class="p">,</span> <span class="s2">"stream"</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
             <span class="p">)</span> <span class="k">as</span> <span class="n">resp</span><span class="p">:</span>
                 <span class="k">async</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">resp</span><span class="o">.</span><span class="n">aiter_lines</span><span class="p">():</span>
                     <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">content</span> <span class="o">:=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;content&quot;</span><span class="p">):</span>
-                        <span class="k">yield</span> <span class="sa">f</span><span class="s2">&quot;data: </span><span class="si">{</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;content&#39;</span><span class="p">:</span><span class="w"> </span><span class="n">content</span><span class="p">})</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">&quot;</span>
-        <span class="k">yield</span> <span class="s2">&quot;data: [DONE]</span><span class="se">\n\n</span><span class="s2">&quot;</span>
-    <span class="k">return</span> <span class="n">StreamingResponse</span><span class="p">(</span><span class="n">generate</span><span class="p">(),</span> <span class="n">media_type</span><span class="o">=</span><span class="s2">&quot;text/event-stream&quot;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">content</span> <span class="o">:=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"message"</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"content"</span><span class="p">):</span>
+                        <span class="k">yield</span> <span class="sa">f</span><span class="s2">"data: </span><span class="si">{</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">'content'</span><span class="p">:</span><span class="w"> </span><span class="n">content</span><span class="p">})</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">"</span>
+        <span class="k">yield</span> <span class="s2">"data: [DONE]</span><span class="se">\n\n</span><span class="s2">"</span>
+    <span class="k">return</span> <span class="n">StreamingResponse</span><span class="p">(</span><span class="n">generate</span><span class="p">(),</span> <span class="n">media_type</span><span class="o">=</span><span class="s2">"text/event-stream"</span><span class="p">)</span>
 </code></pre></div>
 
 <p><strong>التنفيذ - Admin RAG Manager</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// apps/admin/src/app/copilot/page.tsx</span>
 <span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">CopilotAdminPage</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
-<span class="w">    </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;grid grid-cols-12 gap-6 p-6&quot;</span><span class="p">&gt;</span>
-<span class="w">      </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;col-span-8&quot;</span><span class="p">&gt;&lt;</span><span class="nt">CopilotDashboard</span><span class="w"> </span><span class="p">/&gt;&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
-<span class="w">      </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;col-span-4&quot;</span><span class="p">&gt;&lt;</span><span class="nt">RAGStats</span><span class="w"> </span><span class="p">/&gt;&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
-<span class="w">      </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;col-span-6&quot;</span><span class="p">&gt;&lt;</span><span class="nt">RAGManager</span><span class="w"> </span><span class="p">/&gt;&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
-<span class="w">      </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;col-span-6&quot;</span><span class="p">&gt;&lt;</span><span class="nt">GuardLogs</span><span class="w"> </span><span class="p">/&gt;&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="w">    </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">"grid grid-cols-12 gap-6 p-6"</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">"col-span-8"</span><span class="p">&gt;&lt;</span><span class="nt">CopilotDashboard</span><span class="w"> </span><span class="p">/&gt;&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">"col-span-4"</span><span class="p">&gt;&lt;</span><span class="nt">RAGStats</span><span class="w"> </span><span class="p">/&gt;&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">"col-span-6"</span><span class="p">&gt;&lt;</span><span class="nt">RAGManager</span><span class="w"> </span><span class="p">/&gt;&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">"col-span-6"</span><span class="p">&gt;&lt;</span><span class="nt">GuardLogs</span><span class="w"> </span><span class="p">/&gt;&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
 <span class="w">    </span><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
 <span class="w">  </span><span class="p">);</span>
 <span class="p">}</span>
@@ -2128,44 +2128,44 @@ cat<span class="w"> </span>&gt;<span class="w"> </span>.env.test<span class="w">
 <div class="codehilite"><pre><span></span><code><span class="c1"># tests/e2e/test_critical_journeys.py</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">TestFieldCreationJourney</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;رحلة المستخدم: إنشاء حقل → تحليل NDVI → توصية ري&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""رحلة المستخدم: إنشاء حقل → تحليل NDVI → توصية ري"""</span>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_create_field_with_boundary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="o">...</span>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_field_ndvi_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="o">...</span>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_irrigation_recommendation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="o">...</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">TestAdvisoryJourney</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;رحلة المستخدم: استشارة → تشخيص → توصية&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""رحلة المستخدم: استشارة → تشخيص → توصية"""</span>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_disease_diagnosis_flow</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="o">...</span>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_pest_detection_to_advisory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="o">...</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">TestOfflineSyncJourney</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;رحلة المستخدم: عمل offline → مزامنة → حل التعارضات&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""رحلة المستخدم: عمل offline → مزامنة → حل التعارضات"""</span>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_offline_field_creation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="o">...</span>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_conflict_resolution</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="o">...</span>
 </code></pre></div>
 
 <p><strong>Load Tests المطلوبة</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// tests/load/k6_vision_service.js</span>
-<span class="k">import</span><span class="w"> </span><span class="nx">http</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;k6/http&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">http</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'k6/http'</span><span class="p">;</span>
 
 <span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">stages</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nx">duration</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;30s&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">target</span><span class="o">:</span><span class="w"> </span><span class="mf">10</span><span class="w"> </span><span class="p">},</span><span class="w">   </span><span class="c1">// Warm up</span>
-<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nx">duration</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2m&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">target</span><span class="o">:</span><span class="w"> </span><span class="mf">50</span><span class="w"> </span><span class="p">},</span><span class="w">    </span><span class="c1">// Ramp up</span>
-<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nx">duration</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;5m&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">target</span><span class="o">:</span><span class="w"> </span><span class="mf">100</span><span class="w"> </span><span class="p">},</span><span class="w">   </span><span class="c1">// Sustained load</span>
-<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nx">duration</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;30s&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">target</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="w"> </span><span class="p">},</span><span class="w">    </span><span class="c1">// Cool down</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nx">duration</span><span class="o">:</span><span class="w"> </span><span class="s1">'30s'</span><span class="p">,</span><span class="w"> </span><span class="nx">target</span><span class="o">:</span><span class="w"> </span><span class="mf">10</span><span class="w"> </span><span class="p">},</span><span class="w">   </span><span class="c1">// Warm up</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nx">duration</span><span class="o">:</span><span class="w"> </span><span class="s1">'2m'</span><span class="p">,</span><span class="w"> </span><span class="nx">target</span><span class="o">:</span><span class="w"> </span><span class="mf">50</span><span class="w"> </span><span class="p">},</span><span class="w">    </span><span class="c1">// Ramp up</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nx">duration</span><span class="o">:</span><span class="w"> </span><span class="s1">'5m'</span><span class="p">,</span><span class="w"> </span><span class="nx">target</span><span class="o">:</span><span class="w"> </span><span class="mf">100</span><span class="w"> </span><span class="p">},</span><span class="w">   </span><span class="c1">// Sustained load</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nx">duration</span><span class="o">:</span><span class="w"> </span><span class="s1">'30s'</span><span class="p">,</span><span class="w"> </span><span class="nx">target</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="w"> </span><span class="p">},</span><span class="w">    </span><span class="c1">// Cool down</span>
 <span class="w">    </span><span class="p">],</span>
 <span class="w">    </span><span class="nx">thresholds</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">http_req_duration</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;p(95)&lt;5000&#39;</span><span class="p">],</span><span class="w">  </span><span class="c1">// 5s for vision</span>
-<span class="w">        </span><span class="nx">http_req_failed</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;rate&lt;0.05&#39;</span><span class="p">],</span><span class="w">     </span><span class="c1">// &lt;5% error rate</span>
+<span class="w">        </span><span class="nx">http_req_duration</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">'p(95)&lt;5000'</span><span class="p">],</span><span class="w">  </span><span class="c1">// 5s for vision</span>
+<span class="w">        </span><span class="nx">http_req_failed</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">'rate&lt;0.05'</span><span class="p">],</span><span class="w">     </span><span class="c1">// &lt;5% error rate</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="p">};</span>
 
 <span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">image</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">open</span><span class="p">(</span><span class="s1">&#39;./test_data/crop_image.jpg&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;b&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">image</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">open</span><span class="p">(</span><span class="s1">'./test_data/crop_image.jpg'</span><span class="p">,</span><span class="w"> </span><span class="s1">'b'</span><span class="p">);</span>
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span>
-<span class="w">        </span><span class="s1">&#39;http://localhost:8150/api/v1/detect/pest&#39;</span><span class="p">,</span>
-<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nx">image</span><span class="o">:</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">file</span><span class="p">(</span><span class="nx">image</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;test.jpg&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+<span class="w">        </span><span class="s1">'http://localhost:8150/api/v1/detect/pest'</span><span class="p">,</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nx">image</span><span class="o">:</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">file</span><span class="p">(</span><span class="nx">image</span><span class="p">,</span><span class="w"> </span><span class="s1">'test.jpg'</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
 <span class="w">    </span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -2227,7 +2227,7 @@ cat<span class="w"> </span>&gt;<span class="w"> </span>.env.test<span class="w">
 <span class="k">COPY</span><span class="w"> </span>--from<span class="o">=</span>builder<span class="w"> </span>/install<span class="w"> </span>/usr/local
 <span class="k">COPY</span><span class="w"> </span>.<span class="w"> </span>.
 <span class="k">USER</span><span class="w"> </span><span class="s">sahool</span>
-<span class="k">CMD</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;uvicorn&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;src.main:app&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;0.0.0.0&quot;</span><span class="p">]</span>
+<span class="k">CMD</span><span class="w"> </span><span class="p">[</span><span class="s2">"uvicorn"</span><span class="p">,</span><span class="w"> </span><span class="s2">"src.main:app"</span><span class="p">,</span><span class="w"> </span><span class="s2">"--host"</span><span class="p">,</span><span class="w"> </span><span class="s2">"0.0.0.0"</span><span class="p">]</span>
 </code></pre></div>
 
 <h4 id="2-2026-02-14">معيار إنهاء المرحلة 2: ✅ مكتمل (2026-02-14)<a class="headerlink" href="#2-2026-02-14" title="Permanent link">&para;</a></h4>
@@ -2303,7 +2303,7 @@ cat<span class="w"> </span>&gt;<span class="w"> </span>helm/services/<span class
 <span class="s">description: SAHOOL $SERVICE_NAME service</span>
 <span class="s">type: application</span>
 <span class="s">version: 16.0.0</span>
-<span class="s">appVersion: &quot;16.0.0&quot;</span>
+<span class="s">appVersion: "16.0.0"</span>
 <span class="s">EOF</span>
 
 <span class="c1"># values.yaml</span>
@@ -2311,7 +2311,7 @@ cat<span class="w"> </span>&gt;<span class="w"> </span>helm/services/<span class
 <span class="s">replicaCount: 2</span>
 <span class="s">image:</span>
 <span class="s">  repository: sahool/$SERVICE_NAME</span>
-<span class="s">  tag: &quot;16.0.0&quot;</span>
+<span class="s">  tag: "16.0.0"</span>
 <span class="s">  pullPolicy: IfNotPresent</span>
 <span class="s">service:</span>
 <span class="s">  type: ClusterIP</span>
@@ -2335,7 +2335,7 @@ cat<span class="w"> </span>&gt;<span class="w"> </span>helm/services/<span class
 <span class="s">  initialDelaySeconds: 5</span>
 <span class="s">EOF</span>
 
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Generated Helm chart for </span><span class="nv">$SERVICE_NAME</span><span class="s2">&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"Generated Helm chart for </span><span class="nv">$SERVICE_NAME</span><span class="s2">"</span>
 </code></pre></div>
 
 <p><strong>تنفيذ لجميع الخدمات</strong>:</p>
@@ -3000,10 +3000,10 @@ Copilot Full-Stack:       ___ %
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

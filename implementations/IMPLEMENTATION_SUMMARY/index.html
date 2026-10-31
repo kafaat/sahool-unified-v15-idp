@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1231,7 +1231,7 @@
         ↓
    Extract JTI from token
         ↓
-   Store in Redis: &quot;revoked:token:&lt;jti&gt;&quot;
+   Store in Redis: "revoked:token:&lt;jti&gt;"
         ↓
    Set TTL = remaining token lifetime
         ↓
@@ -1245,7 +1245,7 @@
         ↓
    TokenRevocationGuard (check blacklist) ✗
         ↓
-   401 Unauthorized: &quot;token_revoked&quot;
+   401 Unauthorized: "token_revoked"
 </code></pre></div>
 
 <h2 id="key-features">Key Features<a class="headerlink" href="#key-features" title="Permanent link">&para;</a></h2>
@@ -1283,67 +1283,67 @@
 <h3 id="user-authentication">User Authentication<a class="headerlink" href="#user-authentication" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Login - Get tokens with JTI</span>
 POST<span class="w"> </span>/api/v1/auth/login
-Request:<span class="w">  </span><span class="o">{</span><span class="w"> </span><span class="s2">&quot;email&quot;</span>:<span class="w"> </span><span class="s2">&quot;user@sahool.com&quot;</span>,<span class="w"> </span><span class="s2">&quot;password&quot;</span>:<span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="w"> </span><span class="o">}</span>
-Response:<span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="s2">&quot;access_token&quot;</span>:<span class="w"> </span><span class="s2">&quot;...&quot;</span>,<span class="w"> </span><span class="s2">&quot;refresh_token&quot;</span>:<span class="w"> </span><span class="s2">&quot;...&quot;</span>,<span class="w"> </span>...<span class="w"> </span><span class="o">}</span>
+Request:<span class="w">  </span><span class="o">{</span><span class="w"> </span><span class="s2">"email"</span>:<span class="w"> </span><span class="s2">"user@sahool.com"</span>,<span class="w"> </span><span class="s2">"password"</span>:<span class="w"> </span><span class="s2">"..."</span><span class="w"> </span><span class="o">}</span>
+Response:<span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="s2">"access_token"</span>:<span class="w"> </span><span class="s2">"..."</span>,<span class="w"> </span><span class="s2">"refresh_token"</span>:<span class="w"> </span><span class="s2">"..."</span>,<span class="w"> </span>...<span class="w"> </span><span class="o">}</span>
 
 <span class="c1"># Logout - Revoke current token</span>
 POST<span class="w"> </span>/api/v1/auth/logout
 Header:<span class="w">   </span>Authorization:<span class="w"> </span>Bearer<span class="w"> </span>&lt;token&gt;
-Response:<span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="s2">&quot;success&quot;</span>:<span class="w"> </span>true,<span class="w"> </span><span class="s2">&quot;message&quot;</span>:<span class="w"> </span><span class="s2">&quot;Logged out successfully&quot;</span><span class="w"> </span><span class="o">}</span>
+Response:<span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="s2">"success"</span>:<span class="w"> </span>true,<span class="w"> </span><span class="s2">"message"</span>:<span class="w"> </span><span class="s2">"Logged out successfully"</span><span class="w"> </span><span class="o">}</span>
 
 <span class="c1"># Logout All - Revoke all user tokens</span>
 POST<span class="w"> </span>/api/v1/auth/logout-all
 Header:<span class="w">   </span>Authorization:<span class="w"> </span>Bearer<span class="w"> </span>&lt;token&gt;
-Response:<span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="s2">&quot;success&quot;</span>:<span class="w"> </span>true,<span class="w"> </span><span class="s2">&quot;message&quot;</span>:<span class="w"> </span><span class="s2">&quot;Logged out from all devices&quot;</span><span class="w"> </span><span class="o">}</span>
+Response:<span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="s2">"success"</span>:<span class="w"> </span>true,<span class="w"> </span><span class="s2">"message"</span>:<span class="w"> </span><span class="s2">"Logged out from all devices"</span><span class="w"> </span><span class="o">}</span>
 
 <span class="c1"># Refresh - Get new access token</span>
 POST<span class="w"> </span>/api/v1/auth/refresh
-Request:<span class="w">  </span><span class="o">{</span><span class="w"> </span><span class="s2">&quot;refreshToken&quot;</span>:<span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="w"> </span><span class="o">}</span>
-Response:<span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="s2">&quot;access_token&quot;</span>:<span class="w"> </span><span class="s2">&quot;...&quot;</span>,<span class="w"> </span><span class="s2">&quot;expires_in&quot;</span>:<span class="w"> </span><span class="m">1800</span>,<span class="w"> </span>...<span class="w"> </span><span class="o">}</span>
+Request:<span class="w">  </span><span class="o">{</span><span class="w"> </span><span class="s2">"refreshToken"</span>:<span class="w"> </span><span class="s2">"..."</span><span class="w"> </span><span class="o">}</span>
+Response:<span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="s2">"access_token"</span>:<span class="w"> </span><span class="s2">"..."</span>,<span class="w"> </span><span class="s2">"expires_in"</span>:<span class="w"> </span><span class="m">1800</span>,<span class="w"> </span>...<span class="w"> </span><span class="o">}</span>
 
 <span class="c1"># Me - Get current user (test endpoint)</span>
 POST<span class="w"> </span>/api/v1/auth/me
 Header:<span class="w">   </span>Authorization:<span class="w"> </span>Bearer<span class="w"> </span>&lt;token&gt;
-Response:<span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="s2">&quot;success&quot;</span>:<span class="w"> </span>true,<span class="w"> </span><span class="s2">&quot;data&quot;</span>:<span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="s2">&quot;id&quot;</span>:<span class="w"> </span><span class="s2">&quot;...&quot;</span>,<span class="w"> </span>...<span class="w"> </span><span class="o">}</span><span class="w"> </span><span class="o">}</span>
+Response:<span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="s2">"success"</span>:<span class="w"> </span>true,<span class="w"> </span><span class="s2">"data"</span>:<span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="s2">"id"</span>:<span class="w"> </span><span class="s2">"..."</span>,<span class="w"> </span>...<span class="w"> </span><span class="o">}</span><span class="w"> </span><span class="o">}</span>
 </code></pre></div>
 
 <h3 id="admin-endpoints-revocation-management">Admin Endpoints (Revocation Management)<a class="headerlink" href="#admin-endpoints-revocation-management" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Revoke specific token</span>
 POST<span class="w"> </span>/auth/revocation/revoke
-Request:<span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="s2">&quot;jti&quot;</span>:<span class="w"> </span><span class="s2">&quot;...&quot;</span>,<span class="w"> </span><span class="s2">&quot;reason&quot;</span>:<span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="w"> </span><span class="o">}</span>
+Request:<span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="s2">"jti"</span>:<span class="w"> </span><span class="s2">"..."</span>,<span class="w"> </span><span class="s2">"reason"</span>:<span class="w"> </span><span class="s2">"..."</span><span class="w"> </span><span class="o">}</span>
 
 <span class="c1"># Check token status</span>
 GET<span class="w"> </span>/auth/revocation/status/:jti
-Response:<span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="s2">&quot;isRevoked&quot;</span>:<span class="w"> </span>true,<span class="w"> </span><span class="s2">&quot;reason&quot;</span>:<span class="w"> </span><span class="s2">&quot;...&quot;</span>,<span class="w"> </span><span class="s2">&quot;revokedAt&quot;</span>:<span class="w"> </span>...<span class="w"> </span><span class="o">}</span>
+Response:<span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="s2">"isRevoked"</span>:<span class="w"> </span>true,<span class="w"> </span><span class="s2">"reason"</span>:<span class="w"> </span><span class="s2">"..."</span>,<span class="w"> </span><span class="s2">"revokedAt"</span>:<span class="w"> </span>...<span class="w"> </span><span class="o">}</span>
 
 <span class="c1"># Get statistics</span>
 GET<span class="w"> </span>/auth/revocation/stats
-Response:<span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="s2">&quot;revokedTokens&quot;</span>:<span class="w"> </span><span class="m">42</span>,<span class="w"> </span><span class="s2">&quot;revokedUsers&quot;</span>:<span class="w"> </span><span class="m">5</span>,<span class="w"> </span>...<span class="w"> </span><span class="o">}</span>
+Response:<span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="s2">"revokedTokens"</span>:<span class="w"> </span><span class="m">42</span>,<span class="w"> </span><span class="s2">"revokedUsers"</span>:<span class="w"> </span><span class="m">5</span>,<span class="w"> </span>...<span class="w"> </span><span class="o">}</span>
 
 <span class="c1"># Health check</span>
 GET<span class="w"> </span>/auth/revocation/health
-Response:<span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="s2">&quot;status&quot;</span>:<span class="w"> </span><span class="s2">&quot;healthy&quot;</span>,<span class="w"> </span><span class="s2">&quot;redis&quot;</span>:<span class="w"> </span><span class="s2">&quot;connected&quot;</span><span class="w"> </span><span class="o">}</span>
+Response:<span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="s2">"status"</span>:<span class="w"> </span><span class="s2">"healthy"</span>,<span class="w"> </span><span class="s2">"redis"</span>:<span class="w"> </span><span class="s2">"connected"</span><span class="w"> </span><span class="o">}</span>
 </code></pre></div>
 
 <h2 id="configuration-required">Configuration Required<a class="headerlink" href="#configuration-required" title="Permanent link">&para;</a></h2>
 <h3 id="environment-variables">Environment Variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="gh">#</span> JWT Configuration
-JWT_SECRET_KEY=&quot;your-secret-key-min-32-chars&quot;
-JWT_ALGORITHM=&quot;HS256&quot;
-JWT_ACCESS_TOKEN_EXPIRE_MINUTES=&quot;30&quot;
-JWT_REFRESH_TOKEN_EXPIRE_DAYS=&quot;7&quot;
-JWT_ISSUER=&quot;sahool-platform&quot;
-JWT_AUDIENCE=&quot;sahool-api&quot;
+JWT_SECRET_KEY="your-secret-key-min-32-chars"
+JWT_ALGORITHM="HS256"
+JWT_ACCESS_TOKEN_EXPIRE_MINUTES="30"
+JWT_REFRESH_TOKEN_EXPIRE_DAYS="7"
+JWT_ISSUER="sahool-platform"
+JWT_AUDIENCE="sahool-api"
 
 <span class="gh">#</span> Redis Configuration (for token blacklist)
-REDIS_URL=&quot;redis://localhost:6379&quot;
+REDIS_URL="redis://localhost:6379"
 
 <span class="gh">#</span> Token Revocation
-TOKEN_REVOCATION_ENABLED=&quot;true&quot;
+TOKEN_REVOCATION_ENABLED="true"
 
 <span class="gh">#</span> Service Configuration
-PORT=&quot;3020&quot;
-USER_SERVICE_URL=&quot;http://localhost:3020&quot;
+PORT="3020"
+USER_SERVICE_URL="http://localhost:3020"
 </code></pre></div>
 
 <h3 id="dependencies-to-install">Dependencies to Install<a class="headerlink" href="#dependencies-to-install" title="Permanent link">&para;</a></h3>
@@ -1383,22 +1383,22 @@ npm<span class="w"> </span>install<span class="w"> </span>uuid<span class="w"> <
 <h3 id="manual-test-flow">Manual Test Flow<a class="headerlink" href="#manual-test-flow" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># 1. Login</span>
 <span class="nv">TOKEN</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3020/api/v1/auth/login<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;email&quot;:&quot;test@sahool.com&quot;,&quot;password&quot;:&quot;test123&quot;}&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.access_token&#39;</span><span class="k">)</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"email":"test@sahool.com","password":"test123"}'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">'.access_token'</span><span class="k">)</span>
 
 <span class="c1"># 2. Access protected resource (should work)</span>
 curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3020/api/v1/auth/me<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">"</span>
 
 <span class="c1"># 3. Logout (revoke token)</span>
 curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3020/api/v1/auth/logout<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">"</span>
 
 <span class="c1"># 4. Try accessing again (should fail with 401)</span>
 curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3020/api/v1/auth/me<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span>
-<span class="c1"># Expected: 401 Unauthorized, error: &quot;token_revoked&quot;</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">"</span>
+<span class="c1"># Expected: 401 Unauthorized, error: "token_revoked"</span>
 </code></pre></div>
 
 <h3 id="redis-verification">Redis Verification<a class="headerlink" href="#redis-verification" title="Permanent link">&para;</a></h3>
@@ -1417,14 +1417,14 @@ TTL<span class="w"> </span>revoked:token:&lt;jti&gt;
 <h2 id="how-it-works">How It Works<a class="headerlink" href="#how-it-works" title="Permanent link">&para;</a></h2>
 <h3 id="token-generation">Token Generation<a class="headerlink" href="#token-generation" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Each token gets unique JTI (JWT ID)</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">jti</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">uuidv4</span><span class="p">();</span><span class="w"> </span><span class="c1">// &quot;550e8400-e29b-41d4-a716-446655440000&quot;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">jti</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">uuidv4</span><span class="p">();</span><span class="w"> </span><span class="c1">// "550e8400-e29b-41d4-a716-446655440000"</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">payload</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">sub</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;user-123&quot;</span><span class="p">,</span><span class="w">      </span><span class="c1">// User ID</span>
-<span class="w">  </span><span class="nx">email</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;user@sahool.com&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">roles</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;FARMER&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nx">sub</span><span class="o">:</span><span class="w"> </span><span class="s2">"user-123"</span><span class="p">,</span><span class="w">      </span><span class="c1">// User ID</span>
+<span class="w">  </span><span class="nx">email</span><span class="o">:</span><span class="w"> </span><span class="s2">"user@sahool.com"</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">roles</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"FARMER"</span><span class="p">],</span>
 <span class="w">  </span><span class="nx">jti</span><span class="o">:</span><span class="w"> </span><span class="kt">jti</span><span class="p">,</span><span class="w">            </span><span class="c1">// Unique token ID</span>
-<span class="w">  </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;access&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s2">"access"</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">exp</span><span class="o">:</span><span class="w"> </span><span class="kt">...</span><span class="p">,</span><span class="w">            </span><span class="c1">// Expiration timestamp</span>
 <span class="p">};</span>
 </code></pre></div>
@@ -1438,8 +1438,8 @@ TTL<span class="w"> </span>revoked:token:&lt;jti&gt;
 <span class="w">  </span><span class="nx">ttl</span><span class="p">,</span>
 <span class="w">  </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
 <span class="w">    </span><span class="nx">revokedAt</span><span class="o">:</span><span class="w"> </span><span class="kt">Date.now</span><span class="p">()</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">1000</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">reason</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;user_logout&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">userId</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;user-123&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">reason</span><span class="o">:</span><span class="w"> </span><span class="s2">"user_logout"</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">userId</span><span class="o">:</span><span class="w"> </span><span class="s2">"user-123"</span><span class="p">,</span>
 <span class="w">  </span><span class="p">}),</span>
 <span class="p">);</span>
 </code></pre></div>
@@ -1450,8 +1450,8 @@ TTL<span class="w"> </span>revoked:token:&lt;jti&gt;
 
 <span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">isRevoked</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">UnauthorizedException</span><span class="p">({</span>
-<span class="w">    </span><span class="nx">error</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;token_revoked&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Authentication token has been revoked&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">error</span><span class="o">:</span><span class="w"> </span><span class="s2">"token_revoked"</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="s2">"Authentication token has been revoked"</span><span class="p">,</span>
 <span class="w">  </span><span class="p">});</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1473,13 +1473,13 @@ TTL<span class="w"> </span>revoked:token:&lt;jti&gt;
 </ul>
 <h3 id="logs-to-monitor">Logs to Monitor<a class="headerlink" href="#logs-to-monitor" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Token revocations</span>
-grep<span class="w"> </span><span class="s2">&quot;Token revoked&quot;</span><span class="w"> </span>logs
+grep<span class="w"> </span><span class="s2">"Token revoked"</span><span class="w"> </span>logs
 
 <span class="c1"># Revoked token access attempts</span>
-grep<span class="w"> </span><span class="s2">&quot;Revoked token access attempt&quot;</span><span class="w"> </span>logs
+grep<span class="w"> </span><span class="s2">"Revoked token access attempt"</span><span class="w"> </span>logs
 
 <span class="c1"># Redis connection issues</span>
-grep<span class="w"> </span><span class="s2">&quot;Redis error&quot;</span><span class="w"> </span>logs
+grep<span class="w"> </span><span class="s2">"Redis error"</span><span class="w"> </span>logs
 </code></pre></div>
 
 <h2 id="security-improvements">Security Improvements<a class="headerlink" href="#security-improvements" title="Permanent link">&para;</a></h2>
@@ -1595,10 +1595,10 @@ grep<span class="w"> </span><span class="s2">&quot;Redis error&quot;</span><span
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1119,19 +1119,19 @@
 <h1 id="cors-security-vulnerability-fix-summary">CORS Security Vulnerability Fix - Summary<a class="headerlink" href="#cors-security-vulnerability-fix-summary" title="Permanent link">&para;</a></h1>
 <h1 id="cors-">إصلاح ثغرة أمنية في CORS - ملخص<a class="headerlink" href="#cors-" title="Permanent link">&para;</a></h1>
 <p><strong>Date:</strong> 2024-12-24
-<strong>Issue:</strong> Wildcard CORS configuration (allow_origins=["<em>"]) in production services
-</em><em>Severity:</em><em> HIGH - Security Vulnerability
-</em><em>Status:</em>* ✅ FIXED</p>
+<strong>Issue:</strong> Wildcard CORS configuration (allow_origins=["*"]) in production services
+<strong>Severity:</strong> HIGH - Security Vulnerability
+<strong>Status:</strong> ✅ FIXED</p>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
 <p>Fixed critical CORS security vulnerability across all SAHOOL microservices by replacing wildcard (<code>*</code>) CORS origins with explicit whitelisting and centralized configuration.</p>
 <h3 id="security-risk-before-fix">Security Risk (Before Fix)<a class="headerlink" href="#security-risk-before-fix" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># ❌ INSECURE - Allows requests from ANY domain</span>
 <span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span>
     <span class="n">CORSMiddleware</span><span class="p">,</span>
-    <span class="n">allow_origins</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">],</span>  <span class="c1"># Security vulnerability!</span>
+    <span class="n">allow_origins</span><span class="o">=</span><span class="p">[</span><span class="s2">"*"</span><span class="p">],</span>  <span class="c1"># Security vulnerability!</span>
     <span class="n">allow_credentials</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">allow_methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">],</span>
-    <span class="n">allow_headers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">],</span>
+    <span class="n">allow_methods</span><span class="o">=</span><span class="p">[</span><span class="s2">"*"</span><span class="p">],</span>
+    <span class="n">allow_headers</span><span class="o">=</span><span class="p">[</span><span class="s2">"*"</span><span class="p">],</span>
 <span class="p">)</span>
 </code></pre></div>
 
@@ -1170,31 +1170,31 @@
 </ul>
 <p><strong>Production Origins:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="n">PRODUCTION_ORIGINS</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;https://sahool.app&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;https://admin.sahool.app&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;https://api.sahool.app&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;https://www.sahool.app&quot;</span><span class="p">,</span>
+    <span class="s2">"https://sahool.app"</span><span class="p">,</span>
+    <span class="s2">"https://admin.sahool.app"</span><span class="p">,</span>
+    <span class="s2">"https://api.sahool.app"</span><span class="p">,</span>
+    <span class="s2">"https://www.sahool.app"</span><span class="p">,</span>
 <span class="p">]</span>
 </code></pre></div>
 
 <p><strong>Development Origins:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="n">DEVELOPMENT_ORIGINS</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;http://localhost:3000&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;http://localhost:3001&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;http://localhost:5173&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;http://localhost:8080&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;http://127.0.0.1:3000&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;http://127.0.0.1:3001&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;http://127.0.0.1:5173&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;http://127.0.0.1:8080&quot;</span><span class="p">,</span>
+    <span class="s2">"http://localhost:3000"</span><span class="p">,</span>
+    <span class="s2">"http://localhost:3001"</span><span class="p">,</span>
+    <span class="s2">"http://localhost:5173"</span><span class="p">,</span>
+    <span class="s2">"http://localhost:8080"</span><span class="p">,</span>
+    <span class="s2">"http://127.0.0.1:3000"</span><span class="p">,</span>
+    <span class="s2">"http://127.0.0.1:3001"</span><span class="p">,</span>
+    <span class="s2">"http://127.0.0.1:5173"</span><span class="p">,</span>
+    <span class="s2">"http://127.0.0.1:8080"</span><span class="p">,</span>
 <span class="p">]</span>
 </code></pre></div>
 
 <p><strong>Staging Origins:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="n">STAGING_ORIGINS</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;https://staging.sahool.app&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;https://admin-staging.sahool.app&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;https://api-staging.sahool.app&quot;</span><span class="p">,</span>
+    <span class="s2">"https://staging.sahool.app"</span><span class="p">,</span>
+    <span class="s2">"https://admin-staging.sahool.app"</span><span class="p">,</span>
+    <span class="s2">"https://api-staging.sahool.app"</span><span class="p">,</span>
 <span class="p">]</span>
 </code></pre></div>
 
@@ -1212,16 +1212,16 @@
 <p><strong>Changes:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Added imports</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;../../../shared/config&quot;</span><span class="p">))</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">"../../../shared/config"</span><span class="p">))</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cors_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_cors_middleware</span>
 
 <span class="c1"># Replaced CORS configuration (line 211)</span>
 <span class="o">-</span> <span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span>
 <span class="o">-</span>     <span class="n">CORSMiddleware</span><span class="p">,</span>
-<span class="o">-</span>     <span class="n">allow_origins</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;CORS_ORIGINS&quot;</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">),</span>
+<span class="o">-</span>     <span class="n">allow_origins</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"CORS_ORIGINS"</span><span class="p">,</span> <span class="s2">"*"</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">","</span><span class="p">),</span>
 <span class="o">-</span>     <span class="n">allow_credentials</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-<span class="o">-</span>     <span class="n">allow_methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">],</span>
-<span class="o">-</span>     <span class="n">allow_headers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">],</span>
+<span class="o">-</span>     <span class="n">allow_methods</span><span class="o">=</span><span class="p">[</span><span class="s2">"*"</span><span class="p">],</span>
+<span class="o">-</span>     <span class="n">allow_headers</span><span class="o">=</span><span class="p">[</span><span class="s2">"*"</span><span class="p">],</span>
 <span class="o">-</span> <span class="p">)</span>
 <span class="o">+</span> <span class="n">setup_cors_middleware</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
 </code></pre></div>
@@ -1233,16 +1233,16 @@
 <p><strong>Changes:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Added imports</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;../../../shared/config&quot;</span><span class="p">))</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">"../../../shared/config"</span><span class="p">))</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cors_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_cors_middleware</span>
 
 <span class="c1"># Replaced CORS configuration (line 121)</span>
 <span class="o">-</span> <span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span>
 <span class="o">-</span>     <span class="n">CORSMiddleware</span><span class="p">,</span>
-<span class="o">-</span>     <span class="n">allow_origins</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;CORS_ORIGINS&quot;</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">),</span>
+<span class="o">-</span>     <span class="n">allow_origins</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"CORS_ORIGINS"</span><span class="p">,</span> <span class="s2">"*"</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">","</span><span class="p">),</span>
 <span class="o">-</span>     <span class="n">allow_credentials</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-<span class="o">-</span>     <span class="n">allow_methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">],</span>
-<span class="o">-</span>     <span class="n">allow_headers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">],</span>
+<span class="o">-</span>     <span class="n">allow_methods</span><span class="o">=</span><span class="p">[</span><span class="s2">"*"</span><span class="p">],</span>
+<span class="o">-</span>     <span class="n">allow_headers</span><span class="o">=</span><span class="p">[</span><span class="s2">"*"</span><span class="p">],</span>
 <span class="o">-</span> <span class="p">)</span>
 <span class="o">+</span> <span class="n">setup_cors_middleware</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
 </code></pre></div>
@@ -1254,16 +1254,16 @@
 <p><strong>Changes:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Added imports</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;../../../shared/config&quot;</span><span class="p">))</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">"../../../shared/config"</span><span class="p">))</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cors_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_cors_middleware</span>
 
 <span class="c1"># Replaced CORS configuration (line 98)</span>
 <span class="o">-</span> <span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span>
 <span class="o">-</span>     <span class="n">CORSMiddleware</span><span class="p">,</span>
-<span class="o">-</span>     <span class="n">allow_origins</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;CORS_ORIGINS&quot;</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">),</span>
+<span class="o">-</span>     <span class="n">allow_origins</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"CORS_ORIGINS"</span><span class="p">,</span> <span class="s2">"*"</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">","</span><span class="p">),</span>
 <span class="o">-</span>     <span class="n">allow_credentials</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-<span class="o">-</span>     <span class="n">allow_methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">],</span>
-<span class="o">-</span>     <span class="n">allow_headers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">],</span>
+<span class="o">-</span>     <span class="n">allow_methods</span><span class="o">=</span><span class="p">[</span><span class="s2">"*"</span><span class="p">],</span>
+<span class="o">-</span>     <span class="n">allow_headers</span><span class="o">=</span><span class="p">[</span><span class="s2">"*"</span><span class="p">],</span>
 <span class="o">-</span> <span class="p">)</span>
 <span class="o">+</span> <span class="n">setup_cors_middleware</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
 </code></pre></div>
@@ -1276,20 +1276,20 @@
 <div class="codehilite"><pre><span></span><code><span class="c1"># Added imports</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;../../../shared/config&quot;</span><span class="p">))</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">"../../../shared/config"</span><span class="p">))</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cors_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_cors_middleware</span>
 
 <span class="c1"># Replaced CORS configuration (line 85)</span>
 <span class="o">-</span> <span class="k">if</span> <span class="n">setup_cors</span><span class="p">:</span>
 <span class="o">-</span>     <span class="n">setup_cors</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
 <span class="o">-</span> <span class="k">else</span><span class="p">:</span>
-<span class="o">-</span>     <span class="n">allowed_origins</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;CORS_ORIGINS&quot;</span><span class="p">,</span> <span class="s2">&quot;http://localhost:3000&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+<span class="o">-</span>     <span class="n">allowed_origins</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"CORS_ORIGINS"</span><span class="p">,</span> <span class="s2">"http://localhost:3000"</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">","</span><span class="p">)</span>
 <span class="o">-</span>     <span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span>
 <span class="o">-</span>         <span class="n">CORSMiddleware</span><span class="p">,</span>
 <span class="o">-</span>         <span class="n">allow_origins</span><span class="o">=</span><span class="n">allowed_origins</span><span class="p">,</span>
 <span class="o">-</span>         <span class="n">allow_credentials</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-<span class="o">-</span>         <span class="n">allow_methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="s2">&quot;POST&quot;</span><span class="p">,</span> <span class="s2">&quot;PUT&quot;</span><span class="p">,</span> <span class="s2">&quot;PATCH&quot;</span><span class="p">,</span> <span class="s2">&quot;DELETE&quot;</span><span class="p">],</span>
-<span class="o">-</span>         <span class="n">allow_headers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Authorization&quot;</span><span class="p">,</span> <span class="s2">&quot;Content-Type&quot;</span><span class="p">,</span> <span class="s2">&quot;X-Tenant-ID&quot;</span><span class="p">],</span>
+<span class="o">-</span>         <span class="n">allow_methods</span><span class="o">=</span><span class="p">[</span><span class="s2">"GET"</span><span class="p">,</span> <span class="s2">"POST"</span><span class="p">,</span> <span class="s2">"PUT"</span><span class="p">,</span> <span class="s2">"PATCH"</span><span class="p">,</span> <span class="s2">"DELETE"</span><span class="p">],</span>
+<span class="o">-</span>         <span class="n">allow_headers</span><span class="o">=</span><span class="p">[</span><span class="s2">"Authorization"</span><span class="p">,</span> <span class="s2">"Content-Type"</span><span class="p">,</span> <span class="s2">"X-Tenant-ID"</span><span class="p">],</span>
 <span class="o">-</span>     <span class="p">)</span>
 <span class="o">+</span> <span class="n">setup_cors_middleware</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
 </code></pre></div>
@@ -1406,10 +1406,10 @@
 <h2 id="configuration-usage">Configuration Usage<a class="headerlink" href="#configuration-usage" title="Permanent link">&para;</a></h2>
 <h3 id="environment-variables">Environment Variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Use environment-based defaults</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">ENVIRONMENT</span><span class="o">=</span>production<span class="w">  </span><span class="c1"># or &#39;staging&#39; or &#39;development&#39;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">ENVIRONMENT</span><span class="o">=</span>production<span class="w">  </span><span class="c1"># or 'staging' or 'development'</span>
 
 <span class="c1"># Override with custom origins (comma-separated)</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">CORS_ORIGINS</span><span class="o">=</span><span class="s2">&quot;https://sahool.app,https://admin.sahool.app&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">CORS_ORIGINS</span><span class="o">=</span><span class="s2">"https://sahool.app,https://admin.sahool.app"</span>
 
 <span class="c1"># Start service</span>
 python<span class="w"> </span>-m<span class="w"> </span>uvicorn<span class="w"> </span>main:app<span class="w"> </span>--host<span class="w"> </span><span class="m">0</span>.0.0.0<span class="w"> </span>--port<span class="w"> </span><span class="m">8107</span>
@@ -1454,7 +1454,7 @@ python<span class="w"> </span>-m<span class="w"> </span>uvicorn<span class="w"> 
 </ul>
 <h3 id="4-logging-monitoring">4. Logging &amp; Monitoring<a class="headerlink" href="#4-logging-monitoring" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Example log output</span>
-<span class="n">INFO</span><span class="p">:</span> <span class="n">Using</span> <span class="n">PRODUCTION_ORIGINS</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;https://sahool.app&#39;</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+<span class="n">INFO</span><span class="p">:</span> <span class="n">Using</span> <span class="n">PRODUCTION_ORIGINS</span><span class="p">:</span> <span class="p">[</span><span class="s1">'https://sahool.app'</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
 <span class="n">INFO</span><span class="p">:</span> <span class="n">CORS</span> <span class="n">configured</span><span class="p">:</span> <span class="n">environment</span><span class="o">=</span><span class="n">production</span><span class="p">,</span> <span class="n">origins</span><span class="o">=</span><span class="p">[</span><span class="o">...</span><span class="p">],</span> <span class="n">credentials</span><span class="o">=</span><span class="kc">True</span>
 
 <span class="c1"># Security warnings</span>
@@ -1465,30 +1465,30 @@ python<span class="w"> </span>-m<span class="w"> </span>uvicorn<span class="w"> 
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">cors_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_origin</span><span class="p">,</span> <span class="n">get_cors_config</span>
 
 <span class="c1"># Validate an origin</span>
-<span class="k">if</span> <span class="n">validate_origin</span><span class="p">(</span><span class="s2">&quot;https://sahool.app&quot;</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Origin allowed&quot;</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">validate_origin</span><span class="p">(</span><span class="s2">"https://sahool.app"</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Origin allowed"</span><span class="p">)</span>
 
 <span class="c1"># Get current configuration</span>
 <span class="n">config</span> <span class="o">=</span> <span class="n">get_cors_config</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 <span class="c1"># {</span>
-<span class="c1">#   &quot;environment&quot;: &quot;production&quot;,</span>
-<span class="c1">#   &quot;allowed_origins&quot;: [&quot;https://sahool.app&quot;, ...],</span>
-<span class="c1">#   &quot;has_wildcard&quot;: false</span>
+<span class="c1">#   "environment": "production",</span>
+<span class="c1">#   "allowed_origins": ["https://sahool.app", ...],</span>
+<span class="c1">#   "has_wildcard": false</span>
 <span class="c1"># }</span>
 </code></pre></div>
 
 <h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
 <h3 id="verify-cors-configuration">Verify CORS Configuration<a class="headerlink" href="#verify-cors-configuration" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Test import</span>
-<span class="n">python3</span> <span class="o">-</span><span class="n">c</span> <span class="s2">&quot;</span>
+<span class="n">python3</span> <span class="o">-</span><span class="n">c</span> <span class="s2">"</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;/home/user/sahool-unified-v15-idp/apps/services/shared/config&#39;</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">'/home/user/sahool-unified-v15-idp/apps/services/shared/config'</span><span class="p">)</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">cors_config</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;✅ CORS Config Loaded&#39;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Production Origins:&#39;</span><span class="p">,</span> <span class="n">cors_config</span><span class="o">.</span><span class="n">PRODUCTION_ORIGINS</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Development Origins:&#39;</span><span class="p">,</span> <span class="n">cors_config</span><span class="o">.</span><span class="n">DEVELOPMENT_ORIGINS</span><span class="p">)</span>
-<span class="s2">&quot;</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'✅ CORS Config Loaded'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Production Origins:'</span><span class="p">,</span> <span class="n">cors_config</span><span class="o">.</span><span class="n">PRODUCTION_ORIGINS</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Development Origins:'</span><span class="p">,</span> <span class="n">cors_config</span><span class="o">.</span><span class="n">DEVELOPMENT_ORIGINS</span><span class="p">)</span>
+<span class="s2">"</span>
 </code></pre></div>
 
 <h3 id="test-production-mode">Test Production Mode<a class="headerlink" href="#test-production-mode" title="Permanent link">&para;</a></h3>
@@ -1496,7 +1496,7 @@ python<span class="w"> </span>-m<span class="w"> </span>uvicorn<span class="w"> 
 python<span class="w"> </span>-m<span class="w"> </span>uvicorn<span class="w"> </span>alert-service.main:app<span class="w"> </span>--reload
 
 <span class="c1"># Check logs for:</span>
-<span class="c1"># INFO: Using PRODUCTION_ORIGINS: [&#39;https://sahool.app&#39;, ...]</span>
+<span class="c1"># INFO: Using PRODUCTION_ORIGINS: ['https://sahool.app', ...]</span>
 <span class="c1"># INFO: CORS configured: environment=production, origins=[...], credentials=True</span>
 </code></pre></div>
 
@@ -1510,7 +1510,7 @@ python<span class="w"> </span>-m<span class="w"> </span>uvicorn<span class="w"> 
 </code></pre></div>
 
 <h3 id="test-custom-origins">Test Custom Origins<a class="headerlink" href="#test-custom-origins" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">CORS_ORIGINS</span><span class="o">=</span><span class="s2">&quot;https://custom1.sahool.app,https://custom2.sahool.app&quot;</span>
+<div class="codehilite"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">CORS_ORIGINS</span><span class="o">=</span><span class="s2">"https://custom1.sahool.app,https://custom2.sahool.app"</span>
 python<span class="w"> </span>-m<span class="w"> </span>uvicorn<span class="w"> </span>alert-service.main:app<span class="w"> </span>--reload
 
 <span class="c1"># Check logs for custom origins</span>
@@ -1584,16 +1584,16 @@ python<span class="w"> </span>-m<span class="w"> </span>uvicorn<span class="w"> 
 <strong>Solution:</strong> Verify <code>ENVIRONMENT</code> variable is set to <code>production</code></p>
 <h3 id="debug-commands">Debug Commands<a class="headerlink" href="#debug-commands" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Check current CORS configuration</span>
-python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
 <span class="s2">import sys, os</span>
-<span class="s2">sys.path.insert(0, &#39;/home/user/sahool-unified-v15-idp/apps/services/shared/config&#39;)</span>
+<span class="s2">sys.path.insert(0, '/home/user/sahool-unified-v15-idp/apps/services/shared/config')</span>
 <span class="s2">from cors_config import get_cors_config</span>
 <span class="s2">import json</span>
 <span class="s2">print(json.dumps(get_cors_config(), indent=2))</span>
-<span class="s2">&quot;</span>
+<span class="s2">"</span>
 
 <span class="c1"># Verify service imports</span>
-grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;setup_cors_middleware&quot;</span><span class="w"> </span>apps/services/*/src/main.py
+grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">"setup_cors_middleware"</span><span class="w"> </span>apps/services/*/src/main.py
 </code></pre></div>
 
 <h2 id="related-documentation">Related Documentation<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
@@ -1669,10 +1669,10 @@ grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;set
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1126,7 +1126,7 @@
 <h3 id="_1">الوصف بالعربية<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
 <p>كانت أربعة ملفات API تستخدم إعدادات <code>baseURL</code> غير صحيحة، مما يؤدي إلى تكرار البادئة <code>/api</code> في المسارات:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// الإعداد الخاطئ</span>
-<span class="nx">baseURL</span><span class="o">:</span><span class="w"> </span><span class="kt">process.env.NEXT_PUBLIC_API_URL</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">&quot;/api&quot;</span><span class="p">;</span>
+<span class="nx">baseURL</span><span class="o">:</span><span class="w"> </span><span class="kt">process.env.NEXT_PUBLIC_API_URL</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">"/api"</span><span class="p">;</span>
 <span class="c1">// مع نقاط النهاية التي تبدأ بـ /api/v1/...</span>
 <span class="c1">// النتيجة: /api/api/v1/... (تكرار)</span>
 </code></pre></div>
@@ -1134,7 +1134,7 @@
 <h3 id="english-description">English Description<a class="headerlink" href="#english-description" title="Permanent link">&para;</a></h3>
 <p>Four API files were using incorrect <code>baseURL</code> configuration, causing duplicate <code>/api</code> prefix in paths:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Incorrect configuration</span>
-<span class="nx">baseURL</span><span class="o">:</span><span class="w"> </span><span class="kt">process.env.NEXT_PUBLIC_API_URL</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">&quot;/api&quot;</span><span class="p">;</span>
+<span class="nx">baseURL</span><span class="o">:</span><span class="w"> </span><span class="kt">process.env.NEXT_PUBLIC_API_URL</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">"/api"</span><span class="p">;</span>
 <span class="c1">// With endpoints starting with /api/v1/...</span>
 <span class="c1">// Result: /api/api/v1/... (duplicate)</span>
 </code></pre></div>
@@ -1152,30 +1152,30 @@
 <h3 id="changes-applied">التغييرات المطبقة / Changes Applied<a class="headerlink" href="#changes-applied" title="Permanent link">&para;</a></h3>
 <p>تم تحديث جميع الملفات من النمط القديم إلى النمط الجديد:</p>
 <p><strong>قبل / Before:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">axios</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;axios&quot;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">axios</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"axios"</span><span class="p">;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">api</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">axios</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">baseURL</span><span class="o">:</span><span class="w"> </span><span class="kt">process.env.NEXT_PUBLIC_API_URL</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">&quot;/api&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">baseURL</span><span class="o">:</span><span class="w"> </span><span class="kt">process.env.NEXT_PUBLIC_API_URL</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">"/api"</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">headers</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="s2">&quot;Content-Type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;application/json&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"Content-Type"</span><span class="o">:</span><span class="w"> </span><span class="s2">"application/json"</span><span class="p">,</span>
 <span class="w">  </span><span class="p">},</span>
 <span class="p">});</span>
 </code></pre></div>
 
 <p><strong>بعد / After:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">axios</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;axios&quot;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">axios</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"axios"</span><span class="p">;</span>
 
-<span class="kd">const</span><span class="w"> </span><span class="nx">API_BASE_URL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NEXT_PUBLIC_API_URL</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">API_BASE_URL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NEXT_PUBLIC_API_URL</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">""</span><span class="p">;</span>
 
-<span class="c1">// Only warn during development, don&#39;t throw during build</span>
-<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">API_BASE_URL</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="ow">typeof</span><span class="w"> </span><span class="nb">window</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s2">&quot;undefined&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">warn</span><span class="p">(</span><span class="s2">&quot;NEXT_PUBLIC_API_URL environment variable is not set&quot;</span><span class="p">);</span>
+<span class="c1">// Only warn during development, don't throw during build</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">API_BASE_URL</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="ow">typeof</span><span class="w"> </span><span class="nb">window</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s2">"undefined"</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">warn</span><span class="p">(</span><span class="s2">"NEXT_PUBLIC_API_URL environment variable is not set"</span><span class="p">);</span>
 <span class="p">}</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">api</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">axios</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
 <span class="w">  </span><span class="nx">baseURL</span><span class="o">:</span><span class="w"> </span><span class="kt">API_BASE_URL</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">headers</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="s2">&quot;Content-Type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;application/json&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"Content-Type"</span><span class="o">:</span><span class="w"> </span><span class="s2">"application/json"</span><span class="p">,</span>
 <span class="w">  </span><span class="p">},</span>
 <span class="p">});</span>
 </code></pre></div>
@@ -1347,10 +1347,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

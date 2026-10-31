@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1165,14 +1165,14 @@ whatsapp-bot-service      (8240)  → يكتشف النية ويوجه لـ llm-
 <p>نقل منطق تصنيف النية من <code>apps/services/whatsapp-bot-service/src/handlers/message_handler.py</code>
 إلى مكتبة مشتركة تُستخدم من جميع نقاط الدخول.</p>
 <div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">AgriIntentClassifier</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Unified intent classification for all entry points.</span>
 <span class="sd">    يُستخدم من: copilot-api, whatsapp-bot, ussd-gateway, wechat-service</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">INTENTS</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;crop_disease&quot;</span><span class="p">,</span> <span class="s2">&quot;irrigation&quot;</span><span class="p">,</span> <span class="s2">&quot;fertilizer&quot;</span><span class="p">,</span> <span class="s2">&quot;pest_detection&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;weather&quot;</span><span class="p">,</span> <span class="s2">&quot;market_price&quot;</span><span class="p">,</span> <span class="s2">&quot;policy_query&quot;</span><span class="p">,</span> <span class="s2">&quot;ndvi_analysis&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;general_advisory&quot;</span><span class="p">,</span> <span class="s2">&quot;greeting&quot;</span><span class="p">,</span> <span class="s2">&quot;help&quot;</span>
+        <span class="s2">"crop_disease"</span><span class="p">,</span> <span class="s2">"irrigation"</span><span class="p">,</span> <span class="s2">"fertilizer"</span><span class="p">,</span> <span class="s2">"pest_detection"</span><span class="p">,</span>
+        <span class="s2">"weather"</span><span class="p">,</span> <span class="s2">"market_price"</span><span class="p">,</span> <span class="s2">"policy_query"</span><span class="p">,</span> <span class="s2">"ndvi_analysis"</span><span class="p">,</span>
+        <span class="s2">"general_advisory"</span><span class="p">,</span> <span class="s2">"greeting"</span><span class="p">,</span> <span class="s2">"help"</span>
     <span class="p">]</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">classify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IntentResult</span><span class="p">:</span>
@@ -1240,10 +1240,10 @@ whatsapp-bot-service      (8240)  → يكتشف النية ويوجه لـ llm-
 </table>
 <h4 id="12-appsservicescopilot-apisrccoreintent_routerpy">1.2 — <code>apps/services/copilot-api/src/core/intent_router.py</code> (جديد)<a class="headerlink" href="#12-appsservicescopilot-apisrccoreintent_routerpy" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">IntentRouter</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Routes queries to appropriate expert services based on classified intent.</span>
 <span class="sd">    يوجه الاستعلامات للخدمات المتخصصة بناءً على النية المكتشفة.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">route</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">intent</span><span class="p">:</span> <span class="n">IntentResult</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RouterResult</span><span class="p">:</span>
         <span class="o">...</span>
 </code></pre></div>
@@ -1306,13 +1306,13 @@ WeChat   → normalizer → POST /api/v1/chat → copilot-api → WeChat formatt
 <h4 id="31-appsservicesbilling-coresrcmainpy">3.1 — تعديل <code>apps/services/billing-core/src/main.py</code><a class="headerlink" href="#31-appsservicesbilling-coresrcmainpy" title="Permanent link">&para;</a></h4>
 <p>تفعيل <code>SubscriptionPlan.free</code> (النوع موجود في <code>packages/shared-types/src/contracts/api-responses.ts</code>):</p>
 <div class="codehilite"><pre><span></span><code><span class="n">FREE_TIER_LIMITS</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;daily_queries&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>          <span class="c1"># 20 سؤال زراعي يومياً</span>
-    <span class="s2">&quot;image_detection&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>         <span class="c1"># 3 صور كشف أمراض يومياً</span>
-    <span class="s2">&quot;weather_alerts&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>       <span class="c1"># طقس مجاني دائماً</span>
-    <span class="s2">&quot;market_prices&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>        <span class="c1"># أسعار السوق مجانية</span>
-    <span class="s2">&quot;field_count&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>             <span class="c1"># حقل واحد</span>
-    <span class="s2">&quot;advanced_ndvi&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>       <span class="c1"># NDVI متقدم للمدفوعين فقط</span>
-    <span class="s2">&quot;ai_advisor_full&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>     <span class="c1"># الاستشارة الكاملة للمدفوعين</span>
+    <span class="s2">"daily_queries"</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>          <span class="c1"># 20 سؤال زراعي يومياً</span>
+    <span class="s2">"image_detection"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>         <span class="c1"># 3 صور كشف أمراض يومياً</span>
+    <span class="s2">"weather_alerts"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>       <span class="c1"># طقس مجاني دائماً</span>
+    <span class="s2">"market_prices"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>        <span class="c1"># أسعار السوق مجانية</span>
+    <span class="s2">"field_count"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>             <span class="c1"># حقل واحد</span>
+    <span class="s2">"advanced_ndvi"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>       <span class="c1"># NDVI متقدم للمدفوعين فقط</span>
+    <span class="s2">"ai_advisor_full"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>     <span class="c1"># الاستشارة الكاملة للمدفوعين</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1320,8 +1320,8 @@ WeChat   → normalizer → POST /api/v1/chat → copilot-api → WeChat formatt
 <h4 id="32-appsservicesuser-servicesrcauthquick-registercontrollerts">3.2 — <code>apps/services/user-service/src/auth/quick-register.controller.ts</code> (جديد)<a class="headerlink" href="#32-appsservicesuser-servicesrcauthquick-registercontrollerts" title="Permanent link">&para;</a></h4>
 <p>تسجيل مبسّط بدون بيانات كثيرة:</p>
 <div class="codehilite"><pre><span></span><code><span class="n">POST</span><span class="w"> </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">auth</span><span class="o">/</span><span class="n">quick</span><span class="o">-</span><span class="n">register</span>
-<span class="nl">Body:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;phone&quot;</span><span class="o">:</span><span class="w"> </span><span class="s">&quot;+967XXXXXXXX&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;channel&quot;</span><span class="o">:</span><span class="w"> </span><span class="s">&quot;whatsapp&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s">&quot;ussd&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s">&quot;web&quot;</span><span class="w"> </span><span class="p">}</span>
-<span class="nl">Response:</span><span class="w"> </span><span class="n">JWT</span><span class="w"> </span><span class="err">صالح</span><span class="w"> </span><span class="mh">30</span><span class="w"> </span><span class="err">يوماً،</span><span class="w"> </span><span class="n">plan</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;free&quot;</span><span class="w"> </span><span class="err">تلقائياً</span>
+<span class="nl">Body:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">"phone"</span><span class="o">:</span><span class="w"> </span><span class="s">"+967XXXXXXXX"</span><span class="p">,</span><span class="w"> </span><span class="s">"channel"</span><span class="o">:</span><span class="w"> </span><span class="s">"whatsapp"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s">"ussd"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s">"web"</span><span class="w"> </span><span class="p">}</span>
+<span class="nl">Response:</span><span class="w"> </span><span class="n">JWT</span><span class="w"> </span><span class="err">صالح</span><span class="w"> </span><span class="mh">30</span><span class="w"> </span><span class="err">يوماً،</span><span class="w"> </span><span class="n">plan</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"free"</span><span class="w"> </span><span class="err">تلقائياً</span>
 </code></pre></div>
 
 <h4 id="33-packagesshared-typessrccontractsapi-responsests">3.3 — تعديل <code>packages/shared-types/src/contracts/api-responses.ts</code><a class="headerlink" href="#33-packagesshared-typessrccontractsapi-responsests" title="Permanent link">&para;</a></h4>
@@ -1342,10 +1342,10 @@ WeChat   → normalizer → POST /api/v1/chat → copilot-api → WeChat formatt
 <p><strong>الهدف</strong>: دمج <code>advisory-service</code> + <code>ai-advisor</code> + <code>copilot-api</code> في سياق واحد.</p>
 <h4 id="41-appsservicescopilot-apisrccorecontext_aggregatorpy">4.1 — <code>apps/services/copilot-api/src/core/context_aggregator.py</code> (جديد)<a class="headerlink" href="#41-appsservicescopilot-apisrccorecontext_aggregatorpy" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">AgriContextAggregator</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    يجمع: RAG knowledge + expert rules + field sensor data + weather</span>
 <span class="sd">    في سياق واحد يُغذَّى للـ LLM لإجابة شاملة.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">build_context</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1374,13 +1374,13 @@ WeChat   → normalizer → POST /api/v1/chat → copilot-api → WeChat formatt
 <h4 id="43-appsservicescopilot-apisrcapiv1services_recpy">4.3 — <code>apps/services/copilot-api/src/api/v1/services_rec.py</code> (جديد)<a class="headerlink" href="#43-appsservicescopilot-apisrcapiv1services_recpy" title="Permanent link">&para;</a></h4>
 <p>توصية الخدمات الاجتماعية والمتخصصة:</p>
 <div class="codehilite"><pre><span></span><code>POST /api/v1/services/recommend
-Body: { &quot;query&quot;: &quot;أريد تمويلاً لشراء مضخة ري&quot;, &quot;location&quot;: {...}, &quot;field_id&quot;: &quot;...&quot; }
+Body: { "query": "أريد تمويلاً لشراء مضخة ري", "location": {...}, "field_id": "..." }
 
 Response: {
-  &quot;equipment_rental&quot;: [...],  // drone-service + equipment-service
-  &quot;financing&quot;: [...],          // billing-core + crop-insurance
-  &quot;training&quot;: [...],           // skills-service + learning_marketplace
-  &quot;subsidies&quot;: [...]           // agro-rules (policy queries)
+  "equipment_rental": [...],  // drone-service + equipment-service
+  "financing": [...],          // billing-core + crop-insurance
+  "training": [...],           // skills-service + learning_marketplace
+  "subsidies": [...]           // agro-rules (policy queries)
 }
 </code></pre></div>
 
@@ -1666,10 +1666,10 @@ apps/services/wechat-service/
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

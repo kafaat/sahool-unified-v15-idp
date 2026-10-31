@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1198,25 +1198,25 @@
 <p>Ingest sensor data from IoT devices.</p>
 <p><strong>Request Body:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;device_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;device-123&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;sensor_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;soil_moisture&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">45.5</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;unit&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;%&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field-456&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-01-15T12:30:00Z&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;depth_cm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;location&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;zone-A&quot;</span>
+<span class="w">  </span><span class="nt">"device_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"device-123"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"sensor_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"soil_moisture"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mf">45.5</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"unit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"%"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"field_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"field-456"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-15T12:30:00Z"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"depth_cm"</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"location"</span><span class="p">:</span><span class="w"> </span><span class="s2">"zone-A"</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <p><strong>Response:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;reading-789&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;device_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;device-123&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;received_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-01-15T12:30:01Z&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;processed&quot;</span>
+<span class="w">  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"reading-789"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"device_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"device-123"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"received_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-15T12:30:01Z"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"processed"</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1230,16 +1230,16 @@
 </ul>
 <p><strong>Response:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;device_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;device-123&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;sensor_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;soil_moisture&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;readings&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="nt">"device_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"device-123"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"sensor_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"soil_moisture"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"readings"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-01-15T12:30:00Z&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">45.5</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;unit&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;%&quot;</span>
+<span class="w">      </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-15T12:30:00Z"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mf">45.5</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"unit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"%"</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">],</span>
-<span class="w">  </span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span>
+<span class="w">  </span><span class="nt">"total"</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1253,18 +1253,18 @@
 </ul>
 <p><strong>Response:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;et0_mm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.2</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-01-15&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;location&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;lat&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">15.3694</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;lon&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">44.191</span>
+<span class="w">  </span><span class="nt">"et0_mm"</span><span class="p">:</span><span class="w"> </span><span class="mf">5.2</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-15"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"location"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"lat"</span><span class="p">:</span><span class="w"> </span><span class="mf">15.3694</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"lon"</span><span class="p">:</span><span class="w"> </span><span class="mf">44.191</span>
 <span class="w">  </span><span class="p">},</span>
-<span class="w">  </span><span class="nt">&quot;method&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;penman_monteith&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;weather_data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;temp_max_c&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">32</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;temp_min_c&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">18</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;humidity_pct&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">45</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;wind_speed_kmh&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">15</span>
+<span class="w">  </span><span class="nt">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"penman_monteith"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"weather_data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"temp_max_c"</span><span class="p">:</span><span class="w"> </span><span class="mi">32</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"temp_min_c"</span><span class="p">:</span><span class="w"> </span><span class="mi">18</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"humidity_pct"</span><span class="p">:</span><span class="w"> </span><span class="mi">45</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"wind_speed_kmh"</span><span class="p">:</span><span class="w"> </span><span class="mi">15</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1320,10 +1320,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

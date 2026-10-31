@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1317,12 +1317,12 @@
 </blockquote>
 <p><strong>التوصية | Recommendation:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// packages/shared-db/package.json</span>
-<span class="nt">&quot;@prisma/client&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^5.22.0&quot;</span><span class="p">,</span><span class="w">    </span><span class="c1">// dep</span>
-<span class="nt">&quot;peerDependencies&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;@prisma/client&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&gt;=5.0.0&quot;</span><span class="w">  </span><span class="c1">// keep broad peer dep</span>
+<span class="nt">"@prisma/client"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^5.22.0"</span><span class="p">,</span><span class="w">    </span><span class="c1">// dep</span>
+<span class="nt">"peerDependencies"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">"@prisma/client"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&gt;=5.0.0"</span><span class="w">  </span><span class="c1">// keep broad peer dep</span>
 <span class="p">}</span>
 <span class="c1">// package.json (root)</span>
-<span class="nt">&quot;@prisma/client&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^5.22.0&quot;</span><span class="w">    </span><span class="c1">// update from 5.10.0</span>
+<span class="nt">"@prisma/client"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^5.22.0"</span><span class="w">    </span><span class="c1">// update from 5.10.0</span>
 </code></pre></div>
 
 <hr />
@@ -1389,8 +1389,8 @@
 <p><strong>الخطورة | Severity:</strong> 🟠 عالية (في بيئة التطوير)<br />
 <strong>الحالة | Status:</strong> ✅ تم الإصلاح | Fixed</p>
 <p><strong>المشكلة | Problem:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="nx">apps</span><span class="o">/</span><span class="nx">admin</span><span class="o">/</span><span class="kn">package</span><span class="p">.</span><span class="nx">json</span><span class="p">:</span><span class="w">  </span><span class="s">&quot;eslint&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;9.28.0&quot;</span><span class="w">   </span><span class="p">(</span><span class="nx">محدد</span><span class="w"> </span><span class="nx">بدقة</span><span class="p">)</span>
-<span class="nx">apps</span><span class="o">/</span><span class="nx">web</span><span class="o">/</span><span class="kn">package</span><span class="p">.</span><span class="nx">json</span><span class="p">:</span><span class="w">    </span><span class="s">&quot;eslint&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;^9.39.2&quot;</span><span class="w">  </span><span class="p">(</span><span class="nx">نطاق</span><span class="w"> </span><span class="nx">أحدث</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><code><span class="nx">apps</span><span class="o">/</span><span class="nx">admin</span><span class="o">/</span><span class="kn">package</span><span class="p">.</span><span class="nx">json</span><span class="p">:</span><span class="w">  </span><span class="s">"eslint"</span><span class="p">:</span><span class="w"> </span><span class="s">"9.28.0"</span><span class="w">   </span><span class="p">(</span><span class="nx">محدد</span><span class="w"> </span><span class="nx">بدقة</span><span class="p">)</span>
+<span class="nx">apps</span><span class="o">/</span><span class="nx">web</span><span class="o">/</span><span class="kn">package</span><span class="p">.</span><span class="nx">json</span><span class="p">:</span><span class="w">    </span><span class="s">"eslint"</span><span class="p">:</span><span class="w"> </span><span class="s">"^9.39.2"</span><span class="w">  </span><span class="p">(</span><span class="nx">نطاق</span><span class="w"> </span><span class="nx">أحدث</span><span class="p">)</span>
 </code></pre></div>
 
 <p>استخدام نسختين مختلفتين من ESLint في نفس المشروع قد يُنتج نتائج linting متباينة.</p>
@@ -1663,8 +1663,8 @@
 <p>يُوصى بتوحيد الخدمات على <code>^5.9.3</code> وترك الإصدار الدقيق للجذر فقط.</p>
 <hr />
 <h3 id="m-9-nestjscommon-nestjscore-">M-9: <code>@nestjs/common</code> و <code>@nestjs/core</code> - نطاقان مختلفان<a class="headerlink" href="#m-9-nestjscommon-nestjscore-" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="nx">shared</span><span class="o">-</span><span class="nx">audit</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nx">packages</span><span class="o">/</span><span class="nx">cache</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;@nestjs/common&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;^10.0.0&quot;</span>
-<span class="nx">جميع</span><span class="w"> </span><span class="nx">الخدمات</span><span class="w"> </span><span class="nx">الأخرى</span><span class="p">:</span><span class="w">          </span><span class="s">&quot;@nestjs/common&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;^10.4.15&quot;</span>
+<div class="codehilite"><pre><span></span><code><span class="nx">shared</span><span class="o">-</span><span class="nx">audit</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nx">packages</span><span class="o">/</span><span class="nx">cache</span><span class="p">:</span><span class="w"> </span><span class="s">"@nestjs/common"</span><span class="p">:</span><span class="w"> </span><span class="s">"^10.0.0"</span>
+<span class="nx">جميع</span><span class="w"> </span><span class="nx">الخدمات</span><span class="w"> </span><span class="nx">الأخرى</span><span class="p">:</span><span class="w">          </span><span class="s">"@nestjs/common"</span><span class="p">:</span><span class="w"> </span><span class="s">"^10.4.15"</span>
 </code></pre></div>
 
 <hr />
@@ -2425,10 +2425,10 @@ npm<span class="w"> </span>install<span class="w"> </span>--save<span class="w">
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

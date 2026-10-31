@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1391,12 +1391,12 @@ pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </s
 <h3 id="example-1-validate-login-rate-limiting">Example 1: Validate Login Rate Limiting<a class="headerlink" href="#example-1-validate-login-rate-limiting" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># First 5 attempts succeed</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
-    <span class="n">allowed</span> <span class="o">=</span> <span class="k">await</span> <span class="n">limiter</span><span class="o">.</span><span class="n">check_login_limit</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;user@example.com&quot;</span><span class="p">)</span>
+    <span class="n">allowed</span> <span class="o">=</span> <span class="k">await</span> <span class="n">limiter</span><span class="o">.</span><span class="n">check_login_limit</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">"user@example.com"</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">allowed</span> <span class="ow">is</span> <span class="kc">True</span>
 
 <span class="c1"># 6th attempt fails with 429</span>
 <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="n">HTTPException</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-    <span class="k">await</span> <span class="n">limiter</span><span class="o">.</span><span class="n">check_login_limit</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;user@example.com&quot;</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">limiter</span><span class="o">.</span><span class="n">check_login_limit</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">"user@example.com"</span><span class="p">)</span>
 <span class="k">assert</span> <span class="n">exc</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">429</span>
 </code></pre></div>
 
@@ -1411,10 +1411,10 @@ pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </s
 <h3 id="example-3-validate-different-users-independent">Example 3: Validate Different Users Independent<a class="headerlink" href="#example-3-validate-different-users-independent" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># User 1 makes 4 login attempts</span>
 <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
-    <span class="k">await</span> <span class="n">limiter</span><span class="o">.</span><span class="n">check_login_limit</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;user1&quot;</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">limiter</span><span class="o">.</span><span class="n">check_login_limit</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">"user1"</span><span class="p">)</span>
 
 <span class="c1"># User 2 can still make requests</span>
-<span class="n">allowed</span> <span class="o">=</span> <span class="k">await</span> <span class="n">limiter</span><span class="o">.</span><span class="n">check_login_limit</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;user2&quot;</span><span class="p">)</span>
+<span class="n">allowed</span> <span class="o">=</span> <span class="k">await</span> <span class="n">limiter</span><span class="o">.</span><span class="n">check_login_limit</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">"user2"</span><span class="p">)</span>
 <span class="k">assert</span> <span class="n">allowed</span> <span class="ow">is</span> <span class="kc">True</span>
 </code></pre></div>
 
@@ -1641,10 +1641,10 @@ Total: 44 KB, 1000+ lines of test code and documentation
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

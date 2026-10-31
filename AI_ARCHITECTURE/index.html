@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1165,10 +1165,10 @@
 
 <span class="n">ingest_document</span><span class="p">(</span>
     <span class="n">store</span><span class="o">=</span><span class="n">vector_store</span><span class="p">,</span>
-    <span class="n">collection</span><span class="o">=</span><span class="s2">&quot;agricultural_kb&quot;</span><span class="p">,</span>
-    <span class="n">doc_id</span><span class="o">=</span><span class="s2">&quot;irrigation_guide_001&quot;</span><span class="p">,</span>
+    <span class="n">collection</span><span class="o">=</span><span class="s2">"agricultural_kb"</span><span class="p">,</span>
+    <span class="n">doc_id</span><span class="o">=</span><span class="s2">"irrigation_guide_001"</span><span class="p">,</span>
     <span class="n">text</span><span class="o">=</span><span class="n">document_text</span><span class="p">,</span>
-    <span class="n">source</span><span class="o">=</span><span class="s2">&quot;FAO Irrigation Manual&quot;</span><span class="p">,</span>
+    <span class="n">source</span><span class="o">=</span><span class="s2">"FAO Irrigation Manual"</span><span class="p">,</span>
 <span class="p">)</span>
 </code></pre></div>
 
@@ -1182,9 +1182,9 @@
 </ul>
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">advisor.rag.qdrant_store</span><span class="w"> </span><span class="kn">import</span> <span class="n">QdrantVectorStore</span>
 
-<span class="n">store</span> <span class="o">=</span> <span class="n">QdrantVectorStore</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;http://localhost:6333&quot;</span><span class="p">)</span>
-<span class="n">store</span><span class="o">.</span><span class="n">upsert_chunks</span><span class="p">(</span><span class="s2">&quot;kb&quot;</span><span class="p">,</span> <span class="n">chunks</span><span class="p">)</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;kb&quot;</span><span class="p">,</span> <span class="s2">&quot;wheat irrigation&quot;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">store</span> <span class="o">=</span> <span class="n">QdrantVectorStore</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">"http://localhost:6333"</span><span class="p">)</span>
+<span class="n">store</span><span class="o">.</span><span class="n">upsert_chunks</span><span class="p">(</span><span class="s2">"kb"</span><span class="p">,</span> <span class="n">chunks</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">"kb"</span><span class="p">,</span> <span class="s2">"wheat irrigation"</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 </code></pre></div>
 
 <h3 id="3-retrieval-layer">3. Retrieval Layer<a class="headerlink" href="#3-retrieval-layer" title="Permanent link">&para;</a></h3>
@@ -1232,10 +1232,10 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">advisor.ai.rag_models</span><span class="w"> </span><span class="kn">import</span> <span class="n">RagRequest</span>
 
 <span class="n">request</span> <span class="o">=</span> <span class="n">RagRequest</span><span class="p">(</span>
-    <span class="n">tenant_id</span><span class="o">=</span><span class="s2">&quot;tenant-123&quot;</span><span class="p">,</span>
-    <span class="n">field_id</span><span class="o">=</span><span class="s2">&quot;field-456&quot;</span><span class="p">,</span>
-    <span class="n">question</span><span class="o">=</span><span class="s2">&quot;متى أفضل وقت لري القمح؟&quot;</span><span class="p">,</span>
-    <span class="n">locale</span><span class="o">=</span><span class="s2">&quot;ar&quot;</span><span class="p">,</span>
+    <span class="n">tenant_id</span><span class="o">=</span><span class="s2">"tenant-123"</span><span class="p">,</span>
+    <span class="n">field_id</span><span class="o">=</span><span class="s2">"field-456"</span><span class="p">,</span>
+    <span class="n">question</span><span class="o">=</span><span class="s2">"متى أفضل وقت لري القمح؟"</span><span class="p">,</span>
+    <span class="n">locale</span><span class="o">=</span><span class="s2">"ar"</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="n">response</span> <span class="o">=</span> <span class="n">run_rag</span><span class="p">(</span>
@@ -1243,11 +1243,11 @@
     <span class="n">store</span><span class="o">=</span><span class="n">vector_store</span><span class="p">,</span>
     <span class="n">llm</span><span class="o">=</span><span class="n">llm_client</span><span class="p">,</span>
     <span class="n">field_context</span><span class="o">=</span><span class="n">field_context</span><span class="p">,</span>
-    <span class="n">collection</span><span class="o">=</span><span class="s2">&quot;agricultural_kb&quot;</span><span class="p">,</span>
+    <span class="n">collection</span><span class="o">=</span><span class="s2">"agricultural_kb"</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">answer</span><span class="p">)</span>  <span class="c1"># Arabic agricultural advice</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">sources</span><span class="p">)</span>  <span class="c1"># [&quot;doc1&quot;, &quot;doc2&quot;]</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">sources</span><span class="p">)</span>  <span class="c1"># ["doc1", "doc2"]</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">confidence</span><span class="p">)</span>  <span class="c1"># 0.85</span>
 </code></pre></div>
 
@@ -1263,8 +1263,8 @@
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">advisor.ai.evaluation</span><span class="w"> </span><span class="kn">import</span> <span class="n">pass_at_k</span><span class="p">,</span> <span class="n">aggregate_results</span>
 
 <span class="n">score</span> <span class="o">=</span> <span class="n">pass_at_k</span><span class="p">(</span>
-    <span class="n">returned_sources</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;doc1&quot;</span><span class="p">,</span> <span class="s2">&quot;doc3&quot;</span><span class="p">],</span>
-    <span class="n">expected_doc_ids</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;doc1&quot;</span><span class="p">,</span> <span class="s2">&quot;doc2&quot;</span><span class="p">],</span>
+    <span class="n">returned_sources</span><span class="o">=</span><span class="p">[</span><span class="s2">"doc1"</span><span class="p">,</span> <span class="s2">"doc3"</span><span class="p">],</span>
+    <span class="n">expected_doc_ids</span><span class="o">=</span><span class="p">[</span><span class="s2">"doc1"</span><span class="p">,</span> <span class="s2">"doc2"</span><span class="p">],</span>
 <span class="p">)</span>  <span class="c1"># Returns 1.0 (doc1 found)</span>
 </code></pre></div>
 
@@ -1280,10 +1280,10 @@
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">advisor.ai.context_builder</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_field_context</span>
 
 <span class="n">context</span> <span class="o">=</span> <span class="n">build_field_context</span><span class="p">(</span>
-    <span class="n">field</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;حقل النخيل&quot;</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;f123&quot;</span><span class="p">,</span> <span class="s2">&quot;crop&quot;</span><span class="p">:</span> <span class="s2">&quot;dates&quot;</span><span class="p">},</span>
-    <span class="n">ndvi_summary</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ndvi_mean&quot;</span><span class="p">:</span> <span class="mf">0.65</span><span class="p">,</span> <span class="s2">&quot;trend&quot;</span><span class="p">:</span> <span class="s2">&quot;rising&quot;</span><span class="p">},</span>
-    <span class="n">weather</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;summary&quot;</span><span class="p">:</span> <span class="s2">&quot;حار وجاف&quot;</span><span class="p">},</span>
-    <span class="n">soil</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ph&quot;</span><span class="p">:</span> <span class="mf">7.2</span><span class="p">,</span> <span class="s2">&quot;organic_matter&quot;</span><span class="p">:</span> <span class="mf">2.5</span><span class="p">},</span>
+    <span class="n">field</span><span class="o">=</span><span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"حقل النخيل"</span><span class="p">,</span> <span class="s2">"id"</span><span class="p">:</span> <span class="s2">"f123"</span><span class="p">,</span> <span class="s2">"crop"</span><span class="p">:</span> <span class="s2">"dates"</span><span class="p">},</span>
+    <span class="n">ndvi_summary</span><span class="o">=</span><span class="p">{</span><span class="s2">"ndvi_mean"</span><span class="p">:</span> <span class="mf">0.65</span><span class="p">,</span> <span class="s2">"trend"</span><span class="p">:</span> <span class="s2">"rising"</span><span class="p">},</span>
+    <span class="n">weather</span><span class="o">=</span><span class="p">{</span><span class="s2">"summary"</span><span class="p">:</span> <span class="s2">"حار وجاف"</span><span class="p">},</span>
+    <span class="n">soil</span><span class="o">=</span><span class="p">{</span><span class="s2">"ph"</span><span class="p">:</span> <span class="mf">7.2</span><span class="p">,</span> <span class="s2">"organic_matter"</span><span class="p">:</span> <span class="mf">2.5</span><span class="p">},</span>
 <span class="p">)</span>
 </code></pre></div>
 
@@ -1365,10 +1365,10 @@ open<span class="w"> </span>http://localhost:6333/dashboard
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

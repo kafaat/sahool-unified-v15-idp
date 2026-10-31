@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1202,8 +1202,8 @@
 <h3 id="2-weather-ui-mapping">2. Weather UI Mapping (الترجمة البصرية)<a class="headerlink" href="#2-weather-ui-mapping" title="Permanent link">&para;</a></h3>
 <p>يتم التعامل مع التمثيل البصري في طبقة العرض التقديمي (Presentation):</p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// lib/features/weather/presentation/mappers/weather_ui_mapper.dart</span>
-<span class="k">import</span><span class="w"> </span><span class="s1">&#39;package:flutter/material.dart&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="s1">&#39;../../domain/entities/weather_impact.dart&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="s1">'package:flutter/material.dart'</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="s1">'../../domain/entities/weather_impact.dart'</span><span class="p">;</span>
 
 <span class="kd">class</span><span class="w"> </span><span class="nc">WeatherUIMapper</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">static</span><span class="w"> </span><span class="n">Color</span><span class="w"> </span><span class="n">color</span><span class="p">(</span><span class="n">WeatherImpact</span><span class="w"> </span><span class="n">impact</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -1271,11 +1271,11 @@
 <h3 id="2-if-match">2. إرسال If-Match من العميل<a class="headerlink" href="#2-if-match" title="Permanent link">&para;</a></h3>
 <p>يتم إرسال <code>etag</code> في رأس <code>If-Match</code> عند محاولة التحديث:</p>
 <div class="codehilite"><pre><span></span><code><span class="kd">await</span><span class="w"> </span><span class="n">_dio</span><span class="p">.</span><span class="n">put</span><span class="p">(</span>
-<span class="w">  </span><span class="s1">&#39;/fields/</span><span class="si">${</span><span class="n">field</span><span class="p">.</span><span class="n">id</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="s1">'/fields/</span><span class="si">${</span><span class="n">field</span><span class="p">.</span><span class="n">id</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
 <span class="w">  </span><span class="nl">data:</span><span class="w"> </span><span class="n">payload</span><span class="p">,</span>
 <span class="w">  </span><span class="nl">options:</span><span class="w"> </span><span class="n">Options</span><span class="p">(</span>
 <span class="w">    </span><span class="nl">headers:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="s1">&#39;If-Match&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">field</span><span class="p">.</span><span class="n">etag</span><span class="p">,</span>
+<span class="w">      </span><span class="s1">'If-Match'</span><span class="o">:</span><span class="w"> </span><span class="n">field</span><span class="p">.</span><span class="n">etag</span><span class="p">,</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">  </span><span class="p">),</span>
 <span class="p">);</span>
@@ -1288,13 +1288,13 @@
 <span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">serverData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">e</span><span class="p">.</span><span class="n">response</span><span class="o">!</span><span class="p">.</span><span class="n">data</span><span class="p">;</span>
 <span class="w">    </span><span class="kd">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">update</span><span class="p">(</span><span class="n">_db</span><span class="p">.</span><span class="n">fields</span><span class="p">).</span><span class="n">write</span><span class="p">(</span>
 <span class="w">      </span><span class="n">FieldsCompanion</span><span class="p">(</span>
-<span class="w">        </span><span class="nl">name:</span><span class="w"> </span><span class="n">Value</span><span class="p">(</span><span class="n">serverData</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]),</span>
-<span class="w">        </span><span class="nl">cropType:</span><span class="w"> </span><span class="n">Value</span><span class="p">(</span><span class="n">serverData</span><span class="p">[</span><span class="s1">&#39;cropType&#39;</span><span class="p">]),</span>
-<span class="w">        </span><span class="nl">etag:</span><span class="w"> </span><span class="n">Value</span><span class="p">(</span><span class="n">serverData</span><span class="p">[</span><span class="s1">&#39;etag&#39;</span><span class="p">]),</span>
+<span class="w">        </span><span class="nl">name:</span><span class="w"> </span><span class="n">Value</span><span class="p">(</span><span class="n">serverData</span><span class="p">[</span><span class="s1">'name'</span><span class="p">]),</span>
+<span class="w">        </span><span class="nl">cropType:</span><span class="w"> </span><span class="n">Value</span><span class="p">(</span><span class="n">serverData</span><span class="p">[</span><span class="s1">'cropType'</span><span class="p">]),</span>
+<span class="w">        </span><span class="nl">etag:</span><span class="w"> </span><span class="n">Value</span><span class="p">(</span><span class="n">serverData</span><span class="p">[</span><span class="s1">'etag'</span><span class="p">]),</span>
 <span class="w">        </span><span class="nl">isSynced:</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Value</span><span class="p">(</span><span class="kc">true</span><span class="p">),</span>
 <span class="w">      </span><span class="p">),</span>
 <span class="w">    </span><span class="p">);</span>
-<span class="w">    </span><span class="kd">await</span><span class="w"> </span><span class="n">_log</span><span class="p">(</span><span class="s1">&#39;CONFLICT_RESOLVED&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Server version applied&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="kd">await</span><span class="w"> </span><span class="n">_log</span><span class="p">(</span><span class="s1">'CONFLICT_RESOLVED'</span><span class="p">,</span><span class="w"> </span><span class="s1">'Server version applied'</span><span class="p">);</span>
 <span class="w">    </span><span class="kd">await</span><span class="w"> </span><span class="n">_markOutboxDone</span><span class="p">(</span><span class="n">item</span><span class="p">.</span><span class="n">id</span><span class="p">);</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
@@ -1303,7 +1303,7 @@
 <h3 id="4-ux">4. تنبيه المستخدم (UX)<a class="headerlink" href="#4-ux" title="Permanent link">&para;</a></h3>
 <p>يتم تنبيه المستخدم بطريقة محترمة:</p>
 <div class="codehilite"><pre><span></span><code><span class="n">SnackBar</span><span class="p">(</span>
-<span class="w">  </span><span class="nl">content:</span><span class="w"> </span><span class="n">Text</span><span class="p">(</span><span class="s1">&#39;⚠️ تم تحديث البيانات من السيرفر بسبب تعارض&#39;</span><span class="p">),</span>
+<span class="w">  </span><span class="nl">content:</span><span class="w"> </span><span class="n">Text</span><span class="p">(</span><span class="s1">'⚠️ تم تحديث البيانات من السيرفر بسبب تعارض'</span><span class="p">),</span>
 <span class="w">  </span><span class="nl">backgroundColor:</span><span class="w"> </span><span class="n">Colors</span><span class="p">.</span><span class="n">orange</span><span class="p">,</span>
 <span class="p">)</span>
 </code></pre></div>
@@ -1430,10 +1430,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

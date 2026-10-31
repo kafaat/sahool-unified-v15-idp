@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1403,9 +1403,9 @@
 </tbody>
 </table>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Enums</span>
-<span class="nx">FieldStatus</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;active&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;fallow&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;harvested&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;preparing&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;inactive&quot;</span>
-<span class="nx">IrrigationType</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;drip&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;sprinkler&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;flood&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;pivot&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;none&quot;</span>
-<span class="nx">CropType</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;wheat&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;barley&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;date_palm&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;tomato&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;cucumber&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="p">...</span>
+<span class="nx">FieldStatus</span><span class="o">:</span><span class="w"> </span><span class="s2">"active"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"fallow"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"harvested"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"preparing"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"inactive"</span>
+<span class="nx">IrrigationType</span><span class="o">:</span><span class="w"> </span><span class="s2">"drip"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"sprinkler"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"flood"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"pivot"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"none"</span>
+<span class="nx">CropType</span><span class="o">:</span><span class="w"> </span><span class="s2">"wheat"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"barley"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"date_palm"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"tomato"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"cucumber"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="p">...</span>
 </code></pre></div>
 
 <hr />
@@ -1518,8 +1518,8 @@
 </tbody>
 </table>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Types</span>
-<span class="nx">UserRole</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;ADMIN&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;MANAGER&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;FARMER&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;WORKER&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;VIEWER&quot;</span>
-<span class="nx">UserStatus</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;ACTIVE&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;INACTIVE&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;SUSPENDED&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;PENDING&quot;</span>
+<span class="nx">UserRole</span><span class="o">:</span><span class="w"> </span><span class="s2">"ADMIN"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"MANAGER"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"FARMER"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"WORKER"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"VIEWER"</span>
+<span class="nx">UserStatus</span><span class="o">:</span><span class="w"> </span><span class="s2">"ACTIVE"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"INACTIVE"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"SUSPENDED"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"PENDING"</span>
 </code></pre></div>
 
 <hr />
@@ -1633,12 +1633,12 @@
 </table>
 <h4 id="output_3">المتغيرات المخرجة (Output)<a class="headerlink" href="#output_3" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ok&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;service&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user-service&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;16.0.0&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;database&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;nats&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;uptime&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">12345</span>
+<span class="w">  </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"service"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user-service"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"16.0.0"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"database"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"nats"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"uptime"</span><span class="p">:</span><span class="w"> </span><span class="mi">12345</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1874,8 +1874,8 @@
 </tbody>
 </table>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Enums</span>
-<span class="nx">DisasterType</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;flood&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;drought&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;frost&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;hail&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;pest&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;disease&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;fire&quot;</span>
-<span class="nx">Severity</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;low&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;medium&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;high&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;critical&quot;</span>
+<span class="nx">DisasterType</span><span class="o">:</span><span class="w"> </span><span class="s2">"flood"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"drought"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"frost"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"hail"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"pest"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"disease"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"fire"</span>
+<span class="nx">Severity</span><span class="o">:</span><span class="w"> </span><span class="s2">"low"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"medium"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"high"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"critical"</span>
 </code></pre></div>
 
 <hr />
@@ -2035,8 +2035,8 @@
 </tbody>
 </table>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Enums</span>
-<span class="nx">DeviceType</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;soil_moisture&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;weather_station&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;irrigation_controller&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;camera&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;flow_meter&quot;</span>
-<span class="nx">DeviceStatus</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;online&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;offline&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;error&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;maintenance&quot;</span>
+<span class="nx">DeviceType</span><span class="o">:</span><span class="w"> </span><span class="s2">"soil_moisture"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"weather_station"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"irrigation_controller"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"camera"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"flow_meter"</span>
+<span class="nx">DeviceStatus</span><span class="o">:</span><span class="w"> </span><span class="s2">"online"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"offline"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"error"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"maintenance"</span>
 </code></pre></div>
 
 <hr />
@@ -2285,11 +2285,11 @@
 </tbody>
 </table>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Enums</span>
-<span class="n">SubscriptionStatus</span><span class="p">:</span> <span class="s2">&quot;ACTIVE&quot;</span> <span class="o">|</span> <span class="s2">&quot;TRIAL&quot;</span> <span class="o">|</span> <span class="s2">&quot;PAST_DUE&quot;</span> <span class="o">|</span> <span class="s2">&quot;CANCELED&quot;</span> <span class="o">|</span> <span class="s2">&quot;SUSPENDED&quot;</span> <span class="o">|</span> <span class="s2">&quot;EXPIRED&quot;</span>
-<span class="n">InvoiceStatus</span><span class="p">:</span> <span class="s2">&quot;DRAFT&quot;</span> <span class="o">|</span> <span class="s2">&quot;PENDING&quot;</span> <span class="o">|</span> <span class="s2">&quot;PAID&quot;</span> <span class="o">|</span> <span class="s2">&quot;OVERDUE&quot;</span> <span class="o">|</span> <span class="s2">&quot;CANCELED&quot;</span> <span class="o">|</span> <span class="s2">&quot;REFUNDED&quot;</span>
-<span class="n">PaymentMethod</span><span class="p">:</span> <span class="s2">&quot;CREDIT_CARD&quot;</span> <span class="o">|</span> <span class="s2">&quot;BANK_TRANSFER&quot;</span> <span class="o">|</span> <span class="s2">&quot;MOBILE_MONEY&quot;</span> <span class="o">|</span> <span class="s2">&quot;CASH&quot;</span>
-<span class="n">PlanTier</span><span class="p">:</span> <span class="s2">&quot;FREE&quot;</span> <span class="o">|</span> <span class="s2">&quot;STARTER&quot;</span> <span class="o">|</span> <span class="s2">&quot;PROFESSIONAL&quot;</span> <span class="o">|</span> <span class="s2">&quot;ENTERPRISE&quot;</span>
-<span class="n">BillingCycle</span><span class="p">:</span> <span class="s2">&quot;MONTHLY&quot;</span> <span class="o">|</span> <span class="s2">&quot;QUARTERLY&quot;</span> <span class="o">|</span> <span class="s2">&quot;YEARLY&quot;</span>
+<span class="n">SubscriptionStatus</span><span class="p">:</span> <span class="s2">"ACTIVE"</span> <span class="o">|</span> <span class="s2">"TRIAL"</span> <span class="o">|</span> <span class="s2">"PAST_DUE"</span> <span class="o">|</span> <span class="s2">"CANCELED"</span> <span class="o">|</span> <span class="s2">"SUSPENDED"</span> <span class="o">|</span> <span class="s2">"EXPIRED"</span>
+<span class="n">InvoiceStatus</span><span class="p">:</span> <span class="s2">"DRAFT"</span> <span class="o">|</span> <span class="s2">"PENDING"</span> <span class="o">|</span> <span class="s2">"PAID"</span> <span class="o">|</span> <span class="s2">"OVERDUE"</span> <span class="o">|</span> <span class="s2">"CANCELED"</span> <span class="o">|</span> <span class="s2">"REFUNDED"</span>
+<span class="n">PaymentMethod</span><span class="p">:</span> <span class="s2">"CREDIT_CARD"</span> <span class="o">|</span> <span class="s2">"BANK_TRANSFER"</span> <span class="o">|</span> <span class="s2">"MOBILE_MONEY"</span> <span class="o">|</span> <span class="s2">"CASH"</span>
+<span class="n">PlanTier</span><span class="p">:</span> <span class="s2">"FREE"</span> <span class="o">|</span> <span class="s2">"STARTER"</span> <span class="o">|</span> <span class="s2">"PROFESSIONAL"</span> <span class="o">|</span> <span class="s2">"ENTERPRISE"</span>
+<span class="n">BillingCycle</span><span class="p">:</span> <span class="s2">"MONTHLY"</span> <span class="o">|</span> <span class="s2">"QUARTERLY"</span> <span class="o">|</span> <span class="s2">"YEARLY"</span>
 </code></pre></div>
 
 <hr />
@@ -2454,7 +2454,7 @@
 </tbody>
 </table>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Indicator Types</span>
-<span class="n">IndicatorType</span><span class="p">:</span> <span class="s2">&quot;NDVI&quot;</span> <span class="o">|</span> <span class="s2">&quot;LAI&quot;</span> <span class="o">|</span> <span class="s2">&quot;NDWI&quot;</span> <span class="o">|</span> <span class="s2">&quot;EVI&quot;</span> <span class="o">|</span> <span class="s2">&quot;SAVI&quot;</span> <span class="o">|</span> <span class="s2">&quot;GNDVI&quot;</span>
+<span class="n">IndicatorType</span><span class="p">:</span> <span class="s2">"NDVI"</span> <span class="o">|</span> <span class="s2">"LAI"</span> <span class="o">|</span> <span class="s2">"NDWI"</span> <span class="o">|</span> <span class="s2">"EVI"</span> <span class="o">|</span> <span class="s2">"SAVI"</span> <span class="o">|</span> <span class="s2">"GNDVI"</span>
 </code></pre></div>
 
 <hr />
@@ -2697,8 +2697,8 @@
 </tbody>
 </table>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Enums</span>
-<span class="n">Severity</span><span class="p">:</span> <span class="s2">&quot;none&quot;</span> <span class="o">|</span> <span class="s2">&quot;low&quot;</span> <span class="o">|</span> <span class="s2">&quot;medium&quot;</span> <span class="o">|</span> <span class="s2">&quot;high&quot;</span> <span class="o">|</span> <span class="s2">&quot;critical&quot;</span>
-<span class="n">GrowthStage</span><span class="p">:</span> <span class="s2">&quot;germination&quot;</span> <span class="o">|</span> <span class="s2">&quot;seedling&quot;</span> <span class="o">|</span> <span class="s2">&quot;tillering&quot;</span> <span class="o">|</span> <span class="s2">&quot;heading&quot;</span> <span class="o">|</span> <span class="s2">&quot;flowering&quot;</span> <span class="o">|</span> <span class="s2">&quot;ripening&quot;</span>
+<span class="n">Severity</span><span class="p">:</span> <span class="s2">"none"</span> <span class="o">|</span> <span class="s2">"low"</span> <span class="o">|</span> <span class="s2">"medium"</span> <span class="o">|</span> <span class="s2">"high"</span> <span class="o">|</span> <span class="s2">"critical"</span>
+<span class="n">GrowthStage</span><span class="p">:</span> <span class="s2">"germination"</span> <span class="o">|</span> <span class="s2">"seedling"</span> <span class="o">|</span> <span class="s2">"tillering"</span> <span class="o">|</span> <span class="s2">"heading"</span> <span class="o">|</span> <span class="s2">"flowering"</span> <span class="o">|</span> <span class="s2">"ripening"</span>
 </code></pre></div>
 
 <hr />
@@ -2949,7 +2949,7 @@
 </tbody>
 </table>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Virtual Sensor Types</span>
-<span class="n">VirtualSensorType</span><span class="p">:</span> <span class="s2">&quot;soil_moisture&quot;</span> <span class="o">|</span> <span class="s2">&quot;evapotranspiration&quot;</span> <span class="o">|</span> <span class="s2">&quot;crop_water_stress&quot;</span> <span class="o">|</span> <span class="s2">&quot;nitrogen_status&quot;</span>
+<span class="n">VirtualSensorType</span><span class="p">:</span> <span class="s2">"soil_moisture"</span> <span class="o">|</span> <span class="s2">"evapotranspiration"</span> <span class="o">|</span> <span class="s2">"crop_water_stress"</span> <span class="o">|</span> <span class="s2">"nitrogen_status"</span>
 </code></pre></div>
 
 <hr />
@@ -3179,8 +3179,8 @@
 </tbody>
 </table>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Enums</span>
-<span class="n">EquipmentType</span><span class="p">:</span> <span class="s2">&quot;tractor&quot;</span> <span class="o">|</span> <span class="s2">&quot;harvester&quot;</span> <span class="o">|</span> <span class="s2">&quot;sprayer&quot;</span> <span class="o">|</span> <span class="s2">&quot;irrigation_pump&quot;</span> <span class="o">|</span> <span class="s2">&quot;seeder&quot;</span> <span class="o">|</span> <span class="s2">&quot;plow&quot;</span>
-<span class="n">Condition</span><span class="p">:</span> <span class="s2">&quot;excellent&quot;</span> <span class="o">|</span> <span class="s2">&quot;good&quot;</span> <span class="o">|</span> <span class="s2">&quot;fair&quot;</span> <span class="o">|</span> <span class="s2">&quot;poor&quot;</span> <span class="o">|</span> <span class="s2">&quot;needs_repair&quot;</span>
+<span class="n">EquipmentType</span><span class="p">:</span> <span class="s2">"tractor"</span> <span class="o">|</span> <span class="s2">"harvester"</span> <span class="o">|</span> <span class="s2">"sprayer"</span> <span class="o">|</span> <span class="s2">"irrigation_pump"</span> <span class="o">|</span> <span class="s2">"seeder"</span> <span class="o">|</span> <span class="s2">"plow"</span>
+<span class="n">Condition</span><span class="p">:</span> <span class="s2">"excellent"</span> <span class="o">|</span> <span class="s2">"good"</span> <span class="o">|</span> <span class="s2">"fair"</span> <span class="o">|</span> <span class="s2">"poor"</span> <span class="o">|</span> <span class="s2">"needs_repair"</span>
 </code></pre></div>
 
 <hr />
@@ -3265,9 +3265,9 @@
 </tbody>
 </table>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Enums</span>
-<span class="n">TaskType</span><span class="p">:</span> <span class="s2">&quot;irrigation&quot;</span> <span class="o">|</span> <span class="s2">&quot;fertilization&quot;</span> <span class="o">|</span> <span class="s2">&quot;spraying&quot;</span> <span class="o">|</span> <span class="s2">&quot;scouting&quot;</span> <span class="o">|</span> <span class="s2">&quot;maintenance&quot;</span> <span class="o">|</span> <span class="s2">&quot;harvest&quot;</span> <span class="o">|</span> <span class="s2">&quot;planting&quot;</span>
-<span class="n">Priority</span><span class="p">:</span> <span class="s2">&quot;low&quot;</span> <span class="o">|</span> <span class="s2">&quot;medium&quot;</span> <span class="o">|</span> <span class="s2">&quot;high&quot;</span> <span class="o">|</span> <span class="s2">&quot;urgent&quot;</span>
-<span class="n">TaskStatus</span><span class="p">:</span> <span class="s2">&quot;pending&quot;</span> <span class="o">|</span> <span class="s2">&quot;in_progress&quot;</span> <span class="o">|</span> <span class="s2">&quot;completed&quot;</span> <span class="o">|</span> <span class="s2">&quot;cancelled&quot;</span> <span class="o">|</span> <span class="s2">&quot;overdue&quot;</span>
+<span class="n">TaskType</span><span class="p">:</span> <span class="s2">"irrigation"</span> <span class="o">|</span> <span class="s2">"fertilization"</span> <span class="o">|</span> <span class="s2">"spraying"</span> <span class="o">|</span> <span class="s2">"scouting"</span> <span class="o">|</span> <span class="s2">"maintenance"</span> <span class="o">|</span> <span class="s2">"harvest"</span> <span class="o">|</span> <span class="s2">"planting"</span>
+<span class="n">Priority</span><span class="p">:</span> <span class="s2">"low"</span> <span class="o">|</span> <span class="s2">"medium"</span> <span class="o">|</span> <span class="s2">"high"</span> <span class="o">|</span> <span class="s2">"urgent"</span>
+<span class="n">TaskStatus</span><span class="p">:</span> <span class="s2">"pending"</span> <span class="o">|</span> <span class="s2">"in_progress"</span> <span class="o">|</span> <span class="s2">"completed"</span> <span class="o">|</span> <span class="s2">"cancelled"</span> <span class="o">|</span> <span class="s2">"overdue"</span>
 </code></pre></div>
 
 <hr />
@@ -3664,10 +3664,10 @@
 </tbody>
 </table>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Enums</span>
-<span class="n">NotificationType</span><span class="p">:</span> <span class="s2">&quot;WEATHER_ALERT&quot;</span> <span class="o">|</span> <span class="s2">&quot;PEST_OUTBREAK&quot;</span> <span class="o">|</span> <span class="s2">&quot;IRRIGATION_REMINDER&quot;</span> <span class="o">|</span> <span class="s2">&quot;DISEASE_DETECTED&quot;</span> <span class="o">|</span> <span class="s2">&quot;HARVEST_REMINDER&quot;</span> <span class="o">|</span> <span class="s2">&quot;MARKET_PRICE&quot;</span> <span class="o">|</span> <span class="s2">&quot;SYSTEM&quot;</span>
-<span class="n">NotificationPriority</span><span class="p">:</span> <span class="s2">&quot;LOW&quot;</span> <span class="o">|</span> <span class="s2">&quot;MEDIUM&quot;</span> <span class="o">|</span> <span class="s2">&quot;HIGH&quot;</span> <span class="o">|</span> <span class="s2">&quot;CRITICAL&quot;</span>
-<span class="n">NotificationChannel</span><span class="p">:</span> <span class="s2">&quot;PUSH&quot;</span> <span class="o">|</span> <span class="s2">&quot;SMS&quot;</span> <span class="o">|</span> <span class="s2">&quot;EMAIL&quot;</span> <span class="o">|</span> <span class="s2">&quot;WHATSAPP&quot;</span> <span class="o">|</span> <span class="s2">&quot;IN_APP&quot;</span>
-<span class="n">Governorate</span><span class="p">:</span> <span class="s2">&quot;sanaa&quot;</span> <span class="o">|</span> <span class="s2">&quot;aden&quot;</span> <span class="o">|</span> <span class="s2">&quot;taiz&quot;</span> <span class="o">|</span> <span class="s2">&quot;hodeidah&quot;</span> <span class="o">|</span> <span class="s2">&quot;ibb&quot;</span> <span class="o">|</span> <span class="o">...</span>
+<span class="n">NotificationType</span><span class="p">:</span> <span class="s2">"WEATHER_ALERT"</span> <span class="o">|</span> <span class="s2">"PEST_OUTBREAK"</span> <span class="o">|</span> <span class="s2">"IRRIGATION_REMINDER"</span> <span class="o">|</span> <span class="s2">"DISEASE_DETECTED"</span> <span class="o">|</span> <span class="s2">"HARVEST_REMINDER"</span> <span class="o">|</span> <span class="s2">"MARKET_PRICE"</span> <span class="o">|</span> <span class="s2">"SYSTEM"</span>
+<span class="n">NotificationPriority</span><span class="p">:</span> <span class="s2">"LOW"</span> <span class="o">|</span> <span class="s2">"MEDIUM"</span> <span class="o">|</span> <span class="s2">"HIGH"</span> <span class="o">|</span> <span class="s2">"CRITICAL"</span>
+<span class="n">NotificationChannel</span><span class="p">:</span> <span class="s2">"PUSH"</span> <span class="o">|</span> <span class="s2">"SMS"</span> <span class="o">|</span> <span class="s2">"EMAIL"</span> <span class="o">|</span> <span class="s2">"WHATSAPP"</span> <span class="o">|</span> <span class="s2">"IN_APP"</span>
+<span class="n">Governorate</span><span class="p">:</span> <span class="s2">"sanaa"</span> <span class="o">|</span> <span class="s2">"aden"</span> <span class="o">|</span> <span class="s2">"taiz"</span> <span class="o">|</span> <span class="s2">"hodeidah"</span> <span class="o">|</span> <span class="s2">"ibb"</span> <span class="o">|</span> <span class="o">...</span>
 </code></pre></div>
 
 <hr />
@@ -3913,9 +3913,9 @@
 </tbody>
 </table>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Enums</span>
-<span class="n">AlertType</span><span class="p">:</span> <span class="s2">&quot;weather&quot;</span> <span class="o">|</span> <span class="s2">&quot;pest&quot;</span> <span class="o">|</span> <span class="s2">&quot;disease&quot;</span> <span class="o">|</span> <span class="s2">&quot;irrigation&quot;</span> <span class="o">|</span> <span class="s2">&quot;equipment&quot;</span> <span class="o">|</span> <span class="s2">&quot;system&quot;</span>
-<span class="n">AlertSeverity</span><span class="p">:</span> <span class="s2">&quot;info&quot;</span> <span class="o">|</span> <span class="s2">&quot;warning&quot;</span> <span class="o">|</span> <span class="s2">&quot;critical&quot;</span> <span class="o">|</span> <span class="s2">&quot;emergency&quot;</span>
-<span class="n">AlertStatus</span><span class="p">:</span> <span class="s2">&quot;active&quot;</span> <span class="o">|</span> <span class="s2">&quot;acknowledged&quot;</span> <span class="o">|</span> <span class="s2">&quot;resolved&quot;</span> <span class="o">|</span> <span class="s2">&quot;expired&quot;</span>
+<span class="n">AlertType</span><span class="p">:</span> <span class="s2">"weather"</span> <span class="o">|</span> <span class="s2">"pest"</span> <span class="o">|</span> <span class="s2">"disease"</span> <span class="o">|</span> <span class="s2">"irrigation"</span> <span class="o">|</span> <span class="s2">"equipment"</span> <span class="o">|</span> <span class="s2">"system"</span>
+<span class="n">AlertSeverity</span><span class="p">:</span> <span class="s2">"info"</span> <span class="o">|</span> <span class="s2">"warning"</span> <span class="o">|</span> <span class="s2">"critical"</span> <span class="o">|</span> <span class="s2">"emergency"</span>
+<span class="n">AlertStatus</span><span class="p">:</span> <span class="s2">"active"</span> <span class="o">|</span> <span class="s2">"acknowledged"</span> <span class="o">|</span> <span class="s2">"resolved"</span> <span class="o">|</span> <span class="s2">"expired"</span>
 </code></pre></div>
 
 <hr />
@@ -4005,8 +4005,8 @@
 </tbody>
 </table>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Enums</span>
-<span class="n">ItemCategory</span><span class="p">:</span> <span class="s2">&quot;seeds&quot;</span> <span class="o">|</span> <span class="s2">&quot;fertilizer&quot;</span> <span class="o">|</span> <span class="s2">&quot;pesticide&quot;</span> <span class="o">|</span> <span class="s2">&quot;equipment&quot;</span> <span class="o">|</span> <span class="s2">&quot;fuel&quot;</span> <span class="o">|</span> <span class="s2">&quot;other&quot;</span>
-<span class="n">TransactionType</span><span class="p">:</span> <span class="s2">&quot;in&quot;</span> <span class="o">|</span> <span class="s2">&quot;out&quot;</span> <span class="o">|</span> <span class="s2">&quot;adjustment&quot;</span> <span class="o">|</span> <span class="s2">&quot;transfer&quot;</span>
+<span class="n">ItemCategory</span><span class="p">:</span> <span class="s2">"seeds"</span> <span class="o">|</span> <span class="s2">"fertilizer"</span> <span class="o">|</span> <span class="s2">"pesticide"</span> <span class="o">|</span> <span class="s2">"equipment"</span> <span class="o">|</span> <span class="s2">"fuel"</span> <span class="o">|</span> <span class="s2">"other"</span>
+<span class="n">TransactionType</span><span class="p">:</span> <span class="s2">"in"</span> <span class="o">|</span> <span class="s2">"out"</span> <span class="o">|</span> <span class="s2">"adjustment"</span> <span class="o">|</span> <span class="s2">"transfer"</span>
 </code></pre></div>
 
 <hr />
@@ -5030,16 +5030,16 @@
 </table>
 <h4 id="_6">المخرجات<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;platform&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SAHOOL&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;16.0.0&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;National Agricultural Intelligence Platform&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;operational&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;endpoints&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;/health&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Health check&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;/ping&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Ping check&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;/api/v1&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;API Gateway&quot;</span>
+<span class="w">  </span><span class="nt">"platform"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SAHOOL"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"16.0.0"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"National Agricultural Intelligence Platform"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"operational"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"endpoints"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"/health"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Health check"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"/ping"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Ping check"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"/api/v1"</span><span class="p">:</span><span class="w"> </span><span class="s2">"API Gateway"</span>
 <span class="w">  </span><span class="p">},</span>
-<span class="w">  </span><span class="nt">&quot;documentation&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://github.com/kafaat/sahool-unified-v15-idp&quot;</span>
+<span class="w">  </span><span class="nt">"documentation"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://github.com/kafaat/sahool-unified-v15-idp"</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -5065,7 +5065,7 @@
 </table>
 <h4 id="_7">المخرجات<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SAHOOL Platform is healthy&quot;</span>
+<span class="w">  </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SAHOOL Platform is healthy"</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -5247,10 +5247,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

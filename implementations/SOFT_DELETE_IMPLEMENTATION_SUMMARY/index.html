@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1260,7 +1260,7 @@
 <h3 id="3-audit-trail">3. Audit Trail<a class="headerlink" href="#3-audit-trail" title="Permanent link">&para;</a></h3>
 <p>Track deletion metadata:</p>
 <div class="codehilite"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">metadata</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getDeletionMetadata</span><span class="p">(</span><span class="nx">product</span><span class="p">);</span>
-<span class="c1">// { deletedAt: Date, deletedBy: &#39;user-123&#39; }</span>
+<span class="c1">// { deletedAt: Date, deletedBy: 'user-123' }</span>
 </code></pre></div>
 
 <h3 id="4-easy-restoration">4. Easy Restoration<a class="headerlink" href="#4-easy-restoration" title="Permanent link">&para;</a></h3>
@@ -1270,19 +1270,19 @@
 <h3 id="5-model-exclusion">5. Model Exclusion<a class="headerlink" href="#5-model-exclusion" title="Permanent link">&para;</a></h3>
 <p>Exclude specific models from soft delete (e.g., audit logs):</p>
 <div class="codehilite"><pre><span></span><code><span class="nx">createSoftDeleteMiddleware</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">excludedModels</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;AuditLog&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Transaction&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nx">excludedModels</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"AuditLog"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Transaction"</span><span class="p">],</span>
 <span class="p">});</span>
 </code></pre></div>
 
 <h2 id="database-schema-pattern">Database Schema Pattern<a class="headerlink" href="#database-schema-pattern" title="Permanent link">&para;</a></h2>
 <h3 id="added-columns">Added Columns<a class="headerlink" href="#added-columns" title="Permanent link">&para;</a></h3>
 <p>For each model supporting soft delete:</p>
-<div class="codehilite"><pre><span></span><code><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="ss">&quot;table_name&quot;</span>
-<span class="k">ADD</span><span class="w"> </span><span class="k">COLUMN</span><span class="w"> </span><span class="ss">&quot;deleted_at&quot;</span><span class="w"> </span><span class="n">TIMESTAMPTZ</span><span class="p">,</span>
-<span class="k">ADD</span><span class="w"> </span><span class="k">COLUMN</span><span class="w"> </span><span class="ss">&quot;deleted_by&quot;</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">);</span>
+<div class="codehilite"><pre><span></span><code><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="ss">"table_name"</span>
+<span class="k">ADD</span><span class="w"> </span><span class="k">COLUMN</span><span class="w"> </span><span class="ss">"deleted_at"</span><span class="w"> </span><span class="n">TIMESTAMPTZ</span><span class="p">,</span>
+<span class="k">ADD</span><span class="w"> </span><span class="k">COLUMN</span><span class="w"> </span><span class="ss">"deleted_by"</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">);</span>
 
 <span class="c1">-- Index for query performance</span>
-<span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="ss">&quot;idx_table_deleted_at&quot;</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="ss">&quot;table_name&quot;</span><span class="p">(</span><span class="ss">&quot;deleted_at&quot;</span><span class="p">);</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="ss">"idx_table_deleted_at"</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="ss">"table_name"</span><span class="p">(</span><span class="ss">"deleted_at"</span><span class="p">);</span>
 </code></pre></div>
 
 <h3 id="indexes">Indexes<a class="headerlink" href="#indexes" title="Permanent link">&para;</a></h3>
@@ -1311,21 +1311,21 @@
 </ol>
 <h2 id="usage-examples">Usage Examples<a class="headerlink" href="#usage-examples" title="Permanent link">&para;</a></h2>
 <h3 id="typescriptprisma">TypeScript/Prisma<a class="headerlink" href="#typescriptprisma" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PrismaService</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./prisma/prisma.service&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">softDelete</span><span class="p">,</span><span class="w"> </span><span class="nx">restore</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/shared-db&quot;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PrismaService</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"./prisma/prisma.service"</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">softDelete</span><span class="p">,</span><span class="w"> </span><span class="nx">restore</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@sahool/shared-db"</span><span class="p">;</span>
 
 <span class="c1">// Soft delete</span>
 <span class="k">await</span><span class="w"> </span><span class="nx">softDelete</span><span class="p">(</span>
 <span class="w">  </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">product</span><span class="p">,</span>
-<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;product-123&quot;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">deletedBy</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;user-456&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s2">"product-123"</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">deletedBy</span><span class="o">:</span><span class="w"> </span><span class="s2">"user-456"</span><span class="w"> </span><span class="p">},</span>
 <span class="p">);</span>
 
 <span class="c1">// Find active only (default)</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">products</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">product</span><span class="p">.</span><span class="nx">findMany</span><span class="p">();</span>
 
 <span class="c1">// Restore</span>
-<span class="k">await</span><span class="w"> </span><span class="nx">restore</span><span class="p">(</span><span class="nx">prisma</span><span class="p">.</span><span class="nx">product</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;product-123&quot;</span><span class="w"> </span><span class="p">});</span>
+<span class="k">await</span><span class="w"> </span><span class="nx">restore</span><span class="p">(</span><span class="nx">prisma</span><span class="p">.</span><span class="nx">product</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s2">"product-123"</span><span class="w"> </span><span class="p">});</span>
 </code></pre></div>
 
 <h3 id="pythonsqlalchemy">Python/SQLAlchemy<a class="headerlink" href="#pythonsqlalchemy" title="Permanent link">&para;</a></h3>
@@ -1336,14 +1336,14 @@
 <span class="p">)</span>
 
 <span class="c1"># Soft delete</span>
-<span class="n">soft_delete_record</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">Product</span><span class="p">,</span> <span class="s2">&quot;product-123&quot;</span><span class="p">,</span> <span class="n">deleted_by</span><span class="o">=</span><span class="s2">&quot;user-456&quot;</span><span class="p">)</span>
+<span class="n">soft_delete_record</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">Product</span><span class="p">,</span> <span class="s2">"product-123"</span><span class="p">,</span> <span class="n">deleted_by</span><span class="o">=</span><span class="s2">"user-456"</span><span class="p">)</span>
 <span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
 
 <span class="c1"># Get active records</span>
 <span class="n">active_products</span> <span class="o">=</span> <span class="n">get_active_records</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">Product</span><span class="p">)</span>
 
 <span class="c1"># Restore</span>
-<span class="n">restore_record</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">Product</span><span class="p">,</span> <span class="s2">&quot;product-123&quot;</span><span class="p">)</span>
+<span class="n">restore_record</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">Product</span><span class="p">,</span> <span class="s2">"product-123"</span><span class="p">)</span>
 <span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
 </code></pre></div>
 
@@ -1389,7 +1389,7 @@
 </code></pre></div>
 
 <h3 id="3-exclude-audit-tables">3. Exclude Audit Tables<a class="headerlink" href="#3-exclude-audit-tables" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="nx">excludedModels</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;AuditLog&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Transaction&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;WalletAuditLog&quot;</span><span class="p">];</span>
+<div class="codehilite"><pre><span></span><code><span class="nx">excludedModels</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"AuditLog"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Transaction"</span><span class="p">,</span><span class="w"> </span><span class="s2">"WalletAuditLog"</span><span class="p">];</span>
 </code></pre></div>
 
 <h3 id="4-handle-unique-constraints">4. Handle Unique Constraints<a class="headerlink" href="#4-handle-unique-constraints" title="Permanent link">&para;</a></h3>
@@ -1414,12 +1414,12 @@
 <li>Performance testing with indexes</li>
 </ul>
 <h3 id="example-test-suite">Example Test Suite<a class="headerlink" href="#example-test-suite" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;Soft Delete&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">&#39;should soft delete a record&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">});</span>
-<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">&#39;should exclude deleted from queries&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">});</span>
-<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">&#39;should include deleted with flag&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">});</span>
-<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">&#39;should restore deleted record&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">});</span>
-<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">&#39;should track deletion metadata&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">});</span>
+<div class="codehilite"><pre><span></span><code><span class="nx">describe</span><span class="p">(</span><span class="s1">'Soft Delete'</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">'should soft delete a record'</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">});</span>
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">'should exclude deleted from queries'</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">});</span>
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">'should include deleted with flag'</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">});</span>
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">'should restore deleted record'</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">});</span>
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">'should track deletion metadata'</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">});</span>
 <span class="p">});</span>
 </code></pre></div>
 
@@ -1634,10 +1634,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

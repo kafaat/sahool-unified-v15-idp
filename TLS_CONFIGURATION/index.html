@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1178,7 +1178,7 @@
 <li><strong>Signature</strong>: SHA-256</li>
 </ul>
 <p><strong>Subject DN</strong>:</p>
-<div class="codehilite"><pre><span></span><code>C=YE, ST=Sana&#39;a, L=Sana&#39;a, O=SAHOOL, OU=Platform Security, CN=SAHOOL Internal CA
+<div class="codehilite"><pre><span></span><code>C=YE, ST=Sana'a, L=Sana'a, O=SAHOOL, OU=Platform Security, CN=SAHOOL Internal CA
 </code></pre></div>
 
 <h3 id="service-certificates">Service Certificates<a class="headerlink" href="#service-certificates" title="Permanent link">&para;</a></h3>
@@ -1261,14 +1261,14 @@ postgresql://user:pass@postgres:5432/db?sslmode<span class="o">=</span>prefer
 <p><strong>Configuration File</strong>: <code>/home/user/sahool-unified-v15-idp/infrastructure/core/pgbouncer/pgbouncer.ini</code></p>
 <p><strong>TLS Settings</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Server-side TLS (to PostgreSQL)</span>
-<span class="c1"># Default: &#39;disable&#39; in dev (no TLS certs present by default)</span>
-<span class="c1"># Production: Use docker-compose.tls.yml overlay to set &#39;require&#39; + CA cert</span>
+<span class="c1"># Default: 'disable' in dev (no TLS certs present by default)</span>
+<span class="c1"># Production: Use docker-compose.tls.yml overlay to set 'require' + CA cert</span>
 <span class="na">server_tls_sslmode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">disable</span>
 <span class="c1">; server_tls_ca_file = /etc/pgbouncer/certs/ca.crt</span>
 
 <span class="c1"># Client-side TLS (from applications)</span>
-<span class="c1"># Default: &#39;disable&#39; in dev (no cert/key files present by default)</span>
-<span class="c1"># Production: Use docker-compose.tls.yml overlay to set &#39;require&#39; + cert/key</span>
+<span class="c1"># Default: 'disable' in dev (no cert/key files present by default)</span>
+<span class="c1"># Production: Use docker-compose.tls.yml overlay to set 'require' + cert/key</span>
 <span class="na">client_tls_sslmode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">disable</span>
 <span class="c1">; client_tls_cert_file = /etc/pgbouncer/certs/server.crt</span>
 <span class="c1">; client_tls_key_file = /etc/pgbouncer/certs/server.key</span>
@@ -1283,7 +1283,7 @@ postgresql://user:pass@postgres:5432/db?sslmode<span class="o">=</span>prefer
 --tls-key-file<span class="w"> </span>/etc/redis/certs/server.key
 --tls-ca-cert-file<span class="w"> </span>/etc/redis/certs/ca.crt
 --tls-auth-clients<span class="w"> </span>optional<span class="w">           </span><span class="c1"># Allow both TLS and non-TLS clients initially</span>
---tls-protocols<span class="w"> </span><span class="s2">&quot;TLSv1.2 TLSv1.3&quot;</span>
+--tls-protocols<span class="w"> </span><span class="s2">"TLSv1.2 TLSv1.3"</span>
 --tls-prefer-server-ciphers<span class="w"> </span>yes
 --tls-session-caching<span class="w"> </span>yes
 </code></pre></div>
@@ -1293,16 +1293,16 @@ postgresql://user:pass@postgres:5432/db?sslmode<span class="o">=</span>prefer
 rediss://:password@redis:6379/0
 
 <span class="c1"># Python example</span>
-redis.Redis<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">&#39;redis&#39;</span>,<span class="w"> </span><span class="nv">port</span><span class="o">=</span><span class="m">6379</span>,<span class="w"> </span><span class="nv">password</span><span class="o">=</span><span class="s1">&#39;pass&#39;</span>,<span class="w"> </span><span class="nv">ssl</span><span class="o">=</span>True,<span class="w"> </span><span class="nv">ssl_ca_certs</span><span class="o">=</span><span class="s1">&#39;/path/to/ca.crt&#39;</span><span class="o">)</span>
+redis.Redis<span class="o">(</span><span class="nv">host</span><span class="o">=</span><span class="s1">'redis'</span>,<span class="w"> </span><span class="nv">port</span><span class="o">=</span><span class="m">6379</span>,<span class="w"> </span><span class="nv">password</span><span class="o">=</span><span class="s1">'pass'</span>,<span class="w"> </span><span class="nv">ssl</span><span class="o">=</span>True,<span class="w"> </span><span class="nv">ssl_ca_certs</span><span class="o">=</span><span class="s1">'/path/to/ca.crt'</span><span class="o">)</span>
 </code></pre></div>
 
 <h3 id="nats">NATS<a class="headerlink" href="#nats" title="Permanent link">&para;</a></h3>
 <p><strong>Configuration File</strong>: <code>/home/user/sahool-unified-v15-idp/config/nats/nats.conf</code></p>
 <p><strong>TLS Settings</strong>:</p>
 <div class="codehilite"><pre><span></span><code>tls {
-    cert_file: &quot;/etc/nats/certs/server.crt&quot;
-    key_file: &quot;/etc/nats/certs/server.key&quot;
-    ca_file: &quot;/etc/nats/certs/ca.crt&quot;
+    cert_file: "/etc/nats/certs/server.crt"
+    key_file: "/etc/nats/certs/server.key"
+    ca_file: "/etc/nats/certs/ca.crt"
     verify: true
     timeout: 2
 }
@@ -1316,7 +1316,7 @@ nats://user:pass@nats:4222?tls<span class="o">=</span>true<span class="p">&amp;<
 <h3 id="kong">Kong<a class="headerlink" href="#kong" title="Permanent link">&para;</a></h3>
 <p><strong>Configuration</strong>: Environment variables in <code>docker-compose.tls.yml</code></p>
 <p><strong>TLS Settings</strong>:</p>
-<div class="codehilite"><pre><span></span><code><span class="nt">KONG_PROXY_LISTEN</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.0.0.0:8000,</span><span class="nv"> </span><span class="s">0.0.0.0:8443</span><span class="nv"> </span><span class="s">ssl&quot;</span>
+<div class="codehilite"><pre><span></span><code><span class="nt">KONG_PROXY_LISTEN</span><span class="p">:</span><span class="w"> </span><span class="s">"0.0.0.0:8000,</span><span class="nv"> </span><span class="s">0.0.0.0:8443</span><span class="nv"> </span><span class="s">ssl"</span>
 <span class="nt">KONG_SSL_CERT</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/kong/certs/server.crt</span>
 <span class="nt">KONG_SSL_CERT_KEY</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/kong/certs/server.key</span>
 </code></pre></div>
@@ -1339,7 +1339,7 @@ curl<span class="w"> </span>http://localhost:8001/status
 docker-compose<span class="w"> </span>-f<span class="w"> </span>docker-compose.yml<span class="w"> </span>-f<span class="w"> </span>docker-compose.tls.yml<span class="w"> </span>up<span class="w"> </span>-d
 
 <span class="c1"># Method 2: Environment variable (add to .env)</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;COMPOSE_FILE=docker-compose.yml:docker-compose.tls.yml&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>.env
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"COMPOSE_FILE=docker-compose.yml:docker-compose.tls.yml"</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>.env
 docker-compose<span class="w"> </span>up<span class="w"> </span>-d
 </code></pre></div>
 
@@ -1379,15 +1379,15 @@ docker-compose<span class="w"> </span>up<span class="w"> </span>-d
 <span class="kn">import</span><span class="w"> </span><span class="nn">ssl</span>
 
 <span class="c1"># Create SSL context</span>
-<span class="n">ssl_context</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">create_default_context</span><span class="p">(</span><span class="n">cafile</span><span class="o">=</span><span class="s1">&#39;/app/certs/ca.crt&#39;</span><span class="p">)</span>
+<span class="n">ssl_context</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">create_default_context</span><span class="p">(</span><span class="n">cafile</span><span class="o">=</span><span class="s1">'/app/certs/ca.crt'</span><span class="p">)</span>
 
 <span class="c1"># Connect with TLS</span>
 <span class="n">conn</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncpg</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
-    <span class="n">host</span><span class="o">=</span><span class="s1">&#39;postgres&#39;</span><span class="p">,</span>
+    <span class="n">host</span><span class="o">=</span><span class="s1">'postgres'</span><span class="p">,</span>
     <span class="n">port</span><span class="o">=</span><span class="mi">5432</span><span class="p">,</span>
-    <span class="n">user</span><span class="o">=</span><span class="s1">&#39;sahool&#39;</span><span class="p">,</span>
-    <span class="n">password</span><span class="o">=</span><span class="s1">&#39;password&#39;</span><span class="p">,</span>
-    <span class="n">database</span><span class="o">=</span><span class="s1">&#39;sahool&#39;</span><span class="p">,</span>
+    <span class="n">user</span><span class="o">=</span><span class="s1">'sahool'</span><span class="p">,</span>
+    <span class="n">password</span><span class="o">=</span><span class="s1">'password'</span><span class="p">,</span>
+    <span class="n">database</span><span class="o">=</span><span class="s1">'sahool'</span><span class="p">,</span>
     <span class="n">ssl</span><span class="o">=</span><span class="n">ssl_context</span>
 <span class="p">)</span>
 </code></pre></div>
@@ -1397,46 +1397,46 @@ docker-compose<span class="w"> </span>up<span class="w"> </span>-d
 <span class="kn">import</span><span class="w"> </span><span class="nn">ssl</span>
 
 <span class="c1"># Create SSL context</span>
-<span class="n">ssl_context</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">create_default_context</span><span class="p">(</span><span class="n">cafile</span><span class="o">=</span><span class="s1">&#39;/app/certs/ca.crt&#39;</span><span class="p">)</span>
+<span class="n">ssl_context</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">create_default_context</span><span class="p">(</span><span class="n">cafile</span><span class="o">=</span><span class="s1">'/app/certs/ca.crt'</span><span class="p">)</span>
 
 <span class="c1"># Connect with TLS</span>
 <span class="n">client</span> <span class="o">=</span> <span class="n">redis</span><span class="o">.</span><span class="n">Redis</span><span class="p">(</span>
-    <span class="n">host</span><span class="o">=</span><span class="s1">&#39;redis&#39;</span><span class="p">,</span>
+    <span class="n">host</span><span class="o">=</span><span class="s1">'redis'</span><span class="p">,</span>
     <span class="n">port</span><span class="o">=</span><span class="mi">6379</span><span class="p">,</span>
-    <span class="n">password</span><span class="o">=</span><span class="s1">&#39;password&#39;</span><span class="p">,</span>
+    <span class="n">password</span><span class="o">=</span><span class="s1">'password'</span><span class="p">,</span>
     <span class="n">ssl</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">ssl_cert_reqs</span><span class="o">=</span><span class="n">ssl</span><span class="o">.</span><span class="n">CERT_REQUIRED</span><span class="p">,</span>
-    <span class="n">ssl_ca_certs</span><span class="o">=</span><span class="s1">&#39;/app/certs/ca.crt&#39;</span>
+    <span class="n">ssl_ca_certs</span><span class="o">=</span><span class="s1">'/app/certs/ca.crt'</span>
 <span class="p">)</span>
 </code></pre></div>
 
 <h4 id="nodejs-postgresql-with-pg">Node.js - PostgreSQL with pg<a class="headerlink" href="#nodejs-postgresql-with-pg" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Pool</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;pg&quot;</span><span class="p">);</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">);</span>
+<div class="codehilite"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Pool</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s2">"pg"</span><span class="p">);</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s2">"fs"</span><span class="p">);</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">pool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Pool</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">host</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;postgres&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">host</span><span class="o">:</span><span class="w"> </span><span class="s2">"postgres"</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">port</span><span class="o">:</span><span class="w"> </span><span class="mf">5432</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">database</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;sahool&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">user</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;sahool&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">password</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;password&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">database</span><span class="o">:</span><span class="w"> </span><span class="s2">"sahool"</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">user</span><span class="o">:</span><span class="w"> </span><span class="s2">"sahool"</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">password</span><span class="o">:</span><span class="w"> </span><span class="s2">"password"</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">ssl</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">rejectUnauthorized</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">ca</span><span class="o">:</span><span class="w"> </span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="s2">&quot;/app/certs/ca.crt&quot;</span><span class="p">).</span><span class="nx">toString</span><span class="p">(),</span>
+<span class="w">    </span><span class="nx">ca</span><span class="o">:</span><span class="w"> </span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="s2">"/app/certs/ca.crt"</span><span class="p">).</span><span class="nx">toString</span><span class="p">(),</span>
 <span class="w">  </span><span class="p">},</span>
 <span class="p">});</span>
 </code></pre></div>
 
 <h4 id="nodejs-redis-with-ioredis">Node.js - Redis with ioredis<a class="headerlink" href="#nodejs-redis-with-ioredis" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">Redis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;ioredis&quot;</span><span class="p">);</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">);</span>
+<div class="codehilite"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">Redis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s2">"ioredis"</span><span class="p">);</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s2">"fs"</span><span class="p">);</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">redis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Redis</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">host</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;redis&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">host</span><span class="o">:</span><span class="w"> </span><span class="s2">"redis"</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">port</span><span class="o">:</span><span class="w"> </span><span class="mf">6379</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">password</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;password&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">password</span><span class="o">:</span><span class="w"> </span><span class="s2">"password"</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">tls</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">ca</span><span class="o">:</span><span class="w"> </span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="s2">&quot;/app/certs/ca.crt&quot;</span><span class="p">),</span>
+<span class="w">    </span><span class="nx">ca</span><span class="o">:</span><span class="w"> </span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="s2">"/app/certs/ca.crt"</span><span class="p">),</span>
 <span class="w">  </span><span class="p">},</span>
 <span class="p">});</span>
 </code></pre></div>
@@ -1447,9 +1447,9 @@ docker-compose<span class="w"> </span>up<span class="w"> </span>-d
 <span class="nb">cd</span><span class="w"> </span>/home/user/sahool-unified-v15-idp/config/certs
 
 <span class="k">for</span><span class="w"> </span>service<span class="w"> </span><span class="k">in</span><span class="w"> </span>postgres<span class="w"> </span>pgbouncer<span class="w"> </span>redis<span class="w"> </span>nats<span class="w"> </span>kong<span class="p">;</span><span class="w"> </span><span class="k">do</span>
-<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;=== </span><span class="nv">$service</span><span class="s2"> ===&quot;</span>
-<span class="w">  </span>openssl<span class="w"> </span>x509<span class="w"> </span>-in<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$service</span><span class="s2">/server.crt&quot;</span><span class="w"> </span>-noout<span class="w"> </span>-dates
-<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;&quot;</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"=== </span><span class="nv">$service</span><span class="s2"> ==="</span>
+<span class="w">  </span>openssl<span class="w"> </span>x509<span class="w"> </span>-in<span class="w"> </span><span class="s2">"</span><span class="nv">$service</span><span class="s2">/server.crt"</span><span class="w"> </span>-noout<span class="w"> </span>-dates
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">""</span>
 <span class="k">done</span>
 </code></pre></div>
 
@@ -1458,19 +1458,19 @@ docker-compose<span class="w"> </span>up<span class="w"> </span>-d
 <span class="c1"># monitor-certs.sh</span>
 
 <span class="nv">WARN_DAYS</span><span class="o">=</span><span class="m">30</span>
-<span class="nv">CERT_DIR</span><span class="o">=</span><span class="s2">&quot;/home/user/sahool-unified-v15-idp/config/certs&quot;</span>
+<span class="nv">CERT_DIR</span><span class="o">=</span><span class="s2">"/home/user/sahool-unified-v15-idp/config/certs"</span>
 
 <span class="k">for</span><span class="w"> </span>cert<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="nv">$CERT_DIR</span>/*/server.crt<span class="p">;</span><span class="w"> </span><span class="k">do</span>
 <span class="w">  </span><span class="nv">service</span><span class="o">=</span><span class="k">$(</span>basename<span class="w"> </span><span class="k">$(</span>dirname<span class="w"> </span><span class="nv">$cert</span><span class="k">))</span>
-<span class="w">  </span><span class="nv">expiry</span><span class="o">=</span><span class="k">$(</span>openssl<span class="w"> </span>x509<span class="w"> </span>-in<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$cert</span><span class="s2">&quot;</span><span class="w"> </span>-noout<span class="w"> </span>-enddate<span class="w"> </span><span class="p">|</span><span class="w"> </span>cut<span class="w"> </span>-d<span class="o">=</span><span class="w"> </span>-f2<span class="k">)</span>
-<span class="w">  </span><span class="nv">expiry_epoch</span><span class="o">=</span><span class="k">$(</span>date<span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$expiry</span><span class="s2">&quot;</span><span class="w"> </span>+%s<span class="k">)</span>
+<span class="w">  </span><span class="nv">expiry</span><span class="o">=</span><span class="k">$(</span>openssl<span class="w"> </span>x509<span class="w"> </span>-in<span class="w"> </span><span class="s2">"</span><span class="nv">$cert</span><span class="s2">"</span><span class="w"> </span>-noout<span class="w"> </span>-enddate<span class="w"> </span><span class="p">|</span><span class="w"> </span>cut<span class="w"> </span>-d<span class="o">=</span><span class="w"> </span>-f2<span class="k">)</span>
+<span class="w">  </span><span class="nv">expiry_epoch</span><span class="o">=</span><span class="k">$(</span>date<span class="w"> </span>-d<span class="w"> </span><span class="s2">"</span><span class="nv">$expiry</span><span class="s2">"</span><span class="w"> </span>+%s<span class="k">)</span>
 <span class="w">  </span><span class="nv">now_epoch</span><span class="o">=</span><span class="k">$(</span>date<span class="w"> </span>+%s<span class="k">)</span>
 <span class="w">  </span><span class="nv">days_left</span><span class="o">=</span><span class="k">$((</span><span class="w"> </span><span class="o">(</span><span class="nv">$expiry_epoch</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nv">$now_epoch</span><span class="o">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="m">86400</span><span class="w"> </span><span class="k">))</span>
 
 <span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="nv">$days_left</span><span class="w"> </span>-lt<span class="w"> </span><span class="nv">$WARN_DAYS</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
-<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;⚠️  WARNING: </span><span class="nv">$service</span><span class="s2"> certificate expires in </span><span class="nv">$days_left</span><span class="s2"> days!&quot;</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"⚠️  WARNING: </span><span class="nv">$service</span><span class="s2"> certificate expires in </span><span class="nv">$days_left</span><span class="s2"> days!"</span>
 <span class="w">  </span><span class="k">else</span>
-<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✓ </span><span class="nv">$service</span><span class="s2"> certificate valid for </span><span class="nv">$days_left</span><span class="s2"> more days&quot;</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"✓ </span><span class="nv">$service</span><span class="s2"> certificate valid for </span><span class="nv">$days_left</span><span class="s2"> more days"</span>
 <span class="w">  </span><span class="k">fi</span>
 <span class="k">done</span>
 </code></pre></div>
@@ -1478,13 +1478,13 @@ docker-compose<span class="w"> </span>up<span class="w"> </span>-d
 <h3 id="health-check-endpoints">Health Check Endpoints<a class="headerlink" href="#health-check-endpoints" title="Permanent link">&para;</a></h3>
 <p>Monitor TLS connectivity:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># PostgreSQL</span>
-docker-compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SHOW ssl;&quot;</span>
+docker-compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">"SHOW ssl;"</span>
 
 <span class="c1"># Redis</span>
 docker-compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>redis<span class="w"> </span>redis-cli<span class="w"> </span>INFO<span class="w"> </span>server<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>ssl
 
 <span class="c1"># NATS</span>
-curl<span class="w"> </span>http://localhost:8222/varz<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.tls&#39;</span>
+curl<span class="w"> </span>http://localhost:8222/varz<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">'.tls'</span>
 
 <span class="c1"># Kong</span>
 curl<span class="w"> </span>-k<span class="w"> </span>https://localhost:8443/
@@ -1525,7 +1525,7 @@ docker-compose<span class="w"> </span>logs<span class="w"> </span>postgres<span 
 docker-compose<span class="w"> </span>logs<span class="w"> </span>redis<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span>tls
 
 <span class="c1"># Verify TLS is enabled</span>
-docker-compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SHOW ssl;&quot;</span>
+docker-compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">"SHOW ssl;"</span>
 
 <span class="c1"># Test connection</span>
 openssl<span class="w"> </span>s_client<span class="w"> </span>-connect<span class="w"> </span>localhost:5432<span class="w"> </span>-starttls<span class="w"> </span>postgres
@@ -1668,10 +1668,10 @@ chmod<span class="w"> </span><span class="m">644</span><span class="w"> </span>*
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

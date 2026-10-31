@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1165,8 +1165,8 @@
 <div class="codehilite"><pre><span></span><code><span class="nt">X-API-Deprecated</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="nt">X-API-Deprecation-Date</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2025-06-30</span>
 <span class="nt">X-API-Sunset-Date</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2026-06-30</span>
-<span class="nt">Link</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;/api/v2/resource&gt;; rel=&quot;successor-version&quot;</span>
-<span class="nt">Warning</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">299 - &quot;API version 1 is deprecated...&quot;</span>
+<span class="nt">Link</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;/api/v2/resource&gt;; rel="successor-version"</span>
+<span class="nt">Warning</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">299 - "API version 1 is deprecated..."</span>
 </code></pre></div>
 
 <h3 id="3-versioned-controller-base-classes">3. Versioned Controller Base Classes ✅<a class="headerlink" href="#3-versioned-controller-base-classes" title="Permanent link">&para;</a></h3>
@@ -1211,7 +1211,7 @@
 <p><strong>NestJS Configuration:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="nx">app</span><span class="p">.</span><span class="nx">enableVersioning</span><span class="p">({</span>
 <span class="w">  </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="nx">VersioningType</span><span class="p">.</span><span class="nx">URI</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">defaultVersion</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;2&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">defaultVersion</span><span class="o">:</span><span class="w"> </span><span class="s2">"2"</span><span class="p">,</span>
 <span class="p">});</span>
 </code></pre></div>
 
@@ -1286,74 +1286,74 @@
 <h3 id="v1-response-format-deprecated">V1 Response Format (Deprecated)<a class="headerlink" href="#v1-response-format-deprecated" title="Permanent link">&para;</a></h3>
 <p><strong>Success:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
-<span class="w">  </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Operation completed&quot;</span>
+<span class="w">  </span><span class="nt">"success"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
+<span class="w">  </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Operation completed"</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <p><strong>Error:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Error occurred&quot;</span>
+<span class="w">  </span><span class="nt">"success"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Error occurred"</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <p><strong>Pagination:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">],</span>
-<span class="w">  </span><span class="nt">&quot;count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span>
+<span class="w">  </span><span class="nt">"success"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">"count"</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <h3 id="v2-response-format-current">V2 Response Format (Current)<a class="headerlink" href="#v2-response-format-current" title="Permanent link">&para;</a></h3>
 <p><strong>Success:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
-<span class="w">  </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Operation completed&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-01-06T10:30:00Z&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;meta&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;requestId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;req_123456&quot;</span>
+<span class="w">  </span><span class="nt">"success"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
+<span class="w">  </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Operation completed"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-01-06T10:30:00Z"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"meta"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"requestId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"req_123456"</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <p><strong>Error:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;code&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ERROR_CODE&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Error occurred&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;details&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Detailed description&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;field&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fieldName&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-01-06T10:30:00Z&quot;</span>
+<span class="w">  </span><span class="nt">"success"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ERROR_CODE"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Error occurred"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"details"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Detailed description"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"field"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fieldName"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-01-06T10:30:00Z"</span>
 <span class="w">  </span><span class="p">},</span>
-<span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;meta&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;requestId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;req_123456&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;documentation&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://docs.sahool.app/errors/ERROR_CODE&quot;</span>
+<span class="w">  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"meta"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"requestId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"req_123456"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"documentation"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://docs.sahool.app/errors/ERROR_CODE"</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <p><strong>Pagination:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">],</span>
-<span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-01-06T10:30:00Z&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;meta&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;requestId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;req_123456&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;pagination&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;page&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;totalPages&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;hasNext&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;hasPrev&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">  </span><span class="nt">"success"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-01-06T10:30:00Z"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"meta"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"requestId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"req_123456"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"pagination"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"page"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"limit"</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"total"</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"totalPages"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"hasNext"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"hasPrev"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
@@ -1396,11 +1396,11 @@
 </ul>
 <h2 id="usage-examples">Usage Examples<a class="headerlink" href="#usage-examples" title="Permanent link">&para;</a></h2>
 <h3 id="creating-a-v2-controller">Creating a v2 Controller<a class="headerlink" href="#creating-a-v2-controller" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Controller</span><span class="p">,</span><span class="w"> </span><span class="nx">Get</span><span class="p">,</span><span class="w"> </span><span class="nx">Query</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/common&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">BaseControllerV2</span><span class="p">,</span><span class="w"> </span><span class="nx">ApiV2</span><span class="p">,</span><span class="w"> </span><span class="nx">RequestId</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/versioning&quot;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Controller</span><span class="p">,</span><span class="w"> </span><span class="nx">Get</span><span class="p">,</span><span class="w"> </span><span class="nx">Query</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@nestjs/common"</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">BaseControllerV2</span><span class="p">,</span><span class="w"> </span><span class="nx">ApiV2</span><span class="p">,</span><span class="w"> </span><span class="nx">RequestId</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@sahool/versioning"</span><span class="p">;</span>
 
-<span class="kd">@ApiV2</span><span class="p">(</span><span class="s2">&quot;Users&quot;</span><span class="p">)</span>
-<span class="kd">@Controller</span><span class="p">({</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;users&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;2&quot;</span><span class="w"> </span><span class="p">})</span>
+<span class="kd">@ApiV2</span><span class="p">(</span><span class="s2">"Users"</span><span class="p">)</span>
+<span class="kd">@Controller</span><span class="p">({</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s2">"users"</span><span class="p">,</span><span class="w"> </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s2">"2"</span><span class="w"> </span><span class="p">})</span>
 <span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">UsersV2Controller</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">BaseControllerV2</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kr">constructor</span><span class="p">(</span><span class="k">private</span><span class="w"> </span><span class="nx">usersService</span><span class="o">:</span><span class="w"> </span><span class="kt">UsersService</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">super</span><span class="p">();</span>
@@ -1409,8 +1409,8 @@
 <span class="w">  </span><span class="kd">@Get</span><span class="p">()</span>
 <span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">findAll</span><span class="p">(</span>
 <span class="w">    </span><span class="kd">@RequestId</span><span class="p">()</span><span class="w"> </span><span class="nx">requestId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span>
-<span class="w">    </span><span class="kd">@Query</span><span class="p">(</span><span class="s2">&quot;page&quot;</span><span class="p">)</span><span class="w"> </span><span class="nx">page?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span>
-<span class="w">    </span><span class="kd">@Query</span><span class="p">(</span><span class="s2">&quot;limit&quot;</span><span class="p">)</span><span class="w"> </span><span class="nx">limit?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">@Query</span><span class="p">(</span><span class="s2">"page"</span><span class="p">)</span><span class="w"> </span><span class="nx">page?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">@Query</span><span class="p">(</span><span class="s2">"limit"</span><span class="p">)</span><span class="w"> </span><span class="nx">limit?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span>
 <span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">page</span><span class="o">:</span><span class="w"> </span><span class="kt">p</span><span class="p">,</span><span class="w"> </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">l</span><span class="p">,</span><span class="w"> </span><span class="nx">skip</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">parsePaginationParams</span><span class="p">(</span><span class="nx">page</span><span class="p">,</span><span class="w"> </span><span class="nx">limit</span><span class="p">);</span>
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">users</span><span class="p">,</span><span class="w"> </span><span class="nx">total</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">usersService</span><span class="p">.</span><span class="nx">findAllWithCount</span><span class="p">(</span><span class="nx">skip</span><span class="p">,</span><span class="w"> </span><span class="nx">l</span><span class="p">);</span>
@@ -1420,14 +1420,14 @@
 </code></pre></div>
 
 <h3 id="enabling-versioning-in-maints">Enabling Versioning in main.ts<a class="headerlink" href="#enabling-versioning-in-maints" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">VersioningType</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/common&quot;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">VersioningType</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@nestjs/common"</span><span class="p">;</span>
 
 <span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">bootstrap</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">app</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">NestFactory</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">AppModule</span><span class="p">);</span>
 
 <span class="w">  </span><span class="nx">app</span><span class="p">.</span><span class="nx">enableVersioning</span><span class="p">({</span>
 <span class="w">    </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="nx">VersioningType</span><span class="p">.</span><span class="nx">URI</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">defaultVersion</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;2&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">defaultVersion</span><span class="o">:</span><span class="w"> </span><span class="s2">"2"</span><span class="p">,</span>
 <span class="w">  </span><span class="p">});</span>
 
 <span class="w">  </span><span class="c1">// Add deprecation interceptor</span>
@@ -1440,7 +1440,7 @@
 <h3 id="client-usage">Client Usage<a class="headerlink" href="#client-usage" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1">// v2 API request</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span>
-<span class="w">  </span><span class="s2">&quot;https://api.sahool.app/api/v2/users?page=1&amp;limit=20&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="s2">"https://api.sahool.app/api/v2/users?page=1&amp;limit=20"</span><span class="p">,</span>
 <span class="p">);</span>
 <span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">success</span><span class="p">,</span><span class="w"> </span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="nx">version</span><span class="p">,</span><span class="w"> </span><span class="nx">meta</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">response</span><span class="p">.</span><span class="nx">json</span><span class="p">();</span>
 
@@ -1460,14 +1460,14 @@
 <span class="c1"># X-API-Deprecated: true</span>
 <span class="c1"># X-API-Deprecation-Date: 2025-06-30</span>
 <span class="c1"># X-API-Sunset-Date: 2026-06-30</span>
-<span class="c1"># Link: &lt;/api/v2/users&gt;; rel=&quot;successor-version&quot;</span>
+<span class="c1"># Link: &lt;/api/v2/users&gt;; rel="successor-version"</span>
 </code></pre></div>
 
 <h3 id="test-v2-response-format">Test v2 Response Format<a class="headerlink" href="#test-v2-response-format" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>https://api.sahool.app/api/v2/users?page<span class="o">=</span><span class="m">1</span><span class="p">&amp;</span><span class="nv">limit</span><span class="o">=</span><span class="m">5</span>
 
 <span class="c1"># Expected response includes:</span>
-<span class="c1"># - version: &quot;2&quot;</span>
+<span class="c1"># - version: "2"</span>
 <span class="c1"># - timestamp: ISO 8601 format</span>
 <span class="c1"># - meta.requestId</span>
 <span class="c1"># - meta.pagination with hasNext/hasPrev</span>
@@ -1478,10 +1478,10 @@
 curl<span class="w"> </span>https://api.sahool.app/api/v2/users
 
 <span class="c1"># Header version (priority 2)</span>
-curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;X-API-Version: 2&quot;</span><span class="w"> </span>https://api.sahool.app/api/users
+curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">"X-API-Version: 2"</span><span class="w"> </span>https://api.sahool.app/api/users
 
 <span class="c1"># Accept header (priority 3)</span>
-curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Accept: application/vnd.sahool.v2+json&quot;</span><span class="w"> </span>https://api.sahool.app/api/users
+curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">"Accept: application/vnd.sahool.v2+json"</span><span class="w"> </span>https://api.sahool.app/api/users
 </code></pre></div>
 
 <h2 id="deployment-checklist">Deployment Checklist<a class="headerlink" href="#deployment-checklist" title="Permanent link">&para;</a></h2>
@@ -1654,10 +1654,10 @@ curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Acc
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

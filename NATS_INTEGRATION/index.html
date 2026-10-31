@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1176,10 +1176,10 @@
 
 <span class="c1"># Configuration</span>
 <span class="n">config</span> <span class="o">=</span> <span class="n">PublisherConfig</span><span class="p">(</span>
-    <span class="n">servers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;nats://localhost:4222&quot;</span><span class="p">],</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;my-service&quot;</span><span class="p">,</span>
+    <span class="n">servers</span><span class="o">=</span><span class="p">[</span><span class="s2">"nats://localhost:4222"</span><span class="p">],</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"my-service"</span><span class="p">,</span>
     <span class="n">enable_jetstream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">jetstream_domain</span><span class="o">=</span><span class="s2">&quot;sahool&quot;</span><span class="p">,</span>  <span class="c1"># Default domain</span>
+    <span class="n">jetstream_domain</span><span class="o">=</span><span class="s2">"sahool"</span><span class="p">,</span>  <span class="c1"># Default domain</span>
     <span class="n">enable_retry</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">max_retry_attempts</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
 <span class="p">)</span>
@@ -1187,23 +1187,23 @@
 <span class="c1"># Initialize publisher</span>
 <span class="n">publisher</span> <span class="o">=</span> <span class="n">EventPublisher</span><span class="p">(</span>
     <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-    <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;my-service&quot;</span><span class="p">,</span>
-    <span class="n">service_version</span><span class="o">=</span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
+    <span class="n">service_name</span><span class="o">=</span><span class="s2">"my-service"</span><span class="p">,</span>
+    <span class="n">service_version</span><span class="o">=</span><span class="s2">"1.0.0"</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="c1"># Connect and publish</span>
 <span class="k">async</span> <span class="k">with</span> <span class="n">publisher</span><span class="p">:</span>
     <span class="c1"># Publish typed event</span>
-    <span class="n">event</span> <span class="o">=</span> <span class="n">MyEvent</span><span class="p">(</span><span class="n">field_id</span><span class="o">=</span><span class="s2">&quot;123&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;created&quot;</span><span class="p">)</span>
-    <span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish_event</span><span class="p">(</span><span class="s2">&quot;sahool.field.created&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
+    <span class="n">event</span> <span class="o">=</span> <span class="n">MyEvent</span><span class="p">(</span><span class="n">field_id</span><span class="o">=</span><span class="s2">"123"</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">"created"</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish_event</span><span class="p">(</span><span class="s2">"sahool.field.created"</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
 
     <span class="c1"># Publish raw JSON</span>
-    <span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish_json</span><span class="p">(</span><span class="s2">&quot;sahool.alerts.new&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;level&quot;</span><span class="p">:</span> <span class="s2">&quot;warning&quot;</span><span class="p">})</span>
+    <span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish_json</span><span class="p">(</span><span class="s2">"sahool.alerts.new"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"level"</span><span class="p">:</span> <span class="s2">"warning"</span><span class="p">})</span>
 
     <span class="c1"># Batch publish</span>
     <span class="n">events</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="p">(</span><span class="s2">&quot;sahool.task.created&quot;</span><span class="p">,</span> <span class="n">task_event_1</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">&quot;sahool.task.created&quot;</span><span class="p">,</span> <span class="n">task_event_2</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"sahool.task.created"</span><span class="p">,</span> <span class="n">task_event_1</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"sahool.task.created"</span><span class="p">,</span> <span class="n">task_event_2</span><span class="p">),</span>
     <span class="p">]</span>
     <span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish_events</span><span class="p">(</span><span class="n">events</span><span class="p">)</span>
 </code></pre></div>
@@ -1213,10 +1213,10 @@
 
 <span class="c1"># Configuration</span>
 <span class="n">config</span> <span class="o">=</span> <span class="n">SubscriberConfig</span><span class="p">(</span>
-    <span class="n">servers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;nats://localhost:4222&quot;</span><span class="p">],</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;my-service-subscriber&quot;</span><span class="p">,</span>
+    <span class="n">servers</span><span class="o">=</span><span class="p">[</span><span class="s2">"nats://localhost:4222"</span><span class="p">],</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"my-service-subscriber"</span><span class="p">,</span>
     <span class="n">enable_jetstream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">jetstream_domain</span><span class="o">=</span><span class="s2">&quot;sahool&quot;</span><span class="p">,</span>
+    <span class="n">jetstream_domain</span><span class="o">=</span><span class="s2">"sahool"</span><span class="p">,</span>
     <span class="n">enable_dlq</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Dead Letter Queue</span>
     <span class="n">max_dlq_size</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
 <span class="p">)</span>
@@ -1224,56 +1224,56 @@
 <span class="c1"># Initialize subscriber</span>
 <span class="n">subscriber</span> <span class="o">=</span> <span class="n">EventSubscriber</span><span class="p">(</span>
     <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-    <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;my-service&quot;</span><span class="p">,</span>
+    <span class="n">service_name</span><span class="o">=</span><span class="s2">"my-service"</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="c1"># Message handler</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handle_field_event</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Received: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Received: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">await</span> <span class="n">msg</span><span class="o">.</span><span class="n">ack</span><span class="p">()</span>
 
 <span class="c1"># Subscribe with JetStream</span>
 <span class="k">async</span> <span class="k">with</span> <span class="n">subscriber</span><span class="p">:</span>
     <span class="k">await</span> <span class="n">subscriber</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span>
-        <span class="n">subject</span><span class="o">=</span><span class="s2">&quot;sahool.field.&gt;&quot;</span><span class="p">,</span>
+        <span class="n">subject</span><span class="o">=</span><span class="s2">"sahool.field.&gt;"</span><span class="p">,</span>
         <span class="n">handler</span><span class="o">=</span><span class="n">handle_field_event</span><span class="p">,</span>
-        <span class="n">stream_name</span><span class="o">=</span><span class="s2">&quot;SAHOOL_FIELDS&quot;</span><span class="p">,</span>
-        <span class="n">durable_name</span><span class="o">=</span><span class="s2">&quot;my-service-fields&quot;</span><span class="p">,</span>
+        <span class="n">stream_name</span><span class="o">=</span><span class="s2">"SAHOOL_FIELDS"</span><span class="p">,</span>
+        <span class="n">durable_name</span><span class="o">=</span><span class="s2">"my-service-fields"</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># Health check for Kubernetes readiness</span>
     <span class="n">health</span> <span class="o">=</span> <span class="k">await</span> <span class="n">subscriber</span><span class="o">.</span><span class="n">health_check</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Status: </span><span class="si">{</span><span class="n">health</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># healthy, degraded, warning, unhealthy</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Status: </span><span class="si">{</span><span class="n">health</span><span class="p">[</span><span class="s1">'status'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>  <span class="c1"># healthy, degraded, warning, unhealthy</span>
 </code></pre></div>
 
 <h3 id="health-check-response">Health Check Response | استجابة فحص الصحة<a class="headerlink" href="#health-check-response" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="n">health</span> <span class="o">=</span> <span class="k">await</span> <span class="n">subscriber</span><span class="o">.</span><span class="n">health_check</span><span class="p">()</span>
 <span class="c1"># Returns:</span>
 <span class="p">{</span>
-    <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;healthy&quot;</span><span class="p">,</span>  <span class="c1"># healthy, degraded, warning, unhealthy</span>
-    <span class="s2">&quot;nats_connected&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="s2">&quot;jetstream_enabled&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="s2">&quot;dlq_initialized&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="s2">&quot;active_subscriptions&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
-    <span class="s2">&quot;error_count&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-    <span class="s2">&quot;dlq_count&quot;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
-    <span class="s2">&quot;details&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;nats&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;connected&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-            <span class="s2">&quot;server_id&quot;</span><span class="p">:</span> <span class="s2">&quot;NATS-123&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;max_payload&quot;</span><span class="p">:</span> <span class="mi">8388608</span>
+    <span class="s2">"status"</span><span class="p">:</span> <span class="s2">"healthy"</span><span class="p">,</span>  <span class="c1"># healthy, degraded, warning, unhealthy</span>
+    <span class="s2">"nats_connected"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="s2">"jetstream_enabled"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="s2">"dlq_initialized"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="s2">"active_subscriptions"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="s2">"error_count"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s2">"dlq_count"</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+    <span class="s2">"details"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"nats"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"connected"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">"server_id"</span><span class="p">:</span> <span class="s2">"NATS-123"</span><span class="p">,</span>
+            <span class="s2">"max_payload"</span><span class="p">:</span> <span class="mi">8388608</span>
         <span class="p">},</span>
-        <span class="s2">&quot;jetstream&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;memory_used&quot;</span><span class="p">:</span> <span class="mi">1024000</span><span class="p">,</span>
-            <span class="s2">&quot;storage_used&quot;</span><span class="p">:</span> <span class="mi">5120000</span><span class="p">,</span>
-            <span class="s2">&quot;streams&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
-            <span class="s2">&quot;consumers&quot;</span><span class="p">:</span> <span class="mi">12</span>
+        <span class="s2">"jetstream"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"memory_used"</span><span class="p">:</span> <span class="mi">1024000</span><span class="p">,</span>
+            <span class="s2">"storage_used"</span><span class="p">:</span> <span class="mi">5120000</span><span class="p">,</span>
+            <span class="s2">"streams"</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+            <span class="s2">"consumers"</span><span class="p">:</span> <span class="mi">12</span>
         <span class="p">},</span>
-        <span class="s2">&quot;dlq&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;stream&quot;</span><span class="p">:</span> <span class="s2">&quot;SAHOOL_DLQ&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
-            <span class="s2">&quot;bytes&quot;</span><span class="p">:</span> <span class="mi">4096</span>
+        <span class="s2">"dlq"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"stream"</span><span class="p">:</span> <span class="s2">"SAHOOL_DLQ"</span><span class="p">,</span>
+            <span class="s2">"messages"</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+            <span class="s2">"bytes"</span><span class="p">:</span> <span class="mi">4096</span>
         <span class="p">}</span>
     <span class="p">}</span>
 <span class="p">}</span>
@@ -1332,7 +1332,7 @@ sahool.tenant.{tenant_id}.{domain}.{action}
 <h3 id="domain">Domain | النطاق<a class="headerlink" href="#domain" title="Permanent link">&para;</a></h3>
 <p>All services use the <code>sahool</code> JetStream domain by default:</p>
 <div class="codehilite"><pre><span></span><code><span class="n">config</span> <span class="o">=</span> <span class="n">PublisherConfig</span><span class="p">(</span>
-    <span class="n">jetstream_domain</span><span class="o">=</span><span class="s2">&quot;sahool&quot;</span><span class="p">,</span>  <span class="c1"># or set JETSTREAM_DOMAIN env var</span>
+    <span class="n">jetstream_domain</span><span class="o">=</span><span class="s2">"sahool"</span><span class="p">,</span>  <span class="c1"># or set JETSTREAM_DOMAIN env var</span>
 <span class="p">)</span>
 </code></pre></div>
 
@@ -1376,11 +1376,11 @@ sahool.tenant.{tenant_id}.{domain}.{action}
 <h3 id="consumer-configuration">Consumer Configuration | تكوين المستهلكين<a class="headerlink" href="#consumer-configuration" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Durable consumer for reliable delivery</span>
 <span class="k">await</span> <span class="n">subscriber</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span>
-    <span class="n">subject</span><span class="o">=</span><span class="s2">&quot;sahool.field.&gt;&quot;</span><span class="p">,</span>
-    <span class="n">stream_name</span><span class="o">=</span><span class="s2">&quot;SAHOOL_EVENTS&quot;</span><span class="p">,</span>
-    <span class="n">durable_name</span><span class="o">=</span><span class="s2">&quot;field-service-consumer&quot;</span><span class="p">,</span>
-    <span class="n">deliver_policy</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span>  <span class="c1"># or &quot;new&quot;, &quot;last&quot;</span>
-    <span class="n">ack_policy</span><span class="o">=</span><span class="s2">&quot;explicit&quot;</span><span class="p">,</span>
+    <span class="n">subject</span><span class="o">=</span><span class="s2">"sahool.field.&gt;"</span><span class="p">,</span>
+    <span class="n">stream_name</span><span class="o">=</span><span class="s2">"SAHOOL_EVENTS"</span><span class="p">,</span>
+    <span class="n">durable_name</span><span class="o">=</span><span class="s2">"field-service-consumer"</span><span class="p">,</span>
+    <span class="n">deliver_policy</span><span class="o">=</span><span class="s2">"all"</span><span class="p">,</span>  <span class="c1"># or "new", "last"</span>
+    <span class="n">ack_policy</span><span class="o">=</span><span class="s2">"explicit"</span><span class="p">,</span>
     <span class="n">max_deliver</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>  <span class="c1"># Max redelivery attempts</span>
 <span class="p">)</span>
 </code></pre></div>
@@ -1392,9 +1392,9 @@ sahool.tenant.{tenant_id}.{domain}.{action}
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.events.publisher</span><span class="w"> </span><span class="kn">import</span> <span class="n">EventPublisher</span><span class="p">,</span> <span class="n">PublisherConfig</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">NatsPublisher</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Adapter wrapping shared EventPublisher for backward compatibility.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Adapter wrapping shared EventPublisher for backward compatibility."""</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;my-service&quot;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"my-service"</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_publisher</span><span class="p">:</span> <span class="n">EventPublisher</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_service_name</span> <span class="o">=</span> <span class="n">service_name</span>
 
@@ -1405,15 +1405,15 @@ sahool.tenant.{tenant_id}.{domain}.{action}
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">publish_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="c1"># Ensure sahool. prefix</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">subject</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;sahool.&quot;</span><span class="p">):</span>
-            <span class="n">subject</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;sahool.</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">subject</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"sahool."</span><span class="p">):</span>
+            <span class="n">subject</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"sahool.</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">"</span>
 
         <span class="n">event</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;eventId&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">()),</span>
-            <span class="s2">&quot;eventType&quot;</span><span class="p">:</span> <span class="n">event_type</span><span class="p">,</span>
-            <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
-            <span class="s2">&quot;sourceService&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service_name</span><span class="p">,</span>
-            <span class="s2">&quot;payload&quot;</span><span class="p">:</span> <span class="n">payload</span><span class="p">,</span>
+            <span class="s2">"eventId"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">()),</span>
+            <span class="s2">"eventType"</span><span class="p">:</span> <span class="n">event_type</span><span class="p">,</span>
+            <span class="s2">"timestamp"</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+            <span class="s2">"sourceService"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service_name</span><span class="p">,</span>
+            <span class="s2">"payload"</span><span class="p">:</span> <span class="n">payload</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_publisher</span><span class="o">.</span><span class="n">publish_json</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
 </code></pre></div>
@@ -1423,12 +1423,12 @@ sahool.tenant.{tenant_id}.{domain}.{action}
 
 <span class="c1"># In service startup</span>
 <span class="n">publisher</span> <span class="o">=</span> <span class="k">await</span> <span class="n">get_publisher</span><span class="p">(</span>
-    <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;advisory-service&quot;</span><span class="p">,</span>
-    <span class="n">service_version</span><span class="o">=</span><span class="s2">&quot;16.0.0&quot;</span><span class="p">,</span>
+    <span class="n">service_name</span><span class="o">=</span><span class="s2">"advisory-service"</span><span class="p">,</span>
+    <span class="n">service_version</span><span class="o">=</span><span class="s2">"16.0.0"</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="c1"># In endpoint</span>
-<span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish_event</span><span class="p">(</span><span class="s2">&quot;sahool.advisory.generated&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
+<span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish_event</span><span class="p">(</span><span class="s2">"sahool.advisory.generated"</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
 
 <span class="c1"># In service shutdown</span>
 <span class="k">await</span> <span class="n">close_publisher</span><span class="p">()</span>
@@ -1447,7 +1447,7 @@ sahool.tenant.{tenant_id}.{domain}.{action}
     <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">publisher</span> <span class="o">=</span> <span class="n">EventPublisher</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">publisher_config</span><span class="p">)</span>
     <span class="k">await</span> <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">publisher</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
 
-    <span class="n">subscriber_config</span> <span class="o">=</span> <span class="n">SubscriberConfig</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">app</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">-subscriber&quot;</span><span class="p">)</span>
+    <span class="n">subscriber_config</span> <span class="o">=</span> <span class="n">SubscriberConfig</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">app</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">-subscriber"</span><span class="p">)</span>
     <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">subscriber</span> <span class="o">=</span> <span class="n">EventSubscriber</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">subscriber_config</span><span class="p">)</span>
     <span class="k">await</span> <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">subscriber</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
 
@@ -1457,7 +1457,7 @@ sahool.tenant.{tenant_id}.{domain}.{action}
     <span class="k">await</span> <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">publisher</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
     <span class="k">await</span> <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">subscriber</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
-<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;my-service&quot;</span><span class="p">,</span> <span class="n">lifespan</span><span class="o">=</span><span class="n">lifespan</span><span class="p">)</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"my-service"</span><span class="p">,</span> <span class="n">lifespan</span><span class="o">=</span><span class="n">lifespan</span><span class="p">)</span>
 </code></pre></div>
 
 <hr />
@@ -1472,19 +1472,19 @@ sahool.tenant.{tenant_id}.{domain}.{action}
 
 <h3 id="dlq-message-format-dlq">DLQ Message Format | تنسيق رسالة DLQ<a class="headerlink" href="#dlq-message-format-dlq" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;original_subject&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sahool.field.created&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;original_data&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Processing failed: database timeout&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;failed_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-01-26T10:30:00Z&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;retry_count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;service&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field-service&quot;</span>
+<span class="w">    </span><span class="nt">"original_subject"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sahool.field.created"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"original_data"</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Processing failed: database timeout"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"failed_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-01-26T10:30:00Z"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"retry_count"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"service"</span><span class="p">:</span><span class="w"> </span><span class="s2">"field-service"</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <h3 id="reprocessing-dlq-messages-dlq">Reprocessing DLQ Messages | إعادة معالجة رسائل DLQ<a class="headerlink" href="#reprocessing-dlq-messages-dlq" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Get DLQ statistics</span>
 <span class="n">stats</span> <span class="o">=</span> <span class="n">subscriber</span><span class="o">.</span><span class="n">get_dlq_stats</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;DLQ messages: </span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"DLQ messages: </span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s1">'count'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># Reprocess failed messages</span>
 <span class="n">reprocessed</span> <span class="o">=</span> <span class="k">await</span> <span class="n">subscriber</span><span class="o">.</span><span class="n">reprocess_dlq</span><span class="p">(</span>
@@ -1500,12 +1500,12 @@ sahool.tenant.{tenant_id}.{domain}.{action}
 <div class="codehilite"><pre><span></span><code>authorization {
     default_permissions = {
         publish = {
-            allow = [&quot;sahool.&gt;&quot;, &quot;_INBOX.&gt;&quot;]
-            deny = [&quot;$SYS.&gt;&quot;, &quot;$JS.API.STREAM.DELETE.&gt;&quot;, &quot;$JS.API.CONSUMER.DELETE.&gt;&quot;]
+            allow = ["sahool.&gt;", "_INBOX.&gt;"]
+            deny = ["$SYS.&gt;", "$JS.API.STREAM.DELETE.&gt;", "$JS.API.CONSUMER.DELETE.&gt;"]
         }
         subscribe = {
-            allow = [&quot;sahool.&gt;&quot;, &quot;_INBOX.&gt;&quot;]
-            deny = [&quot;$SYS.&gt;&quot;]
+            allow = ["sahool.&gt;", "_INBOX.&gt;"]
+            deny = ["$SYS.&gt;"]
         }
     }
 }
@@ -1554,17 +1554,17 @@ sahool.tenant.{tenant_id}.{domain}.{action}
 <hr />
 <h2 id="monitoring-observability">Monitoring &amp; Observability | المراقبة والرصد<a class="headerlink" href="#monitoring-observability" title="Permanent link">&para;</a></h2>
 <h3 id="health-endpoint-integration">Health Endpoint Integration | تكامل نقطة الصحة<a class="headerlink" href="#health-endpoint-integration" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/readyz&quot;</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/readyz"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">readiness</span><span class="p">():</span>
     <span class="n">health</span> <span class="o">=</span> <span class="k">await</span> <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">subscriber</span><span class="o">.</span><span class="n">health_check</span><span class="p">()</span>
 
-    <span class="k">if</span> <span class="n">health</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;unhealthy&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">health</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"unhealthy"</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">503</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="n">health</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;ok&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;nats&quot;</span><span class="p">:</span> <span class="n">health</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">],</span>
-        <span class="s2">&quot;details&quot;</span><span class="p">:</span> <span class="n">health</span><span class="p">[</span><span class="s2">&quot;details&quot;</span><span class="p">],</span>
+        <span class="s2">"status"</span><span class="p">:</span> <span class="s2">"ok"</span><span class="p">,</span>
+        <span class="s2">"nats"</span><span class="p">:</span> <span class="n">health</span><span class="p">[</span><span class="s2">"status"</span><span class="p">],</span>
+        <span class="s2">"details"</span><span class="p">:</span> <span class="n">health</span><span class="p">[</span><span class="s2">"details"</span><span class="p">],</span>
     <span class="p">}</span>
 </code></pre></div>
 
@@ -1573,28 +1573,28 @@ sahool.tenant.{tenant_id}.{domain}.{action}
 
 <span class="c1"># Publisher metrics</span>
 <span class="n">nats_publish_total</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span>
-    <span class="s2">&quot;nats_publish_total&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Total NATS messages published&quot;</span><span class="p">,</span>
-    <span class="p">[</span><span class="s2">&quot;service&quot;</span><span class="p">,</span> <span class="s2">&quot;subject&quot;</span><span class="p">],</span>
+    <span class="s2">"nats_publish_total"</span><span class="p">,</span>
+    <span class="s2">"Total NATS messages published"</span><span class="p">,</span>
+    <span class="p">[</span><span class="s2">"service"</span><span class="p">,</span> <span class="s2">"subject"</span><span class="p">],</span>
 <span class="p">)</span>
 
 <span class="n">nats_publish_errors</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span>
-    <span class="s2">&quot;nats_publish_errors_total&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Total NATS publish errors&quot;</span><span class="p">,</span>
-    <span class="p">[</span><span class="s2">&quot;service&quot;</span><span class="p">,</span> <span class="s2">&quot;subject&quot;</span><span class="p">,</span> <span class="s2">&quot;error_type&quot;</span><span class="p">],</span>
+    <span class="s2">"nats_publish_errors_total"</span><span class="p">,</span>
+    <span class="s2">"Total NATS publish errors"</span><span class="p">,</span>
+    <span class="p">[</span><span class="s2">"service"</span><span class="p">,</span> <span class="s2">"subject"</span><span class="p">,</span> <span class="s2">"error_type"</span><span class="p">],</span>
 <span class="p">)</span>
 
 <span class="c1"># Subscriber metrics</span>
 <span class="n">nats_subscribe_total</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span>
-    <span class="s2">&quot;nats_subscribe_total&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Total NATS messages received&quot;</span><span class="p">,</span>
-    <span class="p">[</span><span class="s2">&quot;service&quot;</span><span class="p">,</span> <span class="s2">&quot;subject&quot;</span><span class="p">],</span>
+    <span class="s2">"nats_subscribe_total"</span><span class="p">,</span>
+    <span class="s2">"Total NATS messages received"</span><span class="p">,</span>
+    <span class="p">[</span><span class="s2">"service"</span><span class="p">,</span> <span class="s2">"subject"</span><span class="p">],</span>
 <span class="p">)</span>
 
 <span class="n">nats_dlq_size</span> <span class="o">=</span> <span class="n">Gauge</span><span class="p">(</span>
-    <span class="s2">&quot;nats_dlq_size&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Current DLQ message count&quot;</span><span class="p">,</span>
-    <span class="p">[</span><span class="s2">&quot;service&quot;</span><span class="p">],</span>
+    <span class="s2">"nats_dlq_size"</span><span class="p">,</span>
+    <span class="s2">"Current DLQ message count"</span><span class="p">,</span>
+    <span class="p">[</span><span class="s2">"service"</span><span class="p">],</span>
 <span class="p">)</span>
 </code></pre></div>
 
@@ -1605,16 +1605,16 @@ sahool.tenant.{tenant_id}.{domain}.{action}
 
 <span class="c1"># Publish logging</span>
 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-    <span class="s2">&quot;event_published&quot;</span><span class="p">,</span>
-    <span class="n">subject</span><span class="o">=</span><span class="s2">&quot;sahool.field.created&quot;</span><span class="p">,</span>
+    <span class="s2">"event_published"</span><span class="p">,</span>
+    <span class="n">subject</span><span class="o">=</span><span class="s2">"sahool.field.created"</span><span class="p">,</span>
     <span class="n">event_id</span><span class="o">=</span><span class="n">event</span><span class="o">.</span><span class="n">event_id</span><span class="p">,</span>
-    <span class="n">service</span><span class="o">=</span><span class="s2">&quot;field-service&quot;</span><span class="p">,</span>
+    <span class="n">service</span><span class="o">=</span><span class="s2">"field-service"</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="c1"># Error logging</span>
 <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-    <span class="s2">&quot;publish_failed&quot;</span><span class="p">,</span>
-    <span class="n">subject</span><span class="o">=</span><span class="s2">&quot;sahool.field.created&quot;</span><span class="p">,</span>
+    <span class="s2">"publish_failed"</span><span class="p">,</span>
+    <span class="n">subject</span><span class="o">=</span><span class="s2">"sahool.field.created"</span><span class="p">,</span>
     <span class="n">error</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span>
     <span class="n">retry_count</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
 <span class="p">)</span>
@@ -1632,7 +1632,7 @@ sahool.tenant.{tenant_id}.{domain}.{action}
     <span class="n">publisher</span><span class="o">.</span><span class="n">_nc</span> <span class="o">=</span> <span class="n">AsyncMock</span><span class="p">()</span>
     <span class="n">publisher</span><span class="o">.</span><span class="n">_connected</span> <span class="o">=</span> <span class="kc">True</span>
 
-    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish_json</span><span class="p">(</span><span class="s2">&quot;sahool.test&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="s2">&quot;test&quot;</span><span class="p">})</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish_json</span><span class="p">(</span><span class="s2">"sahool.test"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"data"</span><span class="p">:</span> <span class="s2">"test"</span><span class="p">})</span>
 
     <span class="k">assert</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">True</span>
     <span class="n">publisher</span><span class="o">.</span><span class="n">_nc</span><span class="o">.</span><span class="n">publish</span><span class="o">.</span><span class="n">assert_called_once</span><span class="p">()</span>
@@ -1650,15 +1650,15 @@ sahool.tenant.{tenant_id}.{domain}.{action}
 
     <span class="n">subscriber</span> <span class="o">=</span> <span class="n">EventSubscriber</span><span class="p">()</span>
     <span class="k">await</span> <span class="n">subscriber</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
-    <span class="k">await</span> <span class="n">subscriber</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&quot;sahool.test.&gt;&quot;</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">subscriber</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">"sahool.test.&gt;"</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span>
 
     <span class="n">publisher</span> <span class="o">=</span> <span class="n">EventPublisher</span><span class="p">()</span>
     <span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
-    <span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish_json</span><span class="p">(</span><span class="s2">&quot;sahool.test.event&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="mi">42</span><span class="p">})</span>
+    <span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish_json</span><span class="p">(</span><span class="s2">"sahool.test.event"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"value"</span><span class="p">:</span> <span class="mi">42</span><span class="p">})</span>
 
     <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">received</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
-    <span class="k">assert</span> <span class="n">received</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">42</span>
+    <span class="k">assert</span> <span class="n">received</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"value"</span><span class="p">]</span> <span class="o">==</span> <span class="mi">42</span>
 </code></pre></div>
 
 <hr />
@@ -1717,10 +1717,10 @@ nats<span class="w"> </span>consumer<span class="w"> </span>info<span class="w">
 nats<span class="w"> </span>stream<span class="w"> </span>view<span class="w"> </span>SAHOOL_DLQ
 
 <span class="c1"># Publish test message</span>
-nats<span class="w"> </span>pub<span class="w"> </span>sahool.test.ping<span class="w"> </span><span class="s1">&#39;{&quot;test&quot;: true}&#39;</span>
+nats<span class="w"> </span>pub<span class="w"> </span>sahool.test.ping<span class="w"> </span><span class="s1">'{"test": true}'</span>
 
 <span class="c1"># Subscribe to all events</span>
-nats<span class="w"> </span>sub<span class="w"> </span><span class="s2">&quot;sahool.&gt;&quot;</span>
+nats<span class="w"> </span>sub<span class="w"> </span><span class="s2">"sahool.&gt;"</span>
 </code></pre></div>
 
 <hr />
@@ -1740,12 +1740,12 @@ nats<span class="w"> </span>sub<span class="w"> </span><span class="s2">&quot;sa
 <li><strong>Update initialization</strong>:</li>
 </ol>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Before</span>
-<span class="n">publisher</span> <span class="o">=</span> <span class="n">NatsPublisher</span><span class="p">(</span><span class="n">nats_url</span><span class="o">=</span><span class="s2">&quot;nats://localhost:4222&quot;</span><span class="p">)</span>
+<span class="n">publisher</span> <span class="o">=</span> <span class="n">NatsPublisher</span><span class="p">(</span><span class="n">nats_url</span><span class="o">=</span><span class="s2">"nats://localhost:4222"</span><span class="p">)</span>
 <span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
 
 <span class="c1"># After</span>
-<span class="n">config</span> <span class="o">=</span> <span class="n">PublisherConfig</span><span class="p">(</span><span class="n">servers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;nats://localhost:4222&quot;</span><span class="p">])</span>
-<span class="n">publisher</span> <span class="o">=</span> <span class="n">EventPublisher</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;my-service&quot;</span><span class="p">)</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">PublisherConfig</span><span class="p">(</span><span class="n">servers</span><span class="o">=</span><span class="p">[</span><span class="s2">"nats://localhost:4222"</span><span class="p">])</span>
+<span class="n">publisher</span> <span class="o">=</span> <span class="n">EventPublisher</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="s2">"my-service"</span><span class="p">)</span>
 <span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
 </code></pre></div>
 
@@ -1753,10 +1753,10 @@ nats<span class="w"> </span>sub<span class="w"> </span><span class="s2">&quot;sa
 <li><strong>Update publish calls</strong>:</li>
 </ol>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Before</span>
-<span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&quot;field.created&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+<span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">"field.created"</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 
 <span class="c1"># After (ensure sahool. prefix)</span>
-<span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish_json</span><span class="p">(</span><span class="s2">&quot;sahool.field.created&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+<span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish_json</span><span class="p">(</span><span class="s2">"sahool.field.created"</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 </code></pre></div>
 
 <hr />
@@ -1833,10 +1833,10 @@ nats<span class="w"> </span>sub<span class="w"> </span><span class="s2">&quot;sa
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1130,26 +1130,26 @@
 <h3 id="token-structure">Token Structure<a class="headerlink" href="#token-structure" title="Permanent link">&para;</a></h3>
 <p>Access tokens contain these claims:</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;sub&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user-uuid&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// User ID</span>
-<span class="w">  </span><span class="nt">&quot;tid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tenant-uuid&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// Tenant ID</span>
-<span class="w">  </span><span class="nt">&quot;roles&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;worker&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;supervisor&quot;</span><span class="p">],</span>
-<span class="w">  </span><span class="nt">&quot;scopes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;fieldops:task.read&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;fieldops:task.complete&quot;</span><span class="p">],</span>
-<span class="w">  </span><span class="nt">&quot;exp&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1699999999</span><span class="p">,</span><span class="w"> </span><span class="c1">// Expiration</span>
-<span class="w">  </span><span class="nt">&quot;iat&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1699990000</span><span class="p">,</span><span class="w"> </span><span class="c1">// Issued at</span>
-<span class="w">  </span><span class="nt">&quot;iss&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sahool-idp&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// Issuer</span>
-<span class="w">  </span><span class="nt">&quot;aud&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sahool-platform&quot;</span><span class="w"> </span><span class="c1">// Audience</span>
+<span class="w">  </span><span class="nt">"sub"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user-uuid"</span><span class="p">,</span><span class="w"> </span><span class="c1">// User ID</span>
+<span class="w">  </span><span class="nt">"tid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tenant-uuid"</span><span class="p">,</span><span class="w"> </span><span class="c1">// Tenant ID</span>
+<span class="w">  </span><span class="nt">"roles"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"worker"</span><span class="p">,</span><span class="w"> </span><span class="s2">"supervisor"</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">"scopes"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"fieldops:task.read"</span><span class="p">,</span><span class="w"> </span><span class="s2">"fieldops:task.complete"</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">"exp"</span><span class="p">:</span><span class="w"> </span><span class="mi">1699999999</span><span class="p">,</span><span class="w"> </span><span class="c1">// Expiration</span>
+<span class="w">  </span><span class="nt">"iat"</span><span class="p">:</span><span class="w"> </span><span class="mi">1699990000</span><span class="p">,</span><span class="w"> </span><span class="c1">// Issued at</span>
+<span class="w">  </span><span class="nt">"iss"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sahool-idp"</span><span class="p">,</span><span class="w"> </span><span class="c1">// Issuer</span>
+<span class="w">  </span><span class="nt">"aud"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sahool-platform"</span><span class="w"> </span><span class="c1">// Audience</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <h3 id="token-usage">Token Usage<a class="headerlink" href="#token-usage" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Include in Authorization header</span>
-curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer &lt;token&gt;&quot;</span><span class="w"> </span>http://localhost:8080/api/tasks
+curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">"Authorization: Bearer &lt;token&gt;"</span><span class="w"> </span>http://localhost:8080/api/tasks
 </code></pre></div>
 
 <h3 id="token-refresh">Token Refresh<a class="headerlink" href="#token-refresh" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8080/auth/refresh<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;refresh_token&quot;: &quot;&lt;refresh_token&gt;&quot;}&#39;</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"refresh_token": "&lt;refresh_token&gt;"}'</span>
 </code></pre></div>
 
 <h3 id="websocket-authentication">WebSocket Authentication<a class="headerlink" href="#websocket-authentication" title="Permanent link">&para;</a></h3>
@@ -1221,16 +1221,16 @@ curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Aut
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.security.deps</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_principal</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">shared.security.guard</span><span class="w"> </span><span class="kn">import</span> <span class="n">require</span><span class="p">,</span> <span class="n">require_role</span>
 
-<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/tasks/</span><span class="si">{task_id}</span><span class="s2">/complete&quot;</span><span class="p">)</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">"/tasks/</span><span class="si">{task_id}</span><span class="s2">/complete"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">complete_task</span><span class="p">(</span>
     <span class="n">task_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">principal</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_principal</span><span class="p">)</span>
 <span class="p">):</span>
     <span class="c1"># Check permission</span>
-    <span class="n">require</span><span class="p">(</span><span class="n">principal</span><span class="p">,</span> <span class="s2">&quot;fieldops:task.complete&quot;</span><span class="p">)</span>
+    <span class="n">require</span><span class="p">(</span><span class="n">principal</span><span class="p">,</span> <span class="s2">"fieldops:task.complete"</span><span class="p">)</span>
 
     <span class="c1"># Or check role</span>
-    <span class="n">require_role</span><span class="p">(</span><span class="n">principal</span><span class="p">,</span> <span class="s2">&quot;worker&quot;</span><span class="p">)</span>
+    <span class="n">require_role</span><span class="p">(</span><span class="n">principal</span><span class="p">,</span> <span class="s2">"worker"</span><span class="p">)</span>
 
     <span class="c1"># ... business logic</span>
 </code></pre></div>
@@ -1246,33 +1246,33 @@ curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Aut
 </ul>
 <h3 id="audit-log-schema">Audit Log Schema<a class="headerlink" href="#audit-log-schema" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;tenant_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tenant-uuid&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;user_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user-uuid&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;action&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;data.task.completed&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;data&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;severity&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;info&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;resource_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;task&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;resource_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;task-uuid&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;ip_address&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;192.168.1.100&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-01-15T10:30:00Z&quot;</span>
+<span class="w">  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uuid"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"tenant_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tenant-uuid"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user-uuid"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"action"</span><span class="p">:</span><span class="w"> </span><span class="s2">"data.task.completed"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"data"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"severity"</span><span class="p">:</span><span class="w"> </span><span class="s2">"info"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"resource_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"task"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"resource_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"task-uuid"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"ip_address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"192.168.1.100"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"success"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-15T10:30:00Z"</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <h3 id="querying-audit-logs">Querying Audit Logs<a class="headerlink" href="#querying-audit-logs" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.security.audit</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_user_audit_trail</span>
 
-<span class="c1"># Get user&#39;s recent activity</span>
+<span class="c1"># Get user's recent activity</span>
 <span class="n">logs</span> <span class="o">=</span> <span class="k">await</span> <span class="n">get_user_audit_trail</span><span class="p">(</span>
-    <span class="n">tenant_id</span><span class="o">=</span><span class="s2">&quot;tenant-uuid&quot;</span><span class="p">,</span>
-    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;user-uuid&quot;</span><span class="p">,</span>
+    <span class="n">tenant_id</span><span class="o">=</span><span class="s2">"tenant-uuid"</span><span class="p">,</span>
+    <span class="n">user_id</span><span class="o">=</span><span class="s2">"user-uuid"</span><span class="p">,</span>
     <span class="n">limit</span><span class="o">=</span><span class="mi">100</span>
 <span class="p">)</span>
 
 <span class="c1"># Get security events</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">shared.security.audit</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_security_events</span>
-<span class="n">events</span> <span class="o">=</span> <span class="k">await</span> <span class="n">get_security_events</span><span class="p">(</span><span class="n">tenant_id</span><span class="o">=</span><span class="s2">&quot;tenant-uuid&quot;</span><span class="p">)</span>
+<span class="n">events</span> <span class="o">=</span> <span class="k">await</span> <span class="n">get_security_events</span><span class="p">(</span><span class="n">tenant_id</span><span class="o">=</span><span class="s2">"tenant-uuid"</span><span class="p">)</span>
 </code></pre></div>
 
 <h2 id="mtls-configuration">mTLS Configuration<a class="headerlink" href="#mtls-configuration" title="Permanent link">&para;</a></h2>
@@ -1338,7 +1338,7 @@ curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Aut
 <div class="codehilite"><pre><span></span><code><span class="nt">X-Content-Type-Options</span><span class="o">:</span><span class="w"> </span><span class="nt">nosniff</span>
 <span class="nt">X-Frame-Options</span><span class="o">:</span><span class="w"> </span><span class="nt">DENY</span>
 <span class="nt">X-XSS-Protection</span><span class="o">:</span><span class="w"> </span><span class="nt">1</span><span class="o">;</span><span class="w"> </span><span class="nt">mode</span><span class="o">=</span><span class="nt">block</span>
-<span class="nt">Content-Security-Policy</span><span class="o">:</span><span class="w"> </span><span class="nt">default-src</span><span class="w"> </span><span class="s1">&#39;self&#39;</span>
+<span class="nt">Content-Security-Policy</span><span class="o">:</span><span class="w"> </span><span class="nt">default-src</span><span class="w"> </span><span class="s1">'self'</span>
 <span class="nt">Strict-Transport-Security</span><span class="o">:</span><span class="w"> </span><span class="nt">max-age</span><span class="o">=</span><span class="nt">31536000</span><span class="o">;</span><span class="w"> </span><span class="nt">includeSubDomains</span>
 </code></pre></div>
 
@@ -1375,9 +1375,9 @@ curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Aut
 <p>All DELETE endpoints <strong>MUST</strong> be protected with authentication. Use <code>get_current_user</code> dependency:</p>
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.auth.dependencies</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_current_user</span>
 
-<span class="nd">@router</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="s2">&quot;/resource/</span><span class="si">{resource_id}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">status_code</span><span class="o">=</span><span class="mi">204</span><span class="p">)</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="s2">"/resource/</span><span class="si">{resource_id}</span><span class="s2">"</span><span class="p">,</span> <span class="n">status_code</span><span class="o">=</span><span class="mi">204</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">delete_resource</span><span class="p">(</span><span class="n">resource_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">_user</span><span class="o">=</span><span class="n">Depends</span><span class="p">(</span><span class="n">get_current_user</span><span class="p">)):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Protected DELETE endpoint&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Protected DELETE endpoint"""</span>
     <span class="c1"># ... deletion logic</span>
 </code></pre></div>
 
@@ -1393,8 +1393,8 @@ curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Aut
         <span class="n">credentials</span><span class="p">:</span> <span class="n">HTTPAuthorizationCredentials</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">_bearer_scheme</span><span class="p">),</span>
     <span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">credentials</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">401</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;Authentication required&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;token&quot;</span><span class="p">:</span> <span class="n">credentials</span><span class="o">.</span><span class="n">credentials</span><span class="p">}</span>
+            <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">401</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">"Authentication required"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"token"</span><span class="p">:</span> <span class="n">credentials</span><span class="o">.</span><span class="n">credentials</span><span class="p">}</span>
 </code></pre></div>
 
 <h3 id="services-with-enforced-delete-auth-march-2026">Services with Enforced DELETE Auth (March 2026)<a class="headerlink" href="#services-with-enforced-delete-auth-march-2026" title="Permanent link">&para;</a></h3>
@@ -1551,10 +1551,10 @@ curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Aut
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1628,19 +1628,19 @@
 </table>
 <h3 id="websocket-integration">WebSocket Integration:<a class="headerlink" href="#websocket-integration" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1">// lib/websocket/client.ts</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">io</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;socket.io-client&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">io</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"socket.io-client"</span><span class="p">;</span>
 
 <span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">wsClient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">io</span><span class="p">(</span><span class="nx">WS_GATEWAY_URL</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="nx">auth</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">token</span><span class="o">:</span><span class="w"> </span><span class="kt">getAccessToken</span><span class="p">()</span><span class="w"> </span><span class="p">},</span>
-<span class="w">  </span><span class="nx">transports</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;websocket&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nx">transports</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"websocket"</span><span class="p">],</span>
 <span class="p">});</span>
 
 <span class="c1">// الاشتراك في الأحداث</span>
-<span class="nx">wsClient</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;field.updated&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">handleFieldUpdate</span><span class="p">);</span>
-<span class="nx">wsClient</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;task.created&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">handleNewTask</span><span class="p">);</span>
-<span class="nx">wsClient</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;weather.alert&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">handleWeatherAlert</span><span class="p">);</span>
-<span class="nx">wsClient</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;iot.reading&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">handleSensorReading</span><span class="p">);</span>
-<span class="nx">wsClient</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">&quot;notification.new&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">handleNotification</span><span class="p">);</span>
+<span class="nx">wsClient</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">"field.updated"</span><span class="p">,</span><span class="w"> </span><span class="nx">handleFieldUpdate</span><span class="p">);</span>
+<span class="nx">wsClient</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">"task.created"</span><span class="p">,</span><span class="w"> </span><span class="nx">handleNewTask</span><span class="p">);</span>
+<span class="nx">wsClient</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">"weather.alert"</span><span class="p">,</span><span class="w"> </span><span class="nx">handleWeatherAlert</span><span class="p">);</span>
+<span class="nx">wsClient</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">"iot.reading"</span><span class="p">,</span><span class="w"> </span><span class="nx">handleSensorReading</span><span class="p">);</span>
+<span class="nx">wsClient</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s2">"notification.new"</span><span class="p">,</span><span class="w"> </span><span class="nx">handleNotification</span><span class="p">);</span>
 </code></pre></div>
 
 <hr />
@@ -1679,17 +1679,17 @@
 <hr />
 <h2 id="tech-stack">📦 التقنيات المقترحة | Tech Stack<a class="headerlink" href="#tech-stack" title="Permanent link">&para;</a></h2>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;framework&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Next.js 14 (App Router)&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;language&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TypeScript&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;styling&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Tailwind CSS + shadcn/ui&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Zustand + React Query&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;forms&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;React Hook Form + Zod&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;maps&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Mapbox GL JS / Leaflet&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;charts&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Recharts / Chart.js&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;tables&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TanStack Table&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;icons&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Lucide Icons&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;i18n&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;next-intl&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;testing&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Vitest + Testing Library&quot;</span>
+<span class="w">  </span><span class="nt">"framework"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Next.js 14 (App Router)"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"language"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TypeScript"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"styling"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Tailwind CSS + shadcn/ui"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"state"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Zustand + React Query"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"forms"</span><span class="p">:</span><span class="w"> </span><span class="s2">"React Hook Form + Zod"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"maps"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Mapbox GL JS / Leaflet"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"charts"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Recharts / Chart.js"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"tables"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TanStack Table"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"icons"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Lucide Icons"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"i18n"</span><span class="p">:</span><span class="w"> </span><span class="s2">"next-intl"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"testing"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Vitest + Testing Library"</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1809,10 +1809,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

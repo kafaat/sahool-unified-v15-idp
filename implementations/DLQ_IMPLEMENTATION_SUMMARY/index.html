@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1437,13 +1437,13 @@ curl<span class="w"> </span>http://localhost:8090/dlq/stats
 ./scripts/dlq-quickstart.sh<span class="w"> </span>messages<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">20</span>
 
 <span class="c1"># API</span>
-curl<span class="w"> </span><span class="s1">&#39;http://localhost:8090/dlq/messages?page=1&amp;page_size=20&#39;</span>
+curl<span class="w"> </span><span class="s1">'http://localhost:8090/dlq/messages?page=1&amp;page_size=20'</span>
 
 <span class="c1"># Filter by subject</span>
-curl<span class="w"> </span><span class="s1">&#39;http://localhost:8090/dlq/messages?subject=sahool.field.created&#39;</span>
+curl<span class="w"> </span><span class="s1">'http://localhost:8090/dlq/messages?subject=sahool.field.created'</span>
 
 <span class="c1"># Filter by error type</span>
-curl<span class="w"> </span><span class="s1">&#39;http://localhost:8090/dlq/messages?error_type=ConnectionError&#39;</span>
+curl<span class="w"> </span><span class="s1">'http://localhost:8090/dlq/messages?error_type=ConnectionError'</span>
 </code></pre></div>
 
 <h3 id="replay-messages">Replay Messages<a class="headerlink" href="#replay-messages" title="Permanent link">&para;</a></h3>
@@ -1455,11 +1455,11 @@ curl<span class="w"> </span><span class="s1">&#39;http://localhost:8090/dlq/mess
 
 <span class="c1"># API</span>
 curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8090/dlq/replay/bulk<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
-<span class="s1">    &quot;message_seqs&quot;: [123, 124, 125],</span>
-<span class="s1">    &quot;delete_after_replay&quot;: true</span>
-<span class="s1">  }&#39;</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "message_seqs": [123, 124, 125],</span>
+<span class="s1">    "delete_after_replay": true</span>
+<span class="s1">  }'</span>
 </code></pre></div>
 
 <h3 id="monitor-dlq-in-code">Monitor DLQ in Code<a class="headerlink" href="#monitor-dlq-in-code" title="Permanent link">&para;</a></h3>
@@ -1470,12 +1470,12 @@ curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </spa
 
 <span class="c1"># Get statistics</span>
 <span class="n">stats</span> <span class="o">=</span> <span class="n">subscriber</span><span class="o">.</span><span class="n">stats</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;DLQ count: </span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s1">&#39;dlq_count&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Retry count: </span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s1">&#39;retry_count&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"DLQ count: </span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s1">'dlq_count'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Retry count: </span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s1">'retry_count'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># Get DLQ stream statistics</span>
 <span class="n">dlq_stats</span> <span class="o">=</span> <span class="k">await</span> <span class="n">subscriber</span><span class="o">.</span><span class="n">get_dlq_stats</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total in DLQ: </span><span class="si">{</span><span class="n">dlq_stats</span><span class="p">[</span><span class="s1">&#39;message_count&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Total in DLQ: </span><span class="si">{</span><span class="n">dlq_stats</span><span class="p">[</span><span class="s1">'message_count'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div>
 
 <hr />
@@ -1501,14 +1501,14 @@ curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </spa
 </ul>
 <h3 id="alert-data">Alert Data<a class="headerlink" href="#alert-data" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;alert_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dlq-1735688400.123&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-01-01T12:00:00Z&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;severity&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;warning&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DLQ threshold exceeded: 150 messages&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;message_count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">150</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;threshold&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;stream_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SAHOOL_DLQ&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;oldest_message_age_hours&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">24.5</span>
+<span class="w">  </span><span class="nt">"alert_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"dlq-1735688400.123"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-01-01T12:00:00Z"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"severity"</span><span class="p">:</span><span class="w"> </span><span class="s2">"warning"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"DLQ threshold exceeded: 150 messages"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"message_count"</span><span class="p">:</span><span class="w"> </span><span class="mi">150</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"threshold"</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"stream_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SAHOOL_DLQ"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"oldest_message_age_hours"</span><span class="p">:</span><span class="w"> </span><span class="mf">24.5</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1516,30 +1516,30 @@ curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </spa
 <h2 id="dlq-message-format">DLQ Message Format<a class="headerlink" href="#dlq-message-format" title="Permanent link">&para;</a></h2>
 <p>Each DLQ message contains:</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;original_subject&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sahool.field.created&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;original_event_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uuid-123&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;correlation_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;correlation-uuid&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;retry_count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;failure_reason&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Connection timeout&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;failure_timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-01-01T12:00:00Z&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;error_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TimeoutError&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;error_traceback&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Traceback...&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;consumer_service&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;notification-service&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;consumer_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;handler_function&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;handle_field_created&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;retry_timestamps&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">      </span><span class="s2">&quot;2026-01-01T11:59:00Z&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="s2">&quot;2026-01-01T11:59:01Z&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="s2">&quot;2026-01-01T11:59:03Z&quot;</span>
+<span class="w">  </span><span class="nt">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"original_subject"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sahool.field.created"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"original_event_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"uuid-123"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"correlation_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"correlation-uuid"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"retry_count"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"failure_reason"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Connection timeout"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"failure_timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-01-01T12:00:00Z"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"error_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TimeoutError"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"error_traceback"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Traceback..."</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"consumer_service"</span><span class="p">:</span><span class="w"> </span><span class="s2">"notification-service"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"consumer_version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.0.0"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"handler_function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"handle_field_created"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"retry_timestamps"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="s2">"2026-01-01T11:59:00Z"</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">"2026-01-01T11:59:01Z"</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">"2026-01-01T11:59:03Z"</span>
 <span class="w">    </span><span class="p">],</span>
-<span class="w">    </span><span class="nt">&quot;retry_errors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">      </span><span class="s2">&quot;Connection timeout&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="s2">&quot;Connection timeout&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="s2">&quot;Connection timeout&quot;</span>
+<span class="w">    </span><span class="nt">"retry_errors"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="s2">"Connection timeout"</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">"Connection timeout"</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">"Connection timeout"</span>
 <span class="w">    </span><span class="p">]</span>
 <span class="w">  </span><span class="p">},</span>
-<span class="w">  </span><span class="nt">&quot;original_message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{...original event data...}&quot;</span>
+<span class="w">  </span><span class="nt">"original_message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{...original event data...}"</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1585,7 +1585,7 @@ curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </spa
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">Depends</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">auth</span><span class="w"> </span><span class="kn">import</span> <span class="n">require_admin</span>
 
-<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/dlq/replay/</span><span class="si">{seq}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">"/dlq/replay/</span><span class="si">{seq}</span><span class="s2">"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">replay_message</span><span class="p">(</span>
     <span class="n">seq</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">user</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">require_admin</span><span class="p">),</span>
@@ -1693,7 +1693,7 @@ curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </spa
 <p>Services automatically get DLQ when upgraded to new <code>shared/events</code> version.</p>
 <p>To verify:</p>
 <div class="codehilite"><pre><span></span><code><span class="n">subscriber</span> <span class="o">=</span> <span class="n">EventSubscriber</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">subscriber</span><span class="o">.</span><span class="n">stats</span><span class="p">[</span><span class="s1">&#39;dlq_enabled&#39;</span><span class="p">])</span>  <span class="c1"># Should be True</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">subscriber</span><span class="o">.</span><span class="n">stats</span><span class="p">[</span><span class="s1">'dlq_enabled'</span><span class="p">])</span>  <span class="c1"># Should be True</span>
 </code></pre></div>
 
 <hr />
@@ -1829,10 +1829,10 @@ curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </spa
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1157,10 +1157,10 @@
 </ol>
 <p><strong>Changes Made:</strong></p>
 <div class="codehilite"><pre><span></span><code>datasource db {
-  provider = &quot;postgresql&quot;
-  url      = env(&quot;DATABASE_URL&quot;)
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
   // NEW: Direct URL for migrations (bypasses PgBouncer)
-  directUrl = env(&quot;DATABASE_URL_DIRECT&quot;)
+  directUrl = env("DATABASE_URL_DIRECT")
   // Connection pooling parameters configured in DATABASE_URL
 }
 </code></pre></div>
@@ -1233,24 +1233,24 @@
 
 <h5 id="service-specific-urls">Service-Specific URLs<a class="headerlink" href="#service-specific-urls" title="Permanent link">&para;</a></h5>
 <div class="codehilite"><pre><span></span><code><span class="c1"># High Traffic (10 connections)</span>
-<span class="nv">DATABASE_URL_HIGH_TRAFFIC</span><span class="o">=</span><span class="s2">&quot;postgresql://...?connection_limit=10&amp;pool_timeout=20...&quot;</span>
+<span class="nv">DATABASE_URL_HIGH_TRAFFIC</span><span class="o">=</span><span class="s2">"postgresql://...?connection_limit=10&amp;pool_timeout=20..."</span>
 
 <span class="c1"># Medium Traffic (8 connections)</span>
-<span class="nv">DATABASE_URL_MEDIUM_TRAFFIC</span><span class="o">=</span><span class="s2">&quot;postgresql://...?connection_limit=8&amp;pool_timeout=20...&quot;</span>
+<span class="nv">DATABASE_URL_MEDIUM_TRAFFIC</span><span class="o">=</span><span class="s2">"postgresql://...?connection_limit=8&amp;pool_timeout=20..."</span>
 
 <span class="c1"># Low Traffic (6 connections)</span>
-<span class="nv">DATABASE_URL_LOW_TRAFFIC</span><span class="o">=</span><span class="s2">&quot;postgresql://...?connection_limit=6&amp;pool_timeout=20...&quot;</span>
+<span class="nv">DATABASE_URL_LOW_TRAFFIC</span><span class="o">=</span><span class="s2">"postgresql://...?connection_limit=6&amp;pool_timeout=20..."</span>
 </code></pre></div>
 
 <h5 id="direct-connection-for-migrations">Direct Connection for Migrations<a class="headerlink" href="#direct-connection-for-migrations" title="Permanent link">&para;</a></h5>
-<div class="codehilite"><pre><span></span><code><span class="nv">DATABASE_URL_DIRECT</span><span class="o">=</span><span class="s2">&quot;postgresql://...@postgres:5432/...?keepalives=1&amp;keepalives_idle=30...&quot;</span>
+<div class="codehilite"><pre><span></span><code><span class="nv">DATABASE_URL_DIRECT</span><span class="o">=</span><span class="s2">"postgresql://...@postgres:5432/...?keepalives=1&amp;keepalives_idle=30..."</span>
 </code></pre></div>
 
 <h4 id="b-user-service-environment-template">B. User Service Environment Template<a class="headerlink" href="#b-user-service-environment-template" title="Permanent link">&para;</a></h4>
 <p><strong>File:</strong> <code>/apps/services/user-service/.env.example</code></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># High traffic service - 10 concurrent connections</span>
-<span class="nv">DATABASE_URL</span><span class="o">=</span><span class="s2">&quot;postgresql://...?connection_limit=10&amp;pool_timeout=20...&quot;</span>
-<span class="nv">DATABASE_URL_DIRECT</span><span class="o">=</span><span class="s2">&quot;postgresql://...?keepalives=1&amp;keepalives_idle=30...&quot;</span>
+<span class="nv">DATABASE_URL</span><span class="o">=</span><span class="s2">"postgresql://...?connection_limit=10&amp;pool_timeout=20..."</span>
+<span class="nv">DATABASE_URL_DIRECT</span><span class="o">=</span><span class="s2">"postgresql://...?keepalives=1&amp;keepalives_idle=30..."</span>
 </code></pre></div>
 
 <hr />
@@ -1449,7 +1449,7 @@
 <span class="w">    </span><span class="nx">wait</span><span class="o">:</span><span class="w"> </span><span class="kt">0</span><span class="p">,</span><span class="w">       </span><span class="c1">// Queries waiting for connection</span>
 <span class="w">    </span><span class="nx">total</span><span class="o">:</span><span class="w"> </span><span class="kt">1547</span><span class="w">    </span><span class="c1">// Total queries executed</span>
 <span class="w">  </span><span class="p">},</span>
-<span class="w">  </span><span class="nx">timestamp</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;2026-01-06T12:00:00.000Z&quot;</span>
+<span class="w">  </span><span class="nx">timestamp</span><span class="o">:</span><span class="w"> </span><span class="s2">"2026-01-06T12:00:00.000Z"</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1786,10 +1786,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

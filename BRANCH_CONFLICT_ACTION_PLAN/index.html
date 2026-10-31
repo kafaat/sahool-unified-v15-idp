@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1269,13 +1269,13 @@ git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </
 <h2 id="post-resolution-verification">التحقق بعد الحل | Post-Resolution Verification<a class="headerlink" href="#post-resolution-verification" title="Permanent link">&para;</a></h2>
 <h3 id="for-pr-810">For PR #810<a class="headerlink" href="#for-pr-810" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Check Python versions</span>
-grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;python:3\.11&quot;</span><span class="w"> </span>apps/services/*/Dockerfile
+grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">"python:3\.11"</span><span class="w"> </span>apps/services/*/Dockerfile
 <span class="c1"># Should return nothing</span>
 
-grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;3\.11&quot;</span><span class="w"> </span>.github/workflows/*.yml
+grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">"3\.11"</span><span class="w"> </span>.github/workflows/*.yml
 <span class="c1"># Should return nothing</span>
 
-grep<span class="w"> </span><span class="s2">&quot;3\.11&quot;</span><span class="w"> </span>pyproject.toml
+grep<span class="w"> </span><span class="s2">"3\.11"</span><span class="w"> </span>pyproject.toml
 <span class="c1"># Should return nothing</span>
 
 <span class="c1"># Run linting</span>
@@ -1287,14 +1287,14 @@ pytest<span class="w"> </span>tests/smoke/<span class="w"> </span>-v
 
 <h3 id="for-pr-809">For PR #809<a class="headerlink" href="#for-pr-809" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Check documentation integrity</span>
-find<span class="w"> </span>docs<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;*.md&quot;</span><span class="w"> </span>-exec<span class="w"> </span>grep<span class="w"> </span>-l<span class="w"> </span><span class="s2">&quot;TODO\|FIXME\|XXX&quot;</span><span class="w"> </span><span class="o">{}</span><span class="w"> </span><span class="se">\;</span>
+find<span class="w"> </span>docs<span class="w"> </span>-name<span class="w"> </span><span class="s2">"*.md"</span><span class="w"> </span>-exec<span class="w"> </span>grep<span class="w"> </span>-l<span class="w"> </span><span class="s2">"TODO\|FIXME\|XXX"</span><span class="w"> </span><span class="o">{}</span><span class="w"> </span><span class="se">\;</span>
 
 <span class="c1"># Verify no broken links</span>
-grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;](.*\.md)&quot;</span><span class="w"> </span>docs/<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-v<span class="w"> </span><span class="s2">&quot;http&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="nb">read</span><span class="w"> </span>line<span class="p">;</span><span class="w"> </span><span class="k">do</span>
-<span class="w">    </span><span class="nv">file</span><span class="o">=</span><span class="k">$(</span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$line</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>cut<span class="w"> </span>-d:<span class="w"> </span>-f1<span class="k">)</span>
-<span class="w">    </span><span class="nv">link</span><span class="o">=</span><span class="k">$(</span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$line</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-o<span class="w"> </span><span class="s2">&quot;](.*\.md)&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span><span class="s1">&#39;s/](\|)//g&#39;</span><span class="k">)</span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>!<span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;docs/</span><span class="nv">$link</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
-<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Broken link in </span><span class="nv">$file</span><span class="s2">: </span><span class="nv">$link</span><span class="s2">&quot;</span>
+grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">"](.*\.md)"</span><span class="w"> </span>docs/<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-v<span class="w"> </span><span class="s2">"http"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="nb">read</span><span class="w"> </span>line<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="nv">file</span><span class="o">=</span><span class="k">$(</span><span class="nb">echo</span><span class="w"> </span><span class="s2">"</span><span class="nv">$line</span><span class="s2">"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>cut<span class="w"> </span>-d:<span class="w"> </span>-f1<span class="k">)</span>
+<span class="w">    </span><span class="nv">link</span><span class="o">=</span><span class="k">$(</span><span class="nb">echo</span><span class="w"> </span><span class="s2">"</span><span class="nv">$line</span><span class="s2">"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-o<span class="w"> </span><span class="s2">"](.*\.md)"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span><span class="s1">'s/](\|)//g'</span><span class="k">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>!<span class="w"> </span>-f<span class="w"> </span><span class="s2">"docs/</span><span class="nv">$link</span><span class="s2">"</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"Broken link in </span><span class="nv">$file</span><span class="s2">: </span><span class="nv">$link</span><span class="s2">"</span>
 <span class="w">    </span><span class="k">fi</span>
 <span class="k">done</span>
 </code></pre></div>
@@ -1455,10 +1455,10 @@ grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;](.
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

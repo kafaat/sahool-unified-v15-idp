@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1275,7 +1275,7 @@ topic readwrite sahool/system/#
 <h4 id="current-password-configuration">Current Password Configuration<a class="headerlink" href="#current-password-configuration" title="Permanent link">&para;</a></h4>
 <p>Passwords are dynamically generated from environment variables at container startup:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># In docker-compose.yml</span>
-command:<span class="w"> </span>/bin/sh<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;mosquitto_passwd -b -c /mosquitto/config/passwd </span><span class="nv">$$</span><span class="s2">{MQTT_USER} </span><span class="nv">$$</span><span class="s2">{MQTT_PASSWORD} &amp;&amp; chmod 600 /mosquitto/config/passwd &amp;&amp; exec /usr/sbin/mosquitto -c /mosquitto/config/mosquitto.conf&quot;</span>
+command:<span class="w"> </span>/bin/sh<span class="w"> </span>-c<span class="w"> </span><span class="s2">"mosquitto_passwd -b -c /mosquitto/config/passwd </span><span class="nv">$$</span><span class="s2">{MQTT_USER} </span><span class="nv">$$</span><span class="s2">{MQTT_PASSWORD} &amp;&amp; chmod 600 /mosquitto/config/passwd &amp;&amp; exec /usr/sbin/mosquitto -c /mosquitto/config/mosquitto.conf"</span>
 </code></pre></div>
 
 <h4 id="environment-variables">Environment Variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h4>
@@ -1370,10 +1370,10 @@ topic readwrite #
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">aiomqtt</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span>
 
 <span class="c1"># Environment variables</span>
-<span class="n">MQTT_BROKER</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;MQTT_BROKER&quot;</span><span class="p">,</span> <span class="s2">&quot;mqtt&quot;</span><span class="p">)</span>
-<span class="n">MQTT_PORT</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;MQTT_PORT&quot;</span><span class="p">,</span> <span class="s2">&quot;1883&quot;</span><span class="p">))</span>
-<span class="n">MQTT_USERNAME</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;MQTT_USER&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;MQTT_USERNAME&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
-<span class="n">MQTT_PASSWORD</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;MQTT_PASSWORD&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="n">MQTT_BROKER</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"MQTT_BROKER"</span><span class="p">,</span> <span class="s2">"mqtt"</span><span class="p">)</span>
+<span class="n">MQTT_PORT</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"MQTT_PORT"</span><span class="p">,</span> <span class="s2">"1883"</span><span class="p">))</span>
+<span class="n">MQTT_USERNAME</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"MQTT_USER"</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"MQTT_USERNAME"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span>
+<span class="n">MQTT_PASSWORD</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"MQTT_PASSWORD"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
 
 <span class="c1"># Connect with authentication</span>
 <span class="k">async</span> <span class="k">with</span> <span class="n">Client</span><span class="p">(</span>
@@ -1410,7 +1410,7 @@ python<span class="w"> </span>simulator.py<span class="w"> </span><span class="s
 <p><strong>Python Code:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">paho.mqtt.client</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mqtt</span>
 
-<span class="n">client</span> <span class="o">=</span> <span class="n">mqtt</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="n">client_id</span><span class="o">=</span><span class="s2">&quot;simulator-field-1&quot;</span><span class="p">)</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">mqtt</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="n">client_id</span><span class="o">=</span><span class="s2">"simulator-field-1"</span><span class="p">)</span>
 
 <span class="c1"># Set authentication</span>
 <span class="k">if</span> <span class="n">username</span> <span class="ow">and</span> <span class="n">password</span><span class="p">:</span>
@@ -1429,8 +1429,8 @@ mosquitto_pub<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-p<span class="w"> </span><span class="m">1883</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-u<span class="w"> </span>sahool_iot<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-P<span class="w"> </span>sahool_mqtt_secure_2024<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-t<span class="w"> </span><span class="s2">&quot;sahool/test/sensor&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-m<span class="w"> </span><span class="s1">&#39;{&quot;value&quot;: 42}&#39;</span>
+<span class="w">  </span>-t<span class="w"> </span><span class="s2">"sahool/test/sensor"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-m<span class="w"> </span><span class="s1">'{"value": 42}'</span>
 </code></pre></div>
 
 <h4 id="using-mosquitto_sub-with-authentication">Using mosquitto_sub (with authentication)<a class="headerlink" href="#using-mosquitto_sub-with-authentication" title="Permanent link">&para;</a></h4>
@@ -1440,30 +1440,30 @@ mosquitto_sub<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-p<span class="w"> </span><span class="m">1883</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-u<span class="w"> </span>sahool_iot<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-P<span class="w"> </span>sahool_mqtt_secure_2024<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-t<span class="w"> </span><span class="s2">&quot;sahool/#&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-t<span class="w"> </span><span class="s2">"sahool/#"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-v
 </code></pre></div>
 
 <h4 id="test-without-authentication-should-fail">Test without authentication (should fail)<a class="headerlink" href="#test-without-authentication-should-fail" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code><span class="c1"># This should fail with &quot;Connection Refused: not authorised&quot;</span>
+<div class="codehilite"><pre><span></span><code><span class="c1"># This should fail with "Connection Refused: not authorised"</span>
 mosquitto_pub<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-h<span class="w"> </span>localhost<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-p<span class="w"> </span><span class="m">1883</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-t<span class="w"> </span><span class="s2">&quot;sahool/test/sensor&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-m<span class="w"> </span><span class="s1">&#39;{&quot;value&quot;: 42}&#39;</span>
+<span class="w">  </span>-t<span class="w"> </span><span class="s2">"sahool/test/sensor"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-m<span class="w"> </span><span class="s1">'{"value": 42}'</span>
 </code></pre></div>
 
 <h3 id="2-verify-acl-permissions">2. Verify ACL Permissions<a class="headerlink" href="#2-verify-acl-permissions" title="Permanent link">&para;</a></h3>
 <h4 id="test-topic-write-permissions">Test topic write permissions<a class="headerlink" href="#test-topic-write-permissions" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Should succeed - sahool_iot can write to actuator commands</span>
 mosquitto_pub<span class="w"> </span>-h<span class="w"> </span>localhost<span class="w"> </span>-p<span class="w"> </span><span class="m">1883</span><span class="w"> </span>-u<span class="w"> </span>sahool_iot<span class="w"> </span>-P<span class="w"> </span>sahool_mqtt_secure_2024<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-t<span class="w"> </span><span class="s2">&quot;sahool/default/farm/farm-1/field/field-1/actuator/pump/command&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-m<span class="w"> </span><span class="s1">&#39;{&quot;command&quot;: &quot;ON&quot;}&#39;</span>
+<span class="w">  </span>-t<span class="w"> </span><span class="s2">"sahool/default/farm/farm-1/field/field-1/actuator/pump/command"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-m<span class="w"> </span><span class="s1">'{"command": "ON"}'</span>
 
 <span class="c1"># Should fail - sahool_iot cannot write to admin topics</span>
 mosquitto_pub<span class="w"> </span>-h<span class="w"> </span>localhost<span class="w"> </span>-p<span class="w"> </span><span class="m">1883</span><span class="w"> </span>-u<span class="w"> </span>sahool_iot<span class="w"> </span>-P<span class="w"> </span>sahool_mqtt_secure_2024<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-t<span class="w"> </span><span class="s2">&quot;sahool/admin/commands&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-m<span class="w"> </span><span class="s1">&#39;{&quot;test&quot;: true}&#39;</span>
+<span class="w">  </span>-t<span class="w"> </span><span class="s2">"sahool/admin/commands"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-m<span class="w"> </span><span class="s1">'{"test": true}'</span>
 </code></pre></div>
 
 <h3 id="3-check-mqtt-broker-logs">3. Check MQTT Broker Logs<a class="headerlink" href="#3-check-mqtt-broker-logs" title="Permanent link">&para;</a></h3>
@@ -1471,20 +1471,20 @@ mosquitto_pub<span class="w"> </span>-h<span class="w"> </span>localhost<span cl
 docker<span class="w"> </span>logs<span class="w"> </span>sahool-mqtt<span class="w"> </span>--tail<span class="w"> </span><span class="m">100</span>
 
 <span class="c1"># Check for authentication errors</span>
-docker<span class="w"> </span>logs<span class="w"> </span>sahool-mqtt<span class="w"> </span>--tail<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;not authorised&quot;</span>
+docker<span class="w"> </span>logs<span class="w"> </span>sahool-mqtt<span class="w"> </span>--tail<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">"not authorised"</span>
 
 <span class="c1"># Check for successful connections</span>
-docker<span class="w"> </span>logs<span class="w"> </span>sahool-mqtt<span class="w"> </span>--tail<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;connect&quot;</span>
+docker<span class="w"> </span>logs<span class="w"> </span>sahool-mqtt<span class="w"> </span>--tail<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">"connect"</span>
 </code></pre></div>
 
 <h3 id="4-verify-services-are-connected">4. Verify Services are Connected<a class="headerlink" href="#4-verify-services-are-connected" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Check iot-service logs</span>
-docker<span class="w"> </span>logs<span class="w"> </span>sahool-iot-service<span class="w"> </span>--tail<span class="w"> </span><span class="m">30</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;mqtt&quot;</span>
+docker<span class="w"> </span>logs<span class="w"> </span>sahool-iot-service<span class="w"> </span>--tail<span class="w"> </span><span class="m">30</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">"mqtt"</span>
 
 <span class="c1"># Check iot-gateway logs</span>
-docker<span class="w"> </span>logs<span class="w"> </span>sahool-iot-gateway<span class="w"> </span>--tail<span class="w"> </span><span class="m">30</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;mqtt&quot;</span>
+docker<span class="w"> </span>logs<span class="w"> </span>sahool-iot-gateway<span class="w"> </span>--tail<span class="w"> </span><span class="m">30</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">"mqtt"</span>
 
-<span class="c1"># Should see: &quot;Connected to MQTT Broker&quot;</span>
+<span class="c1"># Should see: "Connected to MQTT Broker"</span>
 </code></pre></div>
 
 <hr />
@@ -1517,7 +1517,7 @@ docker<span class="w"> </span>restart<span class="w"> </span>sahool-mqtt
 cat<span class="w"> </span>infrastructure/core/mqtt/acl
 
 <span class="c1"># Test specific topic access</span>
-mosquitto_pub<span class="w"> </span>-h<span class="w"> </span>localhost<span class="w"> </span>-p<span class="w"> </span><span class="m">1883</span><span class="w"> </span>-u<span class="w"> </span>sahool_iot<span class="w"> </span>-P<span class="w"> </span>password<span class="w"> </span>-t<span class="w"> </span><span class="s2">&quot;test/topic&quot;</span><span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test&quot;</span>
+mosquitto_pub<span class="w"> </span>-h<span class="w"> </span>localhost<span class="w"> </span>-p<span class="w"> </span><span class="m">1883</span><span class="w"> </span>-u<span class="w"> </span>sahool_iot<span class="w"> </span>-P<span class="w"> </span>password<span class="w"> </span>-t<span class="w"> </span><span class="s2">"test/topic"</span><span class="w"> </span>-m<span class="w"> </span><span class="s2">"test"</span>
 </code></pre></div>
 
 <h4 id="3-service-cannot-connect-to-mqtt-broker">3. Service Cannot Connect to MQTT Broker<a class="headerlink" href="#3-service-cannot-connect-to-mqtt-broker" title="Permanent link">&para;</a></h4>
@@ -1680,10 +1680,10 @@ docker<span class="w"> </span>restart<span class="w"> </span>sahool-mqtt
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

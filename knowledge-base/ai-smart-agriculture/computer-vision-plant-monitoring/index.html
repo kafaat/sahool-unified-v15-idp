@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1594,13 +1594,13 @@
 <p><strong>العمليات الأساسية | Core Operations</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># مثال على خط المعالجة المسبقة</span>
 <span class="n">preprocessing_pipeline</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;color_calibration&quot;</span><span class="p">,</span>      <span class="c1"># معايرة الألوان (Color Calibration)</span>
-    <span class="s2">&quot;background_removal&quot;</span><span class="p">,</span>     <span class="c1"># إزالة الخلفية (Background Subtraction)</span>
-    <span class="s2">&quot;distortion_correction&quot;</span><span class="p">,</span>  <span class="c1"># تصحيح التشوه البصري (Lens Distortion Correction)</span>
-    <span class="s2">&quot;noise_reduction&quot;</span><span class="p">,</span>        <span class="c1"># تقليل الضوضاء (Gaussian/Median Filter)</span>
-    <span class="s2">&quot;white_balance&quot;</span><span class="p">,</span>          <span class="c1"># توازن الأبيض (White Balance)</span>
-    <span class="s2">&quot;histogram_equalization&quot;</span><span class="p">,</span> <span class="c1"># تحسين التباين (Contrast Enhancement)</span>
-    <span class="s2">&quot;image_registration&quot;</span><span class="p">,</span>     <span class="c1"># محاذاة الصور الزمنية (Temporal Alignment)</span>
+    <span class="s2">"color_calibration"</span><span class="p">,</span>      <span class="c1"># معايرة الألوان (Color Calibration)</span>
+    <span class="s2">"background_removal"</span><span class="p">,</span>     <span class="c1"># إزالة الخلفية (Background Subtraction)</span>
+    <span class="s2">"distortion_correction"</span><span class="p">,</span>  <span class="c1"># تصحيح التشوه البصري (Lens Distortion Correction)</span>
+    <span class="s2">"noise_reduction"</span><span class="p">,</span>        <span class="c1"># تقليل الضوضاء (Gaussian/Median Filter)</span>
+    <span class="s2">"white_balance"</span><span class="p">,</span>          <span class="c1"># توازن الأبيض (White Balance)</span>
+    <span class="s2">"histogram_equalization"</span><span class="p">,</span> <span class="c1"># تحسين التباين (Contrast Enhancement)</span>
+    <span class="s2">"image_registration"</span><span class="p">,</span>     <span class="c1"># محاذاة الصور الزمنية (Temporal Alignment)</span>
 <span class="p">]</span>
 </code></pre></div>
 
@@ -1913,13 +1913,13 @@
 <div class="codehilite"><pre><span></span><code><span class="c1"># حساب سرعة النمو المتوسطة</span>
 <span class="c1"># Average Growth Velocity Calculation</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">calculate_agv</span><span class="p">(</span><span class="n">heights</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">timestamps</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    AGV = متوسط (Δh / Δt) لكل فترة زمنية</span>
 <span class="sd">    AGV = mean(Δh / Δt) for each time interval</span>
 
 <span class="sd">    المثال: AGV = 0.27 cm/hour (القمح في مرحلة التفريع)</span>
 <span class="sd">    Example: AGV = 0.27 cm/hour (wheat at tillering stage)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">velocities</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">heights</span><span class="p">)):</span>
         <span class="n">dh</span> <span class="o">=</span> <span class="n">heights</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">heights</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
@@ -1932,12 +1932,12 @@
 <span class="c1"># حساب مؤشر النمو</span>
 <span class="c1"># Growth Index Calculation</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">calculate_growth_index</span><span class="p">(</span><span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">width1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">width2</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    GI = (H + W1 + W2) / 3</span>
 
 <span class="sd">    المثال: GI = 0.75 (نمو طبيعي)</span>
 <span class="sd">    Example: GI = 0.75 (normal growth)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">height</span> <span class="o">+</span> <span class="n">width1</span> <span class="o">+</span> <span class="n">width2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">3</span>
 </code></pre></div>
 
@@ -2471,10 +2471,10 @@ sahool.vision.growth_anomaly         # شذوذ في النمو
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

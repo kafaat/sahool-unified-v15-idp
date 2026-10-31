@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1139,7 +1139,7 @@
 <p><strong>Problem:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// BEFORE (INCORRECT)</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">api</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">axios</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">baseURL</span><span class="o">:</span><span class="w"> </span><span class="kt">process.env.NEXT_PUBLIC_API_URL</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;/api&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">baseURL</span><span class="o">:</span><span class="w"> </span><span class="kt">process.env.NEXT_PUBLIC_API_URL</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">'/api'</span><span class="p">,</span>
 <span class="w">  </span><span class="p">...</span>
 <span class="p">});</span>
 </code></pre></div>
@@ -1151,7 +1151,7 @@ Since all endpoints use paths like <code>/api/v1/fields</code>, this creates:</p
 </ul>
 <p><strong>Solution:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// AFTER (CORRECT)</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">API_BASE_URL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NEXT_PUBLIC_API_URL</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">API_BASE_URL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NEXT_PUBLIC_API_URL</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">''</span><span class="p">;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">api</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">axios</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
 <span class="w">  </span><span class="nx">baseURL</span><span class="o">:</span><span class="w"> </span><span class="kt">API_BASE_URL</span><span class="p">,</span>
@@ -1176,8 +1176,8 @@ Since all endpoints use paths like <code>/api/v1/fields</code>, this creates:</p
 </ul>
 <p><strong>Observation:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// BEFORE (FUNCTIONAL BUT LESS CLEAR)</span>
-<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">API_BASE_URL</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="ow">typeof</span><span class="w"> </span><span class="nb">window</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s2">&quot;undefined&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">warn</span><span class="p">(</span><span class="s2">&quot;NEXT_PUBLIC_API_URL environment variable is not set&quot;</span><span class="p">);</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">API_BASE_URL</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="ow">typeof</span><span class="w"> </span><span class="nb">window</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s2">"undefined"</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">warn</span><span class="p">(</span><span class="s2">"NEXT_PUBLIC_API_URL environment variable is not set"</span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1187,8 +1187,8 @@ check does allow the warning to appear. The updated condition instead reads the 
 variable directly, which is clearer and avoids relying on the derived <code>API_BASE_URL</code> value.</p>
 <p><strong>Solution:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// AFTER (IMPROVED)</span>
-<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NEXT_PUBLIC_API_URL</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="ow">typeof</span><span class="w"> </span><span class="nb">window</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s2">&quot;undefined&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">warn</span><span class="p">(</span><span class="s2">&quot;NEXT_PUBLIC_API_URL environment variable is not set&quot;</span><span class="p">);</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NEXT_PUBLIC_API_URL</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="ow">typeof</span><span class="w"> </span><span class="nb">window</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s2">"undefined"</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">warn</span><span class="p">(</span><span class="s2">"NEXT_PUBLIC_API_URL environment variable is not set"</span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1333,10 +1333,10 @@ variable directly, which is clearer and avoids relying on the derived <code>API_
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

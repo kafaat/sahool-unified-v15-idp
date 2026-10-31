@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1141,22 +1141,22 @@
 <h3 id="making-your-first-api-call">Making Your First API Call<a class="headerlink" href="#making-your-first-api-call" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># 1. Get authentication token</span>
 <span class="nv">TOKEN</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>https://api.sahool.io/api/v1/auth/login<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;phone&quot;: &quot;+966500000000&quot;, &quot;password&quot;: &quot;your_password&quot;}&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.access_token&#39;</span><span class="k">)</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"phone": "+966500000000", "password": "your_password"}'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">'.access_token'</span><span class="k">)</span>
 
 <span class="c1"># 2. Make authenticated request</span>
 curl<span class="w"> </span>https://api.sahool.io/api/v1/fields<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span>
 </code></pre></div>
 
 <h3 id="javascript-example">JavaScript Example<a class="headerlink" href="#javascript-example" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SahoolClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@sahool/api-client&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SahoolClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@sahool/api-client'</span><span class="p">;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">SahoolClient</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">baseUrl</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://api.sahool.io&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">token</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;your_jwt_token&#39;</span>
+<span class="w">  </span><span class="nx">baseUrl</span><span class="o">:</span><span class="w"> </span><span class="s1">'https://api.sahool.io'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">token</span><span class="o">:</span><span class="w"> </span><span class="s1">'your_jwt_token'</span>
 <span class="p">});</span>
 
 <span class="c1">// Get all fields</span>
@@ -1172,28 +1172,28 @@ curl<span class="w"> </span>https://api.sahool.io/api/v1/fields<span class="w"> 
 <h3 id="python-example">Python Example<a class="headerlink" href="#python-example" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">httpx</span>
 
-<span class="n">BASE_URL</span> <span class="o">=</span> <span class="s2">&quot;https://api.sahool.io/api/v1&quot;</span>
-<span class="n">TOKEN</span> <span class="o">=</span> <span class="s2">&quot;your_jwt_token&quot;</span>
+<span class="n">BASE_URL</span> <span class="o">=</span> <span class="s2">"https://api.sahool.io/api/v1"</span>
+<span class="n">TOKEN</span> <span class="o">=</span> <span class="s2">"your_jwt_token"</span>
 
 <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Bearer </span><span class="si">{</span><span class="n">TOKEN</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span>
+    <span class="s2">"Authorization"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"Bearer </span><span class="si">{</span><span class="n">TOKEN</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+    <span class="s2">"Content-Type"</span><span class="p">:</span> <span class="s2">"application/json"</span>
 <span class="p">}</span>
 
 <span class="c1"># Get fields</span>
-<span class="n">response</span> <span class="o">=</span> <span class="n">httpx</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">BASE_URL</span><span class="si">}</span><span class="s2">/fields&quot;</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">httpx</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">BASE_URL</span><span class="si">}</span><span class="s2">/fields"</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
 <span class="n">fields</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
 
 <span class="c1"># Create a new field</span>
 <span class="n">new_field</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;North Field&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;boundary&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Polygon&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;coordinates&quot;</span><span class="p">:</span> <span class="p">[[[</span><span class="mf">46.7</span><span class="p">,</span> <span class="mf">24.7</span><span class="p">],</span> <span class="p">[</span><span class="mf">46.8</span><span class="p">,</span> <span class="mf">24.7</span><span class="p">],</span> <span class="p">[</span><span class="mf">46.8</span><span class="p">,</span> <span class="mf">24.8</span><span class="p">],</span> <span class="p">[</span><span class="mf">46.7</span><span class="p">,</span> <span class="mf">24.8</span><span class="p">],</span> <span class="p">[</span><span class="mf">46.7</span><span class="p">,</span> <span class="mf">24.7</span><span class="p">]]]</span>
+    <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"North Field"</span><span class="p">,</span>
+    <span class="s2">"boundary"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"Polygon"</span><span class="p">,</span>
+        <span class="s2">"coordinates"</span><span class="p">:</span> <span class="p">[[[</span><span class="mf">46.7</span><span class="p">,</span> <span class="mf">24.7</span><span class="p">],</span> <span class="p">[</span><span class="mf">46.8</span><span class="p">,</span> <span class="mf">24.7</span><span class="p">],</span> <span class="p">[</span><span class="mf">46.8</span><span class="p">,</span> <span class="mf">24.8</span><span class="p">],</span> <span class="p">[</span><span class="mf">46.7</span><span class="p">,</span> <span class="mf">24.8</span><span class="p">],</span> <span class="p">[</span><span class="mf">46.7</span><span class="p">,</span> <span class="mf">24.7</span><span class="p">]]]</span>
     <span class="p">},</span>
-    <span class="s2">&quot;crop_type&quot;</span><span class="p">:</span> <span class="s2">&quot;wheat&quot;</span>
+    <span class="s2">"crop_type"</span><span class="p">:</span> <span class="s2">"wheat"</span>
 <span class="p">}</span>
-<span class="n">response</span> <span class="o">=</span> <span class="n">httpx</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">BASE_URL</span><span class="si">}</span><span class="s2">/fields&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">new_field</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">httpx</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">BASE_URL</span><span class="si">}</span><span class="s2">/fields"</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">new_field</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
 </code></pre></div>
 
 <hr />
@@ -1235,17 +1235,17 @@ curl<span class="w"> </span>https://api.sahool.io/api/v1/fields<span class="w"> 
 <span class="err">Content-Type: application/json</span>
 
 <span class="err">{</span>
-<span class="err">  &quot;phone&quot;: &quot;+966500000000&quot;,</span>
-<span class="err">  &quot;password&quot;: &quot;your_password&quot;</span>
+<span class="err">  "phone": "+966500000000",</span>
+<span class="err">  "password": "your_password"</span>
 <span class="err">}</span>
 </code></pre></div>
 
 <p><strong>Response:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;access_token&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eyJhbGciOiJIUzI1NiIs...&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;refresh_token&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eyJhbGciOiJIUzI1NiIs...&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;token_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;bearer&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;expires_in&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">86400</span>
+<span class="w">  </span><span class="nt">"access_token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eyJhbGciOiJIUzI1NiIs..."</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"refresh_token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eyJhbGciOiJIUzI1NiIs..."</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"token_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"bearer"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"expires_in"</span><span class="p">:</span><span class="w"> </span><span class="mi">86400</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1260,7 +1260,7 @@ curl<span class="w"> </span>https://api.sahool.io/api/v1/fields<span class="w"> 
 <span class="err">Content-Type: application/json</span>
 
 <span class="err">{</span>
-<span class="err">  &quot;refresh_token&quot;: &quot;eyJhbGciOiJIUzI1NiIs...&quot;</span>
+<span class="err">  "refresh_token": "eyJhbGciOiJIUzI1NiIs..."</span>
 <span class="err">}</span>
 </code></pre></div>
 
@@ -1327,32 +1327,32 @@ curl<span class="w"> </span>https://api.sahool.io/api/v1/fields<span class="w"> 
 </tr>
 </tbody>
 </table>
-<p><em>Not required for health check and public endpoints
-</em>*Required for multi-tenant operations</p>
+<p>*Not required for health check and public endpoints
+**Required for multi-tenant operations</p>
 <h3 id="success-response">Success Response | استجابة النجاح<a class="headerlink" href="#success-response" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">"success"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="c1">// Response data here</span>
 <span class="w">  </span><span class="p">},</span>
-<span class="w">  </span><span class="nt">&quot;meta&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-02-07T10:30:00Z&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;request_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;req_abc123&quot;</span>
+<span class="w">  </span><span class="nt">"meta"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-02-07T10:30:00Z"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"request_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"req_abc123"</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <h3 id="paginated-response">Paginated Response | استجابة مرقمة<a class="headerlink" href="#paginated-response" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">],</span>
-<span class="w">  </span><span class="nt">&quot;pagination&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;page&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;page_size&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;total_items&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">150</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;total_pages&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;has_next&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;has_previous&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">  </span><span class="nt">"success"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">"pagination"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"page"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"page_size"</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"total_items"</span><span class="p">:</span><span class="w"> </span><span class="mi">150</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"total_pages"</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"has_next"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"has_previous"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1398,21 +1398,21 @@ curl<span class="w"> </span>https://api.sahool.io/api/v1/fields<span class="w"> 
 <h2 id="error-handling">Error Handling | معالجة الأخطاء<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h2>
 <h3 id="error-response-format">Error Response Format | تنسيق استجابة الخطأ<a class="headerlink" href="#error-response-format" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;code&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;VALIDATION_ERROR&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Invalid field boundary&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;message_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;حدود الحقل غير صالحة&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;details&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="nt">"success"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"VALIDATION_ERROR"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Invalid field boundary"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"message_ar"</span><span class="p">:</span><span class="w"> </span><span class="s2">"حدود الحقل غير صالحة"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">      </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;field&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;boundary&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Coordinates must form a closed polygon&quot;</span>
+<span class="w">        </span><span class="nt">"field"</span><span class="p">:</span><span class="w"> </span><span class="s2">"boundary"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Coordinates must form a closed polygon"</span>
 <span class="w">      </span><span class="p">}</span>
 <span class="w">    </span><span class="p">]</span>
 <span class="w">  </span><span class="p">},</span>
-<span class="w">  </span><span class="nt">&quot;meta&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-02-07T10:30:00Z&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;request_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;req_abc123&quot;</span>
+<span class="w">  </span><span class="nt">"meta"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-02-07T10:30:00Z"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"request_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"req_abc123"</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1589,7 +1589,7 @@ curl<span class="w"> </span>https://api.sahool.io/api/v1/fields<span class="w"> 
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span><span class="nx">url</span><span class="p">);</span>
 
 <span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">status</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">429</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">retryAfter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">response</span><span class="p">.</span><span class="nx">headers</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;X-RateLimit-Retry-After&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">retryAfter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">response</span><span class="p">.</span><span class="nx">headers</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'X-RateLimit-Retry-After'</span><span class="p">);</span>
 <span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">sleep</span><span class="p">(</span><span class="nx">retryAfter</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1000</span><span class="p">);</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">makeRequest</span><span class="p">(</span><span class="nx">url</span><span class="p">);</span><span class="w"> </span><span class="c1">// Retry</span>
 <span class="w">  </span><span class="p">}</span>
@@ -1797,19 +1797,19 @@ curl<span class="w"> </span>https://api.sahool.io/api/v1/fields<span class="w"> 
 <span class="err"># Create field</span>
 <span class="err">POST /api/v1/fields</span>
 <span class="err">{</span>
-<span class="err">  &quot;name&quot;: &quot;North Field&quot;,</span>
-<span class="err">  &quot;boundary&quot;: {</span>
-<span class="err">    &quot;type&quot;: &quot;Polygon&quot;,</span>
-<span class="err">    &quot;coordinates&quot;: [[[46.7, 24.7], [46.8, 24.7], [46.8, 24.8], [46.7, 24.8], [46.7, 24.7]]]</span>
+<span class="err">  "name": "North Field",</span>
+<span class="err">  "boundary": {</span>
+<span class="err">    "type": "Polygon",</span>
+<span class="err">    "coordinates": [[[46.7, 24.7], [46.8, 24.7], [46.8, 24.8], [46.7, 24.8], [46.7, 24.7]]]</span>
 <span class="err">  },</span>
-<span class="err">  &quot;crop_type&quot;: &quot;wheat&quot;,</span>
-<span class="err">  &quot;irrigation_type&quot;: &quot;drip&quot;</span>
+<span class="err">  "crop_type": "wheat",</span>
+<span class="err">  "irrigation_type": "drip"</span>
 <span class="err">}</span>
 
 <span class="err"># Update field</span>
 <span class="err">PATCH /api/v1/fields/{field_id}</span>
 <span class="err">{</span>
-<span class="err">  &quot;name&quot;: &quot;Updated Field Name&quot;</span>
+<span class="err">  "name": "Updated Field Name"</span>
 <span class="err">}</span>
 
 <span class="err"># Delete field</span>
@@ -1826,32 +1826,32 @@ curl<span class="w"> </span>https://api.sahool.io/api/v1/fields<span class="w"> 
 <div class="codehilite"><pre><span></span><code><span class="err"># Get current weather</span>
 <span class="err">POST /api/v1/weather/current</span>
 <span class="err">{</span>
-<span class="err">  &quot;latitude&quot;: 24.7136,</span>
-<span class="err">  &quot;longitude&quot;: 46.6753</span>
+<span class="err">  "latitude": 24.7136,</span>
+<span class="err">  "longitude": 46.6753</span>
 <span class="err">}</span>
 
 <span class="err"># Get weather forecast</span>
 <span class="err">POST /api/v1/weather/forecast</span>
 <span class="err">{</span>
-<span class="err">  &quot;latitude&quot;: 24.7136,</span>
-<span class="err">  &quot;longitude&quot;: 46.6753,</span>
-<span class="err">  &quot;days&quot;: 7</span>
+<span class="err">  "latitude": 24.7136,</span>
+<span class="err">  "longitude": 46.6753,</span>
+<span class="err">  "days": 7</span>
 <span class="err">}</span>
 
 <span class="err"># Calculate evapotranspiration</span>
 <span class="err">POST /api/v1/weather/evapotranspiration</span>
 <span class="err">{</span>
-<span class="err">  &quot;latitude&quot;: 24.7136,</span>
-<span class="err">  &quot;longitude&quot;: 46.6753,</span>
-<span class="err">  &quot;crop_coefficient&quot;: 1.15</span>
+<span class="err">  "latitude": 24.7136,</span>
+<span class="err">  "longitude": 46.6753,</span>
+<span class="err">  "crop_coefficient": 1.15</span>
 <span class="err">}</span>
 
 <span class="err"># Check spray window</span>
 <span class="err">POST /api/v1/weather/spray-window</span>
 <span class="err">{</span>
-<span class="err">  &quot;latitude&quot;: 24.7136,</span>
-<span class="err">  &quot;longitude&quot;: 46.6753,</span>
-<span class="err">  &quot;hours_ahead&quot;: 24</span>
+<span class="err">  "latitude": 24.7136,</span>
+<span class="err">  "longitude": 46.6753,</span>
+<span class="err">  "hours_ahead": 24</span>
 <span class="err">}</span>
 </code></pre></div>
 
@@ -1859,17 +1859,17 @@ curl<span class="w"> </span>https://api.sahool.io/api/v1/fields<span class="w"> 
 <div class="codehilite"><pre><span></span><code><span class="err"># Get irrigation recommendation</span>
 <span class="err">POST /api/v1/irrigation/recommend</span>
 <span class="err">{</span>
-<span class="err">  &quot;field_id&quot;: &quot;field_123&quot;,</span>
-<span class="err">  &quot;crop_type&quot;: &quot;wheat&quot;,</span>
-<span class="err">  &quot;growth_stage&quot;: &quot;tillering&quot;</span>
+<span class="err">  "field_id": "field_123",</span>
+<span class="err">  "crop_type": "wheat",</span>
+<span class="err">  "growth_stage": "tillering"</span>
 <span class="err">}</span>
 
 <span class="err"># Calculate water needs</span>
 <span class="err">POST /api/v1/irrigation/calculate</span>
 <span class="err">{</span>
-<span class="err">  &quot;field_id&quot;: &quot;field_123&quot;,</span>
-<span class="err">  &quot;soil_moisture&quot;: 35.0,</span>
-<span class="err">  &quot;target_moisture&quot;: 50.0</span>
+<span class="err">  "field_id": "field_123",</span>
+<span class="err">  "soil_moisture": 35.0,</span>
+<span class="err">  "target_moisture": 50.0</span>
 <span class="err">}</span>
 
 <span class="err"># Get irrigation schedule</span>
@@ -1880,29 +1880,29 @@ curl<span class="w"> </span>https://api.sahool.io/api/v1/fields<span class="w"> 
 <div class="codehilite"><pre><span></span><code><span class="err"># Get crop advisory</span>
 <span class="err">POST /api/v1/advisory/crop</span>
 <span class="err">{</span>
-<span class="err">  &quot;field_id&quot;: &quot;field_123&quot;,</span>
-<span class="err">  &quot;crop_type&quot;: &quot;wheat&quot;,</span>
-<span class="err">  &quot;issue_type&quot;: &quot;disease&quot;</span>
+<span class="err">  "field_id": "field_123",</span>
+<span class="err">  "crop_type": "wheat",</span>
+<span class="err">  "issue_type": "disease"</span>
 <span class="err">}</span>
 
 <span class="err"># Get fertilizer recommendation</span>
 <span class="err">POST /api/v1/advisory/fertilizer</span>
 <span class="err">{</span>
-<span class="err">  &quot;field_id&quot;: &quot;field_123&quot;,</span>
-<span class="err">  &quot;soil_test&quot;: {</span>
-<span class="err">    &quot;nitrogen&quot;: 18,</span>
-<span class="err">    &quot;phosphorus&quot;: 25,</span>
-<span class="err">    &quot;potassium&quot;: 150</span>
+<span class="err">  "field_id": "field_123",</span>
+<span class="err">  "soil_test": {</span>
+<span class="err">    "nitrogen": 18,</span>
+<span class="err">    "phosphorus": 25,</span>
+<span class="err">    "potassium": 150</span>
 <span class="err">  },</span>
-<span class="err">  &quot;target_yield&quot;: 5.0</span>
+<span class="err">  "target_yield": 5.0</span>
 <span class="err">}</span>
 
 <span class="err"># Get pest management advice</span>
 <span class="err">POST /api/v1/advisory/pest</span>
 <span class="err">{</span>
-<span class="err">  &quot;field_id&quot;: &quot;field_123&quot;,</span>
-<span class="err">  &quot;pest_type&quot;: &quot;aphids&quot;,</span>
-<span class="err">  &quot;severity&quot;: &quot;moderate&quot;</span>
+<span class="err">  "field_id": "field_123",</span>
+<span class="err">  "pest_type": "aphids",</span>
+<span class="err">  "severity": "moderate"</span>
 <span class="err">}</span>
 </code></pre></div>
 
@@ -1917,43 +1917,43 @@ curl<span class="w"> </span>https://api.sahool.io/api/v1/fields<span class="w"> 
 <span class="err"># Batch detection</span>
 <span class="err">POST /api/v1/vision/batch</span>
 <span class="err">{</span>
-<span class="err">  &quot;images&quot;: [&quot;base64_image_1&quot;, &quot;base64_image_2&quot;],</span>
-<span class="err">  &quot;detection_type&quot;: &quot;disease&quot;</span>
+<span class="err">  "images": ["base64_image_1", "base64_image_2"],</span>
+<span class="err">  "detection_type": "disease"</span>
 <span class="err">}</span>
 </code></pre></div>
 
 <hr />
 <h2 id="websocket-api-websocket">WebSocket API | واجهة WebSocket<a class="headerlink" href="#websocket-api-websocket" title="Permanent link">&para;</a></h2>
 <h3 id="connection">Connection | الاتصال<a class="headerlink" href="#connection" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">ws</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">WebSocket</span><span class="p">(</span><span class="s1">&#39;wss://api.sahool.io/ws&#39;</span><span class="p">);</span>
+<div class="codehilite"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">ws</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">WebSocket</span><span class="p">(</span><span class="s1">'wss://api.sahool.io/ws'</span><span class="p">);</span>
 
 <span class="nx">ws</span><span class="p">.</span><span class="nx">onopen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="c1">// Authenticate</span>
 <span class="w">  </span><span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
-<span class="w">    </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;auth&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">token</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;your_jwt_token&#39;</span>
+<span class="w">    </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'auth'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">token</span><span class="o">:</span><span class="w"> </span><span class="s1">'your_jwt_token'</span>
 <span class="w">  </span><span class="p">}));</span>
 <span class="p">};</span>
 
 <span class="nx">ws</span><span class="p">.</span><span class="nx">onmessage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">event</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
-<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Received:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">message</span><span class="p">);</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'Received:'</span><span class="p">,</span><span class="w"> </span><span class="nx">message</span><span class="p">);</span>
 <span class="p">};</span>
 </code></pre></div>
 
 <h3 id="subscribing-to-events">Subscribing to Events | الاشتراك في الأحداث<a class="headerlink" href="#subscribing-to-events" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Subscribe to field updates</span>
 <span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;subscribe&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">channel</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;field.updates&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">field_id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;field_123&#39;</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'subscribe'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">channel</span><span class="o">:</span><span class="w"> </span><span class="s1">'field.updates'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">field_id</span><span class="o">:</span><span class="w"> </span><span class="s1">'field_123'</span>
 <span class="p">}));</span>
 
 <span class="c1">// Subscribe to alerts</span>
 <span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;subscribe&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">channel</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;alerts&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">severity</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;critical&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;warning&#39;</span><span class="p">]</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'subscribe'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">channel</span><span class="o">:</span><span class="w"> </span><span class="s1">'alerts'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">severity</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">'critical'</span><span class="p">,</span><span class="w"> </span><span class="s1">'warning'</span><span class="p">]</span>
 <span class="p">}));</span>
 </code></pre></div>
 
@@ -2000,23 +2000,23 @@ curl<span class="w"> </span>https://api.sahool.io/api/v1/fields<span class="w"> 
 <div class="codehilite"><pre><span></span><code>npm<span class="w"> </span>install<span class="w"> </span>@sahool/api-client
 </code></pre></div>
 
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SahoolClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@sahool/api-client&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SahoolClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@sahool/api-client'</span><span class="p">;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">SahoolClient</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">baseUrl</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://api.sahool.io&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">token</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;your_jwt_token&#39;</span>
+<span class="w">  </span><span class="nx">baseUrl</span><span class="o">:</span><span class="w"> </span><span class="s1">'https://api.sahool.io'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">token</span><span class="o">:</span><span class="w"> </span><span class="s1">'your_jwt_token'</span>
 <span class="p">});</span>
 
 <span class="c1">// Fields</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">fields</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">client</span><span class="p">.</span><span class="nx">fields</span><span class="p">.</span><span class="nx">list</span><span class="p">();</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">client</span><span class="p">.</span><span class="nx">fields</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;field_123&#39;</span><span class="p">);</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">newField</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">client</span><span class="p">.</span><span class="nx">fields</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;New Field&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">});</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">client</span><span class="p">.</span><span class="nx">fields</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'field_123'</span><span class="p">);</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">newField</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">client</span><span class="p">.</span><span class="nx">fields</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">'New Field'</span><span class="p">,</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">});</span>
 
 <span class="c1">// Weather</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">weather</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">client</span><span class="p">.</span><span class="nx">weather</span><span class="p">.</span><span class="nx">getCurrent</span><span class="p">({</span><span class="w"> </span><span class="nx">lat</span><span class="o">:</span><span class="w"> </span><span class="kt">24.7</span><span class="p">,</span><span class="w"> </span><span class="nx">lon</span><span class="o">:</span><span class="w"> </span><span class="kt">46.6</span><span class="w"> </span><span class="p">});</span>
 
 <span class="c1">// Advisory</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">advice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">client</span><span class="p">.</span><span class="nx">advisory</span><span class="p">.</span><span class="nx">getRecommendation</span><span class="p">({</span><span class="w"> </span><span class="nx">field_id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;field_123&#39;</span><span class="w"> </span><span class="p">});</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">advice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">client</span><span class="p">.</span><span class="nx">advisory</span><span class="p">.</span><span class="nx">getRecommendation</span><span class="p">({</span><span class="w"> </span><span class="nx">field_id</span><span class="o">:</span><span class="w"> </span><span class="s1">'field_123'</span><span class="w"> </span><span class="p">});</span>
 </code></pre></div>
 
 <h3 id="flutterdart">Flutter/Dart<a class="headerlink" href="#flutterdart" title="Permanent link">&para;</a></h3>
@@ -2025,11 +2025,11 @@ curl<span class="w"> </span>https://api.sahool.io/api/v1/fields<span class="w"> 
 <span class="w">  </span><span class="nt">sahool_api</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^16.0.0</span>
 </code></pre></div>
 
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="s1">&#39;package:sahool_api/sahool_api.dart&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="s1">'package:sahool_api/sahool_api.dart'</span><span class="p">;</span>
 
 <span class="kd">final</span><span class="w"> </span><span class="n">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SahoolApiClient</span><span class="p">(</span>
-<span class="w">  </span><span class="nl">baseUrl:</span><span class="w"> </span><span class="s1">&#39;https://api.sahool.io&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nl">token:</span><span class="w"> </span><span class="s1">&#39;your_jwt_token&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nl">baseUrl:</span><span class="w"> </span><span class="s1">'https://api.sahool.io'</span><span class="p">,</span>
+<span class="w">  </span><span class="nl">token:</span><span class="w"> </span><span class="s1">'your_jwt_token'</span><span class="p">,</span>
 <span class="p">);</span>
 
 <span class="c1">// Get fields</span>
@@ -2049,8 +2049,8 @@ curl<span class="w"> </span>https://api.sahool.io/api/v1/fields<span class="w"> 
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">sahool_client</span><span class="w"> </span><span class="kn">import</span> <span class="n">SahoolClient</span>
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">SahoolClient</span><span class="p">(</span>
-    <span class="n">base_url</span><span class="o">=</span><span class="s1">&#39;https://api.sahool.io&#39;</span><span class="p">,</span>
-    <span class="n">token</span><span class="o">=</span><span class="s1">&#39;your_jwt_token&#39;</span>
+    <span class="n">base_url</span><span class="o">=</span><span class="s1">'https://api.sahool.io'</span><span class="p">,</span>
+    <span class="n">token</span><span class="o">=</span><span class="s1">'your_jwt_token'</span>
 <span class="p">)</span>
 
 <span class="c1"># Get fields</span>
@@ -2058,9 +2058,9 @@ curl<span class="w"> </span>https://api.sahool.io/api/v1/fields<span class="w"> 
 
 <span class="c1"># Create field</span>
 <span class="n">new_field</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s1">&#39;New Field&#39;</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s1">'New Field'</span><span class="p">,</span>
     <span class="n">boundary</span><span class="o">=</span><span class="n">geojson_polygon</span><span class="p">,</span>
-    <span class="n">crop_type</span><span class="o">=</span><span class="s1">&#39;wheat&#39;</span>
+    <span class="n">crop_type</span><span class="o">=</span><span class="s1">'wheat'</span>
 <span class="p">)</span>
 
 <span class="c1"># Get weather</span>
@@ -2130,10 +2130,10 @@ curl<span class="w"> </span>https://api.sahool.io/api/v1/fields<span class="w"> 
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

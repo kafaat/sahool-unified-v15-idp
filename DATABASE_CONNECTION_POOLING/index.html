@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1197,10 +1197,10 @@
 <h3 id="prisma-schema-configuration">Prisma Schema Configuration<a class="headerlink" href="#prisma-schema-configuration" title="Permanent link">&para;</a></h3>
 <p>All Prisma schemas have been updated with:</p>
 <div class="codehilite"><pre><span></span><code>datasource db {
-  provider = &quot;postgresql&quot;
-  url      = env(&quot;DATABASE_URL&quot;)
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
   // Direct URL for migrations (bypasses PgBouncer)
-  directUrl = env(&quot;DATABASE_URL_DIRECT&quot;)
+  directUrl = env("DATABASE_URL_DIRECT")
 }
 </code></pre></div>
 
@@ -1214,16 +1214,16 @@
 <h4 id="per-service-database_url">Per-Service DATABASE_URL<a class="headerlink" href="#per-service-database_url" title="Permanent link">&para;</a></h4>
 <p>Each service should use the appropriate connection URL based on its tier:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># High Traffic Services</span>
-<span class="nv">DATABASE_URL</span><span class="o">=</span><span class="s2">&quot;postgresql://user:pass@pgbouncer:6432/db?sslmode=require&amp;pgbouncer=true&amp;connection_limit=10&amp;pool_timeout=20&amp;connect_timeout=10&amp;statement_timeout=30000&quot;</span>
+<span class="nv">DATABASE_URL</span><span class="o">=</span><span class="s2">"postgresql://user:pass@pgbouncer:6432/db?sslmode=require&amp;pgbouncer=true&amp;connection_limit=10&amp;pool_timeout=20&amp;connect_timeout=10&amp;statement_timeout=30000"</span>
 
 <span class="c1"># Medium Traffic Services</span>
-<span class="nv">DATABASE_URL</span><span class="o">=</span><span class="s2">&quot;postgresql://user:pass@pgbouncer:6432/db?sslmode=require&amp;pgbouncer=true&amp;connection_limit=8&amp;pool_timeout=20&amp;connect_timeout=10&amp;statement_timeout=30000&quot;</span>
+<span class="nv">DATABASE_URL</span><span class="o">=</span><span class="s2">"postgresql://user:pass@pgbouncer:6432/db?sslmode=require&amp;pgbouncer=true&amp;connection_limit=8&amp;pool_timeout=20&amp;connect_timeout=10&amp;statement_timeout=30000"</span>
 
 <span class="c1"># Low Traffic Services</span>
-<span class="nv">DATABASE_URL</span><span class="o">=</span><span class="s2">&quot;postgresql://user:pass@pgbouncer:6432/db?sslmode=require&amp;pgbouncer=true&amp;connection_limit=6&amp;pool_timeout=20&amp;connect_timeout=10&amp;statement_timeout=30000&quot;</span>
+<span class="nv">DATABASE_URL</span><span class="o">=</span><span class="s2">"postgresql://user:pass@pgbouncer:6432/db?sslmode=require&amp;pgbouncer=true&amp;connection_limit=6&amp;pool_timeout=20&amp;connect_timeout=10&amp;statement_timeout=30000"</span>
 
 <span class="c1"># For Migrations (all services)</span>
-<span class="nv">DATABASE_URL_DIRECT</span><span class="o">=</span><span class="s2">&quot;postgresql://user:pass@postgres:5432/db?sslmode=require&amp;connect_timeout=10&amp;keepalives=1&amp;keepalives_idle=30&amp;keepalives_interval=10&amp;keepalives_count=5&quot;</span>
+<span class="nv">DATABASE_URL_DIRECT</span><span class="o">=</span><span class="s2">"postgresql://user:pass@postgres:5432/db?sslmode=require&amp;connect_timeout=10&amp;keepalives=1&amp;keepalives_idle=30&amp;keepalives_interval=10&amp;keepalives_count=5"</span>
 </code></pre></div>
 
 <h4 id="connection-pool-parameters">Connection Pool Parameters<a class="headerlink" href="#connection-pool-parameters" title="Permanent link">&para;</a></h4>
@@ -1337,7 +1337,7 @@
 <span class="w">      </span><span class="nx">timestamp</span><span class="o">:</span><span class="w"> </span><span class="kt">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">().</span><span class="nx">toISOString</span><span class="p">(),</span>
 <span class="w">    </span><span class="p">};</span>
 <span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">logger</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;Failed to get pool metrics:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="p">);</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">logger</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">'Failed to get pool metrics:'</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="p">);</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
@@ -1351,7 +1351,7 @@
 <span class="w">    </span><span class="k">wait</span>:<span class="w"> </span><span class="mi">0</span>,<span class="w">       </span><span class="o">//</span><span class="w"> </span><span class="nv">Connections</span><span class="w"> </span><span class="nv">waiting</span>
 <span class="w">    </span><span class="nv">total</span>:<span class="w"> </span><span class="mi">1547</span><span class="w">    </span><span class="o">//</span><span class="w"> </span><span class="nv">Total</span><span class="w"> </span><span class="nv">queries</span>
 <span class="w">  </span>},
-<span class="w">  </span><span class="nv">timestamp</span>:<span class="w"> </span><span class="s2">&quot;2026-01-06T12:00:00.000Z&quot;</span>
+<span class="w">  </span><span class="nv">timestamp</span>:<span class="w"> </span><span class="s2">"2026-01-06T12:00:00.000Z"</span>
 }
 </code></pre></div>
 
@@ -1400,13 +1400,13 @@ prisma_client_queries_total 1547
 <p>Always use Prisma's built-in lifecycle hooks:</p>
 <div class="codehilite"><pre><span></span><code><span class="k">async</span><span class="w"> </span><span class="nx">onModuleDestroy</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">$disconnect</span><span class="p">();</span>
-<span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="nx">logger</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Database disconnected&#39;</span><span class="p">);</span>
+<span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="nx">logger</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'Database disconnected'</span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <h3 id="3-query-optimization">3. Query Optimization<a class="headerlink" href="#3-query-optimization" title="Permanent link">&para;</a></h3>
 <p>Monitor slow queries (&gt;1000ms threshold):</p>
-<div class="codehilite"><pre><span></span><code><span class="k">this</span><span class="p">.</span><span class="nx">$on</span><span class="p">(</span><span class="s2">&quot;query&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<div class="codehilite"><pre><span></span><code><span class="k">this</span><span class="p">.</span><span class="nx">$on</span><span class="p">(</span><span class="s2">"query"</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">.</span><span class="nx">duration</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">1000</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">logger</span><span class="p">.</span><span class="nx">warn</span><span class="p">(</span><span class="sb">`Slow query detected (</span><span class="si">${</span><span class="nx">e</span><span class="p">.</span><span class="nx">duration</span><span class="si">}</span><span class="sb">ms): </span><span class="si">${</span><span class="nx">e</span><span class="p">.</span><span class="nx">query</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
 <span class="w">  </span><span class="p">}</span>
@@ -1436,7 +1436,7 @@ prisma_client_queries_total 1547
 <h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
 <h3 id="issue-too-many-connections-error">Issue: "Too many connections" Error<a class="headerlink" href="#issue-too-many-connections-error" title="Permanent link">&para;</a></h3>
 <p><strong>Symptoms:</strong></p>
-<div class="codehilite"><pre><span></span><code>Error: P1001: Can&#39;t reach database server at `pgbouncer:6432`
+<div class="codehilite"><pre><span></span><code>Error: P1001: Can't reach database server at `pgbouncer:6432`
 </code></pre></div>
 
 <p><strong>Solutions:</strong></p>
@@ -1448,10 +1448,10 @@ prisma_client_queries_total 1547
 </ol>
 <p><strong>Diagnostic:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Check PgBouncer status</span>
-docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>pgbouncer<span class="w"> </span>psql<span class="w"> </span>-p<span class="w"> </span><span class="m">6432</span><span class="w"> </span>-d<span class="w"> </span>pgbouncer<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SHOW POOLS;&quot;</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>pgbouncer<span class="w"> </span>psql<span class="w"> </span>-p<span class="w"> </span><span class="m">6432</span><span class="w"> </span>-d<span class="w"> </span>pgbouncer<span class="w"> </span>-c<span class="w"> </span><span class="s2">"SHOW POOLS;"</span>
 
 <span class="c1"># Check PostgreSQL connections</span>
-docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SELECT count(*) FROM pg_stat_activity;&quot;</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">"SELECT count(*) FROM pg_stat_activity;"</span>
 </code></pre></div>
 
 <h3 id="issue-connection-timeouts">Issue: Connection Timeouts<a class="headerlink" href="#issue-connection-timeouts" title="Permanent link">&para;</a></h3>
@@ -1486,12 +1486,12 @@ docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </spa
 </ol>
 <p><strong>Diagnostic:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Check PostgreSQL idle connections</span>
-docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
 <span class="s2">  SELECT state, count(*)</span>
 <span class="s2">  FROM pg_stat_activity</span>
-<span class="s2">  WHERE datname = &#39;sahool&#39;</span>
+<span class="s2">  WHERE datname = 'sahool'</span>
 <span class="s2">  GROUP BY state;</span>
-<span class="s2">&quot;</span>
+<span class="s2">"</span>
 </code></pre></div>
 
 <h3 id="issue-high-pool-wait-times">Issue: High Pool Wait Times<a class="headerlink" href="#issue-high-pool-wait-times" title="Permanent link">&para;</a></h3>
@@ -1512,12 +1512,12 @@ docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </spa
 <h3 id="running-migrations">Running Migrations<a class="headerlink" href="#running-migrations" title="Permanent link">&para;</a></h3>
 <p>Always use <code>DATABASE_URL_DIRECT</code> for migrations:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Set direct connection for migrations</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">DATABASE_URL</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">DATABASE_URL_DIRECT</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">DATABASE_URL</span><span class="o">=</span><span class="s2">"</span><span class="si">${</span><span class="nv">DATABASE_URL_DIRECT</span><span class="si">}</span><span class="s2">"</span>
 
 <span class="c1"># Run Prisma migrations</span>
 npx<span class="w"> </span>prisma<span class="w"> </span>migrate<span class="w"> </span>deploy
 
-<span class="c1"># Or using Prisma&#39;s built-in directUrl</span>
+<span class="c1"># Or using Prisma's built-in directUrl</span>
 npx<span class="w"> </span>prisma<span class="w"> </span>migrate<span class="w"> </span>deploy
 <span class="c1"># (automatically uses directUrl from schema)</span>
 </code></pre></div>
@@ -1630,10 +1630,10 @@ npx<span class="w"> </span>prisma<span class="w"> </span>migrate<span class="w">
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

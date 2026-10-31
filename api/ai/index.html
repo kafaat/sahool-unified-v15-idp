@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1147,29 +1147,29 @@
 <p>Ask a general agricultural question.</p>
 <p><strong>Request Body:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;question&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;What is the best time to plant wheat in Sanaa?&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;language&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;en&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;context&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field-123&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;location&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sanaa&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;current_season&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;winter&quot;</span>
+<span class="w">  </span><span class="nt">"question"</span><span class="p">:</span><span class="w"> </span><span class="s2">"What is the best time to plant wheat in Sanaa?"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"language"</span><span class="p">:</span><span class="w"> </span><span class="s2">"en"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"context"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"field_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"field-123"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"location"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sanaa"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"current_season"</span><span class="p">:</span><span class="w"> </span><span class="s2">"winter"</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <p><strong>Response:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;answer&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The best time to plant wheat in Sanaa is from mid-October to mid-November. This timing allows the crop to benefit from winter rains and cooler temperatures during the growing season.&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;answer_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;أفضل وقت لزراعة القمح في صنعاء هو من منتصف أكتوبر إلى منتصف نوفمبر...&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;confidence&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.92</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;sources&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="s2">&quot;Yemen Agricultural Research&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="s2">&quot;Local Farming Practices Database&quot;</span>
+<span class="w">  </span><span class="nt">"answer"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The best time to plant wheat in Sanaa is from mid-October to mid-November. This timing allows the crop to benefit from winter rains and cooler temperatures during the growing season."</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"answer_ar"</span><span class="p">:</span><span class="w"> </span><span class="s2">"أفضل وقت لزراعة القمح في صنعاء هو من منتصف أكتوبر إلى منتصف نوفمبر..."</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"confidence"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.92</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"sources"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">"Yemen Agricultural Research"</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"Local Farming Practices Database"</span>
 <span class="w">  </span><span class="p">],</span>
-<span class="w">  </span><span class="nt">&quot;agent&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_analyst&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;follow_up_questions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="s2">&quot;What wheat variety is recommended for Sanaa?&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="s2">&quot;How much irrigation does wheat need?&quot;</span>
+<span class="w">  </span><span class="nt">"agent"</span><span class="p">:</span><span class="w"> </span><span class="s2">"field_analyst"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"follow_up_questions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">"What wheat variety is recommended for Sanaa?"</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"How much irrigation does wheat need?"</span>
 <span class="w">  </span><span class="p">]</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1178,55 +1178,55 @@
 <p>Diagnose crop diseases from symptoms or images.</p>
 <p><strong>Request Body:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;crop_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;wheat&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;symptoms&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;leaf_color&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;yellow_spots&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;leaf_texture&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;powdery_coating&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;stem_condition&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;normal&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;severity&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;moderate&quot;</span>
+<span class="w">  </span><span class="nt">"crop_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"wheat"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"symptoms"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"leaf_color"</span><span class="p">:</span><span class="w"> </span><span class="s2">"yellow_spots"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"leaf_texture"</span><span class="p">:</span><span class="w"> </span><span class="s2">"powdery_coating"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"stem_condition"</span><span class="p">:</span><span class="w"> </span><span class="s2">"normal"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"severity"</span><span class="p">:</span><span class="w"> </span><span class="s2">"moderate"</span>
 <span class="w">  </span><span class="p">},</span>
-<span class="w">  </span><span class="nt">&quot;image_path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/uploads/crop-image-123.jpg&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;location&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sanaa&quot;</span>
+<span class="w">  </span><span class="nt">"image_path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/uploads/crop-image-123.jpg"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"location"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sanaa"</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <p><strong>Response:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;diagnosis&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;disease&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;powdery_mildew&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;disease_name_en&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Powdery Mildew&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;disease_name_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;البياض الدقيقي&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;confidence&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.87</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;severity&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;moderate&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Fungal disease causing white powdery growth on leaves&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;description_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;مرض فطري يسبب نموًا أبيض مسحوقيًا على الأوراق&quot;</span>
+<span class="w">  </span><span class="nt">"diagnosis"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"disease"</span><span class="p">:</span><span class="w"> </span><span class="s2">"powdery_mildew"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"disease_name_en"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Powdery Mildew"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"disease_name_ar"</span><span class="p">:</span><span class="w"> </span><span class="s2">"البياض الدقيقي"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"confidence"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.87</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"severity"</span><span class="p">:</span><span class="w"> </span><span class="s2">"moderate"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Fungal disease causing white powdery growth on leaves"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"description_ar"</span><span class="p">:</span><span class="w"> </span><span class="s2">"مرض فطري يسبب نموًا أبيض مسحوقيًا على الأوراق"</span>
 <span class="w">  </span><span class="p">},</span>
-<span class="w">  </span><span class="nt">&quot;treatment&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;immediate_actions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">      </span><span class="s2">&quot;Remove heavily infected leaves&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="s2">&quot;Improve air circulation&quot;</span>
+<span class="w">  </span><span class="nt">"treatment"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"immediate_actions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="s2">"Remove heavily infected leaves"</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">"Improve air circulation"</span>
 <span class="w">    </span><span class="p">],</span>
-<span class="w">    </span><span class="nt">&quot;chemical_treatment&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;fungicide&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Sulfur-based fungicide&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;dosage&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;3 g/L water&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;frequency&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Every 7-10 days&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;duration&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2-3 applications&quot;</span>
+<span class="w">    </span><span class="nt">"chemical_treatment"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"fungicide"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Sulfur-based fungicide"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"dosage"</span><span class="p">:</span><span class="w"> </span><span class="s2">"3 g/L water"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"frequency"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Every 7-10 days"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"duration"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2-3 applications"</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">&quot;organic_treatment&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;method&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Neem oil spray&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;dosage&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;5 ml/L water&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;frequency&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Weekly&quot;</span>
+<span class="w">    </span><span class="nt">"organic_treatment"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Neem oil spray"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"dosage"</span><span class="p">:</span><span class="w"> </span><span class="s2">"5 ml/L water"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"frequency"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Weekly"</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">&quot;preventive_measures&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">      </span><span class="s2">&quot;Avoid overhead irrigation&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="s2">&quot;Plant resistant varieties&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="s2">&quot;Maintain proper spacing&quot;</span>
+<span class="w">    </span><span class="nt">"preventive_measures"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="s2">"Avoid overhead irrigation"</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">"Plant resistant varieties"</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">"Maintain proper spacing"</span>
 <span class="w">    </span><span class="p">]</span>
 <span class="w">  </span><span class="p">},</span>
-<span class="w">  </span><span class="nt">&quot;estimated_yield_impact&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;if_treated&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">-5</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;if_untreated&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">-25</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;unit&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;percent&quot;</span>
+<span class="w">  </span><span class="nt">"estimated_yield_impact"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"if_treated"</span><span class="p">:</span><span class="w"> </span><span class="mi">-5</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"if_untreated"</span><span class="p">:</span><span class="w"> </span><span class="mi">-25</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"unit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"percent"</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1235,36 +1235,36 @@
 <p>Get recommendations for irrigation, fertilization, or pest management.</p>
 <p><strong>Request Body:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;crop_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;wheat&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;growth_stage&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tillering&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;recommendation_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fertilizer&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;field_data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;soil_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;loamy&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;soil_ph&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">7.2</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;area_hectares&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.5</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;last_fertilization&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-01-01&quot;</span>
+<span class="w">  </span><span class="nt">"crop_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"wheat"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"growth_stage"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tillering"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"recommendation_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fertilizer"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"field_data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"soil_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"loamy"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"soil_ph"</span><span class="p">:</span><span class="w"> </span><span class="mf">7.2</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"area_hectares"</span><span class="p">:</span><span class="w"> </span><span class="mf">5.5</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"last_fertilization"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-01"</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <p><strong>Response:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;recommendations&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="nt">"recommendations"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;nitrogen_application&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;priority&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;high&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;timing&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;now&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;details&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;fertilizer&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Urea (46-0-0)&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;rate_kg_ha&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">80</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;total_amount_kg&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">440</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;application_method&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;broadcast&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;timing_note&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Apply during tillering stage for optimal uptake&quot;</span>
+<span class="w">      </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"nitrogen_application"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"priority"</span><span class="p">:</span><span class="w"> </span><span class="s2">"high"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"timing"</span><span class="p">:</span><span class="w"> </span><span class="s2">"now"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"fertilizer"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Urea (46-0-0)"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"rate_kg_ha"</span><span class="p">:</span><span class="w"> </span><span class="mi">80</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"total_amount_kg"</span><span class="p">:</span><span class="w"> </span><span class="mi">440</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"application_method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"broadcast"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"timing_note"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Apply during tillering stage for optimal uptake"</span>
 <span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;rationale&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Wheat requires high nitrogen during tillering for strong stem development&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;rationale_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;يحتاج القمح إلى نيتروجين عالي أثناء مرحلة التفريع لتطوير ساق قوي&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;expected_benefit&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;15-20% yield increase&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;cost_estimate_yer&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">26400</span>
+<span class="w">      </span><span class="nt">"rationale"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Wheat requires high nitrogen during tillering for strong stem development"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"rationale_ar"</span><span class="p">:</span><span class="w"> </span><span class="s2">"يحتاج القمح إلى نيتروجين عالي أثناء مرحلة التفريع لتطوير ساق قوي"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"expected_benefit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"15-20% yield increase"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"cost_estimate_yer"</span><span class="p">:</span><span class="w"> </span><span class="mi">26400</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">]</span>
 <span class="p">}</span>
@@ -1274,53 +1274,53 @@
 <p>Comprehensive field analysis combining multiple data sources.</p>
 <p><strong>Request Body:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field-123&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;crop_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;wheat&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;analysis_types&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="s2">&quot;crop_health&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="s2">&quot;yield_prediction&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="s2">&quot;irrigation_needs&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="s2">&quot;pest_risk&quot;</span>
+<span class="w">  </span><span class="nt">"field_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"field-123"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"crop_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"wheat"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"analysis_types"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">"crop_health"</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"yield_prediction"</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"irrigation_needs"</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"pest_risk"</span>
 <span class="w">  </span><span class="p">]</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <p><strong>Response:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field-123&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;analysis_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-01-15&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;crop_health&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;overall_score&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">78</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;good&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;issues&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="nt">"field_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"field-123"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"analysis_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-15"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"crop_health"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"overall_score"</span><span class="p">:</span><span class="w"> </span><span class="mi">78</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"good"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"issues"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">      </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;minor_stress&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;location&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;northwest_corner&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;severity&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;low&quot;</span>
+<span class="w">        </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"minor_stress"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"location"</span><span class="p">:</span><span class="w"> </span><span class="s2">"northwest_corner"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"severity"</span><span class="p">:</span><span class="w"> </span><span class="s2">"low"</span>
 <span class="w">      </span><span class="p">}</span>
 <span class="w">    </span><span class="p">]</span>
 <span class="w">  </span><span class="p">},</span>
-<span class="w">  </span><span class="nt">&quot;yield_prediction&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;predicted_yield_kg_ha&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3200</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;confidence&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.84</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;factors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;weather&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;favorable&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;soil_health&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;good&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;management&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;optimal&quot;</span>
+<span class="w">  </span><span class="nt">"yield_prediction"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"predicted_yield_kg_ha"</span><span class="p">:</span><span class="w"> </span><span class="mi">3200</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"confidence"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.84</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"factors"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"weather"</span><span class="p">:</span><span class="w"> </span><span class="s2">"favorable"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"soil_health"</span><span class="p">:</span><span class="w"> </span><span class="s2">"good"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"management"</span><span class="p">:</span><span class="w"> </span><span class="s2">"optimal"</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">},</span>
-<span class="w">  </span><span class="nt">&quot;irrigation_needs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;next_irrigation&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-01-17&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;amount_mm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;frequency_days&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span>
+<span class="w">  </span><span class="nt">"irrigation_needs"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"next_irrigation"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-17"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"amount_mm"</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"frequency_days"</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span>
 <span class="w">  </span><span class="p">},</span>
-<span class="w">  </span><span class="nt">&quot;pest_risk&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;overall_risk&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;low&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;pests&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="nt">"pest_risk"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"overall_risk"</span><span class="p">:</span><span class="w"> </span><span class="s2">"low"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"pests"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">      </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;pest&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;aphids&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;risk_level&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;low&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;monitoring_recommended&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">        </span><span class="nt">"pest"</span><span class="p">:</span><span class="w"> </span><span class="s2">"aphids"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"risk_level"</span><span class="p">:</span><span class="w"> </span><span class="s2">"low"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"monitoring_recommended"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="w">      </span><span class="p">}</span>
 <span class="w">    </span><span class="p">]</span>
 <span class="w">  </span><span class="p">}</span>
@@ -1332,36 +1332,36 @@
 <p>Analyze crop health from satellite imagery or field data.</p>
 <p><strong>Request Body:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field-123&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;analysis_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-01-15&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;data_sources&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;ndvi&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;field_sensors&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;visual_inspection&quot;</span><span class="p">]</span>
+<span class="w">  </span><span class="nt">"field_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"field-123"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"analysis_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-15"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"data_sources"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"ndvi"</span><span class="p">,</span><span class="w"> </span><span class="s2">"field_sensors"</span><span class="p">,</span><span class="w"> </span><span class="s2">"visual_inspection"</span><span class="p">]</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <p><strong>Response:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field-123&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;analysis_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-01-15&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;overall_health_score&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">82</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;health_status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;good&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;ndvi_analysis&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;average_ndvi&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.72</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;healthy_area_pct&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">85</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;stressed_area_pct&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;bare_soil_pct&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;zones&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="nt">"field_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"field-123"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"analysis_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-01-15"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"overall_health_score"</span><span class="p">:</span><span class="w"> </span><span class="mi">82</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"health_status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"good"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"ndvi_analysis"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"average_ndvi"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.72</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"healthy_area_pct"</span><span class="p">:</span><span class="w"> </span><span class="mi">85</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"stressed_area_pct"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"bare_soil_pct"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"zones"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">      </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;zone_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;zone-1&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;ndvi&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.75</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;health&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;excellent&quot;</span>
+<span class="w">        </span><span class="nt">"zone_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"zone-1"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"ndvi"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.75</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"health"</span><span class="p">:</span><span class="w"> </span><span class="s2">"excellent"</span>
 <span class="w">      </span><span class="p">}</span>
 <span class="w">    </span><span class="p">]</span>
 <span class="w">  </span><span class="p">},</span>
-<span class="w">  </span><span class="nt">&quot;recommendations&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="nt">"recommendations"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;action&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Investigate zone-3 for water stress&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;priority&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;medium&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;details&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;NDVI below 0.4 indicates potential irrigation issues&quot;</span>
+<span class="w">      </span><span class="nt">"action"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Investigate zone-3 for water stress"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"priority"</span><span class="p">:</span><span class="w"> </span><span class="s2">"medium"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"details"</span><span class="p">:</span><span class="w"> </span><span class="s2">"NDVI below 0.4 indicates potential irrigation issues"</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">]</span>
 <span class="p">}</span>
@@ -1372,38 +1372,38 @@
 <p>Predict crop yield based on current conditions.</p>
 <p><strong>Request Body:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field-123&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;crop_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;wheat&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;planting_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2023-11-15&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;area_hectares&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.5</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;current_growth_stage&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;grain_filling&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;weather_data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;avg_temperature_c&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;total_precipitation_mm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">250</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;sunny_days&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">45</span>
+<span class="w">  </span><span class="nt">"field_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"field-123"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"crop_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"wheat"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"planting_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2023-11-15"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"area_hectares"</span><span class="p">:</span><span class="w"> </span><span class="mf">5.5</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"current_growth_stage"</span><span class="p">:</span><span class="w"> </span><span class="s2">"grain_filling"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"weather_data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"avg_temperature_c"</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"total_precipitation_mm"</span><span class="p">:</span><span class="w"> </span><span class="mi">250</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"sunny_days"</span><span class="p">:</span><span class="w"> </span><span class="mi">45</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <p><strong>Response:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field-123&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;predicted_yield_kg&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">17600</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;predicted_yield_kg_ha&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3200</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;confidence_interval&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;lower_kg&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">15840</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;upper_kg&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">19360</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;confidence_pct&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">90</span>
+<span class="w">  </span><span class="nt">"field_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"field-123"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"predicted_yield_kg"</span><span class="p">:</span><span class="w"> </span><span class="mi">17600</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"predicted_yield_kg_ha"</span><span class="p">:</span><span class="w"> </span><span class="mi">3200</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"confidence_interval"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"lower_kg"</span><span class="p">:</span><span class="w"> </span><span class="mi">15840</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"upper_kg"</span><span class="p">:</span><span class="w"> </span><span class="mi">19360</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"confidence_pct"</span><span class="p">:</span><span class="w"> </span><span class="mi">90</span>
 <span class="w">  </span><span class="p">},</span>
-<span class="w">  </span><span class="nt">&quot;factors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;weather_impact&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.95</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;soil_health_impact&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.88</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;management_impact&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.92</span>
+<span class="w">  </span><span class="nt">"factors"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"weather_impact"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.95</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"soil_health_impact"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.88</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"management_impact"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.92</span>
 <span class="w">  </span><span class="p">},</span>
-<span class="w">  </span><span class="nt">&quot;harvest_date_estimate&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-04-20&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;quality_prediction&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;grade&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;A&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;protein_content_pct&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">12.5</span>
+<span class="w">  </span><span class="nt">"harvest_date_estimate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2024-04-20"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"quality_prediction"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"grade"</span><span class="p">:</span><span class="w"> </span><span class="s2">"A"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"protein_content_pct"</span><span class="p">:</span><span class="w"> </span><span class="mf">12.5</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1412,7 +1412,7 @@
 <h3 id="ai-question-request">AI Question Request<a class="headerlink" href="#ai-question-request" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="kd">interface</span><span class="w"> </span><span class="nx">QuestionRequest</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="nx">question</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
-<span class="w">  </span><span class="nx">language</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;en&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;ar&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">language</span><span class="o">:</span><span class="w"> </span><span class="s2">"en"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"ar"</span><span class="p">;</span>
 <span class="w">  </span><span class="nx">context</span><span class="o">?:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">field_id?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
 <span class="w">    </span><span class="nx">location?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
@@ -1429,7 +1429,7 @@
 <span class="w">    </span><span class="nx">disease_name_en</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
 <span class="w">    </span><span class="nx">disease_name_ar</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
 <span class="w">    </span><span class="nx">confidence</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
-<span class="w">    </span><span class="nx">severity</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;low&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;moderate&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;high&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;critical&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="nx">severity</span><span class="o">:</span><span class="w"> </span><span class="s2">"low"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"moderate"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"high"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"critical"</span><span class="p">;</span>
 <span class="w">  </span><span class="p">};</span>
 <span class="w">  </span><span class="nx">treatment</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">immediate_actions</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">[];</span>
@@ -1495,10 +1495,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

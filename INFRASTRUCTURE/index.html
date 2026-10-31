@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1128,12 +1128,12 @@
 </ul>
 <h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
 <div class="codehilite"><pre><span></span><code><span class="n">graph</span><span class="w"> </span><span class="n">TB</span>
-<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="s">&quot;Kubernetes Cluster&quot;</span>
-<span class="w">        </span><span class="n">subgraph</span><span class="w"> </span><span class="s">&quot;Ingress Layer&quot;</span>
+<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="s">"Kubernetes Cluster"</span>
+<span class="w">        </span><span class="n">subgraph</span><span class="w"> </span><span class="s">"Ingress Layer"</span>
 <span class="w">            </span><span class="n">INGRESS</span><span class="p">[</span><span class="n">Ingress</span><span class="w"> </span><span class="n">Controller</span><span class="p">]</span>
 <span class="w">        </span><span class="n">end</span>
 
-<span class="w">        </span><span class="n">subgraph</span><span class="w"> </span><span class="s">&quot;Application Layer&quot;</span>
+<span class="w">        </span><span class="n">subgraph</span><span class="w"> </span><span class="s">"Application Layer"</span>
 <span class="w">            </span><span class="n">GATEWAY</span><span class="p">[</span><span class="n">API</span><span class="w"> </span><span class="n">Gateway</span><span class="p">]</span>
 <span class="w">            </span><span class="n">FRONTEND</span><span class="p">[</span><span class="n">Frontend</span><span class="w"> </span><span class="n">Service</span><span class="p">]</span>
 <span class="w">            </span><span class="n">IDP</span><span class="p">[</span><span class="n">IDP</span><span class="w"> </span><span class="n">Service</span><span class="p">]</span>
@@ -1142,12 +1142,12 @@
 <span class="w">            </span><span class="n">COMMUNICATION</span><span class="p">[</span><span class="n">Communication</span><span class="w"> </span><span class="n">Service</span><span class="p">]</span>
 <span class="w">        </span><span class="n">end</span>
 
-<span class="w">        </span><span class="n">subgraph</span><span class="w"> </span><span class="s">&quot;Data Layer&quot;</span>
+<span class="w">        </span><span class="n">subgraph</span><span class="w"> </span><span class="s">"Data Layer"</span>
 <span class="w">            </span><span class="n">POSTGRES</span><span class="p">[(</span><span class="n">PostgreSQL</span><span class="p">)]</span>
 <span class="w">            </span><span class="n">REDIS</span><span class="p">[(</span><span class="n">Redis</span><span class="p">)]</span>
 <span class="w">        </span><span class="n">end</span>
 
-<span class="w">        </span><span class="n">subgraph</span><span class="w"> </span><span class="s">&quot;External Services&quot;</span>
+<span class="w">        </span><span class="n">subgraph</span><span class="w"> </span><span class="s">"External Services"</span>
 <span class="w">            </span><span class="n">OPENWEATHER</span><span class="p">[</span><span class="n">OpenWeather</span><span class="w"> </span><span class="n">API</span><span class="p">]</span>
 <span class="w">            </span><span class="n">SENTINEL</span><span class="p">[</span><span class="n">Sentinel</span><span class="w"> </span><span class="n">Hub</span><span class="p">]</span>
 <span class="w">            </span><span class="n">STRIPE</span><span class="p">[</span><span class="n">Stripe</span><span class="p">]</span>
@@ -1187,7 +1187,7 @@
 </ul>
 <h3 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># kubectl</span>
-curl<span class="w"> </span>-LO<span class="w"> </span><span class="s2">&quot;https://dl.k8s.io/release/</span><span class="k">$(</span>curl<span class="w"> </span>-L<span class="w"> </span>-s<span class="w"> </span>https://dl.k8s.io/release/stable.txt<span class="k">)</span><span class="s2">/bin/linux/amd64/kubectl&quot;</span>
+curl<span class="w"> </span>-LO<span class="w"> </span><span class="s2">"https://dl.k8s.io/release/</span><span class="k">$(</span>curl<span class="w"> </span>-L<span class="w"> </span>-s<span class="w"> </span>https://dl.k8s.io/release/stable.txt<span class="k">)</span><span class="s2">/bin/linux/amd64/kubectl"</span>
 sudo<span class="w"> </span>install<span class="w"> </span>-o<span class="w"> </span>root<span class="w"> </span>-g<span class="w"> </span>root<span class="w"> </span>-m<span class="w"> </span><span class="m">0755</span><span class="w"> </span>kubectl<span class="w"> </span>/usr/local/bin/kubectl
 
 <span class="c1"># Helm</span>
@@ -1242,7 +1242,7 @@ kubectl<span class="w"> </span>get<span class="w"> </span>nodes
 <div class="codehilite"><pre><span></span><code><span class="nv">JWT_SECRET</span><span class="o">=</span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">64</span><span class="k">)</span>
 kubectl<span class="w"> </span>create<span class="w"> </span>secret<span class="w"> </span>generic<span class="w"> </span>sahool-jwt-secret<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--namespace<span class="o">=</span>sahool-staging<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--from-literal<span class="o">=</span>jwt-secret<span class="o">=</span><span class="s2">&quot;</span><span class="nv">$JWT_SECRET</span><span class="s2">&quot;</span>
+<span class="w">  </span>--from-literal<span class="o">=</span>jwt-secret<span class="o">=</span><span class="s2">"</span><span class="nv">$JWT_SECRET</span><span class="s2">"</span>
 </code></pre></div>
 
 <h4 id="4-external-api-secrets">4. External API Secrets<a class="headerlink" href="#4-external-api-secrets" title="Permanent link">&para;</a></h4>
@@ -1362,9 +1362,9 @@ kubectl<span class="w"> </span>create<span class="w"> </span>secret<span class="
 </code></pre></div>
 
 <p><strong>B. Use existing secrets:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">POSTGRES_PASSWORD</span><span class="o">=</span><span class="s2">&quot;your-existing-password&quot;</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">REDIS_PASSWORD</span><span class="o">=</span><span class="s2">&quot;your-existing-password&quot;</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">JWT_SECRET</span><span class="o">=</span><span class="s2">&quot;your-existing-jwt-secret&quot;</span>
+<div class="codehilite"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">POSTGRES_PASSWORD</span><span class="o">=</span><span class="s2">"your-existing-password"</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">REDIS_PASSWORD</span><span class="o">=</span><span class="s2">"your-existing-password"</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">JWT_SECRET</span><span class="o">=</span><span class="s2">"your-existing-jwt-secret"</span>
 </code></pre></div>
 
 <h3 id="4-run-infrastructure-setup">4. Run Infrastructure Setup<a class="headerlink" href="#4-run-infrastructure-setup" title="Permanent link">&para;</a></h3>
@@ -1423,11 +1423,11 @@ helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class=
 <span class="w">    </span><span class="nt">existingSecret</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-postgresql-secret</span>
 <span class="w">  </span><span class="nt">resources</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">requests</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;256Mi&quot;</span>
-<span class="w">      </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;250m&quot;</span>
+<span class="w">      </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="s">"256Mi"</span>
+<span class="w">      </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="s">"250m"</span>
 <span class="w">    </span><span class="nt">limits</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1Gi&quot;</span>
-<span class="w">      </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1000m&quot;</span>
+<span class="w">      </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="s">"1Gi"</span>
+<span class="w">      </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="s">"1000m"</span>
 
 <span class="nt">redis</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
@@ -1435,11 +1435,11 @@ helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class=
 <span class="w">    </span><span class="nt">existingSecret</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-redis-secret</span>
 <span class="w">  </span><span class="nt">resources</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">requests</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;128Mi&quot;</span>
-<span class="w">      </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;100m&quot;</span>
+<span class="w">      </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="s">"128Mi"</span>
+<span class="w">      </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="s">"100m"</span>
 <span class="w">    </span><span class="nt">limits</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;512Mi&quot;</span>
-<span class="w">      </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;500m&quot;</span>
+<span class="w">      </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="s">"512Mi"</span>
+<span class="w">      </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="s">"500m"</span>
 </code></pre></div>
 
 <p><strong>values-production.yaml:</strong></p>
@@ -1452,11 +1452,11 @@ helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class=
 <span class="w">    </span><span class="nt">existingSecret</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-postgresql-secret</span>
 <span class="w">  </span><span class="nt">resources</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">requests</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1Gi&quot;</span>
-<span class="w">      </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1000m&quot;</span>
+<span class="w">      </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="s">"1Gi"</span>
+<span class="w">      </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="s">"1000m"</span>
 <span class="w">    </span><span class="nt">limits</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;4Gi&quot;</span>
-<span class="w">      </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2000m&quot;</span>
+<span class="w">      </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="s">"4Gi"</span>
+<span class="w">      </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="s">"2000m"</span>
 <span class="w">  </span><span class="nt">replication</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">    </span><span class="nt">readReplicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
@@ -1468,20 +1468,20 @@ helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class=
 <span class="w">  </span><span class="nt">master</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">resources</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">requests</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;512Mi&quot;</span>
-<span class="w">        </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;500m&quot;</span>
+<span class="w">        </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="s">"512Mi"</span>
+<span class="w">        </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="s">"500m"</span>
 <span class="w">      </span><span class="nt">limits</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2Gi&quot;</span>
-<span class="w">        </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1000m&quot;</span>
+<span class="w">        </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="s">"2Gi"</span>
+<span class="w">        </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="s">"1000m"</span>
 <span class="w">  </span><span class="nt">replica</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">replicaCount</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
 <span class="w">    </span><span class="nt">resources</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">requests</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;512Mi&quot;</span>
-<span class="w">        </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;500m&quot;</span>
+<span class="w">        </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="s">"512Mi"</span>
+<span class="w">        </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="s">"500m"</span>
 <span class="w">      </span><span class="nt">limits</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2Gi&quot;</span>
-<span class="w">        </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1000m&quot;</span>
+<span class="w">        </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="s">"2Gi"</span>
+<span class="w">        </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="s">"1000m"</span>
 </code></pre></div>
 
 <h3 id="environment-variables">Environment Variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h3>
@@ -1490,7 +1490,7 @@ helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class=
 <span class="w">  </span><span class="nt">idp</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">env</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">NODE_ENV</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">production</span>
-<span class="w">      </span><span class="nt">PORT</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3000&quot;</span>
+<span class="w">      </span><span class="nt">PORT</span><span class="p">:</span><span class="w"> </span><span class="s">"3000"</span>
 <span class="w">      </span><span class="nt">LOG_LEVEL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">info</span>
 <span class="w">      </span><span class="nt">DATABASE_URL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgresql://user:pass@postgres:5432/sahool_idp</span>
 <span class="w">      </span><span class="nt">REDIS_URL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis://:pass@redis:6379</span>
@@ -1646,7 +1646,7 @@ kubectl<span class="w"> </span>get<span class="w"> </span>secret<span class="w">
 kubectl<span class="w"> </span>delete<span class="w"> </span>secret<span class="w"> </span>sahool-jwt-secret<span class="w"> </span>-n<span class="w"> </span><span class="nv">$NAMESPACE</span>
 kubectl<span class="w"> </span>create<span class="w"> </span>secret<span class="w"> </span>generic<span class="w"> </span>sahool-jwt-secret<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--namespace<span class="o">=</span><span class="nv">$NAMESPACE</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--from-literal<span class="o">=</span>jwt-secret<span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">64</span><span class="k">)</span><span class="s2">&quot;</span>
+<span class="w">  </span>--from-literal<span class="o">=</span>jwt-secret<span class="o">=</span><span class="s2">"</span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">64</span><span class="k">)</span><span class="s2">"</span>
 </code></pre></div>
 
 <h2 id="scaling">Scaling<a class="headerlink" href="#scaling" title="Permanent link">&para;</a></h2>
@@ -1687,7 +1687,7 @@ kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </sp
 
 <span class="c1"># Verify restoration</span>
 kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>-n<span class="w"> </span><span class="nv">$NAMESPACE</span><span class="w"> </span>&lt;postgres-pod-name&gt;<span class="w"> </span>--<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>psql<span class="w"> </span>-U<span class="w"> </span>postgres<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SELECT count(*) FROM users;&quot;</span>
+<span class="w">  </span>psql<span class="w"> </span>-U<span class="w"> </span>postgres<span class="w"> </span>-c<span class="w"> </span><span class="s2">"SELECT count(*) FROM users;"</span>
 </code></pre></div>
 
 <h2 id="security-best-practices">Security Best Practices<a class="headerlink" href="#security-best-practices" title="Permanent link">&para;</a></h2>
@@ -1794,10 +1794,10 @@ kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </sp
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1214,7 +1214,7 @@
 <span class="nt">canary</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">  </span><span class="nt">replicaCount</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
-<span class="w">  </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1.1.0&quot;</span>
+<span class="w">  </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"1.1.0"</span>
 
 <span class="nt">rollout</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
@@ -1345,10 +1345,10 @@ kubectl<span class="w"> </span>argo<span class="w"> </span>rollouts<span class="
 
 <h4 id="header-based-routing">Header-Based Routing<a class="headerlink" href="#header-based-routing" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Test canary version with specific header</span>
-curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;X-Canary: true&quot;</span><span class="w"> </span>https://api.sahool.io/endpoint
+curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">"X-Canary: true"</span><span class="w"> </span>https://api.sahool.io/endpoint
 
 <span class="c1"># Beta users automatically routed to canary</span>
-curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Cookie: beta_user=true&quot;</span><span class="w"> </span>https://api.sahool.io/endpoint
+curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">"Cookie: beta_user=true"</span><span class="w"> </span>https://api.sahool.io/endpoint
 </code></pre></div>
 
 <h4 id="traffic-mirroring">Traffic Mirroring<a class="headerlink" href="#traffic-mirroring" title="Permanent link">&para;</a></h4>
@@ -1362,13 +1362,13 @@ curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Coo
 
 <h3 id="manual-traffic-control">Manual Traffic Control<a class="headerlink" href="#manual-traffic-control" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Update traffic weights manually</span>
-kubectl<span class="w"> </span>patch<span class="w"> </span>virtualservice<span class="w"> </span>sahool-agent<span class="w"> </span>-n<span class="w"> </span>sahool<span class="w"> </span>--type<span class="o">=</span><span class="s1">&#39;json&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-p<span class="o">=</span><span class="s1">&#39;[{&quot;op&quot;: &quot;replace&quot;, &quot;path&quot;: &quot;/spec/http/0/route/0/weight&quot;, &quot;value&quot;: 50}]&#39;</span>
+kubectl<span class="w"> </span>patch<span class="w"> </span>virtualservice<span class="w"> </span>sahool-agent<span class="w"> </span>-n<span class="w"> </span>sahool<span class="w"> </span>--type<span class="o">=</span><span class="s1">'json'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-p<span class="o">=</span><span class="s1">'[{"op": "replace", "path": "/spec/http/0/route/0/weight", "value": 50}]'</span>
 
 <span class="c1"># Set all traffic to stable (emergency)</span>
-kubectl<span class="w"> </span>patch<span class="w"> </span>virtualservice<span class="w"> </span>sahool-agent<span class="w"> </span>-n<span class="w"> </span>sahool<span class="w"> </span>--type<span class="o">=</span><span class="s1">&#39;json&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-p<span class="o">=</span><span class="s1">&#39;[{&quot;op&quot;: &quot;replace&quot;, &quot;path&quot;: &quot;/spec/http/0/route/0/weight&quot;, &quot;value&quot;: 0},</span>
-<span class="s1">       {&quot;op&quot;: &quot;replace&quot;, &quot;path&quot;: &quot;/spec/http/0/route/1/weight&quot;, &quot;value&quot;: 100}]&#39;</span>
+kubectl<span class="w"> </span>patch<span class="w"> </span>virtualservice<span class="w"> </span>sahool-agent<span class="w"> </span>-n<span class="w"> </span>sahool<span class="w"> </span>--type<span class="o">=</span><span class="s1">'json'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-p<span class="o">=</span><span class="s1">'[{"op": "replace", "path": "/spec/http/0/route/0/weight", "value": 0},</span>
+<span class="s1">       {"op": "replace", "path": "/spec/http/0/route/1/weight", "value": 100}]'</span>
 </code></pre></div>
 
 <h2 id="metrics-and-analysis">Metrics and Analysis<a class="headerlink" href="#metrics-and-analysis" title="Permanent link">&para;</a></h2>
@@ -1378,7 +1378,7 @@ kubectl<span class="w"> </span>patch<span class="w"> </span>virtualservice<span 
 <div class="codehilite"><pre><span></span><code><span class="c1"># Threshold: 95% success rate</span>
 <span class="nt">successCondition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">result[0] &gt;= 0.95</span>
 <span class="nt">query</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">  </span><span class="no">sum(rate(http_requests_total{status=~&quot;2..&quot;}[5m])) /</span>
+<span class="w">  </span><span class="no">sum(rate(http_requests_total{status=~"2.."}[5m])) /</span>
 <span class="w">  </span><span class="no">sum(rate(http_requests_total[5m]))</span>
 </code></pre></div>
 
@@ -1395,7 +1395,7 @@ kubectl<span class="w"> </span>patch<span class="w"> </span>virtualservice<span 
 <div class="codehilite"><pre><span></span><code><span class="c1"># Threshold: 5% error rate</span>
 <span class="nt">successCondition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">result[0] &lt;= 0.05</span>
 <span class="nt">query</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">  </span><span class="no">sum(rate(http_requests_total{status=~&quot;5..&quot;}[5m])) /</span>
+<span class="w">  </span><span class="no">sum(rate(http_requests_total{status=~"5.."}[5m])) /</span>
 <span class="w">  </span><span class="no">sum(rate(http_requests_total[5m]))</span>
 </code></pre></div>
 
@@ -1411,7 +1411,7 @@ kubectl<span class="w"> </span>patch<span class="w"> </span>virtualservice<span 
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">templateName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">custom-business-metric</span>
 <span class="w">  </span><span class="nt">args</span><span class="p">:</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">metric-threshold</span>
-<span class="w">      </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1000&quot;</span>
+<span class="w">      </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">"1000"</span>
 </code></pre></div>
 
 <h2 id="promotion-procedures">Promotion Procedures<a class="headerlink" href="#promotion-procedures" title="Permanent link">&para;</a></h2>
@@ -1558,14 +1558,14 @@ kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </sp
 <p>If Istio or traffic routing has issues:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># 1. Check Istio proxy status</span>
 kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-n<span class="w"> </span>sahool<span class="w"> </span>-l<span class="w"> </span><span class="nv">app</span><span class="o">=</span>sahool-agent<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.items[*].status.containerStatuses[?(@.name==&quot;istio-proxy&quot;)].ready}&#39;</span>
+<span class="w">  </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">'{.items[*].status.containerStatuses[?(@.name=="istio-proxy")].ready}'</span>
 
 <span class="c1"># 2. Restart Envoy sidecar</span>
 kubectl<span class="w"> </span>rollout<span class="w"> </span>restart<span class="w"> </span>deployment/sahool-agent-stable<span class="w"> </span>-n<span class="w"> </span>sahool
 
 <span class="c1"># 3. Bypass service mesh (emergency only)</span>
 kubectl<span class="w"> </span>patch<span class="w"> </span>deployment<span class="w"> </span>sahool-agent-stable<span class="w"> </span>-n<span class="w"> </span>sahool<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-p<span class="w"> </span><span class="s1">&#39;{&quot;spec&quot;:{&quot;template&quot;:{&quot;metadata&quot;:{&quot;annotations&quot;:{&quot;sidecar.istio.io/inject&quot;:&quot;false&quot;}}}}}&#39;</span>
+<span class="w">  </span>-p<span class="w"> </span><span class="s1">'{"spec":{"template":{"metadata":{"annotations":{"sidecar.istio.io/inject":"false"}}}}}'</span>
 </code></pre></div>
 
 <h2 id="monitoring-and-alerts">Monitoring and Alerts<a class="headerlink" href="#monitoring-and-alerts" title="Permanent link">&para;</a></h2>
@@ -1922,10 +1922,10 @@ kubectl<span class="w"> </span>run<span class="w"> </span>test-curl<span class="
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

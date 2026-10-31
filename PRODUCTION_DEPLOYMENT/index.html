@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1145,29 +1145,29 @@
 <h2 id="environment-variables-reference">🔐 Environment Variables Reference | مرجع المتغيرات البيئية<a class="headerlink" href="#environment-variables-reference" title="Permanent link">&para;</a></h2>
 <h3 id="core-database">Core Database | قاعدة البيانات الأساسية<a class="headerlink" href="#core-database" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># PostgreSQL Configuration</span>
-<span class="nv">DATABASE_URL</span><span class="o">=</span><span class="s2">&quot;postgresql://sahool_user:STRONG_PASSWORD@postgres:5432/sahool_db&quot;</span>
+<span class="nv">DATABASE_URL</span><span class="o">=</span><span class="s2">"postgresql://sahool_user:STRONG_PASSWORD@postgres:5432/sahool_db"</span>
 <span class="nv">DATABASE_POOL_MIN</span><span class="o">=</span><span class="m">2</span><span class="w">          </span><span class="c1"># Minimum connection pool size</span>
 <span class="nv">DATABASE_POOL_MAX</span><span class="o">=</span><span class="m">10</span><span class="w">         </span><span class="c1"># Maximum connection pool size</span>
 <span class="nv">DATABASE_TIMEOUT</span><span class="o">=</span><span class="m">30000</span><span class="w">       </span><span class="c1"># Connection timeout (ms)</span>
-<span class="nv">DATABASE_SSL_MODE</span><span class="o">=</span><span class="s2">&quot;require&quot;</span><span class="w">  </span><span class="c1"># SSL mode for production</span>
+<span class="nv">DATABASE_SSL_MODE</span><span class="o">=</span><span class="s2">"require"</span><span class="w">  </span><span class="c1"># SSL mode for production</span>
 <span class="nv">DATABASE_STATEMENT_TIMEOUT</span><span class="o">=</span><span class="m">30000</span><span class="w">  </span><span class="c1"># Query timeout (ms)</span>
 
 <span class="c1"># PgBouncer Connection Pooler</span>
-<span class="nv">PGBOUNCER_POOL_MODE</span><span class="o">=</span><span class="s2">&quot;transaction&quot;</span><span class="w">  </span><span class="c1"># or &quot;session&quot;</span>
+<span class="nv">PGBOUNCER_POOL_MODE</span><span class="o">=</span><span class="s2">"transaction"</span><span class="w">  </span><span class="c1"># or "session"</span>
 <span class="nv">PGBOUNCER_MAX_CLIENT_CONN</span><span class="o">=</span><span class="m">100</span>
 <span class="nv">PGBOUNCER_DEFAULT_POOL_SIZE</span><span class="o">=</span><span class="m">20</span>
 </code></pre></div>
 
 <h3 id="security-authentication">Security &amp; Authentication | الأمان والمصادقة<a class="headerlink" href="#security-authentication" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># JWT Configuration</span>
-<span class="nv">JWT_SECRET</span><span class="o">=</span><span class="s2">&quot;GENERATE_STRONG_SECRET_KEY_MINIMUM_32_CHARS&quot;</span>
-<span class="nv">JWT_ALGORITHM</span><span class="o">=</span><span class="s2">&quot;RS256&quot;</span><span class="w">        </span><span class="c1"># Recommended for production</span>
-<span class="nv">JWT_EXPIRY</span><span class="o">=</span><span class="s2">&quot;3600&quot;</span><span class="w">           </span><span class="c1"># Access token: 1 hour</span>
-<span class="nv">REFRESH_TOKEN_EXPIRY</span><span class="o">=</span><span class="s2">&quot;604800&quot;</span><span class="w">  </span><span class="c1"># Refresh token: 7 days</span>
+<span class="nv">JWT_SECRET</span><span class="o">=</span><span class="s2">"GENERATE_STRONG_SECRET_KEY_MINIMUM_32_CHARS"</span>
+<span class="nv">JWT_ALGORITHM</span><span class="o">=</span><span class="s2">"RS256"</span><span class="w">        </span><span class="c1"># Recommended for production</span>
+<span class="nv">JWT_EXPIRY</span><span class="o">=</span><span class="s2">"3600"</span><span class="w">           </span><span class="c1"># Access token: 1 hour</span>
+<span class="nv">REFRESH_TOKEN_EXPIRY</span><span class="o">=</span><span class="s2">"604800"</span><span class="w">  </span><span class="c1"># Refresh token: 7 days</span>
 
 <span class="c1"># Encryption</span>
-<span class="nv">ENCRYPTION_KEY</span><span class="o">=</span><span class="s2">&quot;GENERATE_32_BYTE_KEY&quot;</span><span class="w">  </span><span class="c1"># AES-256 requires 32 bytes</span>
-<span class="nv">ENCRYPTION_ALGORITHM</span><span class="o">=</span><span class="s2">&quot;AES-256-GCM&quot;</span>
+<span class="nv">ENCRYPTION_KEY</span><span class="o">=</span><span class="s2">"GENERATE_32_BYTE_KEY"</span><span class="w">  </span><span class="c1"># AES-256 requires 32 bytes</span>
+<span class="nv">ENCRYPTION_ALGORITHM</span><span class="o">=</span><span class="s2">"AES-256-GCM"</span>
 
 <span class="c1"># Password Policy</span>
 <span class="nv">MIN_PASSWORD_LENGTH</span><span class="o">=</span><span class="m">12</span>
@@ -1184,99 +1184,99 @@
 
 <h3 id="api-gateway-kong-api">API Gateway (Kong) | بوابة API<a class="headerlink" href="#api-gateway-kong-api" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Kong Configuration</span>
-<span class="nv">KONG_ADMIN_URL</span><span class="o">=</span><span class="s2">&quot;http://kong:8001&quot;</span>
-<span class="nv">KONG_PROXY_URL</span><span class="o">=</span><span class="s2">&quot;http://kong:8000&quot;</span>
-<span class="nv">KONG_DATABASE</span><span class="o">=</span><span class="s2">&quot;postgres&quot;</span>
-<span class="nv">KONG_PG_HOST</span><span class="o">=</span><span class="s2">&quot;postgres&quot;</span>
+<span class="nv">KONG_ADMIN_URL</span><span class="o">=</span><span class="s2">"http://kong:8001"</span>
+<span class="nv">KONG_PROXY_URL</span><span class="o">=</span><span class="s2">"http://kong:8000"</span>
+<span class="nv">KONG_DATABASE</span><span class="o">=</span><span class="s2">"postgres"</span>
+<span class="nv">KONG_PG_HOST</span><span class="o">=</span><span class="s2">"postgres"</span>
 <span class="nv">KONG_PG_PORT</span><span class="o">=</span><span class="m">5432</span>
-<span class="nv">KONG_PG_USER</span><span class="o">=</span><span class="s2">&quot;kong_user&quot;</span>
-<span class="nv">KONG_PG_PASSWORD</span><span class="o">=</span><span class="s2">&quot;KONG_DB_PASSWORD&quot;</span>
-<span class="nv">KONG_PG_DATABASE</span><span class="o">=</span><span class="s2">&quot;kong_db&quot;</span>
+<span class="nv">KONG_PG_USER</span><span class="o">=</span><span class="s2">"kong_user"</span>
+<span class="nv">KONG_PG_PASSWORD</span><span class="o">=</span><span class="s2">"KONG_DB_PASSWORD"</span>
+<span class="nv">KONG_PG_DATABASE</span><span class="o">=</span><span class="s2">"kong_db"</span>
 
 <span class="c1"># Rate Limiting (Default Tiers)</span>
-<span class="nv">RATE_LIMIT_TIER_FREE</span><span class="o">=</span><span class="s2">&quot;100/hour&quot;</span>
-<span class="nv">RATE_LIMIT_TIER_BASIC</span><span class="o">=</span><span class="s2">&quot;1000/hour&quot;</span>
-<span class="nv">RATE_LIMIT_TIER_PRO</span><span class="o">=</span><span class="s2">&quot;10000/hour&quot;</span>
-<span class="nv">RATE_LIMIT_TIER_ENTERPRISE</span><span class="o">=</span><span class="s2">&quot;unlimited&quot;</span>
+<span class="nv">RATE_LIMIT_TIER_FREE</span><span class="o">=</span><span class="s2">"100/hour"</span>
+<span class="nv">RATE_LIMIT_TIER_BASIC</span><span class="o">=</span><span class="s2">"1000/hour"</span>
+<span class="nv">RATE_LIMIT_TIER_PRO</span><span class="o">=</span><span class="s2">"10000/hour"</span>
+<span class="nv">RATE_LIMIT_TIER_ENTERPRISE</span><span class="o">=</span><span class="s2">"unlimited"</span>
 </code></pre></div>
 
 <h3 id="event-bus-nats">Event Bus (NATS) | ناقل الأحداث<a class="headerlink" href="#event-bus-nats" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># NATS Configuration</span>
-<span class="nv">NATS_URL</span><span class="o">=</span><span class="s2">&quot;nats://nats:4222&quot;</span>
-<span class="nv">NATS_CLUSTER_URL</span><span class="o">=</span><span class="s2">&quot;nats://nats:6222&quot;</span>
-<span class="nv">NATS_USER</span><span class="o">=</span><span class="s2">&quot;sahool_nats&quot;</span>
-<span class="nv">NATS_PASSWORD</span><span class="o">=</span><span class="s2">&quot;NATS_PASSWORD&quot;</span>
+<span class="nv">NATS_URL</span><span class="o">=</span><span class="s2">"nats://nats:4222"</span>
+<span class="nv">NATS_CLUSTER_URL</span><span class="o">=</span><span class="s2">"nats://nats:6222"</span>
+<span class="nv">NATS_USER</span><span class="o">=</span><span class="s2">"sahool_nats"</span>
+<span class="nv">NATS_PASSWORD</span><span class="o">=</span><span class="s2">"NATS_PASSWORD"</span>
 <span class="nv">NATS_MAX_RECONNECT_ATTEMPTS</span><span class="o">=</span><span class="m">10</span>
 <span class="nv">NATS_RECONNECT_TIME_WAIT</span><span class="o">=</span><span class="m">2000</span><span class="w">  </span><span class="c1"># ms</span>
 </code></pre></div>
 
 <h3 id="caching-redis">Caching (Redis) | التخزين المؤقت<a class="headerlink" href="#caching-redis" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Redis Configuration</span>
-<span class="nv">REDIS_URL</span><span class="o">=</span><span class="s2">&quot;redis://redis:6379/0&quot;</span>
-<span class="nv">REDIS_PASSWORD</span><span class="o">=</span><span class="s2">&quot;STRONG_REDIS_PASSWORD&quot;</span>
+<span class="nv">REDIS_URL</span><span class="o">=</span><span class="s2">"redis://redis:6379/0"</span>
+<span class="nv">REDIS_PASSWORD</span><span class="o">=</span><span class="s2">"STRONG_REDIS_PASSWORD"</span>
 <span class="nv">REDIS_MAX_RETRIES</span><span class="o">=</span><span class="m">3</span>
 <span class="nv">REDIS_CONNECT_TIMEOUT</span><span class="o">=</span><span class="m">10000</span><span class="w">  </span><span class="c1"># ms</span>
 <span class="nv">REDIS_COMMAND_TIMEOUT</span><span class="o">=</span><span class="m">5000</span><span class="w">   </span><span class="c1"># ms</span>
 
 <span class="c1"># Redis Sentinel (for HA)</span>
-<span class="nv">REDIS_SENTINEL_HOSTS</span><span class="o">=</span><span class="s2">&quot;sentinel1:26379,sentinel2:26379,sentinel3:26379&quot;</span>
-<span class="nv">REDIS_SENTINEL_MASTER</span><span class="o">=</span><span class="s2">&quot;sahool-master&quot;</span>
+<span class="nv">REDIS_SENTINEL_HOSTS</span><span class="o">=</span><span class="s2">"sentinel1:26379,sentinel2:26379,sentinel3:26379"</span>
+<span class="nv">REDIS_SENTINEL_MASTER</span><span class="o">=</span><span class="s2">"sahool-master"</span>
 </code></pre></div>
 
 <h3 id="object-storage-minio">Object Storage (MinIO) | تخزين الكائنات<a class="headerlink" href="#object-storage-minio" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># MinIO Configuration</span>
-<span class="nv">MINIO_ENDPOINT</span><span class="o">=</span><span class="s2">&quot;minio:9000&quot;</span>
-<span class="nv">MINIO_ACCESS_KEY</span><span class="o">=</span><span class="s2">&quot;MINIO_ACCESS_KEY_MIN_24_CHARS&quot;</span><span class="w">  </span><span class="c1"># Recommended: 24+ chars (192 bits)</span>
-<span class="nv">MINIO_SECRET_KEY</span><span class="o">=</span><span class="s2">&quot;MINIO_SECRET_KEY_MIN_48_CHARS&quot;</span><span class="w">  </span><span class="c1"># Recommended: 48+ chars (384 bits)</span>
-<span class="nv">MINIO_BUCKET</span><span class="o">=</span><span class="s2">&quot;sahool-storage&quot;</span>
+<span class="nv">MINIO_ENDPOINT</span><span class="o">=</span><span class="s2">"minio:9000"</span>
+<span class="nv">MINIO_ACCESS_KEY</span><span class="o">=</span><span class="s2">"MINIO_ACCESS_KEY_MIN_24_CHARS"</span><span class="w">  </span><span class="c1"># Recommended: 24+ chars (192 bits)</span>
+<span class="nv">MINIO_SECRET_KEY</span><span class="o">=</span><span class="s2">"MINIO_SECRET_KEY_MIN_48_CHARS"</span><span class="w">  </span><span class="c1"># Recommended: 48+ chars (384 bits)</span>
+<span class="nv">MINIO_BUCKET</span><span class="o">=</span><span class="s2">"sahool-storage"</span>
 <span class="nv">MINIO_USE_SSL</span><span class="o">=</span><span class="nb">true</span>
-<span class="nv">MINIO_REGION</span><span class="o">=</span><span class="s2">&quot;us-east-1&quot;</span>
+<span class="nv">MINIO_REGION</span><span class="o">=</span><span class="s2">"us-east-1"</span>
 </code></pre></div>
 
 <h3 id="external-services">External Services | الخدمات الخارجية<a class="headerlink" href="#external-services" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Email (SMTP)</span>
-<span class="nv">SMTP_HOST</span><span class="o">=</span><span class="s2">&quot;smtp.example.com&quot;</span>
+<span class="nv">SMTP_HOST</span><span class="o">=</span><span class="s2">"smtp.example.com"</span>
 <span class="nv">SMTP_PORT</span><span class="o">=</span><span class="m">587</span>
 <span class="nv">SMTP_SECURE</span><span class="o">=</span><span class="nb">true</span><span class="w">  </span><span class="c1"># Use TLS</span>
-<span class="nv">SMTP_USER</span><span class="o">=</span><span class="s2">&quot;noreply@sahool.com&quot;</span>
-<span class="nv">SMTP_PASSWORD</span><span class="o">=</span><span class="s2">&quot;SMTP_PASSWORD&quot;</span>
-<span class="nv">SMTP_FROM_NAME</span><span class="o">=</span><span class="s2">&quot;SAHOOL Platform&quot;</span>
-<span class="nv">SMTP_FROM_EMAIL</span><span class="o">=</span><span class="s2">&quot;noreply@sahool.com&quot;</span>
+<span class="nv">SMTP_USER</span><span class="o">=</span><span class="s2">"noreply@sahool.com"</span>
+<span class="nv">SMTP_PASSWORD</span><span class="o">=</span><span class="s2">"SMTP_PASSWORD"</span>
+<span class="nv">SMTP_FROM_NAME</span><span class="o">=</span><span class="s2">"SAHOOL Platform"</span>
+<span class="nv">SMTP_FROM_EMAIL</span><span class="o">=</span><span class="s2">"noreply@sahool.com"</span>
 
 <span class="c1"># SMS Provider (Twilio)</span>
-<span class="nv">SMS_PROVIDER</span><span class="o">=</span><span class="s2">&quot;twilio&quot;</span>
-<span class="nv">TWILIO_ACCOUNT_SID</span><span class="o">=</span><span class="s2">&quot;YOUR_ACCOUNT_SID&quot;</span>
-<span class="nv">TWILIO_AUTH_TOKEN</span><span class="o">=</span><span class="s2">&quot;YOUR_AUTH_TOKEN&quot;</span>
-<span class="nv">TWILIO_PHONE_NUMBER</span><span class="o">=</span><span class="s2">&quot;+1234567890&quot;</span>
+<span class="nv">SMS_PROVIDER</span><span class="o">=</span><span class="s2">"twilio"</span>
+<span class="nv">TWILIO_ACCOUNT_SID</span><span class="o">=</span><span class="s2">"YOUR_ACCOUNT_SID"</span>
+<span class="nv">TWILIO_AUTH_TOKEN</span><span class="o">=</span><span class="s2">"YOUR_AUTH_TOKEN"</span>
+<span class="nv">TWILIO_PHONE_NUMBER</span><span class="o">=</span><span class="s2">"+1234567890"</span>
 
 <span class="c1"># Maps &amp; Geocoding</span>
-<span class="nv">GOOGLE_MAPS_API_KEY</span><span class="o">=</span><span class="s2">&quot;YOUR_GOOGLE_MAPS_KEY&quot;</span>
-<span class="nv">MAPBOX_ACCESS_TOKEN</span><span class="o">=</span><span class="s2">&quot;YOUR_MAPBOX_TOKEN&quot;</span>
+<span class="nv">GOOGLE_MAPS_API_KEY</span><span class="o">=</span><span class="s2">"YOUR_GOOGLE_MAPS_KEY"</span>
+<span class="nv">MAPBOX_ACCESS_TOKEN</span><span class="o">=</span><span class="s2">"YOUR_MAPBOX_TOKEN"</span>
 
 <span class="c1"># Satellite Imagery</span>
-<span class="nv">SENTINEL_HUB_CLIENT_ID</span><span class="o">=</span><span class="s2">&quot;YOUR_CLIENT_ID&quot;</span>
-<span class="nv">SENTINEL_HUB_CLIENT_SECRET</span><span class="o">=</span><span class="s2">&quot;YOUR_CLIENT_SECRET&quot;</span>
+<span class="nv">SENTINEL_HUB_CLIENT_ID</span><span class="o">=</span><span class="s2">"YOUR_CLIENT_ID"</span>
+<span class="nv">SENTINEL_HUB_CLIENT_SECRET</span><span class="o">=</span><span class="s2">"YOUR_CLIENT_SECRET"</span>
 </code></pre></div>
 
 <h3 id="monitoring-logging">Monitoring &amp; Logging | المراقبة والسجلات<a class="headerlink" href="#monitoring-logging" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Application Logging</span>
-<span class="nv">LOG_LEVEL</span><span class="o">=</span><span class="s2">&quot;info&quot;</span><span class="w">  </span><span class="c1"># debug, info, warn, error</span>
-<span class="nv">LOG_FORMAT</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="w">  </span><span class="c1"># or &quot;text&quot;</span>
-<span class="nv">LOG_OUTPUT</span><span class="o">=</span><span class="s2">&quot;stdout&quot;</span><span class="w">  </span><span class="c1"># or file path</span>
+<span class="nv">LOG_LEVEL</span><span class="o">=</span><span class="s2">"info"</span><span class="w">  </span><span class="c1"># debug, info, warn, error</span>
+<span class="nv">LOG_FORMAT</span><span class="o">=</span><span class="s2">"json"</span><span class="w">  </span><span class="c1"># or "text"</span>
+<span class="nv">LOG_OUTPUT</span><span class="o">=</span><span class="s2">"stdout"</span><span class="w">  </span><span class="c1"># or file path</span>
 
 <span class="c1"># Prometheus Metrics</span>
 <span class="nv">ENABLE_METRICS</span><span class="o">=</span><span class="nb">true</span>
 <span class="nv">METRICS_PORT</span><span class="o">=</span><span class="m">9090</span>
-<span class="nv">METRICS_PATH</span><span class="o">=</span><span class="s2">&quot;/metrics&quot;</span>
+<span class="nv">METRICS_PATH</span><span class="o">=</span><span class="s2">"/metrics"</span>
 
 <span class="c1"># Sentry Error Tracking</span>
-<span class="nv">SENTRY_DSN</span><span class="o">=</span><span class="s2">&quot;https://your-sentry-dsn@sentry.io/project&quot;</span>
-<span class="nv">SENTRY_ENVIRONMENT</span><span class="o">=</span><span class="s2">&quot;production&quot;</span>
+<span class="nv">SENTRY_DSN</span><span class="o">=</span><span class="s2">"https://your-sentry-dsn@sentry.io/project"</span>
+<span class="nv">SENTRY_ENVIRONMENT</span><span class="o">=</span><span class="s2">"production"</span>
 <span class="nv">SENTRY_TRACES_SAMPLE_RATE</span><span class="o">=</span><span class="m">0</span>.1<span class="w">  </span><span class="c1"># 10% of transactions</span>
 
 <span class="c1"># OpenTelemetry (Optional)</span>
-<span class="nv">OTEL_EXPORTER_OTLP_ENDPOINT</span><span class="o">=</span><span class="s2">&quot;http://otel-collector:4318&quot;</span>
-<span class="nv">OTEL_SERVICE_NAME</span><span class="o">=</span><span class="s2">&quot;sahool-platform&quot;</span>
+<span class="nv">OTEL_EXPORTER_OTLP_ENDPOINT</span><span class="o">=</span><span class="s2">"http://otel-collector:4318"</span>
+<span class="nv">OTEL_SERVICE_NAME</span><span class="o">=</span><span class="s2">"sahool-platform"</span>
 </code></pre></div>
 
 <hr />
@@ -1297,17 +1297,17 @@ psql<span class="w"> </span>-U<span class="w"> </span>sahool_user<span class="w"
 <span class="w">  </span>-f<span class="w"> </span>infrastructure/core/postgres/migrations/V20260105__add_additional_improvements.sql
 
 <span class="c1"># 5. Verify indexes were created</span>
-psql<span class="w"> </span>-U<span class="w"> </span>sahool_user<span class="w"> </span>-d<span class="w"> </span>sahool_db<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+psql<span class="w"> </span>-U<span class="w"> </span>sahool_user<span class="w"> </span>-d<span class="w"> </span>sahool_db<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
 <span class="s2">SELECT</span>
 <span class="s2">  schemaname,</span>
 <span class="s2">  tablename,</span>
 <span class="s2">  indexname,</span>
 <span class="s2">  indexdef</span>
 <span class="s2">FROM pg_indexes</span>
-<span class="s2">WHERE indexname LIKE &#39;idx_%_metadata_gin&#39;</span>
-<span class="s2">   OR indexname LIKE &#39;idx_sensor_readings_tenant_time&#39;</span>
+<span class="s2">WHERE indexname LIKE 'idx_%_metadata_gin'</span>
+<span class="s2">   OR indexname LIKE 'idx_sensor_readings_tenant_time'</span>
 <span class="s2">ORDER BY tablename, indexname;</span>
-<span class="s2">&quot;</span>
+<span class="s2">"</span>
 </code></pre></div>
 
 <hr />
@@ -1340,11 +1340,11 @@ helm<span class="w"> </span>install<span class="w"> </span>postgresql<span class
 
 <span class="c1"># Install PostGIS extension</span>
 kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>postgresql-0<span class="w"> </span>-n<span class="w"> </span>sahool-prod<span class="w"> </span>--<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool_user<span class="w"> </span>-d<span class="w"> </span>sahool_db<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
-<span class="s2">  CREATE EXTENSION IF NOT EXISTS \&quot;uuid-ossp\&quot;;</span>
-<span class="s2">  CREATE EXTENSION IF NOT EXISTS \&quot;postgis\&quot;;</span>
-<span class="s2">  CREATE EXTENSION IF NOT EXISTS \&quot;postgis_topology\&quot;;</span>
-<span class="s2">&quot;</span>
+<span class="w">  </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool_user<span class="w"> </span>-d<span class="w"> </span>sahool_db<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
+<span class="s2">  CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";</span>
+<span class="s2">  CREATE EXTENSION IF NOT EXISTS \"postgis\";</span>
+<span class="s2">  CREATE EXTENSION IF NOT EXISTS \"postgis_topology\";</span>
+<span class="s2">"</span>
 </code></pre></div>
 
 <h3 id="step-3-run-migrations-3">Step 3: Run Migrations | الخطوة 3: تشغيل الترحيلات<a class="headerlink" href="#step-3-run-migrations-3" title="Permanent link">&para;</a></h3>
@@ -1352,7 +1352,7 @@ kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </sp
 kubectl<span class="w"> </span>create<span class="w"> </span>job<span class="w"> </span>db-migrate<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--image<span class="o">=</span>sahool/migration-tool:latest<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--namespace<span class="w"> </span>sahool-prod<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--<span class="w"> </span>/bin/sh<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;npm run db:migrate&quot;</span>
+<span class="w">  </span>--<span class="w"> </span>/bin/sh<span class="w"> </span>-c<span class="w"> </span><span class="s2">"npm run db:migrate"</span>
 
 <span class="c1"># Monitor migration</span>
 kubectl<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>job/db-migrate<span class="w"> </span>-n<span class="w"> </span>sahool-prod
@@ -1406,10 +1406,10 @@ kubectl<span class="w"> </span>get<span class="w"> </span>ingress<span class="w"
 <span class="k">SELECT</span>
 <span class="w">  </span><span class="n">schemaname</span><span class="p">,</span>
 <span class="w">  </span><span class="n">tablename</span><span class="p">,</span>
-<span class="w">  </span><span class="n">pg_size_pretty</span><span class="p">(</span><span class="n">pg_total_relation_size</span><span class="p">(</span><span class="n">schemaname</span><span class="o">||</span><span class="s1">&#39;.&#39;</span><span class="o">||</span><span class="n">tablename</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">size</span>
+<span class="w">  </span><span class="n">pg_size_pretty</span><span class="p">(</span><span class="n">pg_total_relation_size</span><span class="p">(</span><span class="n">schemaname</span><span class="o">||</span><span class="s1">'.'</span><span class="o">||</span><span class="n">tablename</span><span class="p">))</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">size</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">pg_tables</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">schemaname</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;pg_catalog&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;information_schema&#39;</span><span class="p">)</span>
-<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">pg_total_relation_size</span><span class="p">(</span><span class="n">schemaname</span><span class="o">||</span><span class="s1">&#39;.&#39;</span><span class="o">||</span><span class="n">tablename</span><span class="p">)</span><span class="w"> </span><span class="k">DESC</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">schemaname</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'pg_catalog'</span><span class="p">,</span><span class="w"> </span><span class="s1">'information_schema'</span><span class="p">)</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">pg_total_relation_size</span><span class="p">(</span><span class="n">schemaname</span><span class="o">||</span><span class="s1">'.'</span><span class="o">||</span><span class="n">tablename</span><span class="p">)</span><span class="w"> </span><span class="k">DESC</span>
 <span class="k">LIMIT</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
 </code></pre></div>
 
@@ -1448,7 +1448,7 @@ docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </spa
 <span class="kr">rate</span><span class="o">(</span><span class="nv">http_requests_total</span><span class="p">[</span><span class="s">5m</span><span class="p">]</span><span class="o">)</span>
 
 <span class="c1"># Error rate</span>
-<span class="kr">rate</span><span class="o">(</span><span class="nv">http_requests_total</span><span class="p">{</span><span class="nl">status</span><span class="o">=~</span><span class="p">&quot;</span><span class="s">5..</span><span class="p">&quot;}[</span><span class="s">5m</span><span class="p">]</span><span class="o">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="kr">rate</span><span class="o">(</span><span class="nv">http_requests_total</span><span class="p">[</span><span class="s">5m</span><span class="p">]</span><span class="o">)</span>
+<span class="kr">rate</span><span class="o">(</span><span class="nv">http_requests_total</span><span class="p">{</span><span class="nl">status</span><span class="o">=~</span><span class="p">"</span><span class="s">5..</span><span class="p">"}[</span><span class="s">5m</span><span class="p">]</span><span class="o">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="kr">rate</span><span class="o">(</span><span class="nv">http_requests_total</span><span class="p">[</span><span class="s">5m</span><span class="p">]</span><span class="o">)</span>
 
 <span class="c1"># Response time (95th percentile)</span>
 <span class="kr">histogram_quantile</span><span class="o">(</span><span class="mf">0.95</span><span class="p">,</span><span class="w"> </span><span class="kr">rate</span><span class="o">(</span><span class="nv">http_request_duration_seconds_bucket</span><span class="p">[</span><span class="s">5m</span><span class="p">]</span><span class="o">))</span>
@@ -1464,11 +1464,11 @@ docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </spa
 <h2 id="backup-recovery">🔄 Backup &amp; Recovery | النسخ الاحتياطي والاسترداد<a class="headerlink" href="#backup-recovery" title="Permanent link">&para;</a></h2>
 <h3 id="automated-backups">Automated Backups | النسخ الاحتياطي الآلي<a class="headerlink" href="#automated-backups" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Create backup script</span>
-cat<span class="w"> </span>&gt;<span class="w"> </span>/usr/local/bin/sahool-backup.sh<span class="w"> </span><span class="s">&lt;&lt; &#39;SCRIPT&#39;</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>/usr/local/bin/sahool-backup.sh<span class="w"> </span><span class="s">&lt;&lt; 'SCRIPT'</span>
 <span class="s">#!/bin/bash</span>
 <span class="s">set -e</span>
 
-<span class="s">BACKUP_DIR=&quot;/var/backups/sahool&quot;</span>
+<span class="s">BACKUP_DIR="/var/backups/sahool"</span>
 <span class="s">DATE=$(date +%Y%m%d_%H%M%S)</span>
 <span class="s">RETENTION_DAYS=7</span>
 
@@ -1476,7 +1476,7 @@ cat<span class="w"> </span>&gt;<span class="w"> </span>/usr/local/bin/sahool-bac
 <span class="s">mkdir -p $BACKUP_DIR</span>
 
 <span class="s"># Backup database</span>
-<span class="s">echo &quot;Creating database backup...&quot;</span>
+<span class="s">echo "Creating database backup..."</span>
 <span class="s">pg_dump -U sahool_user -h localhost sahool_db | \</span>
 <span class="s">  gzip &gt; $BACKUP_DIR/sahool_db_$DATE.sql.gz</span>
 
@@ -1487,15 +1487,15 @@ cat<span class="w"> </span>&gt;<span class="w"> </span>/usr/local/bin/sahool-bac
 <span class="s">fi</span>
 
 <span class="s"># Clean old backups</span>
-<span class="s">find $BACKUP_DIR -name &quot;sahool_db_*.sql.gz&quot; -mtime +$RETENTION_DAYS -delete</span>
+<span class="s">find $BACKUP_DIR -name "sahool_db_*.sql.gz" -mtime +$RETENTION_DAYS -delete</span>
 
-<span class="s">echo &quot;Backup completed: sahool_db_$DATE.sql.gz&quot;</span>
+<span class="s">echo "Backup completed: sahool_db_$DATE.sql.gz"</span>
 <span class="s">SCRIPT</span>
 
 chmod<span class="w"> </span>+x<span class="w"> </span>/usr/local/bin/sahool-backup.sh
 
 <span class="c1"># Add to crontab (daily at 2 AM)</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;0 2 * * * /usr/local/bin/sahool-backup.sh &gt;&gt; /var/log/sahool-backup.log 2&gt;&amp;1&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>crontab<span class="w"> </span>-
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"0 2 * * * /usr/local/bin/sahool-backup.sh &gt;&gt; /var/log/sahool-backup.log 2&gt;&amp;1"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>crontab<span class="w"> </span>-
 </code></pre></div>
 
 <h3 id="point-in-time-recovery">Point-in-Time Recovery | الاسترداد لنقطة زمنية<a class="headerlink" href="#point-in-time-recovery" title="Permanent link">&para;</a></h3>
@@ -1503,7 +1503,7 @@ chmod<span class="w"> </span>+x<span class="w"> </span>/usr/local/bin/sahool-bac
 cat<span class="w"> </span>&gt;&gt;<span class="w"> </span>/etc/postgresql/15/main/postgresql.conf<span class="w"> </span><span class="s">&lt;&lt; EOF</span>
 <span class="s">wal_level = replica</span>
 <span class="s">archive_mode = on</span>
-<span class="s">archive_command = &#39;cp %p /var/lib/postgresql/wal_archive/%f&#39;</span>
+<span class="s">archive_command = 'cp %p /var/lib/postgresql/wal_archive/%f'</span>
 <span class="s">archive_timeout = 300</span>
 <span class="s">EOF</span>
 
@@ -1607,7 +1607,7 @@ helm<span class="w"> </span>install<span class="w"> </span>falco<span class="w">
 <span class="w">  </span><span class="n">query</span><span class="p">,</span>
 <span class="w">  </span><span class="k">state</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">pg_stat_activity</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="k">state</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s1">&#39;idle&#39;</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="k">state</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s1">'idle'</span>
 <span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">duration</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
 
 <span class="c1">-- Terminate long-running query</span>
@@ -1687,10 +1687,10 @@ kubectl<span class="w"> </span><span class="nb">set</span><span class="w"> </spa
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

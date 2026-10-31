@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1217,7 +1217,7 @@ nats<span class="w"> </span>--version
 <span class="nb">export</span><span class="w"> </span><span class="nv">NKEYS_PATH</span><span class="o">=</span>/home/user/sahool-unified-v15-idp/config/nats/nkeys
 
 <span class="c1"># Initialize NSC</span>
-nsc<span class="w"> </span>env<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">NSC_HOME</span><span class="si">}</span><span class="s2">&quot;</span>
+nsc<span class="w"> </span>env<span class="w"> </span>-s<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">NSC_HOME</span><span class="si">}</span><span class="s2">"</span>
 </code></pre></div>
 
 <h4 id="2-create-operator">2. Create Operator<a class="headerlink" href="#2-create-operator" title="Permanent link">&para;</a></h4>
@@ -1243,26 +1243,26 @@ nsc<span class="w"> </span>add<span class="w"> </span>account<span class="w"> </
 <h4 id="4-create-users">4. Create Users<a class="headerlink" href="#4-create-users" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Admin user (full access)</span>
 nsc<span class="w"> </span>add<span class="w"> </span>user<span class="w"> </span>-a<span class="w"> </span>APP<span class="w"> </span>admin<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--allow-pub<span class="w"> </span><span class="s2">&quot;&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--allow-sub<span class="w"> </span><span class="s2">&quot;&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--allow-pub<span class="w"> </span><span class="s2">"&gt;"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--allow-sub<span class="w"> </span><span class="s2">"&gt;"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--max-connections<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--max-subscriptions<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--max-payload<span class="w"> </span>8M
 
 <span class="c1"># Service user (limited access)</span>
 nsc<span class="w"> </span>add<span class="w"> </span>user<span class="w"> </span>-a<span class="w"> </span>APP<span class="w"> </span>field-service<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--allow-pub<span class="w"> </span><span class="s2">&quot;field.&gt;,sahool.field.&gt;,_INBOX.&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--allow-sub<span class="w"> </span><span class="s2">&quot;field.&gt;,sahool.field.&gt;,_INBOX.&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--deny-pub<span class="w"> </span><span class="s2">&quot;\$SYS.&gt;,\$JS.API.&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--allow-pub<span class="w"> </span><span class="s2">"field.&gt;,sahool.field.&gt;,_INBOX.&gt;"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--allow-sub<span class="w"> </span><span class="s2">"field.&gt;,sahool.field.&gt;,_INBOX.&gt;"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--deny-pub<span class="w"> </span><span class="s2">"\$SYS.&gt;,\$JS.API.&gt;"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--max-connections<span class="w"> </span><span class="m">50</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--max-subscriptions<span class="w"> </span><span class="m">200</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--max-payload<span class="w"> </span>8M
 
 <span class="c1"># Monitor user (read-only)</span>
 nsc<span class="w"> </span>add<span class="w"> </span>user<span class="w"> </span>-a<span class="w"> </span>APP<span class="w"> </span>monitor<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--deny-pub<span class="w"> </span><span class="s2">&quot;&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--allow-sub<span class="w"> </span><span class="s2">&quot;sahool.&gt;,field.&gt;,weather.&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--deny-sub<span class="w"> </span><span class="s2">&quot;\$SYS.&gt;,\$JS.API.&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--deny-pub<span class="w"> </span><span class="s2">"&gt;"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--allow-sub<span class="w"> </span><span class="s2">"sahool.&gt;,field.&gt;,weather.&gt;"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--deny-sub<span class="w"> </span><span class="s2">"\$SYS.&gt;,\$JS.API.&gt;"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--max-connections<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--max-subscriptions<span class="w"> </span><span class="m">50</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--max-payload<span class="w"> </span>1M
@@ -1297,19 +1297,19 @@ nsc<span class="w"> </span>describe<span class="w"> </span>account<span class="w
 <span class="nv">OPERATOR_JWT</span><span class="o">=</span><span class="k">$(</span>nsc<span class="w"> </span>describe<span class="w"> </span>operator<span class="w"> </span>SAHOOL<span class="w"> </span>-J<span class="k">)</span>
 
 <span class="c1"># Get operator public key</span>
-<span class="nv">OPERATOR_PUBLIC_KEY</span><span class="o">=</span><span class="k">$(</span>nsc<span class="w"> </span>describe<span class="w"> </span>operator<span class="w"> </span>SAHOOL<span class="w"> </span>-J<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.nats.signing_keys[0]&#39;</span><span class="k">)</span>
+<span class="nv">OPERATOR_PUBLIC_KEY</span><span class="o">=</span><span class="k">$(</span>nsc<span class="w"> </span>describe<span class="w"> </span>operator<span class="w"> </span>SAHOOL<span class="w"> </span>-J<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">'.nats.signing_keys[0]'</span><span class="k">)</span>
 
 <span class="c1"># Get system account public key</span>
-<span class="nv">SYSTEM_ACCOUNT_PUBLIC_KEY</span><span class="o">=</span><span class="k">$(</span>nsc<span class="w"> </span>describe<span class="w"> </span>account<span class="w"> </span>SYS<span class="w"> </span>-J<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.sub&#39;</span><span class="k">)</span>
+<span class="nv">SYSTEM_ACCOUNT_PUBLIC_KEY</span><span class="o">=</span><span class="k">$(</span>nsc<span class="w"> </span>describe<span class="w"> </span>account<span class="w"> </span>SYS<span class="w"> </span>-J<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">'.sub'</span><span class="k">)</span>
 
 <span class="c1"># Save to environment file</span>
 cat<span class="w"> </span>&gt;<span class="w"> </span>/home/user/sahool-unified-v15-idp/config/nats/.env.nkey<span class="w"> </span><span class="s">&lt;&lt; EOF</span>
-<span class="s">NATS_OPERATOR_JWT=&quot;${OPERATOR_JWT}&quot;</span>
-<span class="s">NATS_OPERATOR_PUBLIC_KEY=&quot;${OPERATOR_PUBLIC_KEY}&quot;</span>
-<span class="s">NATS_SYSTEM_ACCOUNT_PUBLIC_KEY=&quot;${SYSTEM_ACCOUNT_PUBLIC_KEY}&quot;</span>
-<span class="s">NATS_JETSTREAM_KEY=&quot;$(openssl rand -base64 32)&quot;</span>
-<span class="s">NATS_CLUSTER_USER=&quot;cluster_user&quot;</span>
-<span class="s">NATS_CLUSTER_PASSWORD=&quot;$(openssl rand -base64 32)&quot;</span>
+<span class="s">NATS_OPERATOR_JWT="${OPERATOR_JWT}"</span>
+<span class="s">NATS_OPERATOR_PUBLIC_KEY="${OPERATOR_PUBLIC_KEY}"</span>
+<span class="s">NATS_SYSTEM_ACCOUNT_PUBLIC_KEY="${SYSTEM_ACCOUNT_PUBLIC_KEY}"</span>
+<span class="s">NATS_JETSTREAM_KEY="$(openssl rand -base64 32)"</span>
+<span class="s">NATS_CLUSTER_USER="cluster_user"</span>
+<span class="s">NATS_CLUSTER_PASSWORD="$(openssl rand -base64 32)"</span>
 <span class="s">EOF</span>
 </code></pre></div>
 
@@ -1325,8 +1325,8 @@ cat<span class="w"> </span>&gt;<span class="w"> </span>/home/user/sahool-unified
 <span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nats:2.10-alpine</span>
 <span class="w">    </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-nats</span>
 <span class="w">    </span><span class="nt">command</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;-c&quot;</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;/etc/nats/nats-nkey.conf&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"-c"</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"/etc/nats/nats-nkey.conf"</span>
 <span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./config/nats/nats-nkey.conf:/etc/nats/nats-nkey.conf:ro</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./config/nats/resolver:/etc/nats/resolver:ro</span>
@@ -1335,14 +1335,14 @@ cat<span class="w"> </span>&gt;<span class="w"> </span>/home/user/sahool-unified
 <span class="w">    </span><span class="nt">env_file</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./config/nats/.env.nkey</span>
 <span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;4222:4222&quot;</span><span class="w"> </span><span class="c1"># Client connections</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;8222:8222&quot;</span><span class="w"> </span><span class="c1"># HTTP monitoring</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;6222:6222&quot;</span><span class="w"> </span><span class="c1"># Cluster connections</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"4222:4222"</span><span class="w"> </span><span class="c1"># Client connections</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"8222:8222"</span><span class="w"> </span><span class="c1"># HTTP monitoring</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"6222:6222"</span><span class="w"> </span><span class="c1"># Cluster connections</span>
 <span class="w">    </span><span class="nt">networks</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-network</span>
 <span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unless-stopped</span>
 <span class="w">    </span><span class="nt">healthcheck</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CMD&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;nats-server&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;-sl=https://localhost:8222&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"CMD"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"nats-server"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"-sl=https://localhost:8222"</span><span class="p p-Indicator">]</span>
 <span class="w">      </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10s</span>
 <span class="w">      </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5s</span>
 <span class="w">      </span><span class="nt">retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
@@ -1385,12 +1385,12 @@ cat<span class="w"> </span>&gt;<span class="w"> </span>/home/user/sahool-unified
 <span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool</span>
 <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Opaque</span>
 <span class="nt">stringData</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">NATS_OPERATOR_JWT</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;operator-jwt&gt;&quot;</span>
-<span class="w">  </span><span class="nt">NATS_OPERATOR_PUBLIC_KEY</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;operator-public-key&gt;&quot;</span>
-<span class="w">  </span><span class="nt">NATS_SYSTEM_ACCOUNT_PUBLIC_KEY</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;system-account-public-key&gt;&quot;</span>
-<span class="w">  </span><span class="nt">NATS_JETSTREAM_KEY</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;jetstream-encryption-key&gt;&quot;</span>
-<span class="w">  </span><span class="nt">NATS_CLUSTER_USER</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;cluster_user&quot;</span>
-<span class="w">  </span><span class="nt">NATS_CLUSTER_PASSWORD</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;cluster-password&gt;&quot;</span>
+<span class="w">  </span><span class="nt">NATS_OPERATOR_JWT</span><span class="p">:</span><span class="w"> </span><span class="s">"&lt;operator-jwt&gt;"</span>
+<span class="w">  </span><span class="nt">NATS_OPERATOR_PUBLIC_KEY</span><span class="p">:</span><span class="w"> </span><span class="s">"&lt;operator-public-key&gt;"</span>
+<span class="w">  </span><span class="nt">NATS_SYSTEM_ACCOUNT_PUBLIC_KEY</span><span class="p">:</span><span class="w"> </span><span class="s">"&lt;system-account-public-key&gt;"</span>
+<span class="w">  </span><span class="nt">NATS_JETSTREAM_KEY</span><span class="p">:</span><span class="w"> </span><span class="s">"&lt;jetstream-encryption-key&gt;"</span>
+<span class="w">  </span><span class="nt">NATS_CLUSTER_USER</span><span class="p">:</span><span class="w"> </span><span class="s">"cluster_user"</span>
+<span class="w">  </span><span class="nt">NATS_CLUSTER_PASSWORD</span><span class="p">:</span><span class="w"> </span><span class="s">"&lt;cluster-password&gt;"</span>
 <span class="nn">---</span>
 <span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Service</span>
@@ -1431,9 +1431,9 @@ cat<span class="w"> </span>&gt;<span class="w"> </span>/home/user/sahool-unified
 <span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nats</span>
 <span class="w">          </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nats:2.10-alpine</span>
 <span class="w">          </span><span class="nt">command</span><span class="p">:</span>
-<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;nats-server&quot;</span>
-<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;-c&quot;</span>
-<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;/etc/nats/nats-nkey.conf&quot;</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"nats-server"</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"-c"</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"/etc/nats/nats-nkey.conf"</span>
 <span class="w">          </span><span class="nt">ports</span><span class="p">:</span>
 <span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">containerPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4222</span>
 <span class="w">              </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">client</span>
@@ -1469,7 +1469,7 @@ cat<span class="w"> </span>&gt;<span class="w"> </span>/home/user/sahool-unified
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">metadata</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">data</span>
 <span class="w">      </span><span class="nt">spec</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">accessModes</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;ReadWriteOnce&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">        </span><span class="nt">accessModes</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"ReadWriteOnce"</span><span class="p p-Indicator">]</span>
 <span class="w">        </span><span class="nt">resources</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">requests</span><span class="p">:</span>
 <span class="w">            </span><span class="nt">storage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10Gi</span>
@@ -1483,19 +1483,19 @@ cat<span class="w"> </span>&gt;<span class="w"> </span>/home/user/sahool-unified
 </code></pre></div>
 
 <h4 id="connection-example">Connection Example<a class="headerlink" href="#connection-example" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">connect</span><span class="p">,</span><span class="w"> </span><span class="nx">NatsConnection</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;nats&quot;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">connect</span><span class="p">,</span><span class="w"> </span><span class="nx">NatsConnection</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"nats"</span><span class="p">;</span>
 
 <span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">connectToNATS</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">NatsConnection</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">nc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">connect</span><span class="p">({</span>
-<span class="w">    </span><span class="nx">servers</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;nats://localhost:4222&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">servers</span><span class="o">:</span><span class="w"> </span><span class="s2">"nats://localhost:4222"</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">userCreds</span><span class="o">:</span>
-<span class="w">      </span><span class="s2">&quot;/home/user/sahool-unified-v15-idp/config/nats/creds/APP_field-service.creds&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">"/home/user/sahool-unified-v15-idp/config/nats/creds/APP_field-service.creds"</span><span class="p">,</span>
 
 <span class="w">    </span><span class="c1">// Optional: TLS configuration</span>
 <span class="w">    </span><span class="nx">tls</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">caFile</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;/etc/nats/certs/ca.crt&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">certFile</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;/etc/nats/certs/client.crt&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">keyFile</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;/etc/nats/certs/client.key&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">caFile</span><span class="o">:</span><span class="w"> </span><span class="s2">"/etc/nats/certs/ca.crt"</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">certFile</span><span class="o">:</span><span class="w"> </span><span class="s2">"/etc/nats/certs/client.crt"</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">keyFile</span><span class="o">:</span><span class="w"> </span><span class="s2">"/etc/nats/certs/client.key"</span><span class="p">,</span>
 <span class="w">    </span><span class="p">},</span>
 
 <span class="w">    </span><span class="c1">// Connection options</span>
@@ -1509,7 +1509,7 @@ cat<span class="w"> </span>&gt;<span class="w"> </span>/home/user/sahool-unified
 <span class="w">  </span><span class="c1">// Handle connection events</span>
 <span class="w">  </span><span class="nx">nc</span><span class="p">.</span><span class="nx">closed</span><span class="p">().</span><span class="nx">then</span><span class="p">((</span><span class="nx">err</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s2">&quot;Connection closed with error:&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">);</span>
+<span class="w">      </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s2">"Connection closed with error:"</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">);</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">});</span>
 
@@ -1521,15 +1521,15 @@ cat<span class="w"> </span>&gt;<span class="w"> </span>/home/user/sahool-unified
 
 <span class="c1">// Publish</span>
 <span class="k">await</span><span class="w"> </span><span class="nx">nc</span><span class="p">.</span><span class="nx">publish</span><span class="p">(</span>
-<span class="w">  </span><span class="s2">&quot;field.operation.created&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="s2">"field.operation.created"</span><span class="p">,</span>
 <span class="w">  </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
-<span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;123&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;harvest&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s2">"123"</span><span class="p">,</span>
+<span class="w">    </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s2">"harvest"</span><span class="p">,</span>
 <span class="w">  </span><span class="p">}),</span>
 <span class="p">);</span>
 
 <span class="c1">// Subscribe</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">sub</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">nc</span><span class="p">.</span><span class="nx">subscribe</span><span class="p">(</span><span class="s2">&quot;field.&gt;&quot;</span><span class="p">);</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">sub</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">nc</span><span class="p">.</span><span class="nx">subscribe</span><span class="p">(</span><span class="s2">"field.&gt;"</span><span class="p">);</span>
 <span class="k">for</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="nx">msg</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nx">sub</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Received: </span><span class="si">${</span><span class="nx">msg</span><span class="p">.</span><span class="nx">subject</span><span class="si">}</span><span class="sb">`</span><span class="p">,</span><span class="w"> </span><span class="nx">msg</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
 <span class="p">}</span>
@@ -1544,15 +1544,15 @@ cat<span class="w"> </span>&gt;<span class="w"> </span>/home/user/sahool-unified
 <div class="codehilite"><pre><span></span><code><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="p">(</span>
-<span class="w">    </span><span class="s">&quot;log&quot;</span>
-<span class="w">    </span><span class="s">&quot;github.com/nats-io/nats.go&quot;</span>
+<span class="w">    </span><span class="s">"log"</span>
+<span class="w">    </span><span class="s">"github.com/nats-io/nats.go"</span>
 <span class="p">)</span>
 
 <span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="c1">// Connect with credentials</span>
 <span class="w">    </span><span class="nx">nc</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">nats</span><span class="p">.</span><span class="nx">Connect</span><span class="p">(</span>
-<span class="w">        </span><span class="s">&quot;nats://localhost:4222&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">nats</span><span class="p">.</span><span class="nx">UserCredentials</span><span class="p">(</span><span class="s">&quot;/home/user/sahool-unified-v15-idp/config/nats/creds/APP_field-service.creds&quot;</span><span class="p">),</span>
+<span class="w">        </span><span class="s">"nats://localhost:4222"</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">nats</span><span class="p">.</span><span class="nx">UserCredentials</span><span class="p">(</span><span class="s">"/home/user/sahool-unified-v15-idp/config/nats/creds/APP_field-service.creds"</span><span class="p">),</span>
 <span class="w">        </span><span class="nx">nats</span><span class="p">.</span><span class="nx">MaxReconnects</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span>
 <span class="w">        </span><span class="nx">nats</span><span class="p">.</span><span class="nx">ReconnectWait</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">),</span>
 <span class="w">    </span><span class="p">)</span>
@@ -1561,17 +1561,17 @@ cat<span class="w"> </span>&gt;<span class="w"> </span>/home/user/sahool-unified
 <span class="w">    </span><span class="p">}</span>
 <span class="w">    </span><span class="k">defer</span><span class="w"> </span><span class="nx">nc</span><span class="p">.</span><span class="nx">Close</span><span class="p">()</span>
 
-<span class="w">    </span><span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;Connected to %s&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">nc</span><span class="p">.</span><span class="nx">ConnectedUrl</span><span class="p">())</span>
+<span class="w">    </span><span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">"Connected to %s"</span><span class="p">,</span><span class="w"> </span><span class="nx">nc</span><span class="p">.</span><span class="nx">ConnectedUrl</span><span class="p">())</span>
 
 <span class="w">    </span><span class="c1">// Publish</span>
-<span class="w">    </span><span class="nx">err</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">nc</span><span class="p">.</span><span class="nx">Publish</span><span class="p">(</span><span class="s">&quot;field.operation.created&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="s">`{&quot;id&quot;:&quot;123&quot;,&quot;type&quot;:&quot;harvest&quot;}`</span><span class="p">))</span>
+<span class="w">    </span><span class="nx">err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">nc</span><span class="p">.</span><span class="nx">Publish</span><span class="p">(</span><span class="s">"field.operation.created"</span><span class="p">,</span><span class="w"> </span><span class="p">[]</span><span class="kt">byte</span><span class="p">(</span><span class="s">`{"id":"123","type":"harvest"}`</span><span class="p">))</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="nx">log</span><span class="p">.</span><span class="nx">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
 <span class="w">    </span><span class="p">}</span>
 
 <span class="w">    </span><span class="c1">// Subscribe</span>
-<span class="w">    </span><span class="nx">sub</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">nc</span><span class="p">.</span><span class="nx">Subscribe</span><span class="p">(</span><span class="s">&quot;field.&gt;&quot;</span><span class="p">,</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">msg</span><span class="w"> </span><span class="o">*</span><span class="nx">nats</span><span class="p">.</span><span class="nx">Msg</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;Received on [%s]: %s&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">msg</span><span class="p">.</span><span class="nx">Subject</span><span class="p">,</span><span class="w"> </span><span class="nb">string</span><span class="p">(</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Data</span><span class="p">))</span>
+<span class="w">    </span><span class="nx">sub</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">nc</span><span class="p">.</span><span class="nx">Subscribe</span><span class="p">(</span><span class="s">"field.&gt;"</span><span class="p">,</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">msg</span><span class="w"> </span><span class="o">*</span><span class="nx">nats</span><span class="p">.</span><span class="nx">Msg</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">"Received on [%s]: %s"</span><span class="p">,</span><span class="w"> </span><span class="nx">msg</span><span class="p">.</span><span class="nx">Subject</span><span class="p">,</span><span class="w"> </span><span class="kt">string</span><span class="p">(</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Data</span><span class="p">))</span>
 <span class="w">    </span><span class="p">})</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="nx">log</span><span class="p">.</span><span class="nx">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
@@ -1597,24 +1597,24 @@ cat<span class="w"> </span>&gt;<span class="w"> </span>/home/user/sahool-unified
 
     <span class="c1"># Connect with credentials</span>
     <span class="k">await</span> <span class="n">nc</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
-        <span class="n">servers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;nats://localhost:4222&quot;</span><span class="p">],</span>
-        <span class="n">user_credentials</span><span class="o">=</span><span class="s2">&quot;/home/user/sahool-unified-v15-idp/config/nats/creds/APP_field-service.creds&quot;</span><span class="p">,</span>
+        <span class="n">servers</span><span class="o">=</span><span class="p">[</span><span class="s2">"nats://localhost:4222"</span><span class="p">],</span>
+        <span class="n">user_credentials</span><span class="o">=</span><span class="s2">"/home/user/sahool-unified-v15-idp/config/nats/creds/APP_field-service.creds"</span><span class="p">,</span>
         <span class="n">max_reconnect_attempts</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
         <span class="n">reconnect_time_wait</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Connected to </span><span class="si">{</span><span class="n">nc</span><span class="o">.</span><span class="n">connected_url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Connected to </span><span class="si">{</span><span class="n">nc</span><span class="o">.</span><span class="n">connected_url</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="c1"># Publish</span>
-    <span class="k">await</span> <span class="n">nc</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&quot;field.operation.created&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s1">&#39;{&quot;id&quot;:&quot;123&quot;,&quot;type&quot;:&quot;harvest&quot;}&#39;</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">nc</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">"field.operation.created"</span><span class="p">,</span> <span class="sa">b</span><span class="s1">'{"id":"123","type":"harvest"}'</span><span class="p">)</span>
 
     <span class="c1"># Subscribe</span>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">message_handler</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
         <span class="n">subject</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">subject</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Received on [</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">]: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Received on [</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">]: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
-    <span class="k">await</span> <span class="n">nc</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&quot;field.&gt;&quot;</span><span class="p">,</span> <span class="n">cb</span><span class="o">=</span><span class="n">message_handler</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">nc</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">"field.&gt;"</span><span class="p">,</span> <span class="n">cb</span><span class="o">=</span><span class="n">message_handler</span><span class="p">)</span>
 
     <span class="c1"># Keep alive</span>
     <span class="k">try</span><span class="p">:</span>
@@ -1624,7 +1624,7 @@ cat<span class="w"> </span>&gt;<span class="w"> </span>/home/user/sahool-unified
     <span class="k">finally</span><span class="p">:</span>
         <span class="k">await</span> <span class="n">nc</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">'__main__'</span><span class="p">:</span>
     <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
 </code></pre></div>
 
@@ -1645,26 +1645,26 @@ cat<span class="w"> </span>&gt;<span class="w"> </span>/home/user/sahool-unified
 <span class="w">        </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
 <span class="w">            </span><span class="c1">// Connect with credentials</span>
 <span class="w">            </span><span class="n">Options</span><span class="w"> </span><span class="n">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Options</span><span class="p">.</span><span class="na">Builder</span><span class="p">()</span>
-<span class="w">                </span><span class="p">.</span><span class="na">server</span><span class="p">(</span><span class="s">&quot;nats://localhost:4222&quot;</span><span class="p">)</span>
-<span class="w">                </span><span class="p">.</span><span class="na">userInfo</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;/home/user/sahool-unified-v15-idp/config/nats/creds/APP_field-service.creds&quot;</span><span class="p">.</span><span class="na">toCharArray</span><span class="p">())</span>
+<span class="w">                </span><span class="p">.</span><span class="na">server</span><span class="p">(</span><span class="s">"nats://localhost:4222"</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">userInfo</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="s">"/home/user/sahool-unified-v15-idp/config/nats/creds/APP_field-service.creds"</span><span class="p">.</span><span class="na">toCharArray</span><span class="p">())</span>
 <span class="w">                </span><span class="p">.</span><span class="na">maxReconnects</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 <span class="w">                </span><span class="p">.</span><span class="na">reconnectWait</span><span class="p">(</span><span class="n">Duration</span><span class="p">.</span><span class="na">ofSeconds</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
 <span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
 
 <span class="w">            </span><span class="n">Connection</span><span class="w"> </span><span class="n">nc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Nats</span><span class="p">.</span><span class="na">connect</span><span class="p">(</span><span class="n">options</span><span class="p">);</span>
-<span class="w">            </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&quot;Connected to &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">nc</span><span class="p">.</span><span class="na">getConnectedUrl</span><span class="p">());</span>
+<span class="w">            </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"Connected to "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">nc</span><span class="p">.</span><span class="na">getConnectedUrl</span><span class="p">());</span>
 
 <span class="w">            </span><span class="c1">// Publish</span>
-<span class="w">            </span><span class="n">nc</span><span class="p">.</span><span class="na">publish</span><span class="p">(</span><span class="s">&quot;field.operation.created&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;{\&quot;id\&quot;:\&quot;123\&quot;,\&quot;type\&quot;:\&quot;harvest\&quot;}&quot;</span><span class="p">.</span><span class="na">getBytes</span><span class="p">());</span>
+<span class="w">            </span><span class="n">nc</span><span class="p">.</span><span class="na">publish</span><span class="p">(</span><span class="s">"field.operation.created"</span><span class="p">,</span><span class="w"> </span><span class="s">"{\"id\":\"123\",\"type\":\"harvest\"}"</span><span class="p">.</span><span class="na">getBytes</span><span class="p">());</span>
 
 <span class="w">            </span><span class="c1">// Subscribe</span>
 <span class="w">            </span><span class="n">Dispatcher</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc</span><span class="p">.</span><span class="na">createDispatcher</span><span class="p">((</span><span class="n">msg</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">printf</span><span class="p">(</span><span class="s">&quot;Received on [%s]: %s%n&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">printf</span><span class="p">(</span><span class="s">"Received on [%s]: %s%n"</span><span class="p">,</span>
 <span class="w">                    </span><span class="n">msg</span><span class="p">.</span><span class="na">getSubject</span><span class="p">(),</span>
 <span class="w">                    </span><span class="k">new</span><span class="w"> </span><span class="n">String</span><span class="p">(</span><span class="n">msg</span><span class="p">.</span><span class="na">getData</span><span class="p">())</span>
 <span class="w">                </span><span class="p">);</span>
 <span class="w">            </span><span class="p">});</span>
-<span class="w">            </span><span class="n">d</span><span class="p">.</span><span class="na">subscribe</span><span class="p">(</span><span class="s">&quot;field.&gt;&quot;</span><span class="p">);</span>
+<span class="w">            </span><span class="n">d</span><span class="p">.</span><span class="na">subscribe</span><span class="p">(</span><span class="s">"field.&gt;"</span><span class="p">);</span>
 
 <span class="w">            </span><span class="c1">// Keep alive</span>
 <span class="w">            </span><span class="n">Thread</span><span class="p">.</span><span class="na">sleep</span><span class="p">(</span><span class="n">Long</span><span class="p">.</span><span class="na">MAX_VALUE</span><span class="p">);</span>
@@ -1742,15 +1742,15 @@ chmod<span class="w"> </span><span class="m">600</span><span class="w"> </span>/
 chown<span class="w"> </span>app:app<span class="w"> </span>/home/user/sahool-unified-v15-idp/config/nats/creds/*.creds
 
 <span class="c1"># Never commit credentials to git</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;config/nats/creds/&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>.gitignore
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;config/nats/.env.nkey&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>.gitignore
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"config/nats/creds/"</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>.gitignore
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"config/nats/.env.nkey"</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>.gitignore
 </code></pre></div>
 
 <h3 id="2-credential-rotation">2. Credential Rotation<a class="headerlink" href="#2-credential-rotation" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Generate new user credentials</span>
 nsc<span class="w"> </span>add<span class="w"> </span>user<span class="w"> </span>-a<span class="w"> </span>APP<span class="w"> </span>field-service-new<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--allow-pub<span class="w"> </span><span class="s2">&quot;field.&gt;,sahool.field.&gt;,_INBOX.&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--allow-sub<span class="w"> </span><span class="s2">&quot;field.&gt;,sahool.field.&gt;,_INBOX.&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--allow-pub<span class="w"> </span><span class="s2">"field.&gt;,sahool.field.&gt;,_INBOX.&gt;"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--allow-sub<span class="w"> </span><span class="s2">"field.&gt;,sahool.field.&gt;,_INBOX.&gt;"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--max-connections<span class="w"> </span><span class="m">50</span>
 
 <span class="c1"># Generate new credential file</span>
@@ -1776,8 +1776,8 @@ nsc<span class="w"> </span>generate<span class="w"> </span>creds<span class="w">
 
 <h3 id="4-monitor-access">4. Monitor Access<a class="headerlink" href="#4-monitor-access" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Subscribe to system events (requires system account access)</span>
-nats<span class="w"> </span>sub<span class="w"> </span>-s<span class="w"> </span>nats://localhost:4222<span class="w"> </span>--creds<span class="o">=</span>SYS_system-monitor.creds<span class="w"> </span><span class="s2">&quot;\$SYS.ACCOUNT.*.CONNECT&quot;</span>
-nats<span class="w"> </span>sub<span class="w"> </span>-s<span class="w"> </span>nats://localhost:4222<span class="w"> </span>--creds<span class="o">=</span>SYS_system-monitor.creds<span class="w"> </span><span class="s2">&quot;\$SYS.ACCOUNT.*.DISCONNECT&quot;</span>
+nats<span class="w"> </span>sub<span class="w"> </span>-s<span class="w"> </span>nats://localhost:4222<span class="w"> </span>--creds<span class="o">=</span>SYS_system-monitor.creds<span class="w"> </span><span class="s2">"\$SYS.ACCOUNT.*.CONNECT"</span>
+nats<span class="w"> </span>sub<span class="w"> </span>-s<span class="w"> </span>nats://localhost:4222<span class="w"> </span>--creds<span class="o">=</span>SYS_system-monitor.creds<span class="w"> </span><span class="s2">"\$SYS.ACCOUNT.*.DISCONNECT"</span>
 </code></pre></div>
 
 <h3 id="5-audit-logging">5. Audit Logging<a class="headerlink" href="#5-audit-logging" title="Permanent link">&para;</a></h3>
@@ -1814,7 +1814,7 @@ docker<span class="w"> </span>logs<span class="w"> </span>sahool-nats
 <span class="c1"># 5. Test with nats CLI</span>
 nats<span class="w"> </span>pub<span class="w"> </span>-s<span class="w"> </span>nats://localhost:4222<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--creds<span class="o">=</span>/home/user/sahool-unified-v15-idp/config/nats/creds/APP_field-service.creds<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span><span class="nb">test</span><span class="w"> </span><span class="s2">&quot;Hello&quot;</span>
+<span class="w">    </span><span class="nb">test</span><span class="w"> </span><span class="s2">"Hello"</span>
 </code></pre></div>
 
 <h3 id="permission-denied-on-subject">Permission Denied on Subject<a class="headerlink" href="#permission-denied-on-subject" title="Permanent link">&para;</a></h3>
@@ -1825,7 +1825,7 @@ nsc<span class="w"> </span>describe<span class="w"> </span>user<span class="w"> 
 
 <span class="c1"># 2. Update permissions</span>
 nsc<span class="w"> </span>edit<span class="w"> </span>user<span class="w"> </span>-a<span class="w"> </span>APP<span class="w"> </span>-n<span class="w"> </span>field-service<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--allow-pub<span class="w"> </span><span class="s2">&quot;field.&gt;,new-subject.&gt;&quot;</span>
+<span class="w">    </span>--allow-pub<span class="w"> </span><span class="s2">"field.&gt;,new-subject.&gt;"</span>
 
 <span class="c1"># 3. Regenerate credentials</span>
 nsc<span class="w"> </span>generate<span class="w"> </span>creds<span class="w"> </span>-a<span class="w"> </span>APP<span class="w"> </span>-n<span class="w"> </span>field-service<span class="w"> </span>&gt;<span class="w"> </span>APP_field-service.creds
@@ -1840,7 +1840,7 @@ nsc<span class="w"> </span>describe<span class="w"> </span>account<span class="w
 <p><strong>Problem</strong>: NATS server can't find account JWTs</p>
 <p><strong>Solutions</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># 1. Verify resolver directory path in config</span>
-grep<span class="w"> </span><span class="s2">&quot;dir:&quot;</span><span class="w"> </span>/home/user/sahool-unified-v15-idp/config/nats/nats-nkey.conf
+grep<span class="w"> </span><span class="s2">"dir:"</span><span class="w"> </span>/home/user/sahool-unified-v15-idp/config/nats/nats-nkey.conf
 
 <span class="c1"># 2. Check resolver directory permissions</span>
 ls<span class="w"> </span>-la<span class="w"> </span>/home/user/sahool-unified-v15-idp/config/nats/resolver/
@@ -1849,7 +1849,7 @@ ls<span class="w"> </span>-la<span class="w"> </span>/home/user/sahool-unified-v
 ls<span class="w"> </span>-la<span class="w"> </span>/home/user/sahool-unified-v15-idp/config/nats/resolver/*.jwt
 
 <span class="c1"># 4. Validate JWT format</span>
-cat<span class="w"> </span>/home/user/sahool-unified-v15-idp/config/nats/resolver/APP.jwt<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.&#39;</span>
+cat<span class="w"> </span>/home/user/sahool-unified-v15-idp/config/nats/resolver/APP.jwt<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">'.'</span>
 
 <span class="c1"># 5. Check NATS server logs for resolver errors</span>
 docker<span class="w"> </span>logs<span class="w"> </span>sahool-nats<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>resolver
@@ -1866,8 +1866,8 @@ nats<span class="w"> </span>context<span class="w"> </span>save<span class="w"> 
 <span class="w">    </span>--creds<span class="o">=</span>/home/user/sahool-unified-v15-idp/config/nats/creds/APP_admin.creds
 
 <span class="c1"># Test pub/sub</span>
-nats<span class="w"> </span>pub<span class="w"> </span>--context<span class="o">=</span>sahool<span class="w"> </span>test.subject<span class="w"> </span><span class="s2">&quot;Hello NATS&quot;</span>
-nats<span class="w"> </span>sub<span class="w"> </span>--context<span class="o">=</span>sahool<span class="w"> </span><span class="s2">&quot;test.&gt;&quot;</span>
+nats<span class="w"> </span>pub<span class="w"> </span>--context<span class="o">=</span>sahool<span class="w"> </span>test.subject<span class="w"> </span><span class="s2">"Hello NATS"</span>
+nats<span class="w"> </span>sub<span class="w"> </span>--context<span class="o">=</span>sahool<span class="w"> </span><span class="s2">"test.&gt;"</span>
 
 <span class="c1"># Check account info</span>
 nats<span class="w"> </span>account<span class="w"> </span>info<span class="w"> </span>--context<span class="o">=</span>sahool
@@ -1900,7 +1900,7 @@ nats<span class="w"> </span>stream<span class="w"> </span>ls<span class="w"> </s
 <span class="nx">operator</span><span class="p">:</span><span class="w"> </span><span class="err">$</span><span class="nx">NATS_OPERATOR_JWT</span>
 <span class="nx">resolver</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">type</span><span class="p">:</span><span class="w"> </span><span class="nx">full</span>
-<span class="w">    </span><span class="nx">dir</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/etc/nats/resolver&quot;</span>
+<span class="w">    </span><span class="nx">dir</span><span class="p">:</span><span class="w"> </span><span class="s">"/etc/nats/resolver"</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1928,13 +1928,13 @@ nats<span class="w"> </span>stream<span class="w"> </span>ls<span class="w"> </s
 <div class="codehilite"><pre><span></span><code><span class="c1"># In account A, export a service</span>
 nsc<span class="w"> </span>add<span class="w"> </span><span class="nb">export</span><span class="w"> </span>-a<span class="w"> </span>AccountA<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--service<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--subject<span class="w"> </span><span class="s2">&quot;service.request&quot;</span>
+<span class="w">    </span>--subject<span class="w"> </span><span class="s2">"service.request"</span>
 
 <span class="c1"># In account B, import the service</span>
 nsc<span class="w"> </span>add<span class="w"> </span>import<span class="w"> </span>-a<span class="w"> </span>AccountB<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--service<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--src-account<span class="w"> </span><span class="k">$(</span>nsc<span class="w"> </span>describe<span class="w"> </span>account<span class="w"> </span>AccountA<span class="w"> </span>-J<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span>.sub<span class="k">)</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--remote-subject<span class="w"> </span><span class="s2">&quot;service.request&quot;</span>
+<span class="w">    </span>--remote-subject<span class="w"> </span><span class="s2">"service.request"</span>
 
 <span class="c1"># Update resolver</span>
 nsc<span class="w"> </span>describe<span class="w"> </span>account<span class="w"> </span>AccountA<span class="w"> </span>-J<span class="w"> </span>&gt;<span class="w"> </span>resolver/AccountA.jwt
@@ -2037,10 +2037,10 @@ nats-account-server<span class="w"> </span>-nsc<span class="w"> </span><span cla
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

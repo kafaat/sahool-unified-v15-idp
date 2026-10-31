@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1270,7 +1270,7 @@ sudo<span class="w"> </span>cp<span class="w"> </span>infrastructure/certs/cert-
 sudo<span class="w"> </span>cp<span class="w"> </span>infrastructure/certs/cert-rotation.timer<span class="w"> </span>/etc/systemd/system/
 
 <span class="c1"># Update paths in service file if not using /opt/sahool</span>
-sudo<span class="w"> </span>sed<span class="w"> </span>-i<span class="w"> </span><span class="s1">&#39;s|/opt/sahool|/home/user/sahool-unified-v15-idp|g&#39;</span><span class="w"> </span>/etc/systemd/system/cert-rotation.service
+sudo<span class="w"> </span>sed<span class="w"> </span>-i<span class="w"> </span><span class="s1">'s|/opt/sahool|/home/user/sahool-unified-v15-idp|g'</span><span class="w"> </span>/etc/systemd/system/cert-rotation.service
 
 <span class="c1"># Enable and start timer</span>
 sudo<span class="w"> </span>systemctl<span class="w"> </span>daemon-reload
@@ -1423,7 +1423,7 @@ sudo<span class="w"> </span>systemctl<span class="w"> </span>restart<span class=
 
 <h3 id="rotate-without-restarting-services">Rotate Without Restarting Services<a class="headerlink" href="#rotate-without-restarting-services" title="Permanent link">&para;</a></h3>
 <p>Useful when you want to rotate during a maintenance window:</p>
-<div class="codehilite"><pre><span></span><code><span class="c1"># Rotate certificates but don&#39;t restart</span>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Rotate certificates but don't restart</span>
 ./scripts/certs/rotate-certs.sh<span class="w"> </span>--skip-restart
 
 <span class="c1"># Later, manually restart services</span>
@@ -1472,21 +1472,21 @@ docker-compose<span class="w"> </span>restart<span class="w"> </span>postgres<sp
 
 <p>Output:</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-01-07T02:00:00Z&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;validation_results&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-01-07T02:00:00Z"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"validation_results"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;service&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;postgres&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;valid&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;days_until_expiry&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">795</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Certificate valid for 795 days&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;expiry_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Nov 10 02:00:00 2027 GMT&quot;</span>
+<span class="w">      </span><span class="nt">"service"</span><span class="p">:</span><span class="w"> </span><span class="s2">"postgres"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"valid"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"days_until_expiry"</span><span class="p">:</span><span class="w"> </span><span class="mi">795</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Certificate valid for 795 days"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"expiry_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Nov 10 02:00:00 2027 GMT"</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;service&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;redis&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;warning&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;days_until_expiry&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Certificate expires in 25 days&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;expiry_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Mar 12 02:00:00 2026 GMT&quot;</span>
+<span class="w">      </span><span class="nt">"service"</span><span class="p">:</span><span class="w"> </span><span class="s2">"redis"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"warning"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"days_until_expiry"</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Certificate expires in 25 days"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"expiry_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Mar 12 02:00:00 2026 GMT"</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">]</span>
 <span class="p">}</span>
@@ -1515,9 +1515,9 @@ docker-compose<span class="w"> </span>restart<span class="w"> </span>postgres<sp
 
 <h3 id="check-expiration-dates-for-all-certificates">Check Expiration Dates for All Certificates<a class="headerlink" href="#check-expiration-dates-for-all-certificates" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="k">for</span><span class="w"> </span>cert<span class="w"> </span><span class="k">in</span><span class="w"> </span>config/certs/*/server.crt<span class="p">;</span><span class="w"> </span><span class="k">do</span>
-<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;=== </span><span class="nv">$cert</span><span class="s2"> ===&quot;</span>
-<span class="w">  </span>openssl<span class="w"> </span>x509<span class="w"> </span>-in<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$cert</span><span class="s2">&quot;</span><span class="w"> </span>-noout<span class="w"> </span>-dates
-<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;&quot;</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"=== </span><span class="nv">$cert</span><span class="s2"> ==="</span>
+<span class="w">  </span>openssl<span class="w"> </span>x509<span class="w"> </span>-in<span class="w"> </span><span class="s2">"</span><span class="nv">$cert</span><span class="s2">"</span><span class="w"> </span>-noout<span class="w"> </span>-dates
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">""</span>
 <span class="k">done</span>
 </code></pre></div>
 
@@ -1543,8 +1543,8 @@ openssl<span class="w"> </span>verify<span class="w"> </span>-CAfile<span class=
 <span class="nv">cert_modulus</span><span class="o">=</span><span class="k">$(</span>openssl<span class="w"> </span>x509<span class="w"> </span>-noout<span class="w"> </span>-modulus<span class="w"> </span>-in<span class="w"> </span>config/certs/redis/server.crt<span class="w"> </span><span class="p">|</span><span class="w"> </span>openssl<span class="w"> </span>md5<span class="k">)</span>
 <span class="nv">key_modulus</span><span class="o">=</span><span class="k">$(</span>openssl<span class="w"> </span>rsa<span class="w"> </span>-noout<span class="w"> </span>-modulus<span class="w"> </span>-in<span class="w"> </span>config/certs/redis/server.key<span class="w"> </span><span class="p">|</span><span class="w"> </span>openssl<span class="w"> </span>md5<span class="k">)</span>
 
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Cert: </span><span class="nv">$cert_modulus</span><span class="s2">&quot;</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Key:  </span><span class="nv">$key_modulus</span><span class="s2">&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"Cert: </span><span class="nv">$cert_modulus</span><span class="s2">"</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"Key:  </span><span class="nv">$key_modulus</span><span class="s2">"</span>
 </code></pre></div>
 
 <p><strong>Solution</strong>: Both must match. If not, regenerate the certificate.</p>
@@ -1553,7 +1553,7 @@ openssl<span class="w"> </span>verify<span class="w"> </span>-CAfile<span class=
 <div class="codehilite"><pre><span></span><code><span class="c1"># Check Docker logs</span>
 docker-compose<span class="w"> </span>logs<span class="w"> </span>postgres
 
-<span class="c1"># Common error: &quot;certificate verify failed&quot;</span>
+<span class="c1"># Common error: "certificate verify failed"</span>
 <span class="c1"># Solution: Verify certificate permissions</span>
 ls<span class="w"> </span>-la<span class="w"> </span>config/certs/postgres/
 chmod<span class="w"> </span><span class="m">600</span><span class="w"> </span>config/certs/postgres/server.key
@@ -1619,7 +1619,7 @@ docker-compose<span class="w"> </span>restart<span class="w"> </span>nats
 cat<span class="w"> </span>config/certs/rotation.log
 
 <span class="c1"># View systemd journal</span>
-sudo<span class="w"> </span>journalctl<span class="w"> </span>-u<span class="w"> </span>cert-rotation.service<span class="w"> </span>--since<span class="w"> </span><span class="s2">&quot;7 days ago&quot;</span>
+sudo<span class="w"> </span>journalctl<span class="w"> </span>-u<span class="w"> </span>cert-rotation.service<span class="w"> </span>--since<span class="w"> </span><span class="s2">"7 days ago"</span>
 </code></pre></div>
 
 <hr />
@@ -1648,7 +1648,7 @@ sudo<span class="w"> </span>journalctl<span class="w"> </span>-u<span class="w">
 <h3 id="git-configuration">Git Configuration<a class="headerlink" href="#git-configuration" title="Permanent link">&para;</a></h3>
 <p>Ensure <code>.gitignore</code> excludes private keys:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Verify .gitignore</span>
-grep<span class="w"> </span>-E<span class="w"> </span><span class="s2">&quot;\.key</span>$<span class="s2">&quot;</span><span class="w"> </span>.gitignore
+grep<span class="w"> </span>-E<span class="w"> </span><span class="s2">"\.key</span>$<span class="s2">"</span><span class="w"> </span>.gitignore
 
 <span class="c1"># Add if missing</span>
 cat<span class="w"> </span>&gt;&gt;<span class="w"> </span>.gitignore<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
@@ -1661,8 +1661,8 @@ cat<span class="w"> </span>&gt;&gt;<span class="w"> </span>.gitignore<span class
 
 <h3 id="file-permissions">File Permissions<a class="headerlink" href="#file-permissions" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Set correct permissions on all certificates</span>
-find<span class="w"> </span>config/certs<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;*.key&quot;</span><span class="w"> </span>-type<span class="w"> </span>f<span class="w"> </span>-exec<span class="w"> </span>chmod<span class="w"> </span><span class="m">600</span><span class="w"> </span><span class="o">{}</span><span class="w"> </span><span class="se">\;</span>
-find<span class="w"> </span>config/certs<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;*.crt&quot;</span><span class="w"> </span>-type<span class="w"> </span>f<span class="w"> </span>-exec<span class="w"> </span>chmod<span class="w"> </span><span class="m">644</span><span class="w"> </span><span class="o">{}</span><span class="w"> </span><span class="se">\;</span>
+find<span class="w"> </span>config/certs<span class="w"> </span>-name<span class="w"> </span><span class="s2">"*.key"</span><span class="w"> </span>-type<span class="w"> </span>f<span class="w"> </span>-exec<span class="w"> </span>chmod<span class="w"> </span><span class="m">600</span><span class="w"> </span><span class="o">{}</span><span class="w"> </span><span class="se">\;</span>
+find<span class="w"> </span>config/certs<span class="w"> </span>-name<span class="w"> </span><span class="s2">"*.crt"</span><span class="w"> </span>-type<span class="w"> </span>f<span class="w"> </span>-exec<span class="w"> </span>chmod<span class="w"> </span><span class="m">644</span><span class="w"> </span><span class="o">{}</span><span class="w"> </span><span class="se">\;</span>
 chmod<span class="w"> </span><span class="m">700</span><span class="w"> </span>config/certs/ca
 </code></pre></div>
 
@@ -1707,7 +1707,7 @@ sudo<span class="w"> </span>cp<span class="w"> </span>/etc/letsencrypt/live/api.
 <h4 id="option-2-corporate-pki">Option 2: Corporate PKI<a class="headerlink" href="#option-2-corporate-pki" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Generate CSR</span>
 openssl<span class="w"> </span>req<span class="w"> </span>-new<span class="w"> </span>-key<span class="w"> </span>config/certs/postgres/server.key<span class="w"> </span>-out<span class="w"> </span>postgres.csr<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-subj<span class="w"> </span><span class="s2">&quot;/C=SA/ST=Riyadh/L=Riyadh/O=SAHOOL/CN=postgres.sahool.internal&quot;</span>
+<span class="w">  </span>-subj<span class="w"> </span><span class="s2">"/C=SA/ST=Riyadh/L=Riyadh/O=SAHOOL/CN=postgres.sahool.internal"</span>
 
 <span class="c1"># Submit CSR to corporate CA</span>
 <span class="c1"># Receive signed certificate</span>
@@ -1764,12 +1764,12 @@ vault<span class="w"> </span>write<span class="w"> </span>pki/issue/sahool-postg
 <span class="k">while</span><span class="w"> </span>true<span class="p">;</span><span class="w"> </span><span class="k">do</span>
 <span class="w">  </span><span class="k">for</span><span class="w"> </span>cert<span class="w"> </span><span class="k">in</span><span class="w"> </span>/opt/sahool/config/certs/*/server.crt<span class="p">;</span><span class="w"> </span><span class="k">do</span>
 <span class="w">    </span><span class="nv">service</span><span class="o">=</span><span class="k">$(</span>basename<span class="w"> </span><span class="k">$(</span>dirname<span class="w"> </span><span class="nv">$cert</span><span class="k">))</span>
-<span class="w">    </span><span class="nv">expiry</span><span class="o">=</span><span class="k">$(</span>openssl<span class="w"> </span>x509<span class="w"> </span>-in<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$cert</span><span class="s2">&quot;</span><span class="w"> </span>-noout<span class="w"> </span>-enddate<span class="w"> </span><span class="p">|</span><span class="w"> </span>cut<span class="w"> </span>-d<span class="o">=</span><span class="w"> </span>-f2<span class="k">)</span>
-<span class="w">    </span><span class="nv">expiry_epoch</span><span class="o">=</span><span class="k">$(</span>date<span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$expiry</span><span class="s2">&quot;</span><span class="w"> </span>+%s<span class="k">)</span>
+<span class="w">    </span><span class="nv">expiry</span><span class="o">=</span><span class="k">$(</span>openssl<span class="w"> </span>x509<span class="w"> </span>-in<span class="w"> </span><span class="s2">"</span><span class="nv">$cert</span><span class="s2">"</span><span class="w"> </span>-noout<span class="w"> </span>-enddate<span class="w"> </span><span class="p">|</span><span class="w"> </span>cut<span class="w"> </span>-d<span class="o">=</span><span class="w"> </span>-f2<span class="k">)</span>
+<span class="w">    </span><span class="nv">expiry_epoch</span><span class="o">=</span><span class="k">$(</span>date<span class="w"> </span>-d<span class="w"> </span><span class="s2">"</span><span class="nv">$expiry</span><span class="s2">"</span><span class="w"> </span>+%s<span class="k">)</span>
 <span class="w">    </span><span class="nv">current_epoch</span><span class="o">=</span><span class="k">$(</span>date<span class="w"> </span>+%s<span class="k">)</span>
 <span class="w">    </span><span class="nv">days_until_expiry</span><span class="o">=</span><span class="k">$((</span><span class="w"> </span><span class="o">(</span><span class="nv">$expiry_epoch</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nv">$current_epoch</span><span class="o">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="m">86400</span><span class="w"> </span><span class="k">))</span>
 
-<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;sahool_cert_expiry_days{service=\&quot;</span><span class="nv">$service</span><span class="s2">\&quot;} </span><span class="nv">$days_until_expiry</span><span class="s2">&quot;</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"sahool_cert_expiry_days{service=\"</span><span class="nv">$service</span><span class="s2">\"} </span><span class="nv">$days_until_expiry</span><span class="s2">"</span>
 <span class="w">  </span><span class="k">done</span>
 <span class="w">  </span>sleep<span class="w"> </span><span class="m">60</span>
 <span class="k">done</span>
@@ -1778,22 +1778,22 @@ vault<span class="w"> </span>write<span class="w"> </span>pki/issue/sahool-postg
 <h4 id="grafana-dashboard">Grafana Dashboard<a class="headerlink" href="#grafana-dashboard" title="Permanent link">&para;</a></h4>
 <p>Import the certificate monitoring dashboard (create as JSON):</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;dashboard&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SAHOOL Certificate Expiration&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;panels&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="nt">"dashboard"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SAHOOL Certificate Expiration"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"panels"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">      </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Certificate Expiration (Days)&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;targets&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Certificate Expiration (Days)"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"targets"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">          </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;expr&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sahool_cert_expiry_days&quot;</span>
+<span class="w">            </span><span class="nt">"expr"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sahool_cert_expiry_days"</span>
 <span class="w">          </span><span class="p">}</span>
 <span class="w">        </span><span class="p">],</span>
-<span class="w">        </span><span class="nt">&quot;alert&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="nt">&quot;conditions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="nt">"alert"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">"conditions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">            </span><span class="p">{</span>
-<span class="w">              </span><span class="nt">&quot;evaluator&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">&quot;params&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">30</span><span class="p">],</span>
-<span class="w">                </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;lt&quot;</span>
+<span class="w">              </span><span class="nt">"evaluator"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">"params"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">30</span><span class="p">],</span>
+<span class="w">                </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lt"</span>
 <span class="w">              </span><span class="p">}</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">          </span><span class="p">]</span>
@@ -1966,10 +1966,10 @@ vault<span class="w"> </span>write<span class="w"> </span>pki/issue/sahool-postg
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

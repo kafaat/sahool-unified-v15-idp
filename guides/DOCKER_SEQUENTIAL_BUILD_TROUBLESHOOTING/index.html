@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1190,7 +1190,7 @@ docker<span class="w"> </span>compose<span class="w"> </span>version
 </code></pre></div>
 
 <h4 id="solution_2">Solution<a class="headerlink" href="#solution_2" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code><span class="c1"># Ensure you&#39;re in the project root</span>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Ensure you're in the project root</span>
 <span class="nb">cd</span><span class="w"> </span>/path/to/sahool-unified-v15-idp
 
 <span class="c1"># Verify docker-compose.yml exists</span>
@@ -1254,7 +1254,7 @@ ls<span class="w"> </span>-la<span class="w"> </span>path/to/service/Dockerfile
 
 <span class="c1"># Common Dockerfile issues:</span>
 <span class="c1"># - Invalid FROM image</span>
-<span class="c1"># - Copy/ADD paths don&#39;t exist</span>
+<span class="c1"># - Copy/ADD paths don't exist</span>
 <span class="c1"># - RUN commands fail</span>
 </code></pre></div>
 
@@ -1276,7 +1276,7 @@ docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"
 </code></pre></div>
 
 <p><strong>Check Port Conflicts:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="c1"># Find what&#39;s using the port</span>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Find what's using the port</span>
 lsof<span class="w"> </span>-i<span class="w"> </span>:8080<span class="w">  </span><span class="c1"># Replace 8080 with your port</span>
 
 <span class="c1"># Kill the process or change port in docker-compose.yml</span>
@@ -1361,11 +1361,11 @@ docker<span class="w"> </span>pull<span class="w"> </span>hello-world
 mkdir<span class="w"> </span>-p<span class="w"> </span>~/.docker
 cat<span class="w"> </span>&gt;<span class="w"> </span>~/.docker/config.json<span class="w"> </span><span class="s">&lt;&lt; EOF</span>
 <span class="s">{</span>
-<span class="s">  &quot;proxies&quot;: {</span>
-<span class="s">    &quot;default&quot;: {</span>
-<span class="s">      &quot;httpProxy&quot;: &quot;http://proxy.example.com:8080&quot;,</span>
-<span class="s">      &quot;httpsProxy&quot;: &quot;http://proxy.example.com:8080&quot;,</span>
-<span class="s">      &quot;noProxy&quot;: &quot;localhost,127.0.0.1&quot;</span>
+<span class="s">  "proxies": {</span>
+<span class="s">    "default": {</span>
+<span class="s">      "httpProxy": "http://proxy.example.com:8080",</span>
+<span class="s">      "httpsProxy": "http://proxy.example.com:8080",</span>
+<span class="s">      "noProxy": "localhost,127.0.0.1"</span>
 <span class="s">    }</span>
 <span class="s">  }</span>
 <span class="s">}</span>
@@ -1419,7 +1419,7 @@ cat<span class="w"> </span>&gt;<span class="w"> </span>~/.docker/config.json<spa
 softwareupdate<span class="w"> </span>--install-rosetta
 
 <span class="c1"># Enable in Docker Desktop Settings &gt; Features</span>
-<span class="c1"># Check &quot;Use Rosetta for x86_64/amd64 emulation&quot;</span>
+<span class="c1"># Check "Use Rosetta for x86_64/amd64 emulation"</span>
 </code></pre></div>
 
 <p><strong>Use Native ARM64 Images:</strong></p>
@@ -1439,7 +1439,7 @@ bash<span class="w"> </span>-x<span class="w"> </span>./docker-one-by-one.sh
 
 <p><strong>For PowerShell:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c"># Run with verbose mode</span>
-<span class="nv">$VerbosePreference</span> <span class="p">=</span> <span class="s2">&quot;Continue&quot;</span>
+<span class="nv">$VerbosePreference</span> <span class="p">=</span> <span class="s2">"Continue"</span>
 <span class="p">.\</span><span class="n">docker-one-by-one</span><span class="p">.</span><span class="n">ps1</span>
 </code></pre></div>
 
@@ -1485,7 +1485,7 @@ docker<span class="w"> </span>compose<span class="w"> </span>ps<span class="w"> 
 <span class="k">WORKDIR</span><span class="w"> </span><span class="s">/app</span>
 <span class="k">COPY</span><span class="w"> </span>--from<span class="o">=</span>builder<span class="w"> </span>/app/node_modules<span class="w"> </span>./node_modules
 <span class="k">COPY</span><span class="w"> </span>.<span class="w"> </span>.
-<span class="k">CMD</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;node&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;index.js&quot;</span><span class="p">]</span>
+<span class="k">CMD</span><span class="w"> </span><span class="p">[</span><span class="s2">"node"</span><span class="p">,</span><span class="w"> </span><span class="s2">"index.js"</span><span class="p">]</span>
 </code></pre></div>
 
 <h3 id="optimize-layer-caching">Optimize Layer Caching<a class="headerlink" href="#optimize-layer-caching" title="Permanent link">&para;</a></h3>
@@ -1601,10 +1601,10 @@ docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

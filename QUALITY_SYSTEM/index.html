@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1177,7 +1177,7 @@
 <span class="n">python_tools</span> <span class="o">=</span> <span class="n">registry</span><span class="o">.</span><span class="n">get_tools_for_language</span><span class="p">(</span><span class="n">Language</span><span class="o">.</span><span class="n">PYTHON</span><span class="p">)</span>
 
 <span class="c1"># Run a specific tool</span>
-<span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">registry</span><span class="o">.</span><span class="n">run_tool</span><span class="p">(</span><span class="s2">&quot;ruff&quot;</span><span class="p">,</span> <span class="s2">&quot;apps/services/&quot;</span><span class="p">,</span> <span class="n">auto_fix</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">registry</span><span class="o">.</span><span class="n">run_tool</span><span class="p">(</span><span class="s2">"ruff"</span><span class="p">,</span> <span class="s2">"apps/services/"</span><span class="p">,</span> <span class="n">auto_fix</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="c1"># Get metrics</span>
 <span class="n">metrics</span> <span class="o">=</span> <span class="n">registry</span><span class="o">.</span><span class="n">get_metrics</span><span class="p">()</span>
@@ -1278,13 +1278,13 @@
 <span class="p">)</span>
 
 <span class="c1"># Quick check</span>
-<span class="n">report</span> <span class="o">=</span> <span class="k">await</span> <span class="n">run_quality_check</span><span class="p">(</span><span class="s2">&quot;apps/services/&quot;</span><span class="p">)</span>
+<span class="n">report</span> <span class="o">=</span> <span class="k">await</span> <span class="n">run_quality_check</span><span class="p">(</span><span class="s2">"apps/services/"</span><span class="p">)</span>
 
 <span class="c1"># Full orchestration</span>
 <span class="n">orchestrator</span> <span class="o">=</span> <span class="n">QualityOrchestrator</span><span class="p">()</span>
 <span class="n">report</span> <span class="o">=</span> <span class="k">await</span> <span class="n">orchestrator</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span>
-    <span class="n">paths</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;apps/services/&quot;</span><span class="p">,</span> <span class="s2">&quot;shared/&quot;</span><span class="p">],</span>
-    <span class="n">languages</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;typescript&quot;</span><span class="p">],</span>
+    <span class="n">paths</span><span class="o">=</span><span class="p">[</span><span class="s2">"apps/services/"</span><span class="p">,</span> <span class="s2">"shared/"</span><span class="p">],</span>
+    <span class="n">languages</span><span class="o">=</span><span class="p">[</span><span class="s2">"python"</span><span class="p">,</span> <span class="s2">"typescript"</span><span class="p">],</span>
     <span class="n">fix</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">audit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span>
@@ -1342,20 +1342,20 @@
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.ai.quality_orchestrator</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoAudit</span><span class="p">,</span> <span class="n">AuditAction</span>
 
 <span class="n">audit</span> <span class="o">=</span> <span class="n">AutoAudit</span><span class="p">(</span>
-    <span class="n">session_id</span><span class="o">=</span><span class="s2">&quot;session-123&quot;</span><span class="p">,</span>
-    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;user-456&quot;</span><span class="p">,</span>
-    <span class="n">agent_id</span><span class="o">=</span><span class="s2">&quot;code-fix-agent&quot;</span><span class="p">,</span>
+    <span class="n">session_id</span><span class="o">=</span><span class="s2">"session-123"</span><span class="p">,</span>
+    <span class="n">user_id</span><span class="o">=</span><span class="s2">"user-456"</span><span class="p">,</span>
+    <span class="n">agent_id</span><span class="o">=</span><span class="s2">"code-fix-agent"</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="c1"># Log actions</span>
 <span class="n">audit</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
     <span class="n">AuditAction</span><span class="o">.</span><span class="n">ANALYSIS_STARTED</span><span class="p">,</span>
-    <span class="p">{</span><span class="s2">&quot;paths&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;apps/&quot;</span><span class="p">],</span> <span class="s2">&quot;fix&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+    <span class="p">{</span><span class="s2">"paths"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"apps/"</span><span class="p">],</span> <span class="s2">"fix"</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
 <span class="p">)</span>
 
 <span class="c1"># Export for compliance</span>
-<span class="n">json_export</span> <span class="o">=</span> <span class="n">audit</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="s2">&quot;json&quot;</span><span class="p">)</span>
-<span class="n">csv_export</span> <span class="o">=</span> <span class="n">audit</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="s2">&quot;csv&quot;</span><span class="p">)</span>
+<span class="n">json_export</span> <span class="o">=</span> <span class="n">audit</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="s2">"json"</span><span class="p">)</span>
+<span class="n">csv_export</span> <span class="o">=</span> <span class="n">audit</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="s2">"csv"</span><span class="p">)</span>
 </code></pre></div>
 
 <p><strong>Audit Actions</strong>:
@@ -1376,17 +1376,17 @@
 
 <span class="c1"># Run comprehensive quality analysis</span>
 <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">agent</span><span class="o">.</span><span class="n">run_quality_analysis</span><span class="p">(</span>
-    <span class="n">paths</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;apps/services/&quot;</span><span class="p">],</span>
-    <span class="n">languages</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;typescript&quot;</span><span class="p">],</span>
+    <span class="n">paths</span><span class="o">=</span><span class="p">[</span><span class="s2">"apps/services/"</span><span class="p">],</span>
+    <span class="n">languages</span><span class="o">=</span><span class="p">[</span><span class="s2">"python"</span><span class="p">,</span> <span class="s2">"typescript"</span><span class="p">],</span>
     <span class="n">fix</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">audit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="c1"># Get available tools</span>
-<span class="n">tools</span> <span class="o">=</span> <span class="k">await</span> <span class="n">agent</span><span class="o">.</span><span class="n">get_available_tools</span><span class="p">(</span><span class="n">language</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">)</span>
+<span class="n">tools</span> <span class="o">=</span> <span class="k">await</span> <span class="n">agent</span><span class="o">.</span><span class="n">get_available_tools</span><span class="p">(</span><span class="n">language</span><span class="o">=</span><span class="s2">"python"</span><span class="p">)</span>
 
 <span class="c1"># Run specific tool</span>
-<span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">agent</span><span class="o">.</span><span class="n">run_tool</span><span class="p">(</span><span class="s2">&quot;ruff&quot;</span><span class="p">,</span> <span class="s2">&quot;apps/services/&quot;</span><span class="p">,</span> <span class="n">auto_fix</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">agent</span><span class="o">.</span><span class="n">run_tool</span><span class="p">(</span><span class="s2">"ruff"</span><span class="p">,</span> <span class="s2">"apps/services/"</span><span class="p">,</span> <span class="n">auto_fix</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
 
 <h2 id="usage">Usage | الاستخدام<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h2>
@@ -1464,21 +1464,21 @@ pre-commit<span class="w"> </span>run<span class="w"> </span>--all-files
 <h2 id="reports">Reports | التقارير<a class="headerlink" href="#reports" title="Permanent link">&para;</a></h2>
 <h3 id="quality-report-structure">Quality Report Structure<a class="headerlink" href="#quality-report-structure" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;report-uuid&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;session_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;session-uuid&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;completed&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;quality_score&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">85.5</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;quality_level&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;good&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;total_issues&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;critical_issues&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;high_issues&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;medium_issues&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;low_issues&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;fixed_count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;gates_passed&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;tools_executed&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;ruff&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;mypy&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;bandit&quot;</span><span class="p">],</span>
-<span class="w">  </span><span class="nt">&quot;duration_ms&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1250.5</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;files_analyzed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">45</span>
+<span class="w">  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"report-uuid"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"session_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"session-uuid"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"completed"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"quality_score"</span><span class="p">:</span><span class="w"> </span><span class="mf">85.5</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"quality_level"</span><span class="p">:</span><span class="w"> </span><span class="s2">"good"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"total_issues"</span><span class="p">:</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"critical_issues"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"high_issues"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"medium_issues"</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"low_issues"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"fixed_count"</span><span class="p">:</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"gates_passed"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"tools_executed"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"ruff"</span><span class="p">,</span><span class="w"> </span><span class="s2">"mypy"</span><span class="p">,</span><span class="w"> </span><span class="s2">"bandit"</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">"duration_ms"</span><span class="p">:</span><span class="w"> </span><span class="mf">1250.5</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"files_analyzed"</span><span class="p">:</span><span class="w"> </span><span class="mi">45</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1490,7 +1490,7 @@ pre-commit<span class="w"> </span>run<span class="w"> </span>--all-files
 
 <h2 id="configuration-reference">Configuration Reference | مرجع الإعدادات<a class="headerlink" href="#configuration-reference" title="Permanent link">&para;</a></h2>
 <h3 id="full-sahool-qualityyaml-example">Full .sahool-quality.yaml Example<a class="headerlink" href="#full-sahool-qualityyaml-example" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1.0.0&quot;</span>
+<div class="codehilite"><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"1.0.0"</span>
 <span class="nt">fail_on_warning</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
 <span class="nt">auto_fix</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="nt">parallel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
@@ -1582,10 +1582,10 @@ pre-commit<span class="w"> </span>run<span class="w"> </span>--all-files
 <span class="w">    </span><span class="nt">max_warnings</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50</span>
 
 <span class="nt">exclude</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;**/node_modules/**&quot;</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;**/build/**&quot;</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;**/*.g.dart&quot;</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;**/*.freezed.dart&quot;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"**/node_modules/**"</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"**/build/**"</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"**/*.g.dart"</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"**/*.freezed.dart"</span>
 </code></pre></div>
 
 <h2 id="best-practices">Best Practices | أفضل الممارسات<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
@@ -1610,7 +1610,7 @@ pre-commit<span class="w"> </span>run<span class="w"> </span>--all-files
 <h3 id="4-enable-audit-for-compliance">4. Enable Audit for Compliance<a class="headerlink" href="#4-enable-audit-for-compliance" title="Permanent link">&para;</a></h3>
 <p>Enable audit logging for compliance requirements:</p>
 <div class="codehilite"><pre><span></span><code><span class="n">report</span> <span class="o">=</span> <span class="k">await</span> <span class="n">orchestrator</span><span class="o">.</span><span class="n">analyze</span><span class="p">(</span>
-    <span class="n">paths</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;apps/&quot;</span><span class="p">],</span>
+    <span class="n">paths</span><span class="o">=</span><span class="p">[</span><span class="s2">"apps/"</span><span class="p">],</span>
     <span class="n">audit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span>
 </code></pre></div>
@@ -1624,7 +1624,7 @@ pre-commit<span class="w"> </span>run<span class="w"> </span>--all-files
 <h3 id="tool-not-available">Tool Not Available<a class="headerlink" href="#tool-not-available" title="Permanent link">&para;</a></h3>
 <p>If a tool is not available:</p>
 <div class="codehilite"><pre><span></span><code><span class="n">availability</span> <span class="o">=</span> <span class="k">await</span> <span class="n">registry</span><span class="o">.</span><span class="n">check_availability</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">availability</span><span class="p">)</span>  <span class="c1"># {&#39;ruff&#39;: True, &#39;mypy&#39;: False, ...}</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">availability</span><span class="p">)</span>  <span class="c1"># {'ruff': True, 'mypy': False, ...}</span>
 </code></pre></div>
 
 <p>Install missing tools:</p>
@@ -1641,7 +1641,7 @@ npm<span class="w"> </span>install<span class="w"> </span>-g<span class="w"> </s
 <h3 id="cache-issues">Cache Issues<a class="headerlink" href="#cache-issues" title="Permanent link">&para;</a></h3>
 <p>Clear the cache if results seem stale:</p>
 <div class="codehilite"><pre><span></span><code><span class="n">registry</span><span class="o">.</span><span class="n">clear_cache</span><span class="p">()</span>  <span class="c1"># Clear all</span>
-<span class="n">registry</span><span class="o">.</span><span class="n">clear_cache</span><span class="p">(</span><span class="s2">&quot;ruff&quot;</span><span class="p">)</span>  <span class="c1"># Clear specific tool</span>
+<span class="n">registry</span><span class="o">.</span><span class="n">clear_cache</span><span class="p">(</span><span class="s2">"ruff"</span><span class="p">)</span>  <span class="c1"># Clear specific tool</span>
 </code></pre></div>
 
 <h2 id="api-reference-api">API Reference | مرجع API<a class="headerlink" href="#api-reference-api" title="Permanent link">&para;</a></h2>
@@ -1684,7 +1684,7 @@ npm<span class="w"> </span>install<span class="w"> </span>-g<span class="w"> </s
 <div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">AutoAudit</span><span class="p">:</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">log</span><span class="p">(</span><span class="n">action</span><span class="p">:</span> <span class="n">AuditAction</span><span class="p">,</span> <span class="n">details</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AuditEntry</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_entries</span><span class="p">(</span><span class="n">action</span><span class="p">:</span> <span class="n">AuditAction</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">since</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">AuditEntry</span><span class="p">]</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">export</span><span class="p">(</span><span class="nb">format</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span>  <span class="c1"># &quot;json&quot; or &quot;csv&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">export</span><span class="p">(</span><span class="nb">format</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span>  <span class="c1"># "json" or "csv"</span>
 </code></pre></div>
 
 <hr />
@@ -1739,10 +1739,10 @@ npm<span class="w"> </span>install<span class="w"> </span>-g<span class="w"> </s
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

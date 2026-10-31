@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1181,11 +1181,11 @@ open<span class="w"> </span>http://localhost:8200/docs
 <h4 id="claude-desktop">Claude Desktop<a class="headerlink" href="#claude-desktop" title="Permanent link">&para;</a></h4>
 <p>Add to <code>claude_desktop_config.json</code>:</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;sahool&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://localhost:8200/mcp&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SAHOOL Agricultural Platform&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Agricultural intelligence tools for Yemen and Middle East&quot;</span>
+<span class="w">  </span><span class="nt">"mcpServers"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"sahool"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://localhost:8200/mcp"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SAHOOL Agricultural Platform"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Agricultural intelligence tools for Yemen and Middle East"</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
@@ -1193,12 +1193,12 @@ open<span class="w"> </span>http://localhost:8200/docs
 
 <h4 id="using-stdio-transport">Using stdio Transport<a class="headerlink" href="#using-stdio-transport" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;sahool&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;shared.mcp.server&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--transport&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;stdio&quot;</span><span class="p">],</span>
-<span class="w">      </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;SAHOOL_API_URL&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://localhost:8000&quot;</span>
+<span class="w">  </span><span class="nt">"mcpServers"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"sahool"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"python"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"-m"</span><span class="p">,</span><span class="w"> </span><span class="s2">"shared.mcp.server"</span><span class="p">,</span><span class="w"> </span><span class="s2">"--transport"</span><span class="p">,</span><span class="w"> </span><span class="s2">"stdio"</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">"env"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"SAHOOL_API_URL"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://localhost:8000"</span>
 <span class="w">      </span><span class="p">}</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">}</span>
@@ -1216,9 +1216,9 @@ open<span class="w"> </span>http://localhost:8200/docs
 </ul>
 <p><strong>Example:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;latitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">15.5527</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;longitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">48.5164</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;days&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span>
+<span class="w">  </span><span class="nt">"latitude"</span><span class="p">:</span><span class="w"> </span><span class="mf">15.5527</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"longitude"</span><span class="p">:</span><span class="w"> </span><span class="mf">48.5164</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"days"</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1239,8 +1239,8 @@ open<span class="w"> </span>http://localhost:8200/docs
 </ul>
 <p><strong>Example:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field-123&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;analysis_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ndvi&quot;</span>
+<span class="w">  </span><span class="nt">"field_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"field-123"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"analysis_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ndvi"</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1262,9 +1262,9 @@ open<span class="w"> </span>http://localhost:8200/docs
 </ul>
 <p><strong>Example:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field-123&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;include_history&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;include_sensors&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">  </span><span class="nt">"field_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"field-123"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"include_history"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"include_sensors"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1288,10 +1288,10 @@ open<span class="w"> </span>http://localhost:8200/docs
 </ul>
 <p><strong>Example:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field-123&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;crop_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;wheat&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;soil_moisture&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">45.5</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;growth_stage&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;flowering&quot;</span>
+<span class="w">  </span><span class="nt">"field_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"field-123"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"crop_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"wheat"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"soil_moisture"</span><span class="p">:</span><span class="w"> </span><span class="mf">45.5</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"growth_stage"</span><span class="p">:</span><span class="w"> </span><span class="s2">"flowering"</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1314,16 +1314,16 @@ open<span class="w"> </span>http://localhost:8200/docs
 </ul>
 <p><strong>Example:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field-123&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;crop_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;corn&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;soil_test&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;nitrogen_ppm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;phosphorus_ppm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;potassium_ppm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">150</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;ph&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">6.5</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;organic_matter_pct&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">2.5</span>
+<span class="w">  </span><span class="nt">"field_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"field-123"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"crop_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"corn"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"soil_test"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"nitrogen_ppm"</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"phosphorus_ppm"</span><span class="p">:</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"potassium_ppm"</span><span class="p">:</span><span class="w"> </span><span class="mi">150</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"ph"</span><span class="p">:</span><span class="w"> </span><span class="mf">6.5</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"organic_matter_pct"</span><span class="p">:</span><span class="w"> </span><span class="mf">2.5</span>
 <span class="w">  </span><span class="p">},</span>
-<span class="w">  </span><span class="nt">&quot;target_yield&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">8.5</span>
+<span class="w">  </span><span class="nt">"target_yield"</span><span class="p">:</span><span class="w"> </span><span class="mf">8.5</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1345,7 +1345,7 @@ open<span class="w"> </span>http://localhost:8200/docs
 <li><code>field://{field_id}/activities</code> - Historical activities</li>
 </ul>
 <p><strong>Example:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="n">resource</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">read_resource</span><span class="p">(</span><span class="s2">&quot;field://field-123/boundaries&quot;</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><code><span class="n">resource</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">read_resource</span><span class="p">(</span><span class="s2">"field://field-123/boundaries"</span><span class="p">)</span>
 </code></pre></div>
 
 <h3 id="weather-data-resources">Weather Data Resources<a class="headerlink" href="#weather-data-resources" title="Permanent link">&para;</a></h3>
@@ -1403,7 +1403,7 @@ open<span class="w"> </span>http://localhost:8200/docs
 <h3 id="basic-usage">Basic Usage<a class="headerlink" href="#basic-usage" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.mcp.client</span><span class="w"> </span><span class="kn">import</span> <span class="n">MCPClientContext</span>
 
-<span class="k">async</span> <span class="k">with</span> <span class="n">MCPClientContext</span><span class="p">(</span><span class="n">server_url</span><span class="o">=</span><span class="s2">&quot;http://localhost:8200&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+<span class="k">async</span> <span class="k">with</span> <span class="n">MCPClientContext</span><span class="p">(</span><span class="n">server_url</span><span class="o">=</span><span class="s2">"http://localhost:8200"</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
     <span class="c1"># Get weather forecast</span>
     <span class="n">weather</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">get_weather_forecast</span><span class="p">(</span>
         <span class="n">latitude</span><span class="o">=</span><span class="mf">15.5527</span><span class="p">,</span>
@@ -1413,37 +1413,37 @@ open<span class="w"> </span>http://localhost:8200/docs
 
     <span class="c1"># Analyze crop health</span>
     <span class="n">health</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">analyze_crop_health</span><span class="p">(</span>
-        <span class="n">field_id</span><span class="o">=</span><span class="s2">&quot;field-123&quot;</span><span class="p">,</span>
-        <span class="n">analysis_type</span><span class="o">=</span><span class="s2">&quot;ndvi&quot;</span>
+        <span class="n">field_id</span><span class="o">=</span><span class="s2">"field-123"</span><span class="p">,</span>
+        <span class="n">analysis_type</span><span class="o">=</span><span class="s2">"ndvi"</span>
     <span class="p">)</span>
 
     <span class="c1"># Calculate irrigation</span>
     <span class="n">irrigation</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">calculate_irrigation</span><span class="p">(</span>
-        <span class="n">field_id</span><span class="o">=</span><span class="s2">&quot;field-123&quot;</span><span class="p">,</span>
-        <span class="n">crop_type</span><span class="o">=</span><span class="s2">&quot;wheat&quot;</span><span class="p">,</span>
+        <span class="n">field_id</span><span class="o">=</span><span class="s2">"field-123"</span><span class="p">,</span>
+        <span class="n">crop_type</span><span class="o">=</span><span class="s2">"wheat"</span><span class="p">,</span>
         <span class="n">soil_moisture</span><span class="o">=</span><span class="mf">45.5</span><span class="p">,</span>
-        <span class="n">growth_stage</span><span class="o">=</span><span class="s2">&quot;flowering&quot;</span>
+        <span class="n">growth_stage</span><span class="o">=</span><span class="s2">"flowering"</span>
     <span class="p">)</span>
 </code></pre></div>
 
 <h3 id="low-level-api">Low-Level API<a class="headerlink" href="#low-level-api" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Call tool directly</span>
 <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">call_tool</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;get_weather_forecast&quot;</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"get_weather_forecast"</span><span class="p">,</span>
     <span class="n">arguments</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="mf">15.5527</span><span class="p">,</span>
-        <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="mf">48.5164</span><span class="p">,</span>
-        <span class="s2">&quot;days&quot;</span><span class="p">:</span> <span class="mi">7</span>
+        <span class="s2">"latitude"</span><span class="p">:</span> <span class="mf">15.5527</span><span class="p">,</span>
+        <span class="s2">"longitude"</span><span class="p">:</span> <span class="mf">48.5164</span><span class="p">,</span>
+        <span class="s2">"days"</span><span class="p">:</span> <span class="mi">7</span>
     <span class="p">}</span>
 <span class="p">)</span>
 
 <span class="c1"># Read resource</span>
-<span class="n">resource</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">read_resource</span><span class="p">(</span><span class="s2">&quot;field://field-123/info&quot;</span><span class="p">)</span>
+<span class="n">resource</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">read_resource</span><span class="p">(</span><span class="s2">"field://field-123/info"</span><span class="p">)</span>
 
 <span class="c1"># Get prompt</span>
 <span class="n">prompt</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">get_prompt</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;field_analysis&quot;</span><span class="p">,</span>
-    <span class="n">arguments</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;field_id&quot;</span><span class="p">:</span> <span class="s2">&quot;field-123&quot;</span><span class="p">}</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"field_analysis"</span><span class="p">,</span>
+    <span class="n">arguments</span><span class="o">=</span><span class="p">{</span><span class="s2">"field_id"</span><span class="p">:</span> <span class="s2">"field-123"</span><span class="p">}</span>
 <span class="p">)</span>
 </code></pre></div>
 
@@ -1486,7 +1486,7 @@ open<span class="w"> </span>http://localhost:8200/docs
 <span class="w">    </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./apps/services/mcp-server</span>
 <span class="w">    </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-mcp-server</span>
 <span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;8200:8200&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"8200:8200"</span>
 <span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SAHOOL_API_URL=http://kong:8000</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LOG_LEVEL=INFO</span>
@@ -1496,7 +1496,7 @@ open<span class="w"> </span>http://localhost:8200/docs
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ndvi-engine</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">field-core</span>
 <span class="w">    </span><span class="nt">healthcheck</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CMD&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;curl&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;-f&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;http://localhost:8200/health&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"CMD"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"curl"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"-f"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"http://localhost:8200/health"</span><span class="p p-Indicator">]</span>
 <span class="w">      </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span>
 <span class="w">      </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10s</span>
 <span class="w">      </span><span class="nt">retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
@@ -1528,12 +1528,12 @@ curl<span class="w"> </span>http://localhost:8200/metrics
 <h3 id="logs">Logs<a class="headerlink" href="#logs" title="Permanent link">&para;</a></h3>
 <p>Structured JSON logs in production:</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-12-28T10:00:00Z&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;level&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MCP Request: tools/call (id: 1)&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;method&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tools/call&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;tool_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;get_weather_forecast&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;duration&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.234</span>
+<span class="w">  </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-12-28T10:00:00Z"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"level"</span><span class="p">:</span><span class="w"> </span><span class="s2">"INFO"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"MCP Request: tools/call (id: 1)"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tools/call"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"tool_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"get_weather_forecast"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"duration"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.234</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1556,10 +1556,10 @@ curl<span class="w"> </span>http://localhost:8200/metrics
 <p>CORS is enabled for all origins in development. Configure for production:</p>
 <div class="codehilite"><pre><span></span><code><span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span>
     <span class="n">CORSMiddleware</span><span class="p">,</span>
-    <span class="n">allow_origins</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;https://your-domain.com&quot;</span><span class="p">],</span>
+    <span class="n">allow_origins</span><span class="o">=</span><span class="p">[</span><span class="s2">"https://your-domain.com"</span><span class="p">],</span>
     <span class="n">allow_credentials</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">allow_methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;POST&quot;</span><span class="p">,</span> <span class="s2">&quot;GET&quot;</span><span class="p">],</span>
-    <span class="n">allow_headers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">],</span>
+    <span class="n">allow_methods</span><span class="o">=</span><span class="p">[</span><span class="s2">"POST"</span><span class="p">,</span> <span class="s2">"GET"</span><span class="p">],</span>
+    <span class="n">allow_headers</span><span class="o">=</span><span class="p">[</span><span class="s2">"*"</span><span class="p">],</span>
 <span class="p">)</span>
 </code></pre></div>
 
@@ -1671,10 +1671,10 @@ python<span class="w"> </span>-m<span class="w"> </span>shared.mcp.examples
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1242,96 +1242,96 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
 
-<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Service Name&quot;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s2">&quot;16.0.0&quot;</span><span class="p">)</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Service Name"</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s2">"16.0.0"</span><span class="p">)</span>
 
 <span class="c1"># Track startup time for uptime calculation</span>
 <span class="n">_startup_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span>
 
-<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/health&quot;</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Health&quot;</span><span class="p">])</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/health"</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"Health"</span><span class="p">])</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">health</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Full health check with dependency status</span>
 <span class="sd">    فحص الصحة الكامل مع حالة التبعيات</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;healthy&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;service&quot;</span><span class="p">:</span> <span class="s2">&quot;service-name&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;16.0.0&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
-        <span class="s2">&quot;uptime_seconds&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span> <span class="o">-</span> <span class="n">_startup_time</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">(),</span>
-        <span class="s2">&quot;dependencies&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;database&quot;</span><span class="p">:</span> <span class="n">check_database_health</span><span class="p">(),</span>
-            <span class="s2">&quot;nats&quot;</span><span class="p">:</span> <span class="n">check_nats_health</span><span class="p">(),</span>
-            <span class="s2">&quot;redis&quot;</span><span class="p">:</span> <span class="n">check_redis_health</span><span class="p">()</span>
+        <span class="s2">"status"</span><span class="p">:</span> <span class="s2">"healthy"</span><span class="p">,</span>
+        <span class="s2">"service"</span><span class="p">:</span> <span class="s2">"service-name"</span><span class="p">,</span>
+        <span class="s2">"version"</span><span class="p">:</span> <span class="s2">"16.0.0"</span><span class="p">,</span>
+        <span class="s2">"timestamp"</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+        <span class="s2">"uptime_seconds"</span><span class="p">:</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span> <span class="o">-</span> <span class="n">_startup_time</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">(),</span>
+        <span class="s2">"dependencies"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"database"</span><span class="p">:</span> <span class="n">check_database_health</span><span class="p">(),</span>
+            <span class="s2">"nats"</span><span class="p">:</span> <span class="n">check_nats_health</span><span class="p">(),</span>
+            <span class="s2">"redis"</span><span class="p">:</span> <span class="n">check_redis_health</span><span class="p">()</span>
         <span class="p">}</span>
     <span class="p">}</span>
 
-<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/healthz&quot;</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Health&quot;</span><span class="p">])</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/healthz"</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"Health"</span><span class="p">])</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">healthz</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Kubernetes liveness probe - Is the process alive?</span>
 <span class="sd">    فحص الحياة لـ Kubernetes - هل العملية حية؟</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;healthy&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;service&quot;</span><span class="p">:</span> <span class="s2">&quot;service-name&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;16.0.0&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+        <span class="s2">"status"</span><span class="p">:</span> <span class="s2">"healthy"</span><span class="p">,</span>
+        <span class="s2">"service"</span><span class="p">:</span> <span class="s2">"service-name"</span><span class="p">,</span>
+        <span class="s2">"version"</span><span class="p">:</span> <span class="s2">"16.0.0"</span><span class="p">,</span>
+        <span class="s2">"timestamp"</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
     <span class="p">}</span>
 
-<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/readyz&quot;</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Health&quot;</span><span class="p">])</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/readyz"</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"Health"</span><span class="p">])</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">readyz</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Kubernetes readiness probe - Can the service handle traffic?</span>
 <span class="sd">    فحص الجاهزية لـ Kubernetes - هل الخدمة جاهزة للتعامل مع الطلبات؟</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">db_ready</span> <span class="o">=</span> <span class="k">await</span> <span class="n">check_database_ready</span><span class="p">()</span>
     <span class="n">nats_ready</span> <span class="o">=</span> <span class="k">await</span> <span class="n">check_nats_ready</span><span class="p">()</span>
 
     <span class="n">is_ready</span> <span class="o">=</span> <span class="n">db_ready</span> <span class="ow">and</span> <span class="n">nats_ready</span>
 
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;ready&quot;</span> <span class="k">if</span> <span class="n">is_ready</span> <span class="k">else</span> <span class="s2">&quot;not_ready&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;service&quot;</span><span class="p">:</span> <span class="s2">&quot;service-name&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;database&quot;</span><span class="p">:</span> <span class="n">db_ready</span><span class="p">,</span>
-        <span class="s2">&quot;nats&quot;</span><span class="p">:</span> <span class="n">nats_ready</span>
+        <span class="s2">"status"</span><span class="p">:</span> <span class="s2">"ready"</span> <span class="k">if</span> <span class="n">is_ready</span> <span class="k">else</span> <span class="s2">"not_ready"</span><span class="p">,</span>
+        <span class="s2">"service"</span><span class="p">:</span> <span class="s2">"service-name"</span><span class="p">,</span>
+        <span class="s2">"database"</span><span class="p">:</span> <span class="n">db_ready</span><span class="p">,</span>
+        <span class="s2">"nats"</span><span class="p">:</span> <span class="n">nats_ready</span>
     <span class="p">}</span>
 
 <span class="c1"># Helper functions</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">check_database_health</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check database connectivity&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Check database connectivity"""</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="c1"># Replace with actual check</span>
-        <span class="k">return</span> <span class="s2">&quot;connected&quot;</span>
+        <span class="k">return</span> <span class="s2">"connected"</span>
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;disconnected&quot;</span>
+        <span class="k">return</span> <span class="s2">"disconnected"</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">check_nats_health</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check NATS connectivity&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Check NATS connectivity"""</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="c1"># Replace with actual check</span>
-        <span class="k">return</span> <span class="s2">&quot;connected&quot;</span>
+        <span class="k">return</span> <span class="s2">"connected"</span>
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;disconnected&quot;</span>
+        <span class="k">return</span> <span class="s2">"disconnected"</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">check_redis_health</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check Redis connectivity&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Check Redis connectivity"""</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="c1"># Replace with actual check</span>
-        <span class="k">return</span> <span class="s2">&quot;connected&quot;</span>
+        <span class="k">return</span> <span class="s2">"connected"</span>
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;disconnected&quot;</span>
+        <span class="k">return</span> <span class="s2">"disconnected"</span>
 
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">check_database_ready</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if database is ready for queries&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Check if database is ready for queries"""</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="c1"># Replace with actual check (e.g., await db.execute(&quot;SELECT 1&quot;))</span>
+        <span class="c1"># Replace with actual check (e.g., await db.execute("SELECT 1"))</span>
         <span class="k">return</span> <span class="kc">True</span>
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span>
 
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">check_nats_ready</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if NATS is ready&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Check if NATS is ready"""</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="c1"># Replace with actual check</span>
         <span class="k">return</span> <span class="kc">True</span>
@@ -1341,8 +1341,8 @@
 
 <h3 id="nodejs-nestjs-template">Node.js (NestJS) Template<a class="headerlink" href="#nodejs-nestjs-template" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1">// health.controller.ts</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Controller</span><span class="p">,</span><span class="w"> </span><span class="nx">Get</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@nestjs/common&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">HealthCheck</span><span class="p">,</span><span class="w"> </span><span class="nx">HealthCheckService</span><span class="p">,</span><span class="w"> </span><span class="nx">TypeOrmHealthIndicator</span><span class="p">,</span><span class="w"> </span><span class="nx">MemoryHealthIndicator</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@nestjs/terminus&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Controller</span><span class="p">,</span><span class="w"> </span><span class="nx">Get</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@nestjs/common'</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">HealthCheck</span><span class="p">,</span><span class="w"> </span><span class="nx">HealthCheckService</span><span class="p">,</span><span class="w"> </span><span class="nx">TypeOrmHealthIndicator</span><span class="p">,</span><span class="w"> </span><span class="nx">MemoryHealthIndicator</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@nestjs/terminus'</span><span class="p">;</span>
 
 <span class="kd">@Controller</span><span class="p">()</span>
 <span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">HealthController</span><span class="w"> </span><span class="p">{</span>
@@ -1354,33 +1354,33 @@
 <span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="nx">memory</span><span class="o">:</span><span class="w"> </span><span class="kt">MemoryHealthIndicator</span><span class="p">,</span>
 <span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="p">{}</span>
 
-<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s1">&#39;/health&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s1">'/health'</span><span class="p">)</span>
 <span class="w">  </span><span class="kd">@HealthCheck</span><span class="p">()</span>
 <span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">check</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">health</span><span class="p">.</span><span class="nx">check</span><span class="p">([</span>
-<span class="w">      </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">db</span><span class="p">.</span><span class="nx">pingCheck</span><span class="p">(</span><span class="s1">&#39;database&#39;</span><span class="p">),</span>
-<span class="w">      </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">memory</span><span class="p">.</span><span class="nx">checkHeap</span><span class="p">(</span><span class="s1">&#39;memory_heap&#39;</span><span class="p">,</span><span class="w"> </span><span class="mf">150</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1024</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1024</span><span class="p">),</span>
+<span class="w">      </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">db</span><span class="p">.</span><span class="nx">pingCheck</span><span class="p">(</span><span class="s1">'database'</span><span class="p">),</span>
+<span class="w">      </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">memory</span><span class="p">.</span><span class="nx">checkHeap</span><span class="p">(</span><span class="s1">'memory_heap'</span><span class="p">,</span><span class="w"> </span><span class="mf">150</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1024</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1024</span><span class="p">),</span>
 <span class="w">    </span><span class="p">]);</span>
 <span class="w">  </span><span class="p">}</span>
 
-<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s1">&#39;/healthz&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s1">'/healthz'</span><span class="p">)</span>
 <span class="w">  </span><span class="nx">healthz</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;healthy&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;service-name&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;16.0.0&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="s1">'healthy'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="s1">'service-name'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">'16.0.0'</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">timestamp</span><span class="o">:</span><span class="w"> </span><span class="kt">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">().</span><span class="nx">toISOString</span><span class="p">(),</span>
 <span class="w">    </span><span class="p">};</span>
 <span class="w">  </span><span class="p">}</span>
 
-<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s1">&#39;/readyz&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s1">'/readyz'</span><span class="p">)</span>
 <span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">readyz</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">dbReady</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
 <span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">natsReady</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
 
 <span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="c1">// Check database</span>
-<span class="w">      </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">db</span><span class="p">.</span><span class="nx">pingCheck</span><span class="p">(</span><span class="s1">&#39;database&#39;</span><span class="p">);</span>
+<span class="w">      </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">db</span><span class="p">.</span><span class="nx">pingCheck</span><span class="p">(</span><span class="s1">'database'</span><span class="p">);</span>
 <span class="w">      </span><span class="nx">dbReady</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
 <span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="nx">dbReady</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
@@ -1396,8 +1396,8 @@
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">isReady</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">dbReady</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">natsReady</span><span class="p">;</span>
 
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="kt">isReady</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;ready&#39;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;not_ready&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;service-name&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="kt">isReady</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">'ready'</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">'not_ready'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="s1">'service-name'</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">database</span><span class="o">:</span><span class="w"> </span><span class="kt">dbReady</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">nats</span><span class="o">:</span><span class="w"> </span><span class="kt">natsReady</span><span class="p">,</span>
 <span class="w">    </span><span class="p">};</span>
@@ -1405,9 +1405,9 @@
 <span class="p">}</span>
 
 <span class="c1">// health.module.ts</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Module</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@nestjs/common&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">TerminusModule</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@nestjs/terminus&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">HealthController</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./health.controller&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Module</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@nestjs/common'</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">TerminusModule</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@nestjs/terminus'</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">HealthController</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./health.controller'</span><span class="p">;</span>
 
 <span class="kd">@Module</span><span class="p">({</span>
 <span class="w">  </span><span class="nx">imports</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">TerminusModule</span><span class="p">],</span>
@@ -1430,24 +1430,24 @@
 <h3 id="1-user-service-critical-priority">1. User Service (Critical Priority)<a class="headerlink" href="#1-user-service-critical-priority" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1">// apps/services/user-service/src/health/health.controller.ts</span>
 
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Controller</span><span class="p">,</span><span class="w"> </span><span class="nx">Get</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@nestjs/common&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PrismaService</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../prisma/prisma.service&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Controller</span><span class="p">,</span><span class="w"> </span><span class="nx">Get</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@nestjs/common'</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PrismaService</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'../prisma/prisma.service'</span><span class="p">;</span>
 
 <span class="kd">@Controller</span><span class="p">()</span>
 <span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">HealthController</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kr">constructor</span><span class="p">(</span><span class="k">private</span><span class="w"> </span><span class="nx">prisma</span><span class="o">:</span><span class="w"> </span><span class="kt">PrismaService</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span>
 
-<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s1">&#39;/healthz&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s1">'/healthz'</span><span class="p">)</span>
 <span class="w">  </span><span class="nx">healthz</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;healthy&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;user-service&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;16.0.0&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="s1">'healthy'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="s1">'user-service'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">'16.0.0'</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">timestamp</span><span class="o">:</span><span class="w"> </span><span class="kt">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">().</span><span class="nx">toISOString</span><span class="p">(),</span>
 <span class="w">    </span><span class="p">};</span>
 <span class="w">  </span><span class="p">}</span>
 
-<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s1">&#39;/readyz&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s1">'/readyz'</span><span class="p">)</span>
 <span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">readyz</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">dbReady</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
 <span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
@@ -1458,28 +1458,28 @@
 <span class="w">    </span><span class="p">}</span>
 
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="kt">dbReady</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;ready&#39;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;not_ready&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;user-service&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="kt">dbReady</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">'ready'</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">'not_ready'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="s1">'user-service'</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">database</span><span class="o">:</span><span class="w"> </span><span class="kt">dbReady</span><span class="p">,</span>
 <span class="w">    </span><span class="p">};</span>
 <span class="w">  </span><span class="p">}</span>
 
-<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s1">&#39;/health&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s1">'/health'</span><span class="p">)</span>
 <span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">health</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">dbStatus</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;disconnected&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">dbStatus</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'disconnected'</span><span class="p">;</span>
 <span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">userCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span>
 
 <span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="nx">userCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">prisma</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">count</span><span class="p">();</span>
-<span class="w">      </span><span class="nx">dbStatus</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;connected&#39;</span><span class="p">;</span>
+<span class="w">      </span><span class="nx">dbStatus</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'connected'</span><span class="p">;</span>
 <span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="c1">// Database unavailable</span>
 <span class="w">    </span><span class="p">}</span>
 
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="kt">dbStatus</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;connected&#39;</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;healthy&#39;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;degraded&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;user-service&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;16.0.0&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="kt">dbStatus</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'connected'</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">'healthy'</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">'degraded'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="s1">'user-service'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">'16.0.0'</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">timestamp</span><span class="o">:</span><span class="w"> </span><span class="kt">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">().</span><span class="nx">toISOString</span><span class="p">(),</span>
 <span class="w">      </span><span class="nx">dependencies</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="nx">database</span><span class="o">:</span><span class="w"> </span><span class="kt">dbStatus</span><span class="p">,</span>
@@ -1499,17 +1499,17 @@
 <span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">HealthController</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kr">constructor</span><span class="p">(</span><span class="k">private</span><span class="w"> </span><span class="nx">prisma</span><span class="o">:</span><span class="w"> </span><span class="kt">PrismaService</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span>
 
-<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s1">&#39;/healthz&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s1">'/healthz'</span><span class="p">)</span>
 <span class="w">  </span><span class="nx">healthz</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;healthy&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;marketplace-service&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;16.0.0&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="s1">'healthy'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="s1">'marketplace-service'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">'16.0.0'</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">timestamp</span><span class="o">:</span><span class="w"> </span><span class="kt">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">().</span><span class="nx">toISOString</span><span class="p">(),</span>
 <span class="w">    </span><span class="p">};</span>
 <span class="w">  </span><span class="p">}</span>
 
-<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s1">&#39;/readyz&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s1">'/readyz'</span><span class="p">)</span>
 <span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">readyz</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">dbReady</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
 <span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
@@ -1520,28 +1520,28 @@
 <span class="w">    </span><span class="p">}</span>
 
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="kt">dbReady</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;ready&#39;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;not_ready&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;marketplace-service&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="kt">dbReady</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">'ready'</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">'not_ready'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="s1">'marketplace-service'</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">database</span><span class="o">:</span><span class="w"> </span><span class="kt">dbReady</span><span class="p">,</span>
 <span class="w">    </span><span class="p">};</span>
 <span class="w">  </span><span class="p">}</span>
 
-<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s1">&#39;/health&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s1">'/health'</span><span class="p">)</span>
 <span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">health</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">dbStatus</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;disconnected&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">dbStatus</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'disconnected'</span><span class="p">;</span>
 <span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">listingsCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span>
 
 <span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="nx">listingsCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">prisma</span><span class="p">.</span><span class="nx">listing</span><span class="p">.</span><span class="nx">count</span><span class="p">();</span>
-<span class="w">      </span><span class="nx">dbStatus</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;connected&#39;</span><span class="p">;</span>
+<span class="w">      </span><span class="nx">dbStatus</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'connected'</span><span class="p">;</span>
 <span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="c1">// Database unavailable</span>
 <span class="w">    </span><span class="p">}</span>
 
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="kt">dbStatus</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;connected&#39;</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;healthy&#39;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;degraded&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;marketplace-service&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;16.0.0&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="kt">dbStatus</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'connected'</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">'healthy'</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">'degraded'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="s1">'marketplace-service'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">'16.0.0'</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">dependencies</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="nx">database</span><span class="o">:</span><span class="w"> </span><span class="kt">dbStatus</span><span class="p">,</span>
 <span class="w">      </span><span class="p">},</span>
@@ -1563,17 +1563,17 @@
 <span class="w">    </span><span class="k">private</span><span class="w"> </span><span class="nx">nats</span><span class="o">:</span><span class="w"> </span><span class="kt">NatsService</span><span class="p">,</span>
 <span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="p">{}</span>
 
-<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s1">&#39;/healthz&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s1">'/healthz'</span><span class="p">)</span>
 <span class="w">  </span><span class="nx">healthz</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;healthy&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;iot-service&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;16.0.0&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="s1">'healthy'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="s1">'iot-service'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">'16.0.0'</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">timestamp</span><span class="o">:</span><span class="w"> </span><span class="kt">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">().</span><span class="nx">toISOString</span><span class="p">(),</span>
 <span class="w">    </span><span class="p">};</span>
 <span class="w">  </span><span class="p">}</span>
 
-<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s1">&#39;/readyz&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s1">'/readyz'</span><span class="p">)</span>
 <span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">readyz</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">dbReady</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
 <span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">natsReady</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
@@ -1594,36 +1594,36 @@
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">isReady</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">dbReady</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">natsReady</span><span class="p">;</span>
 
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="kt">isReady</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;ready&#39;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;not_ready&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;iot-service&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="kt">isReady</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">'ready'</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">'not_ready'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="s1">'iot-service'</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">database</span><span class="o">:</span><span class="w"> </span><span class="kt">dbReady</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">nats</span><span class="o">:</span><span class="w"> </span><span class="kt">natsReady</span><span class="p">,</span>
 <span class="w">    </span><span class="p">};</span>
 <span class="w">  </span><span class="p">}</span>
 
-<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s1">&#39;/health&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s1">'/health'</span><span class="p">)</span>
 <span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">health</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">dbStatus</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;disconnected&#39;</span><span class="p">;</span>
-<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">natsStatus</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;disconnected&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">dbStatus</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'disconnected'</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">natsStatus</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'disconnected'</span><span class="p">;</span>
 <span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">devicesCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span>
 
 <span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="nx">devicesCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">prisma</span><span class="p">.</span><span class="nx">device</span><span class="p">.</span><span class="nx">count</span><span class="p">();</span>
-<span class="w">      </span><span class="nx">dbStatus</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;connected&#39;</span><span class="p">;</span>
+<span class="w">      </span><span class="nx">dbStatus</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'connected'</span><span class="p">;</span>
 <span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="c1">// Database unavailable</span>
 <span class="w">    </span><span class="p">}</span>
 
 <span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">natsStatus</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">nats</span><span class="p">.</span><span class="nx">isConnected</span><span class="p">()</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;connected&#39;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;disconnected&#39;</span><span class="p">;</span>
+<span class="w">      </span><span class="nx">natsStatus</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">nats</span><span class="p">.</span><span class="nx">isConnected</span><span class="p">()</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">'connected'</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">'disconnected'</span><span class="p">;</span>
 <span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="c1">// NATS unavailable</span>
 <span class="w">    </span><span class="p">}</span>
 
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="kt">dbStatus</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;connected&#39;</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;healthy&#39;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;degraded&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;iot-service&#39;</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;16.0.0&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="kt">dbStatus</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'connected'</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">'healthy'</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">'degraded'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="s1">'iot-service'</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">'16.0.0'</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">dependencies</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="nx">database</span><span class="o">:</span><span class="w"> </span><span class="kt">dbStatus</span><span class="p">,</span>
 <span class="w">        </span><span class="nx">nats</span><span class="o">:</span><span class="w"> </span><span class="kt">natsStatus</span><span class="p">,</span>
@@ -1642,43 +1642,43 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastAPI</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 
-<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Agro Rules Engine&quot;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s2">&quot;16.0.0&quot;</span><span class="p">)</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Agro Rules Engine"</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s2">"16.0.0"</span><span class="p">)</span>
 
 <span class="n">_startup_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span>
 
-<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/healthz&quot;</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Health&quot;</span><span class="p">])</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/healthz"</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"Health"</span><span class="p">])</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">healthz</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Kubernetes liveness probe | فحص الحياة&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Kubernetes liveness probe | فحص الحياة"""</span>
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;healthy&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;service&quot;</span><span class="p">:</span> <span class="s2">&quot;agro-rules&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;16.0.0&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+        <span class="s2">"status"</span><span class="p">:</span> <span class="s2">"healthy"</span><span class="p">,</span>
+        <span class="s2">"service"</span><span class="p">:</span> <span class="s2">"agro-rules"</span><span class="p">,</span>
+        <span class="s2">"version"</span><span class="p">:</span> <span class="s2">"16.0.0"</span><span class="p">,</span>
+        <span class="s2">"timestamp"</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
     <span class="p">}</span>
 
-<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/readyz&quot;</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Health&quot;</span><span class="p">])</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/readyz"</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"Health"</span><span class="p">])</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">readyz</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Kubernetes readiness probe | فحص الجاهزية&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Kubernetes readiness probe | فحص الجاهزية"""</span>
     <span class="c1"># Agro rules is a stateless rule engine</span>
     <span class="c1"># Ready if rules are loaded</span>
-    <span class="n">rules_loaded</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">rules</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="s1">&#39;rules&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">True</span>
+    <span class="n">rules_loaded</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">rules</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="s1">'rules'</span><span class="p">)</span> <span class="k">else</span> <span class="kc">True</span>
 
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;ready&quot;</span> <span class="k">if</span> <span class="n">rules_loaded</span> <span class="k">else</span> <span class="s2">&quot;not_ready&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;service&quot;</span><span class="p">:</span> <span class="s2">&quot;agro-rules&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;rules_loaded&quot;</span><span class="p">:</span> <span class="n">rules_loaded</span>
+        <span class="s2">"status"</span><span class="p">:</span> <span class="s2">"ready"</span> <span class="k">if</span> <span class="n">rules_loaded</span> <span class="k">else</span> <span class="s2">"not_ready"</span><span class="p">,</span>
+        <span class="s2">"service"</span><span class="p">:</span> <span class="s2">"agro-rules"</span><span class="p">,</span>
+        <span class="s2">"rules_loaded"</span><span class="p">:</span> <span class="n">rules_loaded</span>
     <span class="p">}</span>
 
-<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/health&quot;</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Health&quot;</span><span class="p">])</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/health"</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s2">"Health"</span><span class="p">])</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">health</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Full health check | فحص الصحة الكامل&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Full health check | فحص الصحة الكامل"""</span>
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;healthy&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;service&quot;</span><span class="p">:</span> <span class="s2">&quot;agro-rules&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;16.0.0&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
-        <span class="s2">&quot;uptime_seconds&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span> <span class="o">-</span> <span class="n">_startup_time</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">(),</span>
-        <span class="s2">&quot;dependencies&quot;</span><span class="p">:</span> <span class="p">{}</span>
+        <span class="s2">"status"</span><span class="p">:</span> <span class="s2">"healthy"</span><span class="p">,</span>
+        <span class="s2">"service"</span><span class="p">:</span> <span class="s2">"agro-rules"</span><span class="p">,</span>
+        <span class="s2">"version"</span><span class="p">:</span> <span class="s2">"16.0.0"</span><span class="p">,</span>
+        <span class="s2">"timestamp"</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+        <span class="s2">"uptime_seconds"</span><span class="p">:</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span> <span class="o">-</span> <span class="n">_startup_time</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">(),</span>
+        <span class="s2">"dependencies"</span><span class="p">:</span> <span class="p">{}</span>
     <span class="p">}</span>
 </code></pre></div>
 
@@ -1757,13 +1757,13 @@
 
 <span class="c"># Health check using Python urllib (no curl needed)</span>
 <span class="k">HEALTHCHECK</span><span class="w"> </span>--interval<span class="o">=</span>30s<span class="w"> </span>--timeout<span class="o">=</span>10s<span class="w"> </span>--start-period<span class="o">=</span>30s<span class="w"> </span>--retries<span class="o">=</span><span class="m">3</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>CMD<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import urllib.request; urllib.request.urlopen(&#39;http://localhost:</span><span class="si">${</span><span class="nv">PORT</span><span class="k">:-</span><span class="nv">8080</span><span class="si">}</span><span class="s2">/healthz&#39;)&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="w">    </span>CMD<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import urllib.request; urllib.request.urlopen('http://localhost:</span><span class="si">${</span><span class="nv">PORT</span><span class="k">:-</span><span class="nv">8080</span><span class="si">}</span><span class="s2">/healthz')"</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
 
 <span class="c"># Alternative with curl (if available)</span>
 <span class="c"># HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \</span>
 <span class="c">#     CMD curl -f http://localhost:${PORT:-8080}/healthz || exit 1</span>
 
-<span class="k">CMD</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;uvicorn&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;src.main:app&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;0.0.0.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--port&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;8080&quot;</span><span class="p">]</span>
+<span class="k">CMD</span><span class="w"> </span><span class="p">[</span><span class="s2">"uvicorn"</span><span class="p">,</span><span class="w"> </span><span class="s2">"src.main:app"</span><span class="p">,</span><span class="w"> </span><span class="s2">"--host"</span><span class="p">,</span><span class="w"> </span><span class="s2">"0.0.0.0"</span><span class="p">,</span><span class="w"> </span><span class="s2">"--port"</span><span class="p">,</span><span class="w"> </span><span class="s2">"8080"</span><span class="p">]</span>
 </code></pre></div>
 
 <hr />
@@ -1918,10 +1918,10 @@ curl<span class="w"> </span>http://localhost:8080/health<span class="w"> </span>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

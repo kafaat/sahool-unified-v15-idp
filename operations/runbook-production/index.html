@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1297,7 +1297,7 @@
 curl<span class="w"> </span>http://localhost:8150/dlq/stats
 
 <span class="c1"># List DLQ messages with pagination</span>
-curl<span class="w"> </span><span class="s2">&quot;http://localhost:8150/dlq/messages?limit=10&amp;offset=0&quot;</span>
+curl<span class="w"> </span><span class="s2">"http://localhost:8150/dlq/messages?limit=10&amp;offset=0"</span>
 
 <span class="c1"># Get specific message details</span>
 curl<span class="w"> </span>http://localhost:8150/dlq/messages/&lt;msg_id&gt;
@@ -1385,8 +1385,8 @@ curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </spa
 
 <span class="c1"># Or bulk replay (with caution, specific sequences only)</span>
 curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8150/dlq/replay/bulk<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;sequences&quot;: [1, 2, 3]}&#39;</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"sequences": [1, 2, 3]}'</span>
 
 <span class="c1"># Archive old DLQ messages</span>
 curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8150/dlq/archive
@@ -1481,27 +1481,27 @@ nats<span class="w"> </span>consumer<span class="w"> </span>ls<span class="w"> <
 <p><strong>Step 1</strong> — Check <code>processed_events</code> table:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1">-- PK is (tenant_id, event_id) — dedup guard</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">processed_events</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">correlation_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&lt;correlation_id&gt;&#39;</span><span class="p">;</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">correlation_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'&lt;correlation_id&gt;'</span><span class="p">;</span>
 
 <span class="c1">-- Check for multiple entries with same correlation</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="n">tenant_id</span><span class="p">,</span><span class="w"> </span><span class="n">event_id</span><span class="p">,</span><span class="w"> </span><span class="n">subject</span><span class="p">,</span><span class="w"> </span><span class="n">service</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">processed_at</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">processed_events</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">correlation_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&lt;correlation_id&gt;&#39;</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">correlation_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'&lt;correlation_id&gt;'</span>
 <span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">processed_at</span><span class="p">;</span>
 </code></pre></div>
 
 <p><strong>Step 2</strong> — Check in-memory dedup (LRU cache, 50K entries in <code>EventSubscriber</code>):</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Check subscriber dedup stats in service logs</span>
-kubectl<span class="w"> </span>logs<span class="w"> </span>&lt;pod&gt;<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;Duplicate event_id skipped&quot;</span>
+kubectl<span class="w"> </span>logs<span class="w"> </span>&lt;pod&gt;<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">"Duplicate event_id skipped"</span>
 <span class="c1"># Or check dedup hit count</span>
-kubectl<span class="w"> </span>logs<span class="w"> </span>&lt;pod&gt;<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;dedup_hit_count&quot;</span>
+kubectl<span class="w"> </span>logs<span class="w"> </span>&lt;pod&gt;<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">"dedup_hit_count"</span>
 </code></pre></div>
 
 <p><strong>Step 3</strong> — Check outbox replay:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1">-- Check if outbox event was published more than once</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">subject</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">retry_count</span><span class="p">,</span><span class="w"> </span><span class="n">created_at</span><span class="p">,</span><span class="w"> </span><span class="n">sent_at</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">outbox_events</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">correlation_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&lt;correlation_id&gt;&#39;</span><span class="p">;</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">correlation_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'&lt;correlation_id&gt;'</span><span class="p">;</span>
 </code></pre></div>
 
 <p><strong>Step 4</strong> — Check NATS dedup window:</p>
@@ -1549,19 +1549,19 @@ kubectl<span class="w"> </span>logs<span class="w"> </span>&lt;pod&gt;<span clas
 </ul>
 <h3 id="diagnosis_3">Diagnosis<a class="headerlink" href="#diagnosis_3" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1">-- Count pending outbox events</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">outbox_events</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;pending&#39;</span><span class="p">;</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">outbox_events</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'pending'</span><span class="p">;</span>
 
 <span class="c1">-- Check oldest pending event</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">subject</span><span class="p">,</span><span class="w"> </span><span class="n">created_at</span><span class="p">,</span><span class="w"> </span><span class="n">retry_count</span><span class="p">,</span><span class="w"> </span><span class="n">last_error</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">outbox_events</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;pending&#39;</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'pending'</span>
 <span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">created_at</span><span class="w"> </span><span class="k">ASC</span>
 <span class="k">LIMIT</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
 
 <span class="c1">-- Check failed outbox events</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="n">subject</span><span class="p">,</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">MAX</span><span class="p">(</span><span class="n">retry_count</span><span class="p">),</span><span class="w"> </span><span class="k">MAX</span><span class="p">(</span><span class="n">last_error</span><span class="p">)</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">outbox_events</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;failed&#39;</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'failed'</span>
 <span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">subject</span><span class="p">;</span>
 </code></pre></div>
 
@@ -1614,7 +1614,7 @@ kubectl<span class="w"> </span>logs<span class="w"> </span>&lt;pod&gt;<span clas
 <div class="codehilite"><pre><span></span><code><span class="c1">-- Active queries and their duration</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="n">pid</span><span class="p">,</span><span class="w"> </span><span class="n">now</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">query_start</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">duration</span><span class="p">,</span><span class="w"> </span><span class="k">state</span><span class="p">,</span><span class="w"> </span><span class="n">query</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">pg_stat_activity</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="k">state</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s1">&#39;idle&#39;</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="k">state</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s1">'idle'</span>
 <span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">duration</span><span class="w"> </span><span class="k">DESC</span>
 <span class="k">LIMIT</span><span class="w"> </span><span class="mi">20</span><span class="p">;</span>
 
@@ -1742,7 +1742,7 @@ nats<span class="w"> </span>stream<span class="w"> </span>subjects<span class="w
 <h3 id="steps">Steps<a class="headerlink" href="#steps" title="Permanent link">&para;</a></h3>
 <p><strong>Step 1</strong> — Get <code>correlation_id</code> from the initial HTTP request log:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Search service logs for the correlation ID</span>
-kubectl<span class="w"> </span>logs<span class="w"> </span>-l<span class="w"> </span><span class="nv">app</span><span class="o">=</span>advisory-service<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;correlation_id=&lt;XYZ&gt;&quot;</span>
+kubectl<span class="w"> </span>logs<span class="w"> </span>-l<span class="w"> </span><span class="nv">app</span><span class="o">=</span>advisory-service<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">"correlation_id=&lt;XYZ&gt;"</span>
 </code></pre></div>
 
 <blockquote>
@@ -1751,8 +1751,8 @@ kubectl<span class="w"> </span>logs<span class="w"> </span>-l<span class="w"> </
 <p><strong>Step 2</strong> — Search across all services in the chain:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Search each service in the event chain</span>
 <span class="k">for</span><span class="w"> </span>svc<span class="w"> </span><span class="k">in</span><span class="w"> </span>advisory-service<span class="w"> </span>irrigation-smart<span class="w"> </span>crop-intelligence-service<span class="w"> </span>notification-service<span class="p">;</span><span class="w"> </span><span class="k">do</span>
-<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;=== </span><span class="nv">$svc</span><span class="s2"> ===&quot;</span>
-<span class="w">  </span>kubectl<span class="w"> </span>logs<span class="w"> </span>-l<span class="w"> </span><span class="nv">app</span><span class="o">=</span><span class="nv">$svc</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;&lt;correlation_id&gt;&quot;</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"=== </span><span class="nv">$svc</span><span class="s2"> ==="</span>
+<span class="w">  </span>kubectl<span class="w"> </span>logs<span class="w"> </span>-l<span class="w"> </span><span class="nv">app</span><span class="o">=</span><span class="nv">$svc</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">"&lt;correlation_id&gt;"</span>
 <span class="k">done</span>
 </code></pre></div>
 
@@ -1803,7 +1803,7 @@ kubectl<span class="w"> </span>logs<span class="w"> </span>-l<span class="w"> </
 <li>No DLQ entries for this correlation_id</li>
 </ul>
 <div class="codehilite"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">processed_events</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">correlation_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&lt;XYZ&gt;&#39;</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">correlation_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'&lt;XYZ&gt;'</span>
 <span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">processed_at</span><span class="p">;</span>
 </code></pre></div>
 
@@ -1817,10 +1817,10 @@ kubectl<span class="w"> </span>logs<span class="w"> </span>-l<span class="w"> </
 </ul>
 <h3 id="diagnosis_6">Diagnosis<a class="headerlink" href="#diagnosis_6" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Check pod restart reason</span>
-kubectl<span class="w"> </span>describe<span class="w"> </span>pod<span class="w"> </span>&lt;pod-name&gt;<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-A<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="s2">&quot;Last State&quot;</span>
+kubectl<span class="w"> </span>describe<span class="w"> </span>pod<span class="w"> </span>&lt;pod-name&gt;<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-A<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="s2">"Last State"</span>
 
 <span class="c1"># Check if OOMKilled</span>
-kubectl<span class="w"> </span>get<span class="w"> </span>pod<span class="w"> </span>&lt;pod-name&gt;<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.status.containerStatuses[0].lastState.terminated.reason}&#39;</span>
+kubectl<span class="w"> </span>get<span class="w"> </span>pod<span class="w"> </span>&lt;pod-name&gt;<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">'{.status.containerStatuses[0].lastState.terminated.reason}'</span>
 </code></pre></div>
 
 <p><strong>Key questions</strong>:</p>
@@ -1863,7 +1863,7 @@ kubectl<span class="w"> </span>get<span class="w"> </span>pod<span class="w"> </
 </code></pre></div>
 
 <p><strong>Step 4</strong> — Monitor DLQ for 15 minutes:</p>
-<div class="codehilite"><pre><span></span><code>watch<span class="w"> </span>-n<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="s1">&#39;nats stream info SAHOOL_DLQ&#39;</span>
+<div class="codehilite"><pre><span></span><code>watch<span class="w"> </span>-n<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="s1">'nats stream info SAHOOL_DLQ'</span>
 </code></pre></div>
 
 <p><strong>Step 5</strong> — Verify no new failures:</p>
@@ -2292,9 +2292,9 @@ nats<span class="w"> </span>consumer<span class="w"> </span>info<span class="w">
 nats<span class="w"> </span>server<span class="w"> </span>info<span class="w">                                </span><span class="c1"># NATS server health</span>
 
 <span class="c1"># === Database ===</span>
-SELECT<span class="w"> </span>COUNT<span class="o">(</span>*<span class="o">)</span><span class="w"> </span>FROM<span class="w"> </span>outbox_events<span class="w"> </span>WHERE<span class="w"> </span><span class="nv">status</span><span class="o">=</span><span class="s1">&#39;pending&#39;</span><span class="p">;</span><span class="w">    </span><span class="c1"># Outbox backlog</span>
+SELECT<span class="w"> </span>COUNT<span class="o">(</span>*<span class="o">)</span><span class="w"> </span>FROM<span class="w"> </span>outbox_events<span class="w"> </span>WHERE<span class="w"> </span><span class="nv">status</span><span class="o">=</span><span class="s1">'pending'</span><span class="p">;</span><span class="w">    </span><span class="c1"># Outbox backlog</span>
 SELECT<span class="w"> </span>COUNT<span class="o">(</span>*<span class="o">)</span><span class="w"> </span>FROM<span class="w"> </span>processed_events<span class="p">;</span><span class="w">                        </span><span class="c1"># Dedup table size</span>
-SELECT<span class="w"> </span>*<span class="w"> </span>FROM<span class="w"> </span>pg_stat_activity<span class="w"> </span>WHERE<span class="w"> </span><span class="nv">state</span><span class="o">=</span><span class="s1">&#39;active&#39;</span><span class="p">;</span><span class="w">          </span><span class="c1"># Active queries</span>
+SELECT<span class="w"> </span>*<span class="w"> </span>FROM<span class="w"> </span>pg_stat_activity<span class="w"> </span>WHERE<span class="w"> </span><span class="nv">state</span><span class="o">=</span><span class="s1">'active'</span><span class="p">;</span><span class="w">          </span><span class="c1"># Active queries</span>
 VACUUM<span class="w"> </span>ANALYZE<span class="w"> </span>outbox_events<span class="p">;</span><span class="w">                                 </span><span class="c1"># Cleanup bloat</span>
 VACUUM<span class="w"> </span>ANALYZE<span class="w"> </span>processed_events<span class="p">;</span><span class="w">                              </span><span class="c1"># Cleanup bloat</span>
 
@@ -2364,10 +2364,10 @@ make<span class="w"> </span>status<span class="w">                              
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

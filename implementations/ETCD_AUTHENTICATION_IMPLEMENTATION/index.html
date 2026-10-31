@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1158,8 +1158,8 @@
 <div class="codehilite"><pre><span></span><code><span class="nt">healthcheck</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">test</span><span class="p">:</span>
 <span class="w">    </span><span class="p p-Indicator">[</span>
-<span class="w">      </span><span class="s">&quot;CMD-SHELL&quot;</span><span class="p p-Indicator">,</span>
-<span class="w">      </span><span class="s">&quot;etcdctl</span><span class="nv"> </span><span class="s">--user=$${ETCD_ROOT_USERNAME}:$${ETCD_ROOT_PASSWORD}</span><span class="nv"> </span><span class="s">endpoint</span><span class="nv"> </span><span class="s">health</span><span class="nv"> </span><span class="s">||</span><span class="nv"> </span><span class="s">etcdctl</span><span class="nv"> </span><span class="s">endpoint</span><span class="nv"> </span><span class="s">health&quot;</span><span class="p p-Indicator">,</span>
+<span class="w">      </span><span class="s">"CMD-SHELL"</span><span class="p p-Indicator">,</span>
+<span class="w">      </span><span class="s">"etcdctl</span><span class="nv"> </span><span class="s">--user=$${ETCD_ROOT_USERNAME}:$${ETCD_ROOT_PASSWORD}</span><span class="nv"> </span><span class="s">endpoint</span><span class="nv"> </span><span class="s">health</span><span class="nv"> </span><span class="s">||</span><span class="nv"> </span><span class="s">etcdctl</span><span class="nv"> </span><span class="s">endpoint</span><span class="nv"> </span><span class="s">health"</span><span class="p p-Indicator">,</span>
 <span class="w">    </span><span class="p p-Indicator">]</span>
 </code></pre></div>
 
@@ -1202,8 +1202,8 @@
 <span class="w">      </span><span class="nt">condition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">service_healthy</span>
 <span class="w">  </span><span class="nt">volumes</span><span class="p">:</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./infrastructure/core/etcd/init-auth.sh:/scripts/init-auth.sh:ro</span>
-<span class="w">  </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;/bin/sh&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;/scripts/init-auth.sh&quot;</span><span class="p p-Indicator">]</span>
-<span class="w">  </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;no&quot;</span>
+<span class="w">  </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"/bin/sh"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"/scripts/init-auth.sh"</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="s">"no"</span>
 </code></pre></div>
 
 <p><strong>Behavior</strong>:</p>
@@ -1221,7 +1221,7 @@
 <span class="w">  </span><span class="c1"># Etcd connection with authentication</span>
 <span class="w">  </span><span class="nt">ETCD_ENDPOINTS</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">etcd:2379</span>
 <span class="w">  </span><span class="nt">ETCD_ROOT_PATH</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/milvus</span>
-<span class="w">  </span><span class="nt">ETCD_USE_SSL</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;false&quot;</span>
+<span class="w">  </span><span class="nt">ETCD_USE_SSL</span><span class="p">:</span><span class="w"> </span><span class="s">"false"</span>
 <span class="w">  </span><span class="c1"># Etcd authentication credentials</span>
 <span class="w">  </span><span class="nt">ETCD_USERNAME</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${ETCD_ROOT_USERNAME}</span>
 <span class="w">  </span><span class="nt">ETCD_PASSWORD</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${ETCD_ROOT_PASSWORD}</span>
@@ -1357,21 +1357,21 @@ etcdctl<span class="w"> </span>--user<span class="o">=</span>root:your-password<
 <span class="nb">source</span><span class="w"> </span>.env
 
 <span class="c1"># Test 1: Unauthenticated access (should fail)</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Test 1: Unauthenticated access (should fail after init)...&quot;</span>
-docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-etcd<span class="w"> </span>etcdctl<span class="w"> </span>endpoint<span class="w"> </span>health<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✓ Unauthenticated access blocked&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"Test 1: Unauthenticated access (should fail after init)..."</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-etcd<span class="w"> </span>etcdctl<span class="w"> </span>endpoint<span class="w"> </span>health<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"✓ Unauthenticated access blocked"</span>
 
 <span class="c1"># Test 2: Authenticated access (should succeed)</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Test 2: Authenticated access (should succeed)...&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"Test 2: Authenticated access (should succeed)..."</span>
 docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-e<span class="w"> </span><span class="nv">ETCDCTL_USER</span><span class="o">=</span><span class="nv">$ETCD_ROOT_USERNAME</span><span class="w"> </span>-e<span class="w"> </span><span class="nv">ETCDCTL_PASSWORD</span><span class="o">=</span><span class="nv">$ETCD_ROOT_PASSWORD</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>sahool-etcd<span class="w"> </span>etcdctl<span class="w"> </span>endpoint<span class="w"> </span>health<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✓ Authenticated access works&quot;</span>
+<span class="w">  </span>sahool-etcd<span class="w"> </span>etcdctl<span class="w"> </span>endpoint<span class="w"> </span>health<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"✓ Authenticated access works"</span>
 
 <span class="c1"># Test 3: List users (should show root)</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Test 3: List users...&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"Test 3: List users..."</span>
 docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-e<span class="w"> </span><span class="nv">ETCDCTL_USER</span><span class="o">=</span><span class="nv">$ETCD_ROOT_USERNAME</span><span class="w"> </span>-e<span class="w"> </span><span class="nv">ETCDCTL_PASSWORD</span><span class="o">=</span><span class="nv">$ETCD_ROOT_PASSWORD</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>sahool-etcd<span class="w"> </span>etcdctl<span class="w"> </span>user<span class="w"> </span>list
 
 <span class="c1"># Test 4: Check Milvus connection</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Test 4: Milvus connection to etcd...&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"Test 4: Milvus connection to etcd..."</span>
 docker<span class="w"> </span>logs<span class="w"> </span>sahool-milvus<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span>etcd<span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-5
 </code></pre></div>
 
@@ -1486,10 +1486,10 @@ docker<span class="w"> </span>logs<span class="w"> </span>sahool-milvus<span cla
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

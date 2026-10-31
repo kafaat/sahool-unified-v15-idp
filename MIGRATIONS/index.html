@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1185,10 +1185,10 @@ and ensure safe deployments across all environments.</p>
 </blockquote>
 <p>Every <code>upgrade()</code> must have a working <code>downgrade()</code>:</p>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">upgrade</span><span class="p">():</span>
-    <span class="n">op</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;fields&#39;</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="s1">&#39;ndvi_score&#39;</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">Float</span><span class="p">()))</span>
+    <span class="n">op</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">'fields'</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="s1">'ndvi_score'</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">Float</span><span class="p">()))</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">downgrade</span><span class="p">():</span>
-    <span class="n">op</span><span class="o">.</span><span class="n">drop_column</span><span class="p">(</span><span class="s1">&#39;fields&#39;</span><span class="p">,</span> <span class="s1">&#39;ndvi_score&#39;</span><span class="p">)</span>
+    <span class="n">op</span><span class="o">.</span><span class="n">drop_column</span><span class="p">(</span><span class="s1">'fields'</span><span class="p">,</span> <span class="s1">'ndvi_score'</span><span class="p">)</span>
 </code></pre></div>
 
 <h3 id="4-atomic-changes">4. Atomic Changes<a class="headerlink" href="#4-atomic-changes" title="Permanent link">&para;</a></h3>
@@ -1196,11 +1196,11 @@ and ensure safe deployments across all environments.</p>
 <p><strong>One logical change = one migration.</strong></p>
 </blockquote>
 <p>Bad:</p>
-<div class="codehilite"><pre><span></span><code><span class="c1"># DON&#39;T: Multiple unrelated changes</span>
+<div class="codehilite"><pre><span></span><code><span class="c1"># DON'T: Multiple unrelated changes</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">upgrade</span><span class="p">():</span>
-    <span class="n">op</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;users&#39;</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
-    <span class="n">op</span><span class="o">.</span><span class="n">create_table</span><span class="p">(</span><span class="s1">&#39;products&#39;</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
-    <span class="n">op</span><span class="o">.</span><span class="n">add_index</span><span class="p">(</span><span class="s1">&#39;fields&#39;</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+    <span class="n">op</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">'users'</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+    <span class="n">op</span><span class="o">.</span><span class="n">create_table</span><span class="p">(</span><span class="s1">'products'</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+    <span class="n">op</span><span class="o">.</span><span class="n">add_index</span><span class="p">(</span><span class="s1">'fields'</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
 </code></pre></div>
 
 <p>Good:</p>
@@ -1269,13 +1269,13 @@ and ensure safe deployments across all environments.</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># s4_001_deprecate_old_field.py</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">upgrade</span><span class="p">():</span>
     <span class="c1"># Add new column</span>
-    <span class="n">op</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;fields&#39;</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="s1">&#39;area_sqm&#39;</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">Float</span><span class="p">()))</span>
+    <span class="n">op</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">'fields'</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="s1">'area_sqm'</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">Float</span><span class="p">()))</span>
     <span class="c1"># Migrate data</span>
-    <span class="n">op</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;UPDATE fields SET area_sqm = area * 10000&quot;</span><span class="p">)</span>
+    <span class="n">op</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">"UPDATE fields SET area_sqm = area * 10000"</span><span class="p">)</span>
 
 <span class="c1"># s5_001_remove_deprecated_field.py</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">upgrade</span><span class="p">():</span>
-    <span class="n">op</span><span class="o">.</span><span class="n">drop_column</span><span class="p">(</span><span class="s1">&#39;fields&#39;</span><span class="p">,</span> <span class="s1">&#39;area&#39;</span><span class="p">)</span>  <span class="c1"># Now safe to remove</span>
+    <span class="n">op</span><span class="o">.</span><span class="n">drop_column</span><span class="p">(</span><span class="s1">'fields'</span><span class="p">,</span> <span class="s1">'area'</span><span class="p">)</span>  <span class="c1"># Now safe to remove</span>
 </code></pre></div>
 
 <h2 id="environment-safety">Environment Safety<a class="headerlink" href="#environment-safety" title="Permanent link">&para;</a></h2>
@@ -1297,7 +1297,7 @@ and ensure safe deployments across all environments.</p>
 </ul>
 <h2 id="commands">Commands<a class="headerlink" href="#commands" title="Permanent link">&para;</a></h2>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Create new migration</span>
-alembic<span class="w"> </span>revision<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;s3_005_add_ndvi_column&quot;</span>
+alembic<span class="w"> </span>revision<span class="w"> </span>-m<span class="w"> </span><span class="s2">"s3_005_add_ndvi_column"</span>
 
 <span class="c1"># Upgrade to latest</span>
 alembic<span class="w"> </span>upgrade<span class="w"> </span>head
@@ -1360,10 +1360,10 @@ alembic<span class="w"> </span><span class="nb">history</span>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

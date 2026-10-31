@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1142,7 +1142,7 @@
 <p>Add a disk cleanup step at the beginning of jobs that need significant disk space:</p>
 <div class="codehilite"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Free disk space</span>
 <span class="w">  </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">    </span><span class="no">echo &quot;Freeing disk space...&quot;</span>
+<span class="w">    </span><span class="no">echo "Freeing disk space..."</span>
 <span class="w">    </span><span class="no">sudo rm -rf /usr/share/dotnet          # ~2-3 GB</span>
 <span class="w">    </span><span class="no">sudo rm -rf /usr/local/lib/android     # ~10 GB</span>
 <span class="w">    </span><span class="no">sudo rm -rf /opt/ghc                   # ~2 GB</span>
@@ -1173,7 +1173,7 @@ npm error network In most cases you are behind a proxy or have bad network setti
 <div class="codehilite"><pre><span></span><code><span class="c"># Install dependencies (with retries for network resilience)</span>
 <span class="k">RUN</span><span class="w"> </span>--mount<span class="o">=</span><span class="nv">type</span><span class="o">=</span>cache,target<span class="o">=</span>/root/.npm<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span><span class="k">for</span><span class="w"> </span>i<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="m">5</span><span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="se">\</span>
-<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Attempt </span><span class="nv">$i</span><span class="s2">: Installing npm dependencies...&quot;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"Attempt </span><span class="nv">$i</span><span class="s2">: Installing npm dependencies..."</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">        </span>npm<span class="w"> </span>install<span class="w"> </span>--legacy-peer-deps<span class="w"> </span><span class="se">\</span>
 <span class="w">            </span>--fetch-retries<span class="o">=</span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
 <span class="w">            </span>--fetch-retry-mintimeout<span class="o">=</span><span class="m">30000</span><span class="w"> </span><span class="se">\</span>
@@ -1182,7 +1182,7 @@ npm error network In most cases you are behind a proxy or have bad network setti
 <span class="w">            </span>--prefer-offline<span class="w"> </span><span class="se">\</span>
 <span class="w">            </span>--no-audit<span class="w"> </span><span class="se">\</span>
 <span class="w">            </span>--no-fund<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="k">break</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="se">\</span>
-<span class="w">        </span><span class="o">(</span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Attempt </span><span class="nv">$i</span><span class="s2"> failed, waiting before retry...&quot;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>sleep<span class="w"> </span><span class="k">$((</span><span class="nv">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="m">10</span><span class="k">))</span><span class="o">)</span><span class="p">;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span><span class="o">(</span><span class="nb">echo</span><span class="w"> </span><span class="s2">"Attempt </span><span class="nv">$i</span><span class="s2"> failed, waiting before retry..."</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>sleep<span class="w"> </span><span class="k">$((</span><span class="nv">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="m">10</span><span class="k">))</span><span class="o">)</span><span class="p">;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span><span class="k">done</span>
 </code></pre></div>
 
@@ -1258,8 +1258,8 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 <hr />
 <h2 id="3-flutter-code-generation-driftfreezed">3. Flutter Code Generation (Drift/Freezed)<a class="headerlink" href="#3-flutter-code-generation-driftfreezed" title="Permanent link">&para;</a></h2>
 <h3 id="symptom_2">Symptom<a class="headerlink" href="#symptom_2" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="nx">Error</span><span class="p">:</span><span class="w"> </span><span class="nx">Method</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="nx">found</span><span class="p">:</span><span class="w"> </span><span class="err">&#39;</span><span class="nx">TasksCompanion</span><span class="err">&#39;</span><span class="p">.</span>
-<span class="nx">Error</span><span class="p">:</span><span class="w"> </span><span class="err">&#39;</span><span class="nx">Task</span><span class="err">&#39;</span><span class="w"> </span><span class="nx">isn</span><span class="err">&#39;</span><span class="nx">t</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="k">type</span><span class="p">.</span>
+<div class="codehilite"><pre><span></span><code><span class="nx">Error</span><span class="p">:</span><span class="w"> </span><span class="nx">Method</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="nx">found</span><span class="p">:</span><span class="w"> </span><span class="err">'</span><span class="nx">TasksCompanion</span><span class="err">'</span><span class="p">.</span>
+<span class="nx">Error</span><span class="p">:</span><span class="w"> </span><span class="err">'</span><span class="nx">Task</span><span class="err">'</span><span class="w"> </span><span class="nx">isn</span><span class="err">'</span><span class="nx">t</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="k">type</span><span class="p">.</span>
 </code></pre></div>
 
 <h3 id="cause_2">Cause<a class="headerlink" href="#cause_2" title="Permanent link">&para;</a></h3>
@@ -1279,10 +1279,10 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 </ol>
 <div class="codehilite"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Verify generated code exists</span>
 <span class="w">  </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">    </span><span class="no">if [ ! -f &quot;lib/core/storage/database.g.dart&quot; ]; then</span>
-<span class="w">      </span><span class="no">echo &quot;ERROR: database.g.dart was not generated!&quot;</span>
+<span class="w">    </span><span class="no">if [ ! -f "lib/core/storage/database.g.dart" ]; then</span>
+<span class="w">      </span><span class="no">echo "ERROR: database.g.dart was not generated!"</span>
 <span class="w">      </span><span class="no">dart run build_runner build --delete-conflicting-outputs</span>
-<span class="w">      </span><span class="no">if [ ! -f &quot;lib/core/storage/database.g.dart&quot; ]; then</span>
+<span class="w">      </span><span class="no">if [ ! -f "lib/core/storage/database.g.dart" ]; then</span>
 <span class="w">        </span><span class="no">exit 1</span>
 <span class="w">      </span><span class="no">fi</span>
 <span class="w">    </span><span class="no">fi</span>
@@ -1301,7 +1301,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 <hr />
 <h2 id="4-flutter-provider-exports">4. Flutter Provider Exports<a class="headerlink" href="#4-flutter-provider-exports" title="Permanent link">&para;</a></h2>
 <h3 id="symptom_3">Symptom<a class="headerlink" href="#symptom_3" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="nv">Error</span>:<span class="w"> </span><span class="nv">The</span><span class="w"> </span><span class="nv">getter</span><span class="w"> </span><span class="s1">&#39;securityConfigProvider&#39;</span><span class="w"> </span><span class="nv">isn</span><span class="s1">&#39;t defined for the class &#39;</span><span class="nv">WalletScreen</span><span class="err">&#39;.</span>
+<div class="codehilite"><pre><span></span><code><span class="nv">Error</span>:<span class="w"> </span><span class="nv">The</span><span class="w"> </span><span class="nv">getter</span><span class="w"> </span><span class="s1">'securityConfigProvider'</span><span class="w"> </span><span class="nv">isn</span><span class="s1">'t defined for the class '</span><span class="nv">WalletScreen</span><span class="err">'.</span>
 </code></pre></div>
 
 <h3 id="cause_3">Cause<a class="headerlink" href="#cause_3" title="Permanent link">&para;</a></h3>
@@ -1309,10 +1309,10 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 <h3 id="solution_3">Solution<a class="headerlink" href="#solution_3" title="Permanent link">&para;</a></h3>
 <p>Re-export providers from the main service file:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// In screen_security_service.dart</span>
-<span class="k">import</span><span class="w"> </span><span class="s1">&#39;security_config.dart&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="s1">'security_config.dart'</span><span class="p">;</span>
 
 <span class="c1">// Re-export for screens that use SecureScreen</span>
-<span class="k">export</span><span class="w"> </span><span class="s1">&#39;security_config.dart&#39;</span><span class="w"> </span><span class="k">show</span><span class="w"> </span><span class="n">securityConfigProvider</span><span class="p">,</span><span class="w"> </span><span class="n">SecurityConfig</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="s1">'security_config.dart'</span><span class="w"> </span><span class="k">show</span><span class="w"> </span><span class="n">securityConfigProvider</span><span class="p">,</span><span class="w"> </span><span class="n">SecurityConfig</span><span class="p">;</span>
 </code></pre></div>
 
 <h3 id="prevention_2">Prevention<a class="headerlink" href="#prevention_2" title="Permanent link">&para;</a></h3>
@@ -1323,7 +1323,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 <hr />
 <h2 id="5-python-module-import-errors">5. Python Module Import Errors<a class="headerlink" href="#5-python-module-import-errors" title="Permanent link">&para;</a></h2>
 <h3 id="symptom_4">Symptom<a class="headerlink" href="#symptom_4" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="n">ModuleNotFoundError</span><span class="p">:</span><span class="w"> </span><span class="n">No</span><span class="w"> </span><span class="k">module</span><span class="w"> </span><span class="nn">named</span><span class="w"> </span><span class="c">&#39;crops&#39;</span>
+<div class="codehilite"><pre><span></span><code><span class="n">ModuleNotFoundError</span><span class="p">:</span><span class="w"> </span><span class="n">No</span><span class="w"> </span><span class="k">module</span><span class="w"> </span><span class="nn">named</span><span class="w"> </span><span class="c">'crops'</span>
 </code></pre></div>
 
 <h3 id="cause_4">Cause<a class="headerlink" href="#cause_4" title="Permanent link">&para;</a></h3>
@@ -1347,10 +1347,10 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 <li><strong>Update Python path in main.py:</strong></li>
 </ol>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Add services_shared modules to path</span>
-<span class="n">SERVICES_SHARED_PATH</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/app/services_shared&quot;</span><span class="p">)</span>
+<span class="n">SERVICES_SHARED_PATH</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"/app/services_shared"</span><span class="p">)</span>
 <span class="k">if</span> <span class="ow">not</span> <span class="n">SERVICES_SHARED_PATH</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
     <span class="c1"># Fallback for local development</span>
-    <span class="n">SERVICES_SHARED_PATH</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;shared&quot;</span>
+    <span class="n">SERVICES_SHARED_PATH</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">"shared"</span>
 <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">SERVICES_SHARED_PATH</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
     <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">SERVICES_SHARED_PATH</span><span class="p">))</span>
 </code></pre></div>
@@ -1369,7 +1369,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 <hr />
 <h2 id="6-typescript-path-mappings">6. TypeScript Path Mappings<a class="headerlink" href="#6-typescript-path-mappings" title="Permanent link">&para;</a></h2>
 <h3 id="symptom_5">Symptom<a class="headerlink" href="#symptom_5" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="nx">error</span><span class="w"> </span><span class="nx">TS2307</span><span class="p">:</span><span class="w"> </span><span class="nx">Cannot</span><span class="w"> </span><span class="nx">find</span><span class="w"> </span><span class="nx">module</span><span class="w"> </span><span class="err">&#39;@</span><span class="nx">sahool</span><span class="o">/</span><span class="nx">shared</span><span class="o">-</span><span class="nx">types</span><span class="err">&#39;</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="nx">its</span><span class="w"> </span><span class="nx">corresponding</span><span class="w"> </span><span class="k">type</span><span class="w"> </span><span class="nx">declarations</span><span class="p">.</span>
+<div class="codehilite"><pre><span></span><code><span class="nx">error</span><span class="w"> </span><span class="nx">TS2307</span><span class="p">:</span><span class="w"> </span><span class="nx">Cannot</span><span class="w"> </span><span class="nx">find</span><span class="w"> </span><span class="nx">module</span><span class="w"> </span><span class="err">'@</span><span class="nx">sahool</span><span class="o">/</span><span class="nx">shared</span><span class="o">-</span><span class="nx">types</span><span class="err">'</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="nx">its</span><span class="w"> </span><span class="nx">corresponding</span><span class="w"> </span><span class="k">type</span><span class="w"> </span><span class="nx">declarations</span><span class="p">.</span>
 </code></pre></div>
 
 <h3 id="cause_5">Cause<a class="headerlink" href="#cause_5" title="Permanent link">&para;</a></h3>
@@ -1377,13 +1377,13 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 <h3 id="solution_5">Solution<a class="headerlink" href="#solution_5" title="Permanent link">&para;</a></h3>
 <p>Add path mappings to each package/app's <code>tsconfig.json</code>:</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;compilerOptions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;baseUrl&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;.&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;paths&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;@sahool/shared-types&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;../../packages/shared-types/src&quot;</span><span class="p">],</span>
-<span class="w">      </span><span class="nt">&quot;@sahool/shared-types/*&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;../../packages/shared-types/src/*&quot;</span><span class="p">],</span>
-<span class="w">      </span><span class="nt">&quot;@sahool/i18n&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;../../packages/i18n/src&quot;</span><span class="p">],</span>
-<span class="w">      </span><span class="nt">&quot;@sahool/i18n/*&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;../../packages/i18n/src/*&quot;</span><span class="p">]</span>
+<span class="w">  </span><span class="nt">"compilerOptions"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"baseUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"."</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"paths"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"@sahool/shared-types"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"../../packages/shared-types/src"</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">"@sahool/shared-types/*"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"../../packages/shared-types/src/*"</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">"@sahool/i18n"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"../../packages/i18n/src"</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">"@sahool/i18n/*"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"../../packages/i18n/src/*"</span><span class="p">]</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
@@ -1411,7 +1411,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 <h3 id="solution_6">Solution<a class="headerlink" href="#solution_6" title="Permanent link">&para;</a></h3>
 <p>Use a Pydantic model with <code>Body()</code> instead:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Before (fails)</span>
-<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/v1/boundaries/refine&quot;</span><span class="p">)</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">"/v1/boundaries/refine"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">refine_boundary</span><span class="p">(</span>
     <span class="n">coords</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="n">Query</span><span class="p">(</span><span class="o">...</span><span class="p">),</span>  <span class="c1"># FAILS</span>
     <span class="n">buffer_m</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Query</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
@@ -1420,10 +1420,10 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 
 <span class="c1"># After (works)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">RefineBoundaryRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-    <span class="n">coords</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Coordinates&quot;</span><span class="p">)</span>
-    <span class="n">buffer_m</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Buffer in meters&quot;</span><span class="p">)</span>
+    <span class="n">coords</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"Coordinates"</span><span class="p">)</span>
+    <span class="n">buffer_m</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"Buffer in meters"</span><span class="p">)</span>
 
-<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/v1/boundaries/refine&quot;</span><span class="p">)</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">"/v1/boundaries/refine"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">refine_boundary</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">RefineBoundaryRequest</span><span class="p">):</span>
     <span class="n">coords</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">coords</span>
     <span class="n">buffer_m</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">buffer_m</span>
@@ -1456,9 +1456,9 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 <p><strong>Solution:</strong> Update <code>.gitleaks.toml</code> allowlist:</p>
 <div class="codehilite"><pre><span></span><code><span class="k">[allowlist]</span>
 <span class="n">paths</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="s1">&#39;&#39;&#39;\.github/workflows/&#39;&#39;&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="s1">&#39;&#39;&#39;docker-compose.*\.yml$&#39;&#39;&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="s1">&#39;&#39;&#39;config/nats/.*\.conf$&#39;&#39;&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">'''\.github/workflows/'''</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">'''docker-compose.*\.yml$'''</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">'''config/nats/.*\.conf$'''</span><span class="p">,</span>
 <span class="p">]</span>
 </code></pre></div>
 
@@ -1474,7 +1474,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Build Web App if artifact missing</span>
 <span class="w">  </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">    </span><span class="no">if [ ! -d &quot;apps/web/.next&quot; ]; then</span>
+<span class="w">    </span><span class="no">if [ ! -d "apps/web/.next" ]; then</span>
 <span class="w">      </span><span class="no">cd apps/web &amp;&amp; npm run build</span>
 <span class="w">    </span><span class="no">fi</span>
 <span class="w">  </span><span class="nt">continue-on-error</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
@@ -1484,7 +1484,7 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
 <p><strong>Symptom:</strong> Web App or Admin Dashboard build fails with module not found errors for @sahool packages.</p>
 <p><strong>Cause:</strong> Shared packages (shared-utils, shared-ui, api-client, shared-hooks, i18n) need to be built before the apps that depend on them.</p>
 <p><strong>Solution:</strong> Ensure <code>build:packages</code> script in root package.json includes all required packages:</p>
-<div class="codehilite"><pre><span></span><code><span class="nt">&quot;build:packages&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;npm run build --workspace=packages/shared-utils &amp;&amp; npm run build --workspace=packages/i18n &amp;&amp; npm run build --workspace=packages/shared-ui &amp;&amp; npm run build --workspace=packages/api-client &amp;&amp; npm run build --workspace=packages/shared-hooks&quot;</span>
+<div class="codehilite"><pre><span></span><code><span class="nt">"build:packages"</span><span class="p">:</span><span class="w"> </span><span class="s2">"npm run build --workspace=packages/shared-utils &amp;&amp; npm run build --workspace=packages/i18n &amp;&amp; npm run build --workspace=packages/shared-ui &amp;&amp; npm run build --workspace=packages/api-client &amp;&amp; npm run build --workspace=packages/shared-hooks"</span>
 </code></pre></div>
 
 <p><strong>Prevention:</strong></p>
@@ -1596,10 +1596,10 @@ docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

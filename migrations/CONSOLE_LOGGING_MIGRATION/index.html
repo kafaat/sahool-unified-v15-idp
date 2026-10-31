@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1134,7 +1134,7 @@
 <li><strong>Production Logging</strong>: Structured logging for production environments</li>
 </ul>
 <h3 id="2-logger-api">2. Logger API<a class="headerlink" href="#2-logger-api" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">logger</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@/lib/logger&quot;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">logger</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@/lib/logger"</span><span class="p">;</span>
 
 <span class="c1">// Development-only logging</span>
 <span class="nx">logger</span><span class="p">.</span><span class="nx">log</span><span class="p">(...</span><span class="nx">args</span><span class="p">);</span><span class="w"> </span><span class="c1">// General information</span>
@@ -1267,7 +1267,7 @@
 <div class="codehilite"><pre><span></span><code><span class="k">try</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="c1">// risky operation</span>
 <span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">logger</span><span class="p">.</span><span class="nx">critical</span><span class="p">(</span><span class="s2">&quot;Critical operation failed:&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="p">);</span>
+<span class="w">  </span><span class="nx">logger</span><span class="p">.</span><span class="nx">critical</span><span class="p">(</span><span class="s2">"Critical operation failed:"</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="p">);</span>
 <span class="w">  </span><span class="c1">// This will be logged in both dev and production</span>
 <span class="w">  </span><span class="c1">// TODO: Integrate with error tracking service (Sentry, etc.)</span>
 <span class="p">}</span>
@@ -1277,8 +1277,8 @@
 <p>Use <code>logger.production()</code> for structured server-side logging:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// API routes</span>
 <span class="nx">logger</span><span class="p">.</span><span class="nx">production</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">level</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;error&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;sahool-web&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">level</span><span class="o">:</span><span class="w"> </span><span class="s2">"error"</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="s2">"sahool-web"</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="kt">error.message</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">timestamp</span><span class="o">:</span><span class="w"> </span><span class="kt">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">().</span><span class="nx">toISOString</span><span class="p">(),</span>
 <span class="p">});</span>
@@ -1415,10 +1415,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

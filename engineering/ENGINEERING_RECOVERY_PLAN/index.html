@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1231,13 +1231,13 @@
 <div class="codehilite"><pre><span></span><code><span class="c1">// File: shared/libs/cache/ndvi-cache.service.ts</span>
 <span class="c1">// Priority: P0 - CRITICAL</span>
 
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Injectable</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/common&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Redis</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;ioredis&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Injectable</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@nestjs/common"</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Redis</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"ioredis"</span><span class="p">;</span>
 
 <span class="kd">interface</span><span class="w"> </span><span class="nx">NDVICacheEntry</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="nx">value</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
 <span class="w">  </span><span class="nx">timestamp</span><span class="o">:</span><span class="w"> </span><span class="kt">Date</span><span class="p">;</span>
-<span class="w">  </span><span class="nx">source</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;satellite&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;interpolated&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;historical&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">source</span><span class="o">:</span><span class="w"> </span><span class="s2">"satellite"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"interpolated"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"historical"</span><span class="p">;</span>
 <span class="w">  </span><span class="nx">confidence</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
 <span class="w">  </span><span class="nx">ttl_hours</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
 <span class="p">}</span>
@@ -1274,7 +1274,7 @@
 <span class="w">    </span><span class="c1">// 3. Try L3 (Stale from DB)</span>
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">staleEntry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">getStaleFromDB</span><span class="p">(</span><span class="nx">fieldId</span><span class="p">,</span><span class="w"> </span><span class="nx">date</span><span class="p">);</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">staleEntry</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">staleEntry</span><span class="p">.</span><span class="nx">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;historical&quot;</span><span class="p">;</span>
+<span class="w">      </span><span class="nx">staleEntry</span><span class="p">.</span><span class="nx">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"historical"</span><span class="p">;</span>
 <span class="w">      </span><span class="nx">staleEntry</span><span class="p">.</span><span class="nx">confidence</span><span class="w"> </span><span class="o">*=</span><span class="w"> </span><span class="mf">0.8</span><span class="p">;</span><span class="w"> </span><span class="c1">// Reduce confidence</span>
 <span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="nx">staleEntry</span><span class="p">;</span>
 <span class="w">    </span><span class="p">}</span>
@@ -1293,7 +1293,7 @@
 <span class="w">      </span><span class="nx">value</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">timestamp</span><span class="o">:</span><span class="w"> </span><span class="kt">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">(),</span>
 <span class="w">      </span><span class="nx">source</span><span class="o">:</span><span class="w"> </span><span class="kt">source</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">any</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">confidence</span><span class="o">:</span><span class="w"> </span><span class="kt">source</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">&quot;satellite&quot;</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">0.95</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">0.75</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">confidence</span><span class="o">:</span><span class="w"> </span><span class="kt">source</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">"satellite"</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">0.95</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">0.75</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">ttl_hours</span><span class="o">:</span><span class="w"> </span><span class="kt">this.DEFAULT_TTL_HOURS</span><span class="p">,</span>
 <span class="w">    </span><span class="p">};</span>
 
@@ -1345,14 +1345,14 @@
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="nx">value</span><span class="o">:</span><span class="w"> </span><span class="kt">interpolated</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">timestamp</span><span class="o">:</span><span class="w"> </span><span class="kt">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">(),</span>
-<span class="w">      </span><span class="nx">source</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;interpolated&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">source</span><span class="o">:</span><span class="w"> </span><span class="s2">"interpolated"</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">confidence</span><span class="o">:</span><span class="w"> </span><span class="kt">0.6</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="nx">validValues</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nx">neighbors</span><span class="p">.</span><span class="nx">length</span><span class="p">),</span>
 <span class="w">      </span><span class="nx">ttl_hours</span><span class="o">:</span><span class="w"> </span><span class="kt">12</span><span class="p">,</span><span class="w"> </span><span class="c1">// Shorter TTL for interpolated</span>
 <span class="w">    </span><span class="p">};</span>
 <span class="w">  </span><span class="p">}</span>
 
 <span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="nx">dateKey</span><span class="p">(</span><span class="nx">date</span><span class="o">:</span><span class="w"> </span><span class="kt">Date</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">date</span><span class="p">.</span><span class="nx">toISOString</span><span class="p">().</span><span class="nx">split</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">)[</span><span class="mf">0</span><span class="p">];</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">date</span><span class="p">.</span><span class="nx">toISOString</span><span class="p">().</span><span class="nx">split</span><span class="p">(</span><span class="s2">"T"</span><span class="p">)[</span><span class="mf">0</span><span class="p">];</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1393,7 +1393,7 @@
 <span class="c1">-- 3. Partial index للبيانات الحديثة</span>
 <span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">CONCURRENTLY</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">idx_sensor_readings_recent</span>
 <span class="k">ON</span><span class="w"> </span><span class="n">sensor_readings</span><span class="w"> </span><span class="p">(</span><span class="n">field_id</span><span class="p">,</span><span class="w"> </span><span class="n">created_at</span><span class="w"> </span><span class="k">DESC</span><span class="p">)</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">created_at</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">NOW</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">INTERVAL</span><span class="w"> </span><span class="s1">&#39;30 days&#39;</span><span class="p">;</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">created_at</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">NOW</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">INTERVAL</span><span class="w"> </span><span class="s1">'30 days'</span><span class="p">;</span>
 
 <span class="c1">-- 4. BRIN index للبيانات الزمنية الكبيرة</span>
 <span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">CONCURRENTLY</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">idx_weather_data_time_brin</span>
@@ -1438,26 +1438,26 @@
 <span class="w">          </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">edoburu/pgbouncer:1.21.0</span>
 <span class="w">          </span><span class="nt">env</span><span class="p">:</span>
 <span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">POOL_MODE</span>
-<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;transaction&quot;</span>
+<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">"transaction"</span>
 <span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DEFAULT_POOL_SIZE</span>
-<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;20&quot;</span>
+<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">"20"</span>
 <span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MIN_POOL_SIZE</span>
-<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;5&quot;</span>
+<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">"5"</span>
 <span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">RESERVE_POOL_SIZE</span>
-<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;5&quot;</span>
+<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">"5"</span>
 <span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MAX_CLIENT_CONN</span>
-<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1000&quot;</span>
+<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">"1000"</span>
 <span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MAX_DB_CONNECTIONS</span>
-<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;100&quot;</span>
+<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">"100"</span>
 <span class="w">          </span><span class="nt">ports</span><span class="p">:</span>
 <span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">containerPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5432</span>
 <span class="w">          </span><span class="nt">resources</span><span class="p">:</span>
 <span class="w">            </span><span class="nt">requests</span><span class="p">:</span>
-<span class="w">              </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;128Mi&quot;</span>
-<span class="w">              </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;100m&quot;</span>
+<span class="w">              </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="s">"128Mi"</span>
+<span class="w">              </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="s">"100m"</span>
 <span class="w">            </span><span class="nt">limits</span><span class="p">:</span>
-<span class="w">              </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;256Mi&quot;</span>
-<span class="w">              </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;500m&quot;</span>
+<span class="w">              </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="s">"256Mi"</span>
+<span class="w">              </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="s">"500m"</span>
 </code></pre></div>
 
 <p><strong>المهام:</strong></p>
@@ -1479,10 +1479,10 @@
 <div class="codehilite"><pre><span></span><code><span class="c1"># File: .platform-manifest.yml</span>
 <span class="c1"># Priority: P1 - HIGH</span>
 
-<span class="nt">schema_version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1.0&quot;</span>
-<span class="nt">platform_version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;15.5.0&quot;</span>
-<span class="nt">last_updated</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2024-01-20&quot;</span>
-<span class="nt">maintainer</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;platform-team@sahool.io&quot;</span>
+<span class="nt">schema_version</span><span class="p">:</span><span class="w"> </span><span class="s">"1.0"</span>
+<span class="nt">platform_version</span><span class="p">:</span><span class="w"> </span><span class="s">"15.5.0"</span>
+<span class="nt">last_updated</span><span class="p">:</span><span class="w"> </span><span class="s">"2024-01-20"</span>
+<span class="nt">maintainer</span><span class="p">:</span><span class="w"> </span><span class="s">"platform-team@sahool.io"</span>
 
 <span class="c1"># ═══════════════════════════════════════════════════════════════════</span>
 <span class="c1"># Runtime Versions (Enforced)</span>
@@ -1490,19 +1490,19 @@
 
 <span class="nt">runtimes</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">node</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;20.10.0&quot;</span>
-<span class="w">    </span><span class="nt">package_manager</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;pnpm@8.14.0&quot;</span>
-<span class="w">    </span><span class="nt">enforcement</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;strict&quot;</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"20.10.0"</span>
+<span class="w">    </span><span class="nt">package_manager</span><span class="p">:</span><span class="w"> </span><span class="s">"pnpm@8.14.0"</span>
+<span class="w">    </span><span class="nt">enforcement</span><span class="p">:</span><span class="w"> </span><span class="s">"strict"</span>
 
 <span class="w">  </span><span class="nt">python</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.11.7&quot;</span>
-<span class="w">    </span><span class="nt">package_manager</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;poetry@1.7.1&quot;</span>
-<span class="w">    </span><span class="nt">enforcement</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;strict&quot;</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"3.11.7"</span>
+<span class="w">    </span><span class="nt">package_manager</span><span class="p">:</span><span class="w"> </span><span class="s">"poetry@1.7.1"</span>
+<span class="w">    </span><span class="nt">enforcement</span><span class="p">:</span><span class="w"> </span><span class="s">"strict"</span>
 
 <span class="w">  </span><span class="nt">flutter</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.16.5&quot;</span>
-<span class="w">    </span><span class="nt">dart_version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.2.3&quot;</span>
-<span class="w">    </span><span class="nt">enforcement</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;strict&quot;</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"3.16.5"</span>
+<span class="w">    </span><span class="nt">dart_version</span><span class="p">:</span><span class="w"> </span><span class="s">"3.2.3"</span>
+<span class="w">    </span><span class="nt">enforcement</span><span class="p">:</span><span class="w"> </span><span class="s">"strict"</span>
 
 <span class="c1"># ═══════════════════════════════════════════════════════════════════</span>
 <span class="c1"># Shared Libraries (Centralized)</span>
@@ -1510,31 +1510,31 @@
 
 <span class="nt">shared_libs</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">typescript</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;@sahool/auth&quot;</span>
-<span class="w">      </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1.2.0&quot;</span>
-<span class="w">      </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;shared/libs/auth&quot;</span>
-<span class="w">      </span><span class="nt">consumers</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;api-gateway&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;mobile-bff&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;all-services&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">"@sahool/auth"</span>
+<span class="w">      </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"1.2.0"</span>
+<span class="w">      </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">"shared/libs/auth"</span>
+<span class="w">      </span><span class="nt">consumers</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"api-gateway"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"mobile-bff"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"all-services"</span><span class="p p-Indicator">]</span>
 
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;@sahool/events&quot;</span>
-<span class="w">      </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1.1.0&quot;</span>
-<span class="w">      </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;shared/libs/events&quot;</span>
-<span class="w">      </span><span class="nt">consumers</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;all-services&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">"@sahool/events"</span>
+<span class="w">      </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"1.1.0"</span>
+<span class="w">      </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">"shared/libs/events"</span>
+<span class="w">      </span><span class="nt">consumers</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"all-services"</span><span class="p p-Indicator">]</span>
 
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;@sahool/cache&quot;</span>
-<span class="w">      </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1.0.0&quot;</span>
-<span class="w">      </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;shared/libs/cache&quot;</span>
-<span class="w">      </span><span class="nt">consumers</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;satellite-service&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;virtual-sensors&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;yield-prediction&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">"@sahool/cache"</span>
+<span class="w">      </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"1.0.0"</span>
+<span class="w">      </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">"shared/libs/cache"</span>
+<span class="w">      </span><span class="nt">consumers</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"satellite-service"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"virtual-sensors"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"yield-prediction"</span><span class="p p-Indicator">]</span>
 
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;@sahool/field-first&quot;</span>
-<span class="w">      </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1.0.0&quot;</span>
-<span class="w">      </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;shared/libs/field-first&quot;</span>
-<span class="w">      </span><span class="nt">consumers</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;all-field-services&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">"@sahool/field-first"</span>
+<span class="w">      </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"1.0.0"</span>
+<span class="w">      </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">"shared/libs/field-first"</span>
+<span class="w">      </span><span class="nt">consumers</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"all-field-services"</span><span class="p p-Indicator">]</span>
 
 <span class="w">  </span><span class="nt">python</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;sahool-common&quot;</span>
-<span class="w">      </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1.0.0&quot;</span>
-<span class="w">      </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;shared/python/sahool_common&quot;</span>
-<span class="w">      </span><span class="nt">consumers</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;virtual-sensors&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;crop-growth-timing&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">"sahool-common"</span>
+<span class="w">      </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"1.0.0"</span>
+<span class="w">      </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">"shared/python/sahool_common"</span>
+<span class="w">      </span><span class="nt">consumers</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"virtual-sensors"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"crop-growth-timing"</span><span class="p p-Indicator">]</span>
 
 <span class="c1"># ═══════════════════════════════════════════════════════════════════</span>
 <span class="c1"># Infrastructure Components</span>
@@ -1542,26 +1542,26 @@
 
 <span class="nt">infrastructure</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">postgres</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;16.1&quot;</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"16.1"</span>
 <span class="w">    </span><span class="nt">extensions</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">postgis</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.4&quot;</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">pg_stat_statements</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1.10&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">postgis</span><span class="p">:</span><span class="w"> </span><span class="s">"3.4"</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">pg_stat_statements</span><span class="p">:</span><span class="w"> </span><span class="s">"1.10"</span>
 <span class="w">    </span><span class="nt">min_connections</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20</span>
 <span class="w">    </span><span class="nt">max_connections</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
 
 <span class="w">  </span><span class="nt">redis</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;7.2&quot;</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"7.2"</span>
 <span class="w">    </span><span class="nt">cluster_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">    </span><span class="nt">min_nodes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
 
 <span class="w">  </span><span class="nt">nats</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2.10&quot;</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"2.10"</span>
 <span class="w">    </span><span class="nt">jetstream</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">    </span><span class="nt">cluster_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
 
 <span class="w">  </span><span class="nt">kong</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.5&quot;</span>
-<span class="w">    </span><span class="nt">db_mode</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;db-less&quot;</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"3.5"</span>
+<span class="w">    </span><span class="nt">db_mode</span><span class="p">:</span><span class="w"> </span><span class="s">"db-less"</span>
 <span class="w">    </span><span class="nt">replicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
 
 <span class="c1"># ═══════════════════════════════════════════════════════════════════</span>
@@ -1575,43 +1575,43 @@
 
 <span class="w">  </span><span class="nt">satellite-service</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python</span>
-<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1.3.0&quot;</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"1.3.0"</span>
 <span class="w">    </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8090</span>
 <span class="w">    </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">active</span>
 <span class="w">    </span><span class="nt">field_first</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">    </span><span class="nt">dependencies</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;@sahool/cache&quot;</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;sahool-common&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"@sahool/cache"</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"sahool-common"</span>
 
 <span class="w">  </span><span class="nt">virtual-sensors</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python</span>
-<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1.2.0&quot;</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"1.2.0"</span>
 <span class="w">    </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8085</span>
 <span class="w">    </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">active</span>
 <span class="w">    </span><span class="nt">field_first</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">    </span><span class="nt">dependencies</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;@sahool/events&quot;</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;sahool-common&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"@sahool/events"</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"sahool-common"</span>
 
 <span class="w">  </span><span class="nt">yield-prediction</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nestjs</span>
-<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1.1.0&quot;</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"1.1.0"</span>
 <span class="w">    </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8091</span>
 <span class="w">    </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">active</span>
 <span class="w">    </span><span class="nt">field_first</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">    </span><span class="nt">dependencies</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;@sahool/auth&quot;</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;@sahool/field-first&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"@sahool/auth"</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"@sahool/field-first"</span>
 
 <span class="w">  </span><span class="nt">lai-estimation</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nestjs</span>
-<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1.1.0&quot;</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"1.1.0"</span>
 <span class="w">    </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8093</span>
 <span class="w">    </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">active</span>
 <span class="w">    </span><span class="nt">field_first</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">    </span><span class="nt">dependencies</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;@sahool/auth&quot;</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;@sahool/field-first&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"@sahool/auth"</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"@sahool/field-first"</span>
 
 <span class="w">  </span><span class="c1"># ─────────────────────────────────────────────────────────────────</span>
 <span class="w">  </span><span class="c1"># Core Services</span>
@@ -1619,19 +1619,19 @@
 
 <span class="w">  </span><span class="nt">api-gateway</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nestjs</span>
-<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2.0.0&quot;</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"2.0.0"</span>
 <span class="w">    </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3000</span>
 <span class="w">    </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">active</span>
 <span class="w">    </span><span class="nt">dependencies</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;@sahool/auth&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"@sahool/auth"</span>
 
 <span class="w">  </span><span class="nt">notification-service</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nestjs</span>
-<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1.5.0&quot;</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"1.5.0"</span>
 <span class="w">    </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8083</span>
 <span class="w">    </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">active</span>
 <span class="w">    </span><span class="nt">dependencies</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;@sahool/events&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"@sahool/events"</span>
 
 <span class="c1"># ═══════════════════════════════════════════════════════════════════</span>
 <span class="c1"># Compatibility Matrix</span>
@@ -1639,12 +1639,12 @@
 
 <span class="nt">compatibility</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">mobile_app</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">min_version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2.1.0&quot;</span>
-<span class="w">    </span><span class="nt">recommended_version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2.3.0&quot;</span>
-<span class="w">    </span><span class="nt">breaking_changes_after</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.0.0&quot;</span>
+<span class="w">    </span><span class="nt">min_version</span><span class="p">:</span><span class="w"> </span><span class="s">"2.1.0"</span>
+<span class="w">    </span><span class="nt">recommended_version</span><span class="p">:</span><span class="w"> </span><span class="s">"2.3.0"</span>
+<span class="w">    </span><span class="nt">breaking_changes_after</span><span class="p">:</span><span class="w"> </span><span class="s">"3.0.0"</span>
 
 <span class="w">  </span><span class="nt">api</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">current_version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;v1&quot;</span>
+<span class="w">    </span><span class="nt">current_version</span><span class="p">:</span><span class="w"> </span><span class="s">"v1"</span>
 <span class="w">    </span><span class="nt">deprecated_versions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
 <span class="w">    </span><span class="nt">sunset_versions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
 
@@ -1685,14 +1685,14 @@
 <div class="codehilite"><pre><span></span><code><span class="c1">// File: shared/libs/auth/src/index.ts</span>
 <span class="c1">// Priority: P1 - HIGH</span>
 
-<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./guards/jwt.guard&quot;</span><span class="p">;</span>
-<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./guards/roles.guard&quot;</span><span class="p">;</span>
-<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./guards/tenant.guard&quot;</span><span class="p">;</span>
-<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./decorators/current-user.decorator&quot;</span><span class="p">;</span>
-<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./decorators/requires-role.decorator&quot;</span><span class="p">;</span>
-<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./services/token.service&quot;</span><span class="p">;</span>
-<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./middleware/auth.middleware&quot;</span><span class="p">;</span>
-<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./types&quot;</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"./guards/jwt.guard"</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"./guards/roles.guard"</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"./guards/tenant.guard"</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"./decorators/current-user.decorator"</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"./decorators/requires-role.decorator"</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"./services/token.service"</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"./middleware/auth.middleware"</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"./types"</span><span class="p">;</span>
 
 <span class="c1">// File: shared/libs/auth/src/guards/jwt.guard.ts</span>
 
@@ -1701,8 +1701,8 @@
 <span class="w">  </span><span class="nx">CanActivate</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">ExecutionContext</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">UnauthorizedException</span><span class="p">,</span>
-<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/common&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">TokenService</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;../services/token.service&quot;</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@nestjs/common"</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">TokenService</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"../services/token.service"</span><span class="p">;</span>
 
 <span class="kd">@Injectable</span><span class="p">()</span>
 <span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">JwtGuard</span><span class="w"> </span><span class="k">implements</span><span class="w"> </span><span class="nx">CanActivate</span><span class="w"> </span><span class="p">{</span>
@@ -1713,7 +1713,7 @@
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">extractToken</span><span class="p">(</span><span class="nx">request</span><span class="p">);</span>
 
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">token</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">UnauthorizedException</span><span class="p">(</span><span class="s2">&quot;No token provided&quot;</span><span class="p">);</span>
+<span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">UnauthorizedException</span><span class="p">(</span><span class="s2">"No token provided"</span><span class="p">);</span>
 <span class="w">    </span><span class="p">}</span>
 
 <span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
@@ -1730,7 +1730,7 @@
 
 <span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
 <span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">UnauthorizedException</span><span class="p">(</span><span class="s2">&quot;Invalid token&quot;</span><span class="p">);</span>
+<span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">UnauthorizedException</span><span class="p">(</span><span class="s2">"Invalid token"</span><span class="p">);</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">}</span>
 
@@ -1738,15 +1738,15 @@
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">authHeader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">request</span><span class="p">.</span><span class="nx">headers</span><span class="p">.</span><span class="nx">authorization</span><span class="p">;</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">authHeader</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
 
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="kr">type</span><span class="p">,</span><span class="w"> </span><span class="nx">token</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">authHeader</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">);</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">&quot;Bearer&quot;</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">token</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">null</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="kr">type</span><span class="p">,</span><span class="w"> </span><span class="nx">token</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">authHeader</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s2">" "</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kr">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">"Bearer"</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">token</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">null</span><span class="p">;</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 
 <span class="c1">// File: shared/libs/auth/src/services/token.service.ts</span>
 
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Injectable</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/common&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">jose</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;jose&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Injectable</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@nestjs/common"</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">jose</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"jose"</span><span class="p">;</span>
 
 <span class="k">export</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="nx">TokenPayload</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="nx">sub</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
@@ -1766,8 +1766,8 @@
 
 <span class="w">  </span><span class="kr">constructor</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="c1">// Load from environment</span>
-<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">issuer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">JWT_ISSUER</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">&quot;sahool&quot;</span><span class="p">;</span>
-<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">audience</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">JWT_AUDIENCE</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">&quot;sahool-api&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">issuer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">JWT_ISSUER</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">"sahool"</span><span class="p">;</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">audience</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">JWT_AUDIENCE</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">"sahool-api"</span><span class="p">;</span>
 <span class="w">  </span><span class="p">}</span>
 
 <span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">verifyToken</span><span class="p">(</span><span class="nx">token</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">TokenPayload</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
@@ -1779,7 +1779,7 @@
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">payload</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">unknown</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">TokenPayload</span><span class="p">;</span>
 <span class="w">  </span><span class="p">}</span>
 
-<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">generateToken</span><span class="p">(</span><span class="nx">user</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">,</span><span class="w"> </span><span class="nx">expiresIn</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;1h&quot;</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">generateToken</span><span class="p">(</span><span class="nx">user</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">,</span><span class="w"> </span><span class="nx">expiresIn</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"1h"</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="kt">string</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="c1">// Implementation</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
@@ -1827,40 +1827,40 @@
 <span class="w">    </span><span class="c1">// ─────────────────────────────────────────────────────────────────</span>
 <span class="w">    </span><span class="c1">// Field Data: Server wins (authoritative source)</span>
 <span class="w">    </span><span class="c1">// ─────────────────────────────────────────────────────────────────</span>
-<span class="w">    </span><span class="s1">&#39;field&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">ConflictResolutionRule</span><span class="p">(</span>
-<span class="w">      </span><span class="nl">entityType:</span><span class="w"> </span><span class="s1">&#39;field&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">'field'</span><span class="o">:</span><span class="w"> </span><span class="n">ConflictResolutionRule</span><span class="p">(</span>
+<span class="w">      </span><span class="nl">entityType:</span><span class="w"> </span><span class="s1">'field'</span><span class="p">,</span>
 <span class="w">      </span><span class="nl">defaultStrategy:</span><span class="w"> </span><span class="n">ConflictStrategy</span><span class="p">.</span><span class="n">serverWins</span><span class="p">,</span>
 <span class="w">      </span><span class="nl">fieldStrategies:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="s1">&#39;notes&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">ConflictStrategy</span><span class="p">.</span><span class="n">merge</span><span class="p">,</span>
-<span class="w">        </span><span class="s1">&#39;local_name&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">ConflictStrategy</span><span class="p">.</span><span class="n">clientWins</span><span class="p">,</span>
+<span class="w">        </span><span class="s1">'notes'</span><span class="o">:</span><span class="w"> </span><span class="n">ConflictStrategy</span><span class="p">.</span><span class="n">merge</span><span class="p">,</span>
+<span class="w">        </span><span class="s1">'local_name'</span><span class="o">:</span><span class="w"> </span><span class="n">ConflictStrategy</span><span class="p">.</span><span class="n">clientWins</span><span class="p">,</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">    </span><span class="p">),</span>
 
 <span class="w">    </span><span class="c1">// ─────────────────────────────────────────────────────────────────</span>
 <span class="w">    </span><span class="c1">// Sensor Readings: Last write wins (time-based)</span>
 <span class="w">    </span><span class="c1">// ─────────────────────────────────────────────────────────────────</span>
-<span class="w">    </span><span class="s1">&#39;sensor_reading&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">ConflictResolutionRule</span><span class="p">(</span>
-<span class="w">      </span><span class="nl">entityType:</span><span class="w"> </span><span class="s1">&#39;sensor_reading&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">'sensor_reading'</span><span class="o">:</span><span class="w"> </span><span class="n">ConflictResolutionRule</span><span class="p">(</span>
+<span class="w">      </span><span class="nl">entityType:</span><span class="w"> </span><span class="s1">'sensor_reading'</span><span class="p">,</span>
 <span class="w">      </span><span class="nl">defaultStrategy:</span><span class="w"> </span><span class="n">ConflictStrategy</span><span class="p">.</span><span class="n">serverWins</span><span class="p">,</span>
 <span class="w">    </span><span class="p">),</span>
 
 <span class="w">    </span><span class="c1">// ─────────────────────────────────────────────────────────────────</span>
 <span class="w">    </span><span class="c1">// Tasks: Merge with user confirmation</span>
 <span class="w">    </span><span class="c1">// ─────────────────────────────────────────────────────────────────</span>
-<span class="w">    </span><span class="s1">&#39;task&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">ConflictResolutionRule</span><span class="p">(</span>
-<span class="w">      </span><span class="nl">entityType:</span><span class="w"> </span><span class="s1">&#39;task&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">'task'</span><span class="o">:</span><span class="w"> </span><span class="n">ConflictResolutionRule</span><span class="p">(</span>
+<span class="w">      </span><span class="nl">entityType:</span><span class="w"> </span><span class="s1">'task'</span><span class="p">,</span>
 <span class="w">      </span><span class="nl">defaultStrategy:</span><span class="w"> </span><span class="n">ConflictStrategy</span><span class="p">.</span><span class="n">merge</span><span class="p">,</span>
 <span class="w">      </span><span class="nl">fieldStrategies:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="s1">&#39;status&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">ConflictStrategy</span><span class="p">.</span><span class="n">manual</span><span class="p">,</span>
-<span class="w">        </span><span class="s1">&#39;completed_at&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">ConflictStrategy</span><span class="p">.</span><span class="n">serverWins</span><span class="p">,</span>
+<span class="w">        </span><span class="s1">'status'</span><span class="o">:</span><span class="w"> </span><span class="n">ConflictStrategy</span><span class="p">.</span><span class="n">manual</span><span class="p">,</span>
+<span class="w">        </span><span class="s1">'completed_at'</span><span class="o">:</span><span class="w"> </span><span class="n">ConflictStrategy</span><span class="p">.</span><span class="n">serverWins</span><span class="p">,</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">    </span><span class="p">),</span>
 
 <span class="w">    </span><span class="c1">// ─────────────────────────────────────────────────────────────────</span>
-<span class="w">    </span><span class="c1">// User Preferences: Client wins (user&#39;s device)</span>
+<span class="w">    </span><span class="c1">// User Preferences: Client wins (user's device)</span>
 <span class="w">    </span><span class="c1">// ─────────────────────────────────────────────────────────────────</span>
-<span class="w">    </span><span class="s1">&#39;user_preference&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">ConflictResolutionRule</span><span class="p">(</span>
-<span class="w">      </span><span class="nl">entityType:</span><span class="w"> </span><span class="s1">&#39;user_preference&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">'user_preference'</span><span class="o">:</span><span class="w"> </span><span class="n">ConflictResolutionRule</span><span class="p">(</span>
+<span class="w">      </span><span class="nl">entityType:</span><span class="w"> </span><span class="s1">'user_preference'</span><span class="p">,</span>
 <span class="w">      </span><span class="nl">defaultStrategy:</span><span class="w"> </span><span class="n">ConflictStrategy</span><span class="p">.</span><span class="n">clientWins</span><span class="p">,</span>
 <span class="w">    </span><span class="p">),</span>
 <span class="w">  </span><span class="p">};</span>
@@ -1927,45 +1927,45 @@
 <span class="c1"># Priority: P2 - MEDIUM</span>
 
 <span class="c1">#!/bin/sh</span>
-<span class="l l-Scalar l-Scalar-Plain">. &quot;$(dirname &quot;$0&quot;)/_/husky.sh&quot;</span>
+<span class="l l-Scalar l-Scalar-Plain">. "$(dirname "$0")/_/husky.sh"</span>
 
-<span class="l l-Scalar l-Scalar-Plain">echo &quot;🔍 Running pre-commit checks...&quot;</span>
+<span class="l l-Scalar l-Scalar-Plain">echo "🔍 Running pre-commit checks..."</span>
 
 <span class="l l-Scalar l-Scalar-Plain"># 1. Manifest Validation</span>
-<span class="l l-Scalar l-Scalar-Plain">echo &quot;📋 Checking platform manifest...&quot;</span>
+<span class="l l-Scalar l-Scalar-Plain">echo "📋 Checking platform manifest..."</span>
 <span class="l l-Scalar l-Scalar-Plain">node scripts/validate-manifest.js || exit 1</span>
 
 <span class="l l-Scalar l-Scalar-Plain"># 2. Version Checks</span>
-<span class="l l-Scalar l-Scalar-Plain">echo &quot;🔢 Checking runtime versions...&quot;</span>
+<span class="l l-Scalar l-Scalar-Plain">echo "🔢 Checking runtime versions..."</span>
 <span class="l l-Scalar l-Scalar-Plain">node scripts/check-versions.js || exit 1</span>
 
 <span class="l l-Scalar l-Scalar-Plain"># 3. Lint Staged Files</span>
-<span class="l l-Scalar l-Scalar-Plain">echo &quot;🧹 Linting staged files...&quot;</span>
+<span class="l l-Scalar l-Scalar-Plain">echo "🧹 Linting staged files..."</span>
 <span class="l l-Scalar l-Scalar-Plain">npx lint-staged || exit 1</span>
 
 <span class="l l-Scalar l-Scalar-Plain"># 4. Type Check</span>
-<span class="l l-Scalar l-Scalar-Plain">echo &quot;📝 Type checking...&quot;</span>
+<span class="l l-Scalar l-Scalar-Plain">echo "📝 Type checking..."</span>
 <span class="l l-Scalar l-Scalar-Plain">npx tsc --noEmit || exit 1</span>
 
 <span class="l l-Scalar l-Scalar-Plain"># 5. Security Audit (quick)</span>
-<span class="l l-Scalar l-Scalar-Plain">echo &quot;🔒 Quick security check...&quot;</span>
+<span class="l l-Scalar l-Scalar-Plain">echo "🔒 Quick security check..."</span>
 <span class="l l-Scalar l-Scalar-Plain">npm audit --audit-level=high || exit 1</span>
 
-<span class="l l-Scalar l-Scalar-Plain">echo &quot;✅ All pre-commit checks passed!&quot;</span>
+<span class="l l-Scalar l-Scalar-Plain">echo "✅ All pre-commit checks passed!"</span>
 </code></pre></div>
 
 <div class="codehilite"><pre><span></span><code><span class="c1">// File: scripts/validate-manifest.js</span>
 
-<span class="kd">const</span><span class="w"> </span><span class="nx">yaml</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;js-yaml&quot;</span><span class="p">);</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;fs&quot;</span><span class="p">);</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;path&quot;</span><span class="p">);</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">yaml</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s2">"js-yaml"</span><span class="p">);</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s2">"fs"</span><span class="p">);</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s2">"path"</span><span class="p">);</span>
 
-<span class="kd">const</span><span class="w"> </span><span class="nx">MANIFEST_PATH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;.platform-manifest.yml&quot;</span><span class="p">;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">MANIFEST_PATH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">".platform-manifest.yml"</span><span class="p">;</span>
 
 <span class="kd">function</span><span class="w"> </span><span class="nx">validateManifest</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Validating platform manifest...&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">"Validating platform manifest..."</span><span class="p">);</span>
 
-<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">manifest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">yaml</span><span class="p">.</span><span class="nx">load</span><span class="p">(</span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="nx">MANIFEST_PATH</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;utf8&quot;</span><span class="p">));</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">manifest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">yaml</span><span class="p">.</span><span class="nx">load</span><span class="p">(</span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="nx">MANIFEST_PATH</span><span class="p">,</span><span class="w"> </span><span class="s2">"utf8"</span><span class="p">));</span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">errors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[];</span>
 
 <span class="w">  </span><span class="c1">// Check Node version</span>
@@ -1992,19 +1992,19 @@
 <span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">libExists</span><span class="w"> </span><span class="o">=</span>
 <span class="w">        </span><span class="nx">manifest</span><span class="p">.</span><span class="nx">shared_libs</span><span class="p">.</span><span class="nx">typescript</span><span class="p">.</span><span class="nx">some</span><span class="p">((</span><span class="nx">l</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">l</span><span class="p">.</span><span class="nx">name</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">dep</span><span class="p">)</span><span class="w"> </span><span class="o">||</span>
 <span class="w">        </span><span class="nx">manifest</span><span class="p">.</span><span class="nx">shared_libs</span><span class="p">.</span><span class="nx">python</span><span class="p">.</span><span class="nx">some</span><span class="p">((</span><span class="nx">l</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">l</span><span class="p">.</span><span class="nx">name</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">dep</span><span class="p">);</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">libExists</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="nx">dep</span><span class="p">.</span><span class="nx">startsWith</span><span class="p">(</span><span class="s2">&quot;@sahool/&quot;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">libExists</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="nx">dep</span><span class="p">.</span><span class="nx">startsWith</span><span class="p">(</span><span class="s2">"@sahool/"</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="nx">errors</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="sb">`Unknown dependency </span><span class="si">${</span><span class="nx">dep</span><span class="si">}</span><span class="sb"> in service </span><span class="si">${</span><span class="nx">name</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
 <span class="w">      </span><span class="p">}</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">}</span>
 
 <span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">errors</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s2">&quot;❌ Manifest validation failed:&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s2">"❌ Manifest validation failed:"</span><span class="p">);</span>
 <span class="w">    </span><span class="nx">errors</span><span class="p">.</span><span class="nx">forEach</span><span class="p">((</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="sb">`  - </span><span class="si">${</span><span class="nx">e</span><span class="si">}</span><span class="sb">`</span><span class="p">));</span>
 <span class="w">    </span><span class="nx">process</span><span class="p">.</span><span class="nx">exit</span><span class="p">(</span><span class="mf">1</span><span class="p">);</span>
 <span class="w">  </span><span class="p">}</span>
 
-<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;✅ Manifest is valid&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">"✅ Manifest is valid"</span><span class="p">);</span>
 <span class="p">}</span>
 
 <span class="nx">validateManifest</span><span class="p">();</span>
@@ -2030,18 +2030,18 @@
 
 <span class="c1"># Grafana Dashboard Configuration</span>
 <span class="nt">dashboard</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;SAHOOL</span><span class="nv"> </span><span class="s">Platform</span><span class="nv"> </span><span class="s">Health&quot;</span>
-<span class="w">  </span><span class="nt">refresh</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;30s&quot;</span>
+<span class="w">  </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s">"SAHOOL</span><span class="nv"> </span><span class="s">Platform</span><span class="nv"> </span><span class="s">Health"</span>
+<span class="w">  </span><span class="nt">refresh</span><span class="p">:</span><span class="w"> </span><span class="s">"30s"</span>
 
 <span class="w">  </span><span class="nt">panels</span><span class="p">:</span>
 <span class="w">    </span><span class="c1"># ─────────────────────────────────────────────────────────────────</span>
 <span class="w">    </span><span class="c1"># Row 1: Critical Metrics</span>
 <span class="w">    </span><span class="c1"># ─────────────────────────────────────────────────────────────────</span>
 
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Service</span><span class="nv"> </span><span class="s">Health&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s">"Service</span><span class="nv"> </span><span class="s">Health"</span>
 <span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">stat</span>
 <span class="w">      </span><span class="nt">query</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">        </span><span class="no">sum(up{job=~&quot;sahool-.*&quot;}) / count(up{job=~&quot;sahool-.*&quot;}) * 100</span>
+<span class="w">        </span><span class="no">sum(up{job=~"sahool-.*"}) / count(up{job=~"sahool-.*"}) * 100</span>
 <span class="w">      </span><span class="nt">thresholds</span><span class="p">:</span>
 <span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">95</span>
 <span class="w">          </span><span class="nt">color</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">green</span>
@@ -2050,10 +2050,10 @@
 <span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
 <span class="w">          </span><span class="nt">color</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">red</span>
 
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;API</span><span class="nv"> </span><span class="s">Latency</span><span class="nv"> </span><span class="s">P95&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s">"API</span><span class="nv"> </span><span class="s">Latency</span><span class="nv"> </span><span class="s">P95"</span>
 <span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gauge</span>
 <span class="w">      </span><span class="nt">query</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">        </span><span class="no">histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job=&quot;api-gateway&quot;}[5m]))</span>
+<span class="w">        </span><span class="no">histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="api-gateway"}[5m]))</span>
 <span class="w">      </span><span class="nt">thresholds</span><span class="p">:</span>
 <span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.5</span>
 <span class="w">          </span><span class="nt">color</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">green</span>
@@ -2062,10 +2062,10 @@
 <span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
 <span class="w">          </span><span class="nt">color</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">red</span>
 
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Error</span><span class="nv"> </span><span class="s">Rate&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s">"Error</span><span class="nv"> </span><span class="s">Rate"</span>
 <span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">stat</span>
 <span class="w">      </span><span class="nt">query</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">        </span><span class="no">sum(rate(http_requests_total{status=~&quot;5..&quot;}[5m])) / sum(rate(http_requests_total[5m])) * 100</span>
+<span class="w">        </span><span class="no">sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m])) * 100</span>
 <span class="w">      </span><span class="nt">thresholds</span><span class="p">:</span>
 <span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 <span class="w">          </span><span class="nt">color</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">green</span>
@@ -2078,17 +2078,17 @@
 <span class="w">    </span><span class="c1"># Row 2: Field-First Metrics</span>
 <span class="w">    </span><span class="c1"># ─────────────────────────────────────────────────────────────────</span>
 
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ActionTemplate</span><span class="nv"> </span><span class="s">Generation</span><span class="nv"> </span><span class="s">Rate&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s">"ActionTemplate</span><span class="nv"> </span><span class="s">Generation</span><span class="nv"> </span><span class="s">Rate"</span>
 <span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">graph</span>
 <span class="w">      </span><span class="nt">query</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
 <span class="w">        </span><span class="no">sum(rate(action_templates_generated_total[5m])) by (service)</span>
 
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;NATS</span><span class="nv"> </span><span class="s">Message</span><span class="nv"> </span><span class="s">Throughput&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s">"NATS</span><span class="nv"> </span><span class="s">Message</span><span class="nv"> </span><span class="s">Throughput"</span>
 <span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">graph</span>
 <span class="w">      </span><span class="nt">query</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
 <span class="w">        </span><span class="no">sum(rate(nats_messages_published_total[5m])) by (topic)</span>
 
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Offline</span><span class="nv"> </span><span class="s">Sync</span><span class="nv"> </span><span class="s">Queue&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s">"Offline</span><span class="nv"> </span><span class="s">Sync</span><span class="nv"> </span><span class="s">Queue"</span>
 <span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">stat</span>
 <span class="w">      </span><span class="nt">query</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
 <span class="w">        </span><span class="no">sum(offline_sync_queue_size)</span>
@@ -2097,22 +2097,22 @@
 <span class="w">    </span><span class="c1"># Row 3: Infrastructure</span>
 <span class="w">    </span><span class="c1"># ─────────────────────────────────────────────────────────────────</span>
 
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;PostgreSQL</span><span class="nv"> </span><span class="s">Connections&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s">"PostgreSQL</span><span class="nv"> </span><span class="s">Connections"</span>
 <span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">graph</span>
 <span class="w">      </span><span class="nt">query</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">        </span><span class="no">pg_stat_activity_count{state=&quot;active&quot;}</span>
+<span class="w">        </span><span class="no">pg_stat_activity_count{state="active"}</span>
 <span class="w">      </span><span class="nt">thresholds</span><span class="p">:</span>
 <span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span>
 <span class="w">          </span><span class="nt">color</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">yellow</span>
 <span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">95</span>
 <span class="w">          </span><span class="nt">color</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">red</span>
 
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Redis</span><span class="nv"> </span><span class="s">Memory</span><span class="nv"> </span><span class="s">Usage&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s">"Redis</span><span class="nv"> </span><span class="s">Memory</span><span class="nv"> </span><span class="s">Usage"</span>
 <span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gauge</span>
 <span class="w">      </span><span class="nt">query</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
 <span class="w">        </span><span class="no">redis_memory_used_bytes / redis_memory_max_bytes * 100</span>
 
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Kong</span><span class="nv"> </span><span class="s">Request</span><span class="nv"> </span><span class="s">Rate&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s">"Kong</span><span class="nv"> </span><span class="s">Request</span><span class="nv"> </span><span class="s">Rate"</span>
 <span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">graph</span>
 <span class="w">      </span><span class="nt">query</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
 <span class="w">        </span><span class="no">sum(rate(kong_http_status[5m])) by (code)</span>
@@ -2512,10 +2512,10 @@ All new services MUST:
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

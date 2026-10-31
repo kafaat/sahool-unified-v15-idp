@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1281,7 +1281,7 @@ ln<span class="w"> </span>-sf<span class="w"> </span>../../tools/scripts/pre-com
 
 <h3 id="bypass-emergency-only">Bypass (Emergency Only)<a class="headerlink" href="#bypass-emergency-only" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Skip hooks (not recommended)</span>
-git<span class="w"> </span>commit<span class="w"> </span>--no-verify<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;emergency fix&quot;</span>
+git<span class="w"> </span>commit<span class="w"> </span>--no-verify<span class="w"> </span>-m<span class="w"> </span><span class="s2">"emergency fix"</span>
 </code></pre></div>
 
 <hr />
@@ -1362,7 +1362,7 @@ git<span class="w"> </span>commit<span class="w"> </span>--no-verify<span class=
 <li>Memory threshold monitoring</li>
 </ul>
 <h3 id="usage_2">Usage<a class="headerlink" href="#usage_2" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="s1">&#39;package:sahool_field_app/services/memory_manager.dart&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="s1">'package:sahool_field_app/services/memory_manager.dart'</span><span class="p">;</span>
 
 <span class="c1">// Initialize (in main.dart)</span>
 <span class="kt">void</span><span class="w"> </span><span class="n">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
@@ -1371,14 +1371,14 @@ git<span class="w"> </span>commit<span class="w"> </span>--no-verify<span class=
 <span class="p">}</span>
 
 <span class="c1">// Store data</span>
-<span class="n">MemoryManager</span><span class="p">().</span><span class="n">put</span><span class="p">(</span><span class="s1">&#39;fields:user:123&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">fieldsList</span><span class="p">);</span>
+<span class="n">MemoryManager</span><span class="p">().</span><span class="n">put</span><span class="p">(</span><span class="s1">'fields:user:123'</span><span class="p">,</span><span class="w"> </span><span class="n">fieldsList</span><span class="p">);</span>
 
 <span class="c1">// Retrieve data</span>
-<span class="kd">final</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MemoryManager</span><span class="p">().</span><span class="kd">get</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Field</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="s1">&#39;fields:user:123&#39;</span><span class="p">);</span>
+<span class="kd">final</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MemoryManager</span><span class="p">().</span><span class="kd">get</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Field</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="s1">'fields:user:123'</span><span class="p">);</span>
 
 <span class="c1">// Paginated fetch with caching</span>
 <span class="kd">final</span><span class="w"> </span><span class="n">page1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">await</span><span class="w"> </span><span class="n">MemoryManager</span><span class="p">().</span><span class="n">getPaginated</span><span class="p">(</span>
-<span class="w">  </span><span class="nl">cacheKey:</span><span class="w"> </span><span class="s1">&#39;fields&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nl">cacheKey:</span><span class="w"> </span><span class="s1">'fields'</span><span class="p">,</span>
 <span class="w">  </span><span class="nl">page:</span><span class="w"> </span><span class="m">0</span><span class="p">,</span>
 <span class="w">  </span><span class="nl">pageSize:</span><span class="w"> </span><span class="m">20</span><span class="p">,</span>
 <span class="w">  </span><span class="nl">fetcher:</span><span class="w"> </span><span class="p">(</span><span class="n">page</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">api</span><span class="p">.</span><span class="n">getFields</span><span class="p">(</span><span class="nl">page:</span><span class="w"> </span><span class="n">page</span><span class="p">,</span><span class="w"> </span><span class="nl">size:</span><span class="w"> </span><span class="n">size</span><span class="p">),</span>
@@ -1386,13 +1386,13 @@ git<span class="w"> </span>commit<span class="w"> </span>--no-verify<span class=
 
 <span class="c1">// Get stats</span>
 <span class="n">print</span><span class="p">(</span><span class="n">MemoryManager</span><span class="p">().</span><span class="n">getStats</span><span class="p">());</span>
-<span class="c1">// {cacheSize: 45, maxSize: 50, utilizationPercent: &quot;90.0&quot;, ...}</span>
+<span class="c1">// {cacheSize: 45, maxSize: 50, utilizationPercent: "90.0", ...}</span>
 
 <span class="c1">// Manual eviction</span>
 <span class="kd">await</span><span class="w"> </span><span class="n">MemoryManager</span><span class="p">().</span><span class="n">autoEvict</span><span class="p">();</span>
 
 <span class="c1">// Invalidate by pattern</span>
-<span class="n">MemoryManager</span><span class="p">().</span><span class="n">invalidateByPattern</span><span class="p">(</span><span class="s1">r&#39;^fields:.*&#39;</span><span class="p">);</span>
+<span class="n">MemoryManager</span><span class="p">().</span><span class="n">invalidateByPattern</span><span class="p">(</span><span class="s1">r'^fields:.*'</span><span class="p">);</span>
 </code></pre></div>
 
 <h3 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h3>
@@ -1433,24 +1433,24 @@ git<span class="w"> </span>commit<span class="w"> </span>--no-verify<span class=
 <h2 id="creating-new-tools">Creating New Tools | إنشاء أدوات جديدة<a class="headerlink" href="#creating-new-tools" title="Permanent link">&para;</a></h2>
 <h3 id="python-tool-template">Python Tool Template<a class="headerlink" href="#python-tool-template" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="ch">#!/usr/bin/env python3</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">Tool description here.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
-    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Tool description&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--option&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Option description&quot;</span><span class="p">)</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">"Tool description"</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--option"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Option description"</span><span class="p">)</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
 
     <span class="c1"># Tool logic here</span>
 
     <span class="k">return</span> <span class="mi">0</span>  <span class="c1"># Success</span>
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
 </code></pre></div>
 
@@ -1461,11 +1461,11 @@ git<span class="w"> </span>commit<span class="w"> </span>--no-verify<span class=
 <span class="nb">set</span><span class="w"> </span>-e
 
 <span class="nv">PROJECT_ROOT</span><span class="o">=</span><span class="k">$(</span>git<span class="w"> </span>rev-parse<span class="w"> </span>--show-toplevel<span class="k">)</span>
-<span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$PROJECT_ROOT</span><span class="s2">&quot;</span>
+<span class="nb">cd</span><span class="w"> </span><span class="s2">"</span><span class="nv">$PROJECT_ROOT</span><span class="s2">"</span>
 
 <span class="c1"># Tool logic here</span>
 
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✅ Done&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"✅ Done"</span>
 </code></pre></div>
 
 <hr />
@@ -1523,10 +1523,10 @@ git<span class="w"> </span>commit<span class="w"> </span>--no-verify<span class=
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1336,26 +1336,26 @@
 <h3 id="field-health-api">Field Health API<a class="headerlink" href="#field-health-api" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Test Field Health Analysis</span>
 curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3000/api/v1/field-health<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
-<span class="s1">    &quot;field_id&quot;: &quot;test-field-001&quot;,</span>
-<span class="s1">    &quot;crop_type&quot;: &quot;wheat&quot;,</span>
-<span class="s1">    &quot;sensor_data&quot;: {</span>
-<span class="s1">      &quot;soil_moisture&quot;: 30.0,</span>
-<span class="s1">      &quot;temperature&quot;: 22.0,</span>
-<span class="s1">      &quot;humidity&quot;: 65.0</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "field_id": "test-field-001",</span>
+<span class="s1">    "crop_type": "wheat",</span>
+<span class="s1">    "sensor_data": {</span>
+<span class="s1">      "soil_moisture": 30.0,</span>
+<span class="s1">      "temperature": 22.0,</span>
+<span class="s1">      "humidity": 65.0</span>
 <span class="s1">    },</span>
-<span class="s1">    &quot;ndvi_data&quot;: {</span>
-<span class="s1">      &quot;ndvi_value&quot;: 0.65,</span>
-<span class="s1">      &quot;image_date&quot;: &quot;2026-01-06&quot;,</span>
-<span class="s1">      &quot;cloud_coverage&quot;: 10.0</span>
+<span class="s1">    "ndvi_data": {</span>
+<span class="s1">      "ndvi_value": 0.65,</span>
+<span class="s1">      "image_date": "2026-01-06",</span>
+<span class="s1">      "cloud_coverage": 10.0</span>
 <span class="s1">    },</span>
-<span class="s1">    &quot;weather_data&quot;: {</span>
-<span class="s1">      &quot;precipitation&quot;: 8.0,</span>
-<span class="s1">      &quot;wind_speed&quot;: 15.0,</span>
-<span class="s1">      &quot;forecast_days&quot;: 7</span>
+<span class="s1">    "weather_data": {</span>
+<span class="s1">      "precipitation": 8.0,</span>
+<span class="s1">      "wind_speed": 15.0,</span>
+<span class="s1">      "forecast_days": 7</span>
 <span class="s1">    }</span>
-<span class="s1">  }&#39;</span>
+<span class="s1">  }'</span>
 </code></pre></div>
 
 <p><strong>Expected Response:</strong></p>
@@ -1368,14 +1368,14 @@ curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </spa
 <h3 id="operations-api">Operations API<a class="headerlink" href="#operations-api" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Test Create Operation</span>
 curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3000/api/v1/operations<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
-<span class="s1">    &quot;tenant_id&quot;: &quot;tenant-001&quot;,</span>
-<span class="s1">    &quot;field_id&quot;: &quot;field-001&quot;,</span>
-<span class="s1">    &quot;operation_type&quot;: &quot;irrigation&quot;,</span>
-<span class="s1">    &quot;scheduled_date&quot;: &quot;2026-01-10T10:00:00Z&quot;,</span>
-<span class="s1">    &quot;notes&quot;: &quot;Regular irrigation cycle&quot;</span>
-<span class="s1">  }&#39;</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "tenant_id": "tenant-001",</span>
+<span class="s1">    "field_id": "field-001",</span>
+<span class="s1">    "operation_type": "irrigation",</span>
+<span class="s1">    "scheduled_date": "2026-01-10T10:00:00Z",</span>
+<span class="s1">    "notes": "Regular irrigation cycle"</span>
+<span class="s1">  }'</span>
 
 <span class="c1"># Test List Operations</span>
 curl<span class="w"> </span>http://localhost:3000/api/v1/operations?tenant_id<span class="o">=</span>tenant-001
@@ -1402,7 +1402,7 @@ docker-compose<span class="w"> </span>logs<span class="w"> </span>-f<span class=
 <p>If issues are discovered, the deprecated service can be re-enabled:</p>
 <h3 id="step-1-enable-field-ops">Step 1: Enable field-ops<a class="headerlink" href="#step-1-enable-field-ops" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Edit docker-compose.yml</span>
-<span class="c1"># Remove &#39;profiles: [deprecated]&#39; from field-ops service</span>
+<span class="c1"># Remove 'profiles: [deprecated]' from field-ops service</span>
 </code></pre></div>
 
 <h3 id="step-2-revert-agro-rules">Step 2: Revert agro-rules<a class="headerlink" href="#step-2-revert-agro-rules" title="Permanent link">&para;</a></h3>
@@ -1562,10 +1562,10 @@ docker-compose<span class="w"> </span>logs<span class="w"> </span>-f<span class=
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

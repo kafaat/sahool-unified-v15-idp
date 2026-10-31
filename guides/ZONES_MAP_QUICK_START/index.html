@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1142,16 +1142,16 @@
 
 <h2 id="instant-usage">🚀 Instant Usage<a class="headerlink" href="#instant-usage" title="Permanent link">&para;</a></h2>
 <h3 id="1-import-the-widget">1. Import the widget<a class="headerlink" href="#1-import-the-widget" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="s1">&#39;package:mobile/features/field/presentation/widgets/zones_map_layer.dart&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="s1">&#39;package:latlong2/latlong.dart&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="s1">'package:mobile/features/field/presentation/widgets/zones_map_layer.dart'</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="s1">'package:latlong2/latlong.dart'</span><span class="p">;</span>
 </code></pre></div>
 
 <h3 id="2-create-zone-data">2. Create zone data<a class="headerlink" href="#2-create-zone-data" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="kd">final</span><span class="w"> </span><span class="n">zones</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
 <span class="w">  </span><span class="n">ZoneHealth</span><span class="p">(</span>
-<span class="w">    </span><span class="nl">id:</span><span class="w"> </span><span class="s1">&#39;zone_1&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nl">name:</span><span class="w"> </span><span class="s1">&#39;North Zone&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="nl">nameAr:</span><span class="w"> </span><span class="s1">&#39;المنطقة الشمالية&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nl">id:</span><span class="w"> </span><span class="s1">'zone_1'</span><span class="p">,</span>
+<span class="w">    </span><span class="nl">name:</span><span class="w"> </span><span class="s1">'North Zone'</span><span class="p">,</span>
+<span class="w">    </span><span class="nl">nameAr:</span><span class="w"> </span><span class="s1">'المنطقة الشمالية'</span><span class="p">,</span>
 <span class="w">    </span><span class="nl">ndvi:</span><span class="w"> </span><span class="m">0.75</span><span class="p">,</span><span class="w">  </span><span class="c1">// Healthy (&gt;0.6 = green)</span>
 <span class="w">    </span><span class="nl">areaHectares:</span><span class="w"> </span><span class="m">2.5</span><span class="p">,</span>
 <span class="w">    </span><span class="nl">boundary:</span><span class="w"> </span><span class="p">[</span>
@@ -1168,7 +1168,7 @@
 <div class="codehilite"><pre><span></span><code><span class="n">ZonesMapLayer</span><span class="p">(</span>
 <span class="w">  </span><span class="nl">zones:</span><span class="w"> </span><span class="n">zones</span><span class="p">,</span>
 <span class="w">  </span><span class="nl">onZoneTapped:</span><span class="w"> </span><span class="p">(</span><span class="n">zone</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">print</span><span class="p">(</span><span class="s1">&#39;Selected: </span><span class="si">${</span><span class="n">zone</span><span class="p">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">print</span><span class="p">(</span><span class="s1">'Selected: </span><span class="si">${</span><span class="n">zone</span><span class="p">.</span><span class="n">name</span><span class="si">}</span><span class="s1">'</span><span class="p">);</span>
 <span class="w">  </span><span class="p">},</span>
 <span class="p">)</span>
 </code></pre></div>
@@ -1256,7 +1256,7 @@ NDVI &lt; 0.4  →  🔴 Red    (Critical)
 <span class="w">  </span><span class="nd">@override</span>
 <span class="w">  </span><span class="n">Widget</span><span class="w"> </span><span class="n">build</span><span class="p">(</span><span class="n">BuildContext</span><span class="w"> </span><span class="n">context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">Scaffold</span><span class="p">(</span>
-<span class="w">      </span><span class="nl">appBar:</span><span class="w"> </span><span class="n">AppBar</span><span class="p">(</span><span class="nl">title:</span><span class="w"> </span><span class="n">Text</span><span class="p">(</span><span class="s1">&#39;مناطق الحقل&#39;</span><span class="p">)),</span>
+<span class="w">      </span><span class="nl">appBar:</span><span class="w"> </span><span class="n">AppBar</span><span class="p">(</span><span class="nl">title:</span><span class="w"> </span><span class="n">Text</span><span class="p">(</span><span class="s1">'مناطق الحقل'</span><span class="p">)),</span>
 <span class="w">      </span><span class="nl">body:</span><span class="w"> </span><span class="n">FutureBuilder</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">ZoneHealth</span><span class="o">&gt;&gt;</span><span class="p">(</span>
 <span class="w">        </span><span class="nl">future:</span><span class="w"> </span><span class="n">fetchZones</span><span class="p">(</span><span class="n">fieldId</span><span class="p">),</span>
 <span class="w">        </span><span class="nl">builder:</span><span class="w"> </span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">snapshot</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -1265,7 +1265,7 @@ NDVI &lt; 0.4  →  🔴 Red    (Critical)
 <span class="w">          </span><span class="p">}</span>
 
 <span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">snapshot</span><span class="p">.</span><span class="n">hasError</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">Center</span><span class="p">(</span><span class="nl">child:</span><span class="w"> </span><span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Error: </span><span class="si">${</span><span class="n">snapshot</span><span class="p">.</span><span class="n">error</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">));</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">Center</span><span class="p">(</span><span class="nl">child:</span><span class="w"> </span><span class="n">Text</span><span class="p">(</span><span class="s1">'Error: </span><span class="si">${</span><span class="n">snapshot</span><span class="p">.</span><span class="n">error</span><span class="si">}</span><span class="s1">'</span><span class="p">));</span>
 <span class="w">          </span><span class="p">}</span>
 
 <span class="w">          </span><span class="k">return</span><span class="w"> </span><span class="n">ZonesMapLayer</span><span class="p">(</span>
@@ -1275,7 +1275,7 @@ NDVI &lt; 0.4  →  🔴 Red    (Critical)
 <span class="w">                </span><span class="nl">context:</span><span class="w"> </span><span class="n">context</span><span class="p">,</span>
 <span class="w">                </span><span class="nl">builder:</span><span class="w"> </span><span class="p">(</span><span class="n">_</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">AlertDialog</span><span class="p">(</span>
 <span class="w">                  </span><span class="nl">title:</span><span class="w"> </span><span class="n">Text</span><span class="p">(</span><span class="n">zone</span><span class="p">.</span><span class="n">name</span><span class="p">),</span>
-<span class="w">                  </span><span class="nl">content:</span><span class="w"> </span><span class="n">Text</span><span class="p">(</span><span class="s1">&#39;NDVI: </span><span class="si">${</span><span class="n">zone</span><span class="p">.</span><span class="n">ndvi</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">),</span>
+<span class="w">                  </span><span class="nl">content:</span><span class="w"> </span><span class="n">Text</span><span class="p">(</span><span class="s1">'NDVI: </span><span class="si">${</span><span class="n">zone</span><span class="p">.</span><span class="n">ndvi</span><span class="si">}</span><span class="s1">'</span><span class="p">),</span>
 <span class="w">                </span><span class="p">),</span>
 <span class="w">              </span><span class="p">);</span>
 <span class="w">            </span><span class="p">},</span>
@@ -1289,16 +1289,16 @@ NDVI &lt; 0.4  →  🔴 Red    (Critical)
 
 <h2 id="example-data-structure">📊 Example Data Structure<a class="headerlink" href="#example-data-structure" title="Permanent link">&para;</a></h2>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;zone_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;zone_001&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;North Zone&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;name_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;المنطقة الشمالية&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;ndvi&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.72</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;area_hectares&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">2.5</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;boundary&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[[</span><span class="mf">24.7150</span><span class="p">,</span><span class="w"> </span><span class="mf">46.6750</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mf">24.7160</span><span class="p">,</span><span class="w"> </span><span class="mf">46.6750</span><span class="p">],</span><span class="w"> </span><span class="err">...</span><span class="p">],</span>
-<span class="w">  </span><span class="nt">&quot;trend&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;up&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;recommendations&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;Maintain irrigation&quot;</span><span class="p">],</span>
-<span class="w">  </span><span class="nt">&quot;recommendations_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;الحفاظ على الري&quot;</span><span class="p">],</span>
-<span class="w">  </span><span class="nt">&quot;last_updated&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-01-05T12:00:00Z&quot;</span>
+<span class="w">  </span><span class="nt">"zone_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"zone_001"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"North Zone"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"name_ar"</span><span class="p">:</span><span class="w"> </span><span class="s2">"المنطقة الشمالية"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"ndvi"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.72</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"area_hectares"</span><span class="p">:</span><span class="w"> </span><span class="mf">2.5</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"boundary"</span><span class="p">:</span><span class="w"> </span><span class="p">[[</span><span class="mf">24.7150</span><span class="p">,</span><span class="w"> </span><span class="mf">46.6750</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mf">24.7160</span><span class="p">,</span><span class="w"> </span><span class="mf">46.6750</span><span class="p">],</span><span class="w"> </span><span class="err">...</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">"trend"</span><span class="p">:</span><span class="w"> </span><span class="s2">"up"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"recommendations"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"Maintain irrigation"</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">"recommendations_ar"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"الحفاظ على الري"</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">"last_updated"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-01-05T12:00:00Z"</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1390,10 +1390,10 @@ lib/features/field/presentation/widgets/zones_map_layer_example.dart
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

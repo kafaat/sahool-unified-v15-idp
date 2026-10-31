@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1358,14 +1358,14 @@ B8A (NIR, 20m) + B11 (SWIR, 20m)      → NDMI (رطوبة النبات)
 <h3 id="google-earth-engine-gee">Google Earth Engine (الأسهل للمبتدئين) | GEE<a class="headerlink" href="#google-earth-engine-gee" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1">// مثال: حساب NDVI لحقل في اليمن</span>
 <span class="kd">var</span><span class="w"> </span><span class="nx">field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ee</span><span class="p">.</span><span class="nx">Geometry</span><span class="p">.</span><span class="nx">Rectangle</span><span class="p">([</span><span class="mf">44.1</span><span class="p">,</span><span class="w"> </span><span class="mf">15.3</span><span class="p">,</span><span class="w"> </span><span class="mf">44.2</span><span class="p">,</span><span class="w"> </span><span class="mf">15.4</span><span class="p">]);</span>
-<span class="kd">var</span><span class="w"> </span><span class="nx">image</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ee</span><span class="p">.</span><span class="nx">ImageCollection</span><span class="p">(</span><span class="s1">&#39;COPERNICUS/S2_SR&#39;</span><span class="p">)</span>
+<span class="kd">var</span><span class="w"> </span><span class="nx">image</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ee</span><span class="p">.</span><span class="nx">ImageCollection</span><span class="p">(</span><span class="s1">'COPERNICUS/S2_SR'</span><span class="p">)</span>
 <span class="w">  </span><span class="p">.</span><span class="nx">filterBounds</span><span class="p">(</span><span class="nx">field</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="nx">filterDate</span><span class="p">(</span><span class="s1">&#39;2026-01-01&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;2026-03-01&#39;</span><span class="p">)</span>
-<span class="w">  </span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">ee</span><span class="p">.</span><span class="nx">Filter</span><span class="p">.</span><span class="nx">lt</span><span class="p">(</span><span class="s1">&#39;CLOUDY_PIXEL_PERCENTAGE&#39;</span><span class="p">,</span><span class="w"> </span><span class="mf">20</span><span class="p">))</span>
+<span class="w">  </span><span class="p">.</span><span class="nx">filterDate</span><span class="p">(</span><span class="s1">'2026-01-01'</span><span class="p">,</span><span class="w"> </span><span class="s1">'2026-03-01'</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">ee</span><span class="p">.</span><span class="nx">Filter</span><span class="p">.</span><span class="nx">lt</span><span class="p">(</span><span class="s1">'CLOUDY_PIXEL_PERCENTAGE'</span><span class="p">,</span><span class="w"> </span><span class="mf">20</span><span class="p">))</span>
 <span class="w">  </span><span class="p">.</span><span class="nx">median</span><span class="p">();</span>
 
-<span class="kd">var</span><span class="w"> </span><span class="nx">ndvi</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">image</span><span class="p">.</span><span class="nx">normalizedDifference</span><span class="p">([</span><span class="s1">&#39;B8&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;B4&#39;</span><span class="p">]).</span><span class="nx">rename</span><span class="p">(</span><span class="s1">&#39;NDVI&#39;</span><span class="p">);</span>
-<span class="nb">Map</span><span class="p">.</span><span class="nx">addLayer</span><span class="p">(</span><span class="nx">ndvi</span><span class="p">.</span><span class="nx">clip</span><span class="p">(</span><span class="nx">field</span><span class="p">),</span><span class="w"> </span><span class="p">{</span><span class="nx">min</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">max</span><span class="o">:</span><span class="w"> </span><span class="mf">0.8</span><span class="p">,</span><span class="w"> </span><span class="nx">palette</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;red&#39;</span><span class="p">,</span><span class="s1">&#39;yellow&#39;</span><span class="p">,</span><span class="s1">&#39;green&#39;</span><span class="p">]},</span><span class="w"> </span><span class="s1">&#39;NDVI&#39;</span><span class="p">);</span>
+<span class="kd">var</span><span class="w"> </span><span class="nx">ndvi</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">image</span><span class="p">.</span><span class="nx">normalizedDifference</span><span class="p">([</span><span class="s1">'B8'</span><span class="p">,</span><span class="w"> </span><span class="s1">'B4'</span><span class="p">]).</span><span class="nx">rename</span><span class="p">(</span><span class="s1">'NDVI'</span><span class="p">);</span>
+<span class="nb">Map</span><span class="p">.</span><span class="nx">addLayer</span><span class="p">(</span><span class="nx">ndvi</span><span class="p">.</span><span class="nx">clip</span><span class="p">(</span><span class="nx">field</span><span class="p">),</span><span class="w"> </span><span class="p">{</span><span class="nx">min</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">max</span><span class="o">:</span><span class="w"> </span><span class="mf">0.8</span><span class="p">,</span><span class="w"> </span><span class="nx">palette</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">'red'</span><span class="p">,</span><span class="s1">'yellow'</span><span class="p">,</span><span class="s1">'green'</span><span class="p">]},</span><span class="w"> </span><span class="s1">'NDVI'</span><span class="p">);</span>
 </code></pre></div>
 
 <h3 id="sentinel-hub-api-for-developers">Sentinel Hub API (للمطورين) | For Developers<a class="headerlink" href="#sentinel-hub-api-for-developers" title="Permanent link">&para;</a></h3>
@@ -1377,16 +1377,16 @@ B8A (NIR, 20m) + B11 (SWIR, 20m)      → NDMI (رطوبة النبات)
 <span class="n">request</span> <span class="o">=</span> <span class="n">SentinelHubRequest</span><span class="p">(</span>
     <span class="n">input_data</span><span class="o">=</span><span class="p">[</span><span class="n">SentinelHubRequest</span><span class="o">.</span><span class="n">input_data</span><span class="p">(</span>
         <span class="n">data_collection</span><span class="o">=</span><span class="n">DataCollection</span><span class="o">.</span><span class="n">SENTINEL2_L2A</span><span class="p">,</span>
-        <span class="n">time_interval</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;2026-01-01&quot;</span><span class="p">,</span> <span class="s2">&quot;2026-03-01&quot;</span><span class="p">),</span>
+        <span class="n">time_interval</span><span class="o">=</span><span class="p">(</span><span class="s2">"2026-01-01"</span><span class="p">,</span> <span class="s2">"2026-03-01"</span><span class="p">),</span>
         <span class="n">maxcc</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
     <span class="p">)],</span>
-    <span class="n">evalscript</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
+    <span class="n">evalscript</span><span class="o">=</span><span class="s2">"""</span>
 <span class="s2">    function evaluatePixel(sample) {</span>
 <span class="s2">        let ndvi = (sample.B08 - sample.B04) / (sample.B08 + sample.B04);</span>
 <span class="s2">        return [ndvi];</span>
 <span class="s2">    }</span>
-<span class="s2">    &quot;&quot;&quot;</span><span class="p">,</span>
-    <span class="n">responses</span><span class="o">=</span><span class="p">[</span><span class="n">SentinelHubRequest</span><span class="o">.</span><span class="n">output_response</span><span class="p">(</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">MimeType</span><span class="o">.</span><span class="n">TIFF</span><span class="p">)],</span>
+<span class="s2">    """</span><span class="p">,</span>
+    <span class="n">responses</span><span class="o">=</span><span class="p">[</span><span class="n">SentinelHubRequest</span><span class="o">.</span><span class="n">output_response</span><span class="p">(</span><span class="s2">"default"</span><span class="p">,</span> <span class="n">MimeType</span><span class="o">.</span><span class="n">TIFF</span><span class="p">)],</span>
     <span class="n">bbox</span><span class="o">=</span><span class="n">bbox</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="mi">512</span><span class="p">,</span> <span class="mi">512</span><span class="p">],</span>
 <span class="p">)</span>
 </code></pre></div>
@@ -1546,10 +1546,10 @@ B8A (NIR, 20m) + B11 (SWIR, 20m)      → NDMI (رطوبة النبات)
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

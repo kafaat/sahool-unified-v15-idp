@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1314,18 +1314,18 @@ openapi-generator-cli<span class="w"> </span>generate<span class="w"> </span><sp
 <h3 id="getting-a-token">Getting a Token | الحصول على رمز<a class="headerlink" href="#getting-a-token" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Login to get access token</span>
 curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>https://api.sahool.sa/api/v1/auth/login<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
-<span class="s1">    &quot;email&quot;: &quot;farmer@example.com&quot;,</span>
-<span class="s1">    &quot;password&quot;: &quot;your-password&quot;</span>
-<span class="s1">  }&#39;</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "email": "farmer@example.com",</span>
+<span class="s1">    "password": "your-password"</span>
+<span class="s1">  }'</span>
 </code></pre></div>
 
 <h3 id="using-the-token">Using the Token | استخدام الرمز<a class="headerlink" href="#using-the-token" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Include token in Authorization header</span>
-curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s2">&quot;https://api.sahool.sa/api/v1/fields&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_ACCESS_TOKEN&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;X-Tenant-ID: your-tenant-id&quot;</span>
+curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s2">"https://api.sahool.sa/api/v1/fields"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Authorization: Bearer YOUR_ACCESS_TOKEN"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"X-Tenant-ID: your-tenant-id"</span>
 </code></pre></div>
 
 <h2 id="rate-limiting">Rate Limiting | حدود الطلبات<a class="headerlink" href="#rate-limiting" title="Permanent link">&para;</a></h2>
@@ -1401,14 +1401,14 @@ curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span
 <h2 id="error-responses">Error Responses | استجابات الأخطاء<a class="headerlink" href="#error-responses" title="Permanent link">&para;</a></h2>
 <p>All APIs use standard HTTP status codes and return errors in this format:</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;VALIDATION_ERROR&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Invalid request parameters&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;message_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;معاملات الطلب غير صالحة&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;details&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;field&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;email&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;reason&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Must be a valid email address&quot;</span>
+<span class="w">  </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="s2">"VALIDATION_ERROR"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Invalid request parameters"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"message_ar"</span><span class="p">:</span><span class="w"> </span><span class="s2">"معاملات الطلب غير صالحة"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"details"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"field"</span><span class="p">:</span><span class="w"> </span><span class="s2">"email"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"reason"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Must be a valid email address"</span>
 <span class="w">  </span><span class="p">},</span>
-<span class="w">  </span><span class="nt">&quot;request_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;550e8400-e29b-41d4-a716-446655440000&quot;</span>
+<span class="w">  </span><span class="nt">"request_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"550e8400-e29b-41d4-a716-446655440000"</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1466,18 +1466,18 @@ curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span
 </table>
 <h2 id="websocket-events-websocket">WebSocket Events | أحداث WebSocket<a class="headerlink" href="#websocket-events-websocket" title="Permanent link">&para;</a></h2>
 <p>Connect to real-time events via WebSocket:</p>
-<div class="codehilite"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">ws</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">WebSocket</span><span class="p">(</span><span class="s1">&#39;wss://api.sahool.sa/ws&#39;</span><span class="p">);</span>
+<div class="codehilite"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">ws</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">WebSocket</span><span class="p">(</span><span class="s1">'wss://api.sahool.sa/ws'</span><span class="p">);</span>
 
 <span class="c1">// Authenticate</span>
 <span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;auth&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">token</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;YOUR_JWT_TOKEN&#39;</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'auth'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">token</span><span class="o">:</span><span class="w"> </span><span class="s1">'YOUR_JWT_TOKEN'</span>
 <span class="p">}));</span>
 
 <span class="c1">// Subscribe to channels</span>
 <span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;subscribe&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">channels</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;field.updates&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;alert.created&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;sensor.reading&#39;</span><span class="p">]</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'subscribe'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">channels</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">'field.updates'</span><span class="p">,</span><span class="w"> </span><span class="s1">'alert.created'</span><span class="p">,</span><span class="w"> </span><span class="s1">'sensor.reading'</span><span class="p">]</span>
 <span class="p">}));</span>
 
 <span class="c1">// Handle events</span>
@@ -1531,55 +1531,55 @@ npm<span class="w"> </span>install<span class="w"> </span>-g<span class="w"> </s
 
 <span class="c1"># Validate all specs</span>
 <span class="k">for</span><span class="w"> </span>spec<span class="w"> </span><span class="k">in</span><span class="w"> </span>docs/api/openapi/*.yaml<span class="p">;</span><span class="w"> </span><span class="k">do</span>
-<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Validating </span><span class="nv">$spec</span><span class="s2">...&quot;</span>
-<span class="w">  </span>swagger-cli<span class="w"> </span>validate<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$spec</span><span class="s2">&quot;</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"Validating </span><span class="nv">$spec</span><span class="s2">..."</span>
+<span class="w">  </span>swagger-cli<span class="w"> </span>validate<span class="w"> </span><span class="s2">"</span><span class="nv">$spec</span><span class="s2">"</span>
 <span class="k">done</span>
 </code></pre></div>
 
 <h2 id="examples">Examples | أمثلة<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
 <h3 id="create-a-field">Create a Field | إنشاء حقل<a class="headerlink" href="#create-a-field" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">&quot;https://api.sahool.sa/api/v1/fields&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;X-Tenant-ID: </span><span class="nv">$TENANT_ID</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
-<span class="s1">    &quot;name&quot;: &quot;حقل القمح الشمالي&quot;,</span>
-<span class="s1">    &quot;cropType&quot;: &quot;wheat&quot;,</span>
-<span class="s1">    &quot;areaHectares&quot;: 5.5,</span>
-<span class="s1">    &quot;irrigationType&quot;: &quot;drip&quot;,</span>
-<span class="s1">    &quot;boundary&quot;: {</span>
-<span class="s1">      &quot;type&quot;: &quot;Polygon&quot;,</span>
-<span class="s1">      &quot;coordinates&quot;: [[[46.7, 24.6], [46.8, 24.6], [46.8, 24.7], [46.7, 24.7], [46.7, 24.6]]]</span>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"https://api.sahool.sa/api/v1/fields"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"X-Tenant-ID: </span><span class="nv">$TENANT_ID</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "name": "حقل القمح الشمالي",</span>
+<span class="s1">    "cropType": "wheat",</span>
+<span class="s1">    "areaHectares": 5.5,</span>
+<span class="s1">    "irrigationType": "drip",</span>
+<span class="s1">    "boundary": {</span>
+<span class="s1">      "type": "Polygon",</span>
+<span class="s1">      "coordinates": [[[46.7, 24.6], [46.8, 24.6], [46.8, 24.7], [46.7, 24.7], [46.7, 24.6]]]</span>
 <span class="s1">    }</span>
-<span class="s1">  }&#39;</span>
+<span class="s1">  }'</span>
 </code></pre></div>
 
 <h3 id="get-weather-forecast">Get Weather Forecast | الحصول على توقعات الطقس<a class="headerlink" href="#get-weather-forecast" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">&quot;https://api.sahool.sa/api/v1/weather/forecast&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;X-Tenant-ID: </span><span class="nv">$TENANT_ID</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
-<span class="s1">    &quot;fieldId&quot;: &quot;field-123&quot;,</span>
-<span class="s1">    &quot;lat&quot;: 24.7136,</span>
-<span class="s1">    &quot;lon&quot;: 46.6753,</span>
-<span class="s1">    &quot;days&quot;: 7</span>
-<span class="s1">  }&#39;</span>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"https://api.sahool.sa/api/v1/weather/forecast"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"X-Tenant-ID: </span><span class="nv">$TENANT_ID</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "fieldId": "field-123",</span>
+<span class="s1">    "lat": 24.7136,</span>
+<span class="s1">    "lon": 46.6753,</span>
+<span class="s1">    "days": 7</span>
+<span class="s1">  }'</span>
 </code></pre></div>
 
 <h3 id="get-fertilizer-recommendation">Get Fertilizer Recommendation | الحصول على توصية الأسمدة<a class="headerlink" href="#get-fertilizer-recommendation" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">&quot;https://api.sahool.sa/api/v1/advisory/fertilizer/plan&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;X-Tenant-ID: </span><span class="nv">$TENANT_ID</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
-<span class="s1">    &quot;fieldId&quot;: &quot;field-123&quot;,</span>
-<span class="s1">    &quot;crop&quot;: &quot;wheat&quot;,</span>
-<span class="s1">    &quot;stage&quot;: &quot;tillering&quot;,</span>
-<span class="s1">    &quot;fieldSizeHa&quot;: 5.5,</span>
-<span class="s1">    &quot;soilFertility&quot;: &quot;medium&quot;,</span>
-<span class="s1">    &quot;irrigationType&quot;: &quot;drip&quot;</span>
-<span class="s1">  }&#39;</span>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"https://api.sahool.sa/api/v1/advisory/fertilizer/plan"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Authorization: Bearer </span><span class="nv">$TOKEN</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"X-Tenant-ID: </span><span class="nv">$TENANT_ID</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "fieldId": "field-123",</span>
+<span class="s1">    "crop": "wheat",</span>
+<span class="s1">    "stage": "tillering",</span>
+<span class="s1">    "fieldSizeHa": 5.5,</span>
+<span class="s1">    "soilFertility": "medium",</span>
+<span class="s1">    "irrigationType": "drip"</span>
+<span class="s1">  }'</span>
 </code></pre></div>
 
 <h2 id="support">Support | الدعم<a class="headerlink" href="#support" title="Permanent link">&para;</a></h2>
@@ -1642,10 +1642,10 @@ npm<span class="w"> </span>install<span class="w"> </span>-g<span class="w"> </s
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1221,9 +1221,9 @@
 </ul>
 <h2 id="technical-implementation">🛠️ Technical Implementation | التنفيذ التقني<a class="headerlink" href="#technical-implementation" title="Permanent link">&para;</a></h2>
 <h3 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">API_BASE_URL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NEXT_PUBLIC_API_URL</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">&quot;http://localhost:8000&quot;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">API_BASE_URL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NEXT_PUBLIC_API_URL</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">"http://localhost:8000"</span><span class="p">;</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">WEATHER_API_BASE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`</span><span class="si">${</span><span class="nx">API_BASE_URL</span><span class="si">}</span><span class="sb">/api/v1/weather`</span><span class="p">;</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">DEFAULT_COORDS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">lat</span><span class="o">:</span><span class="w"> </span><span class="kt">15.3694</span><span class="p">,</span><span class="w"> </span><span class="nx">lon</span><span class="o">:</span><span class="w"> </span><span class="kt">44.191</span><span class="w"> </span><span class="p">};</span><span class="w"> </span><span class="c1">// Sana&#39;a, Yemen</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">DEFAULT_COORDS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">lat</span><span class="o">:</span><span class="w"> </span><span class="kt">15.3694</span><span class="p">,</span><span class="w"> </span><span class="nx">lon</span><span class="o">:</span><span class="w"> </span><span class="kt">44.191</span><span class="w"> </span><span class="p">};</span><span class="w"> </span><span class="c1">// Sana'a, Yemen</span>
 </code></pre></div>
 
 <h3 id="new-hook-signatures">New Hook Signatures<a class="headerlink" href="#new-hook-signatures" title="Permanent link">&para;</a></h3>
@@ -1251,9 +1251,9 @@
 
 <h2 id="migration-examples">🔄 Migration Examples | أمثلة الترحيل<a class="headerlink" href="#migration-examples" title="Permanent link">&para;</a></h2>
 <h3 id="component-usage-before">Component Usage - Before<a class="headerlink" href="#component-usage-before" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="o">&lt;</span><span class="nx">CurrentWeather</span><span class="w"> </span><span class="nx">location</span><span class="o">=</span><span class="s2">&quot;Sana&#39;a&quot;</span><span class="w"> </span><span class="o">/&gt;</span>
-<span class="o">&lt;</span><span class="nx">ForecastChart</span><span class="w"> </span><span class="nx">location</span><span class="o">=</span><span class="s2">&quot;Sana&#39;a&quot;</span><span class="w"> </span><span class="o">/&gt;</span>
-<span class="o">&lt;</span><span class="nx">WeatherAlerts</span><span class="w"> </span><span class="nx">location</span><span class="o">=</span><span class="s2">&quot;Sana&#39;a&quot;</span><span class="w"> </span><span class="o">/&gt;</span>
+<div class="codehilite"><pre><span></span><code><span class="o">&lt;</span><span class="nx">CurrentWeather</span><span class="w"> </span><span class="nx">location</span><span class="o">=</span><span class="s2">"Sana'a"</span><span class="w"> </span><span class="o">/&gt;</span>
+<span class="o">&lt;</span><span class="nx">ForecastChart</span><span class="w"> </span><span class="nx">location</span><span class="o">=</span><span class="s2">"Sana'a"</span><span class="w"> </span><span class="o">/&gt;</span>
+<span class="o">&lt;</span><span class="nx">WeatherAlerts</span><span class="w"> </span><span class="nx">location</span><span class="o">=</span><span class="s2">"Sana'a"</span><span class="w"> </span><span class="o">/&gt;</span>
 </code></pre></div>
 
 <h3 id="component-usage-after">Component Usage - After<a class="headerlink" href="#component-usage-after" title="Permanent link">&para;</a></h3>
@@ -1279,7 +1279,7 @@
 
 <h3 id="wind-direction-conversion">Wind Direction Conversion<a class="headerlink" href="#wind-direction-conversion" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Converts degrees to compass direction</span>
-<span class="nx">degrees</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="s1">&#39;N&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;NE&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;E&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;SE&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;S&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;SW&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;W&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;NW&#39;</span>
+<span class="nx">degrees</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="s1">'N'</span><span class="p">,</span><span class="w"> </span><span class="s1">'NE'</span><span class="p">,</span><span class="w"> </span><span class="s1">'E'</span><span class="p">,</span><span class="w"> </span><span class="s1">'SE'</span><span class="p">,</span><span class="w"> </span><span class="s1">'S'</span><span class="p">,</span><span class="w"> </span><span class="s1">'SW'</span><span class="p">,</span><span class="w"> </span><span class="s1">'W'</span><span class="p">,</span><span class="w"> </span><span class="s1">'NW'</span>
 </code></pre></div>
 
 <h3 id="weather-conditions">Weather Conditions<a class="headerlink" href="#weather-conditions" title="Permanent link">&para;</a></h3>
@@ -1332,13 +1332,13 @@
 <h2 id="testing">🧪 Testing | الاختبار<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
 <h3 id="test-real-api">Test Real API<a class="headerlink" href="#test-real-api" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Test current weather</span>
-curl<span class="w"> </span><span class="s2">&quot;http://localhost:8000/api/v1/weather/current?lat=15.3694&amp;lon=44.191&quot;</span>
+curl<span class="w"> </span><span class="s2">"http://localhost:8000/api/v1/weather/current?lat=15.3694&amp;lon=44.191"</span>
 
 <span class="c1"># Test forecast</span>
-curl<span class="w"> </span><span class="s2">&quot;http://localhost:8000/api/v1/weather/forecast?lat=15.3694&amp;lon=44.191&amp;days=7&quot;</span>
+curl<span class="w"> </span><span class="s2">"http://localhost:8000/api/v1/weather/forecast?lat=15.3694&amp;lon=44.191&amp;days=7"</span>
 
 <span class="c1"># Test alerts</span>
-curl<span class="w"> </span><span class="s2">&quot;http://localhost:8000/api/v1/weather/alerts?lat=15.3694&amp;lon=44.191&quot;</span>
+curl<span class="w"> </span><span class="s2">"http://localhost:8000/api/v1/weather/alerts?lat=15.3694&amp;lon=44.191"</span>
 </code></pre></div>
 
 <h3 id="test-fallback">Test Fallback<a class="headerlink" href="#test-fallback" title="Permanent link">&para;</a></h3>
@@ -1512,10 +1512,10 @@ curl<span class="w"> </span>http://localhost:8001/services/weather-service
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

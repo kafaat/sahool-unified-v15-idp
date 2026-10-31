@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1124,7 +1124,7 @@
 <div class="codehilite"><pre><span></span><code><span class="c"># Install Chocolatey (Run as Administrator)</span>
 <span class="nb">Set-ExecutionPolicy</span> <span class="n">Bypass</span> <span class="n">-Scope</span> <span class="k">Process</span> <span class="n">-Force</span>
 <span class="no">[System.Net.ServicePointManager]</span><span class="p">::</span><span class="n">SecurityProtocol</span> <span class="p">=</span> <span class="no">[System.Net.ServicePointManager]</span><span class="p">::</span><span class="n">SecurityProtocol</span> <span class="o">-bor</span> <span class="n">3072</span>
-<span class="nb">iex </span><span class="p">((</span><span class="nb">New-Object</span> <span class="n">System</span><span class="p">.</span><span class="n">Net</span><span class="p">.</span><span class="n">WebClient</span><span class="p">).</span><span class="n">DownloadString</span><span class="p">(</span><span class="s1">&#39;https://community.chocolatey.org/install.ps1&#39;</span><span class="p">))</span>
+<span class="nb">iex </span><span class="p">((</span><span class="nb">New-Object</span> <span class="n">System</span><span class="p">.</span><span class="n">Net</span><span class="p">.</span><span class="n">WebClient</span><span class="p">).</span><span class="n">DownloadString</span><span class="p">(</span><span class="s1">'https://community.chocolatey.org/install.ps1'</span><span class="p">))</span>
 
 <span class="c"># Install Docker Desktop</span>
 <span class="n">choco</span> <span class="n">install</span> <span class="n">docker-desktop</span> <span class="n">-y</span>
@@ -1288,7 +1288,7 @@
 <span class="n">docker</span> <span class="n">exec</span> <span class="n">-it</span> <span class="n">sahool-postgres</span> <span class="n">psql</span> <span class="n">-U</span> <span class="n">sahool</span> <span class="n">-d</span> <span class="n">sahool</span>
 
 <span class="c"># Or using psql if installed locally</span>
-<span class="nv">$env:PGPASSWORD</span><span class="p">=</span><span class="s2">&quot;your_password&quot;</span>
+<span class="nv">$env:PGPASSWORD</span><span class="p">=</span><span class="s2">"your_password"</span>
 <span class="n">psql</span> <span class="n">-h</span> <span class="n">localhost</span> <span class="n">-p</span> <span class="n">5432</span> <span class="n">-U</span> <span class="n">sahool</span> <span class="n">-d</span> <span class="n">sahool</span>
 </code></pre></div>
 
@@ -1344,19 +1344,19 @@
 <h2 id="api-testing-api">API Testing | اختبار API<a class="headerlink" href="#api-testing-api" title="Permanent link">&para;</a></h2>
 <h3 id="health-checks">Health Checks | فحص الصحة<a class="headerlink" href="#health-checks" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c"># Check Kong Gateway</span>
-<span class="nb">Invoke-RestMethod</span> <span class="n">-Uri</span> <span class="s2">&quot;http://localhost:8000/healthz&quot;</span>
+<span class="nb">Invoke-RestMethod</span> <span class="n">-Uri</span> <span class="s2">"http://localhost:8000/healthz"</span>
 
 <span class="c"># Check user-service</span>
-<span class="nb">Invoke-RestMethod</span> <span class="n">-Uri</span> <span class="s2">&quot;http://localhost:3001/healthz&quot;</span>
+<span class="nb">Invoke-RestMethod</span> <span class="n">-Uri</span> <span class="s2">"http://localhost:3001/healthz"</span>
 
 <span class="c"># Check all services health</span>
-<span class="nv">$services</span> <span class="p">=</span> <span class="p">@(</span><span class="s2">&quot;8000&quot;</span><span class="p">,</span> <span class="s2">&quot;3001&quot;</span><span class="p">,</span> <span class="s2">&quot;8090&quot;</span><span class="p">,</span> <span class="s2">&quot;8091&quot;</span><span class="p">,</span> <span class="s2">&quot;8092&quot;</span><span class="p">)</span>
+<span class="nv">$services</span> <span class="p">=</span> <span class="p">@(</span><span class="s2">"8000"</span><span class="p">,</span> <span class="s2">"3001"</span><span class="p">,</span> <span class="s2">"8090"</span><span class="p">,</span> <span class="s2">"8091"</span><span class="p">,</span> <span class="s2">"8092"</span><span class="p">)</span>
 <span class="k">foreach</span> <span class="p">(</span><span class="nv">$port</span> <span class="k">in</span> <span class="nv">$services</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">try</span> <span class="p">{</span>
-        <span class="nv">$response</span> <span class="p">=</span> <span class="nb">Invoke-RestMethod</span> <span class="n">-Uri</span> <span class="s2">&quot;http://localhost:$port/healthz&quot;</span> <span class="n">-TimeoutSec</span> <span class="n">5</span>
-        <span class="nb">Write-Host</span> <span class="s2">&quot;Port $port : OK&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+        <span class="nv">$response</span> <span class="p">=</span> <span class="nb">Invoke-RestMethod</span> <span class="n">-Uri</span> <span class="s2">"http://localhost:$port/healthz"</span> <span class="n">-TimeoutSec</span> <span class="n">5</span>
+        <span class="nb">Write-Host</span> <span class="s2">"Port $port : OK"</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
     <span class="p">}</span> <span class="k">catch</span> <span class="p">{</span>
-        <span class="nb">Write-Host</span> <span class="s2">&quot;Port $port : FAILED&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Red</span>
+        <span class="nb">Write-Host</span> <span class="s2">"Port $port : FAILED"</span> <span class="n">-ForegroundColor</span> <span class="n">Red</span>
     <span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1364,36 +1364,36 @@
 <h3 id="authentication-testing">Authentication Testing | اختبار المصادقة<a class="headerlink" href="#authentication-testing" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c"># Login</span>
 <span class="nv">$loginBody</span> <span class="p">=</span> <span class="p">@{</span>
-    <span class="n">email</span> <span class="p">=</span> <span class="s2">&quot;admin@sahool.io&quot;</span>
-    <span class="n">password</span> <span class="p">=</span> <span class="s2">&quot;admin123&quot;</span>
+    <span class="n">email</span> <span class="p">=</span> <span class="s2">"admin@sahool.io"</span>
+    <span class="n">password</span> <span class="p">=</span> <span class="s2">"admin123"</span>
 <span class="p">}</span> <span class="p">|</span> <span class="nb">ConvertTo-Json</span>
 
-<span class="nv">$loginResponse</span> <span class="p">=</span> <span class="nb">Invoke-RestMethod</span> <span class="n">-Uri</span> <span class="s2">&quot;http://localhost:8000/api/v1/auth/login&quot;</span> <span class="p">`</span>
+<span class="nv">$loginResponse</span> <span class="p">=</span> <span class="nb">Invoke-RestMethod</span> <span class="n">-Uri</span> <span class="s2">"http://localhost:8000/api/v1/auth/login"</span> <span class="p">`</span>
     <span class="n">-Method</span> <span class="n">POST</span> <span class="p">`</span>
-    <span class="n">-ContentType</span> <span class="s2">&quot;application/json&quot;</span> <span class="p">`</span>
+    <span class="n">-ContentType</span> <span class="s2">"application/json"</span> <span class="p">`</span>
     <span class="n">-Body</span> <span class="nv">$loginBody</span>
 
 <span class="nv">$token</span> <span class="p">=</span> <span class="nv">$loginResponse</span><span class="p">.</span><span class="n">access_token</span>
-<span class="nb">Write-Host</span> <span class="s2">&quot;Token: $token&quot;</span>
+<span class="nb">Write-Host</span> <span class="s2">"Token: $token"</span>
 
 <span class="c"># Register new user</span>
 <span class="nv">$registerBody</span> <span class="p">=</span> <span class="p">@{</span>
-    <span class="n">email</span> <span class="p">=</span> <span class="s2">&quot;newuser@example.com&quot;</span>
-    <span class="n">password</span> <span class="p">=</span> <span class="s2">&quot;SecurePass123!&quot;</span>
-    <span class="n">firstName</span> <span class="p">=</span> <span class="s2">&quot;محمد&quot;</span>
-    <span class="n">lastName</span> <span class="p">=</span> <span class="s2">&quot;أحمد&quot;</span>
+    <span class="n">email</span> <span class="p">=</span> <span class="s2">"newuser@example.com"</span>
+    <span class="n">password</span> <span class="p">=</span> <span class="s2">"SecurePass123!"</span>
+    <span class="n">firstName</span> <span class="p">=</span> <span class="s2">"محمد"</span>
+    <span class="n">lastName</span> <span class="p">=</span> <span class="s2">"أحمد"</span>
 <span class="p">}</span> <span class="p">|</span> <span class="nb">ConvertTo-Json</span> <span class="n">-Depth</span> <span class="n">10</span>
 
-<span class="nb">Invoke-RestMethod</span> <span class="n">-Uri</span> <span class="s2">&quot;http://localhost:8000/api/v1/auth/register&quot;</span> <span class="p">`</span>
+<span class="nb">Invoke-RestMethod</span> <span class="n">-Uri</span> <span class="s2">"http://localhost:8000/api/v1/auth/register"</span> <span class="p">`</span>
     <span class="n">-Method</span> <span class="n">POST</span> <span class="p">`</span>
-    <span class="n">-ContentType</span> <span class="s2">&quot;application/json&quot;</span> <span class="p">`</span>
+    <span class="n">-ContentType</span> <span class="s2">"application/json"</span> <span class="p">`</span>
     <span class="n">-Body</span> <span class="nv">$registerBody</span>
 
 <span class="c"># Get current user (with token)</span>
 <span class="nv">$headers</span> <span class="p">=</span> <span class="p">@{</span>
-    <span class="n">Authorization</span> <span class="p">=</span> <span class="s2">&quot;Bearer $token&quot;</span>
+    <span class="n">Authorization</span> <span class="p">=</span> <span class="s2">"Bearer $token"</span>
 <span class="p">}</span>
-<span class="nb">Invoke-RestMethod</span> <span class="n">-Uri</span> <span class="s2">&quot;http://localhost:8000/api/v1/auth/me&quot;</span> <span class="p">`</span>
+<span class="nb">Invoke-RestMethod</span> <span class="n">-Uri</span> <span class="s2">"http://localhost:8000/api/v1/auth/me"</span> <span class="p">`</span>
     <span class="n">-Method</span> <span class="n">POST</span> <span class="p">`</span>
     <span class="n">-Headers</span> <span class="nv">$headers</span>
 </code></pre></div>
@@ -1453,56 +1453,56 @@
 <div class="codehilite"><pre><span></span><code><span class="c"># start-dev.ps1 - SAHOOL Development Quick Start</span>
 <span class="c"># سكربت البدء السريع للتطوير</span>
 
-<span class="nb">Write-Host</span> <span class="s2">&quot;========================================&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
-<span class="nb">Write-Host</span> <span class="s2">&quot;  SAHOOL Development Environment&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
-<span class="nb">Write-Host</span> <span class="s2">&quot;  بيئة تطوير سهول&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
-<span class="nb">Write-Host</span> <span class="s2">&quot;========================================&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+<span class="nb">Write-Host</span> <span class="s2">"========================================"</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+<span class="nb">Write-Host</span> <span class="s2">"  SAHOOL Development Environment"</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+<span class="nb">Write-Host</span> <span class="s2">"  بيئة تطوير سهول"</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+<span class="nb">Write-Host</span> <span class="s2">"========================================"</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
 
 <span class="c"># Check Docker</span>
-<span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">Checking Docker...&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Yellow</span>
-<span class="k">if</span> <span class="p">(!(</span><span class="nb">Get-Process</span> <span class="s2">&quot;Docker Desktop&quot;</span> <span class="n">-ErrorAction</span> <span class="n">SilentlyContinue</span><span class="p">))</span> <span class="p">{</span>
-    <span class="nb">Write-Host</span> <span class="s2">&quot;Starting Docker Desktop...&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Yellow</span>
-    <span class="nb">Start-Process</span> <span class="s2">&quot;C:\Program Files\Docker\Docker\Docker Desktop.exe&quot;</span>
+<span class="nb">Write-Host</span> <span class="s2">"</span><span class="se">`n</span><span class="s2">Checking Docker..."</span> <span class="n">-ForegroundColor</span> <span class="n">Yellow</span>
+<span class="k">if</span> <span class="p">(!(</span><span class="nb">Get-Process</span> <span class="s2">"Docker Desktop"</span> <span class="n">-ErrorAction</span> <span class="n">SilentlyContinue</span><span class="p">))</span> <span class="p">{</span>
+    <span class="nb">Write-Host</span> <span class="s2">"Starting Docker Desktop..."</span> <span class="n">-ForegroundColor</span> <span class="n">Yellow</span>
+    <span class="nb">Start-Process</span> <span class="s2">"C:\Program Files\Docker\Docker\Docker Desktop.exe"</span>
     <span class="nb">Start-Sleep</span> <span class="n">-Seconds</span> <span class="n">30</span>
 <span class="p">}</span>
 
 <span class="c"># Start infrastructure</span>
-<span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">Starting infrastructure services...&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Yellow</span>
+<span class="nb">Write-Host</span> <span class="s2">"</span><span class="se">`n</span><span class="s2">Starting infrastructure services..."</span> <span class="n">-ForegroundColor</span> <span class="n">Yellow</span>
 <span class="n">docker-compose</span> <span class="o">-f</span> <span class="n">docker-compose</span><span class="p">.</span><span class="n">infra</span><span class="p">.</span><span class="n">yml</span> <span class="n">up</span> <span class="n">-d</span>
 
 <span class="c"># Wait for services</span>
-<span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">Waiting for services to be ready...&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Yellow</span>
+<span class="nb">Write-Host</span> <span class="s2">"</span><span class="se">`n</span><span class="s2">Waiting for services to be ready..."</span> <span class="n">-ForegroundColor</span> <span class="n">Yellow</span>
 <span class="nb">Start-Sleep</span> <span class="n">-Seconds</span> <span class="n">10</span>
 
 <span class="c"># Check health</span>
-<span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">Checking service health...&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Yellow</span>
+<span class="nb">Write-Host</span> <span class="s2">"</span><span class="se">`n</span><span class="s2">Checking service health..."</span> <span class="n">-ForegroundColor</span> <span class="n">Yellow</span>
 <span class="k">try</span> <span class="p">{</span>
-    <span class="nb">Invoke-RestMethod</span> <span class="n">-Uri</span> <span class="s2">&quot;http://localhost:8000/healthz&quot;</span> <span class="n">-TimeoutSec</span> <span class="n">10</span>
-    <span class="nb">Write-Host</span> <span class="s2">&quot;Kong Gateway: OK&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+    <span class="nb">Invoke-RestMethod</span> <span class="n">-Uri</span> <span class="s2">"http://localhost:8000/healthz"</span> <span class="n">-TimeoutSec</span> <span class="n">10</span>
+    <span class="nb">Write-Host</span> <span class="s2">"Kong Gateway: OK"</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
 <span class="p">}</span> <span class="k">catch</span> <span class="p">{</span>
-    <span class="nb">Write-Host</span> <span class="s2">&quot;Kong Gateway: Starting...&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Yellow</span>
+    <span class="nb">Write-Host</span> <span class="s2">"Kong Gateway: Starting..."</span> <span class="n">-ForegroundColor</span> <span class="n">Yellow</span>
 <span class="p">}</span>
 
 <span class="c"># Print URLs</span>
-<span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">========================================&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
-<span class="nb">Write-Host</span> <span class="s2">&quot;  Services URLs:&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
-<span class="nb">Write-Host</span> <span class="s2">&quot;========================================&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
-<span class="nb">Write-Host</span> <span class="s2">&quot;  Kong Gateway:    http://localhost:8000&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">White</span>
-<span class="nb">Write-Host</span> <span class="s2">&quot;  Admin Portal:    http://localhost:3000&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">White</span>
-<span class="nb">Write-Host</span> <span class="s2">&quot;  Web Dashboard:   http://localhost:3001&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">White</span>
-<span class="nb">Write-Host</span> <span class="s2">&quot;  WebSocket:       ws://localhost:8081&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">White</span>
-<span class="nb">Write-Host</span> <span class="s2">&quot;  PostgreSQL:      localhost:5432&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">White</span>
-<span class="nb">Write-Host</span> <span class="s2">&quot;  Redis:           localhost:6379&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">White</span>
-<span class="nb">Write-Host</span> <span class="s2">&quot;========================================&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+<span class="nb">Write-Host</span> <span class="s2">"</span><span class="se">`n</span><span class="s2">========================================"</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+<span class="nb">Write-Host</span> <span class="s2">"  Services URLs:"</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+<span class="nb">Write-Host</span> <span class="s2">"========================================"</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
+<span class="nb">Write-Host</span> <span class="s2">"  Kong Gateway:    http://localhost:8000"</span> <span class="n">-ForegroundColor</span> <span class="n">White</span>
+<span class="nb">Write-Host</span> <span class="s2">"  Admin Portal:    http://localhost:3000"</span> <span class="n">-ForegroundColor</span> <span class="n">White</span>
+<span class="nb">Write-Host</span> <span class="s2">"  Web Dashboard:   http://localhost:3001"</span> <span class="n">-ForegroundColor</span> <span class="n">White</span>
+<span class="nb">Write-Host</span> <span class="s2">"  WebSocket:       ws://localhost:8081"</span> <span class="n">-ForegroundColor</span> <span class="n">White</span>
+<span class="nb">Write-Host</span> <span class="s2">"  PostgreSQL:      localhost:5432"</span> <span class="n">-ForegroundColor</span> <span class="n">White</span>
+<span class="nb">Write-Host</span> <span class="s2">"  Redis:           localhost:6379"</span> <span class="n">-ForegroundColor</span> <span class="n">White</span>
+<span class="nb">Write-Host</span> <span class="s2">"========================================"</span> <span class="n">-ForegroundColor</span> <span class="n">Cyan</span>
 
-<span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">To start Admin Portal:&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
-<span class="nb">Write-Host</span> <span class="s2">&quot;  cd apps\admin &amp;&amp; npm run dev&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">White</span>
+<span class="nb">Write-Host</span> <span class="s2">"</span><span class="se">`n</span><span class="s2">To start Admin Portal:"</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+<span class="nb">Write-Host</span> <span class="s2">"  cd apps\admin &amp;&amp; npm run dev"</span> <span class="n">-ForegroundColor</span> <span class="n">White</span>
 
-<span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">To start Web Dashboard:&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
-<span class="nb">Write-Host</span> <span class="s2">&quot;  cd apps\web &amp;&amp; npm run dev&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">White</span>
+<span class="nb">Write-Host</span> <span class="s2">"</span><span class="se">`n</span><span class="s2">To start Web Dashboard:"</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+<span class="nb">Write-Host</span> <span class="s2">"  cd apps\web &amp;&amp; npm run dev"</span> <span class="n">-ForegroundColor</span> <span class="n">White</span>
 
-<span class="nb">Write-Host</span> <span class="s2">&quot;</span><span class="se">`n</span><span class="s2">To start Mobile App:&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
-<span class="nb">Write-Host</span> <span class="s2">&quot;  cd apps\mobile\sahool_field_app &amp;&amp; flutter run&quot;</span> <span class="n">-ForegroundColor</span> <span class="n">White</span>
+<span class="nb">Write-Host</span> <span class="s2">"</span><span class="se">`n</span><span class="s2">To start Mobile App:"</span> <span class="n">-ForegroundColor</span> <span class="n">Green</span>
+<span class="nb">Write-Host</span> <span class="s2">"  cd apps\mobile\sahool_field_app &amp;&amp; flutter run"</span> <span class="n">-ForegroundColor</span> <span class="n">White</span>
 </code></pre></div>
 
 <p>Run with:</p>
@@ -1513,15 +1513,15 @@
 <h2 id="environment-variables">Environment Variables | متغيرات البيئة<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h2>
 <h3 id="set-environment-variables">Set Environment Variables | تعيين متغيرات البيئة<a class="headerlink" href="#set-environment-variables" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c"># Temporary (current session only)</span>
-<span class="nv">$env:NEXT_PUBLIC_API_URL</span> <span class="p">=</span> <span class="s2">&quot;http://localhost:8000&quot;</span>
-<span class="nv">$env:NEXT_PUBLIC_WS_URL</span> <span class="p">=</span> <span class="s2">&quot;ws://localhost:8081&quot;</span>
-<span class="nv">$env:JWT_SECRET</span> <span class="p">=</span> <span class="s2">&quot;your-secret-key-min-32-characters-long&quot;</span>
+<span class="nv">$env:NEXT_PUBLIC_API_URL</span> <span class="p">=</span> <span class="s2">"http://localhost:8000"</span>
+<span class="nv">$env:NEXT_PUBLIC_WS_URL</span> <span class="p">=</span> <span class="s2">"ws://localhost:8081"</span>
+<span class="nv">$env:JWT_SECRET</span> <span class="p">=</span> <span class="s2">"your-secret-key-min-32-characters-long"</span>
 
 <span class="c"># Permanent (user level)</span>
-<span class="no">[Environment]</span><span class="p">::</span><span class="n">SetEnvironmentVariable</span><span class="p">(</span><span class="s2">&quot;NEXT_PUBLIC_API_URL&quot;</span><span class="p">,</span> <span class="s2">&quot;http://localhost:8000&quot;</span><span class="p">,</span> <span class="s2">&quot;User&quot;</span><span class="p">)</span>
+<span class="no">[Environment]</span><span class="p">::</span><span class="n">SetEnvironmentVariable</span><span class="p">(</span><span class="s2">"NEXT_PUBLIC_API_URL"</span><span class="p">,</span> <span class="s2">"http://localhost:8000"</span><span class="p">,</span> <span class="s2">"User"</span><span class="p">)</span>
 
 <span class="c"># Permanent (system level - requires admin)</span>
-<span class="no">[Environment]</span><span class="p">::</span><span class="n">SetEnvironmentVariable</span><span class="p">(</span><span class="s2">&quot;NEXT_PUBLIC_API_URL&quot;</span><span class="p">,</span> <span class="s2">&quot;http://localhost:8000&quot;</span><span class="p">,</span> <span class="s2">&quot;Machine&quot;</span><span class="p">)</span>
+<span class="no">[Environment]</span><span class="p">::</span><span class="n">SetEnvironmentVariable</span><span class="p">(</span><span class="s2">"NEXT_PUBLIC_API_URL"</span><span class="p">,</span> <span class="s2">"http://localhost:8000"</span><span class="p">,</span> <span class="s2">"Machine"</span><span class="p">)</span>
 </code></pre></div>
 
 <hr />
@@ -1590,10 +1590,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

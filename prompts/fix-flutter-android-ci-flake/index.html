@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1225,10 +1225,10 @@ trigger the heavy Flutter Android job:</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">on</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">pull_request</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">paths</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;apps/mobile/**&#39;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'apps/mobile/**'</span>
 <span class="w">    </span><span class="nt">paths-ignore</span><span class="p">:</span><span class="w">                                         </span><span class="c1"># NEW</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;apps/mobile/lib/core/contracts/**&#39;</span><span class="w">              </span><span class="c1"># NEW</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;apps/mobile/**/*.md&#39;</span><span class="w">                            </span><span class="c1"># NEW</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'apps/mobile/lib/core/contracts/**'</span><span class="w">              </span><span class="c1"># NEW</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'apps/mobile/**/*.md'</span><span class="w">                            </span><span class="c1"># NEW</span>
 </code></pre></div>
 
 <p>(Same change in <code>flutter-apk.yml</code> for the <code>push:</code> trigger.)</p>
@@ -1243,17 +1243,17 @@ shell retry with exponential back-off:</p>
 <div class="codehilite"><pre><span></span><code>-<span class="w"> </span>name:<span class="w"> </span>Install<span class="w"> </span>required<span class="w"> </span>Android<span class="w"> </span>SDK<span class="w"> </span>components
 <span class="w">  </span>run:<span class="w"> </span><span class="p">|</span>
 <span class="w">    </span><span class="k">for</span><span class="w"> </span>attempt<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="m">3</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
-<span class="w">      </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Attempt </span><span class="nv">$attempt</span><span class="s2">: installing Android SDK components...&quot;</span>
+<span class="w">      </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"Attempt </span><span class="nv">$attempt</span><span class="s2">: installing Android SDK components..."</span>
 <span class="w">      </span><span class="k">if</span><span class="w"> </span>yes<span class="w"> </span><span class="p">|</span><span class="w"> </span>sdkmanager<span class="w"> </span>--install<span class="w"> </span><span class="se">\</span>
-<span class="w">           </span><span class="s2">&quot;platforms;android-35&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">           </span><span class="s2">&quot;ndk;27.0.12077973&quot;</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
-<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✓ SDK components installed&quot;</span>
+<span class="w">           </span><span class="s2">"platforms;android-35"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">           </span><span class="s2">"ndk;27.0.12077973"</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"✓ SDK components installed"</span>
 <span class="w">        </span><span class="nb">exit</span><span class="w"> </span><span class="m">0</span>
 <span class="w">      </span><span class="k">fi</span>
-<span class="w">      </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✗ Attempt </span><span class="nv">$attempt</span><span class="s2"> failed; sleeping </span><span class="k">$((</span><span class="nv">attempt</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="m">30</span><span class="k">))</span><span class="s2">s&quot;</span>
+<span class="w">      </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"✗ Attempt </span><span class="nv">$attempt</span><span class="s2"> failed; sleeping </span><span class="k">$((</span><span class="nv">attempt</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="m">30</span><span class="k">))</span><span class="s2">s"</span>
 <span class="w">      </span>sleep<span class="w"> </span><span class="k">$((</span><span class="nv">attempt</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="m">30</span><span class="k">))</span>
 <span class="w">    </span><span class="k">done</span>
-<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;::error::Failed to install Android SDK components after 3 attempts&quot;</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"::error::Failed to install Android SDK components after 3 attempts"</span>
 <span class="w">    </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
 </code></pre></div>
 
@@ -1316,7 +1316,7 @@ sudo<span class="w"> </span>docker<span class="w"> </span>system<span class="w">
 <p><code>.github/workflows/frontend-tests.yml:1497-1516</code> builds the comment by
 checking whether artifact directories exist on disk:</p>
 <div class="codehilite"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">webBuild</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">fs</span><span class="p">.</span><span class="nx">existsSync</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">artifactsPath</span><span class="si">}</span><span class="sb">/web-build`</span><span class="p">);</span>
-<span class="nx">comment</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="sb">`| Web App | </span><span class="si">${</span><span class="nx">webBuild</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;✅ Passed&#39;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;❌ Failed&#39;</span><span class="si">}</span><span class="sb"> |\n`</span><span class="p">;</span>
+<span class="nx">comment</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="sb">`| Web App | </span><span class="si">${</span><span class="nx">webBuild</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">'✅ Passed'</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">'❌ Failed'</span><span class="si">}</span><span class="sb"> |\n`</span><span class="p">;</span>
 </code></pre></div>
 
 <p>That conflates <strong>"the build job failed"</strong> with <strong>"any upstream
@@ -1332,17 +1332,17 @@ upstream and cascaded artifact-upload skips.</p>
 <span class="w">  </span><span class="nt">with</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">script</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
 <span class="w">      </span><span class="no">const jobs = {</span>
-<span class="w">        </span><span class="no">webBuild:    &#39;${{ needs.web-build.result }}&#39;,</span>
-<span class="w">        </span><span class="no">adminBuild:  &#39;${{ needs.admin-build.result }}&#39;,</span>
-<span class="w">        </span><span class="no">flutterBuild:&#39;${{ needs.flutter-android-build.result }}&#39;,</span>
-<span class="w">        </span><span class="no">e2e:         &#39;${{ needs.e2e-tests.result }}&#39;,</span>
-<span class="w">        </span><span class="no">mobileInteg: &#39;${{ needs.mobile-integration.result }}&#39;,</span>
+<span class="w">        </span><span class="no">webBuild:    '${{ needs.web-build.result }}',</span>
+<span class="w">        </span><span class="no">adminBuild:  '${{ needs.admin-build.result }}',</span>
+<span class="w">        </span><span class="no">flutterBuild:'${{ needs.flutter-android-build.result }}',</span>
+<span class="w">        </span><span class="no">e2e:         '${{ needs.e2e-tests.result }}',</span>
+<span class="w">        </span><span class="no">mobileInteg: '${{ needs.mobile-integration.result }}',</span>
 <span class="w">      </span><span class="no">};</span>
 <span class="w">      </span><span class="no">const icon = (r) =&gt;</span>
-<span class="w">        </span><span class="no">r === &#39;success&#39;  ? &#39;✅ Passed&#39;   :</span>
-<span class="w">        </span><span class="no">r === &#39;failure&#39;  ? &#39;❌ Failed&#39;   :</span>
-<span class="w">        </span><span class="no">r === &#39;cancelled&#39;? &#39;🚫 Cancelled&#39;:</span>
-<span class="w">        </span><span class="no">r === &#39;skipped&#39;  ? &#39;⚠️ Skipped&#39;  :</span>
+<span class="w">        </span><span class="no">r === 'success'  ? '✅ Passed'   :</span>
+<span class="w">        </span><span class="no">r === 'failure'  ? '❌ Failed'   :</span>
+<span class="w">        </span><span class="no">r === 'cancelled'? '🚫 Cancelled':</span>
+<span class="w">        </span><span class="no">r === 'skipped'  ? '⚠️ Skipped'  :</span>
 <span class="w">                           </span><span class="no">`❓ ${r}`;</span>
 <span class="w">      </span><span class="no">// …build the comment table from `jobs`…</span>
 </code></pre></div>
@@ -1353,14 +1353,14 @@ so they're available. This single fix removes the entire class of
 <h4 id="7b-set-explicit-gradle-daemon-config-to-avoid-oom">7b · Set explicit Gradle daemon config to avoid OOM<a class="headerlink" href="#7b-set-explicit-gradle-daemon-config-to-avoid-oom" title="Permanent link">&para;</a></h4>
 <p>The current step exports <code>GRADLE_OPTS</code> but doesn't configure the
 daemon. Add <code>gradle.properties</code>-equivalent flags:</p>
-<div class="codehilite"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">GRADLE_OPTS</span><span class="o">=</span><span class="s2">&quot;-Xmx5g \</span>
+<div class="codehilite"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">GRADLE_OPTS</span><span class="o">=</span><span class="s2">"-Xmx5g \</span>
 <span class="s2">  -XX:MaxMetaspaceSize=512m \</span>
 <span class="s2">  -XX:+HeapDumpOnOutOfMemoryError \</span>
 <span class="s2">  -Dfile.encoding=UTF-8 \</span>
 <span class="s2">  -Dorg.gradle.daemon=false \</span>
 <span class="s2">  -Dorg.gradle.caching=true \</span>
 <span class="s2">  -Dorg.gradle.parallel=true \</span>
-<span class="s2">  -Dorg.gradle.workers.max=2&quot;</span>
+<span class="s2">  -Dorg.gradle.workers.max=2"</span>
 </code></pre></div>
 
 <p><code>-Dorg.gradle.daemon=false</code> is critical — daemon mode caches nothing
@@ -1485,10 +1485,10 @@ investigation in PR #1581.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

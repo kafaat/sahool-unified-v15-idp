@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1338,9 +1338,9 @@ water_management/       weather_alerts/
 <h3 id="21-root-__init__py-issue-critical">2.1 Root <code>__init__.py</code> Issue (CRITICAL)<a class="headerlink" href="#21-root-__init__py-issue-critical" title="Permanent link">&para;</a></h3>
 <p><strong>Location</strong>: <code>/shared/__init__.py</code></p>
 <p><strong>Current State</strong> (Hollow):</p>
-<div class="codehilite"><pre><span></span><code><span class="sd">&quot;&quot;&quot;SAHOOL Shared Library - Common utilities and modules&quot;&quot;&quot;</span>
+<div class="codehilite"><pre><span></span><code><span class="sd">"""SAHOOL Shared Library - Common utilities and modules"""</span>
 
-<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;16.0.0&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">"16.0.0"</span>
 </code></pre></div>
 
 <p><strong>Impact</strong>:
@@ -1348,9 +1348,9 @@ water_management/       weather_alerts/
 - Forces verbose imports: <code>from shared.auth import get_current_user</code>
 - Inconsistent with Python best practices</p>
 <p><strong>Recommended Fix</strong>:</p>
-<div class="codehilite"><pre><span></span><code><span class="sd">&quot;&quot;&quot;SAHOOL Shared Library - Common utilities and modules&quot;&quot;&quot;</span>
+<div class="codehilite"><pre><span></span><code><span class="sd">"""SAHOOL Shared Library - Common utilities and modules"""</span>
 
-<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;16.0.0&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">"16.0.0"</span>
 
 <span class="c1"># Core Authentication</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">auth</span>
@@ -1376,25 +1376,25 @@ water_management/       weather_alerts/
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="c1"># Modules</span>
-    <span class="s2">&quot;auth&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;cache&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;events&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;domain&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;contracts&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;middleware&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;monitoring&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;observability&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;security&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;telemetry&quot;</span><span class="p">,</span>
+    <span class="s2">"auth"</span><span class="p">,</span>
+    <span class="s2">"cache"</span><span class="p">,</span>
+    <span class="s2">"events"</span><span class="p">,</span>
+    <span class="s2">"domain"</span><span class="p">,</span>
+    <span class="s2">"contracts"</span><span class="p">,</span>
+    <span class="s2">"middleware"</span><span class="p">,</span>
+    <span class="s2">"monitoring"</span><span class="p">,</span>
+    <span class="s2">"observability"</span><span class="p">,</span>
+    <span class="s2">"security"</span><span class="p">,</span>
+    <span class="s2">"telemetry"</span><span class="p">,</span>
     <span class="c1"># Common exports</span>
-    <span class="s2">&quot;get_current_user&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;get_current_active_user&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;create_access_token&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;verify_token&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;CacheManager&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;get_cache_manager&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;EventPublisher&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;EventConsumer&quot;</span><span class="p">,</span>
+    <span class="s2">"get_current_user"</span><span class="p">,</span>
+    <span class="s2">"get_current_active_user"</span><span class="p">,</span>
+    <span class="s2">"create_access_token"</span><span class="p">,</span>
+    <span class="s2">"verify_token"</span><span class="p">,</span>
+    <span class="s2">"CacheManager"</span><span class="p">,</span>
+    <span class="s2">"get_cache_manager"</span><span class="p">,</span>
+    <span class="s2">"EventPublisher"</span><span class="p">,</span>
+    <span class="s2">"EventConsumer"</span><span class="p">,</span>
 <span class="p">]</span>
 </code></pre></div>
 
@@ -1415,10 +1415,10 @@ water_management/       weather_alerts/
 <span class="p">)</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;JWTConfig&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;config&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;get_current_user&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;get_current_active_user&quot;</span><span class="p">,</span>
+    <span class="s2">"JWTConfig"</span><span class="p">,</span>
+    <span class="s2">"config"</span><span class="p">,</span>
+    <span class="s2">"get_current_user"</span><span class="p">,</span>
+    <span class="s2">"get_current_active_user"</span><span class="p">,</span>
     <span class="c1"># ... 72 more items</span>
 <span class="p">]</span>
 </code></pre></div>
@@ -1431,12 +1431,12 @@ water_management/       weather_alerts/
 <h3 id="23-hollow-module-sharedlibs__init__py-needs-fix">2.3 Hollow Module: <code>shared/libs/__init__.py</code> (NEEDS FIX)<a class="headerlink" href="#23-hollow-module-sharedlibs__init__py-needs-fix" title="Permanent link">&para;</a></h3>
 <p><strong>Location</strong>: <code>/shared/libs/__init__.py</code></p>
 <p><strong>Current State</strong>:</p>
-<div class="codehilite"><pre><span></span><code><span class="sd">&quot;&quot;&quot;</span>
+<div class="codehilite"><pre><span></span><code><span class="sd">"""</span>
 <span class="sd">SAHOOL Shared Libraries</span>
 <span class="sd">Common libraries used across domains</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
-<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;16.0.0&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">"16.0.0"</span>
 </code></pre></div>
 
 <p><strong>Available Files Not Exported</strong>:
@@ -1444,12 +1444,12 @@ water_management/       weather_alerts/
 - <code>database.py</code> - Database utilities
 - <code>pagination.py</code> - Pagination utilities</p>
 <p><strong>Recommended Fix</strong>:</p>
-<div class="codehilite"><pre><span></span><code><span class="sd">&quot;&quot;&quot;</span>
+<div class="codehilite"><pre><span></span><code><span class="sd">"""</span>
 <span class="sd">SAHOOL Shared Libraries</span>
 <span class="sd">Common libraries used across domains</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
-<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;16.0.0&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">"16.0.0"</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.caching</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">CacheConfig</span><span class="p">,</span>
@@ -1471,15 +1471,15 @@ water_management/       weather_alerts/
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="c1"># Caching</span>
-    <span class="s2">&quot;CacheConfig&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;CacheManager&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;InMemoryCache&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;RedisCache&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;cached&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;get_cache_manager&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;invalidate_field_cache&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;invalidate_tenant_cache&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;invalidate_user_cache&quot;</span><span class="p">,</span>
+    <span class="s2">"CacheConfig"</span><span class="p">,</span>
+    <span class="s2">"CacheManager"</span><span class="p">,</span>
+    <span class="s2">"InMemoryCache"</span><span class="p">,</span>
+    <span class="s2">"RedisCache"</span><span class="p">,</span>
+    <span class="s2">"cached"</span><span class="p">,</span>
+    <span class="s2">"get_cache_manager"</span><span class="p">,</span>
+    <span class="s2">"invalidate_field_cache"</span><span class="p">,</span>
+    <span class="s2">"invalidate_tenant_cache"</span><span class="p">,</span>
+    <span class="s2">"invalidate_user_cache"</span><span class="p">,</span>
     <span class="c1"># Database</span>
     <span class="c1"># Pagination</span>
 <span class="p">]</span>
@@ -1488,16 +1488,16 @@ water_management/       weather_alerts/
 <h3 id="24-hollow-module-shareddomain__init__py-needs-fix">2.4 Hollow Module: <code>shared/domain/__init__.py</code> (NEEDS FIX)<a class="headerlink" href="#24-hollow-module-shareddomain__init__py-needs-fix" title="Permanent link">&para;</a></h3>
 <p><strong>Location</strong>: <code>/shared/domain/__init__.py</code></p>
 <p><strong>Current State</strong>:</p>
-<div class="codehilite"><pre><span></span><code><span class="sd">&quot;&quot;&quot;</span>
+<div class="codehilite"><pre><span></span><code><span class="sd">"""</span>
 <span class="sd">SAHOOL Kernel Domain</span>
 <span class="sd">Core platform capabilities: Identity, Auth, Tenancy, Users</span>
 
 <span class="sd">Architecture Rules:</span>
 <span class="sd">- kernel_domain can import from: shared</span>
 <span class="sd">- kernel_domain CANNOT import from: field_suite, advisor</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
-<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;16.0.0&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">"16.0.0"</span>
 </code></pre></div>
 
 <p><strong>Impact</strong>: Module exists but exports nothing. Services cannot import domain models.</p>
@@ -1512,16 +1512,16 @@ water_management/       weather_alerts/
 <span class="kn">from</span><span class="w"> </span><span class="nn">shared.contracts.actions</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;events&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;actions&quot;</span><span class="p">,</span>
+    <span class="s2">"events"</span><span class="p">,</span>
+    <span class="s2">"actions"</span><span class="p">,</span>
 <span class="p">]</span>
 </code></pre></div>
 
 <p><strong>Issue</strong>: <code>__all__</code> exports module names ("events", "actions") but not actual objects. The star imports (<code>*</code>) bring in the objects, but they're not listed in <code>__all__</code>.</p>
 <p><strong>Recommended Fix</strong>:</p>
-<div class="codehilite"><pre><span></span><code><span class="sd">&quot;&quot;&quot;</span>
+<div class="codehilite"><pre><span></span><code><span class="sd">"""</span>
 <span class="sd">SAHOOL Contracts Module - API contracts and schemas</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">shared.contracts.actions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">ActionStatus</span><span class="p">,</span>
@@ -1555,35 +1555,35 @@ water_management/       weather_alerts/
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="c1"># Events</span>
-    <span class="s2">&quot;BaseEvent&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;EventMetadata&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;FieldCreatedEvent&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;FieldUpdatedEvent&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;CropPlantedEvent&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;CropDiseaseDetectedEvent&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;CropHarvestedEvent&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;WeatherForecastUpdatedEvent&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;WeatherAlertIssuedEvent&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;SensorReadingEvent&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;SensorAlertEvent&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;NDVICalculatedEvent&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;YieldPredictedEvent&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;EventPublisher&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;EventConsumer&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;EventRegistry&quot;</span><span class="p">,</span>
+    <span class="s2">"BaseEvent"</span><span class="p">,</span>
+    <span class="s2">"EventMetadata"</span><span class="p">,</span>
+    <span class="s2">"FieldCreatedEvent"</span><span class="p">,</span>
+    <span class="s2">"FieldUpdatedEvent"</span><span class="p">,</span>
+    <span class="s2">"CropPlantedEvent"</span><span class="p">,</span>
+    <span class="s2">"CropDiseaseDetectedEvent"</span><span class="p">,</span>
+    <span class="s2">"CropHarvestedEvent"</span><span class="p">,</span>
+    <span class="s2">"WeatherForecastUpdatedEvent"</span><span class="p">,</span>
+    <span class="s2">"WeatherAlertIssuedEvent"</span><span class="p">,</span>
+    <span class="s2">"SensorReadingEvent"</span><span class="p">,</span>
+    <span class="s2">"SensorAlertEvent"</span><span class="p">,</span>
+    <span class="s2">"NDVICalculatedEvent"</span><span class="p">,</span>
+    <span class="s2">"YieldPredictedEvent"</span><span class="p">,</span>
+    <span class="s2">"EventPublisher"</span><span class="p">,</span>
+    <span class="s2">"EventConsumer"</span><span class="p">,</span>
+    <span class="s2">"EventRegistry"</span><span class="p">,</span>
     <span class="c1"># Actions</span>
-    <span class="s2">&quot;ActionType&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ActionStatus&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;UrgencyLevel&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ResourceType&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ActionTemplate&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ActionStep&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Resource&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;TimeWindow&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ActionTemplateFactory&quot;</span><span class="p">,</span>
+    <span class="s2">"ActionType"</span><span class="p">,</span>
+    <span class="s2">"ActionStatus"</span><span class="p">,</span>
+    <span class="s2">"UrgencyLevel"</span><span class="p">,</span>
+    <span class="s2">"ResourceType"</span><span class="p">,</span>
+    <span class="s2">"ActionTemplate"</span><span class="p">,</span>
+    <span class="s2">"ActionStep"</span><span class="p">,</span>
+    <span class="s2">"Resource"</span><span class="p">,</span>
+    <span class="s2">"TimeWindow"</span><span class="p">,</span>
+    <span class="s2">"ActionTemplateFactory"</span><span class="p">,</span>
 <span class="p">]</span>
 
-<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;16.0.0&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">"16.0.0"</span>
 </code></pre></div>
 
 <hr />
@@ -1592,22 +1592,22 @@ water_management/       weather_alerts/
 <p>All TypeScript packages follow proper export patterns:</p>
 <p><strong>Example: @sahool/shared-types</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;@sahool/shared-types&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;16.0.0&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;main&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;./dist/index.js&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;types&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;./dist/index.d.ts&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;exports&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;.&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;import&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;./dist/index.js&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;require&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;./dist/index.js&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;types&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;./dist/index.d.ts&quot;</span>
+<span class="w">  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"@sahool/shared-types"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"16.0.0"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"main"</span><span class="p">:</span><span class="w"> </span><span class="s2">"./dist/index.js"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"types"</span><span class="p">:</span><span class="w"> </span><span class="s2">"./dist/index.d.ts"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"exports"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"."</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"import"</span><span class="p">:</span><span class="w"> </span><span class="s2">"./dist/index.js"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"require"</span><span class="p">:</span><span class="w"> </span><span class="s2">"./dist/index.js"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"types"</span><span class="p">:</span><span class="w"> </span><span class="s2">"./dist/index.d.ts"</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">&quot;./auth&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* subpath export */</span><span class="w"> </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">&quot;./api&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* subpath export */</span><span class="w"> </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">&quot;./express&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* subpath export */</span><span class="w"> </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">&quot;./websocket&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* subpath export */</span><span class="w"> </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">&quot;./monitoring&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* subpath export */</span><span class="w"> </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">&quot;./field&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* subpath export */</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="nt">"./auth"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* subpath export */</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">"./api"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* subpath export */</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">"./express"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* subpath export */</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">"./websocket"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* subpath export */</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">"./monitoring"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* subpath export */</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">"./field"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* subpath export */</span><span class="w"> </span><span class="p">}</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1625,22 +1625,22 @@ water_management/       weather_alerts/
 <span class="cm"> */</span>
 
 <span class="c1">// Auth types</span>
-<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./auth&quot;</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"./auth"</span><span class="p">;</span>
 
 <span class="c1">// API types</span>
-<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./api&quot;</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"./api"</span><span class="p">;</span>
 
 <span class="c1">// Express types</span>
-<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./express&quot;</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"./express"</span><span class="p">;</span>
 
 <span class="c1">// WebSocket types</span>
-<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./websocket&quot;</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"./websocket"</span><span class="p">;</span>
 
 <span class="c1">// Monitoring types</span>
-<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./monitoring&quot;</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"./monitoring"</span><span class="p">;</span>
 
 <span class="c1">// Field types</span>
-<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./field&quot;</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"./field"</span><span class="p">;</span>
 </code></pre></div>
 
 <p><strong>Example: @sahool/shared-events/src/index.ts</strong></p>
@@ -1650,28 +1650,28 @@ water_management/       weather_alerts/
 <span class="w">  </span><span class="nx">NatsClientConfig</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">initializeNatsClient</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">getNatsConnection</span><span class="p">,</span>
-<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./nats-client&quot;</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"./nats-client"</span><span class="p">;</span>
 
 <span class="c1">// Named exports for event types</span>
 <span class="k">export</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="nx">BaseEvent</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">FieldCreatedEvent</span><span class="p">,</span>
 <span class="w">  </span><span class="c1">// ... 20+ event types</span>
-<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./events&quot;</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"./events"</span><span class="p">;</span>
 
 <span class="c1">// Named exports for publishers</span>
 <span class="k">export</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="nx">publishEvent</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">publishFieldCreated</span><span class="p">,</span>
 <span class="w">  </span><span class="c1">// ... 15+ publisher functions</span>
-<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./publisher&quot;</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"./publisher"</span><span class="p">;</span>
 
 <span class="c1">// Named exports for subscribers</span>
 <span class="k">export</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="nx">subscribe</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">subscribePattern</span><span class="p">,</span>
 <span class="w">  </span><span class="c1">// ... 10+ subscriber utilities</span>
-<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;./subscriber&quot;</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"./subscriber"</span><span class="p">;</span>
 </code></pre></div>
 
 <hr />
@@ -1917,22 +1917,22 @@ water_management/       weather_alerts/
 <div class="codehilite"><pre><span></span><code><span class="ch">#!/bin/bash</span>
 <span class="c1"># update-versions.sh</span>
 
-<span class="nv">OLD_VERSION</span><span class="o">=</span><span class="s2">&quot;15.3.3&quot;</span>
-<span class="nv">NEW_VERSION</span><span class="o">=</span><span class="s2">&quot;16.0.0&quot;</span>
+<span class="nv">OLD_VERSION</span><span class="o">=</span><span class="s2">"15.3.3"</span>
+<span class="nv">NEW_VERSION</span><span class="o">=</span><span class="s2">"16.0.0"</span>
 
 <span class="c1"># Update Python __init__.py files</span>
-find<span class="w"> </span>apps/services<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;__init__.py&quot;</span><span class="w"> </span>-exec<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>sed<span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;s/__version__ = \&quot;</span><span class="nv">$OLD_VERSION</span><span class="s2">\&quot;/__version__ = \&quot;</span><span class="nv">$NEW_VERSION</span><span class="s2">\&quot;/g&quot;</span><span class="w"> </span><span class="o">{}</span><span class="w"> </span><span class="se">\;</span>
+find<span class="w"> </span>apps/services<span class="w"> </span>-name<span class="w"> </span><span class="s2">"__init__.py"</span><span class="w"> </span>-exec<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>sed<span class="w"> </span>-i<span class="w"> </span><span class="s2">"s/__version__ = \"</span><span class="nv">$OLD_VERSION</span><span class="s2">\"/__version__ = \"</span><span class="nv">$NEW_VERSION</span><span class="s2">\"/g"</span><span class="w"> </span><span class="o">{}</span><span class="w"> </span><span class="se">\;</span>
 
 <span class="c1"># Update Python main.py files</span>
-find<span class="w"> </span>apps/services<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;main.py&quot;</span><span class="w"> </span>-exec<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>sed<span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;s/version=\&quot;</span><span class="nv">$OLD_VERSION</span><span class="s2">\&quot;/version=\&quot;</span><span class="nv">$NEW_VERSION</span><span class="s2">\&quot;/g&quot;</span><span class="w"> </span><span class="o">{}</span><span class="w"> </span><span class="se">\;</span>
+find<span class="w"> </span>apps/services<span class="w"> </span>-name<span class="w"> </span><span class="s2">"main.py"</span><span class="w"> </span>-exec<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>sed<span class="w"> </span>-i<span class="w"> </span><span class="s2">"s/version=\"</span><span class="nv">$OLD_VERSION</span><span class="s2">\"/version=\"</span><span class="nv">$NEW_VERSION</span><span class="s2">\"/g"</span><span class="w"> </span><span class="o">{}</span><span class="w"> </span><span class="se">\;</span>
 
 <span class="c1"># Update Dart files</span>
-find<span class="w"> </span>apps/mobile<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;*.dart&quot;</span><span class="w"> </span>-exec<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>sed<span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;s/الإصدار </span><span class="nv">$OLD_VERSION</span><span class="s2">/الإصدار </span><span class="nv">$NEW_VERSION</span><span class="s2">/g&quot;</span><span class="w"> </span><span class="o">{}</span><span class="w"> </span><span class="se">\;</span>
+find<span class="w"> </span>apps/mobile<span class="w"> </span>-name<span class="w"> </span><span class="s2">"*.dart"</span><span class="w"> </span>-exec<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>sed<span class="w"> </span>-i<span class="w"> </span><span class="s2">"s/الإصدار </span><span class="nv">$OLD_VERSION</span><span class="s2">/الإصدار </span><span class="nv">$NEW_VERSION</span><span class="s2">/g"</span><span class="w"> </span><span class="o">{}</span><span class="w"> </span><span class="se">\;</span>
 
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Version update complete: </span><span class="nv">$OLD_VERSION</span><span class="s2"> -&gt; </span><span class="nv">$NEW_VERSION</span><span class="s2">&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"Version update complete: </span><span class="nv">$OLD_VERSION</span><span class="s2"> -&gt; </span><span class="nv">$NEW_VERSION</span><span class="s2">"</span>
 </code></pre></div>
 
 <hr />
@@ -2176,9 +2176,9 @@ find<span class="w"> </span>apps/mobile<span class="w"> </span>-name<span class=
 <h2 id="appendix-c-service-health-endpoint-versions">Appendix C: Service Health Endpoint Versions<a class="headerlink" href="#appendix-c-service-health-endpoint-versions" title="Permanent link">&para;</a></h2>
 <p>Expected response format after version update:</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ok&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;service&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;service_name&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;16.0.0&quot;</span>
+<span class="w">  </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ok"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"service"</span><span class="p">:</span><span class="w"> </span><span class="s2">"service_name"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"16.0.0"</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -2234,10 +2234,10 @@ find<span class="w"> </span>apps/mobile<span class="w"> </span>-name<span class=
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

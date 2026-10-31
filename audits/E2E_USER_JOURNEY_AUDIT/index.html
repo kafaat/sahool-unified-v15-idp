@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1215,8 +1215,8 @@ Kong gateway → backend service → PgBouncer → Postgres → NATS.</p>
 <span class="cm">    │</span>
 <span class="cm">    ▼</span>
 <span class="cm">user-service NestJS  apps/services/user-service/src/main.ts:71</span>
-<span class="cm">  app.setGlobalPrefix(&quot;api/v1&quot;)  + @Controller(&quot;auth&quot;)</span>
-<span class="cm">  → @Post(&quot;register&quot;)  apps/services/user-service/src/auth/auth.controller.ts:344-396</span>
+<span class="cm">  app.setGlobalPrefix("api/v1")  + @Controller("auth")</span>
+<span class="cm">  → @Post("register")  apps/services/user-service/src/auth/auth.controller.ts:344-396</span>
 <span class="cm">  → AuthService.register()        apps/services/user-service/src/auth/auth.service.ts:626</span>
 <span class="cm">    │</span>
 <span class="cm">    ├─ Prisma user.create(...)    apps/services/user-service/prisma/schema.prisma:User</span>
@@ -1230,12 +1230,12 @@ Kong gateway → backend service → PgBouncer → Postgres → NATS.</p>
 <span class="cm">    │</span>
 <span class="cm">    ▼</span>
 <span class="cm">Browser</span>
-<span class="cm">  ⚠️ fetch(&#39;/api/auth/session&#39;, POST {access_token, refresh_token})</span>
+<span class="cm">  ⚠️ fetch('/api/auth/session', POST {access_token, refresh_token})</span>
 <span class="cm">  apps/web/src/app/api/auth/session/route.ts:102+</span>
 <span class="cm">  sets `access_token` + `refresh_token` httpOnly cookies (30 min + 7 days)</span>
 <span class="cm">    │</span>
 <span class="cm">    ▼</span>
-<span class="cm">router.push(&#39;/dashboard&#39;)</span>
+<span class="cm">router.push('/dashboard')</span>
 </code></pre></div>
 
 <p><strong>Compliance with <a href="../../service-templates/08-end-to-end-vertical-slice/">Vertical-Slice template</a>:</strong></p>
@@ -1306,7 +1306,7 @@ Kong gateway → backend service → PgBouncer → Postgres → NATS.</p>
   → bcrypt.compare → checkAccountLockout → generateTokens
   → 200 {access_token, refresh_token, user}
   → Browser POST /api/auth/session   (sets httpOnly cookies)
-  → window.location.href = &#39;/dashboard&#39;  (hard redirect — see LoginClient.tsx:75)
+  → window.location.href = '/dashboard'  (hard redirect — see LoginClient.tsx:75)
 </code></pre></div>
 
 <p><strong>Notable strengths</strong> — login is more solid than register:
@@ -1341,7 +1341,7 @@ review" gold path — Pattern 01 from
 <a href="../../service-templates/01-pattern-nestjs-crud/"><code>docs/service-templates/01-pattern-nestjs-crud.md</code></a>.</p>
 <hr />
 <h3 id="34-create-field-form-submission">3.4 · Create field (form submission)<a class="headerlink" href="#34-create-field-form-submission" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="n">Browser</span><span class="w">  </span><span class="n">click</span><span class="w"> </span><span class="s2">&quot;Add field&quot;</span><span class="w">  </span><span class="err">→</span><span class="w"> </span><span class="n">FieldForm</span><span class="w">  </span><span class="err">→</span><span class="w"> </span><span class="n">submit</span>
+<div class="codehilite"><pre><span></span><code><span class="n">Browser</span><span class="w">  </span><span class="n">click</span><span class="w"> </span><span class="s2">"Add field"</span><span class="w">  </span><span class="err">→</span><span class="w"> </span><span class="n">FieldForm</span><span class="w">  </span><span class="err">→</span><span class="w"> </span><span class="n">submit</span>
 <span class="w">  </span><span class="err">→</span><span class="w"> </span><span class="n">useCreateField</span><span class="p">()</span><span class="o">.</span><span class="n">mutateAsync</span><span class="p">({</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">tenantId</span><span class="p">:</span><span class="w"> </span><span class="n">user</span><span class="err">?</span><span class="o">.</span><span class="n">tenant_id</span><span class="p">})</span>
 <span class="w">    </span><span class="n">apps</span><span class="o">/</span><span class="n">web</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">app</span><span class="o">/</span><span class="p">(</span><span class="n">dashboard</span><span class="p">)</span><span class="o">/</span><span class="n">fields</span><span class="o">/</span><span class="n">FieldsClient</span><span class="o">.</span><span class="n">tsx</span><span class="p">:</span><span class="mi">59</span>
 <span class="w">    </span><span class="err">⚠️</span><span class="w"> </span><span class="n">tenantId</span><span class="w"> </span><span class="n">sent</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">mutation</span><span class="w"> </span><span class="n">args</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="n">backend</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">ignore</span><span class="w"> </span><span class="p">(</span><span class="n">F</span><span class="o">-</span><span class="mi">6</span><span class="p">)</span>
@@ -1372,7 +1372,7 @@ not in JS — prevents drift between geometry and metadata.</p>
 <hr />
 <h3 id="35-draw-save-field-boundary-geospatial-polygon">3.5 · Draw + save field boundary (geospatial polygon)<a class="headerlink" href="#35-draw-save-field-boundary-geospatial-polygon" title="Permanent link">&para;</a></h3>
 <p>This is where the <strong>critical bug F-1</strong> lived.</p>
-<div class="codehilite"><pre><span></span><code><span class="n">Browser</span><span class="w">  </span><span class="n">click</span><span class="w"> </span><span class="s2">&quot;Draw boundary&quot;</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="o">/</span><span class="n">fields</span><span class="o">/</span><span class="p">{</span><span class="n">id</span><span class="p">}</span><span class="o">/</span><span class="n">edit</span>
+<div class="codehilite"><pre><span></span><code><span class="n">Browser</span><span class="w">  </span><span class="n">click</span><span class="w"> </span><span class="s2">"Draw boundary"</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="o">/</span><span class="n">fields</span><span class="o">/</span><span class="p">{</span><span class="n">id</span><span class="p">}</span><span class="o">/</span><span class="n">edit</span>
 <span class="w">  </span><span class="err">→</span><span class="w"> </span><span class="n">FieldBoundaryMap</span><span class="w"> </span><span class="n">component</span>
 <span class="w">    </span><span class="n">apps</span><span class="o">/</span><span class="n">web</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">features</span><span class="o">/</span><span class="n">fields</span><span class="o">/</span><span class="n">components</span><span class="o">/</span><span class="n">FieldBoundaryMap</span><span class="o">.</span><span class="n">tsx</span>
 <span class="w">    </span><span class="err">├─</span><span class="w"> </span><span class="n">Leaflet</span><span class="w"> </span><span class="n">map</span><span class="w"> </span><span class="n">renders</span><span class="p">,</span><span class="w"> </span><span class="n">polygon</span><span class="o">/</span><span class="n">rectangle</span><span class="w"> </span><span class="n">drawing</span><span class="w"> </span><span class="n">modes</span>
@@ -1384,7 +1384,7 @@ not in JS — prevents drift between geometry and metadata.</p>
 <span class="w">    </span><span class="err">❌</span><span class="w"> </span><span class="n">BEFORE</span><span class="p">:</span><span class="w"> </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">field</span><span class="o">-</span><span class="n">core</span><span class="o">/</span><span class="n">fields</span><span class="o">/</span><span class="p">{</span><span class="n">id</span><span class="p">}</span><span class="o">/</span><span class="n">boundary</span>
 <span class="w">    </span><span class="err">✅</span><span class="w"> </span><span class="n">AFTER</span><span class="p">:</span><span class="w">  </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">fields</span><span class="o">/</span><span class="p">{</span><span class="n">id</span><span class="p">}</span><span class="o">/</span><span class="n">boundary</span>
 <span class="w">  </span><span class="err">→</span><span class="w"> </span><span class="n">Kong</span><span class="w"> </span><span class="n">route</span><span class="w"> </span><span class="n">block</span><span class="p">:</span>
-<span class="w">    </span><span class="err">❌</span><span class="w"> </span><span class="n">BEFORE</span><span class="p">:</span><span class="w"> </span><span class="n">paths</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;/api/v1/fields&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;/api/v1/field&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;/field&quot;</span><span class="p">]</span>
+<span class="w">    </span><span class="err">❌</span><span class="w"> </span><span class="n">BEFORE</span><span class="p">:</span><span class="w"> </span><span class="n">paths</span><span class="o">=</span><span class="p">[</span><span class="s2">"/api/v1/fields"</span><span class="p">,</span><span class="w"> </span><span class="s2">"/api/v1/field"</span><span class="p">,</span><span class="w"> </span><span class="s2">"/field"</span><span class="p">]</span>
 <span class="w">              </span><span class="err">→</span><span class="w"> </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">field</span><span class="o">-</span><span class="n">core</span><span class="o">/...</span><span class="w"> </span><span class="n">would</span><span class="w"> </span><span class="n">NOT</span><span class="w"> </span><span class="k">match</span><span class="w"> </span><span class="p">(</span><span class="n">Kong</span><span class="w"> </span><span class="mf">3.</span><span class="n">x</span>
 <span class="w">                </span><span class="n">strict</span><span class="w"> </span><span class="n">prefix</span><span class="w"> </span><span class="n">segmentation</span><span class="p">)</span><span class="w"> </span><span class="err">—</span><span class="w"> </span><span class="mi">404</span><span class="w"> </span><span class="n">at</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">gateway</span><span class="o">.</span>
 <span class="w">              </span><span class="err">→</span><span class="w"> </span><span class="n">Even</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="n">matched</span><span class="w"> </span><span class="p">(</span><span class="n">older</span><span class="w"> </span><span class="n">Kong</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">loose</span><span class="w"> </span><span class="n">prefix</span><span class="w"> </span><span class="o">+</span>
@@ -1393,13 +1393,13 @@ not in JS — prevents drift between geometry and metadata.</p>
 <span class="w">    </span><span class="err">✅</span><span class="w"> </span><span class="n">AFTER</span><span class="p">:</span><span class="w"> </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">fields</span><span class="o">/...</span><span class="w"> </span><span class="n">ALWAYS</span><span class="w"> </span><span class="n">matches</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">route</span><span class="o">.</span><span class="w"> </span><span class="n">Kong</span><span class="w"> </span><span class="n">strips</span>
 <span class="w">              </span><span class="n">prefix</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">forwards</span><span class="w"> </span><span class="err">`</span><span class="o">/</span><span class="p">{</span><span class="n">id</span><span class="p">}</span><span class="o">/</span><span class="n">boundary</span><span class="err">`</span><span class="w"> </span><span class="err">…</span><span class="w"> </span><span class="n">but</span><span class="w"> </span><span class="n">field</span><span class="o">-</span><span class="n">management</span>
 <span class="w">              </span><span class="n">expects</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">full</span><span class="w"> </span><span class="err">`</span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">fields</span><span class="o">/</span><span class="p">{</span><span class="n">id</span><span class="p">}</span><span class="o">/</span><span class="n">boundary</span><span class="err">`</span><span class="w"> </span><span class="n">path</span><span class="w"> </span><span class="n">because</span>
-<span class="w">              </span><span class="n">its</span><span class="w"> </span><span class="n">controller</span><span class="w"> </span><span class="n">declared</span><span class="w"> </span><span class="err">`@</span><span class="n">Controller</span><span class="p">(</span><span class="s2">&quot;api/v1/fields&quot;</span><span class="p">)</span><span class="err">`</span><span class="w"> </span><span class="ow">and</span>
-<span class="w">              </span><span class="n">there</span><span class="s1">&#39;s no setGlobalPrefix. Kong&#39;</span><span class="n">s</span><span class="w"> </span><span class="err">`</span><span class="n">strip_path</span><span class="p">:</span><span class="w"> </span><span class="bp">false</span><span class="err">`</span>
+<span class="w">              </span><span class="n">its</span><span class="w"> </span><span class="n">controller</span><span class="w"> </span><span class="n">declared</span><span class="w"> </span><span class="err">`@</span><span class="n">Controller</span><span class="p">(</span><span class="s2">"api/v1/fields"</span><span class="p">)</span><span class="err">`</span><span class="w"> </span><span class="ow">and</span>
+<span class="w">              </span><span class="n">there</span><span class="s1">'s no setGlobalPrefix. Kong'</span><span class="n">s</span><span class="w"> </span><span class="err">`</span><span class="n">strip_path</span><span class="p">:</span><span class="w"> </span><span class="bp">false</span><span class="err">`</span>
 <span class="w">              </span><span class="n">would</span><span class="w"> </span><span class="n">handle</span><span class="w"> </span><span class="n">this</span><span class="p">;</span><span class="w"> </span><span class="n">we</span><span class="w"> </span><span class="n">verified</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">existing</span>
 <span class="w">              </span><span class="n">field</span><span class="o">-</span><span class="n">management</span><span class="w"> </span><span class="n">route</span><span class="w"> </span><span class="n">uses</span><span class="w"> </span><span class="err">`</span><span class="n">strip_path</span><span class="p">:</span><span class="w"> </span><span class="bp">true</span><span class="err">`</span><span class="w"> </span><span class="k">for</span>
 <span class="w">              </span><span class="err">`</span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">fields</span><span class="err">`</span><span class="w"> </span><span class="n">AND</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">controller</span><span class="w"> </span><span class="n">path</span><span class="w"> </span><span class="n">includes</span>
 <span class="w">              </span><span class="err">`</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">fields</span><span class="err">`</span><span class="o">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">full</span><span class="w"> </span><span class="n">URL</span><span class="w"> </span><span class="err">`</span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">fields</span><span class="o">/</span><span class="p">{</span><span class="n">id</span><span class="p">}</span><span class="o">/</span><span class="n">boundary</span><span class="err">`</span>
-<span class="w">              </span><span class="n">hits</span><span class="w"> </span><span class="err">@</span><span class="n">Controller</span><span class="p">(</span><span class="s2">&quot;api/v1/fields&quot;</span><span class="p">)</span><span class="w"> </span><span class="err">@</span><span class="n">Put</span><span class="p">(</span><span class="s2">&quot;:id/boundary&quot;</span><span class="p">)</span><span class="w">  </span><span class="err">✅</span>
+<span class="w">              </span><span class="n">hits</span><span class="w"> </span><span class="err">@</span><span class="n">Controller</span><span class="p">(</span><span class="s2">"api/v1/fields"</span><span class="p">)</span><span class="w"> </span><span class="err">@</span><span class="n">Put</span><span class="p">(</span><span class="s2">":id/boundary"</span><span class="p">)</span><span class="w">  </span><span class="err">✅</span>
 <span class="w">  </span><span class="err">→</span><span class="w"> </span><span class="n">FieldsController</span><span class="o">.</span><span class="n">updateBoundary</span><span class="w">  </span><span class="n">fields</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">ts</span><span class="p">:</span><span class="mi">291</span>
 <span class="w">  </span><span class="err">→</span><span class="w"> </span><span class="n">FieldsService</span><span class="o">.</span><span class="n">updateBoundary</span><span class="w">  </span><span class="n">fields</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">ts</span><span class="p">:</span><span class="mi">670</span>
 <span class="w">    </span><span class="err">├─</span><span class="w"> </span><span class="n">optimistic</span><span class="w"> </span><span class="n">concurrency</span><span class="w"> </span><span class="n">check</span><span class="w"> </span><span class="p">(</span><span class="n">etag</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="n">field</span><span class="p">)</span>
@@ -1700,10 +1700,10 @@ every feature that crosses three or more layers of the request stack.</strong></
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

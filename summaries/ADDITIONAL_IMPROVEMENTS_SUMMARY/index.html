@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1420,7 +1420,7 @@ psql<span class="w"> </span>-U<span class="w"> </span>sahool_user<span class="w"
 <span class="c1"># Verify indexes created</span>
 SELECT<span class="w"> </span>indexname,<span class="w"> </span>tablename
 FROM<span class="w"> </span>pg_indexes
-WHERE<span class="w"> </span>indexname<span class="w"> </span>LIKE<span class="w"> </span><span class="s1">&#39;idx_%&#39;</span>
+WHERE<span class="w"> </span>indexname<span class="w"> </span>LIKE<span class="w"> </span><span class="s1">'idx_%'</span>
 ORDER<span class="w"> </span>BY<span class="w"> </span>tablename,<span class="w"> </span>indexname<span class="p">;</span>
 
 <span class="c1"># Check foreign key constraints</span>
@@ -1434,7 +1434,7 @@ JOIN<span class="w"> </span>information_schema.key_column_usage<span class="w"> 
 <span class="w">  </span>ON<span class="w"> </span>tc.constraint_name<span class="w"> </span><span class="o">=</span><span class="w"> </span>kcu.constraint_name
 JOIN<span class="w"> </span>information_schema.constraint_column_usage<span class="w"> </span>AS<span class="w"> </span>ccu
 <span class="w">  </span>ON<span class="w"> </span>ccu.constraint_name<span class="w"> </span><span class="o">=</span><span class="w"> </span>tc.constraint_name
-WHERE<span class="w"> </span>tc.constraint_type<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;FOREIGN KEY&#39;</span>
+WHERE<span class="w"> </span>tc.constraint_type<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'FOREIGN KEY'</span>
 ORDER<span class="w"> </span>BY<span class="w"> </span>tc.table_name<span class="p">;</span>
 </code></pre></div>
 
@@ -1442,7 +1442,7 @@ ORDER<span class="w"> </span>BY<span class="w"> </span>tc.table_name<span class=
 <div class="codehilite"><pre><span></span><code><span class="c1"># Test time-series query performance</span>
 EXPLAIN<span class="w"> </span>ANALYZE
 SELECT<span class="w"> </span>*<span class="w"> </span>FROM<span class="w"> </span>sensor_readings
-WHERE<span class="w"> </span><span class="nv">tenant_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;tenant-123&#39;</span>
+WHERE<span class="w"> </span><span class="nv">tenant_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'tenant-123'</span>
 ORDER<span class="w"> </span>BY<span class="w"> </span>timestamp<span class="w"> </span>DESC
 LIMIT<span class="w"> </span><span class="m">100</span><span class="p">;</span>
 
@@ -1451,7 +1451,7 @@ LIMIT<span class="w"> </span><span class="m">100</span><span class="p">;</span>
 <span class="c1"># Test JSONB query performance</span>
 EXPLAIN<span class="w"> </span>ANALYZE
 SELECT<span class="w"> </span>*<span class="w"> </span>FROM<span class="w"> </span>devices
-WHERE<span class="w"> </span>metadata<span class="w"> </span>@&gt;<span class="w"> </span><span class="s1">&#39;{&quot;type&quot;: &quot;weather_station&quot;}&#39;</span><span class="p">;</span>
+WHERE<span class="w"> </span>metadata<span class="w"> </span>@&gt;<span class="w"> </span><span class="s1">'{"type": "weather_station"}'</span><span class="p">;</span>
 
 <span class="c1"># Expected: Bitmap Index Scan using idx_devices_metadata_gin</span>
 </code></pre></div>
@@ -1658,10 +1658,10 @@ WHERE<span class="w"> </span>metadata<span class="w"> </span>@&gt;<span class="w
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

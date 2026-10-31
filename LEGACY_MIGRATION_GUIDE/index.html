@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1152,7 +1152,7 @@
 <span class="err">X-API-Deprecation-Date: YYYY-MM-DD</span>
 <span class="err">X-API-Deprecation-Info: This service is deprecated. Use [new-service] instead.</span>
 <span class="err">X-API-Sunset: YYYY-MM-DD</span>
-<span class="err">Link: &lt;http://[new-service]:[port]&gt;; rel=&quot;successor-version&quot;</span>
+<span class="err">Link: &lt;http://[new-service]:[port]&gt;; rel="successor-version"</span>
 <span class="err">Deprecation: true</span>
 </code></pre></div>
 
@@ -1297,18 +1297,18 @@ POST /v1/vegetation/multi-index
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_ndvi_data</span><span class="p">(</span><span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
         <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;http://satellite-service:8100/v1/ndvi/</span><span class="si">{</span><span class="n">field_id</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"http://satellite-service:8100/v1/ndvi/</span><span class="si">{</span><span class="n">field_id</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
 
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">analyze_imagery</span><span class="p">(</span><span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">lat</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lon</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
         <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
-            <span class="s2">&quot;http://satellite-service:8100/v1/analyze&quot;</span><span class="p">,</span>
+            <span class="s2">"http://satellite-service:8100/v1/analyze"</span><span class="p">,</span>
             <span class="n">json</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;field_id&quot;</span><span class="p">:</span> <span class="n">field_id</span><span class="p">,</span>
-                <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="n">lat</span><span class="p">,</span>
-                <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="n">lon</span>
+                <span class="s2">"field_id"</span><span class="p">:</span> <span class="n">field_id</span><span class="p">,</span>
+                <span class="s2">"latitude"</span><span class="p">:</span> <span class="n">lat</span><span class="p">,</span>
+                <span class="s2">"longitude"</span><span class="p">:</span> <span class="n">lon</span>
             <span class="p">}</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
@@ -1320,18 +1320,18 @@ POST /v1/vegetation/multi-index
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_ndvi_data</span><span class="p">(</span><span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
         <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;http://vegetation-analysis-service:8090/v1/vegetation/ndvi/</span><span class="si">{</span><span class="n">field_id</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"http://vegetation-analysis-service:8090/v1/vegetation/ndvi/</span><span class="si">{</span><span class="n">field_id</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
 
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">analyze_imagery</span><span class="p">(</span><span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">lat</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lon</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
         <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
-            <span class="s2">&quot;http://vegetation-analysis-service:8090/v1/vegetation/analyze&quot;</span><span class="p">,</span>
+            <span class="s2">"http://vegetation-analysis-service:8090/v1/vegetation/analyze"</span><span class="p">,</span>
             <span class="n">json</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;field_id&quot;</span><span class="p">:</span> <span class="n">field_id</span><span class="p">,</span>
-                <span class="s2">&quot;location&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="n">lat</span><span class="p">,</span> <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="n">lon</span><span class="p">},</span>
-                <span class="s2">&quot;indices&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;ndvi&quot;</span><span class="p">,</span> <span class="s2">&quot;evi&quot;</span><span class="p">,</span> <span class="s2">&quot;ndwi&quot;</span><span class="p">,</span> <span class="s2">&quot;ndre&quot;</span><span class="p">,</span> <span class="s2">&quot;lci&quot;</span><span class="p">,</span> <span class="s2">&quot;savi&quot;</span><span class="p">]</span>  <span class="c1"># New: specify indices</span>
+                <span class="s2">"field_id"</span><span class="p">:</span> <span class="n">field_id</span><span class="p">,</span>
+                <span class="s2">"location"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"lat"</span><span class="p">:</span> <span class="n">lat</span><span class="p">,</span> <span class="s2">"lon"</span><span class="p">:</span> <span class="n">lon</span><span class="p">},</span>
+                <span class="s2">"indices"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"ndvi"</span><span class="p">,</span> <span class="s2">"evi"</span><span class="p">,</span> <span class="s2">"ndwi"</span><span class="p">,</span> <span class="s2">"ndre"</span><span class="p">,</span> <span class="s2">"lci"</span><span class="p">,</span> <span class="s2">"savi"</span><span class="p">]</span>  <span class="c1"># New: specify indices</span>
             <span class="p">}</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
@@ -1476,15 +1476,15 @@ POST /weather/comprehensive-stress-report
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_current_weather</span><span class="p">(</span><span class="n">location_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
         <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;http://weather-advanced:8092/v1/current/</span><span class="si">{</span><span class="n">location_id</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"http://weather-advanced:8092/v1/current/</span><span class="si">{</span><span class="n">location_id</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
 
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_forecast</span><span class="p">(</span><span class="n">location_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">days</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">7</span><span class="p">):</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
         <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;http://weather-advanced:8092/v1/forecast/</span><span class="si">{</span><span class="n">location_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;days&quot;</span><span class="p">:</span> <span class="n">days</span><span class="p">}</span>
+            <span class="sa">f</span><span class="s2">"http://weather-advanced:8092/v1/forecast/</span><span class="si">{</span><span class="n">location_id</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">"days"</span><span class="p">:</span> <span class="n">days</span><span class="p">}</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
 </code></pre></div>
@@ -1495,12 +1495,12 @@ POST /weather/comprehensive-stress-report
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_current_weather</span><span class="p">(</span><span class="n">tenant_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">lat</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lon</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
         <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
-            <span class="s2">&quot;http://weather-service:8108/weather/current&quot;</span><span class="p">,</span>
+            <span class="s2">"http://weather-service:8108/weather/current"</span><span class="p">,</span>
             <span class="n">json</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;tenant_id&quot;</span><span class="p">:</span> <span class="n">tenant_id</span><span class="p">,</span>
-                <span class="s2">&quot;field_id&quot;</span><span class="p">:</span> <span class="n">field_id</span><span class="p">,</span>
-                <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="n">lat</span><span class="p">,</span>
-                <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="n">lon</span>
+                <span class="s2">"tenant_id"</span><span class="p">:</span> <span class="n">tenant_id</span><span class="p">,</span>
+                <span class="s2">"field_id"</span><span class="p">:</span> <span class="n">field_id</span><span class="p">,</span>
+                <span class="s2">"lat"</span><span class="p">:</span> <span class="n">lat</span><span class="p">,</span>
+                <span class="s2">"lon"</span><span class="p">:</span> <span class="n">lon</span>
             <span class="p">}</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
@@ -1508,12 +1508,12 @@ POST /weather/comprehensive-stress-report
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_forecast</span><span class="p">(</span><span class="n">tenant_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">lat</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lon</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">days</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">7</span><span class="p">):</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
         <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;http://weather-service:8108/weather/forecast?days=</span><span class="si">{</span><span class="n">days</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"http://weather-service:8108/weather/forecast?days=</span><span class="si">{</span><span class="n">days</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
             <span class="n">json</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;tenant_id&quot;</span><span class="p">:</span> <span class="n">tenant_id</span><span class="p">,</span>
-                <span class="s2">&quot;field_id&quot;</span><span class="p">:</span> <span class="n">field_id</span><span class="p">,</span>
-                <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="n">lat</span><span class="p">,</span>
-                <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="n">lon</span>
+                <span class="s2">"tenant_id"</span><span class="p">:</span> <span class="n">tenant_id</span><span class="p">,</span>
+                <span class="s2">"field_id"</span><span class="p">:</span> <span class="n">field_id</span><span class="p">,</span>
+                <span class="s2">"lat"</span><span class="p">:</span> <span class="n">lat</span><span class="p">,</span>
+                <span class="s2">"lon"</span><span class="p">:</span> <span class="n">lon</span>
             <span class="p">}</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
@@ -1677,10 +1677,10 @@ POST /v1/diagnose-with-action
 
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">diagnose_disease</span><span class="p">(</span><span class="n">image_file</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">crop_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-        <span class="n">files</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;image&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;plant.jpg&quot;</span><span class="p">,</span> <span class="n">image_file</span><span class="p">,</span> <span class="s2">&quot;image/jpeg&quot;</span><span class="p">)}</span>
-        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;field_id&quot;</span><span class="p">:</span> <span class="n">field_id</span><span class="p">,</span> <span class="s2">&quot;crop_type&quot;</span><span class="p">:</span> <span class="n">crop_type</span><span class="p">}</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"image"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"plant.jpg"</span><span class="p">,</span> <span class="n">image_file</span><span class="p">,</span> <span class="s2">"image/jpeg"</span><span class="p">)}</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"field_id"</span><span class="p">:</span> <span class="n">field_id</span><span class="p">,</span> <span class="s2">"crop_type"</span><span class="p">:</span> <span class="n">crop_type</span><span class="p">}</span>
         <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
-            <span class="s2">&quot;http://crop-health-ai:8095/v1/diagnose&quot;</span><span class="p">,</span>
+            <span class="s2">"http://crop-health-ai:8095/v1/diagnose"</span><span class="p">,</span>
             <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">,</span>
             <span class="n">params</span><span class="o">=</span><span class="n">params</span>
         <span class="p">)</span>
@@ -1692,46 +1692,46 @@ POST /v1/diagnose-with-action
 
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">detect_disease</span><span class="p">(</span>
     <span class="n">ndvi</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">evi</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">ndre</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">ndwi</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-    <span class="n">lci</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">savi</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">crop_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;wheat&quot;</span>
+    <span class="n">lci</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">savi</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">crop_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"wheat"</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Detect diseases from vegetation indices&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Detect diseases from vegetation indices"""</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
         <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
-            <span class="s2">&quot;http://crop-intelligence-service:8095/api/v1/disease/detect&quot;</span><span class="p">,</span>
+            <span class="s2">"http://crop-intelligence-service:8095/api/v1/disease/detect"</span><span class="p">,</span>
             <span class="n">json</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;ndvi&quot;</span><span class="p">:</span> <span class="n">ndvi</span><span class="p">,</span>
-                <span class="s2">&quot;evi&quot;</span><span class="p">:</span> <span class="n">evi</span><span class="p">,</span>
-                <span class="s2">&quot;ndre&quot;</span><span class="p">:</span> <span class="n">ndre</span><span class="p">,</span>
-                <span class="s2">&quot;ndwi&quot;</span><span class="p">:</span> <span class="n">ndwi</span><span class="p">,</span>
-                <span class="s2">&quot;lci&quot;</span><span class="p">:</span> <span class="n">lci</span><span class="p">,</span>
-                <span class="s2">&quot;savi&quot;</span><span class="p">:</span> <span class="n">savi</span><span class="p">,</span>
-                <span class="s2">&quot;crop_type&quot;</span><span class="p">:</span> <span class="n">crop_type</span><span class="p">,</span>
-                <span class="s2">&quot;humidity_pct&quot;</span><span class="p">:</span> <span class="mf">60.0</span><span class="p">,</span>
-                <span class="s2">&quot;temp_c&quot;</span><span class="p">:</span> <span class="mf">25.0</span>
+                <span class="s2">"ndvi"</span><span class="p">:</span> <span class="n">ndvi</span><span class="p">,</span>
+                <span class="s2">"evi"</span><span class="p">:</span> <span class="n">evi</span><span class="p">,</span>
+                <span class="s2">"ndre"</span><span class="p">:</span> <span class="n">ndre</span><span class="p">,</span>
+                <span class="s2">"ndwi"</span><span class="p">:</span> <span class="n">ndwi</span><span class="p">,</span>
+                <span class="s2">"lci"</span><span class="p">:</span> <span class="n">lci</span><span class="p">,</span>
+                <span class="s2">"savi"</span><span class="p">:</span> <span class="n">savi</span><span class="p">,</span>
+                <span class="s2">"crop_type"</span><span class="p">:</span> <span class="n">crop_type</span><span class="p">,</span>
+                <span class="s2">"humidity_pct"</span><span class="p">:</span> <span class="mf">60.0</span><span class="p">,</span>
+                <span class="s2">"temp_c"</span><span class="p">:</span> <span class="mf">25.0</span>
             <span class="p">}</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
 
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">comprehensive_analysis</span><span class="p">(</span>
     <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ndvi</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">evi</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">ndre</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-    <span class="n">ndwi</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lci</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">savi</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">crop_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;wheat&quot;</span><span class="p">,</span>
+    <span class="n">ndwi</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lci</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">savi</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">crop_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"wheat"</span><span class="p">,</span>
     <span class="n">temp_c</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">25.0</span><span class="p">,</span> <span class="n">humidity_pct</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">50.0</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get comprehensive field analysis including diseases, nutrients, yield, and pests&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Get comprehensive field analysis including diseases, nutrients, yield, and pests"""</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
         <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
-            <span class="s2">&quot;http://crop-intelligence-service:8095/api/v1/comprehensive-analysis&quot;</span><span class="p">,</span>
+            <span class="s2">"http://crop-intelligence-service:8095/api/v1/comprehensive-analysis"</span><span class="p">,</span>
             <span class="n">params</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;ndvi&quot;</span><span class="p">:</span> <span class="n">ndvi</span><span class="p">,</span>
-                <span class="s2">&quot;evi&quot;</span><span class="p">:</span> <span class="n">evi</span><span class="p">,</span>
-                <span class="s2">&quot;ndre&quot;</span><span class="p">:</span> <span class="n">ndre</span><span class="p">,</span>
-                <span class="s2">&quot;ndwi&quot;</span><span class="p">:</span> <span class="n">ndwi</span><span class="p">,</span>
-                <span class="s2">&quot;lci&quot;</span><span class="p">:</span> <span class="n">lci</span><span class="p">,</span>
-                <span class="s2">&quot;savi&quot;</span><span class="p">:</span> <span class="n">savi</span><span class="p">,</span>
-                <span class="s2">&quot;crop_type&quot;</span><span class="p">:</span> <span class="n">crop_type</span><span class="p">,</span>
-                <span class="s2">&quot;temp_c&quot;</span><span class="p">:</span> <span class="n">temp_c</span><span class="p">,</span>
-                <span class="s2">&quot;humidity_pct&quot;</span><span class="p">:</span> <span class="n">humidity_pct</span><span class="p">,</span>
-                <span class="s2">&quot;field_area_hectares&quot;</span><span class="p">:</span> <span class="mf">1.0</span>
+                <span class="s2">"ndvi"</span><span class="p">:</span> <span class="n">ndvi</span><span class="p">,</span>
+                <span class="s2">"evi"</span><span class="p">:</span> <span class="n">evi</span><span class="p">,</span>
+                <span class="s2">"ndre"</span><span class="p">:</span> <span class="n">ndre</span><span class="p">,</span>
+                <span class="s2">"ndwi"</span><span class="p">:</span> <span class="n">ndwi</span><span class="p">,</span>
+                <span class="s2">"lci"</span><span class="p">:</span> <span class="n">lci</span><span class="p">,</span>
+                <span class="s2">"savi"</span><span class="p">:</span> <span class="n">savi</span><span class="p">,</span>
+                <span class="s2">"crop_type"</span><span class="p">:</span> <span class="n">crop_type</span><span class="p">,</span>
+                <span class="s2">"temp_c"</span><span class="p">:</span> <span class="n">temp_c</span><span class="p">,</span>
+                <span class="s2">"humidity_pct"</span><span class="p">:</span> <span class="n">humidity_pct</span><span class="p">,</span>
+                <span class="s2">"field_area_hectares"</span><span class="p">:</span> <span class="mf">1.0</span>
             <span class="p">}</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
@@ -1842,8 +1842,8 @@ GET  /v1/context-engineering/status
     <span class="n">crop</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">stage</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">field_size_ha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
-    <span class="n">soil_fertility</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;medium&quot;</span>
-    <span class="n">irrigation_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;drip&quot;</span>
+    <span class="n">soil_fertility</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"medium"</span>
+    <span class="n">irrigation_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"drip"</span>
     <span class="n">correlation_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 </code></pre></div>
 
@@ -1904,14 +1904,14 @@ GET  /v1/context-engineering/status
 <span class="p">):</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
         <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
-            <span class="s2">&quot;http://fertilizer-advisor:8093/v1/recommend&quot;</span><span class="p">,</span>
+            <span class="s2">"http://fertilizer-advisor:8093/v1/recommend"</span><span class="p">,</span>
             <span class="n">json</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;field_id&quot;</span><span class="p">:</span> <span class="n">field_id</span><span class="p">,</span>
-                <span class="s2">&quot;crop&quot;</span><span class="p">:</span> <span class="n">crop</span><span class="p">,</span>
-                <span class="s2">&quot;growth_stage&quot;</span><span class="p">:</span> <span class="n">growth_stage</span><span class="p">,</span>
-                <span class="s2">&quot;area_hectares&quot;</span><span class="p">:</span> <span class="n">area_ha</span><span class="p">,</span>
-                <span class="s2">&quot;soil_type&quot;</span><span class="p">:</span> <span class="s2">&quot;loamy&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;organic_only&quot;</span><span class="p">:</span> <span class="kc">False</span>
+                <span class="s2">"field_id"</span><span class="p">:</span> <span class="n">field_id</span><span class="p">,</span>
+                <span class="s2">"crop"</span><span class="p">:</span> <span class="n">crop</span><span class="p">,</span>
+                <span class="s2">"growth_stage"</span><span class="p">:</span> <span class="n">growth_stage</span><span class="p">,</span>
+                <span class="s2">"area_hectares"</span><span class="p">:</span> <span class="n">area_ha</span><span class="p">,</span>
+                <span class="s2">"soil_type"</span><span class="p">:</span> <span class="s2">"loamy"</span><span class="p">,</span>
+                <span class="s2">"organic_only"</span><span class="p">:</span> <span class="kc">False</span>
             <span class="p">}</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
@@ -1925,15 +1925,15 @@ GET  /v1/context-engineering/status
 <span class="p">):</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
         <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
-            <span class="s2">&quot;http://advisory-service:8095/fertilizer/plan&quot;</span><span class="p">,</span>
+            <span class="s2">"http://advisory-service:8095/fertilizer/plan"</span><span class="p">,</span>
             <span class="n">json</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;tenant_id&quot;</span><span class="p">:</span> <span class="n">tenant_id</span><span class="p">,</span>
-                <span class="s2">&quot;field_id&quot;</span><span class="p">:</span> <span class="n">field_id</span><span class="p">,</span>
-                <span class="s2">&quot;crop&quot;</span><span class="p">:</span> <span class="n">crop</span><span class="p">,</span>
-                <span class="s2">&quot;stage&quot;</span><span class="p">:</span> <span class="n">stage</span><span class="p">,</span>
-                <span class="s2">&quot;field_size_ha&quot;</span><span class="p">:</span> <span class="n">field_size_ha</span><span class="p">,</span>
-                <span class="s2">&quot;soil_fertility&quot;</span><span class="p">:</span> <span class="s2">&quot;medium&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;irrigation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;drip&quot;</span>
+                <span class="s2">"tenant_id"</span><span class="p">:</span> <span class="n">tenant_id</span><span class="p">,</span>
+                <span class="s2">"field_id"</span><span class="p">:</span> <span class="n">field_id</span><span class="p">,</span>
+                <span class="s2">"crop"</span><span class="p">:</span> <span class="n">crop</span><span class="p">,</span>
+                <span class="s2">"stage"</span><span class="p">:</span> <span class="n">stage</span><span class="p">,</span>
+                <span class="s2">"field_size_ha"</span><span class="p">:</span> <span class="n">field_size_ha</span><span class="p">,</span>
+                <span class="s2">"soil_fertility"</span><span class="p">:</span> <span class="s2">"medium"</span><span class="p">,</span>
+                <span class="s2">"irrigation_type"</span><span class="p">:</span> <span class="s2">"drip"</span>
             <span class="p">}</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
@@ -2076,11 +2076,11 @@ GET  /api/v1/stats/tenant
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create_field</span><span class="p">(</span><span class="n">tenant_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">area_ha</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
         <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
-            <span class="s2">&quot;http://field-ops:8080/fields&quot;</span><span class="p">,</span>
+            <span class="s2">"http://field-ops:8080/fields"</span><span class="p">,</span>
             <span class="n">json</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;tenant_id&quot;</span><span class="p">:</span> <span class="n">tenant_id</span><span class="p">,</span>
-                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
-                <span class="s2">&quot;area_hectares&quot;</span><span class="p">:</span> <span class="n">area_ha</span>
+                <span class="s2">"tenant_id"</span><span class="p">:</span> <span class="n">tenant_id</span><span class="p">,</span>
+                <span class="s2">"name"</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+                <span class="s2">"area_hectares"</span><span class="p">:</span> <span class="n">area_ha</span>
             <span class="p">}</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
@@ -2088,11 +2088,11 @@ GET  /api/v1/stats/tenant
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create_operation</span><span class="p">(</span><span class="n">tenant_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">op_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
         <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
-            <span class="s2">&quot;http://field-ops:8080/operations&quot;</span><span class="p">,</span>
+            <span class="s2">"http://field-ops:8080/operations"</span><span class="p">,</span>
             <span class="n">json</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;tenant_id&quot;</span><span class="p">:</span> <span class="n">tenant_id</span><span class="p">,</span>
-                <span class="s2">&quot;field_id&quot;</span><span class="p">:</span> <span class="n">field_id</span><span class="p">,</span>
-                <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="n">op_type</span>
+                <span class="s2">"tenant_id"</span><span class="p">:</span> <span class="n">tenant_id</span><span class="p">,</span>
+                <span class="s2">"field_id"</span><span class="p">:</span> <span class="n">field_id</span><span class="p">,</span>
+                <span class="s2">"operation_type"</span><span class="p">:</span> <span class="n">op_type</span>
             <span class="p">}</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
@@ -2100,19 +2100,19 @@ GET  /api/v1/stats/tenant
 
 <p><strong>After (field-management-service)</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// TypeScript/JavaScript example</span>
-<span class="k">import</span><span class="w"> </span><span class="nx">axios</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;axios&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">axios</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'axios'</span><span class="p">;</span>
 
 <span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">createField</span><span class="p">(</span><span class="nx">tenantId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">areaHa</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">axios</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span>
-<span class="w">        </span><span class="s1">&#39;http://field-management-service:3000/api/v1/fields&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="s1">'http://field-management-service:3000/api/v1/fields'</span><span class="p">,</span>
 <span class="w">        </span><span class="p">{</span>
 <span class="w">            </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="kt">name</span><span class="p">,</span>
 <span class="w">            </span><span class="nx">areaHectares</span><span class="o">:</span><span class="w"> </span><span class="kt">areaHa</span>
 <span class="w">        </span><span class="p">},</span>
 <span class="w">        </span><span class="p">{</span>
 <span class="w">            </span><span class="nx">headers</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="s1">&#39;X-Tenant-Id&#39;</span><span class="o">:</span><span class="w"> </span><span class="nx">tenantId</span><span class="p">,</span>
-<span class="w">                </span><span class="s1">&#39;Content-Type&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;application/json&#39;</span>
+<span class="w">                </span><span class="s1">'X-Tenant-Id'</span><span class="o">:</span><span class="w"> </span><span class="nx">tenantId</span><span class="p">,</span>
+<span class="w">                </span><span class="s1">'Content-Type'</span><span class="o">:</span><span class="w"> </span><span class="s1">'application/json'</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">);</span>
@@ -2127,8 +2127,8 @@ GET  /api/v1/stats/tenant
 <span class="w">        </span><span class="p">},</span>
 <span class="w">        </span><span class="p">{</span>
 <span class="w">            </span><span class="nx">headers</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="s1">&#39;X-Tenant-Id&#39;</span><span class="o">:</span><span class="w"> </span><span class="nx">tenantId</span><span class="p">,</span>
-<span class="w">                </span><span class="s1">&#39;Content-Type&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;application/json&#39;</span>
+<span class="w">                </span><span class="s1">'X-Tenant-Id'</span><span class="o">:</span><span class="w"> </span><span class="nx">tenantId</span><span class="p">,</span>
+<span class="w">                </span><span class="s1">'Content-Type'</span><span class="o">:</span><span class="w"> </span><span class="s1">'application/json'</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">);</span>
@@ -2436,7 +2436,7 @@ GET  /v1/costs/categories
 <span class="w">    </span><span class="n">location_lat</span><span class="p">,</span><span class="w"> </span><span class="n">location_lon</span><span class="p">,</span><span class="w"> </span><span class="n">provider</span><span class="p">,</span><span class="w"> </span><span class="k">data</span><span class="p">,</span><span class="w"> </span><span class="n">cached_at</span>
 <span class="p">)</span>
 <span class="k">SELECT</span>
-<span class="w">    </span><span class="n">lat</span><span class="p">,</span><span class="w"> </span><span class="n">lon</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;open-meteo&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">weather_data</span><span class="p">,</span><span class="w"> </span><span class="k">timestamp</span>
+<span class="w">    </span><span class="n">lat</span><span class="p">,</span><span class="w"> </span><span class="n">lon</span><span class="p">,</span><span class="w"> </span><span class="s1">'open-meteo'</span><span class="p">,</span><span class="w"> </span><span class="n">weather_data</span><span class="p">,</span><span class="w"> </span><span class="k">timestamp</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">weather_advanced</span><span class="p">.</span><span class="n">cache_entries</span><span class="p">;</span>
 </code></pre></div>
 
@@ -2604,10 +2604,10 @@ GET  /v1/costs/categories
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

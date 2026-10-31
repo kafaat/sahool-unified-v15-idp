@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1201,17 +1201,17 @@
 <h3 id="_4">التوصيات<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1">// middleware.ts</span>
 <span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">middleware</span><span class="p">(</span><span class="nx">request</span><span class="o">:</span><span class="w"> </span><span class="kt">NextRequest</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">request</span><span class="p">.</span><span class="nx">cookies</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;access_token&quot;</span><span class="p">)</span><span class="o">?</span><span class="p">.</span><span class="nx">value</span><span class="p">;</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">request</span><span class="p">.</span><span class="nx">cookies</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">"access_token"</span><span class="p">)</span><span class="o">?</span><span class="p">.</span><span class="nx">value</span><span class="p">;</span>
 
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">token</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">request</span><span class="p">.</span><span class="nx">nextUrl</span><span class="p">.</span><span class="nx">pathname</span><span class="p">.</span><span class="nx">startsWith</span><span class="p">(</span><span class="s2">&quot;/dashboard&quot;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">NextResponse</span><span class="p">.</span><span class="nx">redirect</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">URL</span><span class="p">(</span><span class="s2">&quot;/login&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">request</span><span class="p">.</span><span class="nx">url</span><span class="p">));</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">token</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">request</span><span class="p">.</span><span class="nx">nextUrl</span><span class="p">.</span><span class="nx">pathname</span><span class="p">.</span><span class="nx">startsWith</span><span class="p">(</span><span class="s2">"/dashboard"</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">NextResponse</span><span class="p">.</span><span class="nx">redirect</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">URL</span><span class="p">(</span><span class="s2">"/login"</span><span class="p">,</span><span class="w"> </span><span class="nx">request</span><span class="p">.</span><span class="nx">url</span><span class="p">));</span>
 <span class="w">  </span><span class="p">}</span>
 
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">NextResponse</span><span class="p">.</span><span class="nx">next</span><span class="p">();</span>
 <span class="p">}</span>
 
 <span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">matcher</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;/dashboard/:path*&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;/settings/:path*&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nx">matcher</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"/dashboard/:path*"</span><span class="p">,</span><span class="w"> </span><span class="s2">"/settings/:path*"</span><span class="p">],</span>
 <span class="p">};</span>
 </code></pre></div>
 
@@ -1304,7 +1304,7 @@
 <span class="c1">// ✅ جيد</span>
 <span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">error</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="nx">ErrorTracking</span><span class="p">.</span><span class="nx">captureError</span><span class="p">(</span><span class="nx">error</span><span class="p">);</span>
-<span class="w">  </span><span class="nx">showToast</span><span class="p">({</span><span class="w"> </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;error&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;حدث خطأ&#39;</span><span class="w"> </span><span class="p">});</span>
+<span class="w">  </span><span class="nx">showToast</span><span class="p">({</span><span class="w"> </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'error'</span><span class="p">,</span><span class="w"> </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="s1">'حدث خطأ'</span><span class="w"> </span><span class="p">});</span>
 <span class="p">});</span>
 </code></pre></div>
 
@@ -1328,12 +1328,12 @@
 </ul>
 <p><strong>التوصيات:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// إضافة aria-label لجميع الأزرار</span>
-<span class="p">&lt;</span><span class="nt">button</span><span class="w"> </span><span class="na">aria-label</span><span class="o">=</span><span class="s">&quot;الإشعارات - لديك 3 إشعارات جديدة&quot;</span><span class="p">&gt;</span>
-<span class="w">  </span><span class="p">&lt;</span><span class="nt">Bell</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;w-5 h-5&quot;</span><span class="w"> </span><span class="p">/&gt;</span>
+<span class="p">&lt;</span><span class="nt">button</span><span class="w"> </span><span class="na">aria-label</span><span class="o">=</span><span class="s">"الإشعارات - لديك 3 إشعارات جديدة"</span><span class="p">&gt;</span>
+<span class="w">  </span><span class="p">&lt;</span><span class="nt">Bell</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">"w-5 h-5"</span><span class="w"> </span><span class="p">/&gt;</span>
 <span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
 
 <span class="c1">// إضافة ARIA Roles</span>
-<span class="p">&lt;</span><span class="nt">nav</span><span class="w"> </span><span class="na">role</span><span class="o">=</span><span class="s">&quot;navigation&quot;</span><span class="w"> </span><span class="na">aria-label</span><span class="o">=</span><span class="s">&quot;القائمة الرئيسية&quot;</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">nav</span><span class="w"> </span><span class="na">role</span><span class="o">=</span><span class="s">"navigation"</span><span class="w"> </span><span class="na">aria-label</span><span class="o">=</span><span class="s">"القائمة الرئيسية"</span><span class="p">&gt;</span>
 </code></pre></div>
 
 <h3 id="rtl-support-710">RTL Support (7/10) ✅<a class="headerlink" href="#rtl-support-710" title="Permanent link">&para;</a></h3>
@@ -1367,7 +1367,7 @@
 <span class="c1">// ... 11 ملف آخر</span>
 
 <span class="c1">// ✅ الحل: استخدام @sahool/api-client</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SahoolApiClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/api-client&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SahoolApiClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@sahool/api-client"</span><span class="p">;</span>
 </code></pre></div>
 
 <h4 id="52">5.2 تكرار المكونات<a class="headerlink" href="#52" title="Permanent link">&para;</a></h4>
@@ -1609,10 +1609,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

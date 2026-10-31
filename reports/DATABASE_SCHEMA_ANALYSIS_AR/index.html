@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1348,15 +1348,15 @@
 <hr />
 <h4 id="research-core-fieldsfarms"><strong>Research Core → Fields/Farms</strong><a class="headerlink" href="#research-core-fieldsfarms" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1">// في Research Core</span>
-<span class="n">farmId</span><span class="w"> </span><span class="n">String</span>?<span class="w"> </span><span class="p">@</span><span class="n">map</span><span class="p">(</span><span class="s">&quot;farm_id&quot;</span><span class="p">)</span><span class="w">  </span><span class="c1">// لا توجد relation معرفة</span>
+<span class="n">farmId</span><span class="w"> </span><span class="n">String</span>?<span class="w"> </span><span class="p">@</span><span class="n">map</span><span class="p">(</span><span class="s">"farm_id"</span><span class="p">)</span><span class="w">  </span><span class="c1">// لا توجد relation معرفة</span>
 </code></pre></div>
 
 <p><strong>المشكلة:</strong> المزارع موجودة في خدمة Fields، لكن يتم الإشارة إليها من خدمة Research</p>
 <hr />
 <h4 id="marketplace-users"><strong>Marketplace → Users</strong><a class="headerlink" href="#marketplace-users" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1">// في Marketplace</span>
-<span class="n">sellerId</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="p">@</span><span class="n">map</span><span class="p">(</span><span class="s">&quot;seller_id&quot;</span><span class="p">)</span><span class="w">  </span><span class="c1">// يشير إلى users</span>
-<span class="n">buyerId</span><span class="w">  </span><span class="n">String</span><span class="w"> </span><span class="p">@</span><span class="n">map</span><span class="p">(</span><span class="s">&quot;buyer_id&quot;</span><span class="p">)</span><span class="w">   </span><span class="c1">// يشير إلى users</span>
+<span class="n">sellerId</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="p">@</span><span class="n">map</span><span class="p">(</span><span class="s">"seller_id"</span><span class="p">)</span><span class="w">  </span><span class="c1">// يشير إلى users</span>
+<span class="n">buyerId</span><span class="w">  </span><span class="n">String</span><span class="w"> </span><span class="p">@</span><span class="n">map</span><span class="p">(</span><span class="s">"buyer_id"</span><span class="p">)</span><span class="w">   </span><span class="c1">// يشير إلى users</span>
 </code></pre></div>
 
 <p><strong>المشكلة:</strong> الاعتماد على جدول users من خدمة مختلفة</p>
@@ -1437,7 +1437,7 @@
 
 <span class="c1">-- Partial index للأداء الأفضل (آخر 30 يوم فقط)</span>
 <span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_iot_readings_recent</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">iot_readings</span><span class="p">(</span><span class="n">device_id</span><span class="p">,</span><span class="w"> </span><span class="n">recorded_at</span><span class="p">)</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">recorded_at</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">NOW</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">INTERVAL</span><span class="w"> </span><span class="s1">&#39;30 days&#39;</span><span class="p">;</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">recorded_at</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">NOW</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">INTERVAL</span><span class="w"> </span><span class="s1">'30 days'</span><span class="p">;</span>
 </code></pre></div>
 
 <hr />
@@ -1537,7 +1537,7 @@
 <h3 id="52-enums">🟡 5.2 عدم اتساق في الـENUMs<a class="headerlink" href="#52-enums" title="Permanent link">&para;</a></h3>
 <h4 id="field_status"><strong>مثال: field_status</strong><a class="headerlink" href="#field_status" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1">-- في infra SQL</span>
-<span class="k">CREATE</span><span class="w"> </span><span class="k">TYPE</span><span class="w"> </span><span class="n">field_status</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">ENUM</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;active&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;fallow&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;preparing&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;harvested&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;archived&#39;</span><span class="p">);</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">TYPE</span><span class="w"> </span><span class="n">field_status</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">ENUM</span><span class="w"> </span><span class="p">(</span><span class="s1">'active'</span><span class="p">,</span><span class="w"> </span><span class="s1">'fallow'</span><span class="p">,</span><span class="w"> </span><span class="s1">'preparing'</span><span class="p">,</span><span class="w"> </span><span class="s1">'harvested'</span><span class="p">,</span><span class="w"> </span><span class="s1">'archived'</span><span class="p">);</span>
 
 <span class="c1">-- في Field Core Prisma</span>
 <span class="n">enum</span><span class="w"> </span><span class="n">FieldStatus</span><span class="w"> </span><span class="err">{</span>
@@ -1545,7 +1545,7 @@
 <span class="w">  </span><span class="n">fallow</span>
 <span class="w">  </span><span class="n">harvested</span>
 <span class="w">  </span><span class="n">preparing</span>
-<span class="w">  </span><span class="n">inactive</span><span class="w">  </span><span class="o">//</span><span class="w"> </span><span class="err">مختلف</span><span class="w"> </span><span class="err">عن</span><span class="w"> </span><span class="s1">&#39;archived&#39;</span>
+<span class="w">  </span><span class="n">inactive</span><span class="w">  </span><span class="o">//</span><span class="w"> </span><span class="err">مختلف</span><span class="w"> </span><span class="err">عن</span><span class="w"> </span><span class="s1">'archived'</span>
 <span class="err">}</span>
 </code></pre></div>
 
@@ -1554,13 +1554,13 @@
 <hr />
 <h4 id="task_type"><strong>مثال: task_type</strong><a class="headerlink" href="#task_type" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1">-- في infra SQL</span>
-<span class="k">CREATE</span><span class="w"> </span><span class="k">TYPE</span><span class="w"> </span><span class="n">task_type</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">ENUM</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;irrigation&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;fertilization&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;pesticide&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;harvest&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;planting&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;soil_prep&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;pruning&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;inspection&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;maintenance&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;other&#39;</span><span class="p">);</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">TYPE</span><span class="w"> </span><span class="n">task_type</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">ENUM</span><span class="w"> </span><span class="p">(</span><span class="s1">'irrigation'</span><span class="p">,</span><span class="w"> </span><span class="s1">'fertilization'</span><span class="p">,</span><span class="w"> </span><span class="s1">'pesticide'</span><span class="p">,</span><span class="w"> </span><span class="s1">'harvest'</span><span class="p">,</span><span class="w"> </span><span class="s1">'planting'</span><span class="p">,</span><span class="w"> </span><span class="s1">'soil_prep'</span><span class="p">,</span><span class="w"> </span><span class="s1">'pruning'</span><span class="p">,</span><span class="w"> </span><span class="s1">'inspection'</span><span class="p">,</span><span class="w"> </span><span class="s1">'maintenance'</span><span class="p">,</span><span class="w"> </span><span class="s1">'other'</span><span class="p">);</span>
 
 <span class="c1">-- في Field Core Prisma</span>
 <span class="n">enum</span><span class="w"> </span><span class="n">TaskType</span><span class="w"> </span><span class="err">{</span>
 <span class="w">  </span><span class="n">irrigation</span>
 <span class="w">  </span><span class="n">fertilization</span>
-<span class="w">  </span><span class="n">spraying</span><span class="w">  </span><span class="o">//</span><span class="w"> </span><span class="err">مختلف</span><span class="w"> </span><span class="err">عن</span><span class="w"> </span><span class="s1">&#39;pesticide&#39;</span>
+<span class="w">  </span><span class="n">spraying</span><span class="w">  </span><span class="o">//</span><span class="w"> </span><span class="err">مختلف</span><span class="w"> </span><span class="err">عن</span><span class="w"> </span><span class="s1">'pesticide'</span>
 <span class="w">  </span><span class="n">scouting</span><span class="w">  </span><span class="o">//</span><span class="w"> </span><span class="err">غير</span><span class="w"> </span><span class="err">موجود</span><span class="w"> </span><span class="err">في</span><span class="w"> </span><span class="k">SQL</span>
 <span class="w">  </span><span class="n">maintenance</span>
 <span class="w">  </span><span class="n">sampling</span><span class="w">  </span><span class="o">//</span><span class="w"> </span><span class="err">غير</span><span class="w"> </span><span class="err">موجود</span><span class="w"> </span><span class="err">في</span><span class="w"> </span><span class="k">SQL</span>
@@ -1672,15 +1672,15 @@
 <span class="k">CREATE</span><span class="w"> </span><span class="n">EXTENSION</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">postgis</span><span class="p">;</span>
 
 <span class="c1">-- في 00-init-sahool.sql</span>
-<span class="k">CREATE</span><span class="w"> </span><span class="n">EXTENSION</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="ss">&quot;postgis&quot;</span><span class="p">;</span>
-<span class="k">CREATE</span><span class="w"> </span><span class="n">EXTENSION</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="ss">&quot;postgis_topology&quot;</span><span class="p">;</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="n">EXTENSION</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="ss">"postgis"</span><span class="p">;</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="n">EXTENSION</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="ss">"postgis_topology"</span><span class="p">;</span>
 
 <span class="c1">-- في Field Core Prisma migration</span>
 <span class="k">CREATE</span><span class="w"> </span><span class="n">EXTENSION</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">postgis</span><span class="p">;</span>
 <span class="k">CREATE</span><span class="w"> </span><span class="n">EXTENSION</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">postgis_topology</span><span class="p">;</span>
 
 <span class="c1">-- في Field Suite Alembic</span>
-<span class="n">op</span><span class="p">.</span><span class="k">execute</span><span class="p">(</span><span class="ss">&quot;CREATE EXTENSION IF NOT EXISTS postgis;&quot;</span><span class="p">)</span>
+<span class="n">op</span><span class="p">.</span><span class="k">execute</span><span class="p">(</span><span class="ss">"CREATE EXTENSION IF NOT EXISTS postgis;"</span><span class="p">)</span>
 </code></pre></div>
 
 <p><strong>النتيجة:</strong> ✅ استخدام <code>IF NOT EXISTS</code> يمنع الأخطاء، لكن يوضح التكرار</p>
@@ -1772,11 +1772,11 @@
 <span class="p">);</span>
 
 <span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">shared</span><span class="p">.</span><span class="n">field_statuses</span><span class="w"> </span><span class="k">VALUES</span>
-<span class="w">    </span><span class="p">(</span><span class="s1">&#39;active&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Active&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;نشط&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">true</span><span class="p">),</span>
-<span class="w">    </span><span class="p">(</span><span class="s1">&#39;fallow&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Fallow&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;بور&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">true</span><span class="p">),</span>
-<span class="w">    </span><span class="p">(</span><span class="s1">&#39;harvested&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Harvested&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;محصود&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">true</span><span class="p">),</span>
-<span class="w">    </span><span class="p">(</span><span class="s1">&#39;preparing&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Preparing&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;قيد التحضير&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">true</span><span class="p">),</span>
-<span class="w">    </span><span class="p">(</span><span class="s1">&#39;inactive&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Inactive&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;غير نشط&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">true</span><span class="p">);</span>
+<span class="w">    </span><span class="p">(</span><span class="s1">'active'</span><span class="p">,</span><span class="w"> </span><span class="s1">'Active'</span><span class="p">,</span><span class="w"> </span><span class="s1">'نشط'</span><span class="p">,</span><span class="w"> </span><span class="k">true</span><span class="p">),</span>
+<span class="w">    </span><span class="p">(</span><span class="s1">'fallow'</span><span class="p">,</span><span class="w"> </span><span class="s1">'Fallow'</span><span class="p">,</span><span class="w"> </span><span class="s1">'بور'</span><span class="p">,</span><span class="w"> </span><span class="k">true</span><span class="p">),</span>
+<span class="w">    </span><span class="p">(</span><span class="s1">'harvested'</span><span class="p">,</span><span class="w"> </span><span class="s1">'Harvested'</span><span class="p">,</span><span class="w"> </span><span class="s1">'محصود'</span><span class="p">,</span><span class="w"> </span><span class="k">true</span><span class="p">),</span>
+<span class="w">    </span><span class="p">(</span><span class="s1">'preparing'</span><span class="p">,</span><span class="w"> </span><span class="s1">'Preparing'</span><span class="p">,</span><span class="w"> </span><span class="s1">'قيد التحضير'</span><span class="p">,</span><span class="w"> </span><span class="k">true</span><span class="p">),</span>
+<span class="w">    </span><span class="p">(</span><span class="s1">'inactive'</span><span class="p">,</span><span class="w"> </span><span class="s1">'Inactive'</span><span class="p">,</span><span class="w"> </span><span class="s1">'غير نشط'</span><span class="p">,</span><span class="w"> </span><span class="k">true</span><span class="p">);</span>
 
 <span class="c1">-- في الجداول:</span>
 <span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="k">ADD</span><span class="w"> </span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="n">fk_field_status</span>
@@ -1825,7 +1825,7 @@ sahool-core-db (PostgreSQL)
 <h4 id="2-event-driven-architecture"><strong>2. استخدام Event-Driven Architecture للمراجع</strong><a class="headerlink" href="#2-event-driven-architecture" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1">// مثال: عند تحديث field</span>
 <span class="k">await</span><span class="w"> </span><span class="nx">publishEvent</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;field.updated&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s2">"field.updated"</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">tenant_id</span><span class="o">:</span><span class="w"> </span><span class="nx">field</span><span class="p">.</span><span class="nx">tenant_id</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">field_id</span><span class="o">:</span><span class="w"> </span><span class="nx">field</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
@@ -2182,10 +2182,10 @@ Database-per-Service with Event Bus
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

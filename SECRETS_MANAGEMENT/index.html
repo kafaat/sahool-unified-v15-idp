@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1310,15 +1310,15 @@
 </ol>
 <div class="codehilite"><pre><span></span><code><span class="c1"># PostgreSQL password</span>
 openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span><span class="w"> </span>&gt;<span class="w"> </span>/tmp/pg_pass
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;POSTGRES_PASSWORD=</span><span class="k">$(</span>cat<span class="w"> </span>/tmp/pg_pass<span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>.env
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"POSTGRES_PASSWORD=</span><span class="k">$(</span>cat<span class="w"> </span>/tmp/pg_pass<span class="k">)</span><span class="s2">"</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>.env
 
 <span class="c1"># Redis password</span>
 openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span><span class="w"> </span>&gt;<span class="w"> </span>/tmp/redis_pass
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;REDIS_PASSWORD=</span><span class="k">$(</span>cat<span class="w"> </span>/tmp/redis_pass<span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>.env
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"REDIS_PASSWORD=</span><span class="k">$(</span>cat<span class="w"> </span>/tmp/redis_pass<span class="k">)</span><span class="s2">"</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>.env
 
 <span class="c1"># JWT secret</span>
 openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span><span class="w"> </span>&gt;<span class="w"> </span>/tmp/jwt_secret
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;JWT_SECRET_KEY=</span><span class="k">$(</span>cat<span class="w"> </span>/tmp/jwt_secret<span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>.env
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"JWT_SECRET_KEY=</span><span class="k">$(</span>cat<span class="w"> </span>/tmp/jwt_secret<span class="k">)</span><span class="s2">"</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>.env
 
 <span class="c1"># Cleanup</span>
 rm<span class="w"> </span>/tmp/<span class="o">{</span>pg_pass,redis_pass,jwt_secret<span class="o">}</span>
@@ -1409,8 +1409,8 @@ vault<span class="w"> </span>login<span class="w"> </span>&lt;root-token&gt;
 </code></pre></div>
 
 <p>For environment:</p>
-<div class="codehilite"><pre><span></span><code><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;VAULT_ROLE_ID=&lt;role-id&gt;&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>.env
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;VAULT_SECRET_ID=&lt;secret-id&gt;&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>.env
+<div class="codehilite"><pre><span></span><code><span class="nb">echo</span><span class="w"> </span><span class="s2">"VAULT_ROLE_ID=&lt;role-id&gt;"</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>.env
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"VAULT_SECRET_ID=&lt;secret-id&gt;"</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>.env
 </code></pre></div>
 
 <h3 id="5-configure-applications">5. Configure Applications<a class="headerlink" href="#5-configure-applications" title="Permanent link">&para;</a></h3>
@@ -1432,7 +1432,7 @@ python3<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
 <span class="s">    secrets = get_secrets_manager()</span>
 <span class="s">    await secrets.initialize()</span>
 <span class="s">    password = await secrets.get_secret(SecretKey.DATABASE_PASSWORD)</span>
-<span class="s">    print(f&quot;Database password retrieved: {password[:4]}...&quot;)</span>
+<span class="s">    print(f"Database password retrieved: {password[:4]}...")</span>
 
 <span class="s">asyncio.run(test())</span>
 <span class="s">EOF</span>
@@ -1451,17 +1451,17 @@ python3<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
 </ul>
 <p><strong>Enable auto-unseal:</strong></p>
 <p>For AWS:</p>
-<div class="codehilite"><pre><span></span><code><span class="err">seal</span><span class="w"> </span><span class="s2">&quot;awskms&quot;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="na">region</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;us-east-1&quot;</span>
-<span class="w">  </span><span class="na">kms_key_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;alias/sahool-vault-unseal&quot;</span>
+<div class="codehilite"><pre><span></span><code><span class="err">seal</span><span class="w"> </span><span class="s2">"awskms"</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="na">region</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s2">"us-east-1"</span>
+<span class="w">  </span><span class="na">kms_key_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"alias/sahool-vault-unseal"</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <p>For Azure:</p>
-<div class="codehilite"><pre><span></span><code><span class="err">seal</span><span class="w"> </span><span class="s2">&quot;azurekeyvault&quot;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="na">tenant_id</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&lt;tenant-id&gt;&quot;</span>
-<span class="w">  </span><span class="na">vault_name</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;sahool-vault&quot;</span>
-<span class="w">  </span><span class="na">key_name</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;vault-unseal-key&quot;</span>
+<div class="codehilite"><pre><span></span><code><span class="err">seal</span><span class="w"> </span><span class="s2">"azurekeyvault"</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="na">tenant_id</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s2">"&lt;tenant-id&gt;"</span>
+<span class="w">  </span><span class="na">vault_name</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="s2">"sahool-vault"</span>
+<span class="w">  </span><span class="na">key_name</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s2">"vault-unseal-key"</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1500,7 +1500,7 @@ kubectl<span class="w"> </span>describe<span class="w"> </span>secret<span class
 <h3 id="4-force-secret-refresh">4. Force Secret Refresh<a class="headerlink" href="#4-force-secret-refresh" title="Permanent link">&para;</a></h3>
 <p>To immediately refresh secrets:</p>
 <div class="codehilite"><pre><span></span><code>kubectl<span class="w"> </span>annotate<span class="w"> </span>externalsecret<span class="w"> </span>postgresql-credentials<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>force-sync<span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>date<span class="w"> </span>+%s<span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>force-sync<span class="o">=</span><span class="s2">"</span><span class="k">$(</span>date<span class="w"> </span>+%s<span class="k">)</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-n<span class="w"> </span>sahool<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--overwrite
 </code></pre></div>
@@ -1643,12 +1643,12 @@ Secret: jwt
 <span class="c1"># Log secret access</span>
 <span class="n">event</span> <span class="o">=</span> <span class="n">SecretAccessEvent</span><span class="p">(</span>
     <span class="n">access_type</span><span class="o">=</span><span class="n">SecretAccessType</span><span class="o">.</span><span class="n">READ</span><span class="p">,</span>
-    <span class="n">secret_path</span><span class="o">=</span><span class="s2">&quot;database/password&quot;</span><span class="p">,</span>
-    <span class="n">backend</span><span class="o">=</span><span class="s2">&quot;vault&quot;</span><span class="p">,</span>
+    <span class="n">secret_path</span><span class="o">=</span><span class="s2">"database/password"</span><span class="p">,</span>
+    <span class="n">backend</span><span class="o">=</span><span class="s2">"vault"</span><span class="p">,</span>
     <span class="n">result</span><span class="o">=</span><span class="n">AccessResult</span><span class="o">.</span><span class="n">SUCCESS</span><span class="p">,</span>
-    <span class="n">user</span><span class="o">=</span><span class="s2">&quot;field-ops-service&quot;</span><span class="p">,</span>
-    <span class="n">source_ip</span><span class="o">=</span><span class="s2">&quot;10.0.1.15&quot;</span><span class="p">,</span>
-    <span class="n">service</span><span class="o">=</span><span class="s2">&quot;field-ops&quot;</span><span class="p">,</span>
+    <span class="n">user</span><span class="o">=</span><span class="s2">"field-ops-service"</span><span class="p">,</span>
+    <span class="n">source_ip</span><span class="o">=</span><span class="s2">"10.0.1.15"</span><span class="p">,</span>
+    <span class="n">service</span><span class="o">=</span><span class="s2">"field-ops"</span><span class="p">,</span>
     <span class="n">duration_ms</span><span class="o">=</span><span class="mf">45.2</span>
 <span class="p">)</span>
 
@@ -1697,13 +1697,13 @@ Secret: jwt
 
 <span class="nb">print</span><span class="p">(</span><span class="n">stats</span><span class="p">)</span>
 <span class="c1"># {</span>
-<span class="c1">#   &quot;total_accesses&quot;: 1250,</span>
-<span class="c1">#   &quot;successful&quot;: 1248,</span>
-<span class="c1">#   &quot;failed&quot;: 2,</span>
-<span class="c1">#   &quot;unique_users&quot;: 15,</span>
-<span class="c1">#   &quot;unique_paths&quot;: 42,</span>
-<span class="c1">#   &quot;by_backend&quot;: {&quot;vault&quot;: 1200, &quot;environment&quot;: 50},</span>
-<span class="c1">#   &quot;by_user&quot;: {&quot;field-ops&quot;: 400, &quot;weather-core&quot;: 350, ...}</span>
+<span class="c1">#   "total_accesses": 1250,</span>
+<span class="c1">#   "successful": 1248,</span>
+<span class="c1">#   "failed": 2,</span>
+<span class="c1">#   "unique_users": 15,</span>
+<span class="c1">#   "unique_paths": 42,</span>
+<span class="c1">#   "by_backend": {"vault": 1200, "environment": 50},</span>
+<span class="c1">#   "by_user": {"field-ops": 400, "weather-core": 350, ...}</span>
 <span class="c1"># }</span>
 </code></pre></div>
 
@@ -1715,10 +1715,10 @@ Secret: jwt
 openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span>
 
 <span class="c1"># Good ✅</span>
-python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import secrets; print(secrets.token_urlsafe(32))&quot;</span>
+python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import secrets; print(secrets.token_urlsafe(32))"</span>
 
 <span class="c1"># Bad ❌</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;password123&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"password123"</span>
 
 <span class="c1"># Bad ❌</span>
 date<span class="w"> </span>+%s<span class="w"> </span><span class="p">|</span><span class="w"> </span>sha256sum
@@ -1765,7 +1765,7 @@ chmod<span class="w"> </span><span class="m">700</span><span class="w"> </span>s
 <div class="codehilite"><pre><span></span><code><span class="c1"># Good ✅ - Only request needed secrets</span>
 <span class="n">password</span> <span class="o">=</span> <span class="k">await</span> <span class="n">secrets</span><span class="o">.</span><span class="n">get_secret</span><span class="p">(</span><span class="n">SecretKey</span><span class="o">.</span><span class="n">DATABASE_PASSWORD</span><span class="p">)</span>
 
-<span class="c1"># Bad ❌ - Don&#39;t fetch all secrets</span>
+<span class="c1"># Bad ❌ - Don't fetch all secrets</span>
 <span class="n">all_secrets</span> <span class="o">=</span> <span class="k">await</span> <span class="n">secrets</span><span class="o">.</span><span class="n">get_all_secrets</span><span class="p">()</span>
 </code></pre></div>
 
@@ -1974,7 +1974,7 @@ kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> <
 <ol>
 <li>Check database connectivity:</li>
 </ol>
-<div class="codehilite"><pre><span></span><code><span class="nv">PGPASSWORD</span><span class="o">=</span><span class="nv">$POSTGRES_ADMIN_PASSWORD</span><span class="w"> </span>psql<span class="w"> </span>-h<span class="w"> </span>postgres<span class="w"> </span>-U<span class="w"> </span>postgres<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SELECT 1&quot;</span>
+<div class="codehilite"><pre><span></span><code><span class="nv">PGPASSWORD</span><span class="o">=</span><span class="nv">$POSTGRES_ADMIN_PASSWORD</span><span class="w"> </span>psql<span class="w"> </span>-h<span class="w"> </span>postgres<span class="w"> </span>-U<span class="w"> </span>postgres<span class="w"> </span>-c<span class="w"> </span><span class="s2">"SELECT 1"</span>
 </code></pre></div>
 
 <ol>
@@ -2069,10 +2069,10 @@ cat<span class="w"> </span>.rotation-state/database_last_rotation
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

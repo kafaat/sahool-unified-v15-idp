@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -2535,10 +2535,10 @@ appuser:1000  ████████░░░░░░░░░░░░░░
 <span class="k">WORKDIR</span><span class="w"> </span><span class="s">/home/sahool</span>
 <span class="k">ENV</span><span class="w"> </span><span class="nv">VIRTUAL_ENV</span><span class="o">=</span>/home/sahool/venv
 <span class="k">RUN</span><span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span><span class="nv">$VIRTUAL_ENV</span>
-<span class="k">ENV</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$VIRTUAL_ENV</span><span class="s2">/bin:</span><span class="nv">$PATH</span><span class="s2">&quot;</span>
+<span class="k">ENV</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">"</span><span class="nv">$VIRTUAL_ENV</span><span class="s2">/bin:</span><span class="nv">$PATH</span><span class="s2">"</span>
 
 <span class="c"># pip.conf مع mirrors متعددة</span>
-<span class="k">RUN</span><span class="w"> </span>mkdir<span class="w"> </span>-p<span class="w"> </span>~/.pip<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>cat<span class="w"> </span>&gt;<span class="w"> </span>~/.pip/pip.conf<span class="w"> </span>&lt;&lt;<span class="s1">&#39;EOF&#39;</span>
+<span class="k">RUN</span><span class="w"> </span>mkdir<span class="w"> </span>-p<span class="w"> </span>~/.pip<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>cat<span class="w"> </span>&gt;<span class="w"> </span>~/.pip/pip.conf<span class="w"> </span>&lt;&lt;<span class="s1">'EOF'</span>
 <span class="o">[</span>global<span class="o">]</span>
 <span class="nv">timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">300</span>
 <span class="nv">retries</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">10</span>
@@ -2561,13 +2561,13 @@ EOF
 <span class="k">FROM</span><span class="w"> </span><span class="s">base</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="s">production</span>
 <span class="k">ARG</span><span class="w"> </span><span class="nv">SERVICE_NAME</span><span class="o">=</span>service-name
 <span class="k">ARG</span><span class="w"> </span><span class="nv">SERVICE_VERSION</span><span class="o">=</span><span class="m">16</span>.0.0
-<span class="k">LABEL</span><span class="w"> </span>org.opencontainers.image.title<span class="o">=</span><span class="s2">&quot;SAHOOL </span><span class="si">${</span><span class="nv">SERVICE_NAME</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">      </span>org.opencontainers.image.version<span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">SERVICE_VERSION</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">      </span>org.opencontainers.image.vendor<span class="o">=</span><span class="s2">&quot;KAFAAT&quot;</span>
+<span class="k">LABEL</span><span class="w"> </span>org.opencontainers.image.title<span class="o">=</span><span class="s2">"SAHOOL </span><span class="si">${</span><span class="nv">SERVICE_NAME</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>org.opencontainers.image.version<span class="o">=</span><span class="s2">"</span><span class="si">${</span><span class="nv">SERVICE_VERSION</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>org.opencontainers.image.vendor<span class="o">=</span><span class="s2">"KAFAAT"</span>
 
 <span class="k">COPY</span><span class="w"> </span>--from<span class="o">=</span>builder<span class="w"> </span>--chown<span class="o">=</span>sahool:sahool<span class="w"> </span>/home/sahool/venv<span class="w"> </span>/home/sahool/venv
 <span class="k">ENV</span><span class="w"> </span><span class="nv">VIRTUAL_ENV</span><span class="o">=</span>/home/sahool/venv
-<span class="k">ENV</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$VIRTUAL_ENV</span><span class="s2">/bin:</span><span class="nv">$PATH</span><span class="s2">&quot;</span>
+<span class="k">ENV</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">"</span><span class="nv">$VIRTUAL_ENV</span><span class="s2">/bin:</span><span class="nv">$PATH</span><span class="s2">"</span>
 <span class="k">ENV</span><span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span>/app
 <span class="k">WORKDIR</span><span class="w"> </span><span class="s">/app</span>
 
@@ -2578,9 +2578,9 @@ EOF
 <span class="k">EXPOSE</span><span class="w"> </span><span class="s">8XXX</span>
 
 <span class="k">HEALTHCHECK</span><span class="w"> </span>--interval<span class="o">=</span>30s<span class="w"> </span>--timeout<span class="o">=</span>10s<span class="w"> </span>--start-period<span class="o">=</span>30s<span class="w"> </span>--retries<span class="o">=</span><span class="m">3</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>CMD<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import urllib.request; urllib.request.urlopen(&#39;http://localhost:8XXX/healthz&#39;)&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="w">    </span>CMD<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import urllib.request; urllib.request.urlopen('http://localhost:8XXX/healthz')"</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
 
-<span class="k">CMD</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;uvicorn&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;src.main:app&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;0.0.0.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--port&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;8XXX&quot;</span><span class="p">]</span>
+<span class="k">CMD</span><span class="w"> </span><span class="p">[</span><span class="s2">"uvicorn"</span><span class="p">,</span><span class="w"> </span><span class="s2">"src.main:app"</span><span class="p">,</span><span class="w"> </span><span class="s2">"--host"</span><span class="p">,</span><span class="w"> </span><span class="s2">"0.0.0.0"</span><span class="p">,</span><span class="w"> </span><span class="s2">"--port"</span><span class="p">,</span><span class="w"> </span><span class="s2">"8XXX"</span><span class="p">]</span>
 </code></pre></div>
 
 <h3 id="82">8.2 فجوة المطابقة مع المعيار<a class="headerlink" href="#82" title="Permanent link">&para;</a></h3>
@@ -2968,10 +2968,10 @@ EOF
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

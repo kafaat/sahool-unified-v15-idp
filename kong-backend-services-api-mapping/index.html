@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1592,8 +1592,8 @@
 <span class="c1">// OtpRequestDto</span>
 <span class="p">{</span>
 <span class="w">  </span><span class="nx">identifier</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">        </span><span class="c1">// phone or email</span>
-<span class="w">  </span><span class="nx">channel</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;sms&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;whatsapp&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;telegram&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;email&quot;</span><span class="p">;</span>
-<span class="w">  </span><span class="nx">purpose</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;password_reset&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;verify_phone&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">channel</span><span class="o">:</span><span class="w"> </span><span class="s2">"sms"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"whatsapp"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"telegram"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"email"</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">purpose</span><span class="o">:</span><span class="w"> </span><span class="s2">"password_reset"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"verify_phone"</span><span class="p">;</span>
 <span class="w">  </span><span class="nx">language?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1604,7 +1604,7 @@
 <span class="w">  </span><span class="nx">access_token</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">      </span><span class="c1">// JWT</span>
 <span class="w">  </span><span class="nx">refresh_token</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">     </span><span class="c1">// JWT</span>
 <span class="w">  </span><span class="nx">expires_in</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w">        </span><span class="c1">// seconds</span>
-<span class="w">  </span><span class="nx">token_type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Bearer&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">token_type</span><span class="o">:</span><span class="w"> </span><span class="s2">"Bearer"</span><span class="p">;</span>
 <span class="w">  </span><span class="nx">user</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
 <span class="w">    </span><span class="nx">email</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
@@ -1842,7 +1842,7 @@
 <span class="c1">// CreditScore</span>
 <span class="p">{</span>
 <span class="w">  </span><span class="nx">creditScore</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w">      </span><span class="c1">// 0-1000</span>
-<span class="w">  </span><span class="nx">rating</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;A&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;B&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;C&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;D&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;E&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">rating</span><span class="o">:</span><span class="w"> </span><span class="s2">"A"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"B"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"C"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"D"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"E"</span><span class="p">;</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -2114,19 +2114,19 @@
 </table>
 <p><strong>Enums:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="kd">enum</span><span class="w"> </span><span class="nx">DisasterType</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">FLOOD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;flood&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">DROUGHT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;drought&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">FROST</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;frost&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">PEST</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;pest&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">HAIL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;hail&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">FIRE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;fire&quot;</span>
+<span class="w">  </span><span class="nx">FLOOD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"flood"</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">DROUGHT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"drought"</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">FROST</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"frost"</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">PEST</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"pest"</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">HAIL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"hail"</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">FIRE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"fire"</span>
 <span class="p">}</span>
 
 <span class="kd">enum</span><span class="w"> </span><span class="nx">Severity</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">LOW</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;low&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">MEDIUM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;medium&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">HIGH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;high&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">CRITICAL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;critical&quot;</span>
+<span class="w">  </span><span class="nx">LOW</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"low"</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">MEDIUM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"medium"</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">HIGH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"high"</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">CRITICAL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"critical"</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -2440,12 +2440,12 @@
 <p><strong>Input Models:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// MethodSelectorDto</span>
 <span class="p">{</span>
-<span class="w">  </span><span class="nx">budget</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;high&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;medium&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;low&quot;</span><span class="p">;</span>
-<span class="w">  </span><span class="nx">terrain</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;plain&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;mountain&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;greenhouse&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;terrace&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">budget</span><span class="o">:</span><span class="w"> </span><span class="s2">"high"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"medium"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"low"</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">terrain</span><span class="o">:</span><span class="w"> </span><span class="s2">"plain"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"mountain"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"greenhouse"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"terrace"</span><span class="p">;</span>
 <span class="w">  </span><span class="nx">cropType</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
-<span class="w">  </span><span class="nx">cropValue</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;high&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;medium&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;low&quot;</span><span class="p">;</span>
-<span class="w">  </span><span class="nx">technicalCapability</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;advanced&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;basic&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;minimal&quot;</span><span class="p">;</span>
-<span class="w">  </span><span class="nx">waterAvailability</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;abundant&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;limited&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;scarce&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">cropValue</span><span class="o">:</span><span class="w"> </span><span class="s2">"high"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"medium"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"low"</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">technicalCapability</span><span class="o">:</span><span class="w"> </span><span class="s2">"advanced"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"basic"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"minimal"</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">waterAvailability</span><span class="o">:</span><span class="w"> </span><span class="s2">"abundant"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"limited"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"scarce"</span><span class="p">;</span>
 <span class="p">}</span>
 
 <span class="c1">// ETcCalculateDto</span>
@@ -2453,7 +2453,7 @@
 <span class="w">  </span><span class="nx">cropType</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
 <span class="w">  </span><span class="nx">daysAfterPlanting</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
 <span class="w">  </span><span class="nx">et0</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w">                    </span><span class="c1">// mm/day</span>
-<span class="w">  </span><span class="nx">soilType</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;sandy&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;loam&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;clay&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;silt&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">soilType</span><span class="o">:</span><span class="w"> </span><span class="s2">"sandy"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"loam"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"clay"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"silt"</span><span class="p">;</span>
 <span class="w">  </span><span class="nx">stressCoefficient?</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w">     </span><span class="c1">// 0-1</span>
 <span class="w">  </span><span class="nx">growthStageAdjustment?</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
 <span class="p">}</span>
@@ -2470,10 +2470,10 @@
 <span class="w">  </span><span class="p">};</span>
 <span class="w">  </span><span class="nx">weatherForecast</span><span class="o">:</span><span class="w"> </span><span class="kt">WeatherDay</span><span class="p">[];</span>
 <span class="w">  </span><span class="nx">irrigationSystem</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;drip&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;sprinkler&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;furrow&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;flood&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s2">"drip"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"sprinkler"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"furrow"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"flood"</span><span class="p">;</span>
 <span class="w">    </span><span class="nx">efficiency</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
 <span class="w">  </span><span class="p">};</span>
-<span class="w">  </span><span class="nx">budget</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;high&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;medium&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;low&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">budget</span><span class="o">:</span><span class="w"> </span><span class="s2">"high"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"medium"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"low"</span><span class="p">;</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -2583,12 +2583,12 @@
 </table>
 <p><strong>Enums:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="kd">enum</span><span class="w"> </span><span class="nx">SensorType</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">TEMPERATURE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;temperature&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">HUMIDITY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;humidity&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">SOIL_MOISTURE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;soil_moisture&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">EC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;ec&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">PH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;ph&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">SOIL_TEMP</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;soil_temp&quot;</span>
+<span class="w">  </span><span class="nx">TEMPERATURE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"temperature"</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">HUMIDITY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"humidity"</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">SOIL_MOISTURE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"soil_moisture"</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">EC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"ec"</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">PH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"ph"</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">SOIL_TEMP</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"soil_temp"</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -3233,23 +3233,23 @@
 </table>
 <p><strong>Enums:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">IndicatorCategory</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
-    <span class="n">VEGETATION</span> <span class="o">=</span> <span class="s2">&quot;vegetation&quot;</span>
-    <span class="n">WATER</span> <span class="o">=</span> <span class="s2">&quot;water&quot;</span>
-    <span class="n">SOIL</span> <span class="o">=</span> <span class="s2">&quot;soil&quot;</span>
-    <span class="n">WEATHER</span> <span class="o">=</span> <span class="s2">&quot;weather&quot;</span>
-    <span class="n">CROP_HEALTH</span> <span class="o">=</span> <span class="s2">&quot;crop_health&quot;</span>
-    <span class="n">PRODUCTIVITY</span> <span class="o">=</span> <span class="s2">&quot;productivity&quot;</span>
-    <span class="n">FINANCIAL</span> <span class="o">=</span> <span class="s2">&quot;financial&quot;</span>
+    <span class="n">VEGETATION</span> <span class="o">=</span> <span class="s2">"vegetation"</span>
+    <span class="n">WATER</span> <span class="o">=</span> <span class="s2">"water"</span>
+    <span class="n">SOIL</span> <span class="o">=</span> <span class="s2">"soil"</span>
+    <span class="n">WEATHER</span> <span class="o">=</span> <span class="s2">"weather"</span>
+    <span class="n">CROP_HEALTH</span> <span class="o">=</span> <span class="s2">"crop_health"</span>
+    <span class="n">PRODUCTIVITY</span> <span class="o">=</span> <span class="s2">"productivity"</span>
+    <span class="n">FINANCIAL</span> <span class="o">=</span> <span class="s2">"financial"</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">AlertSeverity</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
-    <span class="n">INFO</span> <span class="o">=</span> <span class="s2">&quot;info&quot;</span>
-    <span class="n">WARNING</span> <span class="o">=</span> <span class="s2">&quot;warning&quot;</span>
-    <span class="n">CRITICAL</span> <span class="o">=</span> <span class="s2">&quot;critical&quot;</span>
+    <span class="n">INFO</span> <span class="o">=</span> <span class="s2">"info"</span>
+    <span class="n">WARNING</span> <span class="o">=</span> <span class="s2">"warning"</span>
+    <span class="n">CRITICAL</span> <span class="o">=</span> <span class="s2">"critical"</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">TrendDirection</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
-    <span class="n">UP</span> <span class="o">=</span> <span class="s2">&quot;up&quot;</span>
-    <span class="n">DOWN</span> <span class="o">=</span> <span class="s2">&quot;down&quot;</span>
-    <span class="n">STABLE</span> <span class="o">=</span> <span class="s2">&quot;stable&quot;</span>
+    <span class="n">UP</span> <span class="o">=</span> <span class="s2">"up"</span>
+    <span class="n">DOWN</span> <span class="o">=</span> <span class="s2">"down"</span>
+    <span class="n">STABLE</span> <span class="o">=</span> <span class="s2">"stable"</span>
 </code></pre></div>
 
 <p><strong>Output Models:</strong></p>
@@ -3470,7 +3470,7 @@
 
 <span class="k">class</span><span class="w"> </span><span class="nc">ChillHoursRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
     <span class="n">hourly_temps</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
-    <span class="n">model</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;simple&quot;</span>      <span class="c1"># simple/utah/dynamic</span>
+    <span class="n">model</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"simple"</span>      <span class="c1"># simple/utah/dynamic</span>
     <span class="n">base_temp_c</span><span class="p">:</span> <span class="nb">float</span>
 </code></pre></div>
 
@@ -3676,7 +3676,7 @@
     <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">crop</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">symptoms</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
-    <span class="n">lang</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ar&quot;</span>
+    <span class="n">lang</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"ar"</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">NDVIAssessRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
     <span class="n">tenant_id</span><span class="p">:</span> <span class="nb">str</span>
@@ -3691,7 +3691,7 @@
     <span class="n">leaf_color</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">crop</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">lang</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ar&quot;</span>
+    <span class="n">lang</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"ar"</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">FertilizerPlanRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
     <span class="n">tenant_id</span><span class="p">:</span> <span class="nb">str</span>
@@ -3875,32 +3875,32 @@
 
 <p><strong>Enums:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">CropType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
-    <span class="n">TOMATO</span> <span class="o">=</span> <span class="s2">&quot;tomato&quot;</span>
-    <span class="n">WHEAT</span> <span class="o">=</span> <span class="s2">&quot;wheat&quot;</span>
-    <span class="n">COFFEE</span> <span class="o">=</span> <span class="s2">&quot;coffee&quot;</span>
-    <span class="n">QAT</span> <span class="o">=</span> <span class="s2">&quot;qat&quot;</span>
+    <span class="n">TOMATO</span> <span class="o">=</span> <span class="s2">"tomato"</span>
+    <span class="n">WHEAT</span> <span class="o">=</span> <span class="s2">"wheat"</span>
+    <span class="n">COFFEE</span> <span class="o">=</span> <span class="s2">"coffee"</span>
+    <span class="n">QAT</span> <span class="o">=</span> <span class="s2">"qat"</span>
     <span class="c1"># ... 15 types</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">GrowthStage</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
-    <span class="n">SEEDLING</span> <span class="o">=</span> <span class="s2">&quot;seedling&quot;</span>
-    <span class="n">VEGETATIVE</span> <span class="o">=</span> <span class="s2">&quot;vegetative&quot;</span>
-    <span class="n">FLOWERING</span> <span class="o">=</span> <span class="s2">&quot;flowering&quot;</span>
-    <span class="n">FRUITING</span> <span class="o">=</span> <span class="s2">&quot;fruiting&quot;</span>
-    <span class="n">MATURITY</span> <span class="o">=</span> <span class="s2">&quot;maturity&quot;</span>
+    <span class="n">SEEDLING</span> <span class="o">=</span> <span class="s2">"seedling"</span>
+    <span class="n">VEGETATIVE</span> <span class="o">=</span> <span class="s2">"vegetative"</span>
+    <span class="n">FLOWERING</span> <span class="o">=</span> <span class="s2">"flowering"</span>
+    <span class="n">FRUITING</span> <span class="o">=</span> <span class="s2">"fruiting"</span>
+    <span class="n">MATURITY</span> <span class="o">=</span> <span class="s2">"maturity"</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">SoilType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
-    <span class="n">SANDY</span> <span class="o">=</span> <span class="s2">&quot;sandy&quot;</span>
-    <span class="n">SANDY_LOAM</span> <span class="o">=</span> <span class="s2">&quot;sandy_loam&quot;</span>
-    <span class="n">LOAM</span> <span class="o">=</span> <span class="s2">&quot;loam&quot;</span>
-    <span class="n">CLAY_LOAM</span> <span class="o">=</span> <span class="s2">&quot;clay_loam&quot;</span>
-    <span class="n">CLAY</span> <span class="o">=</span> <span class="s2">&quot;clay&quot;</span>
-    <span class="n">SILTY_CLAY</span> <span class="o">=</span> <span class="s2">&quot;silty_clay&quot;</span>
+    <span class="n">SANDY</span> <span class="o">=</span> <span class="s2">"sandy"</span>
+    <span class="n">SANDY_LOAM</span> <span class="o">=</span> <span class="s2">"sandy_loam"</span>
+    <span class="n">LOAM</span> <span class="o">=</span> <span class="s2">"loam"</span>
+    <span class="n">CLAY_LOAM</span> <span class="o">=</span> <span class="s2">"clay_loam"</span>
+    <span class="n">CLAY</span> <span class="o">=</span> <span class="s2">"clay"</span>
+    <span class="n">SILTY_CLAY</span> <span class="o">=</span> <span class="s2">"silty_clay"</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">UrgencyLevel</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
-    <span class="n">CRITICAL</span> <span class="o">=</span> <span class="s2">&quot;critical&quot;</span>
-    <span class="n">HIGH</span> <span class="o">=</span> <span class="s2">&quot;high&quot;</span>
-    <span class="n">MEDIUM</span> <span class="o">=</span> <span class="s2">&quot;medium&quot;</span>
-    <span class="n">LOW</span> <span class="o">=</span> <span class="s2">&quot;low&quot;</span>
+    <span class="n">CRITICAL</span> <span class="o">=</span> <span class="s2">"critical"</span>
+    <span class="n">HIGH</span> <span class="o">=</span> <span class="s2">"high"</span>
+    <span class="n">MEDIUM</span> <span class="o">=</span> <span class="s2">"medium"</span>
+    <span class="n">LOW</span> <span class="o">=</span> <span class="s2">"low"</span>
 </code></pre></div>
 
 <hr />
@@ -4695,16 +4695,16 @@
 </table>
 <p><strong>Enums:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ComplianceLevel</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
-    <span class="n">MAJOR_MUST</span> <span class="o">=</span> <span class="s2">&quot;major_must&quot;</span>
-    <span class="n">MINOR_MUST</span> <span class="o">=</span> <span class="s2">&quot;minor_must&quot;</span>
-    <span class="n">RECOMMENDATION</span> <span class="o">=</span> <span class="s2">&quot;recommendation&quot;</span>
+    <span class="n">MAJOR_MUST</span> <span class="o">=</span> <span class="s2">"major_must"</span>
+    <span class="n">MINOR_MUST</span> <span class="o">=</span> <span class="s2">"minor_must"</span>
+    <span class="n">RECOMMENDATION</span> <span class="o">=</span> <span class="s2">"recommendation"</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">ChecklistStatus</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
-    <span class="n">NOT_STARTED</span> <span class="o">=</span> <span class="s2">&quot;not_started&quot;</span>
-    <span class="n">IN_PROGRESS</span> <span class="o">=</span> <span class="s2">&quot;in_progress&quot;</span>
-    <span class="n">COMPLIANT</span> <span class="o">=</span> <span class="s2">&quot;compliant&quot;</span>
-    <span class="n">NON_COMPLIANT</span> <span class="o">=</span> <span class="s2">&quot;non_compliant&quot;</span>
-    <span class="n">NOT_APPLICABLE</span> <span class="o">=</span> <span class="s2">&quot;not_applicable&quot;</span>
+    <span class="n">NOT_STARTED</span> <span class="o">=</span> <span class="s2">"not_started"</span>
+    <span class="n">IN_PROGRESS</span> <span class="o">=</span> <span class="s2">"in_progress"</span>
+    <span class="n">COMPLIANT</span> <span class="o">=</span> <span class="s2">"compliant"</span>
+    <span class="n">NON_COMPLIANT</span> <span class="o">=</span> <span class="s2">"non_compliant"</span>
+    <span class="n">NOT_APPLICABLE</span> <span class="o">=</span> <span class="s2">"not_applicable"</span>
 </code></pre></div>
 
 <hr />
@@ -5333,8 +5333,8 @@
     <span class="n">crop_type</span><span class="p">:</span> <span class="n">CropType</span>
     <span class="n">avg_rainfall</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">avg_temperature</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
-    <span class="n">soil_quality</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;medium&quot;</span>
-    <span class="n">irrigation_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;rain-fed&quot;</span>
+    <span class="n">soil_quality</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"medium"</span>
+    <span class="n">irrigation_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"rain-fed"</span>
     <span class="n">governorate</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="n">target_yield_kg_ha</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </code></pre></div>
@@ -5459,8 +5459,8 @@
 <div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">AgentExecuteRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
     <span class="n">task</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">task_ar</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
-    <span class="n">agent_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;farm_advisor&quot;</span>
-    <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;hybrid&quot;</span>
+    <span class="n">agent_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"farm_advisor"</span>
+    <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"hybrid"</span>
     <span class="n">context</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span>
     <span class="n">tenant_id</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">field_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
@@ -5471,7 +5471,7 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">QuickAnalysisRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
     <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">tenant_id</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">analysis_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;crop_health&quot;</span>
+    <span class="n">analysis_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"crop_health"</span>
 </code></pre></div>
 
 <p><strong>Output Models:</strong></p>
@@ -5630,14 +5630,14 @@
     <span class="n">category</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">description</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">amount</span><span class="p">:</span> <span class="nb">float</span>
-    <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;YER&quot;</span>
+    <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"YER"</span>
     <span class="n">quantity</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
     <span class="n">unit_cost</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">RevenueItemRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
     <span class="n">description</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">quantity</span><span class="p">:</span> <span class="nb">float</span>
-    <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;kg&quot;</span>
+    <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"kg"</span>
     <span class="n">unit_price</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">grade</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 
@@ -5964,10 +5964,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

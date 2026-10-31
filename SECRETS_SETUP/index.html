@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1286,7 +1286,7 @@ rm<span class="w"> </span>kubeconfig-staging.yaml<span class="w"> </span>kubecon
 <h4 id="verifying-kubeconfig">Verifying Kubeconfig<a class="headerlink" href="#verifying-kubeconfig" title="Permanent link">&para;</a></h4>
 <p>To verify your kubeconfig works:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Decode and test</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;&lt;base64-string&gt;&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>base64<span class="w"> </span>-d<span class="w"> </span>&gt;<span class="w"> </span>test-kubeconfig.yaml
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"&lt;base64-string&gt;"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>base64<span class="w"> </span>-d<span class="w"> </span>&gt;<span class="w"> </span>test-kubeconfig.yaml
 kubectl<span class="w"> </span>--kubeconfig<span class="o">=</span>test-kubeconfig.yaml<span class="w"> </span>get<span class="w"> </span>nodes
 
 <span class="c1"># Clean up</span>
@@ -1444,8 +1444,8 @@ openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w
 <li>Test the webhook before deploying</li>
 </ul>
 <p><strong>Testing the Webhook:</strong></p>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>-H<span class="w"> </span><span class="s1">&#39;Content-type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--data<span class="w"> </span><span class="s1">&#39;{&quot;text&quot;:&quot;Test message from SAHOOL&quot;}&#39;</span><span class="w"> </span><span class="se">\</span>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>-H<span class="w"> </span><span class="s1">'Content-type: application/json'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--data<span class="w"> </span><span class="s1">'{"text":"Test message from SAHOOL"}'</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>YOUR_WEBHOOK_URL
 </code></pre></div>
 
@@ -1508,18 +1508,18 @@ SLACK_WEBHOOK_URL=&lt;production-webhook&gt;
 <span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Check Secrets</span>
 <span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">          </span><span class="no">echo &quot;Checking secrets availability...&quot;</span>
+<span class="w">          </span><span class="no">echo "Checking secrets availability..."</span>
 
 <span class="w">          </span><span class="no"># Check if secrets are set (will show true/false, not the actual values)</span>
-<span class="w">          </span><span class="no">[ -n &quot;${{ secrets.KUBE_CONFIG_STAGING }}&quot; ] &amp;&amp; echo &quot;✓ KUBE_CONFIG_STAGING is set&quot; || echo &quot;✗ KUBE_CONFIG_STAGING is missing&quot;</span>
-<span class="w">          </span><span class="no">[ -n &quot;${{ secrets.POSTGRES_PASSWORD }}&quot; ] &amp;&amp; echo &quot;✓ POSTGRES_PASSWORD is set&quot; || echo &quot;✗ POSTGRES_PASSWORD is missing&quot;</span>
-<span class="w">          </span><span class="no">[ -n &quot;${{ secrets.REDIS_PASSWORD }}&quot; ] &amp;&amp; echo &quot;✓ REDIS_PASSWORD is set&quot; || echo &quot;✗ REDIS_PASSWORD is missing&quot;</span>
-<span class="w">          </span><span class="no">[ -n &quot;${{ secrets.JWT_SECRET }}&quot; ] &amp;&amp; echo &quot;✓ JWT_SECRET is set&quot; || echo &quot;✗ JWT_SECRET is missing&quot;</span>
-<span class="w">          </span><span class="no">[ -n &quot;${{ secrets.OPENWEATHER_API_KEY }}&quot; ] &amp;&amp; echo &quot;✓ OPENWEATHER_API_KEY is set&quot; || echo &quot;✗ OPENWEATHER_API_KEY is missing&quot;</span>
-<span class="w">          </span><span class="no">[ -n &quot;${{ secrets.SENTINEL_HUB_ID }}&quot; ] &amp;&amp; echo &quot;✓ SENTINEL_HUB_ID is set&quot; || echo &quot;✗ SENTINEL_HUB_ID is missing&quot;</span>
-<span class="w">          </span><span class="no">[ -n &quot;${{ secrets.SENTINEL_HUB_SECRET }}&quot; ] &amp;&amp; echo &quot;✓ SENTINEL_HUB_SECRET is set&quot; || echo &quot;✗ SENTINEL_HUB_SECRET is missing&quot;</span>
+<span class="w">          </span><span class="no">[ -n "${{ secrets.KUBE_CONFIG_STAGING }}" ] &amp;&amp; echo "✓ KUBE_CONFIG_STAGING is set" || echo "✗ KUBE_CONFIG_STAGING is missing"</span>
+<span class="w">          </span><span class="no">[ -n "${{ secrets.POSTGRES_PASSWORD }}" ] &amp;&amp; echo "✓ POSTGRES_PASSWORD is set" || echo "✗ POSTGRES_PASSWORD is missing"</span>
+<span class="w">          </span><span class="no">[ -n "${{ secrets.REDIS_PASSWORD }}" ] &amp;&amp; echo "✓ REDIS_PASSWORD is set" || echo "✗ REDIS_PASSWORD is missing"</span>
+<span class="w">          </span><span class="no">[ -n "${{ secrets.JWT_SECRET }}" ] &amp;&amp; echo "✓ JWT_SECRET is set" || echo "✗ JWT_SECRET is missing"</span>
+<span class="w">          </span><span class="no">[ -n "${{ secrets.OPENWEATHER_API_KEY }}" ] &amp;&amp; echo "✓ OPENWEATHER_API_KEY is set" || echo "✗ OPENWEATHER_API_KEY is missing"</span>
+<span class="w">          </span><span class="no">[ -n "${{ secrets.SENTINEL_HUB_ID }}" ] &amp;&amp; echo "✓ SENTINEL_HUB_ID is set" || echo "✗ SENTINEL_HUB_ID is missing"</span>
+<span class="w">          </span><span class="no">[ -n "${{ secrets.SENTINEL_HUB_SECRET }}" ] &amp;&amp; echo "✓ SENTINEL_HUB_SECRET is set" || echo "✗ SENTINEL_HUB_SECRET is missing"</span>
 
-<span class="w">          </span><span class="no">echo &quot;✓ All required secrets are configured!&quot;</span>
+<span class="w">          </span><span class="no">echo "✓ All required secrets are configured!"</span>
 </code></pre></div>
 
 <h3 id="common-issues">Common Issues<a class="headerlink" href="#common-issues" title="Permanent link">&para;</a></h3>
@@ -1565,7 +1565,7 @@ SLACK_WEBHOOK_URL=&lt;production-webhook&gt;
 <span class="c1"># 2. Update in Kubernetes</span>
 kubectl<span class="w"> </span>create<span class="w"> </span>secret<span class="w"> </span>generic<span class="w"> </span>sahool-jwt-secret<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--namespace<span class="o">=</span>sahool-staging<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--from-literal<span class="o">=</span>jwt-secret<span class="o">=</span><span class="s2">&quot;</span><span class="nv">$NEW_JWT_SECRET</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span>jwt-secret<span class="o">=</span><span class="s2">"</span><span class="nv">$NEW_JWT_SECRET</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--dry-run<span class="o">=</span>client<span class="w"> </span>-o<span class="w"> </span>yaml<span class="w"> </span><span class="p">|</span><span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>-
 
 <span class="c1"># 3. Update in GitHub (manual step)</span>
@@ -1656,10 +1656,10 @@ kubectl<span class="w"> </span>rollout<span class="w"> </span>status<span class=
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

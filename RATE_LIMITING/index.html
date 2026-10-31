@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1196,7 +1196,7 @@
 <span class="nv">RATE_LIMIT_ENABLED</span><span class="o">=</span><span class="nb">true</span>
 
 <span class="c1"># Redis Configuration (Required for production)</span>
-<span class="nv">REDIS_URL</span><span class="o">=</span><span class="s2">&quot;redis://:password@redis:6379/0&quot;</span>
+<span class="nv">REDIS_URL</span><span class="o">=</span><span class="s2">"redis://:password@redis:6379/0"</span>
 <span class="nv">REDIS_RATE_LIMIT_DB</span><span class="o">=</span><span class="m">1</span><span class="w">  </span><span class="c1"># Separate DB for rate limiting</span>
 
 <span class="c1"># Free Tier Limits</span>
@@ -1243,12 +1243,12 @@
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastAPI</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">shared.middleware.rate_limiter</span><span class="w"> </span><span class="kn">import</span> <span class="n">RateLimitMiddleware</span>
 
-<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;SAHOOL Field Service&quot;</span><span class="p">)</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"SAHOOL Field Service"</span><span class="p">)</span>
 
 <span class="c1"># Add rate limiting middleware</span>
 <span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span>
     <span class="n">RateLimitMiddleware</span><span class="p">,</span>
-    <span class="n">tier</span><span class="o">=</span><span class="s2">&quot;basic&quot;</span><span class="p">,</span>  <span class="c1"># Default tier for all routes</span>
+    <span class="n">tier</span><span class="o">=</span><span class="s2">"basic"</span><span class="p">,</span>  <span class="c1"># Default tier for all routes</span>
     <span class="n">redis_url</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">REDIS_URL</span>
 <span class="p">)</span>
 </code></pre></div>
@@ -1260,39 +1260,39 @@
 <span class="n">router</span> <span class="o">=</span> <span class="n">APIRouter</span><span class="p">()</span>
 
 <span class="c1"># Public endpoint - Free tier</span>
-<span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/public/fields&quot;</span><span class="p">)</span>
-<span class="nd">@rate_limit</span><span class="p">(</span><span class="n">tier</span><span class="o">=</span><span class="s2">&quot;free&quot;</span><span class="p">)</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/public/fields"</span><span class="p">)</span>
+<span class="nd">@rate_limit</span><span class="p">(</span><span class="n">tier</span><span class="o">=</span><span class="s2">"free"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">list_public_fields</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;List fields - Free tier (30 req/min)&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+<span class="w">    </span><span class="sd">"""List fields - Free tier (30 req/min)"""</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">"fields"</span><span class="p">:</span> <span class="p">[]}</span>
 
 <span class="c1"># Authenticated endpoint - Basic tier</span>
-<span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/fields&quot;</span><span class="p">)</span>
-<span class="nd">@rate_limit</span><span class="p">(</span><span class="n">tier</span><span class="o">=</span><span class="s2">&quot;basic&quot;</span><span class="p">)</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/fields"</span><span class="p">)</span>
+<span class="nd">@rate_limit</span><span class="p">(</span><span class="n">tier</span><span class="o">=</span><span class="s2">"basic"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">list_fields</span><span class="p">(</span><span class="n">user</span><span class="p">:</span> <span class="n">User</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_current_user</span><span class="p">)):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;List user&#39;s fields - Basic tier (60 req/min)&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">fields</span><span class="p">}</span>
+<span class="w">    </span><span class="sd">"""List user's fields - Basic tier (60 req/min)"""</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">"fields"</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">fields</span><span class="p">}</span>
 
 <span class="c1"># Premium feature - Pro tier</span>
-<span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/fields/analytics&quot;</span><span class="p">)</span>
-<span class="nd">@rate_limit</span><span class="p">(</span><span class="n">tier</span><span class="o">=</span><span class="s2">&quot;pro&quot;</span><span class="p">)</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/fields/analytics"</span><span class="p">)</span>
+<span class="nd">@rate_limit</span><span class="p">(</span><span class="n">tier</span><span class="o">=</span><span class="s2">"pro"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_field_analytics</span><span class="p">(</span><span class="n">user</span><span class="p">:</span> <span class="n">User</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_current_user</span><span class="p">)):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Advanced analytics - Pro tier (120 req/min)&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;analytics&quot;</span><span class="p">:</span> <span class="p">{}}</span>
+<span class="w">    </span><span class="sd">"""Advanced analytics - Pro tier (120 req/min)"""</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">"analytics"</span><span class="p">:</span> <span class="p">{}}</span>
 
 <span class="c1"># Internal API - Internal tier</span>
-<span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/internal/sync&quot;</span><span class="p">)</span>
-<span class="nd">@rate_limit</span><span class="p">(</span><span class="n">tier</span><span class="o">=</span><span class="s2">&quot;internal&quot;</span><span class="p">)</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/internal/sync"</span><span class="p">)</span>
+<span class="nd">@rate_limit</span><span class="p">(</span><span class="n">tier</span><span class="o">=</span><span class="s2">"internal"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">internal_sync</span><span class="p">(</span><span class="n">api_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">verify_internal_key</span><span class="p">)):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Internal sync endpoint - Internal tier (1000 req/min)&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;synced&quot;</span><span class="p">}</span>
+<span class="w">    </span><span class="sd">"""Internal sync endpoint - Internal tier (1000 req/min)"""</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">"status"</span><span class="p">:</span> <span class="s2">"synced"</span><span class="p">}</span>
 </code></pre></div>
 
 <h3 id="3-custom-rate-limits">3. Custom Rate Limits | حدود مخصصة<a class="headerlink" href="#3-custom-rate-limits" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.middleware.rate_limiter</span><span class="w"> </span><span class="kn">import</span> <span class="n">rate_limit</span><span class="p">,</span> <span class="n">RateLimitConfig</span>
 
 <span class="c1"># Custom rate limit for expensive operation</span>
-<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/fields/</span><span class="si">{field_id}</span><span class="s2">/analyze&quot;</span><span class="p">)</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">"/fields/</span><span class="si">{field_id}</span><span class="s2">/analyze"</span><span class="p">)</span>
 <span class="nd">@rate_limit</span><span class="p">(</span>
     <span class="n">config</span><span class="o">=</span><span class="n">RateLimitConfig</span><span class="p">(</span>
         <span class="n">requests_per_minute</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
@@ -1301,33 +1301,33 @@
     <span class="p">)</span>
 <span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">analyze_field</span><span class="p">(</span><span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Expensive AI analysis - Custom limits (10 req/min)&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Expensive AI analysis - Custom limits (10 req/min)"""</span>
     <span class="k">return</span> <span class="k">await</span> <span class="n">run_ai_analysis</span><span class="p">(</span><span class="n">field_id</span><span class="p">)</span>
 
 <span class="c1"># Different limits for different HTTP methods</span>
-<span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/inventory&quot;</span><span class="p">)</span>
-<span class="nd">@rate_limit</span><span class="p">(</span><span class="n">tier</span><span class="o">=</span><span class="s2">&quot;basic&quot;</span><span class="p">)</span>  <span class="c1"># 60 req/min for GET</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/inventory"</span><span class="p">)</span>
+<span class="nd">@rate_limit</span><span class="p">(</span><span class="n">tier</span><span class="o">=</span><span class="s2">"basic"</span><span class="p">)</span>  <span class="c1"># 60 req/min for GET</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">list_inventory</span><span class="p">():</span>
-    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;items&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">"items"</span><span class="p">:</span> <span class="p">[]}</span>
 
-<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/inventory&quot;</span><span class="p">)</span>
-<span class="nd">@rate_limit</span><span class="p">(</span><span class="n">tier</span><span class="o">=</span><span class="s2">&quot;pro&quot;</span><span class="p">)</span>  <span class="c1"># 120 req/min for POST</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">"/inventory"</span><span class="p">)</span>
+<span class="nd">@rate_limit</span><span class="p">(</span><span class="n">tier</span><span class="o">=</span><span class="s2">"pro"</span><span class="p">)</span>  <span class="c1"># 120 req/min for POST</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create_inventory_item</span><span class="p">(</span><span class="n">item</span><span class="p">:</span> <span class="n">InventoryItem</span><span class="p">):</span>
-    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;new-item-id&quot;</span><span class="p">}</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">"id"</span><span class="p">:</span> <span class="s2">"new-item-id"</span><span class="p">}</span>
 </code></pre></div>
 
 <h3 id="4-user-based-rate-limiting">4. User-Based Rate Limiting | تحديد المعدل حسب المستخدم<a class="headerlink" href="#4-user-based-rate-limiting" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.middleware.rate_limiter</span><span class="w"> </span><span class="kn">import</span> <span class="n">rate_limit_by_user</span>
 
-<span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/profile&quot;</span><span class="p">)</span>
-<span class="nd">@rate_limit_by_user</span><span class="p">(</span><span class="n">tier_field</span><span class="o">=</span><span class="s2">&quot;subscription_tier&quot;</span><span class="p">)</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/profile"</span><span class="p">)</span>
+<span class="nd">@rate_limit_by_user</span><span class="p">(</span><span class="n">tier_field</span><span class="o">=</span><span class="s2">"subscription_tier"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_profile</span><span class="p">(</span><span class="n">user</span><span class="p">:</span> <span class="n">User</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_current_user</span><span class="p">)):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Rate limit based on user&#39;s subscription tier.</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Rate limit based on user's subscription tier.</span>
 <span class="sd">    Free users: 30 req/min</span>
 <span class="sd">    Basic users: 60 req/min</span>
 <span class="sd">    Pro users: 120 req/min</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">user</span><span class="o">.</span><span class="n">profile</span>
 </code></pre></div>
 
@@ -1335,7 +1335,7 @@
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.middleware.rate_limiter</span><span class="w"> </span><span class="kn">import</span> <span class="n">rate_limit_by_ip</span>
 
 <span class="c1"># Protect login endpoint from brute force</span>
-<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/auth/login&quot;</span><span class="p">)</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">"/auth/login"</span><span class="p">)</span>
 <span class="nd">@rate_limit_by_ip</span><span class="p">(</span>
     <span class="n">config</span><span class="o">=</span><span class="n">RateLimitConfig</span><span class="p">(</span>
         <span class="n">requests_per_minute</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
@@ -1344,7 +1344,7 @@
     <span class="p">)</span>
 <span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">login</span><span class="p">(</span><span class="n">credentials</span><span class="p">:</span> <span class="n">LoginRequest</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Login - 5 attempts per minute per IP&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Login - 5 attempts per minute per IP"""</span>
     <span class="k">return</span> <span class="k">await</span> <span class="n">authenticate</span><span class="p">(</span><span class="n">credentials</span><span class="p">)</span>
 </code></pre></div>
 
@@ -1370,7 +1370,7 @@ X-RateLimit-Reset:<span class="w"> </span><span class="m">1704492000</span>
 X-RateLimit-Tier:<span class="w"> </span>basic
 Content-Type:<span class="w"> </span>application/json
 
-<span class="o">{</span><span class="s2">&quot;fields&quot;</span>:<span class="w"> </span><span class="o">[</span>...<span class="o">]}</span>
+<span class="o">{</span><span class="s2">"fields"</span>:<span class="w"> </span><span class="o">[</span>...<span class="o">]}</span>
 </code></pre></div>
 
 <div class="codehilite"><pre><span></span><code><span class="c1"># Rate limited request</span>
@@ -1385,9 +1385,9 @@ Retry-After:<span class="w"> </span><span class="m">60</span>
 Content-Type:<span class="w"> </span>application/json
 
 <span class="o">{</span>
-<span class="w">  </span><span class="s2">&quot;error&quot;</span>:<span class="w"> </span><span class="s2">&quot;rate_limit_exceeded&quot;</span>,
-<span class="w">  </span><span class="s2">&quot;message&quot;</span>:<span class="w"> </span><span class="s2">&quot;Too many requests. Please try again later.&quot;</span>,
-<span class="w">  </span><span class="s2">&quot;retry_after&quot;</span>:<span class="w"> </span><span class="m">60</span>
+<span class="w">  </span><span class="s2">"error"</span>:<span class="w"> </span><span class="s2">"rate_limit_exceeded"</span>,
+<span class="w">  </span><span class="s2">"message"</span>:<span class="w"> </span><span class="s2">"Too many requests. Please try again later."</span>,
+<span class="w">  </span><span class="s2">"retry_after"</span>:<span class="w"> </span><span class="m">60</span>
 <span class="o">}</span>
 </code></pre></div>
 
@@ -1395,13 +1395,13 @@ Content-Type:<span class="w"> </span>application/json
 <h2 id="monitoring-metrics">🔍 Monitoring &amp; Metrics | المراقبة والمقاييس<a class="headerlink" href="#monitoring-metrics" title="Permanent link">&para;</a></h2>
 <h3 id="prometheus-metrics-prometheus">Prometheus Metrics | مقاييس Prometheus<a class="headerlink" href="#prometheus-metrics-prometheus" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Total requests by tier</span>
-<span class="nv">rate_limit_requests_total</span><span class="p">{</span><span class="nl">tier</span><span class="o">=</span><span class="p">&quot;</span><span class="s">basic</span><span class="p">&quot;}</span>
+<span class="nv">rate_limit_requests_total</span><span class="p">{</span><span class="nl">tier</span><span class="o">=</span><span class="p">"</span><span class="s">basic</span><span class="p">"}</span>
 
 <span class="c1"># Rate limit violations</span>
-<span class="nv">rate_limit_violations_total</span><span class="p">{</span><span class="nl">tier</span><span class="o">=</span><span class="p">&quot;</span><span class="s">basic</span><span class="p">&quot;}</span>
+<span class="nv">rate_limit_violations_total</span><span class="p">{</span><span class="nl">tier</span><span class="o">=</span><span class="p">"</span><span class="s">basic</span><span class="p">"}</span>
 
 <span class="c1"># Current rate limit usage</span>
-<span class="nv">rate_limit_current_usage</span><span class="p">{</span><span class="nl">tier</span><span class="o">=</span><span class="p">&quot;</span><span class="s">basic</span><span class="p">&quot;}</span>
+<span class="nv">rate_limit_current_usage</span><span class="p">{</span><span class="nl">tier</span><span class="o">=</span><span class="p">"</span><span class="s">basic</span><span class="p">"}</span>
 
 <span class="c1"># Redis connection status</span>
 <span class="nv">rate_limit_redis_connected</span>
@@ -1410,25 +1410,25 @@ Content-Type:<span class="w"> </span>application/json
 <h3 id="logging">Logging | السجلات<a class="headerlink" href="#logging" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Rate limit violation logs</span>
 <span class="p">{</span>
-  <span class="s2">&quot;level&quot;</span><span class="p">:</span> <span class="s2">&quot;warning&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Rate limit exceeded&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="s2">&quot;user-123&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;ip&quot;</span><span class="p">:</span> <span class="s2">&quot;192.168.1.100&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;tier&quot;</span><span class="p">:</span> <span class="s2">&quot;basic&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;endpoint&quot;</span><span class="p">:</span> <span class="s2">&quot;/fields&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;limit&quot;</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
-  <span class="s2">&quot;current&quot;</span><span class="p">:</span> <span class="mi">61</span><span class="p">,</span>
-  <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="s2">&quot;2026-01-05T21:00:00Z&quot;</span>
+  <span class="s2">"level"</span><span class="p">:</span> <span class="s2">"warning"</span><span class="p">,</span>
+  <span class="s2">"message"</span><span class="p">:</span> <span class="s2">"Rate limit exceeded"</span><span class="p">,</span>
+  <span class="s2">"user_id"</span><span class="p">:</span> <span class="s2">"user-123"</span><span class="p">,</span>
+  <span class="s2">"ip"</span><span class="p">:</span> <span class="s2">"192.168.1.100"</span><span class="p">,</span>
+  <span class="s2">"tier"</span><span class="p">:</span> <span class="s2">"basic"</span><span class="p">,</span>
+  <span class="s2">"endpoint"</span><span class="p">:</span> <span class="s2">"/fields"</span><span class="p">,</span>
+  <span class="s2">"limit"</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
+  <span class="s2">"current"</span><span class="p">:</span> <span class="mi">61</span><span class="p">,</span>
+  <span class="s2">"timestamp"</span><span class="p">:</span> <span class="s2">"2026-01-05T21:00:00Z"</span>
 <span class="p">}</span>
 
 <span class="c1"># Ban event logs</span>
 <span class="p">{</span>
-  <span class="s2">&quot;level&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;User banned for excessive violations&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="s2">&quot;user-456&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;violations&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
-  <span class="s2">&quot;ban_duration&quot;</span><span class="p">:</span> <span class="mi">3600</span><span class="p">,</span>
-  <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="s2">&quot;2026-01-05T21:05:00Z&quot;</span>
+  <span class="s2">"level"</span><span class="p">:</span> <span class="s2">"error"</span><span class="p">,</span>
+  <span class="s2">"message"</span><span class="p">:</span> <span class="s2">"User banned for excessive violations"</span><span class="p">,</span>
+  <span class="s2">"user_id"</span><span class="p">:</span> <span class="s2">"user-456"</span><span class="p">,</span>
+  <span class="s2">"violations"</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+  <span class="s2">"ban_duration"</span><span class="p">:</span> <span class="mi">3600</span><span class="p">,</span>
+  <span class="s2">"timestamp"</span><span class="p">:</span> <span class="s2">"2026-01-05T21:05:00Z"</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1445,13 +1445,13 @@ Content-Type:<span class="w"> </span>application/json
 <span class="kn">from</span><span class="w"> </span><span class="nn">shared.middleware.rate_limiter</span><span class="w"> </span><span class="kn">import</span> <span class="n">ban_ip</span><span class="p">,</span> <span class="n">unban_ip</span>
 
 <span class="c1"># Ban an IP</span>
-<span class="n">ban_ip</span><span class="p">(</span><span class="s2">&quot;192.168.1.100&quot;</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mi">3600</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;abuse&quot;</span><span class="p">)</span>
+<span class="n">ban_ip</span><span class="p">(</span><span class="s2">"192.168.1.100"</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mi">3600</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s2">"abuse"</span><span class="p">)</span>
 
 <span class="c1"># Unban an IP</span>
-<span class="n">unban_ip</span><span class="p">(</span><span class="s2">&quot;192.168.1.100&quot;</span><span class="p">)</span>
+<span class="n">unban_ip</span><span class="p">(</span><span class="s2">"192.168.1.100"</span><span class="p">)</span>
 
 <span class="c1"># Check if IP is banned</span>
-<span class="n">is_banned</span> <span class="o">=</span> <span class="k">await</span> <span class="n">check_ip_banned</span><span class="p">(</span><span class="s2">&quot;192.168.1.100&quot;</span><span class="p">)</span>
+<span class="n">is_banned</span> <span class="o">=</span> <span class="k">await</span> <span class="n">check_ip_banned</span><span class="p">(</span><span class="s2">"192.168.1.100"</span><span class="p">)</span>
 </code></pre></div>
 
 <h3 id="2-whitelist-blacklist">2. Whitelist / Blacklist | القائمة البيضاء / السوداء<a class="headerlink" href="#2-whitelist-blacklist" title="Permanent link">&para;</a></h3>
@@ -1463,14 +1463,14 @@ Content-Type:<span class="w"> </span>application/json
 <span class="p">)</span>
 
 <span class="c1"># Whitelist an IP (bypass rate limits)</span>
-<span class="n">add_to_whitelist</span><span class="p">(</span><span class="s2">&quot;192.168.1.50&quot;</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;trusted_partner&quot;</span><span class="p">)</span>
+<span class="n">add_to_whitelist</span><span class="p">(</span><span class="s2">"192.168.1.50"</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s2">"trusted_partner"</span><span class="p">)</span>
 
 <span class="c1"># Blacklist an IP (always deny)</span>
-<span class="n">add_to_blacklist</span><span class="p">(</span><span class="s2">&quot;192.168.1.100&quot;</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;malicious_activity&quot;</span><span class="p">)</span>
+<span class="n">add_to_blacklist</span><span class="p">(</span><span class="s2">"192.168.1.100"</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s2">"malicious_activity"</span><span class="p">)</span>
 
 <span class="c1"># Remove from lists</span>
-<span class="n">remove_from_whitelist</span><span class="p">(</span><span class="s2">&quot;192.168.1.50&quot;</span><span class="p">)</span>
-<span class="n">remove_from_blacklist</span><span class="p">(</span><span class="s2">&quot;192.168.1.100&quot;</span><span class="p">)</span>
+<span class="n">remove_from_whitelist</span><span class="p">(</span><span class="s2">"192.168.1.50"</span><span class="p">)</span>
+<span class="n">remove_from_blacklist</span><span class="p">(</span><span class="s2">"192.168.1.100"</span><span class="p">)</span>
 </code></pre></div>
 
 <h3 id="3-burst-protection">3. Burst Protection | حماية من الانفجار<a class="headerlink" href="#3-burst-protection" title="Permanent link">&para;</a></h3>
@@ -1489,7 +1489,7 @@ Content-Type:<span class="w"> </span>application/json
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.middleware.rate_limiter</span><span class="w"> </span><span class="kn">import</span> <span class="n">RateLimiter</span><span class="p">,</span> <span class="n">RateLimitStrategy</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">CustomRateLimitStrategy</span><span class="p">(</span><span class="n">RateLimitStrategy</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Custom strategy: Different limits for weekdays vs weekends&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Custom strategy: Different limits for weekdays vs weekends"""</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
@@ -1509,7 +1509,7 @@ Content-Type:<span class="w"> </span>application/json
 <h3 id="dynamic-rate-limits">Dynamic Rate Limits | حدود ديناميكية<a class="headerlink" href="#dynamic-rate-limits" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.middleware.rate_limiter</span><span class="w"> </span><span class="kn">import</span> <span class="n">dynamic_rate_limit</span>
 
-<span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/fields&quot;</span><span class="p">)</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/fields"</span><span class="p">)</span>
 <span class="nd">@dynamic_rate_limit</span><span class="p">(</span>
     <span class="n">calculate_limit</span><span class="o">=</span><span class="k">lambda</span> <span class="n">user</span><span class="p">:</span> <span class="p">(</span>
         <span class="n">user</span><span class="o">.</span><span class="n">subscription_tier</span><span class="o">.</span><span class="n">rpm</span><span class="p">,</span>
@@ -1517,8 +1517,8 @@ Content-Type:<span class="w"> </span>application/json
     <span class="p">)</span>
 <span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">list_fields</span><span class="p">(</span><span class="n">user</span><span class="p">:</span> <span class="n">User</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_current_user</span><span class="p">)):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Rate limit based on user&#39;s subscription tier&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">fields</span><span class="p">}</span>
+<span class="w">    </span><span class="sd">"""Rate limit based on user's subscription tier"""</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">"fields"</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">fields</span><span class="p">}</span>
 </code></pre></div>
 
 <hr />
@@ -1539,27 +1539,27 @@ Content-Type:<span class="w"> </span>application/json
 
     <span class="c1"># First 7 requests should pass (5 + 2 burst)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="k">await</span> <span class="n">limiter</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s2">&quot;test-user&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="kc">True</span>
+        <span class="k">assert</span> <span class="k">await</span> <span class="n">limiter</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s2">"test-user"</span><span class="p">)</span> <span class="o">==</span> <span class="kc">True</span>
 
     <span class="c1"># 8th request should be rate limited</span>
-    <span class="k">assert</span> <span class="k">await</span> <span class="n">limiter</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s2">&quot;test-user&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="kc">False</span>
+    <span class="k">assert</span> <span class="k">await</span> <span class="n">limiter</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s2">"test-user"</span><span class="p">)</span> <span class="o">==</span> <span class="kc">False</span>
 
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_rate_limit_reset</span><span class="p">():</span>
-    <span class="n">limiter</span> <span class="o">=</span> <span class="n">RateLimiter</span><span class="p">(</span><span class="n">redis_url</span><span class="o">=</span><span class="s2">&quot;redis://localhost&quot;</span><span class="p">)</span>
+    <span class="n">limiter</span> <span class="o">=</span> <span class="n">RateLimiter</span><span class="p">(</span><span class="n">redis_url</span><span class="o">=</span><span class="s2">"redis://localhost"</span><span class="p">)</span>
 
     <span class="c1"># Consume all requests</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">60</span><span class="p">):</span>
-        <span class="k">await</span> <span class="n">limiter</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s2">&quot;test-user&quot;</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">limiter</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s2">"test-user"</span><span class="p">)</span>
 
     <span class="c1"># Should be rate limited</span>
-    <span class="k">assert</span> <span class="k">await</span> <span class="n">limiter</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s2">&quot;test-user&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="kc">False</span>
+    <span class="k">assert</span> <span class="k">await</span> <span class="n">limiter</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s2">"test-user"</span><span class="p">)</span> <span class="o">==</span> <span class="kc">False</span>
 
     <span class="c1"># Wait for reset</span>
     <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">61</span><span class="p">)</span>
 
     <span class="c1"># Should work again</span>
-    <span class="k">assert</span> <span class="k">await</span> <span class="n">limiter</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s2">&quot;test-user&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="kc">True</span>
+    <span class="k">assert</span> <span class="k">await</span> <span class="n">limiter</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s2">"test-user"</span><span class="p">)</span> <span class="o">==</span> <span class="kc">True</span>
 </code></pre></div>
 
 <h3 id="integration-tests">Integration Tests | اختبارات التكامل<a class="headerlink" href="#integration-tests" title="Permanent link">&para;</a></h3>
@@ -1567,22 +1567,22 @@ Content-Type:<span class="w"> </span>application/json
 
 <span class="k">def</span><span class="w"> </span><span class="nf">test_rate_limit_headers</span><span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="n">TestClient</span><span class="p">):</span>
     <span class="c1"># First request</span>
-    <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/fields&quot;</span><span class="p">)</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/fields"</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span>
-    <span class="k">assert</span> <span class="s2">&quot;X-RateLimit-Limit&quot;</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">headers</span>
-    <span class="k">assert</span> <span class="s2">&quot;X-RateLimit-Remaining&quot;</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">headers</span>
-    <span class="k">assert</span> <span class="nb">int</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s2">&quot;X-RateLimit-Remaining&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">59</span>
+    <span class="k">assert</span> <span class="s2">"X-RateLimit-Limit"</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">headers</span>
+    <span class="k">assert</span> <span class="s2">"X-RateLimit-Remaining"</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">headers</span>
+    <span class="k">assert</span> <span class="nb">int</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s2">"X-RateLimit-Remaining"</span><span class="p">])</span> <span class="o">==</span> <span class="mi">59</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">test_rate_limit_exceeded</span><span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="n">TestClient</span><span class="p">):</span>
     <span class="c1"># Exhaust rate limit</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">60</span><span class="p">):</span>
-        <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/fields&quot;</span><span class="p">)</span>
+        <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/fields"</span><span class="p">)</span>
 
     <span class="c1"># Next request should be rate limited</span>
-    <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/fields&quot;</span><span class="p">)</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/fields"</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">429</span>
-    <span class="k">assert</span> <span class="s2">&quot;Retry-After&quot;</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">headers</span>
-    <span class="k">assert</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">&quot;error&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;rate_limit_exceeded&quot;</span>
+    <span class="k">assert</span> <span class="s2">"Retry-After"</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">headers</span>
+    <span class="k">assert</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">"error"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"rate_limit_exceeded"</span>
 </code></pre></div>
 
 <hr />
@@ -1604,7 +1604,7 @@ docker<span class="w"> </span>logs<span class="w"> </span>field-service<span cla
 <span class="nb">export</span><span class="w"> </span><span class="nv">RATE_LIMIT_BASIC_RPM</span><span class="o">=</span><span class="m">120</span>
 
 <span class="c1"># Or upgrade user tier</span>
-UPDATE<span class="w"> </span>users<span class="w"> </span>SET<span class="w"> </span><span class="nv">subscription_tier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;pro&#39;</span><span class="w"> </span>WHERE<span class="w"> </span><span class="nv">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;user-123&#39;</span><span class="p">;</span>
+UPDATE<span class="w"> </span>users<span class="w"> </span>SET<span class="w"> </span><span class="nv">subscription_tier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'pro'</span><span class="w"> </span>WHERE<span class="w"> </span><span class="nv">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'user-123'</span><span class="p">;</span>
 </code></pre></div>
 
 <h4 id="3-redis-connection-issues">3. Redis Connection Issues<a class="headerlink" href="#3-redis-connection-issues" title="Permanent link">&para;</a></h4>
@@ -1613,7 +1613,7 @@ UPDATE<span class="w"> </span>users<span class="w"> </span>SET<span class="w"> <
 
 <span class="c1"># Or check Redis connection</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">redis</span>
-<span class="n">r</span> <span class="o">=</span> <span class="n">redis</span><span class="o">.</span><span class="n">from_url</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;REDIS_URL&quot;</span><span class="p">))</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">redis</span><span class="o">.</span><span class="n">from_url</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"REDIS_URL"</span><span class="p">))</span>
 <span class="n">r</span><span class="o">.</span><span class="n">ping</span><span class="p">()</span>  <span class="c1"># Should return True</span>
 </code></pre></div>
 
@@ -1621,7 +1621,7 @@ UPDATE<span class="w"> </span>users<span class="w"> </span>SET<span class="w"> <
 <h2 id="api-reference-api">📚 API Reference | مرجع API<a class="headerlink" href="#api-reference-api" title="Permanent link">&para;</a></h2>
 <h3 id="ratelimiter-class">RateLimiter Class<a class="headerlink" href="#ratelimiter-class" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">RateLimiter</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Main rate limiter class&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Main rate limiter class"""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1629,25 +1629,25 @@ UPDATE<span class="w"> </span>users<span class="w"> </span>SET<span class="w"> <
         <span class="n">config</span><span class="p">:</span> <span class="n">RateLimitConfig</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">strategy</span><span class="p">:</span> <span class="n">RateLimitStrategy</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize rate limiter&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Initialize rate limiter"""</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">check</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">cost</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if request should be allowed&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Check if request should be allowed"""</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get current usage statistics&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Get current usage statistics"""</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reset rate limit for key&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Reset rate limit for key"""</span>
 </code></pre></div>
 
 <h3 id="decorators">Decorators<a class="headerlink" href="#decorators" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="nd">@rate_limit</span><span class="p">(</span><span class="n">tier</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;basic&quot;</span><span class="p">)</span>
-<span class="nd">@rate_limit_by_user</span><span class="p">(</span><span class="n">tier_field</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;subscription_tier&quot;</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><code><span class="nd">@rate_limit</span><span class="p">(</span><span class="n">tier</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"basic"</span><span class="p">)</span>
+<span class="nd">@rate_limit_by_user</span><span class="p">(</span><span class="n">tier_field</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"subscription_tier"</span><span class="p">)</span>
 <span class="nd">@rate_limit_by_ip</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">RateLimitConfig</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>
 <span class="nd">@dynamic_rate_limit</span><span class="p">(</span><span class="n">calculate_limit</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span>
 </code></pre></div>
@@ -1665,7 +1665,7 @@ UPDATE<span class="w"> </span>users<span class="w"> </span>SET<span class="w"> <
 <span class="c1"># New code</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">shared.middleware.rate_limiter</span><span class="w"> </span><span class="kn">import</span> <span class="n">rate_limit</span>
 
-<span class="nd">@rate_limit</span><span class="p">(</span><span class="n">tier</span><span class="o">=</span><span class="s2">&quot;basic&quot;</span><span class="p">)</span>  <span class="c1"># 60 req/min</span>
+<span class="nd">@rate_limit</span><span class="p">(</span><span class="n">tier</span><span class="o">=</span><span class="s2">"basic"</span><span class="p">)</span>  <span class="c1"># 60 req/min</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">my_endpoint</span><span class="p">():</span>
     <span class="k">pass</span>
 </code></pre></div>
@@ -1732,10 +1732,10 @@ UPDATE<span class="w"> </span>users<span class="w"> </span>SET<span class="w"> <
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

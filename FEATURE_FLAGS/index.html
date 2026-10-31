@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1229,79 +1229,79 @@ argocd<span class="w"> </span>app<span class="w"> </span>create<span class="w"> 
 <span class="nt">data</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">flags.json</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
 <span class="w">    </span><span class="no">{</span>
-<span class="w">      </span><span class="no">&quot;$schema&quot;: &quot;https://flagd.dev/schema/v0/flags.json&quot;,</span>
-<span class="w">      </span><span class="no">&quot;flags&quot;: {</span>
-<span class="w">        </span><span class="no">&quot;ndvi.newPipeline&quot;: {</span>
-<span class="w">          </span><span class="no">&quot;state&quot;: &quot;ENABLED&quot;,</span>
-<span class="w">          </span><span class="no">&quot;variants&quot;: {</span>
-<span class="w">            </span><span class="no">&quot;on&quot;: true,</span>
-<span class="w">            </span><span class="no">&quot;off&quot;: false</span>
+<span class="w">      </span><span class="no">"$schema": "https://flagd.dev/schema/v0/flags.json",</span>
+<span class="w">      </span><span class="no">"flags": {</span>
+<span class="w">        </span><span class="no">"ndvi.newPipeline": {</span>
+<span class="w">          </span><span class="no">"state": "ENABLED",</span>
+<span class="w">          </span><span class="no">"variants": {</span>
+<span class="w">            </span><span class="no">"on": true,</span>
+<span class="w">            </span><span class="no">"off": false</span>
 <span class="w">          </span><span class="no">},</span>
-<span class="w">          </span><span class="no">&quot;defaultVariant&quot;: &quot;off&quot;,</span>
-<span class="w">          </span><span class="no">&quot;targeting&quot;: {</span>
-<span class="w">            </span><span class="no">&quot;if&quot;: [</span>
-<span class="w">              </span><span class="no">{&quot;in&quot;: [&quot;beta&quot;, {&quot;var&quot;: &quot;tenant_tier&quot;}]},</span>
-<span class="w">              </span><span class="no">&quot;on&quot;,</span>
-<span class="w">              </span><span class="no">&quot;off&quot;</span>
+<span class="w">          </span><span class="no">"defaultVariant": "off",</span>
+<span class="w">          </span><span class="no">"targeting": {</span>
+<span class="w">            </span><span class="no">"if": [</span>
+<span class="w">              </span><span class="no">{"in": ["beta", {"var": "tenant_tier"}]},</span>
+<span class="w">              </span><span class="no">"on",</span>
+<span class="w">              </span><span class="no">"off"</span>
 <span class="w">            </span><span class="no">]</span>
 <span class="w">          </span><span class="no">}</span>
 <span class="w">        </span><span class="no">},</span>
-<span class="w">        </span><span class="no">&quot;advisor.promptV2&quot;: {</span>
-<span class="w">          </span><span class="no">&quot;state&quot;: &quot;ENABLED&quot;,</span>
-<span class="w">          </span><span class="no">&quot;variants&quot;: {</span>
-<span class="w">            </span><span class="no">&quot;v1&quot;: &quot;v1&quot;,</span>
-<span class="w">            </span><span class="no">&quot;v2&quot;: &quot;v2&quot;</span>
+<span class="w">        </span><span class="no">"advisor.promptV2": {</span>
+<span class="w">          </span><span class="no">"state": "ENABLED",</span>
+<span class="w">          </span><span class="no">"variants": {</span>
+<span class="w">            </span><span class="no">"v1": "v1",</span>
+<span class="w">            </span><span class="no">"v2": "v2"</span>
 <span class="w">          </span><span class="no">},</span>
-<span class="w">          </span><span class="no">&quot;defaultVariant&quot;: &quot;v1&quot;,</span>
-<span class="w">          </span><span class="no">&quot;targeting&quot;: {</span>
-<span class="w">            </span><span class="no">&quot;fractional&quot;: [</span>
-<span class="w">              </span><span class="no">[&quot;v1&quot;, 70],</span>
-<span class="w">              </span><span class="no">[&quot;v2&quot;, 30]</span>
+<span class="w">          </span><span class="no">"defaultVariant": "v1",</span>
+<span class="w">          </span><span class="no">"targeting": {</span>
+<span class="w">            </span><span class="no">"fractional": [</span>
+<span class="w">              </span><span class="no">["v1", 70],</span>
+<span class="w">              </span><span class="no">["v2", 30]</span>
 <span class="w">            </span><span class="no">]</span>
 <span class="w">          </span><span class="no">}</span>
 <span class="w">        </span><span class="no">},</span>
-<span class="w">        </span><span class="no">&quot;irrigation.smartScheduling&quot;: {</span>
-<span class="w">          </span><span class="no">&quot;state&quot;: &quot;ENABLED&quot;,</span>
-<span class="w">          </span><span class="no">&quot;variants&quot;: {</span>
-<span class="w">            </span><span class="no">&quot;enabled&quot;: true,</span>
-<span class="w">            </span><span class="no">&quot;disabled&quot;: false</span>
+<span class="w">        </span><span class="no">"irrigation.smartScheduling": {</span>
+<span class="w">          </span><span class="no">"state": "ENABLED",</span>
+<span class="w">          </span><span class="no">"variants": {</span>
+<span class="w">            </span><span class="no">"enabled": true,</span>
+<span class="w">            </span><span class="no">"disabled": false</span>
 <span class="w">          </span><span class="no">},</span>
-<span class="w">          </span><span class="no">&quot;defaultVariant&quot;: &quot;disabled&quot;,</span>
-<span class="w">          </span><span class="no">&quot;targeting&quot;: {</span>
-<span class="w">            </span><span class="no">&quot;if&quot;: [</span>
-<span class="w">              </span><span class="no">{&quot;in&quot;: [{&quot;var&quot;: &quot;region&quot;}, [&quot;tihama&quot;, &quot;hadramout&quot;]]},</span>
-<span class="w">              </span><span class="no">&quot;enabled&quot;,</span>
-<span class="w">              </span><span class="no">&quot;disabled&quot;</span>
+<span class="w">          </span><span class="no">"defaultVariant": "disabled",</span>
+<span class="w">          </span><span class="no">"targeting": {</span>
+<span class="w">            </span><span class="no">"if": [</span>
+<span class="w">              </span><span class="no">{"in": [{"var": "region"}, ["tihama", "hadramout"]]},</span>
+<span class="w">              </span><span class="no">"enabled",</span>
+<span class="w">              </span><span class="no">"disabled"</span>
 <span class="w">            </span><span class="no">]</span>
 <span class="w">          </span><span class="no">}</span>
 <span class="w">        </span><span class="no">},</span>
-<span class="w">        </span><span class="no">&quot;marketplace.newUI&quot;: {</span>
-<span class="w">          </span><span class="no">&quot;state&quot;: &quot;ENABLED&quot;,</span>
-<span class="w">          </span><span class="no">&quot;variants&quot;: {</span>
-<span class="w">            </span><span class="no">&quot;enabled&quot;: true,</span>
-<span class="w">            </span><span class="no">&quot;disabled&quot;: false</span>
+<span class="w">        </span><span class="no">"marketplace.newUI": {</span>
+<span class="w">          </span><span class="no">"state": "ENABLED",</span>
+<span class="w">          </span><span class="no">"variants": {</span>
+<span class="w">            </span><span class="no">"enabled": true,</span>
+<span class="w">            </span><span class="no">"disabled": false</span>
 <span class="w">          </span><span class="no">},</span>
-<span class="w">          </span><span class="no">&quot;defaultVariant&quot;: &quot;disabled&quot;,</span>
-<span class="w">          </span><span class="no">&quot;targeting&quot;: {</span>
-<span class="w">            </span><span class="no">&quot;if&quot;: [</span>
-<span class="w">              </span><span class="no">{&quot;&gt;=&quot;: [{&quot;var&quot;: &quot;user_score&quot;}, 80]},</span>
-<span class="w">              </span><span class="no">&quot;enabled&quot;,</span>
-<span class="w">              </span><span class="no">&quot;disabled&quot;</span>
+<span class="w">          </span><span class="no">"defaultVariant": "disabled",</span>
+<span class="w">          </span><span class="no">"targeting": {</span>
+<span class="w">            </span><span class="no">"if": [</span>
+<span class="w">              </span><span class="no">{"&gt;=": [{"var": "user_score"}, 80]},</span>
+<span class="w">              </span><span class="no">"enabled",</span>
+<span class="w">              </span><span class="no">"disabled"</span>
 <span class="w">            </span><span class="no">]</span>
 <span class="w">          </span><span class="no">}</span>
 <span class="w">        </span><span class="no">},</span>
-<span class="w">        </span><span class="no">&quot;ai.ragEnabled&quot;: {</span>
-<span class="w">          </span><span class="no">&quot;state&quot;: &quot;ENABLED&quot;,</span>
-<span class="w">          </span><span class="no">&quot;variants&quot;: {</span>
-<span class="w">            </span><span class="no">&quot;on&quot;: true,</span>
-<span class="w">            </span><span class="no">&quot;off&quot;: false</span>
+<span class="w">        </span><span class="no">"ai.ragEnabled": {</span>
+<span class="w">          </span><span class="no">"state": "ENABLED",</span>
+<span class="w">          </span><span class="no">"variants": {</span>
+<span class="w">            </span><span class="no">"on": true,</span>
+<span class="w">            </span><span class="no">"off": false</span>
 <span class="w">          </span><span class="no">},</span>
-<span class="w">          </span><span class="no">&quot;defaultVariant&quot;: &quot;off&quot;,</span>
-<span class="w">          </span><span class="no">&quot;targeting&quot;: {</span>
-<span class="w">            </span><span class="no">&quot;if&quot;: [</span>
-<span class="w">              </span><span class="no">{&quot;==&quot;: [{&quot;var&quot;: &quot;subscription&quot;}, &quot;enterprise&quot;]},</span>
-<span class="w">              </span><span class="no">&quot;on&quot;,</span>
-<span class="w">              </span><span class="no">&quot;off&quot;</span>
+<span class="w">          </span><span class="no">"defaultVariant": "off",</span>
+<span class="w">          </span><span class="no">"targeting": {</span>
+<span class="w">            </span><span class="no">"if": [</span>
+<span class="w">              </span><span class="no">{"==": [{"var": "subscription"}, "enterprise"]},</span>
+<span class="w">              </span><span class="no">"on",</span>
+<span class="w">              </span><span class="no">"off"</span>
 <span class="w">            </span><span class="no">]</span>
 <span class="w">          </span><span class="no">}</span>
 <span class="w">        </span><span class="no">}</span>
@@ -1317,7 +1317,7 @@ argocd<span class="w"> </span>app<span class="w"> </span>create<span class="w"> 
 
 <span class="c1"># تهيئة المزود</span>
 <span class="n">api</span><span class="o">.</span><span class="n">set_provider</span><span class="p">(</span><span class="n">FlagdProvider</span><span class="p">(</span>
-    <span class="n">host</span><span class="o">=</span><span class="s2">&quot;flagd.feature-flags.svc.cluster.local&quot;</span><span class="p">,</span>
+    <span class="n">host</span><span class="o">=</span><span class="s2">"flagd.feature-flags.svc.cluster.local"</span><span class="p">,</span>
     <span class="n">port</span><span class="o">=</span><span class="mi">8013</span>
 <span class="p">))</span>
 
@@ -1325,19 +1325,19 @@ argocd<span class="w"> </span>app<span class="w"> </span>create<span class="w"> 
 <span class="n">client</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">get_client</span><span class="p">()</span>
 
 <span class="c1"># استخدام الفلاغ</span>
-<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/ndvi/process&quot;</span><span class="p">)</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/ndvi/process"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">process_ndvi</span><span class="p">(</span><span class="n">tenant_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tenant_tier</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
     <span class="c1"># سياق التقييم</span>
     <span class="n">context</span> <span class="o">=</span> <span class="n">EvaluationContext</span><span class="p">(</span>
         <span class="n">targeting_key</span><span class="o">=</span><span class="n">tenant_id</span><span class="p">,</span>
         <span class="n">attributes</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;tenant_tier&quot;</span><span class="p">:</span> <span class="n">tenant_tier</span>
+            <span class="s2">"tenant_tier"</span><span class="p">:</span> <span class="n">tenant_tier</span>
         <span class="p">}</span>
     <span class="p">)</span>
 
     <span class="c1"># تقييم الفلاغ</span>
     <span class="n">use_new_pipeline</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_boolean_value</span><span class="p">(</span>
-        <span class="s2">&quot;ndvi.newPipeline&quot;</span><span class="p">,</span>
+        <span class="s2">"ndvi.newPipeline"</span><span class="p">,</span>
         <span class="n">default_value</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">context</span><span class="o">=</span><span class="n">context</span>
     <span class="p">)</span>
@@ -1349,12 +1349,12 @@ argocd<span class="w"> </span>app<span class="w"> </span>create<span class="w"> 
 </code></pre></div>
 
 <h3 id="typescript-nodejsnestjs">TypeScript (Node.js/NestJS)<a class="headerlink" href="#typescript-nodejsnestjs" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">OpenFeature</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@openfeature/server-sdk&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">FlagdProvider</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@openfeature/flagd-provider&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">OpenFeature</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@openfeature/server-sdk'</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">FlagdProvider</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@openfeature/flagd-provider'</span><span class="p">;</span>
 
 <span class="c1">// تهيئة المزود</span>
 <span class="nx">OpenFeature</span><span class="p">.</span><span class="nx">setProvider</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">FlagdProvider</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">host</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;flagd.feature-flags.svc.cluster.local&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">host</span><span class="o">:</span><span class="w"> </span><span class="s1">'flagd.feature-flags.svc.cluster.local'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">port</span><span class="o">:</span><span class="w"> </span><span class="kt">8013</span><span class="p">,</span>
 <span class="p">}));</span>
 
@@ -1369,26 +1369,26 @@ argocd<span class="w"> </span>app<span class="w"> </span>create<span class="w"> 
 <span class="w">  </span><span class="p">};</span>
 
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">promptVersion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">client</span><span class="p">.</span><span class="nx">getStringValue</span><span class="p">(</span>
-<span class="w">    </span><span class="s1">&#39;advisor.promptV2&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="s1">&#39;v1&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">'advisor.promptV2'</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">'v1'</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">context</span>
 <span class="w">  </span><span class="p">);</span>
 
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">promptVersion</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;v2&#39;</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">promptVersion</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'v2'</span>
 <span class="w">    </span><span class="o">?</span><span class="w"> </span><span class="nx">getPromptV2</span><span class="p">()</span>
 <span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="nx">getPromptV1</span><span class="p">();</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <h3 id="dart-flutter">Dart (Flutter)<a class="headerlink" href="#dart-flutter" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="s1">&#39;package:openfeature/openfeature.dart&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="s1">'package:openfeature/openfeature.dart'</span><span class="p">;</span>
 
 <span class="kd">class</span><span class="w"> </span><span class="nc">FeatureFlagService</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">late</span><span class="w"> </span><span class="n">OpenFeatureClient</span><span class="w"> </span><span class="n">_client</span><span class="p">;</span>
 
 <span class="w">  </span><span class="n">Future</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">&gt;</span><span class="w"> </span><span class="n">initialize</span><span class="p">()</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">provider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FlagdProvider</span><span class="p">(</span>
-<span class="w">      </span><span class="nl">host:</span><span class="w"> </span><span class="s1">&#39;api.sahool.io&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nl">host:</span><span class="w"> </span><span class="s1">'api.sahool.io'</span><span class="p">,</span>
 <span class="w">      </span><span class="nl">port:</span><span class="w"> </span><span class="m">8013</span><span class="p">,</span>
 <span class="w">    </span><span class="p">);</span>
 
@@ -1400,12 +1400,12 @@ argocd<span class="w"> </span>app<span class="w"> </span>create<span class="w"> 
 <span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">context</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">EvaluationContext</span><span class="p">(</span>
 <span class="w">      </span><span class="nl">targetingKey:</span><span class="w"> </span><span class="n">userId</span><span class="p">,</span>
 <span class="w">      </span><span class="nl">attributes:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="s1">&#39;user_score&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">userScore</span><span class="p">,</span>
+<span class="w">        </span><span class="s1">'user_score'</span><span class="o">:</span><span class="w"> </span><span class="n">userScore</span><span class="p">,</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">    </span><span class="p">);</span>
 
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kd">await</span><span class="w"> </span><span class="n">_client</span><span class="p">.</span><span class="n">getBooleanValue</span><span class="p">(</span>
-<span class="w">      </span><span class="s1">&#39;marketplace.newUI&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="s1">'marketplace.newUI'</span><span class="p">,</span>
 <span class="w">      </span><span class="nl">defaultValue:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
 <span class="w">      </span><span class="nl">context:</span><span class="w"> </span><span class="n">context</span><span class="p">,</span>
 <span class="w">    </span><span class="p">);</span>
@@ -1417,60 +1417,60 @@ argocd<span class="w"> </span>app<span class="w"> </span>create<span class="w"> 
 <h2 id="flag-types">أنواع الفلاغات | Flag Types<a class="headerlink" href="#flag-types" title="Permanent link">&para;</a></h2>
 <h3 id="1-boolean-flags">1. Boolean Flags (فلاغات منطقية)<a class="headerlink" href="#1-boolean-flags" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;feature.enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ENABLED&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;variants&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;on&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;off&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">  </span><span class="nt">"feature.enabled"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"state"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ENABLED"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"variants"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"on"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"off"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">&quot;defaultVariant&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;off&quot;</span>
+<span class="w">    </span><span class="nt">"defaultVariant"</span><span class="p">:</span><span class="w"> </span><span class="s2">"off"</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <h3 id="2-string-flags">2. String Flags (فلاغات نصية)<a class="headerlink" href="#2-string-flags" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;ui.theme&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ENABLED&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;variants&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;light&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;light&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;dark&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dark&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;system&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;system&quot;</span>
+<span class="w">  </span><span class="nt">"ui.theme"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"state"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ENABLED"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"variants"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"light"</span><span class="p">:</span><span class="w"> </span><span class="s2">"light"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"dark"</span><span class="p">:</span><span class="w"> </span><span class="s2">"dark"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"system"</span><span class="p">:</span><span class="w"> </span><span class="s2">"system"</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">&quot;defaultVariant&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;system&quot;</span>
+<span class="w">    </span><span class="nt">"defaultVariant"</span><span class="p">:</span><span class="w"> </span><span class="s2">"system"</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <h3 id="3-number-flags">3. Number Flags (فلاغات رقمية)<a class="headerlink" href="#3-number-flags" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;rate.limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ENABLED&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;variants&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;low&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;medium&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;high&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span>
+<span class="w">  </span><span class="nt">"rate.limit"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"state"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ENABLED"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"variants"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"low"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"medium"</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"high"</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">&quot;defaultVariant&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;medium&quot;</span>
+<span class="w">    </span><span class="nt">"defaultVariant"</span><span class="p">:</span><span class="w"> </span><span class="s2">"medium"</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <h3 id="4-object-flags">4. Object Flags (فلاغات كائنات)<a class="headerlink" href="#4-object-flags" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;experiment.config&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ENABLED&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;variants&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;control&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;buttonColor&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;blue&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;showBanner&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">  </span><span class="nt">"experiment.config"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"state"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ENABLED"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"variants"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"control"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"buttonColor"</span><span class="p">:</span><span class="w"> </span><span class="s2">"blue"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"showBanner"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
 <span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;treatment&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;buttonColor&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;green&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;showBanner&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">      </span><span class="nt">"treatment"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"buttonColor"</span><span class="p">:</span><span class="w"> </span><span class="s2">"green"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"showBanner"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="w">      </span><span class="p">}</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">&quot;defaultVariant&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;control&quot;</span>
+<span class="w">    </span><span class="nt">"defaultVariant"</span><span class="p">:</span><span class="w"> </span><span class="s2">"control"</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1479,10 +1479,10 @@ argocd<span class="w"> </span>app<span class="w"> </span>create<span class="w"> 
 <h2 id="targeting-rules">قواعد الاستهداف | Targeting Rules<a class="headerlink" href="#targeting-rules" title="Permanent link">&para;</a></h2>
 <h3 id="1-percentage-rollout">1. استهداف بالنسبة المئوية (Percentage Rollout)<a class="headerlink" href="#1-percentage-rollout" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;targeting&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;fractional&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">      </span><span class="p">[</span><span class="s2">&quot;control&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">80</span><span class="p">],</span>
-<span class="w">      </span><span class="p">[</span><span class="s2">&quot;treatment&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">]</span>
+<span class="w">  </span><span class="nt">"targeting"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"fractional"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">[</span><span class="s2">"control"</span><span class="p">,</span><span class="w"> </span><span class="mi">80</span><span class="p">],</span>
+<span class="w">      </span><span class="p">[</span><span class="s2">"treatment"</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">]</span>
 <span class="w">    </span><span class="p">]</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
@@ -1490,11 +1490,11 @@ argocd<span class="w"> </span>app<span class="w"> </span>create<span class="w"> 
 
 <h3 id="2-attribute-targeting">2. استهداف بالسمات (Attribute Targeting)<a class="headerlink" href="#2-attribute-targeting" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;targeting&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;if&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">      </span><span class="p">{</span><span class="nt">&quot;==&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">&quot;var&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;subscription&quot;</span><span class="p">},</span><span class="w"> </span><span class="s2">&quot;enterprise&quot;</span><span class="p">]},</span>
-<span class="w">      </span><span class="s2">&quot;enabled&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="s2">&quot;disabled&quot;</span>
+<span class="w">  </span><span class="nt">"targeting"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"if"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">"=="</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"var"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subscription"</span><span class="p">},</span><span class="w"> </span><span class="s2">"enterprise"</span><span class="p">]},</span>
+<span class="w">      </span><span class="s2">"enabled"</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">"disabled"</span>
 <span class="w">    </span><span class="p">]</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
@@ -1502,11 +1502,11 @@ argocd<span class="w"> </span>app<span class="w"> </span>create<span class="w"> 
 
 <h3 id="3-list-targeting">3. استهداف بالقائمة (List Targeting)<a class="headerlink" href="#3-list-targeting" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;targeting&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;if&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">      </span><span class="p">{</span><span class="nt">&quot;in&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">&quot;var&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user_id&quot;</span><span class="p">},</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;user-1&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;user-2&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;user-3&quot;</span><span class="p">]]},</span>
-<span class="w">      </span><span class="s2">&quot;enabled&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="s2">&quot;disabled&quot;</span>
+<span class="w">  </span><span class="nt">"targeting"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"if"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">"in"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"var"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user_id"</span><span class="p">},</span><span class="w"> </span><span class="p">[</span><span class="s2">"user-1"</span><span class="p">,</span><span class="w"> </span><span class="s2">"user-2"</span><span class="p">,</span><span class="w"> </span><span class="s2">"user-3"</span><span class="p">]]},</span>
+<span class="w">      </span><span class="s2">"enabled"</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">"disabled"</span>
 <span class="w">    </span><span class="p">]</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
@@ -1514,17 +1514,17 @@ argocd<span class="w"> </span>app<span class="w"> </span>create<span class="w"> 
 
 <h3 id="4-combined-targeting">4. استهداف مركب (Combined Targeting)<a class="headerlink" href="#4-combined-targeting" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;targeting&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;if&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">      </span><span class="p">{</span><span class="nt">&quot;and&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">        </span><span class="p">{</span><span class="nt">&quot;==&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">&quot;var&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;subscription&quot;</span><span class="p">},</span><span class="w"> </span><span class="s2">&quot;enterprise&quot;</span><span class="p">]},</span>
-<span class="w">        </span><span class="p">{</span><span class="nt">&quot;&gt;=&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">&quot;var&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user_score&quot;</span><span class="p">},</span><span class="w"> </span><span class="mi">50</span><span class="p">]}</span>
+<span class="w">  </span><span class="nt">"targeting"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"if"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">"and"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span><span class="nt">"=="</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"var"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subscription"</span><span class="p">},</span><span class="w"> </span><span class="s2">"enterprise"</span><span class="p">]},</span>
+<span class="w">        </span><span class="p">{</span><span class="nt">"&gt;="</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"var"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user_score"</span><span class="p">},</span><span class="w"> </span><span class="mi">50</span><span class="p">]}</span>
 <span class="w">      </span><span class="p">]},</span>
-<span class="w">      </span><span class="s2">&quot;enabled&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="p">{</span><span class="nt">&quot;if&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">        </span><span class="p">{</span><span class="nt">&quot;in&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">&quot;var&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;region&quot;</span><span class="p">},</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;beta-regions&quot;</span><span class="p">]]},</span>
-<span class="w">        </span><span class="s2">&quot;enabled&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="s2">&quot;disabled&quot;</span>
+<span class="w">      </span><span class="s2">"enabled"</span><span class="p">,</span>
+<span class="w">      </span><span class="p">{</span><span class="nt">"if"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span><span class="nt">"in"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"var"</span><span class="p">:</span><span class="w"> </span><span class="s2">"region"</span><span class="p">},</span><span class="w"> </span><span class="p">[</span><span class="s2">"beta-regions"</span><span class="p">]]},</span>
+<span class="w">        </span><span class="s2">"enabled"</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">"disabled"</span>
 <span class="w">      </span><span class="p">]}</span>
 <span class="w">    </span><span class="p">]</span>
 <span class="w">  </span><span class="p">}</span>
@@ -1535,31 +1535,31 @@ argocd<span class="w"> </span>app<span class="w"> </span>create<span class="w"> 
 <h2 id="ab-testing-experiments">التجارب (A/B Testing) | Experiments<a class="headerlink" href="#ab-testing-experiments" title="Permanent link">&para;</a></h2>
 <h3 id="_1">تصميم التجربة<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;experiment.checkout_flow&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ENABLED&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;variants&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;control&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Current Flow&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;steps&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;showProgress&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">  </span><span class="nt">"experiment.checkout_flow"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"state"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ENABLED"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"variants"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"control"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Current Flow"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"steps"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"showProgress"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
 <span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;variant_a&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Simplified Flow&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;steps&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;showProgress&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">      </span><span class="nt">"variant_a"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Simplified Flow"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"steps"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"showProgress"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;variant_b&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Guided Flow&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;steps&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;showProgress&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">      </span><span class="nt">"variant_b"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Guided Flow"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"steps"</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"showProgress"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="w">      </span><span class="p">}</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">&quot;defaultVariant&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;control&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;targeting&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;fractional&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">        </span><span class="p">[</span><span class="s2">&quot;control&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">34</span><span class="p">],</span>
-<span class="w">        </span><span class="p">[</span><span class="s2">&quot;variant_a&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">33</span><span class="p">],</span>
-<span class="w">        </span><span class="p">[</span><span class="s2">&quot;variant_b&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">33</span><span class="p">]</span>
+<span class="w">    </span><span class="nt">"defaultVariant"</span><span class="p">:</span><span class="w"> </span><span class="s2">"control"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"targeting"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"fractional"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">[</span><span class="s2">"control"</span><span class="p">,</span><span class="w"> </span><span class="mi">34</span><span class="p">],</span>
+<span class="w">        </span><span class="p">[</span><span class="s2">"variant_a"</span><span class="p">,</span><span class="w"> </span><span class="mi">33</span><span class="p">],</span>
+<span class="w">        </span><span class="p">[</span><span class="s2">"variant_b"</span><span class="p">,</span><span class="w"> </span><span class="mi">33</span><span class="p">]</span>
 <span class="w">      </span><span class="p">]</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">}</span>
@@ -1577,16 +1577,16 @@ argocd<span class="w"> </span>app<span class="w"> </span>create<span class="w"> 
 
     <span class="c1"># الحصول على متغير التجربة</span>
     <span class="n">variant</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_object_value</span><span class="p">(</span>
-        <span class="s2">&quot;experiment.checkout_flow&quot;</span><span class="p">,</span>
-        <span class="n">default_value</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;control&quot;</span><span class="p">,</span> <span class="s2">&quot;steps&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
+        <span class="s2">"experiment.checkout_flow"</span><span class="p">,</span>
+        <span class="n">default_value</span><span class="o">=</span><span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"control"</span><span class="p">,</span> <span class="s2">"steps"</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
         <span class="n">context</span><span class="o">=</span><span class="n">context</span>
     <span class="p">)</span>
 
     <span class="c1"># تسجيل التعيين</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="s2">&quot;experiment_assignment&quot;</span><span class="p">,</span>
-        <span class="n">experiment</span><span class="o">=</span><span class="s2">&quot;checkout_flow&quot;</span><span class="p">,</span>
-        <span class="n">variant</span><span class="o">=</span><span class="n">variant</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
+        <span class="s2">"experiment_assignment"</span><span class="p">,</span>
+        <span class="n">experiment</span><span class="o">=</span><span class="s2">"checkout_flow"</span><span class="p">,</span>
+        <span class="n">variant</span><span class="o">=</span><span class="n">variant</span><span class="p">[</span><span class="s2">"name"</span><span class="p">],</span>
         <span class="n">user_id</span><span class="o">=</span><span class="n">user_id</span>
     <span class="p">)</span>
 
@@ -1595,9 +1595,9 @@ argocd<span class="w"> </span>app<span class="w"> </span>create<span class="w"> 
 
     <span class="c1"># تسجيل النتيجة</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="s2">&quot;experiment_outcome&quot;</span><span class="p">,</span>
-        <span class="n">experiment</span><span class="o">=</span><span class="s2">&quot;checkout_flow&quot;</span><span class="p">,</span>
-        <span class="n">variant</span><span class="o">=</span><span class="n">variant</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
+        <span class="s2">"experiment_outcome"</span><span class="p">,</span>
+        <span class="n">experiment</span><span class="o">=</span><span class="s2">"checkout_flow"</span><span class="p">,</span>
+        <span class="n">variant</span><span class="o">=</span><span class="n">variant</span><span class="p">[</span><span class="s2">"name"</span><span class="p">],</span>
         <span class="n">user_id</span><span class="o">=</span><span class="n">user_id</span><span class="p">,</span>
         <span class="n">success</span><span class="o">=</span><span class="n">result</span><span class="o">.</span><span class="n">success</span><span class="p">,</span>
         <span class="n">conversion_value</span><span class="o">=</span><span class="n">result</span><span class="o">.</span><span class="n">total</span>
@@ -1621,14 +1621,14 @@ argocd<span class="w"> </span>app<span class="w"> </span>create<span class="w"> 
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">flag-evaluation</span>
 <span class="w">      </span><span class="nt">provider</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">web</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;http://flagd.feature-flags:8013/schema.v1.Service/ResolveBoolean&quot;</span>
+<span class="w">          </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="s">"http://flagd.feature-flags:8013/schema.v1.Service/ResolveBoolean"</span>
 <span class="w">          </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">POST</span>
 <span class="w">          </span><span class="nt">body</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
 <span class="w">            </span><span class="no">{</span>
-<span class="w">              </span><span class="no">&quot;flagKey&quot;: &quot;{{args.flag-name}}&quot;,</span>
-<span class="w">              </span><span class="no">&quot;context&quot;: {}</span>
+<span class="w">              </span><span class="no">"flagKey": "{{args.flag-name}}",</span>
+<span class="w">              </span><span class="no">"context": {}</span>
 <span class="w">            </span><span class="no">}</span>
-<span class="w">      </span><span class="nt">successCondition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">result.variant == &quot;{{args.expected-variant}}&quot;</span>
+<span class="w">      </span><span class="nt">successCondition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">result.variant == "{{args.expected-variant}}"</span>
 </code></pre></div>
 
 <h3 id="rollout-with-feature-flag">Rollout with Feature Flag<a class="headerlink" href="#rollout-with-feature-flag" title="Permanent link">&para;</a></h3>
@@ -1649,7 +1649,7 @@ argocd<span class="w"> </span>app<span class="w"> </span>create<span class="w"> 
 <span class="w">              </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">flag-name</span>
 <span class="w">                </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ndvi.newPipeline</span>
 <span class="w">              </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">expected-variant</span>
-<span class="w">                </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;on&quot;</span>
+<span class="w">                </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">"on"</span>
 <span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">setWeight</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50</span>
 <span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">pause</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="nv">10m</span><span class="p p-Indicator">}</span>
 <span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">setWeight</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
@@ -1711,21 +1711,21 @@ argocd<span class="w"> </span>app<span class="w"> </span>create<span class="w"> 
 
 <h3 id="grafana-dashboard">Grafana Dashboard<a class="headerlink" href="#grafana-dashboard" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Feature Flags&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;panels&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Feature Flags"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"panels"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Flag Evaluations&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;targets&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Flag Evaluations"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"targets"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">        </span><span class="p">{</span>
-<span class="w">          </span><span class="nt">&quot;expr&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sum(rate(flagd_impressions_total[5m])) by (flag_key, variant)&quot;</span>
+<span class="w">          </span><span class="nt">"expr"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sum(rate(flagd_impressions_total[5m])) by (flag_key, variant)"</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">      </span><span class="p">]</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Evaluation Latency&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;targets&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Evaluation Latency"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"targets"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">        </span><span class="p">{</span>
-<span class="w">          </span><span class="nt">&quot;expr&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;histogram_quantile(0.95, flagd_evaluation_duration_seconds)&quot;</span>
+<span class="w">          </span><span class="nt">"expr"</span><span class="p">:</span><span class="w"> </span><span class="s2">"histogram_quantile(0.95, flagd_evaluation_duration_seconds)"</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">      </span><span class="p">]</span>
 <span class="w">    </span><span class="p">}</span>
@@ -1784,7 +1784,7 @@ kubectl<span class="w"> </span>rollout<span class="w"> </span>restart<span class
 <span class="c1"># اختبار الفلاغ</span>
 grpcurl<span class="w"> </span>-plaintext<span class="w"> </span>flagd.feature-flags:8013<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>schema.v1.Service/ResolveBoolean<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;flagKey&quot;: &quot;ndvi.newPipeline&quot;, &quot;context&quot;: {}}&#39;</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"flagKey": "ndvi.newPipeline", "context": {}}'</span>
 </code></pre></div>
 
 <hr />
@@ -1846,10 +1846,10 @@ grpcurl<span class="w"> </span>-plaintext<span class="w"> </span>flagd.feature-f
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

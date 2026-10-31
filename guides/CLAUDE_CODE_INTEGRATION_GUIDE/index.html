@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1180,16 +1180,16 @@
 <h3 id="how-skills-are-invoked">How Skills Are Invoked | كيفية استدعاء المهارات<a class="headerlink" href="#how-skills-are-invoked" title="Permanent link">&para;</a></h3>
 <p>Skills are invoked within Claude Code sessions either explicitly by the developer or automatically when Claude Code identifies a matching task context:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Explicit invocation</span>
-claude<span class="w"> </span>code<span class="w"> </span>--skill<span class="w"> </span>crop-advisor<span class="w"> </span>--context<span class="w"> </span><span class="s2">&quot;Field-003 wheat yellowing&quot;</span>
+claude<span class="w"> </span>code<span class="w"> </span>--skill<span class="w"> </span>crop-advisor<span class="w"> </span>--context<span class="w"> </span><span class="s2">"Field-003 wheat yellowing"</span>
 
 <span class="c1"># Evaluate advisory quality</span>
-claude<span class="w"> </span>code<span class="w"> </span>--skill<span class="w"> </span>evaluate<span class="w"> </span>--advisory<span class="w"> </span><span class="s2">&quot;irrigation_recommendation_001&quot;</span>
+claude<span class="w"> </span>code<span class="w"> </span>--skill<span class="w"> </span>evaluate<span class="w"> </span>--advisory<span class="w"> </span><span class="s2">"irrigation_recommendation_001"</span>
 
 <span class="c1"># Compress farm data for token efficiency</span>
-claude<span class="w"> </span>code<span class="w"> </span>--skill<span class="w"> </span>compress<span class="w"> </span>--level<span class="w"> </span><span class="m">2</span><span class="w"> </span>--input<span class="w"> </span><span class="s2">&quot;farm_sensor_data.json&quot;</span>
+claude<span class="w"> </span>code<span class="w"> </span>--skill<span class="w"> </span>compress<span class="w"> </span>--level<span class="w"> </span><span class="m">2</span><span class="w"> </span>--input<span class="w"> </span><span class="s2">"farm_sensor_data.json"</span>
 
 <span class="c1"># Generate Obsidian-compatible farm documentation</span>
-claude<span class="w"> </span>code<span class="w"> </span>--skill<span class="w"> </span>farm-documentation<span class="w"> </span>--field<span class="w"> </span><span class="s2">&quot;FIELD-003&quot;</span><span class="w"> </span>--format<span class="w"> </span>obsidian
+claude<span class="w"> </span>code<span class="w"> </span>--skill<span class="w"> </span>farm-documentation<span class="w"> </span>--field<span class="w"> </span><span class="s2">"FIELD-003"</span><span class="w"> </span>--format<span class="w"> </span>obsidian
 </code></pre></div>
 
 <h3 id="creating-custom-skills">Creating Custom Skills | إنشاء مهارات مخصصة<a class="headerlink" href="#creating-custom-skills" title="Permanent link">&para;</a></h3>
@@ -1274,15 +1274,15 @@ make<span class="w"> </span>test-mcp
 <h3 id="configuration">Configuration | التكوين<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h3>
 <p>Add the SAHOOL MCP server to your Claude Desktop configuration:</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;sahool&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;apps.services.mcp-server.src.main&quot;</span><span class="p">],</span>
-<span class="w">      </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;DATABASE_URL&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;postgresql://user:pass@localhost:6432/sahool&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;NATS_URL&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;nats://localhost:4222&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;REDIS_URL&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;redis://localhost:6379&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;MCP_PORT&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;8201&quot;</span>
+<span class="w">  </span><span class="nt">"mcpServers"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"sahool"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"python"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"-m"</span><span class="p">,</span><span class="w"> </span><span class="s2">"apps.services.mcp-server.src.main"</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">"env"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"DATABASE_URL"</span><span class="p">:</span><span class="w"> </span><span class="s2">"postgresql://user:pass@localhost:6432/sahool"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"NATS_URL"</span><span class="p">:</span><span class="w"> </span><span class="s2">"nats://localhost:4222"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"REDIS_URL"</span><span class="p">:</span><span class="w"> </span><span class="s2">"redis://localhost:6379"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"MCP_PORT"</span><span class="p">:</span><span class="w"> </span><span class="s2">"8201"</span>
 <span class="w">      </span><span class="p">}</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">}</span>
@@ -1327,13 +1327,13 @@ make<span class="w"> </span>test-mcp
 </table>
 <h3 id="event-subject-patterns">Event Subject Patterns | أنماط موضوعات الأحداث<a class="headerlink" href="#event-subject-patterns" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Base pattern</span>
-<span class="s2">&quot;sahool.</span><span class="si">{domain}</span><span class="s2">.</span><span class="si">{action}</span><span class="s2">&quot;</span>              <span class="c1"># e.g., sahool.field.created</span>
+<span class="s2">"sahool.</span><span class="si">{domain}</span><span class="s2">.</span><span class="si">{action}</span><span class="s2">"</span>              <span class="c1"># e.g., sahool.field.created</span>
 
 <span class="c1"># Tenant-scoped pattern (preferred)</span>
-<span class="s2">&quot;sahool.tenant.</span><span class="si">{tenant_id}</span><span class="s2">.</span><span class="si">{domain}</span><span class="s2">.</span><span class="si">{action}</span><span class="s2">&quot;</span>  <span class="c1"># via get_tenant_subject()</span>
+<span class="s2">"sahool.tenant.</span><span class="si">{tenant_id}</span><span class="s2">.</span><span class="si">{domain}</span><span class="s2">.</span><span class="si">{action}</span><span class="s2">"</span>  <span class="c1"># via get_tenant_subject()</span>
 
 <span class="c1"># Inline tenant pattern (some services)</span>
-<span class="s2">&quot;sahool.</span><span class="si">{tenant_id}</span><span class="s2">.</span><span class="si">{domain}</span><span class="s2">.</span><span class="si">{action}</span><span class="s2">&quot;</span>
+<span class="s2">"sahool.</span><span class="si">{tenant_id}</span><span class="s2">.</span><span class="si">{domain}</span><span class="s2">.</span><span class="si">{action}</span><span class="s2">"</span>
 </code></pre></div>
 
 <h3 id="publishing-events">Publishing Events | نشر الأحداث<a class="headerlink" href="#publishing-events" title="Permanent link">&para;</a></h3>
@@ -1342,11 +1342,11 @@ make<span class="w"> </span>test-mcp
 <span class="c1"># Simple publish</span>
 <span class="k">await</span> <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">nc</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span>
     <span class="n">SAHOOL_FIELD_CREATED</span><span class="p">,</span>
-    <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;field_id&quot;</span><span class="p">:</span> <span class="n">field_id</span><span class="p">,</span> <span class="s2">&quot;tenant_id&quot;</span><span class="p">:</span> <span class="n">tenant_id</span><span class="p">})</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+    <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">"field_id"</span><span class="p">:</span> <span class="n">field_id</span><span class="p">,</span> <span class="s2">"tenant_id"</span><span class="p">:</span> <span class="n">tenant_id</span><span class="p">})</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
 <span class="p">)</span>
 
 <span class="c1"># Tenant-scoped publish</span>
-<span class="n">subject</span> <span class="o">=</span> <span class="n">get_tenant_subject</span><span class="p">(</span><span class="n">tenant_id</span><span class="p">,</span> <span class="s2">&quot;field&quot;</span><span class="p">,</span> <span class="s2">&quot;created&quot;</span><span class="p">)</span>
+<span class="n">subject</span> <span class="o">=</span> <span class="n">get_tenant_subject</span><span class="p">(</span><span class="n">tenant_id</span><span class="p">,</span> <span class="s2">"field"</span><span class="p">,</span> <span class="s2">"created"</span><span class="p">)</span>
 <span class="k">await</span> <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">nc</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span>
 </code></pre></div>
 
@@ -1356,13 +1356,13 @@ make<span class="w"> </span>test-mcp
 <h3 id="working-across-72-microservices-72">Working Across 72 Microservices | العمل عبر 72 خدمة مصغرة<a class="headerlink" href="#working-across-72-microservices-72" title="Permanent link">&para;</a></h3>
 <p>Claude Code navigates the service landscape using the unified contracts defined in <code>packages/shared-types/src/contracts/</code>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Always import from contracts - never hardcode ports</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SERVICE_PORTS</span><span class="p">,</span><span class="w"> </span><span class="nx">AUTH_ENDPOINTS</span><span class="p">,</span><span class="w"> </span><span class="nx">buildUrl</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/shared-types/contracts&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SERVICE_PORTS</span><span class="p">,</span><span class="w"> </span><span class="nx">AUTH_ENDPOINTS</span><span class="p">,</span><span class="w"> </span><span class="nx">buildUrl</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@sahool/shared-types/contracts"</span><span class="p">;</span>
 
 <span class="c1">// Correct</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">fieldServiceUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`http://localhost:</span><span class="si">${</span><span class="nx">SERVICE_PORTS</span><span class="p">.</span><span class="nx">FIELD_MANAGEMENT</span><span class="si">}</span><span class="sb">`</span><span class="p">;</span>
 
 <span class="c1">// Incorrect - do not do this</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">fieldServiceUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;http://localhost:3000&quot;</span><span class="p">;</span><span class="w">  </span><span class="c1">// hardcoded port</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">fieldServiceUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"http://localhost:3000"</span><span class="p">;</span><span class="w">  </span><span class="c1">// hardcoded port</span>
 </code></pre></div>
 
 <h3 id="service-port-conventions">Service Port Conventions | اتفاقيات منافذ الخدمات<a class="headerlink" href="#service-port-conventions" title="Permanent link">&para;</a></h3>
@@ -1407,14 +1407,14 @@ npx<span class="w"> </span>prisma<span class="w"> </span>studio<span class="w"> 
 <h3 id="asyncpg-for-python-services-asyncpg-python">asyncpg for Python Services | asyncpg للخدمات Python<a class="headerlink" href="#asyncpg-for-python-services-asyncpg-python" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Standard connection pattern</span>
 <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">db_pool</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncpg</span><span class="o">.</span><span class="n">create_pool</span><span class="p">(</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DATABASE_URL&quot;</span><span class="p">),</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"DATABASE_URL"</span><span class="p">),</span>
     <span class="n">min_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
     <span class="n">max_size</span><span class="o">=</span><span class="mi">10</span>
 <span class="p">)</span>
 
 <span class="c1"># Query with PostGIS</span>
 <span class="n">row</span> <span class="o">=</span> <span class="k">await</span> <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">db_pool</span><span class="o">.</span><span class="n">fetchrow</span><span class="p">(</span>
-    <span class="s2">&quot;SELECT ST_AsGeoJSON(boundary) FROM fields WHERE id = $1&quot;</span><span class="p">,</span>
+    <span class="s2">"SELECT ST_AsGeoJSON(boundary) FROM fields WHERE id = $1"</span><span class="p">,</span>
     <span class="n">field_id</span>
 <span class="p">)</span>
 </code></pre></div>
@@ -1595,16 +1595,16 @@ make<span class="w"> </span>deps-audit<span class="w">            </span><span c
 
 <span class="c1"># Counter</span>
 <span class="n">request_counter</span> <span class="o">=</span> <span class="n">prometheus_metrics</span><span class="o">.</span><span class="n">counter</span><span class="p">(</span>
-    <span class="s2">&quot;http_requests_total&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Total HTTP requests&quot;</span><span class="p">,</span>
-    <span class="p">[</span><span class="s2">&quot;method&quot;</span><span class="p">,</span> <span class="s2">&quot;endpoint&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">]</span>
+    <span class="s2">"http_requests_total"</span><span class="p">,</span>
+    <span class="s2">"Total HTTP requests"</span><span class="p">,</span>
+    <span class="p">[</span><span class="s2">"method"</span><span class="p">,</span> <span class="s2">"endpoint"</span><span class="p">,</span> <span class="s2">"status"</span><span class="p">]</span>
 <span class="p">)</span>
 
 <span class="c1"># Histogram</span>
 <span class="n">latency_histogram</span> <span class="o">=</span> <span class="n">prometheus_metrics</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span>
-    <span class="s2">&quot;request_duration_seconds&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Request latency&quot;</span><span class="p">,</span>
-    <span class="p">[</span><span class="s2">&quot;service&quot;</span><span class="p">,</span> <span class="s2">&quot;endpoint&quot;</span><span class="p">]</span>
+    <span class="s2">"request_duration_seconds"</span><span class="p">,</span>
+    <span class="s2">"Request latency"</span><span class="p">,</span>
+    <span class="p">[</span><span class="s2">"service"</span><span class="p">,</span> <span class="s2">"endpoint"</span><span class="p">]</span>
 <span class="p">)</span>
 </code></pre></div>
 
@@ -1646,7 +1646,7 @@ make<span class="w"> </span>monitoring-logs<span class="w">       </span><span c
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.observability</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_tracing</span>
 
 <span class="c1"># In service lifespan</span>
-<span class="n">setup_tracing</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;my-service&quot;</span><span class="p">)</span>
+<span class="n">setup_tracing</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="s2">"my-service"</span><span class="p">)</span>
 </code></pre></div>
 
 <hr />
@@ -1760,10 +1760,10 @@ make<span class="w"> </span>fixops-json<span class="w">          </span><span cl
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

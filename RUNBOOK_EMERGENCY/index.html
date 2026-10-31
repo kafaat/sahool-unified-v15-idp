@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1145,41 +1145,41 @@ kubectl<span class="w"> </span>scale<span class="w"> </span>deployment<span clas
 <span class="kn">from</span><span class="w"> </span><span class="nn">shared.platform</span><span class="w"> </span><span class="kn">import</span> <span class="n">tenant_db</span>
 
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">investigate_leak</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Find source of tenant isolation breach&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Find source of tenant isolation breach"""</span>
 
     <span class="k">async</span> <span class="k">with</span> <span class="n">tenant_db</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
         <span class="c1"># 1. Check recent queries without tenant context</span>
-        <span class="n">suspicious</span> <span class="o">=</span> <span class="k">await</span> <span class="n">conn</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+        <span class="n">suspicious</span> <span class="o">=</span> <span class="k">await</span> <span class="n">conn</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="s2">"""</span>
 <span class="s2">            SELECT</span>
 <span class="s2">                query,</span>
 <span class="s2">                calls,</span>
 <span class="s2">                mean_time,</span>
 <span class="s2">                rows</span>
 <span class="s2">            FROM pg_stat_statements</span>
-<span class="s2">            WHERE query NOT LIKE &#39;</span><span class="si">%c</span><span class="s2">urrent_tenant%&#39;</span>
-<span class="s2">            AND query LIKE &#39;%SELECT</span><span class="si">%F</span><span class="s2">ROM</span><span class="si">%f</span><span class="s2">ields%&#39;</span>
+<span class="s2">            WHERE query NOT LIKE '</span><span class="si">%c</span><span class="s2">urrent_tenant%'</span>
+<span class="s2">            AND query LIKE '%SELECT</span><span class="si">%F</span><span class="s2">ROM</span><span class="si">%f</span><span class="s2">ields%'</span>
 <span class="s2">            AND calls &gt; 0</span>
 <span class="s2">            ORDER BY calls DESC</span>
 <span class="s2">            LIMIT 20</span>
-<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+<span class="s2">        """</span><span class="p">)</span>
 
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Suspicious queries (no tenant filter):&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Suspicious queries (no tenant filter):"</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">suspicious</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;query&#39;</span><span class="p">][:</span><span class="mi">100</span><span class="p">]</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">'query'</span><span class="p">][:</span><span class="mi">100</span><span class="p">]</span><span class="si">}</span><span class="s2">..."</span><span class="p">)</span>
 
         <span class="c1"># 2. Check RLS status</span>
-        <span class="n">tables</span> <span class="o">=</span> <span class="k">await</span> <span class="n">conn</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+        <span class="n">tables</span> <span class="o">=</span> <span class="k">await</span> <span class="n">conn</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="s2">"""</span>
 <span class="s2">            SELECT tablename, rowsecurity, forcerowsecurity</span>
 <span class="s2">            FROM pg_tables</span>
-<span class="s2">            WHERE schemaname = &#39;public&#39;</span>
-<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+<span class="s2">            WHERE schemaname = 'public'</span>
+<span class="s2">        """</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">table</span><span class="p">[</span><span class="s1">&#39;rowsecurity&#39;</span><span class="p">]:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ RLS DISABLED: </span><span class="si">{</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;tablename&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">table</span><span class="p">[</span><span class="s1">'rowsecurity'</span><span class="p">]:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"❌ RLS DISABLED: </span><span class="si">{</span><span class="n">table</span><span class="p">[</span><span class="s1">'tablename'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="c1"># 3. Check recent deployments</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Recent deployments:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Recent deployments:"</span><span class="p">)</span>
         <span class="c1"># Query deployment logs</span>
 
 <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">investigate_leak</span><span class="p">())</span>
@@ -1238,24 +1238,24 @@ sahool-cli<span class="w"> </span>rollback<span class="w"> </span>--service<span
 </ul>
 <h3 id="response_1">Response<a class="headerlink" href="#response_1" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Check active connections</span>
-psql<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SELECT count(*) FROM pg_stat_activity WHERE state = &#39;active&#39;;&quot;</span>
+psql<span class="w"> </span>-c<span class="w"> </span><span class="s2">"SELECT count(*) FROM pg_stat_activity WHERE state = 'active';"</span>
 
 <span class="c1"># Check connections per tenant</span>
-psql<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
-<span class="s2">  SELECT current_setting(&#39;app.current_tenant&#39;, true) AS tenant,</span>
+psql<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
+<span class="s2">  SELECT current_setting('app.current_tenant', true) AS tenant,</span>
 <span class="s2">         state, count(*)</span>
 <span class="s2">  FROM pg_stat_activity</span>
 <span class="s2">  GROUP BY 1, 2</span>
 <span class="s2">  ORDER BY 3 DESC;</span>
-<span class="s2">&quot;</span>
+<span class="s2">"</span>
 
 <span class="c1"># Terminate idle connections</span>
-psql<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+psql<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
 <span class="s2">  SELECT pg_terminate_backend(pid)</span>
 <span class="s2">  FROM pg_stat_activity</span>
-<span class="s2">  WHERE state = &#39;idle&#39;</span>
-<span class="s2">  AND state_change &lt; NOW() - INTERVAL &#39;10 minutes&#39;;</span>
-<span class="s2">&quot;</span>
+<span class="s2">  WHERE state = 'idle'</span>
+<span class="s2">  AND state_change &lt; NOW() - INTERVAL '10 minutes';</span>
+<span class="s2">"</span>
 </code></pre></div>
 
 <hr />
@@ -1335,10 +1335,10 @@ psql<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</s
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

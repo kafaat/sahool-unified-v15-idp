@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1186,10 +1186,10 @@
 <p><strong>Solution:</strong></p>
 <div class="codehilite"><pre><span></span><code>tls {
     verify_and_map: true  # ⭐ NEW: Enforces TLS for ALL connections
-    min_version: &quot;1.2&quot;    # TLS 1.2+ required
+    min_version: "1.2"    # TLS 1.2+ required
     cipher_suites: [      # Modern ciphers only
-        &quot;TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384&quot;,
-        &quot;TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384&quot;
+        "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
+        "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"
     ]
 }
 </code></pre></div>
@@ -1208,7 +1208,7 @@
 <p><strong>Solution:</strong></p>
 <div class="codehilite"><pre><span></span><code>jetstream {
     key: $NATS_JETSTREAM_KEY  # ⭐ NEW: AES-256 encryption
-    cipher: &quot;aes&quot;
+    cipher: "aes"
     store_dir: /data
 }
 </code></pre></div>
@@ -1280,7 +1280,7 @@ accounts {
     # ⭐ NEW: Cluster TLS
     tls {
         verify: true
-        cert_file: &quot;/etc/nats/certs/server.crt&quot;
+        cert_file: "/etc/nats/certs/server.crt"
     }
 
     # ⭐ NEW: Cluster authentication
@@ -1435,14 +1435,14 @@ docker-compose<span class="w"> </span>--env-file<span class="w"> </span>.env.nat
 docker-compose<span class="w"> </span>-f<span class="w"> </span>docker-compose.yml<span class="w"> </span>-f<span class="w"> </span>docker-compose.prod.yml<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>nats
 
 <span class="c1"># Verify deployment</span>
-docker<span class="w"> </span>logs<span class="w"> </span>sahool-nats<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;TLS&quot;</span>
-docker<span class="w"> </span>logs<span class="w"> </span>sahool-nats<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;JetStream&quot;</span>
+docker<span class="w"> </span>logs<span class="w"> </span>sahool-nats<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">"TLS"</span>
+docker<span class="w"> </span>logs<span class="w"> </span>sahool-nats<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">"JetStream"</span>
 </code></pre></div>
 
 <h3 id="step-4-verify-security">Step 4: Verify Security<a class="headerlink" href="#step-4-verify-security" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># 1. Test TLS enforcement (should fail without TLS)</span>
 nats<span class="w"> </span>-s<span class="w"> </span>nats://localhost:4222<span class="w"> </span>account<span class="w"> </span>info
-<span class="c1"># Expected: Error - &quot;TLS required&quot;</span>
+<span class="c1"># Expected: Error - "TLS required"</span>
 
 <span class="c1"># 2. Test with TLS (should succeed)</span>
 nats<span class="w"> </span>-s<span class="w"> </span>tls://sahool_app:<span class="nv">$NATS_PASSWORD</span>@localhost:4222<span class="w"> </span><span class="se">\</span>
@@ -1867,7 +1867,7 @@ docker-compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w
 <h3 id="validation-commands">Validation Commands<a class="headerlink" href="#validation-commands" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Test TLS enforcement</span>
 nats<span class="w"> </span>-s<span class="w"> </span>nats://localhost:4222<span class="w"> </span>account<span class="w"> </span>info
-<span class="c1"># Expected: Error - &quot;TLS required&quot;</span>
+<span class="c1"># Expected: Error - "TLS required"</span>
 
 <span class="c1"># Test rate limiting</span>
 <span class="c1"># (Use script to create &gt; 100 connections)</span>
@@ -2029,10 +2029,10 @@ curl<span class="w"> </span>-u<span class="w"> </span><span class="nv">$NATS_SYS
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

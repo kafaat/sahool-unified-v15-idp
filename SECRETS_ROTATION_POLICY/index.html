@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1249,10 +1249,10 @@
 openssl<span class="w"> </span>genrsa<span class="w"> </span>-out<span class="w"> </span>private-new.pem<span class="w"> </span><span class="m">4096</span>
 openssl<span class="w"> </span>rsa<span class="w"> </span>-in<span class="w"> </span>private-new.pem<span class="w"> </span>-pubout<span class="w"> </span>-out<span class="w"> </span>public-new.pem
 
-<span class="c1"># Step 2: Add new key to Vault (don&#39;t remove old yet)</span>
+<span class="c1"># Step 2: Add new key to Vault (don't remove old yet)</span>
 vault<span class="w"> </span>kv<span class="w"> </span>patch<span class="w"> </span>secret/sahool/auth/jwt<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span><span class="nv">private_key_new</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>cat<span class="w"> </span>private-new.pem<span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span><span class="nv">public_key_new</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>cat<span class="w"> </span>public-new.pem<span class="k">)</span><span class="s2">&quot;</span>
+<span class="w">  </span><span class="nv">private_key_new</span><span class="o">=</span><span class="s2">"</span><span class="k">$(</span>cat<span class="w"> </span>private-new.pem<span class="k">)</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">public_key_new</span><span class="o">=</span><span class="s2">"</span><span class="k">$(</span>cat<span class="w"> </span>public-new.pem<span class="k">)</span><span class="s2">"</span>
 
 <span class="c1"># Step 3: Configure application to accept both old and new keys</span>
 <span class="c1"># for verification (grace period)</span>
@@ -1261,8 +1261,8 @@ vault<span class="w"> </span>kv<span class="w"> </span>patch<span class="w"> </s
 
 <span class="c1"># Step 5: After grace period, remove old key</span>
 vault<span class="w"> </span>kv<span class="w"> </span>patch<span class="w"> </span>secret/sahool/auth/jwt<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span><span class="nv">private_key</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>cat<span class="w"> </span>private-new.pem<span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span><span class="nv">public_key</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>cat<span class="w"> </span>public-new.pem<span class="k">)</span><span class="s2">&quot;</span>
+<span class="w">  </span><span class="nv">private_key</span><span class="o">=</span><span class="s2">"</span><span class="k">$(</span>cat<span class="w"> </span>private-new.pem<span class="k">)</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">public_key</span><span class="o">=</span><span class="s2">"</span><span class="k">$(</span>cat<span class="w"> </span>public-new.pem<span class="k">)</span><span class="s2">"</span>
 
 <span class="c1"># Step 6: Clean up</span>
 rm<span class="w"> </span>private-new.pem<span class="w"> </span>public-new.pem
@@ -1311,8 +1311,8 @@ rm<span class="w"> </span>private-new.pem<span class="w"> </span>public-new.pem
 
 <span class="c1"># Step 2: Update in Vault (keep old key for decryption)</span>
 vault<span class="w"> </span>kv<span class="w"> </span>patch<span class="w"> </span>secret/sahool/encryption<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span><span class="nv">data_key</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$NEW_KEY</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span><span class="nv">previous_key</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$OLD_KEY</span><span class="s2">&quot;</span>
+<span class="w">  </span><span class="nv">data_key</span><span class="o">=</span><span class="s2">"</span><span class="nv">$NEW_KEY</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">previous_key</span><span class="o">=</span><span class="s2">"</span><span class="nv">$OLD_KEY</span><span class="s2">"</span>
 
 <span class="c1"># Step 3: Run re-encryption job</span>
 kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>jobs/re-encrypt-data.yaml
@@ -1322,7 +1322,7 @@ kubectl<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </
 
 <span class="c1"># Step 5: After completion, remove old key</span>
 vault<span class="w"> </span>kv<span class="w"> </span>patch<span class="w"> </span>secret/sahool/encryption<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span><span class="nv">data_key</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$NEW_KEY</span><span class="s2">&quot;</span>
+<span class="w">  </span><span class="nv">data_key</span><span class="o">=</span><span class="s2">"</span><span class="nv">$NEW_KEY</span><span class="s2">"</span>
 </code></pre></div>
 
 <p><strong>Important:</strong> Never delete the old encryption key before re-encrypting all data!</p>
@@ -1366,16 +1366,16 @@ vault<span class="w"> </span>kv<span class="w"> </span>patch<span class="w"> </s
 <p><strong>Rotation Process:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Internal service keys</span>
 <span class="nv">NEW_KEY</span><span class="o">=</span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">64</span><span class="k">)</span>
-vault<span class="w"> </span>kv<span class="w"> </span>patch<span class="w"> </span>secret/sahool/internal/service_key<span class="w"> </span><span class="nv">key</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$NEW_KEY</span><span class="s2">&quot;</span>
+vault<span class="w"> </span>kv<span class="w"> </span>patch<span class="w"> </span>secret/sahool/internal/service_key<span class="w"> </span><span class="nv">key</span><span class="o">=</span><span class="s2">"</span><span class="nv">$NEW_KEY</span><span class="s2">"</span>
 
 <span class="c1"># External API keys (example: OpenWeather)</span>
 <span class="c1"># 1. Login to provider portal</span>
 <span class="c1"># 2. Generate new API key</span>
 <span class="c1"># 3. Update in Vault</span>
-vault<span class="w"> </span>kv<span class="w"> </span>patch<span class="w"> </span>secret/sahool/external/openweather<span class="w"> </span><span class="nv">api_key</span><span class="o">=</span><span class="s2">&quot;NEW_API_KEY&quot;</span>
+vault<span class="w"> </span>kv<span class="w"> </span>patch<span class="w"> </span>secret/sahool/external/openweather<span class="w"> </span><span class="nv">api_key</span><span class="o">=</span><span class="s2">"NEW_API_KEY"</span>
 
 <span class="c1"># 4. Test new key</span>
-curl<span class="w"> </span><span class="s2">&quot;https://api.openweathermap.org/data/2.5/weather?q=London&amp;appid=NEW_API_KEY&quot;</span>
+curl<span class="w"> </span><span class="s2">"https://api.openweathermap.org/data/2.5/weather?q=London&amp;appid=NEW_API_KEY"</span>
 
 <span class="c1"># 5. Deactivate old key in provider portal (after verification)</span>
 </code></pre></div>
@@ -1419,7 +1419,7 @@ curl<span class="w"> </span><span class="s2">&quot;https://api.openweathermap.or
 </table>
 <p><strong>Rotation Process (Automated):</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Vault PKI automatically rotates certificates</span>
-<span class="c1"># cert-manager handles Let&#39;s Encrypt renewal</span>
+<span class="c1"># cert-manager handles Let's Encrypt renewal</span>
 <span class="c1"># No manual intervention required</span>
 
 <span class="c1"># Verify auto-renewal</span>
@@ -1532,18 +1532,18 @@ kubectl<span class="w"> </span>get<span class="w"> </span>certificates<span clas
 <h3 id="52-emergency-rotation-process">5.2 Emergency Rotation Process<a class="headerlink" href="#52-emergency-rotation-process" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># 1. IMMEDIATELY revoke compromised credentials</span>
 vault<span class="w"> </span>kv<span class="w"> </span>patch<span class="w"> </span>secret/sahool/&lt;path&gt;<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>&lt;key&gt;<span class="o">=</span><span class="s2">&quot;REVOKED_</span><span class="k">$(</span>date<span class="w"> </span>+%s<span class="k">)</span><span class="s2">&quot;</span>
+<span class="w">  </span>&lt;key&gt;<span class="o">=</span><span class="s2">"REVOKED_</span><span class="k">$(</span>date<span class="w"> </span>+%s<span class="k">)</span><span class="s2">"</span>
 
 <span class="c1"># 2. Generate new credentials</span>
 <span class="nv">NEW_SECRET</span><span class="o">=</span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span><span class="k">)</span>
 
 <span class="c1"># 3. Update in Vault</span>
 vault<span class="w"> </span>kv<span class="w"> </span>patch<span class="w"> </span>secret/sahool/&lt;path&gt;<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>&lt;key&gt;<span class="o">=</span><span class="s2">&quot;</span><span class="nv">$NEW_SECRET</span><span class="s2">&quot;</span>
+<span class="w">  </span>&lt;key&gt;<span class="o">=</span><span class="s2">"</span><span class="nv">$NEW_SECRET</span><span class="s2">"</span>
 
 <span class="c1"># 4. Force immediate refresh in Kubernetes</span>
 kubectl<span class="w"> </span>annotate<span class="w"> </span>externalsecret<span class="w"> </span>&lt;name&gt;<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>force-sync<span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>date<span class="w"> </span>+%s<span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>force-sync<span class="o">=</span><span class="s2">"</span><span class="k">$(</span>date<span class="w"> </span>+%s<span class="k">)</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-n<span class="w"> </span>sahool<span class="w"> </span>--overwrite
 
 <span class="c1"># 5. Restart affected services (if needed)</span>
@@ -1983,10 +1983,10 @@ sahool_secret_rotation_duration_seconds<span class="o">{</span>secret_type<span 
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

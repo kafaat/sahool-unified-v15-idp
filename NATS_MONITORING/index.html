@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1257,10 +1257,10 @@ curl<span class="w"> </span>http://localhost:7777/metrics
 
 <h4 id="2-verify-prometheus-scraping">2. Verify Prometheus Scraping<a class="headerlink" href="#2-verify-prometheus-scraping" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Check Prometheus targets</span>
-curl<span class="w"> </span>http://localhost:9090/api/v1/targets<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data.activeTargets[] | select(.labels.component == &quot;message-queue&quot;)&#39;</span>
+curl<span class="w"> </span>http://localhost:9090/api/v1/targets<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">'.data.activeTargets[] | select(.labels.component == "message-queue")'</span>
 
 <span class="c1"># Verify NATS metrics are being collected</span>
-curl<span class="w"> </span>-G<span class="w"> </span>http://localhost:9090/api/v1/query<span class="w"> </span>--data-urlencode<span class="w"> </span><span class="s1">&#39;query=gnatsd_varz_connections&#39;</span>
+curl<span class="w"> </span>-G<span class="w"> </span>http://localhost:9090/api/v1/query<span class="w"> </span>--data-urlencode<span class="w"> </span><span class="s1">'query=gnatsd_varz_connections'</span>
 </code></pre></div>
 
 <h4 id="3-load-grafana-dashboards">3. Load Grafana Dashboards<a class="headerlink" href="#3-load-grafana-dashboards" title="Permanent link">&para;</a></h4>
@@ -1281,10 +1281,10 @@ open<span class="w"> </span>http://localhost:3002
 
 <h4 id="4-test-alerting">4. Test Alerting<a class="headerlink" href="#4-test-alerting" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Check alert rules are loaded</span>
-curl<span class="w"> </span>http://localhost:9090/api/v1/rules<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data.groups[] | select(.name | contains(&quot;nats&quot;))&#39;</span>
+curl<span class="w"> </span>http://localhost:9090/api/v1/rules<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">'.data.groups[] | select(.name | contains("nats"))'</span>
 
 <span class="c1"># Verify no active alerts (in healthy state)</span>
-curl<span class="w"> </span>http://localhost:9090/api/v1/alerts<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data.alerts[] | select(.labels.component == &quot;message-queue&quot;)&#39;</span>
+curl<span class="w"> </span>http://localhost:9090/api/v1/alerts<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">'.data.alerts[] | select(.labels.component == "message-queue")'</span>
 </code></pre></div>
 
 <hr />
@@ -1522,10 +1522,10 @@ curl<span class="w"> </span>http://localhost:9090/api/v1/alerts<span class="w"> 
 
 <h4 id="consumer-performance">Consumer Performance<a class="headerlink" href="#consumer-performance" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Consumer processing rate</span>
-<span class="kr">rate</span><span class="o">(</span><span class="nv">nats_jetstream_consumer_delivered</span><span class="p">{</span><span class="nl">stream</span><span class="o">=</span><span class="p">&quot;</span><span class="s">my-stream</span><span class="p">&quot;}[</span><span class="s">5m</span><span class="p">]</span><span class="o">)</span>
+<span class="kr">rate</span><span class="o">(</span><span class="nv">nats_jetstream_consumer_delivered</span><span class="p">{</span><span class="nl">stream</span><span class="o">=</span><span class="p">"</span><span class="s">my-stream</span><span class="p">"}[</span><span class="s">5m</span><span class="p">]</span><span class="o">)</span>
 
 <span class="c1"># Consumer lag (pending messages)</span>
-<span class="nv">nats_jetstream_consumer_num_pending</span><span class="p">{</span><span class="nl">stream</span><span class="o">=</span><span class="p">&quot;</span><span class="s">my-stream</span><span class="p">&quot;,</span><span class="w"> </span><span class="nl">consumer</span><span class="o">=</span><span class="p">&quot;</span><span class="s">my-consumer</span><span class="p">&quot;}</span>
+<span class="nv">nats_jetstream_consumer_num_pending</span><span class="p">{</span><span class="nl">stream</span><span class="o">=</span><span class="p">"</span><span class="s">my-stream</span><span class="p">",</span><span class="w"> </span><span class="nl">consumer</span><span class="o">=</span><span class="p">"</span><span class="s">my-consumer</span><span class="p">"}</span>
 
 <span class="c1"># Redelivery rate (indicates processing failures)</span>
 <span class="kr">rate</span><span class="o">(</span><span class="nv">nats_jetstream_consumer_redelivered</span><span class="p">[</span><span class="s">5m</span><span class="p">]</span><span class="o">)</span>
@@ -1567,7 +1567,7 @@ curl<span class="w"> </span>http://localhost:9090/api/v1/alerts<span class="w"> 
 <h3 id="critical-alerts-">Critical Alerts - تنبيهات حرجة<a class="headerlink" href="#critical-alerts-" title="Permanent link">&para;</a></h3>
 <h4 id="natsserverdown">NATSServerDown<a class="headerlink" href="#natsserverdown" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NATSServerDown</span>
-<span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">up{service=&quot;nats&quot;} == 0</span>
+<span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">up{service="nats"} == 0</span>
 <span class="nt">for</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1m</span>
 <span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">critical</span>
 </code></pre></div>
@@ -1623,35 +1623,35 @@ curl<span class="w"> </span>http://localhost:9090/api/v1/alerts<span class="w"> 
 <h3 id="alert-handling-">Alert Handling - معالجة التنبيهات<a class="headerlink" href="#alert-handling-" title="Permanent link">&para;</a></h3>
 <h4 id="alert-routing-alertmanager-configuration">Alert Routing (Alertmanager Configuration)<a class="headerlink" href="#alert-routing-alertmanager-configuration" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="nt">route</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">group_by</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;alertname&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;component&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;severity&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">group_by</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"alertname"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"component"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"severity"</span><span class="p p-Indicator">]</span>
 <span class="w">  </span><span class="nt">group_wait</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10s</span>
 <span class="w">  </span><span class="nt">group_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5m</span>
 <span class="w">  </span><span class="nt">repeat_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4h</span>
-<span class="w">  </span><span class="nt">receiver</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;default&quot;</span>
+<span class="w">  </span><span class="nt">receiver</span><span class="p">:</span><span class="w"> </span><span class="s">"default"</span>
 
 <span class="w">  </span><span class="nt">routes</span><span class="p">:</span>
 <span class="w">    </span><span class="c1"># Critical NATS alerts - page on-call</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">match</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">critical</span>
 <span class="w">        </span><span class="nt">component</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">message-queue</span>
-<span class="w">      </span><span class="nt">receiver</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;pagerduty-critical&quot;</span>
+<span class="w">      </span><span class="nt">receiver</span><span class="p">:</span><span class="w"> </span><span class="s">"pagerduty-critical"</span>
 <span class="w">      </span><span class="nt">continue</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 
 <span class="w">    </span><span class="c1"># Warning alerts - Slack only</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">match</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warning</span>
 <span class="w">        </span><span class="nt">component</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">message-queue</span>
-<span class="w">      </span><span class="nt">receiver</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;slack-monitoring&quot;</span>
+<span class="w">      </span><span class="nt">receiver</span><span class="p">:</span><span class="w"> </span><span class="s">"slack-monitoring"</span>
 
 <span class="nt">receivers</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;pagerduty-critical&quot;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">"pagerduty-critical"</span>
 <span class="w">    </span><span class="nt">pagerduty_configs</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">service_key</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;pagerduty-key&gt;&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">service_key</span><span class="p">:</span><span class="w"> </span><span class="s">"&lt;pagerduty-key&gt;"</span>
 
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;slack-monitoring&quot;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">"slack-monitoring"</span>
 <span class="w">    </span><span class="nt">slack_configs</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">channel</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;#monitoring-alerts&quot;</span>
-<span class="w">        </span><span class="nt">text</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">range</span><span class="nv"> </span><span class="s">.Alerts</span><span class="nv"> </span><span class="s">}}{{</span><span class="nv"> </span><span class="s">.Annotations.summary</span><span class="nv"> </span><span class="s">}}{{</span><span class="nv"> </span><span class="s">end</span><span class="nv"> </span><span class="s">}}&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">channel</span><span class="p">:</span><span class="w"> </span><span class="s">"#monitoring-alerts"</span>
+<span class="w">        </span><span class="nt">text</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">range</span><span class="nv"> </span><span class="s">.Alerts</span><span class="nv"> </span><span class="s">}}{{</span><span class="nv"> </span><span class="s">.Annotations.summary</span><span class="nv"> </span><span class="s">}}{{</span><span class="nv"> </span><span class="s">end</span><span class="nv"> </span><span class="s">}}"</span>
 </code></pre></div>
 
 <hr />
@@ -1694,34 +1694,34 @@ curl<span class="w"> </span>http://localhost:9090/api/v1/alerts<span class="w"> 
 <h3 id="custom-dashboard-panels">Custom Dashboard Panels<a class="headerlink" href="#custom-dashboard-panels" title="Permanent link">&para;</a></h3>
 <h4 id="stream-health-panel">Stream Health Panel<a class="headerlink" href="#stream-health-panel" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Stream Message Count&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;targets&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Stream Message Count"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"targets"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;expr&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;nats_jetstream_stream_messages&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;legendFormat&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{{ stream }}&quot;</span>
+<span class="w">      </span><span class="nt">"expr"</span><span class="p">:</span><span class="w"> </span><span class="s2">"nats_jetstream_stream_messages"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"legendFormat"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{{ stream }}"</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">],</span>
-<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;graph&quot;</span>
+<span class="w">  </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"graph"</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <h4 id="consumer-lag-panel">Consumer Lag Panel<a class="headerlink" href="#consumer-lag-panel" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Consumer Pending Messages&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;targets&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Consumer Pending Messages"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"targets"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;expr&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;nats_jetstream_consumer_num_pending&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;legendFormat&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{{ stream }}/{{ consumer }}&quot;</span>
+<span class="w">      </span><span class="nt">"expr"</span><span class="p">:</span><span class="w"> </span><span class="s2">"nats_jetstream_consumer_num_pending"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"legendFormat"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{{ stream }}/{{ consumer }}"</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">],</span>
-<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;graph&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;alert&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;conditions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"graph"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"alert"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"conditions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">      </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;evaluator&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;gt&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;params&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">10000</span><span class="p">]</span><span class="w"> </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">&quot;operator&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;and&quot;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">&quot;query&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;params&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;5m&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;now&quot;</span><span class="p">]</span><span class="w"> </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;query&quot;</span>
+<span class="w">        </span><span class="nt">"evaluator"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gt"</span><span class="p">,</span><span class="w"> </span><span class="nt">"params"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">10000</span><span class="p">]</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">"operator"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"and"</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">"query"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"params"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"A"</span><span class="p">,</span><span class="w"> </span><span class="s2">"5m"</span><span class="p">,</span><span class="w"> </span><span class="s2">"now"</span><span class="p">]</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"query"</span>
 <span class="w">      </span><span class="p">}</span>
 <span class="w">    </span><span class="p">]</span>
 <span class="w">  </span><span class="p">}</span>
@@ -1765,7 +1765,7 @@ docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </spa
 </ul>
 <p><strong>Diagnosis:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Check Prometheus targets</span>
-curl<span class="w"> </span>http://localhost:9090/api/v1/targets<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data.activeTargets[] | select(.labels.job == &quot;nats-exporter&quot;)&#39;</span>
+curl<span class="w"> </span>http://localhost:9090/api/v1/targets<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">'.data.activeTargets[] | select(.labels.job == "nats-exporter")'</span>
 
 <span class="c1"># Test exporter endpoint manually</span>
 curl<span class="w"> </span>http://localhost:7777/metrics<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>nats
@@ -1790,13 +1790,13 @@ docker<span class="w"> </span>logs<span class="w"> </span>sahool-monitoring-prom
 </ul>
 <p><strong>Diagnosis:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Check JetStream memory usage</span>
-curl<span class="w"> </span>http://localhost:8222/jsz?acc<span class="o">=</span>APP<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.memory&#39;</span>
+curl<span class="w"> </span>http://localhost:8222/jsz?acc<span class="o">=</span>APP<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">'.memory'</span>
 
 <span class="c1"># Check stream details</span>
-curl<span class="w"> </span>http://localhost:8222/jsz?acc<span class="o">=</span>APP<span class="p">&amp;</span><span class="nv">streams</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.streams[] | {name, state}&#39;</span>
+curl<span class="w"> </span>http://localhost:8222/jsz?acc<span class="o">=</span>APP<span class="p">&amp;</span><span class="nv">streams</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">'.streams[] | {name, state}'</span>
 
 <span class="c1"># List streams sorted by message count</span>
-curl<span class="w"> </span>http://localhost:8222/jsz?acc<span class="o">=</span>APP<span class="p">&amp;</span><span class="nv">streams</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.streams[] | &quot;\(.state.messages) \(.config.name)&quot;&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sort<span class="w"> </span>-rn
+curl<span class="w"> </span>http://localhost:8222/jsz?acc<span class="o">=</span>APP<span class="p">&amp;</span><span class="nv">streams</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">'.streams[] | "\(.state.messages) \(.config.name)"'</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sort<span class="w"> </span>-rn
 </code></pre></div>
 
 <p><strong>Solution:</strong></p>
@@ -1815,13 +1815,13 @@ curl<span class="w"> </span>http://localhost:8222/jsz?acc<span class="o">=</span
 </ul>
 <p><strong>Diagnosis:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Check slow consumers</span>
-curl<span class="w"> </span>http://localhost:8222/connz?state<span class="o">=</span>slow<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.&#39;</span>
+curl<span class="w"> </span>http://localhost:8222/connz?state<span class="o">=</span>slow<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">'.'</span>
 
 <span class="c1"># Identify slow consumer services</span>
-docker<span class="w"> </span>ps<span class="w"> </span>--filter<span class="w"> </span><span class="s2">&quot;label=com.sahool.tier=application&quot;</span><span class="w"> </span>--format<span class="w"> </span><span class="s2">&quot;{{.Names}}&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>xargs<span class="w"> </span>-I<span class="w"> </span><span class="o">{}</span><span class="w"> </span>docker<span class="w"> </span>logs<span class="w"> </span><span class="o">{}</span><span class="w"> </span>--tail<span class="o">=</span><span class="m">100</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;slow consumer&quot;</span>
+docker<span class="w"> </span>ps<span class="w"> </span>--filter<span class="w"> </span><span class="s2">"label=com.sahool.tier=application"</span><span class="w"> </span>--format<span class="w"> </span><span class="s2">"{{.Names}}"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>xargs<span class="w"> </span>-I<span class="w"> </span><span class="o">{}</span><span class="w"> </span>docker<span class="w"> </span>logs<span class="w"> </span><span class="o">{}</span><span class="w"> </span>--tail<span class="o">=</span><span class="m">100</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">"slow consumer"</span>
 
 <span class="c1"># Check consumer processing rate</span>
-curl<span class="w"> </span>-G<span class="w"> </span>http://localhost:9090/api/v1/query<span class="w"> </span>--data-urlencode<span class="w"> </span><span class="s1">&#39;query=rate(nats_jetstream_consumer_delivered[5m])&#39;</span>
+curl<span class="w"> </span>-G<span class="w"> </span>http://localhost:9090/api/v1/query<span class="w"> </span>--data-urlencode<span class="w"> </span><span class="s1">'query=rate(nats_jetstream_consumer_delivered[5m])'</span>
 </code></pre></div>
 
 <p><strong>Solution:</strong></p>
@@ -1840,10 +1840,10 @@ curl<span class="w"> </span>-G<span class="w"> </span>http://localhost:9090/api/
 </ul>
 <p><strong>Diagnosis:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Check current connections</span>
-curl<span class="w"> </span>http://localhost:8222/varz<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;{connections, max_connections}&#39;</span>
+curl<span class="w"> </span>http://localhost:8222/varz<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">'{connections, max_connections}'</span>
 
 <span class="c1"># List connections by client</span>
-curl<span class="w"> </span>http://localhost:8222/connz<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.connections[] | {ip, name, subscriptions}&#39;</span>
+curl<span class="w"> </span>http://localhost:8222/connz<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">'.connections[] | {ip, name, subscriptions}'</span>
 
 <span class="c1"># Find connection leaks</span>
 docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-nats<span class="w"> </span>nats<span class="w"> </span>server<span class="w"> </span>list<span class="w"> </span>connections
@@ -1869,7 +1869,7 @@ docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </spa
 
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">connect</span><span class="p">():</span>
     <span class="k">await</span> <span class="n">nc</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
-        <span class="n">servers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;nats://nats:4222&quot;</span><span class="p">],</span>
+        <span class="n">servers</span><span class="o">=</span><span class="p">[</span><span class="s2">"nats://nats:4222"</span><span class="p">],</span>
         <span class="n">max_reconnect_attempts</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># Infinite reconnects</span>
         <span class="n">reconnect_time_wait</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>      <span class="c1"># 2 seconds between attempts</span>
         <span class="n">ping_interval</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span>           <span class="c1"># Keep-alive ping</span>
@@ -1884,19 +1884,19 @@ docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </spa
 <h4 id="2-message-batching">2. Message Batching<a class="headerlink" href="#2-message-batching" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Bad: Publishing one message at a time</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">):</span>
-    <span class="k">await</span> <span class="n">nc</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&quot;subject&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;message-</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+    <span class="k">await</span> <span class="n">nc</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">"subject"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"message-</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
 
 <span class="c1"># Good: Batch publishing</span>
-<span class="n">messages</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;message-</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">)]</span>
+<span class="n">messages</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"message-</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">)]</span>
 <span class="k">for</span> <span class="n">msg</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
-    <span class="k">await</span> <span class="n">nc</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&quot;subject&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">nc</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">"subject"</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
 <span class="k">await</span> <span class="n">nc</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>  <span class="c1"># Single flush for all messages</span>
 </code></pre></div>
 
 <h4 id="3-stream-configuration">3. Stream Configuration<a class="headerlink" href="#3-stream-configuration" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Create stream with appropriate limits</span>
 nats<span class="w"> </span>stream<span class="w"> </span>add<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--subjects<span class="w"> </span><span class="s2">&quot;sahool.events.&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--subjects<span class="w"> </span><span class="s2">"sahool.events.&gt;"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--retention<span class="w"> </span>limits<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--max-msgs<span class="w"> </span><span class="m">1000000</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--max-bytes<span class="w"> </span>10GB<span class="w"> </span><span class="se">\</span>
@@ -1911,7 +1911,7 @@ nats<span class="w"> </span>stream<span class="w"> </span>add<span class="w"> </
 <div class="codehilite"><pre><span></span><code><span class="c1"># Create consumer with optimal settings</span>
 nats<span class="w"> </span>consumer<span class="w"> </span>add<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--stream<span class="w"> </span>EVENTS<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--filter<span class="w"> </span><span class="s2">&quot;sahool.events.critical&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--filter<span class="w"> </span><span class="s2">"sahool.events.critical"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--deliver<span class="w"> </span>all<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--ack<span class="w"> </span>explicit<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--max-deliver<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
@@ -2060,10 +2060,10 @@ nats<span class="w"> </span>consumer<span class="w"> </span>list<span class="w">
 nats<span class="w"> </span>stream<span class="w"> </span>purge<span class="w"> </span>&lt;stream-name&gt;
 
 <span class="c1"># Publish test message</span>
-nats<span class="w"> </span>pub<span class="w"> </span>sahool.test<span class="w"> </span><span class="s2">&quot;Test message&quot;</span>
+nats<span class="w"> </span>pub<span class="w"> </span>sahool.test<span class="w"> </span><span class="s2">"Test message"</span>
 
 <span class="c1"># Subscribe to subject</span>
-nats<span class="w"> </span>sub<span class="w"> </span><span class="s2">&quot;sahool.&gt;&quot;</span>
+nats<span class="w"> </span>sub<span class="w"> </span><span class="s2">"sahool.&gt;"</span>
 
 <span class="c1"># Check server info</span>
 nats<span class="w"> </span>server<span class="w"> </span>list
@@ -2172,10 +2172,10 @@ curl<span class="w"> </span>http://localhost:7777/metrics
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1401,15 +1401,15 @@
 <span class="w">  </span><span class="nt">kong</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kong:3.4</span>
 <span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;8000:8000&quot;</span><span class="w"> </span><span class="c1"># Proxy</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;8001:8001&quot;</span><span class="w"> </span><span class="c1"># Admin (internal only)</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"8000:8000"</span><span class="w"> </span><span class="c1"># Proxy</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"8001:8001"</span><span class="w"> </span><span class="c1"># Admin (internal only)</span>
 
 <span class="w">  </span><span class="nt">nats</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nats:2.10-alpine</span>
-<span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;-js&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;-m&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;8222&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"-js"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"-m"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"8222"</span><span class="p p-Indicator">]</span>
 <span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;4222:4222&quot;</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;8222:8222&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"4222:4222"</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"8222:8222"</span>
 
 <span class="w">  </span><span class="nt">postgres</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgis/postgis:16-3.4</span>
@@ -1504,26 +1504,26 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">ServiceClient</span><span class="p">:</span>
     <span class="nd">@circuit</span><span class="p">(</span><span class="n">failure_threshold</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">recovery_timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">call_weather_service</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Circuit breaker:</span>
 <span class="sd">        - بعد 5 إخفاقات → يفتح الدائرة</span>
 <span class="sd">        - ينتظر 30 ثانية ثم يحاول مرة أخرى</span>
 <span class="sd">        - يمنع التأثير المتتالي (Cascade Failure)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">pass</span>
 </code></pre></div>
 
 <p><strong>Health Checks:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># كل خدمة تحتوي على:</span>
-<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/health&quot;</span><span class="p">)</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/health"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">health_check</span><span class="p">():</span>
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;healthy&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;service&quot;</span><span class="p">:</span> <span class="s2">&quot;weather-core&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;dependencies&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;postgres&quot;</span><span class="p">:</span> <span class="k">await</span> <span class="n">check_postgres</span><span class="p">(),</span>
-            <span class="s2">&quot;nats&quot;</span><span class="p">:</span> <span class="k">await</span> <span class="n">check_nats</span><span class="p">(),</span>
-            <span class="s2">&quot;redis&quot;</span><span class="p">:</span> <span class="k">await</span> <span class="n">check_redis</span><span class="p">()</span>
+        <span class="s2">"status"</span><span class="p">:</span> <span class="s2">"healthy"</span><span class="p">,</span>
+        <span class="s2">"service"</span><span class="p">:</span> <span class="s2">"weather-core"</span><span class="p">,</span>
+        <span class="s2">"dependencies"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"postgres"</span><span class="p">:</span> <span class="k">await</span> <span class="n">check_postgres</span><span class="p">(),</span>
+            <span class="s2">"nats"</span><span class="p">:</span> <span class="k">await</span> <span class="n">check_nats</span><span class="p">(),</span>
+            <span class="s2">"redis"</span><span class="p">:</span> <span class="k">await</span> <span class="n">check_redis</span><span class="p">()</span>
         <span class="p">}</span>
     <span class="p">}</span>
 </code></pre></div>
@@ -1560,13 +1560,13 @@
 <span class="w">  </span><span class="nt">swagger-ui</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">swaggerapi/swagger-ui</span>
 <span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">URLS</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;[</span>
-<span class="w">        </span><span class="s">{url:</span><span class="nv"> </span><span class="s">&#39;/api/field-core/openapi.json&#39;,</span><span class="nv"> </span><span class="s">name:</span><span class="nv"> </span><span class="s">&#39;Field</span><span class="nv"> </span><span class="s">Core&#39;},</span>
-<span class="w">        </span><span class="s">{url:</span><span class="nv"> </span><span class="s">&#39;/api/weather-core/openapi.json&#39;,</span><span class="nv"> </span><span class="s">name:</span><span class="nv"> </span><span class="s">&#39;Weather&#39;},</span>
-<span class="w">        </span><span class="s">{url:</span><span class="nv"> </span><span class="s">&#39;/api/satellite/openapi.json&#39;,</span><span class="nv"> </span><span class="s">name:</span><span class="nv"> </span><span class="s">&#39;Satellite&#39;}</span>
-<span class="w">      </span><span class="s">]&quot;</span>
+<span class="w">      </span><span class="nt">URLS</span><span class="p">:</span><span class="w"> </span><span class="s">"[</span>
+<span class="w">        </span><span class="s">{url:</span><span class="nv"> </span><span class="s">'/api/field-core/openapi.json',</span><span class="nv"> </span><span class="s">name:</span><span class="nv"> </span><span class="s">'Field</span><span class="nv"> </span><span class="s">Core'},</span>
+<span class="w">        </span><span class="s">{url:</span><span class="nv"> </span><span class="s">'/api/weather-core/openapi.json',</span><span class="nv"> </span><span class="s">name:</span><span class="nv"> </span><span class="s">'Weather'},</span>
+<span class="w">        </span><span class="s">{url:</span><span class="nv"> </span><span class="s">'/api/satellite/openapi.json',</span><span class="nv"> </span><span class="s">name:</span><span class="nv"> </span><span class="s">'Satellite'}</span>
+<span class="w">      </span><span class="s">]"</span>
 <span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;8888:8080&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"8888:8080"</span>
 </code></pre></div>
 
 <hr />
@@ -1576,53 +1576,53 @@
 
 <span class="n">PORT_REGISTRY</span> <span class="o">=</span> <span class="p">{</span>
     <span class="c1"># Infrastructure</span>
-    <span class="s2">&quot;postgres&quot;</span><span class="p">:</span> <span class="mi">5432</span><span class="p">,</span>
-    <span class="s2">&quot;redis&quot;</span><span class="p">:</span> <span class="mi">6379</span><span class="p">,</span>
-    <span class="s2">&quot;nats&quot;</span><span class="p">:</span> <span class="mi">4222</span><span class="p">,</span>
-    <span class="s2">&quot;kong&quot;</span><span class="p">:</span> <span class="mi">8000</span><span class="p">,</span>
+    <span class="s2">"postgres"</span><span class="p">:</span> <span class="mi">5432</span><span class="p">,</span>
+    <span class="s2">"redis"</span><span class="p">:</span> <span class="mi">6379</span><span class="p">,</span>
+    <span class="s2">"nats"</span><span class="p">:</span> <span class="mi">4222</span><span class="p">,</span>
+    <span class="s2">"kong"</span><span class="p">:</span> <span class="mi">8000</span><span class="p">,</span>
 
     <span class="c1"># Node.js Services (3000-3099)</span>
-    <span class="s2">&quot;field_core&quot;</span><span class="p">:</span> <span class="mi">3000</span><span class="p">,</span>
-    <span class="s2">&quot;admin_dashboard&quot;</span><span class="p">:</span> <span class="mi">3001</span><span class="p">,</span>
-    <span class="s2">&quot;marketplace_service&quot;</span><span class="p">:</span> <span class="mi">3010</span><span class="p">,</span>
-    <span class="s2">&quot;research_core&quot;</span><span class="p">:</span> <span class="mi">3015</span><span class="p">,</span>
-    <span class="s2">&quot;disaster_assessment&quot;</span><span class="p">:</span> <span class="mi">3020</span><span class="p">,</span>
-    <span class="s2">&quot;yield_prediction&quot;</span><span class="p">:</span> <span class="mi">3021</span><span class="p">,</span>
-    <span class="s2">&quot;lai_estimation&quot;</span><span class="p">:</span> <span class="mi">3022</span><span class="p">,</span>
-    <span class="s2">&quot;crop_growth_model&quot;</span><span class="p">:</span> <span class="mi">3023</span><span class="p">,</span>
+    <span class="s2">"field_core"</span><span class="p">:</span> <span class="mi">3000</span><span class="p">,</span>
+    <span class="s2">"admin_dashboard"</span><span class="p">:</span> <span class="mi">3001</span><span class="p">,</span>
+    <span class="s2">"marketplace_service"</span><span class="p">:</span> <span class="mi">3010</span><span class="p">,</span>
+    <span class="s2">"research_core"</span><span class="p">:</span> <span class="mi">3015</span><span class="p">,</span>
+    <span class="s2">"disaster_assessment"</span><span class="p">:</span> <span class="mi">3020</span><span class="p">,</span>
+    <span class="s2">"yield_prediction"</span><span class="p">:</span> <span class="mi">3021</span><span class="p">,</span>
+    <span class="s2">"lai_estimation"</span><span class="p">:</span> <span class="mi">3022</span><span class="p">,</span>
+    <span class="s2">"crop_growth_model"</span><span class="p">:</span> <span class="mi">3023</span><span class="p">,</span>
 
     <span class="c1"># Python Services (8080-8120)</span>
-    <span class="s2">&quot;field_ops&quot;</span><span class="p">:</span> <span class="mi">8080</span><span class="p">,</span>
-    <span class="s2">&quot;ws_gateway&quot;</span><span class="p">:</span> <span class="mi">8081</span><span class="p">,</span>
-    <span class="s2">&quot;billing_core&quot;</span><span class="p">:</span> <span class="mi">8089</span><span class="p">,</span>
-    <span class="s2">&quot;satellite_service&quot;</span><span class="p">:</span> <span class="mi">8090</span><span class="p">,</span>
-    <span class="s2">&quot;indicators_service&quot;</span><span class="p">:</span> <span class="mi">8091</span><span class="p">,</span>
-    <span class="s2">&quot;weather_advanced&quot;</span><span class="p">:</span> <span class="mi">8092</span><span class="p">,</span>
-    <span class="s2">&quot;fertilizer_advisor&quot;</span><span class="p">:</span> <span class="mi">8093</span><span class="p">,</span>
-    <span class="s2">&quot;irrigation_smart&quot;</span><span class="p">:</span> <span class="mi">8094</span><span class="p">,</span>
-    <span class="s2">&quot;crop_health_ai&quot;</span><span class="p">:</span> <span class="mi">8095</span><span class="p">,</span>
-    <span class="s2">&quot;virtual_sensors&quot;</span><span class="p">:</span> <span class="mi">8096</span><span class="p">,</span>
-    <span class="s2">&quot;community_chat&quot;</span><span class="p">:</span> <span class="mi">8097</span><span class="p">,</span>
-    <span class="s2">&quot;yield_engine&quot;</span><span class="p">:</span> <span class="mi">8098</span><span class="p">,</span>
-    <span class="s2">&quot;field_chat&quot;</span><span class="p">:</span> <span class="mi">8099</span><span class="p">,</span>
-    <span class="s2">&quot;equipment_service&quot;</span><span class="p">:</span> <span class="mi">8101</span><span class="p">,</span>
-    <span class="s2">&quot;task_service&quot;</span><span class="p">:</span> <span class="mi">8103</span><span class="p">,</span>
-    <span class="s2">&quot;provider_config&quot;</span><span class="p">:</span> <span class="mi">8104</span><span class="p">,</span>
-    <span class="s2">&quot;agro_advisor&quot;</span><span class="p">:</span> <span class="mi">8105</span><span class="p">,</span>
-    <span class="s2">&quot;iot_gateway&quot;</span><span class="p">:</span> <span class="mi">8106</span><span class="p">,</span>
-    <span class="s2">&quot;ndvi_engine&quot;</span><span class="p">:</span> <span class="mi">8107</span><span class="p">,</span>
-    <span class="s2">&quot;weather_core&quot;</span><span class="p">:</span> <span class="mi">8108</span><span class="p">,</span>
-    <span class="s2">&quot;notification_service&quot;</span><span class="p">:</span> <span class="mi">8110</span><span class="p">,</span>
-    <span class="s2">&quot;astronomical_calendar&quot;</span><span class="p">:</span> <span class="mi">8111</span><span class="p">,</span>
-    <span class="s2">&quot;ai_advisor&quot;</span><span class="p">:</span> <span class="mi">8112</span><span class="p">,</span>
+    <span class="s2">"field_ops"</span><span class="p">:</span> <span class="mi">8080</span><span class="p">,</span>
+    <span class="s2">"ws_gateway"</span><span class="p">:</span> <span class="mi">8081</span><span class="p">,</span>
+    <span class="s2">"billing_core"</span><span class="p">:</span> <span class="mi">8089</span><span class="p">,</span>
+    <span class="s2">"satellite_service"</span><span class="p">:</span> <span class="mi">8090</span><span class="p">,</span>
+    <span class="s2">"indicators_service"</span><span class="p">:</span> <span class="mi">8091</span><span class="p">,</span>
+    <span class="s2">"weather_advanced"</span><span class="p">:</span> <span class="mi">8092</span><span class="p">,</span>
+    <span class="s2">"fertilizer_advisor"</span><span class="p">:</span> <span class="mi">8093</span><span class="p">,</span>
+    <span class="s2">"irrigation_smart"</span><span class="p">:</span> <span class="mi">8094</span><span class="p">,</span>
+    <span class="s2">"crop_health_ai"</span><span class="p">:</span> <span class="mi">8095</span><span class="p">,</span>
+    <span class="s2">"virtual_sensors"</span><span class="p">:</span> <span class="mi">8096</span><span class="p">,</span>
+    <span class="s2">"community_chat"</span><span class="p">:</span> <span class="mi">8097</span><span class="p">,</span>
+    <span class="s2">"yield_engine"</span><span class="p">:</span> <span class="mi">8098</span><span class="p">,</span>
+    <span class="s2">"field_chat"</span><span class="p">:</span> <span class="mi">8099</span><span class="p">,</span>
+    <span class="s2">"equipment_service"</span><span class="p">:</span> <span class="mi">8101</span><span class="p">,</span>
+    <span class="s2">"task_service"</span><span class="p">:</span> <span class="mi">8103</span><span class="p">,</span>
+    <span class="s2">"provider_config"</span><span class="p">:</span> <span class="mi">8104</span><span class="p">,</span>
+    <span class="s2">"agro_advisor"</span><span class="p">:</span> <span class="mi">8105</span><span class="p">,</span>
+    <span class="s2">"iot_gateway"</span><span class="p">:</span> <span class="mi">8106</span><span class="p">,</span>
+    <span class="s2">"ndvi_engine"</span><span class="p">:</span> <span class="mi">8107</span><span class="p">,</span>
+    <span class="s2">"weather_core"</span><span class="p">:</span> <span class="mi">8108</span><span class="p">,</span>
+    <span class="s2">"notification_service"</span><span class="p">:</span> <span class="mi">8110</span><span class="p">,</span>
+    <span class="s2">"astronomical_calendar"</span><span class="p">:</span> <span class="mi">8111</span><span class="p">,</span>
+    <span class="s2">"ai_advisor"</span><span class="p">:</span> <span class="mi">8112</span><span class="p">,</span>
 
     <span class="c1"># Reserved for new services (8113-8120)</span>
-    <span class="s2">&quot;alert_service&quot;</span><span class="p">:</span> <span class="mi">8113</span><span class="p">,</span>
-    <span class="s2">&quot;chat_service&quot;</span><span class="p">:</span> <span class="mi">8114</span><span class="p">,</span>
-    <span class="s2">&quot;field_service&quot;</span><span class="p">:</span> <span class="mi">8115</span><span class="p">,</span>
-    <span class="s2">&quot;inventory_service&quot;</span><span class="p">:</span> <span class="mi">8116</span><span class="p">,</span>
-    <span class="s2">&quot;iot_service&quot;</span><span class="p">:</span> <span class="mi">8117</span><span class="p">,</span>
-    <span class="s2">&quot;ndvi_processor&quot;</span><span class="p">:</span> <span class="mi">8118</span><span class="p">,</span>
+    <span class="s2">"alert_service"</span><span class="p">:</span> <span class="mi">8113</span><span class="p">,</span>
+    <span class="s2">"chat_service"</span><span class="p">:</span> <span class="mi">8114</span><span class="p">,</span>
+    <span class="s2">"field_service"</span><span class="p">:</span> <span class="mi">8115</span><span class="p">,</span>
+    <span class="s2">"inventory_service"</span><span class="p">:</span> <span class="mi">8116</span><span class="p">,</span>
+    <span class="s2">"iot_service"</span><span class="p">:</span> <span class="mi">8117</span><span class="p">,</span>
+    <span class="s2">"ndvi_processor"</span><span class="p">:</span> <span class="mi">8118</span><span class="p">,</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1633,20 +1633,20 @@
 <span class="w">    </span><span class="nt">deploy</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">resources</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">limits</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">cpus</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.5&quot;</span>
+<span class="w">          </span><span class="nt">cpus</span><span class="p">:</span><span class="w"> </span><span class="s">"0.5"</span>
 <span class="w">          </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512M</span>
 <span class="w">        </span><span class="nt">reservations</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">cpus</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.1&quot;</span>
+<span class="w">          </span><span class="nt">cpus</span><span class="p">:</span><span class="w"> </span><span class="s">"0.1"</span>
 <span class="w">          </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">128M</span>
 
 <span class="w">  </span><span class="nt">ai_advisor</span><span class="p">:</span><span class="w"> </span><span class="c1"># يحتاج موارد أكثر</span>
 <span class="w">    </span><span class="nt">deploy</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">resources</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">limits</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">cpus</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2.0&quot;</span>
+<span class="w">          </span><span class="nt">cpus</span><span class="p">:</span><span class="w"> </span><span class="s">"2.0"</span>
 <span class="w">          </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4G</span>
 <span class="w">        </span><span class="nt">reservations</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">cpus</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.5&quot;</span>
+<span class="w">          </span><span class="nt">cpus</span><span class="p">:</span><span class="w"> </span><span class="s">"0.5"</span>
 <span class="w">          </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1G</span>
 </code></pre></div>
 
@@ -1674,23 +1674,23 @@
 
 <span class="c1"># عدد الطلبات</span>
 <span class="n">request_count</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span>
-    <span class="s1">&#39;sahool_requests_total&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;Total requests&#39;</span><span class="p">,</span>
-    <span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">,</span> <span class="s1">&#39;method&#39;</span><span class="p">,</span> <span class="s1">&#39;endpoint&#39;</span><span class="p">,</span> <span class="s1">&#39;status&#39;</span><span class="p">]</span>
+    <span class="s1">'sahool_requests_total'</span><span class="p">,</span>
+    <span class="s1">'Total requests'</span><span class="p">,</span>
+    <span class="p">[</span><span class="s1">'service'</span><span class="p">,</span> <span class="s1">'method'</span><span class="p">,</span> <span class="s1">'endpoint'</span><span class="p">,</span> <span class="s1">'status'</span><span class="p">]</span>
 <span class="p">)</span>
 
 <span class="c1"># زمن الاستجابة</span>
 <span class="n">request_latency</span> <span class="o">=</span> <span class="n">Histogram</span><span class="p">(</span>
-    <span class="s1">&#39;sahool_request_latency_seconds&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;Request latency&#39;</span><span class="p">,</span>
-    <span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">,</span> <span class="s1">&#39;endpoint&#39;</span><span class="p">]</span>
+    <span class="s1">'sahool_request_latency_seconds'</span><span class="p">,</span>
+    <span class="s1">'Request latency'</span><span class="p">,</span>
+    <span class="p">[</span><span class="s1">'service'</span><span class="p">,</span> <span class="s1">'endpoint'</span><span class="p">]</span>
 <span class="p">)</span>
 
 <span class="c1"># الحقول النشطة</span>
 <span class="n">active_fields</span> <span class="o">=</span> <span class="n">Gauge</span><span class="p">(</span>
-    <span class="s1">&#39;sahool_active_fields&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;Number of active fields&#39;</span><span class="p">,</span>
-    <span class="p">[</span><span class="s1">&#39;region&#39;</span><span class="p">]</span>
+    <span class="s1">'sahool_active_fields'</span><span class="p">,</span>
+    <span class="s1">'Number of active fields'</span><span class="p">,</span>
+    <span class="p">[</span><span class="s1">'region'</span><span class="p">]</span>
 <span class="p">)</span>
 </code></pre></div>
 
@@ -1741,13 +1741,13 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">scale_services</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">is_planting_season</span><span class="p">():</span>
             <span class="c1"># زيادة موارد خدمات التخطيط</span>
-            <span class="n">scale_up</span><span class="p">([</span><span class="s1">&#39;field_core&#39;</span><span class="p">,</span> <span class="s1">&#39;agro_advisor&#39;</span><span class="p">])</span>
+            <span class="n">scale_up</span><span class="p">([</span><span class="s1">'field_core'</span><span class="p">,</span> <span class="s1">'agro_advisor'</span><span class="p">])</span>
         <span class="k">elif</span> <span class="n">is_growing_season</span><span class="p">():</span>
             <span class="c1"># زيادة موارد المراقبة</span>
-            <span class="n">scale_up</span><span class="p">([</span><span class="s1">&#39;satellite_service&#39;</span><span class="p">,</span> <span class="s1">&#39;crop_health_ai&#39;</span><span class="p">])</span>
+            <span class="n">scale_up</span><span class="p">([</span><span class="s1">'satellite_service'</span><span class="p">,</span> <span class="s1">'crop_health_ai'</span><span class="p">])</span>
         <span class="k">elif</span> <span class="n">is_harvest_season</span><span class="p">():</span>
             <span class="c1"># زيادة موارد السوق</span>
-            <span class="n">scale_up</span><span class="p">([</span><span class="s1">&#39;marketplace_service&#39;</span><span class="p">,</span> <span class="s1">&#39;yield_engine&#39;</span><span class="p">])</span>
+            <span class="n">scale_up</span><span class="p">([</span><span class="s1">'marketplace_service'</span><span class="p">,</span> <span class="s1">'yield_engine'</span><span class="p">])</span>
 </code></pre></div>
 
 <h3 id="2-predictive-maintenance">2. Predictive Maintenance<a class="headerlink" href="#2-predictive-maintenance" title="Permanent link">&para;</a></h3>
@@ -1878,10 +1878,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

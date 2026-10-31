@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1223,10 +1223,10 @@ argocd<span class="w"> </span>cluster<span class="w"> </span>add<span class="w">
 <span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">argocd</span>
 <span class="w">  </span><span class="nt">labels</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">argocd.argoproj.io/secret-type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster</span>
-<span class="w">    </span><span class="nt">sahool/enabled</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;true&quot;</span>
-<span class="w">    </span><span class="nt">sahool/region</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;tihama&quot;</span>
-<span class="w">    </span><span class="nt">sahool/tier</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;production&quot;</span>
-<span class="w">    </span><span class="nt">sahool/priority</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;primary&quot;</span>
+<span class="w">    </span><span class="nt">sahool/enabled</span><span class="p">:</span><span class="w"> </span><span class="s">"true"</span>
+<span class="w">    </span><span class="nt">sahool/region</span><span class="p">:</span><span class="w"> </span><span class="s">"tihama"</span>
+<span class="w">    </span><span class="nt">sahool/tier</span><span class="p">:</span><span class="w"> </span><span class="s">"production"</span>
+<span class="w">    </span><span class="nt">sahool/priority</span><span class="p">:</span><span class="w"> </span><span class="s">"primary"</span>
 </code></pre></div>
 
 <hr />
@@ -1242,32 +1242,32 @@ argocd<span class="w"> </span>cluster<span class="w"> </span>add<span class="w">
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">clusters</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">selector</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">matchLabels</span><span class="p">:</span>
-<span class="w">            </span><span class="nt">sahool/enabled</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;true&quot;</span>
+<span class="w">            </span><span class="nt">sahool/enabled</span><span class="p">:</span><span class="w"> </span><span class="s">"true"</span>
 <span class="w">        </span><span class="nt">values</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">region</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{metadata.labels.sahool/region}}&#39;</span>
-<span class="w">          </span><span class="nt">tier</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{metadata.labels.sahool/tier}}&#39;</span>
+<span class="w">          </span><span class="nt">region</span><span class="p">:</span><span class="w"> </span><span class="s">'{{metadata.labels.sahool/region}}'</span>
+<span class="w">          </span><span class="nt">tier</span><span class="p">:</span><span class="w"> </span><span class="s">'{{metadata.labels.sahool/tier}}'</span>
 <span class="w">  </span><span class="nt">template</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">metadata</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;sahool-{{name}}&#39;</span>
+<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">'sahool-{{name}}'</span>
 <span class="w">      </span><span class="nt">labels</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">region</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{values.region}}&#39;</span>
+<span class="w">        </span><span class="nt">region</span><span class="p">:</span><span class="w"> </span><span class="s">'{{values.region}}'</span>
 <span class="w">    </span><span class="nt">spec</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool</span>
 <span class="w">      </span><span class="nt">source</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">repoURL</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;${REPO_URL}&#39;</span>
+<span class="w">        </span><span class="nt">repoURL</span><span class="p">:</span><span class="w"> </span><span class="s">'${REPO_URL}'</span>
 <span class="w">        </span><span class="nt">targetRevision</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">HEAD</span>
 <span class="w">        </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">k8s/helm/sahool-kernel</span>
 <span class="w">        </span><span class="nt">helm</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">valueFiles</span><span class="p">:</span>
 <span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">values.yaml</span>
-<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;values-{{values.region}}.yaml&#39;</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'values-{{values.region}}.yaml'</span>
 <span class="w">          </span><span class="nt">parameters</span><span class="p">:</span>
 <span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">global.region</span>
-<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{values.region}}&#39;</span>
+<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">'{{values.region}}'</span>
 <span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">global.cluster</span>
-<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{name}}&#39;</span>
+<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">'{{name}}'</span>
 <span class="w">      </span><span class="nt">destination</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">server</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{server}}&#39;</span>
+<span class="w">        </span><span class="nt">server</span><span class="p">:</span><span class="w"> </span><span class="s">'{{server}}'</span>
 <span class="w">        </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool</span>
 <span class="w">      </span><span class="nt">syncPolicy</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">automated</span><span class="p">:</span>
@@ -1289,7 +1289,7 @@ argocd<span class="w"> </span>cluster<span class="w"> </span>add<span class="w">
 <span class="nt">irrigation</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">  </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">intensive</span>
-<span class="w">  </span><span class="nt">defaultSchedule</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0</span><span class="nv"> </span><span class="s">5,17</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*&quot;</span><span class="w">  </span><span class="c1"># صباحاً ومساءً</span>
+<span class="w">  </span><span class="nt">defaultSchedule</span><span class="p">:</span><span class="w"> </span><span class="s">"0</span><span class="nv"> </span><span class="s">5,17</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*"</span><span class="w">  </span><span class="c1"># صباحاً ومساءً</span>
 
 <span class="nt">weather</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">stations</span><span class="p">:</span>
@@ -1324,7 +1324,7 @@ argocd<span class="w"> </span>cluster<span class="w"> </span>add<span class="w">
 <span class="nt">irrigation</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">  </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">terraced</span>
-<span class="w">  </span><span class="nt">defaultSchedule</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0</span><span class="nv"> </span><span class="s">6</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*&quot;</span>
+<span class="w">  </span><span class="nt">defaultSchedule</span><span class="p">:</span><span class="w"> </span><span class="s">"0</span><span class="nv"> </span><span class="s">6</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*"</span>
 
 <span class="nt">weather</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">stations</span><span class="p">:</span>
@@ -1360,7 +1360,7 @@ argocd<span class="w"> </span>cluster<span class="w"> </span>add<span class="w">
 <span class="nt">irrigation</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">  </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">drip</span>
-<span class="w">  </span><span class="nt">defaultSchedule</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0</span><span class="nv"> </span><span class="s">4</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*&quot;</span>
+<span class="w">  </span><span class="nt">defaultSchedule</span><span class="p">:</span><span class="w"> </span><span class="s">"0</span><span class="nv"> </span><span class="s">4</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*"</span>
 
 <span class="nt">weather</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">stations</span><span class="p">:</span>
@@ -1407,7 +1407,7 @@ argocd<span class="w"> </span>cluster<span class="w"> </span>add<span class="w">
 <span class="w">        </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">500m</span>
 
 <span class="w">  </span><span class="nt">replication</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">synchronousCommit</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;on&quot;</span>
+<span class="w">    </span><span class="nt">synchronousCommit</span><span class="p">:</span><span class="w"> </span><span class="s">"on"</span>
 <span class="w">    </span><span class="nt">numSynchronousReplicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 
 <span class="w">  </span><span class="c1"># Cross-region replicas</span>
@@ -1434,8 +1434,8 @@ argocd<span class="w"> </span>cluster<span class="w"> </span>add<span class="w">
 <span class="w">      </span><span class="nt">parameters</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">max_wal_senders</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
 <span class="w">        </span><span class="nt">wal_keep_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1GB</span>
-<span class="w">        </span><span class="nt">hot_standby</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;on&quot;</span>
-<span class="w">        </span><span class="nt">wal_log_hints</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;on&quot;</span>
+<span class="w">        </span><span class="nt">hot_standby</span><span class="p">:</span><span class="w"> </span><span class="s">"on"</span>
+<span class="w">        </span><span class="nt">wal_log_hints</span><span class="p">:</span><span class="w"> </span><span class="s">"on"</span>
 
 <span class="w">  </span><span class="nt">initdb</span><span class="p">:</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">encoding</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">UTF8</span>
@@ -1477,22 +1477,22 @@ gateway {
   listen: 0.0.0.0:7222
 
   tls {
-    cert_file: &quot;/etc/nats/certs/server.crt&quot;
-    key_file: &quot;/etc/nats/certs/server.key&quot;
-    ca_file: &quot;/etc/nats/certs/ca.crt&quot;
+    cert_file: "/etc/nats/certs/server.crt"
+    key_file: "/etc/nats/certs/server.key"
+    ca_file: "/etc/nats/certs/ca.crt"
   }
 
   gateways: [
     {
       name: sahool-highlands
       urls: [
-        &quot;nats://nats.highlands.sahool.local:7222&quot;
+        "nats://nats.highlands.sahool.local:7222"
       ]
     },
     {
       name: sahool-hadramout
       urls: [
-        &quot;nats://nats.hadramout.sahool.local:7222&quot;
+        "nats://nats.hadramout.sahool.local:7222"
       ]
     }
   ]
@@ -1552,71 +1552,71 @@ gateway {
 <h3 id="prometheus-federation">Prometheus Federation<a class="headerlink" href="#prometheus-federation" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># prometheus-federation.yaml</span>
 <span class="nt">scrape_configs</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;federate-tihama&#39;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="s">'federate-tihama'</span>
 <span class="w">    </span><span class="nt">honor_labels</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">    </span><span class="nt">metrics_path</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;/federate&#39;</span>
+<span class="w">    </span><span class="nt">metrics_path</span><span class="p">:</span><span class="w"> </span><span class="s">'/federate'</span>
 <span class="w">    </span><span class="nt">params</span><span class="p">:</span>
-<span class="w">      </span><span class="s">&#39;match[]&#39;</span><span class="p p-Indicator">:</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;{job=~&quot;sahool.*&quot;}&#39;</span>
+<span class="w">      </span><span class="s">'match[]'</span><span class="p p-Indicator">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'{job=~"sahool.*"}'</span>
 <span class="w">    </span><span class="nt">static_configs</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">targets</span><span class="p">:</span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;prometheus.tihama.sahool.local:9090&#39;</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'prometheus.tihama.sahool.local:9090'</span>
 <span class="w">        </span><span class="nt">labels</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">region</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;tihama&#39;</span>
+<span class="w">          </span><span class="nt">region</span><span class="p">:</span><span class="w"> </span><span class="s">'tihama'</span>
 
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;federate-highlands&#39;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="s">'federate-highlands'</span>
 <span class="w">    </span><span class="nt">honor_labels</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">    </span><span class="nt">metrics_path</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;/federate&#39;</span>
+<span class="w">    </span><span class="nt">metrics_path</span><span class="p">:</span><span class="w"> </span><span class="s">'/federate'</span>
 <span class="w">    </span><span class="nt">params</span><span class="p">:</span>
-<span class="w">      </span><span class="s">&#39;match[]&#39;</span><span class="p p-Indicator">:</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;{job=~&quot;sahool.*&quot;}&#39;</span>
+<span class="w">      </span><span class="s">'match[]'</span><span class="p p-Indicator">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'{job=~"sahool.*"}'</span>
 <span class="w">    </span><span class="nt">static_configs</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">targets</span><span class="p">:</span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;prometheus.highlands.sahool.local:9090&#39;</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'prometheus.highlands.sahool.local:9090'</span>
 <span class="w">        </span><span class="nt">labels</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">region</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;highlands&#39;</span>
+<span class="w">          </span><span class="nt">region</span><span class="p">:</span><span class="w"> </span><span class="s">'highlands'</span>
 
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;federate-hadramout&#39;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="s">'federate-hadramout'</span>
 <span class="w">    </span><span class="nt">honor_labels</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">    </span><span class="nt">metrics_path</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;/federate&#39;</span>
+<span class="w">    </span><span class="nt">metrics_path</span><span class="p">:</span><span class="w"> </span><span class="s">'/federate'</span>
 <span class="w">    </span><span class="nt">params</span><span class="p">:</span>
-<span class="w">      </span><span class="s">&#39;match[]&#39;</span><span class="p p-Indicator">:</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;{job=~&quot;sahool.*&quot;}&#39;</span>
+<span class="w">      </span><span class="s">'match[]'</span><span class="p p-Indicator">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'{job=~"sahool.*"}'</span>
 <span class="w">    </span><span class="nt">static_configs</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">targets</span><span class="p">:</span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;prometheus.hadramout.sahool.local:9090&#39;</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'prometheus.hadramout.sahool.local:9090'</span>
 <span class="w">        </span><span class="nt">labels</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">region</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;hadramout&#39;</span>
+<span class="w">          </span><span class="nt">region</span><span class="p">:</span><span class="w"> </span><span class="s">'hadramout'</span>
 </code></pre></div>
 
 <h3 id="grafana-multi-region-dashboard">Grafana Multi-Region Dashboard<a class="headerlink" href="#grafana-multi-region-dashboard" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SAHOOL Multi-Region Overview&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;panels&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SAHOOL Multi-Region Overview"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"panels"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Requests by Region&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;targets&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Requests by Region"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"targets"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">        </span><span class="p">{</span>
-<span class="w">          </span><span class="nt">&quot;expr&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sum(rate(http_requests_total[5m])) by (region)&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="nt">&quot;legendFormat&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{{region}}&quot;</span>
+<span class="w">          </span><span class="nt">"expr"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sum(rate(http_requests_total[5m])) by (region)"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"legendFormat"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{{region}}"</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">      </span><span class="p">]</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Replication Lag&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;targets&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Replication Lag"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"targets"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">        </span><span class="p">{</span>
-<span class="w">          </span><span class="nt">&quot;expr&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pg_replication_lag_seconds&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="nt">&quot;legendFormat&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{{region}}&quot;</span>
+<span class="w">          </span><span class="nt">"expr"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pg_replication_lag_seconds"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"legendFormat"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{{region}}"</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">      </span><span class="p">]</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Service Health by Region&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;targets&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Service Health by Region"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"targets"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">        </span><span class="p">{</span>
-<span class="w">          </span><span class="nt">&quot;expr&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;up{job=~&#39;sahool.*&#39;}&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="nt">&quot;legendFormat&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{{region}}/{{service}}&quot;</span>
+<span class="w">          </span><span class="nt">"expr"</span><span class="p">:</span><span class="w"> </span><span class="s2">"up{job=~'sahool.*'}"</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">"legendFormat"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{{region}}/{{service}}"</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">      </span><span class="p">]</span>
 <span class="w">    </span><span class="p">}</span>
@@ -1628,35 +1628,35 @@ gateway {
 <h2 id="terraform-infrastructure-as-code">Terraform للبنية التحتية | Infrastructure as Code<a class="headerlink" href="#terraform-infrastructure-as-code" title="Permanent link">&para;</a></h2>
 <h3 id="infrastructureterraform">الموقع: <code>/infrastructure/terraform/</code><a class="headerlink" href="#infrastructureterraform" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># main.tf</span>
-<span class="kr">module</span><span class="w"> </span><span class="nv">&quot;region_tihama&quot;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="na">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;./modules/region&quot;</span>
+<span class="kr">module</span><span class="w"> </span><span class="nv">"region_tihama"</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="na">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"./modules/region"</span>
 
-<span class="w">  </span><span class="na">region_name</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;tihama&quot;</span>
-<span class="w">  </span><span class="na">region_id</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;ye-tihama-1&quot;</span>
+<span class="w">  </span><span class="na">region_name</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="s2">"tihama"</span>
+<span class="w">  </span><span class="na">region_id</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s2">"ye-tihama-1"</span>
 <span class="w">  </span><span class="na">is_primary</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="no">true</span>
 
 <span class="w">  </span><span class="nb">kubernetes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="na">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;1.28&quot;</span>
+<span class="w">    </span><span class="na">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"1.28"</span>
 <span class="w">    </span><span class="na">nodes</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="m">3</span>
 <span class="w">  </span><span class="p">}</span>
 
 <span class="w">  </span><span class="nb">postgresql</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="na">instance_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;db.r6g.large&quot;</span>
+<span class="w">    </span><span class="na">instance_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"db.r6g.large"</span>
 <span class="w">    </span><span class="na">storage_gb</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="m">100</span>
 <span class="w">    </span><span class="na">multi_az</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="no">true</span>
 <span class="w">  </span><span class="p">}</span>
 
 <span class="w">  </span><span class="nb">redis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="na">node_type</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;cache.r6g.large&quot;</span>
+<span class="w">    </span><span class="na">node_type</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s2">"cache.r6g.large"</span>
 <span class="w">    </span><span class="na">num_cache_nodes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">3</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 
-<span class="kr">module</span><span class="w"> </span><span class="nv">&quot;region_highlands&quot;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="na">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;./modules/region&quot;</span>
+<span class="kr">module</span><span class="w"> </span><span class="nv">"region_highlands"</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="na">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"./modules/region"</span>
 
-<span class="w">  </span><span class="na">region_name</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;highlands&quot;</span>
-<span class="w">  </span><span class="na">region_id</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;ye-highlands-1&quot;</span>
+<span class="w">  </span><span class="na">region_name</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="s2">"highlands"</span>
+<span class="w">  </span><span class="na">region_id</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s2">"ye-highlands-1"</span>
 <span class="w">  </span><span class="na">is_primary</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="no">false</span>
 
 <span class="w">  </span><span class="na">primary_region</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">module.region_tihama</span>
@@ -1664,11 +1664,11 @@ gateway {
 <span class="c1">  # Same configuration...</span>
 <span class="p">}</span>
 
-<span class="kr">module</span><span class="w"> </span><span class="nv">&quot;region_hadramout&quot;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="na">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;./modules/region&quot;</span>
+<span class="kr">module</span><span class="w"> </span><span class="nv">"region_hadramout"</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="na">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"./modules/region"</span>
 
-<span class="w">  </span><span class="na">region_name</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;hadramout&quot;</span>
-<span class="w">  </span><span class="na">region_id</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;ye-hadramout-1&quot;</span>
+<span class="w">  </span><span class="na">region_name</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="s2">"hadramout"</span>
+<span class="w">  </span><span class="na">region_id</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s2">"ye-hadramout-1"</span>
 <span class="w">  </span><span class="na">is_primary</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="no">false</span>
 
 <span class="w">  </span><span class="na">primary_region</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">module.region_tihama</span>
@@ -1721,7 +1721,7 @@ curl<span class="w"> </span>-sfL<span class="w"> </span>https://get.k3s.io<span 
 <span class="nt">metadata</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">default-replica-count</span>
 <span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">longhorn-system</span>
-<span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3&quot;</span>
+<span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">"3"</span>
 <span class="nn">---</span>
 <span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">storage.k8s.io/v1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">StorageClass</span>
@@ -1729,9 +1729,9 @@ curl<span class="w"> </span>-sfL<span class="w"> </span>https://get.k3s.io<span 
 <span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">longhorn-sahool</span>
 <span class="nt">provisioner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">driver.longhorn.io</span>
 <span class="nt">parameters</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">numberOfReplicas</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3&quot;</span>
-<span class="w">  </span><span class="nt">staleReplicaTimeout</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2880&quot;</span>
-<span class="w">  </span><span class="nt">fromBackup</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="w">  </span><span class="nt">numberOfReplicas</span><span class="p">:</span><span class="w"> </span><span class="s">"3"</span>
+<span class="w">  </span><span class="nt">staleReplicaTimeout</span><span class="p">:</span><span class="w"> </span><span class="s">"2880"</span>
+<span class="w">  </span><span class="nt">fromBackup</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
 <span class="w">  </span><span class="nt">fsType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ext4</span>
 <span class="nt">reclaimPolicy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Retain</span>
 <span class="nt">volumeBindingMode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Immediate</span>
@@ -1743,19 +1743,19 @@ curl<span class="w"> </span>-sfL<span class="w"> </span>https://get.k3s.io<span 
 <div class="codehilite"><pre><span></span><code><span class="ch">#!/bin/bash</span>
 <span class="c1"># test-failover.sh</span>
 
-<span class="nv">REGIONS</span><span class="o">=(</span><span class="s2">&quot;tihama&quot;</span><span class="w"> </span><span class="s2">&quot;highlands&quot;</span><span class="w"> </span><span class="s2">&quot;hadramout&quot;</span><span class="o">)</span>
-<span class="nv">PRIMARY</span><span class="o">=</span><span class="s2">&quot;tihama&quot;</span>
+<span class="nv">REGIONS</span><span class="o">=(</span><span class="s2">"tihama"</span><span class="w"> </span><span class="s2">"highlands"</span><span class="w"> </span><span class="s2">"hadramout"</span><span class="o">)</span>
+<span class="nv">PRIMARY</span><span class="o">=</span><span class="s2">"tihama"</span>
 
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Testing failover from </span><span class="nv">$PRIMARY</span><span class="s2">...&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"Testing failover from </span><span class="nv">$PRIMARY</span><span class="s2">..."</span>
 
 <span class="c1"># 1. إيقاف المنطقة الأساسية</span>
 kubectl<span class="w"> </span>--context<span class="w"> </span>sahool-<span class="nv">$PRIMARY</span><span class="w"> </span>scale<span class="w"> </span>deployment<span class="w"> </span>--all<span class="w"> </span>--replicas<span class="o">=</span><span class="m">0</span><span class="w"> </span>-n<span class="w"> </span>sahool
 
 <span class="c1"># 2. التحقق من التحويل التلقائي</span>
 sleep<span class="w"> </span><span class="m">30</span>
-<span class="k">for</span><span class="w"> </span>region<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">REGIONS</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$region</span><span class="s2">&quot;</span><span class="w"> </span>!<span class="o">=</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$PRIMARY</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
-<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Checking </span><span class="nv">$region</span><span class="s2">...&quot;</span>
+<span class="k">for</span><span class="w"> </span>region<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">REGIONS</span><span class="p">[@]</span><span class="si">}</span><span class="s2">"</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">"</span><span class="nv">$region</span><span class="s2">"</span><span class="w"> </span>!<span class="o">=</span><span class="w"> </span><span class="s2">"</span><span class="nv">$PRIMARY</span><span class="s2">"</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"Checking </span><span class="nv">$region</span><span class="s2">..."</span>
 <span class="w">    </span>kubectl<span class="w"> </span>--context<span class="w"> </span>sahool-<span class="nv">$region</span><span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-n<span class="w"> </span>sahool
 
 <span class="w">    </span><span class="c1"># التحقق من صحة الخدمات</span>
@@ -1766,7 +1766,7 @@ sleep<span class="w"> </span><span class="m">30</span>
 <span class="c1"># 3. استعادة المنطقة الأساسية</span>
 kubectl<span class="w"> </span>--context<span class="w"> </span>sahool-<span class="nv">$PRIMARY</span><span class="w"> </span>scale<span class="w"> </span>deployment<span class="w"> </span>--all<span class="w"> </span>--replicas<span class="o">=</span><span class="m">2</span><span class="w"> </span>-n<span class="w"> </span>sahool
 
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Failover test complete.&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"Failover test complete."</span>
 </code></pre></div>
 
 <hr />
@@ -1779,14 +1779,14 @@ argocd<span class="w"> </span>app<span class="w"> </span>sync<span class="w"> </
 
 <span class="c1"># عرض حالة التكرار</span>
 kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>postgresql-0<span class="w"> </span>-n<span class="w"> </span>sahool<span class="w"> </span>--<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>psql<span class="w"> </span>-U<span class="w"> </span>postgres<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SELECT * FROM pg_stat_replication;&quot;</span>
+<span class="w">  </span>psql<span class="w"> </span>-U<span class="w"> </span>postgres<span class="w"> </span>-c<span class="w"> </span><span class="s2">"SELECT * FROM pg_stat_replication;"</span>
 
 <span class="c1"># التحقق من NATS Gateways</span>
 nats<span class="w"> </span>server<span class="w"> </span>info<span class="w"> </span>--server<span class="w"> </span>nats.tihama.sahool.local:4222
 
 <span class="c1"># عرض مقاييس عبر المناطق</span>
 curl<span class="w"> </span>-s<span class="w"> </span>prometheus.central.sahool.local:9090/api/v1/query<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;query=up{job=~&quot;sahool.*&quot;}&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data.result[] | {region: .metric.region, status: .value[1]}&#39;</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'query=up{job=~"sahool.*"}'</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">'.data.result[] | {region: .metric.region, status: .value[1]}'</span>
 </code></pre></div>
 
 <hr />
@@ -1850,10 +1850,10 @@ curl<span class="w"> </span>-s<span class="w"> </span>prometheus.central.sahool.
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

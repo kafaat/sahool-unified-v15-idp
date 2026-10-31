@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1287,7 +1287,7 @@ uncommented lines in a working render.</p>
 </ol>
 <div class="codehilite"><pre><span></span><code><span class="c1"># render-alertmanager.sh</span>
 <span class="c1"># Load KEY=value overrides from .env.alerting safely — `set -a` auto-exports</span>
-<span class="c1"># every variable assigned by the sourced file, and the shell&#39;s own parser</span>
+<span class="c1"># every variable assigned by the sourced file, and the shell's own parser</span>
 <span class="c1"># handles quoting, spaces, and `#` comments correctly (unlike the brittle</span>
 <span class="c1"># `export $(grep ... | xargs)` idiom).</span>
 <span class="nb">set</span><span class="w"> </span>-a
@@ -1356,15 +1356,15 @@ kustomize overlay. Example Helm chart structure:</p>
 <span class="nt">data</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">alertmanager.yml</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
 <span class="w">    </span><span class="no">global:</span>
-<span class="w">      </span><span class="no">smtp_smarthost: &#39;{{ .Values.smtp.host }}:{{ .Values.smtp.port }}&#39;</span>
-<span class="w">      </span><span class="no">smtp_auth_username: &#39;{{ .Values.smtp.username }}&#39;</span>
+<span class="w">      </span><span class="no">smtp_smarthost: '{{ .Values.smtp.host }}:{{ .Values.smtp.port }}'</span>
+<span class="w">      </span><span class="no">smtp_auth_username: '{{ .Values.smtp.username }}'</span>
 <span class="w">      </span><span class="no"># ... and so on</span>
 <span class="w">    </span><span class="no">receivers:</span>
 <span class="w">      </span><span class="no">- name: audit-compliance-team</span>
 <span class="w">        </span><span class="no">email_configs:</span>
-<span class="w">          </span><span class="no">- to: &#39;{{ .Values.receivers.audit.email }}&#39;</span>
+<span class="w">          </span><span class="no">- to: '{{ .Values.receivers.audit.email }}'</span>
 <span class="w">        </span><span class="no">slack_configs:</span>
-<span class="w">          </span><span class="no">- channel: &#39;{{ .Values.receivers.audit.slackChannel }}&#39;</span>
+<span class="w">          </span><span class="no">- channel: '{{ .Values.receivers.audit.slackChannel }}'</span>
 </code></pre></div>
 
 <p><strong>Pros</strong>: proper config-as-code, works with ArgoCD / Flux.
@@ -1385,7 +1385,7 @@ kustomize overlay. Example Helm chart structure:</p>
 <hr />
 <h2 id="smoke-check-after-any-change">Smoke check after any change<a class="headerlink" href="#smoke-check-after-any-change" title="Permanent link">&para;</a></h2>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Parse check (any YAML tool)</span>
-python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import yaml; yaml.safe_load(open(&#39;alertmanager.yml&#39;))&quot;</span>
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import yaml; yaml.safe_load(open('alertmanager.yml'))"</span>
 
 <span class="c1"># Alertmanager-specific validation (requires amtool)</span>
 amtool<span class="w"> </span>check-config<span class="w"> </span>alertmanager.yml
@@ -1442,10 +1442,10 @@ file, your render step didn't run.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

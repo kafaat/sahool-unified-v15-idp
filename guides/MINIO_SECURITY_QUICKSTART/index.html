@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1139,10 +1139,10 @@
 <hr />
 <h3 id="step-2-generate-encryption-keys-1-minute">Step 2: Generate Encryption Keys (1 minute)<a class="headerlink" href="#step-2-generate-encryption-keys-1-minute" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Generate MinIO encryption master key</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;MINIO_ENCRYPTION_MASTER_KEY=</span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span><span class="k">)</span><span class="s2">&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"MINIO_ENCRYPTION_MASTER_KEY=</span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span><span class="k">)</span><span class="s2">"</span>
 
 <span class="c1"># Generate backup encryption key</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;BACKUP_ENCRYPTION_KEY=</span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span><span class="k">)</span><span class="s2">&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"BACKUP_ENCRYPTION_KEY=</span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span><span class="k">)</span><span class="s2">"</span>
 </code></pre></div>
 
 <p><strong>Save these keys</strong> - you'll need them in the next step!</p>
@@ -1196,11 +1196,11 @@ curl<span class="w"> </span>-v<span class="w"> </span>-k<span class="w"> </span>
 <span class="c1"># Expected: HTTP 200 OK</span>
 
 <span class="c1"># Check encryption is enabled</span>
-docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-minio<span class="w"> </span>mc<span class="w"> </span>encrypt<span class="w"> </span>info<span class="w"> </span>primary/milvus-bucket<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Bucket will be created on first use&quot;</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-minio<span class="w"> </span>mc<span class="w"> </span>encrypt<span class="w"> </span>info<span class="w"> </span>primary/milvus-bucket<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"Bucket will be created on first use"</span>
 
 <span class="c1"># Check backup MinIO client logs</span>
 docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>scripts/backup/docker-compose.backup.yml<span class="w"> </span>logs<span class="w"> </span>minio-client<span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-20
-<span class="c1"># Expected: &quot;✓ MinIO buckets configured with security hardening&quot;</span>
+<span class="c1"># Expected: "✓ MinIO buckets configured with security hardening"</span>
 
 <span class="c1"># Verify backup encryption is enabled</span>
 docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-backup-scheduler<span class="w"> </span>env<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>BACKUP_ENCRYPTION_ENABLED
@@ -1247,11 +1247,11 @@ docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </spa
 <hr />
 <h2 id="verification-commands">🔍 Verification Commands<a class="headerlink" href="#verification-commands" title="Permanent link">&para;</a></h2>
 <div class="codehilite"><pre><span></span><code><span class="c1"># 1. Check TLS certificates</span>
-openssl<span class="w"> </span>s_client<span class="w"> </span>-connect<span class="w"> </span>localhost:9000<span class="w"> </span>-showcerts<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;Verify return code&quot;</span>
+openssl<span class="w"> </span>s_client<span class="w"> </span>-connect<span class="w"> </span>localhost:9000<span class="w"> </span>-showcerts<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">"Verify return code"</span>
 <span class="c1"># Expected: Verify return code: 0 (ok) or 19 (self signed)</span>
 
 <span class="c1"># 2. List all buckets</span>
-docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-minio<span class="w"> </span>mc<span class="w"> </span>ls<span class="w"> </span>primary/<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Buckets will be created on first use&quot;</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-minio<span class="w"> </span>mc<span class="w"> </span>ls<span class="w"> </span>primary/<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"Buckets will be created on first use"</span>
 
 <span class="c1"># 3. Verify backup MinIO buckets</span>
 docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-backup-minio<span class="w"> </span>mc<span class="w"> </span>ls<span class="w"> </span>sahool/
@@ -1263,7 +1263,7 @@ docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </spa
 
 <span class="c1"># 5. Test backup encryption</span>
 docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-backup-scheduler<span class="w"> </span>/scripts/backup_minio.sh<span class="w"> </span>daily
-<span class="c1"># Check logs for &quot;encryption&quot; mentions</span>
+<span class="c1"># Check logs for "encryption" mentions</span>
 </code></pre></div>
 
 <hr />
@@ -1287,7 +1287,7 @@ docker<span class="w"> </span>compose<span class="w"> </span>ps<span class="w"> 
 
 <span class="c1"># Check health endpoint</span>
 docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-minio<span class="w"> </span>curl<span class="w"> </span>-k<span class="w"> </span>https://localhost:9000/minio/health/live
-<span class="c1"># Expected: {&quot;status&quot;:&quot;ok&quot;}</span>
+<span class="c1"># Expected: {"status":"ok"}</span>
 </code></pre></div>
 
 <h3 id="milvus-cant-connect">Milvus can't connect?<a class="headerlink" href="#milvus-cant-connect" title="Permanent link">&para;</a></h3>
@@ -1401,10 +1401,10 @@ docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1477,17 +1477,17 @@
 <strong>التأثير:</strong> يسمح بالوصول من أي نطاق</p>
 <p><strong>الخدمات المتأثرة:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># في 3 خدمات على الأقل:</span>
-<span class="n">kernel</span><span class="o">-</span><span class="n">services</span><span class="o">-</span><span class="n">v15</span><span class="mf">.3</span><span class="o">/</span><span class="n">crop</span><span class="o">-</span><span class="n">health</span><span class="o">-</span><span class="n">ai</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">main</span><span class="o">.</span><span class="n">py</span><span class="p">:</span>    <span class="n">allow_origins</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">]</span>
-<span class="n">kernel</span><span class="o">-</span><span class="n">services</span><span class="o">-</span><span class="n">v15</span><span class="mf">.3</span><span class="o">/</span><span class="k">yield</span><span class="o">-</span><span class="n">engine</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">main</span><span class="o">.</span><span class="n">py</span><span class="p">:</span>       <span class="n">allow_origins</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">]</span>
-<span class="n">kernel</span><span class="o">-</span><span class="n">services</span><span class="o">-</span><span class="n">v15</span><span class="mf">.3</span><span class="o">/</span><span class="n">virtual</span><span class="o">-</span><span class="n">sensors</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">main</span><span class="o">.</span><span class="n">py</span><span class="p">:</span>    <span class="n">allow_origins</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">]</span>
+<span class="n">kernel</span><span class="o">-</span><span class="n">services</span><span class="o">-</span><span class="n">v15</span><span class="mf">.3</span><span class="o">/</span><span class="n">crop</span><span class="o">-</span><span class="n">health</span><span class="o">-</span><span class="n">ai</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">main</span><span class="o">.</span><span class="n">py</span><span class="p">:</span>    <span class="n">allow_origins</span><span class="o">=</span><span class="p">[</span><span class="s2">"*"</span><span class="p">]</span>
+<span class="n">kernel</span><span class="o">-</span><span class="n">services</span><span class="o">-</span><span class="n">v15</span><span class="mf">.3</span><span class="o">/</span><span class="k">yield</span><span class="o">-</span><span class="n">engine</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">main</span><span class="o">.</span><span class="n">py</span><span class="p">:</span>       <span class="n">allow_origins</span><span class="o">=</span><span class="p">[</span><span class="s2">"*"</span><span class="p">]</span>
+<span class="n">kernel</span><span class="o">-</span><span class="n">services</span><span class="o">-</span><span class="n">v15</span><span class="mf">.3</span><span class="o">/</span><span class="n">virtual</span><span class="o">-</span><span class="n">sensors</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">main</span><span class="o">.</span><span class="n">py</span><span class="p">:</span>    <span class="n">allow_origins</span><span class="o">=</span><span class="p">[</span><span class="s2">"*"</span><span class="p">]</span>
 </code></pre></div>
 
 <p><strong>الإصلاح المطلوب:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># يجب استبدال * بنطاقات محددة</span>
 <span class="n">allow_origins</span><span class="o">=</span><span class="p">[</span>
-    <span class="s2">&quot;https://admin.sahool.io&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;https://app.sahool.io&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;http://localhost:3000&quot;</span><span class="p">,</span>  <span class="c1"># للتطوير فقط</span>
+    <span class="s2">"https://admin.sahool.io"</span><span class="p">,</span>
+    <span class="s2">"https://app.sahool.io"</span><span class="p">,</span>
+    <span class="s2">"http://localhost:3000"</span><span class="p">,</span>  <span class="c1"># للتطوير فقط</span>
 <span class="p">]</span>
 </code></pre></div>
 
@@ -1509,19 +1509,19 @@
 <p><strong>المشكلة:</strong> لا يوجد تحقق كافٍ من رموز JWT</p>
 <p><strong>الإصلاح المطلوب:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">validate_jwt_token</span><span class="p">(</span><span class="n">token</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Validate JWT token and return payload</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">payload</span> <span class="o">=</span> <span class="n">jwt</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span>
             <span class="n">token</span><span class="p">,</span>
             <span class="n">settings</span><span class="o">.</span><span class="n">JWT_SECRET</span><span class="p">,</span>
-            <span class="n">algorithms</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;HS256&quot;</span><span class="p">],</span>
-            <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;verify_exp&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+            <span class="n">algorithms</span><span class="o">=</span><span class="p">[</span><span class="s2">"HS256"</span><span class="p">],</span>
+            <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">"verify_exp"</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">payload</span>
     <span class="k">except</span> <span class="n">jwt</span><span class="o">.</span><span class="n">InvalidTokenError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">WebSocketDisconnect</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">4001</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Invalid token: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">WebSocketDisconnect</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">4001</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Invalid token: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div>
 
 <h3 id="22-mobile-app-todos">2.2 الميزات الناقصة في التطبيق (Mobile App TODOs)<a class="headerlink" href="#22-mobile-app-todos" title="Permanent link">&para;</a></h3>
@@ -1657,10 +1657,10 @@ tortoise-orm==0.21.0
 <h3 id="32-nodejs">3.2 تبعيات Node.js<a class="headerlink" href="#32-nodejs" title="Permanent link">&para;</a></h3>
 <h4 id="web-admin-nextjs">Web Admin (Next.js)<a class="headerlink" href="#web-admin-nextjs" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;next&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;14.1.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// ✅ حديث</span>
-<span class="w">  </span><span class="nt">&quot;react&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^18.2.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// ✅ حديث</span>
-<span class="w">  </span><span class="nt">&quot;leaflet&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^1.9.4&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// ✅ حديث</span>
-<span class="w">  </span><span class="nt">&quot;axios&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^1.6.5&quot;</span><span class="w"> </span><span class="c1">// ⚠️ يوجد تحديث أمني (1.7.9)</span>
+<span class="w">  </span><span class="nt">"next"</span><span class="p">:</span><span class="w"> </span><span class="s2">"14.1.0"</span><span class="p">,</span><span class="w"> </span><span class="c1">// ✅ حديث</span>
+<span class="w">  </span><span class="nt">"react"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^18.2.0"</span><span class="p">,</span><span class="w"> </span><span class="c1">// ✅ حديث</span>
+<span class="w">  </span><span class="nt">"leaflet"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^1.9.4"</span><span class="p">,</span><span class="w"> </span><span class="c1">// ✅ حديث</span>
+<span class="w">  </span><span class="nt">"axios"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^1.6.5"</span><span class="w"> </span><span class="c1">// ⚠️ يوجد تحديث أمني (1.7.9)</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1842,8 +1842,8 @@ kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> <
 <span class="s">spec:</span>
 <span class="s">  provider:</span>
 <span class="s">    vault:</span>
-<span class="s">      server: &quot;https://vault.sahool.io&quot;</span>
-<span class="s">      path: &quot;secret/data/sahool&quot;</span>
+<span class="s">      server: "https://vault.sahool.io"</span>
+<span class="s">      path: "secret/data/sahool"</span>
 <span class="s">EOF</span>
 </code></pre></div>
 
@@ -1916,9 +1916,9 @@ kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> <
 
 <span class="n">tracer</span> <span class="o">=</span> <span class="n">trace</span><span class="o">.</span><span class="n">get_tracer</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/api/fields&quot;</span><span class="p">)</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/api/fields"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_fields</span><span class="p">():</span>
-    <span class="k">with</span> <span class="n">tracer</span><span class="o">.</span><span class="n">start_as_current_span</span><span class="p">(</span><span class="s2">&quot;get_fields&quot;</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">tracer</span><span class="o">.</span><span class="n">start_as_current_span</span><span class="p">(</span><span class="s2">"get_fields"</span><span class="p">):</span>
         <span class="c1"># code here</span>
         <span class="k">pass</span>
 </code></pre></div>
@@ -2155,7 +2155,7 @@ kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> <
 <span class="w">   </span><span class="k">-</span><span class="w"> </span>إضافة Token Refresh
 
 <span class="k">4.</span> ✅ تفعيل HTTPS في جميع البيئات
-<span class="w">   </span><span class="k">-</span><span class="w"> </span>Let&#39;s Encrypt للإنتاج
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>Let's Encrypt للإنتاج
 <span class="w">   </span><span class="k">-</span><span class="w"> </span>Self-signed للتطوير
 </code></pre></div>
 
@@ -2368,7 +2368,7 @@ kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> <
 <h4 id="_27">الترقيات المقترحة<a class="headerlink" href="#_27" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1"># 1. نظام توصيات متقدم (Recommendation Engine)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">SmartAdvisor</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    يجمع بيانات من:</span>
 <span class="sd">    - NDVI (صحة المحصول)</span>
 <span class="sd">    - Weather (الطقس)</span>
@@ -2380,28 +2380,28 @@ kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> <
 <span class="sd">    - كمية الأسمدة المثلى</span>
 <span class="sd">    - جدول الري</span>
 <span class="sd">    - موعد الحصاد المثالي</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">pass</span>
 
 <span class="c1"># 2. Predictive Maintenance للمعدات</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">EquipmentHealth</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    يتنبأ بأعطال المعدات قبل حدوثها</span>
 <span class="sd">    بناءً على:</span>
 <span class="sd">    - ساعات التشغيل</span>
 <span class="sd">    - أنماط الاستخدام</span>
 <span class="sd">    - بيانات الصيانة السابقة</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">pass</span>
 
 <span class="c1"># 3. Computer Vision المتقدم</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">AdvancedVision</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    - كشف الآفات في الوقت الفعلي</span>
 <span class="sd">    - تقدير الإنتاجية من الصور</span>
 <span class="sd">    - تصنيف جودة المحصول</span>
 <span class="sd">    - Drone imagery analysis</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">pass</span>
 </code></pre></div>
 
@@ -2424,9 +2424,9 @@ kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> <
 
 <span class="c1">// Voice Commands (الأوامر الصوتية)</span>
 <span class="kd">class</span><span class="w"> </span><span class="nc">VoiceInterface</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="c1">// &quot;سجل ملاحظة في الحقل رقم 5&quot;</span>
-<span class="w">  </span><span class="c1">// &quot;اعرض طقس هذا الأسبوع&quot;</span>
-<span class="w">  </span><span class="c1">// &quot;متى موعد الحصاد؟&quot;</span>
+<span class="w">  </span><span class="c1">// "سجل ملاحظة في الحقل رقم 5"</span>
+<span class="w">  </span><span class="c1">// "اعرض طقس هذا الأسبوع"</span>
+<span class="w">  </span><span class="c1">// "متى موعد الحصاد؟"</span>
 <span class="p">}</span>
 
 <span class="c1">// Augmented Reality (الواقع المعزز)</span>
@@ -2915,10 +2915,10 @@ npm<span class="w"> </span>run<span class="w"> </span>test:e2e
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

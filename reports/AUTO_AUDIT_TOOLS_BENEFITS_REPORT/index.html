@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1358,12 +1358,12 @@ python<span class="w"> </span>-m<span class="w"> </span>tools.auto-audit<span cl
 
 <span class="c1"># تشغيل تدقيق كامل</span>
 <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">agent</span><span class="o">.</span><span class="n">handle_task</span><span class="p">(</span><span class="n">TaskMessage</span><span class="p">(</span>
-    <span class="n">task_type</span><span class="o">=</span><span class="s2">&quot;run_full_audit&quot;</span><span class="p">,</span>
-    <span class="n">input_data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;tenant_id&quot;</span><span class="p">:</span> <span class="s2">&quot;tenant-123&quot;</span><span class="p">}</span>
+    <span class="n">task_type</span><span class="o">=</span><span class="s2">"run_full_audit"</span><span class="p">,</span>
+    <span class="n">input_data</span><span class="o">=</span><span class="p">{</span><span class="s2">"tenant_id"</span><span class="p">:</span> <span class="s2">"tenant-123"</span><span class="p">}</span>
 <span class="p">))</span>
 
 <span class="c1"># التحقق من الحالة الصحية</span>
-<span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;overall_health&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;critical&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s2">"overall_health"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"critical"</span><span class="p">:</span>
     <span class="k">await</span> <span class="n">agent</span><span class="o">.</span><span class="n">notify_security_team</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 </code></pre></div>
 
@@ -1569,7 +1569,7 @@ cat<span class="w"> </span>audit_reports/00_audit_summary_*.md
 
 <h3 id="73">7.3 الجدولة التلقائية<a class="headerlink" href="#73" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># إضافة للـ cron (يومي الساعة 2 صباحًا)</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;0 2 * * * python -m tools.auto-audit full-audit -i /var/log/audit.json -t prod -o /var/reports/&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>crontab<span class="w"> </span>-
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"0 2 * * * python -m tools.auto-audit full-audit -i /var/log/audit.json -t prod -o /var/reports/"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>crontab<span class="w"> </span>-
 </code></pre></div>
 
 <hr />
@@ -1676,10 +1676,10 @@ cat<span class="w"> </span>audit_reports/00_audit_summary_*.md
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

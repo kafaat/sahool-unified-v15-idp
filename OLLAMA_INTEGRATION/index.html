@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1164,7 +1164,7 @@ docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> 
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">llm.multi_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultiLLMService</span>
 
 <span class="c1"># Use Ollama as primary (falls back to cloud if unavailable)</span>
-<span class="n">service</span> <span class="o">=</span> <span class="n">MultiLLMService</span><span class="p">(</span><span class="n">primary_provider</span><span class="o">=</span><span class="s2">&quot;ollama&quot;</span><span class="p">)</span>
+<span class="n">service</span> <span class="o">=</span> <span class="n">MultiLLMService</span><span class="p">(</span><span class="n">primary_provider</span><span class="o">=</span><span class="s2">"ollama"</span><span class="p">)</span>
 </code></pre></div>
 
 <h2 id="architecture">Architecture | البنية<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
@@ -1295,26 +1295,26 @@ docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> 
 <span class="n">provider</span> <span class="o">=</span> <span class="n">OllamaProvider</span><span class="p">()</span>
 
 <span class="n">messages</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="n">LLMMessage</span><span class="p">(</span><span class="n">role</span><span class="o">=</span><span class="s2">&quot;system&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="s2">&quot;You are an agricultural advisor&quot;</span><span class="p">),</span>
-    <span class="n">LLMMessage</span><span class="p">(</span><span class="n">role</span><span class="o">=</span><span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="s2">&quot;What is the best time to plant wheat?&quot;</span><span class="p">),</span>
+    <span class="n">LLMMessage</span><span class="p">(</span><span class="n">role</span><span class="o">=</span><span class="s2">"system"</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="s2">"You are an agricultural advisor"</span><span class="p">),</span>
+    <span class="n">LLMMessage</span><span class="p">(</span><span class="n">role</span><span class="o">=</span><span class="s2">"user"</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="s2">"What is the best time to plant wheat?"</span><span class="p">),</span>
 <span class="p">]</span>
 
 <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">provider</span><span class="o">.</span><span class="n">chat</span><span class="p">(</span>
     <span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">,</span>
-    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;llama3.2&quot;</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">"llama3.2"</span><span class="p">,</span>
     <span class="n">max_tokens</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
     <span class="n">temperature</span><span class="o">=</span><span class="mf">0.7</span>
 <span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tokens used: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">tokens_used</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Latency: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">latency_ms</span><span class="si">}</span><span class="s2">ms&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Tokens used: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">tokens_used</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Latency: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">latency_ms</span><span class="si">}</span><span class="s2">ms"</span><span class="p">)</span>
 </code></pre></div>
 
 <h3 id="text-generation">Text Generation<a class="headerlink" href="#text-generation" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">provider</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span>
-    <span class="n">prompt</span><span class="o">=</span><span class="s2">&quot;Describe the symptoms of wheat rust disease:&quot;</span><span class="p">,</span>
-    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;llama3.2&quot;</span><span class="p">,</span>
+    <span class="n">prompt</span><span class="o">=</span><span class="s2">"Describe the symptoms of wheat rust disease:"</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">"llama3.2"</span><span class="p">,</span>
     <span class="n">max_tokens</span><span class="o">=</span><span class="mi">500</span>
 <span class="p">)</span>
 </code></pre></div>
@@ -1322,15 +1322,15 @@ docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> 
 <h3 id="embeddings">Embeddings<a class="headerlink" href="#embeddings" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Single text</span>
 <span class="n">embeddings</span> <span class="o">=</span> <span class="k">await</span> <span class="n">provider</span><span class="o">.</span><span class="n">embeddings</span><span class="p">(</span>
-    <span class="s2">&quot;Agricultural irrigation best practices&quot;</span><span class="p">,</span>
-    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;nomic-embed-text&quot;</span>
+    <span class="s2">"Agricultural irrigation best practices"</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">"nomic-embed-text"</span>
 <span class="p">)</span>
 
 <span class="c1"># Batch embedding</span>
 <span class="n">texts</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;Wheat cultivation&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Tomato farming&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Date palm care&quot;</span>
+    <span class="s2">"Wheat cultivation"</span><span class="p">,</span>
+    <span class="s2">"Tomato farming"</span><span class="p">,</span>
+    <span class="s2">"Date palm care"</span>
 <span class="p">]</span>
 <span class="n">embeddings</span> <span class="o">=</span> <span class="k">await</span> <span class="n">provider</span><span class="o">.</span><span class="n">embeddings</span><span class="p">(</span><span class="n">texts</span><span class="p">)</span>
 </code></pre></div>
@@ -1339,10 +1339,10 @@ docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> 
 <div class="codehilite"><pre><span></span><code><span class="c1"># List available models</span>
 <span class="n">models</span> <span class="o">=</span> <span class="k">await</span> <span class="n">provider</span><span class="o">.</span><span class="n">list_models</span><span class="p">()</span>
 <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">model</span><span class="p">[</span><span class="s1">&#39;size&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">1e9</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">GB&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">model</span><span class="p">[</span><span class="s1">'name'</span><span class="p">]</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">model</span><span class="p">[</span><span class="s1">'size'</span><span class="p">]</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">1e9</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">GB"</span><span class="p">)</span>
 
 <span class="c1"># Pull a new model</span>
-<span class="n">success</span> <span class="o">=</span> <span class="k">await</span> <span class="n">provider</span><span class="o">.</span><span class="n">pull_model</span><span class="p">(</span><span class="s2">&quot;qwen2.5:7b&quot;</span><span class="p">)</span>
+<span class="n">success</span> <span class="o">=</span> <span class="k">await</span> <span class="n">provider</span><span class="o">.</span><span class="n">pull_model</span><span class="p">(</span><span class="s2">"qwen2.5:7b"</span><span class="p">)</span>
 </code></pre></div>
 
 <h2 id="multi-provider-fallback">Multi-Provider Fallback | التبديل التلقائي<a class="headerlink" href="#multi-provider-fallback" title="Permanent link">&para;</a></h2>
@@ -1350,14 +1350,14 @@ docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> 
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">llm.multi_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultiLLMService</span><span class="p">,</span> <span class="n">LLMMessage</span>
 
 <span class="c1"># Priority: Ollama -&gt; Anthropic -&gt; OpenAI -&gt; Google</span>
-<span class="n">service</span> <span class="o">=</span> <span class="n">MultiLLMService</span><span class="p">(</span><span class="n">primary_provider</span><span class="o">=</span><span class="s2">&quot;ollama&quot;</span><span class="p">)</span>
+<span class="n">service</span> <span class="o">=</span> <span class="n">MultiLLMService</span><span class="p">(</span><span class="n">primary_provider</span><span class="o">=</span><span class="s2">"ollama"</span><span class="p">)</span>
 
 <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">service</span><span class="o">.</span><span class="n">chat</span><span class="p">([</span>
-    <span class="n">LLMMessage</span><span class="p">(</span><span class="n">role</span><span class="o">=</span><span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="s2">&quot;Hello&quot;</span><span class="p">)</span>
+    <span class="n">LLMMessage</span><span class="p">(</span><span class="n">role</span><span class="o">=</span><span class="s2">"user"</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="s2">"Hello"</span><span class="p">)</span>
 <span class="p">])</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Provider used: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">provider</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed providers: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">failed_providers</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Provider used: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">provider</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed providers: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">failed_providers</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div>
 
 <h2 id="docker-deployment-docker">Docker Deployment | النشر باستخدام Docker<a class="headerlink" href="#docker-deployment-docker" title="Permanent link">&para;</a></h2>
@@ -1464,9 +1464,9 @@ curl<span class="w"> </span>http://localhost:11434/api/ps
 <p>Ollama exposes metrics that can be scraped:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># prometheus.yml</span>
 <span class="nt">scrape_configs</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;ollama&#39;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="s">'ollama'</span>
 <span class="w">    </span><span class="nt">static_configs</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">targets</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&#39;ollama:11434&#39;</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">targets</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">'ollama:11434'</span><span class="p p-Indicator">]</span>
 </code></pre></div>
 
 <h2 id="troubleshooting">Troubleshooting | استكشاف الأخطاء<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
@@ -1522,12 +1522,12 @@ docker<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </s
 <span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">ollama</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;127.0.0.1:11434:11434&quot;</span><span class="w">  </span><span class="c1"># Localhost only</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"127.0.0.1:11434:11434"</span><span class="w">  </span><span class="c1"># Localhost only</span>
 <span class="w">    </span><span class="nt">deploy</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">resources</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">limits</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8G</span>
-<span class="w">          </span><span class="nt">cpus</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;4&#39;</span>
+<span class="w">          </span><span class="nt">cpus</span><span class="p">:</span><span class="w"> </span><span class="s">'4'</span>
 </code></pre></div>
 
 <h2 id="cost-comparison">Cost Comparison | مقارنة التكلفة<a class="headerlink" href="#cost-comparison" title="Permanent link">&para;</a></h2>
@@ -1619,10 +1619,10 @@ docker<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </s
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

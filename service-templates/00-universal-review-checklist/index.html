@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1676,17 +1676,17 @@ row with one of:</p>
 <div class="codehilite"><pre><span></span><code><span class="nv">SERVICE</span><span class="o">=</span>&lt;service-name&gt;
 <span class="nv">SVC_DIR</span><span class="o">=</span>apps/services/<span class="nv">$SERVICE</span>
 
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;=== </span><span class="nv">$SERVICE</span><span class="s2"> ===&quot;</span>
-<span class="nb">test</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SVC_DIR</span><span class="s2">/README.md&quot;</span><span class="w">                        </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✅ README&quot;</span><span class="w">        </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;❌ README&quot;</span>
-grep<span class="w"> </span>-q<span class="w"> </span><span class="s2">&quot;service-templates&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SVC_DIR</span><span class="s2">/README.md&quot;</span><span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✅ template link&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;❌ template link&quot;</span>
-grep<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;^FROM&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SVC_DIR</span><span class="s2">/Dockerfile&quot;</span><span class="w">               </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">&#39;$1&gt;=2 {print &quot;✅ multi-stage Dockerfile&quot;}&#39;</span>
-grep<span class="w"> </span>-q<span class="w"> </span><span class="s2">&quot;USER sahool\|USER 1000&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SVC_DIR</span><span class="s2">/Dockerfile&quot;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✅ non-root&quot;</span><span class="w">    </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;⚠️ runs as root?&quot;</span>
-grep<span class="w"> </span>-q<span class="w"> </span><span class="s2">&quot;HEALTHCHECK&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SVC_DIR</span><span class="s2">/Dockerfile&quot;</span><span class="w">         </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✅ HEALTHCHECK&quot;</span><span class="w">   </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;❌ HEALTHCHECK&quot;</span>
-grep<span class="w"> </span>-rq<span class="w"> </span><span class="s2">&quot;/healthz\|/readyz&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SVC_DIR</span><span class="s2">&quot;</span><span class="w">             </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✅ probes&quot;</span><span class="w">        </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;❌ probes&quot;</span>
-grep<span class="w"> </span>-rq<span class="w"> </span><span class="s2">&quot;SIGTERM\|gracefulShutdown\|lifespan&quot;</span><span class="w">      </span><span class="s2">&quot;</span><span class="nv">$SVC_DIR</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✅ graceful shutdown&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;⚠️ graceful shutdown&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"=== </span><span class="nv">$SERVICE</span><span class="s2"> ==="</span>
+<span class="nb">test</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">"</span><span class="nv">$SVC_DIR</span><span class="s2">/README.md"</span><span class="w">                        </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"✅ README"</span><span class="w">        </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"❌ README"</span>
+grep<span class="w"> </span>-q<span class="w"> </span><span class="s2">"service-templates"</span><span class="w"> </span><span class="s2">"</span><span class="nv">$SVC_DIR</span><span class="s2">/README.md"</span><span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"✅ template link"</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"❌ template link"</span>
+grep<span class="w"> </span>-c<span class="w"> </span><span class="s2">"^FROM"</span><span class="w"> </span><span class="s2">"</span><span class="nv">$SVC_DIR</span><span class="s2">/Dockerfile"</span><span class="w">               </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">'$1&gt;=2 {print "✅ multi-stage Dockerfile"}'</span>
+grep<span class="w"> </span>-q<span class="w"> </span><span class="s2">"USER sahool\|USER 1000"</span><span class="w"> </span><span class="s2">"</span><span class="nv">$SVC_DIR</span><span class="s2">/Dockerfile"</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"✅ non-root"</span><span class="w">    </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"⚠️ runs as root?"</span>
+grep<span class="w"> </span>-q<span class="w"> </span><span class="s2">"HEALTHCHECK"</span><span class="w"> </span><span class="s2">"</span><span class="nv">$SVC_DIR</span><span class="s2">/Dockerfile"</span><span class="w">         </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"✅ HEALTHCHECK"</span><span class="w">   </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"❌ HEALTHCHECK"</span>
+grep<span class="w"> </span>-rq<span class="w"> </span><span class="s2">"/healthz\|/readyz"</span><span class="w"> </span><span class="s2">"</span><span class="nv">$SVC_DIR</span><span class="s2">"</span><span class="w">             </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"✅ probes"</span><span class="w">        </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"❌ probes"</span>
+grep<span class="w"> </span>-rq<span class="w"> </span><span class="s2">"SIGTERM\|gracefulShutdown\|lifespan"</span><span class="w">      </span><span class="s2">"</span><span class="nv">$SVC_DIR</span><span class="s2">"</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"✅ graceful shutdown"</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"⚠️ graceful shutdown"</span>
 
-./scripts/check-event-subject-prefix.sh<span class="w">             </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✅ event subjects&quot;</span>
-./scripts/prisma-check.sh<span class="w">                            </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✅ Prisma clean&quot;</span>
+./scripts/check-event-subject-prefix.sh<span class="w">             </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"✅ event subjects"</span>
+./scripts/prisma-check.sh<span class="w">                            </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"✅ Prisma clean"</span>
 </code></pre></div>
 
 <p>A deeper automated check is provided by <code>scripts/service-review.sh</code>
@@ -1741,10 +1741,10 @@ wrap the commands above.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

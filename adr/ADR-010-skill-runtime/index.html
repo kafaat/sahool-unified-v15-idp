@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1192,17 +1192,17 @@
 <h4 id="11-skill-registry">1.1 Skill Registry<a class="headerlink" href="#11-skill-registry" title="Permanent link">&para;</a></h4>
 <p>A single YAML index: <code>.claude/skills/index.yaml</code></p>
 <p>Schema:</p>
-<div class="codehilite"><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.1.0&quot;</span>
+<div class="codehilite"><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"0.1.0"</span>
 <span class="nt">skills</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-code-audit</span>
 <span class="w">    </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.claude/skills/sahool-code-audit/</span>
-<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1.0.0&quot;</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"1.0.0"</span>
 <span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;from SKILL.md frontmatter&gt;</span>
 <span class="w">    </span><span class="nt">triggers</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">keywords</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">review</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">audit</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">ruff</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">mypy</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">bandit</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">fixops</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">lint</span><span class="p p-Indicator">]</span>
 <span class="w">      </span><span class="nt">paraphrases</span><span class="p">:</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;check</span><span class="nv"> </span><span class="s">this</span><span class="nv"> </span><span class="s">code&quot;</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;is</span><span class="nv"> </span><span class="s">this</span><span class="nv"> </span><span class="s">up</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">platform</span><span class="nv"> </span><span class="s">standards&quot;</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"check</span><span class="nv"> </span><span class="s">this</span><span class="nv"> </span><span class="s">code"</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"is</span><span class="nv"> </span><span class="s">this</span><span class="nv"> </span><span class="s">up</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">platform</span><span class="nv"> </span><span class="s">standards"</span>
 <span class="w">    </span><span class="nt">tags</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">workflow-automation</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">code-review</span><span class="p p-Indicator">]</span>
 <span class="w">    </span><span class="nt">category</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool</span>
 <span class="w">    </span><span class="nt">tenant_scope</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">all</span><span class="w">          </span><span class="c1"># or list of tenant IDs</span>
@@ -1219,9 +1219,9 @@
 <p>New service: <code>apps/services/skill-router-service/</code> (suggested port: <strong>8205</strong>, adjacent to <code>mcp-server</code> at 8201).</p>
 <p>Endpoints:</p>
 <div class="codehilite"><pre><span></span><code><span class="n">POST</span><span class="w"> </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">route</span>
-<span class="w">  </span><span class="nl">body:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;query&quot;</span><span class="o">:</span><span class="w"> </span><span class="n">str</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;tenant_id&quot;</span><span class="o">:</span><span class="w"> </span><span class="n">str</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;context_hint&quot;</span><span class="o">:</span><span class="w"> </span><span class="n">str</span><span class="o">?</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nl">body:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">"query"</span><span class="o">:</span><span class="w"> </span><span class="n">str</span><span class="p">,</span><span class="w"> </span><span class="s">"tenant_id"</span><span class="o">:</span><span class="w"> </span><span class="n">str</span><span class="p">,</span><span class="w"> </span><span class="s">"context_hint"</span><span class="o">:</span><span class="w"> </span><span class="n">str</span><span class="o">?</span><span class="w"> </span><span class="p">}</span>
 <span class="w">  </span><span class="nl">returns:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;skill&quot;</span><span class="o">:</span><span class="w"> </span><span class="n">str</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;path&quot;</span><span class="o">:</span><span class="w"> </span><span class="n">str</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;confidence&quot;</span><span class="o">:</span><span class="w"> </span><span class="n">float</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;reason&quot;</span><span class="o">:</span><span class="w"> </span><span class="n">str</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="s">"skill"</span><span class="o">:</span><span class="w"> </span><span class="n">str</span><span class="p">,</span><span class="w"> </span><span class="s">"path"</span><span class="o">:</span><span class="w"> </span><span class="n">str</span><span class="p">,</span><span class="w"> </span><span class="s">"confidence"</span><span class="o">:</span><span class="w"> </span><span class="n">float</span><span class="p">,</span><span class="w"> </span><span class="s">"reason"</span><span class="o">:</span><span class="w"> </span><span class="n">str</span><span class="w"> </span><span class="p">},</span>
 <span class="w">    </span><span class="p">...</span><span class="w">  </span><span class="p">#</span><span class="w"> </span><span class="n">top</span><span class="w"> </span><span class="mh">3</span>
 <span class="w">  </span><span class="p">]</span>
 
@@ -1430,10 +1430,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

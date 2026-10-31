@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1310,16 +1310,16 @@ psql<span class="w"> </span>-U<span class="w"> </span>postgres<span class="w"> <
 </code></pre></div>
 
 <h3 id="add-security-headers-to-services">Add Security Headers to Services<a class="headerlink" href="#add-security-headers-to-services" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="c1"># In any FastAPI service&#39;s main.py</span>
+<div class="codehilite"><pre><span></span><code><span class="c1"># In any FastAPI service's main.py</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">shared.middleware.security_headers</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_security_headers</span>
 
-<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;My Service&quot;</span><span class="p">)</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"My Service"</span><span class="p">)</span>
 <span class="n">setup_security_headers</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>  <span class="c1"># One line!</span>
 </code></pre></div>
 
 <h3 id="verify-implementation">Verify Implementation<a class="headerlink" href="#verify-implementation" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Test database indexes</span>
-psql<span class="w"> </span>-U<span class="w"> </span>postgres<span class="w"> </span>-d<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;\di idx_fields_current_crop*&quot;</span>
+psql<span class="w"> </span>-U<span class="w"> </span>postgres<span class="w"> </span>-d<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">"\di idx_fields_current_crop*"</span>
 
 <span class="c1"># Test security headers</span>
 curl<span class="w"> </span>-I<span class="w"> </span>http://localhost:8095/health<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>X-Frame-Options
@@ -1444,10 +1444,10 @@ curl<span class="w"> </span>-I<span class="w"> </span>http://localhost:8095/heal
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

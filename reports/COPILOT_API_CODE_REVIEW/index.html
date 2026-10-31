@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1161,15 +1161,15 @@
 <h2 id="critical-issues-p0">Critical Issues (P0) | مشاكل حرجة<a class="headerlink" href="#critical-issues-p0" title="Permanent link">&para;</a></h2>
 <h3 id="1-jwt-auth-empty-secret-key-allows-service-to-start">1. JWT Auth: Empty Secret Key Allows Service to Start<a class="headerlink" href="#1-jwt-auth-empty-secret-key-allows-service-to-start" title="Permanent link">&para;</a></h3>
 <p><strong>File</strong>: <code>src/api/deps.py:19-21</code></p>
-<div class="codehilite"><pre><span></span><code><span class="n">JWT_SECRET_KEY</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;JWT_SECRET_KEY&quot;</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><code><span class="n">JWT_SECRET_KEY</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"JWT_SECRET_KEY"</span><span class="p">)</span>
 <span class="k">if</span> <span class="ow">not</span> <span class="n">JWT_SECRET_KEY</span><span class="p">:</span>
-    <span class="n">JWT_SECRET_KEY</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>  <span class="c1"># Will cause decode to fail</span>
+    <span class="n">JWT_SECRET_KEY</span> <span class="o">=</span> <span class="s2">""</span>  <span class="c1"># Will cause decode to fail</span>
 </code></pre></div>
 
 <p><strong>Problem</strong>: Setting the secret to empty string means <code>jwt.decode()</code> will fail for all tokens, but the service still starts and accepts requests. In production, if <code>JWT_SECRET_KEY</code> is accidentally unset, all authenticated endpoints return 401 — a silent denial-of-service.</p>
 <p><strong>Recommendation</strong>: Fail fast on startup in production. Add a check in <code>lifespan()</code> or <code>Settings</code> validator:</p>
 <div class="codehilite"><pre><span></span><code><span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">is_production</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">settings</span><span class="o">.</span><span class="n">jwt_secret_key</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;JWT_SECRET_KEY must be set in production&quot;</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"JWT_SECRET_KEY must be set in production"</span><span class="p">)</span>
 </code></pre></div>
 
 <h3 id="2-pyjwt-vs-python-jose-dependency-conflict">2. PyJWT vs python-jose Dependency Conflict<a class="headerlink" href="#2-pyjwt-vs-python-jose-dependency-conflict" title="Permanent link">&para;</a></h3>
@@ -1210,7 +1210,7 @@
 <p><strong>Recommendation</strong>: Use a single <code>SERVICE_VERSION</code> constant. The correct version per <code>pyproject.toml</code> / CLAUDE.md is <code>16.0.0</code>.</p>
 <h3 id="8-rag-add_document-endpoint-uses-query-params-for-body-data">8. RAG <code>add_document</code> Endpoint Uses Query Params for Body Data<a class="headerlink" href="#8-rag-add_document-endpoint-uses-query-params-for-body-data" title="Permanent link">&para;</a></h3>
 <p><strong>File</strong>: <code>src/api/v1/rag.py:74-107</code></p>
-<div class="codehilite"><pre><span></span><code><span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/documents&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">RAGDocument</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><code><span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">"/documents"</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">RAGDocument</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">add_document</span><span class="p">(</span>
     <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">text_ar</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1275,7 +1275,7 @@
 <h2 id="low-issues-p3">Low Issues (P3) | مشاكل منخفضة<a class="headerlink" href="#low-issues-p3" title="Permanent link">&para;</a></h2>
 <h3 id="17-weather-service-port-mismatch">17. Weather Service Port Mismatch<a class="headerlink" href="#17-weather-service-port-mismatch" title="Permanent link">&para;</a></h3>
 <p><strong>File</strong>: <code>src/core/config.py:135</code></p>
-<div class="codehilite"><pre><span></span><code><span class="n">weather_service_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;http://localhost:8108&quot;</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><code><span class="n">weather_service_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">"http://localhost:8108"</span><span class="p">)</span>
 </code></pre></div>
 
 <p>Per <code>CLAUDE.md</code> / governance, weather-service runs on port <strong>8092</strong>, not 8108.</p>
@@ -1629,10 +1629,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

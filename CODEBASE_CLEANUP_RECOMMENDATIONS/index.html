@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1564,9 +1564,9 @@ apps/mobile/IMPLEMENTATION_SUMMARY.md
 <p><strong>Effort</strong>: 2-4 hours</p>
 <h3 id="42-high-nodejs-workspace-cleanup">4.2 HIGH - Node.js Workspace Cleanup<a class="headerlink" href="#42-high-nodejs-workspace-cleanup" title="Permanent link">&para;</a></h3>
 <p>The <code>package.json</code> includes deprecated services in workspaces:</p>
-<div class="codehilite"><pre><span></span><code><span class="nt">&quot;workspaces&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">  </span><span class="s2">&quot;apps/services/field-core&quot;</span><span class="p">,</span><span class="w">        </span><span class="c1">// DEPRECATED</span>
-<span class="w">  </span><span class="s2">&quot;apps/services/yield-prediction&quot;</span><span class="p">,</span><span class="w">  </span><span class="c1">// May overlap with yield-prediction-service</span>
+<div class="codehilite"><pre><span></span><code><span class="nt">"workspaces"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="s2">"apps/services/field-core"</span><span class="p">,</span><span class="w">        </span><span class="c1">// DEPRECATED</span>
+<span class="w">  </span><span class="s2">"apps/services/yield-prediction"</span><span class="p">,</span><span class="w">  </span><span class="c1">// May overlap with yield-prediction-service</span>
 <span class="p">]</span>
 </code></pre></div>
 
@@ -1586,10 +1586,10 @@ vulture<span class="w"> </span>apps/<span class="w"> </span>shared/<span class="
 <p><strong>Effort</strong>: 2-4 hours</p>
 <h3 id="44-low-dev-dependencies-audit">4.4 LOW - Dev Dependencies Audit<a class="headerlink" href="#44-low-dev-dependencies-audit" title="Permanent link">&para;</a></h3>
 <p>Consider if all dev dependencies are still needed:</p>
-<div class="codehilite"><pre><span></span><code><span class="nt">&quot;devDependencies&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;@biomejs/biome&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^1.9.4&quot;</span><span class="p">,</span><span class="w">  </span><span class="c1">// Biome vs ESLint - choose one</span>
-<span class="w">  </span><span class="nt">&quot;madge&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^8.0.0&quot;</span><span class="p">,</span><span class="w">           </span><span class="c1">// Circular dependency checker - verify usage</span>
-<span class="w">  </span><span class="nt">&quot;typedoc&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^0.27.6&quot;</span><span class="w">         </span><span class="c1">// API documentation - verify generated</span>
+<div class="codehilite"><pre><span></span><code><span class="nt">"devDependencies"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">"@biomejs/biome"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^1.9.4"</span><span class="p">,</span><span class="w">  </span><span class="c1">// Biome vs ESLint - choose one</span>
+<span class="w">  </span><span class="nt">"madge"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^8.0.0"</span><span class="p">,</span><span class="w">           </span><span class="c1">// Circular dependency checker - verify usage</span>
+<span class="w">  </span><span class="nt">"typedoc"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^0.27.6"</span><span class="w">         </span><span class="c1">// API documentation - verify generated</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -2032,25 +2032,25 @@ tests/container/LOGGING_CONFIG_REPORT.md
 <div class="codehilite"><pre><span></span><code><span class="ch">#!/bin/bash</span>
 <span class="c1"># archive-summaries.sh</span>
 
-<span class="nv">ARCHIVE_DIR</span><span class="o">=</span><span class="s2">&quot;docs/archive/implementation-summaries&quot;</span>
-mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ARCHIVE_DIR</span><span class="s2">&quot;</span>
+<span class="nv">ARCHIVE_DIR</span><span class="o">=</span><span class="s2">"docs/archive/implementation-summaries"</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">"</span><span class="nv">$ARCHIVE_DIR</span><span class="s2">"</span>
 
 <span class="c1"># Move root-level summary files</span>
 <span class="k">for</span><span class="w"> </span>f<span class="w"> </span><span class="k">in</span><span class="w"> </span>*_SUMMARY.md<span class="p">;</span><span class="w"> </span><span class="k">do</span>
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$f</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
-<span class="w">    </span>mv<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$f</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ARCHIVE_DIR</span><span class="s2">/&quot;</span>
-<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Archived: </span><span class="nv">$f</span><span class="s2">&quot;</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">"</span><span class="nv">$f</span><span class="s2">"</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span>mv<span class="w"> </span><span class="s2">"</span><span class="nv">$f</span><span class="s2">"</span><span class="w"> </span><span class="s2">"</span><span class="nv">$ARCHIVE_DIR</span><span class="s2">/"</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"Archived: </span><span class="nv">$f</span><span class="s2">"</span>
 <span class="w">  </span><span class="k">fi</span>
 <span class="k">done</span>
 
 <span class="c1"># Move root-level report files</span>
-<span class="nv">REPORT_DIR</span><span class="o">=</span><span class="s2">&quot;docs/archive/reports&quot;</span>
-mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$REPORT_DIR</span><span class="s2">&quot;</span>
+<span class="nv">REPORT_DIR</span><span class="o">=</span><span class="s2">"docs/archive/reports"</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">"</span><span class="nv">$REPORT_DIR</span><span class="s2">"</span>
 
 <span class="k">for</span><span class="w"> </span>f<span class="w"> </span><span class="k">in</span><span class="w"> </span>*_REPORT.md<span class="p">;</span><span class="w"> </span><span class="k">do</span>
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$f</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
-<span class="w">    </span>mv<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$f</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$REPORT_DIR</span><span class="s2">/&quot;</span>
-<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Archived: </span><span class="nv">$f</span><span class="s2">&quot;</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">"</span><span class="nv">$f</span><span class="s2">"</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span>mv<span class="w"> </span><span class="s2">"</span><span class="nv">$f</span><span class="s2">"</span><span class="w"> </span><span class="s2">"</span><span class="nv">$REPORT_DIR</span><span class="s2">/"</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"Archived: </span><span class="nv">$f</span><span class="s2">"</span>
 <span class="w">  </span><span class="k">fi</span>
 <span class="k">done</span>
 </code></pre></div>
@@ -2059,16 +2059,16 @@ mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;</
 <div class="codehilite"><pre><span></span><code><span class="ch">#!/bin/bash</span>
 <span class="c1"># find-dead-code.sh</span>
 
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;=== JavaScript/TypeScript Dead Code ===&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"=== JavaScript/TypeScript Dead Code ==="</span>
 npx<span class="w"> </span>knip
 
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;&quot;</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;=== Python Dead Code ===&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">""</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"=== Python Dead Code ==="</span>
 pip<span class="w"> </span>install<span class="w"> </span>vulture<span class="w"> </span><span class="m">2</span>&gt;/dev/null
 vulture<span class="w"> </span>apps/<span class="w"> </span>shared/<span class="w"> </span>--min-confidence<span class="w"> </span><span class="m">80</span>
 
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;&quot;</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;=== Unused Dependencies ===&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">""</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"=== Unused Dependencies ==="</span>
 npx<span class="w"> </span>depcheck
 </code></pre></div>
 
@@ -2077,19 +2077,19 @@ npx<span class="w"> </span>depcheck
 <span class="c1"># check-deprecated-imports.sh</span>
 
 <span class="nv">DEPRECATED_SERVICES</span><span class="o">=(</span>
-<span class="w">  </span><span class="s2">&quot;satellite-service&quot;</span>
-<span class="w">  </span><span class="s2">&quot;weather-advanced&quot;</span>
-<span class="w">  </span><span class="s2">&quot;crop-health-ai&quot;</span>
-<span class="w">  </span><span class="s2">&quot;fertilizer-advisor&quot;</span>
-<span class="w">  </span><span class="s2">&quot;field-core&quot;</span>
-<span class="w">  </span><span class="s2">&quot;field-ops&quot;</span>
-<span class="w">  </span><span class="s2">&quot;field-service&quot;</span>
-<span class="w">  </span><span class="s2">&quot;yield-engine&quot;</span>
+<span class="w">  </span><span class="s2">"satellite-service"</span>
+<span class="w">  </span><span class="s2">"weather-advanced"</span>
+<span class="w">  </span><span class="s2">"crop-health-ai"</span>
+<span class="w">  </span><span class="s2">"fertilizer-advisor"</span>
+<span class="w">  </span><span class="s2">"field-core"</span>
+<span class="w">  </span><span class="s2">"field-ops"</span>
+<span class="w">  </span><span class="s2">"field-service"</span>
+<span class="w">  </span><span class="s2">"yield-engine"</span>
 <span class="o">)</span>
 
-<span class="k">for</span><span class="w"> </span>service<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">DEPRECATED_SERVICES</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
-<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Checking imports for: </span><span class="nv">$service</span><span class="s2">&quot;</span>
-<span class="w">  </span>grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$service</span><span class="s2">&quot;</span><span class="w"> </span>apps/<span class="w"> </span>packages/<span class="w"> </span>--include<span class="o">=</span><span class="s2">&quot;*.ts&quot;</span><span class="w"> </span>--include<span class="o">=</span><span class="s2">&quot;*.tsx&quot;</span><span class="w"> </span>--include<span class="o">=</span><span class="s2">&quot;*.py&quot;</span><span class="w"> </span>--include<span class="o">=</span><span class="s2">&quot;*.dart&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-v<span class="w"> </span><span class="s2">&quot;README&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-v<span class="w"> </span><span class="s2">&quot;DEPRECATED&quot;</span>
+<span class="k">for</span><span class="w"> </span>service<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">DEPRECATED_SERVICES</span><span class="p">[@]</span><span class="si">}</span><span class="s2">"</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"Checking imports for: </span><span class="nv">$service</span><span class="s2">"</span>
+<span class="w">  </span>grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">"</span><span class="nv">$service</span><span class="s2">"</span><span class="w"> </span>apps/<span class="w"> </span>packages/<span class="w"> </span>--include<span class="o">=</span><span class="s2">"*.ts"</span><span class="w"> </span>--include<span class="o">=</span><span class="s2">"*.tsx"</span><span class="w"> </span>--include<span class="o">=</span><span class="s2">"*.py"</span><span class="w"> </span>--include<span class="o">=</span><span class="s2">"*.dart"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-v<span class="w"> </span><span class="s2">"README"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-v<span class="w"> </span><span class="s2">"DEPRECATED"</span>
 <span class="k">done</span>
 </code></pre></div>
 
@@ -2236,10 +2236,10 @@ npx<span class="w"> </span>depcheck
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

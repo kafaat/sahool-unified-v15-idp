@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1855,20 +1855,20 @@ Phase 5 (Month 2):
 <span class="c1"># Adds @@index to foreign key fields</span>
 
 <span class="nv">SERVICES</span><span class="o">=(</span>
-<span class="w">  </span><span class="s2">&quot;chat-service&quot;</span>
-<span class="w">  </span><span class="s2">&quot;community-chat&quot;</span>
-<span class="w">  </span><span class="s2">&quot;disaster-assessment&quot;</span>
-<span class="w">  </span><span class="s2">&quot;field-management-service&quot;</span>
-<span class="w">  </span><span class="s2">&quot;inventory-service&quot;</span>
-<span class="w">  </span><span class="s2">&quot;iot-service&quot;</span>
-<span class="w">  </span><span class="s2">&quot;marketplace-service&quot;</span>
-<span class="w">  </span><span class="s2">&quot;research-core&quot;</span>
-<span class="w">  </span><span class="s2">&quot;user-service&quot;</span>
-<span class="w">  </span><span class="s2">&quot;weather-service&quot;</span>
+<span class="w">  </span><span class="s2">"chat-service"</span>
+<span class="w">  </span><span class="s2">"community-chat"</span>
+<span class="w">  </span><span class="s2">"disaster-assessment"</span>
+<span class="w">  </span><span class="s2">"field-management-service"</span>
+<span class="w">  </span><span class="s2">"inventory-service"</span>
+<span class="w">  </span><span class="s2">"iot-service"</span>
+<span class="w">  </span><span class="s2">"marketplace-service"</span>
+<span class="w">  </span><span class="s2">"research-core"</span>
+<span class="w">  </span><span class="s2">"user-service"</span>
+<span class="w">  </span><span class="s2">"weather-service"</span>
 <span class="o">)</span>
 
-<span class="k">for</span><span class="w"> </span>service<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">SERVICES</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
-<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Processing </span><span class="nv">$service</span><span class="s2">...&quot;</span>
+<span class="k">for</span><span class="w"> </span>service<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">SERVICES</span><span class="p">[@]</span><span class="si">}</span><span class="s2">"</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"Processing </span><span class="nv">$service</span><span class="s2">..."</span>
 <span class="w">  </span><span class="c1"># Add index generation logic</span>
 <span class="k">done</span>
 </code></pre></div>
@@ -1878,21 +1878,21 @@ Phase 5 (Month 2):
 <span class="c1"># scripts/fix-exception-handlers.sh</span>
 
 <span class="nv">SERVICES</span><span class="o">=(</span>
-<span class="w">  </span><span class="s2">&quot;cooperative-service&quot;</span>
-<span class="w">  </span><span class="s2">&quot;drone-service&quot;</span>
-<span class="w">  </span><span class="s2">&quot;soil-analysis-service&quot;</span>
-<span class="w">  </span><span class="s2">&quot;traceability-service&quot;</span>
-<span class="w">  </span><span class="s2">&quot;ground-vision-service&quot;</span>
+<span class="w">  </span><span class="s2">"cooperative-service"</span>
+<span class="w">  </span><span class="s2">"drone-service"</span>
+<span class="w">  </span><span class="s2">"soil-analysis-service"</span>
+<span class="w">  </span><span class="s2">"traceability-service"</span>
+<span class="w">  </span><span class="s2">"ground-vision-service"</span>
 <span class="o">)</span>
 
-<span class="nv">HANDLER_CODE</span><span class="o">=</span><span class="s1">&#39;</span>
+<span class="nv">HANDLER_CODE</span><span class="o">=</span><span class="s1">'</span>
 <span class="s1">from shared.errors_py import add_request_id_middleware, setup_exception_handlers</span>
 <span class="s1">setup_exception_handlers(app)</span>
 <span class="s1">add_request_id_middleware(app)</span>
-<span class="s1">&#39;</span>
+<span class="s1">'</span>
 
-<span class="k">for</span><span class="w"> </span>service<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">SERVICES</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
-<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Adding exception handlers to </span><span class="nv">$service</span><span class="s2">...&quot;</span>
+<span class="k">for</span><span class="w"> </span>service<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">SERVICES</span><span class="p">[@]</span><span class="si">}</span><span class="s2">"</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"Adding exception handlers to </span><span class="nv">$service</span><span class="s2">..."</span>
 <span class="k">done</span>
 </code></pre></div>
 
@@ -1900,15 +1900,15 @@ Phase 5 (Month 2):
 <div class="codehilite"><pre><span></span><code><span class="ch">#!/bin/bash</span>
 <span class="c1"># scripts/fix-dockerignore.sh</span>
 
-<span class="nv">SOURCE</span><span class="o">=</span><span class="s2">&quot;apps/services/advisory-service/.dockerignore&quot;</span>
+<span class="nv">SOURCE</span><span class="o">=</span><span class="s2">"apps/services/advisory-service/.dockerignore"</span>
 <span class="nv">SERVICES</span><span class="o">=(</span>
-<span class="w">  </span><span class="s2">&quot;ai-agents-core&quot;</span><span class="w"> </span><span class="s2">&quot;audit-service&quot;</span><span class="w"> </span><span class="s2">&quot;code-fix-agent&quot;</span>
-<span class="w">  </span><span class="s2">&quot;code-review-service&quot;</span><span class="w"> </span><span class="s2">&quot;cooperative-service&quot;</span><span class="w"> </span><span class="s2">&quot;copilot-api&quot;</span>
+<span class="w">  </span><span class="s2">"ai-agents-core"</span><span class="w"> </span><span class="s2">"audit-service"</span><span class="w"> </span><span class="s2">"code-fix-agent"</span>
+<span class="w">  </span><span class="s2">"code-review-service"</span><span class="w"> </span><span class="s2">"cooperative-service"</span><span class="w"> </span><span class="s2">"copilot-api"</span>
 <span class="w">  </span><span class="c1"># ... 23 more services</span>
 <span class="o">)</span>
 
-<span class="k">for</span><span class="w"> </span>service<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">SERVICES</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
-<span class="w">  </span>cp<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SOURCE</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;apps/services/</span><span class="nv">$service</span><span class="s2">/.dockerignore&quot;</span>
+<span class="k">for</span><span class="w"> </span>service<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">SERVICES</span><span class="p">[@]</span><span class="si">}</span><span class="s2">"</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span>cp<span class="w"> </span><span class="s2">"</span><span class="nv">$SOURCE</span><span class="s2">"</span><span class="w"> </span><span class="s2">"apps/services/</span><span class="nv">$service</span><span class="s2">/.dockerignore"</span>
 <span class="k">done</span>
 </code></pre></div>
 
@@ -2188,10 +2188,10 @@ Phase 5 (Month 2):
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

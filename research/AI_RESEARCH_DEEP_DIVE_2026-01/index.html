@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1352,7 +1352,7 @@ Reduces per-hop latency from full-packet to single FLIT transmission.</p>
 <h3 id="dllm-library-features">dLLM Library Features<a class="headerlink" href="#dllm-library-features" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Installation</span>
 <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="o">.</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="s2">&quot;lm-evaluation-harness[ifeval,math]&quot;</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="s2">"lm-evaluation-harness[ifeval,math]"</span>
 
 <span class="c1"># Training Support</span>
 <span class="o">-</span> <span class="n">LoRA</span><span class="p">,</span> <span class="n">DeepSpeed</span><span class="p">,</span> <span class="n">FSDP</span>
@@ -1480,14 +1480,14 @@ Reduces per-hop latency from full-packet to single FLIT transmission.</p>
 <span class="n">kl_coef</span> <span class="o">=</span> <span class="mf">0.0</span>  <span class="c1"># KL term not essential</span>
 
 <span class="c1"># 2. No Std Normalization</span>
-<span class="c1"># Don&#39;t normalize advantages by standard deviation</span>
+<span class="c1"># Don't normalize advantages by standard deviation</span>
 <span class="n">advantages</span> <span class="o">=</span> <span class="n">rewards</span> <span class="o">-</span> <span class="n">mean</span><span class="p">(</span><span class="n">rewards</span><span class="p">)</span>  <span class="c1"># Not / std(rewards)</span>
 </code></pre></div>
 
 <h3 id="deepseek-v32-grpo-improvements">DeepSeek V3.2 GRPO Improvements<a class="headerlink" href="#deepseek-v32-grpo-improvements" title="Permanent link">&para;</a></h3>
 <p>From <a href="https://arxiv.org/abs/2512.02556">DeepSeek V3.2 Technical Report</a>:</p>
 <p><strong>1. Reweighted KL Estimation</strong>:</p>
-<div class="codehilite"><pre><span></span><code><span class="c1"># Problem: KL gradient doesn&#39;t match off-policy samples</span>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Problem: KL gradient doesn't match off-policy samples</span>
 <span class="c1"># Solution: Reweight KL term with importance ratio</span>
 
 <span class="n">kl_loss</span> <span class="o">=</span> <span class="n">importance_ratio</span> <span class="o">*</span> <span class="n">kl_divergence</span>
@@ -1500,7 +1500,7 @@ Reduces per-hop latency from full-packet to single FLIT transmission.</p>
 
 <span class="k">for</span> <span class="n">sequence</span> <span class="ow">in</span> <span class="n">batch</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">advantage</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">policy_divergence</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">:</span>
-        <span class="n">mask_out</span><span class="p">(</span><span class="n">sequence</span><span class="p">)</span>  <span class="c1"># Don&#39;t update on this</span>
+        <span class="n">mask_out</span><span class="p">(</span><span class="n">sequence</span><span class="p">)</span>  <span class="c1"># Don't update on this</span>
 </code></pre></div>
 
 <p><strong>3. Keep Sampling Mask</strong>:</p>
@@ -1653,16 +1653,16 @@ Backward pass: Manifold-aware learning update
 <span class="kn">from</span><span class="w"> </span><span class="nn">dllm</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLaDAModel</span><span class="p">,</span> <span class="n">DiffusionSampler</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">DiffusionAdvisoryGenerator</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Generate agricultural advisories using diffusion LMs.</span>
 
 <span class="sd">    Advantages:</span>
 <span class="sd">    - Parallel generation for speed</span>
 <span class="sd">    - Native infilling for templates</span>
 <span class="sd">    - Better structured output</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;llada-8b-instruct&quot;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"llada-8b-instruct"</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">LLaDAModel</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model_path</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sampler</span> <span class="o">=</span> <span class="n">DiffusionSampler</span><span class="p">(</span><span class="n">steps</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
 
@@ -1670,14 +1670,14 @@ Backward pass: Manifold-aware learning update
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">template</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">context</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
-        <span class="n">language</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ar&quot;</span>
+        <span class="n">language</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"ar"</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Generate advisory using template infilling.</span>
 
 <span class="sd">        Example template:</span>
-<span class="sd">        &quot;تحتاج [MASK] إلى [MASK] بمعدل [MASK] كجم/هكتار&quot;</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        "تحتاج [MASK] إلى [MASK] بمعدل [MASK] كجم/هكتار"</span>
+<span class="sd">        """</span>
         <span class="n">prompt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_prompt</span><span class="p">(</span><span class="n">template</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">language</span><span class="p">)</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
@@ -1691,11 +1691,11 @@ Backward pass: Manifold-aware learning update
         <span class="n">original</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">edits</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Edit existing advisory using Edit Flows.</span>
 
 <span class="sd">        Supports: insertion, deletion, substitution</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">edit</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
             <span class="n">original</span><span class="p">,</span>
@@ -1714,7 +1714,7 @@ Backward pass: Manifold-aware learning update
 
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">GRPOConfig</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;GRPO configuration with DAPO/Dr.GRPO improvements.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""GRPO configuration with DAPO/Dr.GRPO improvements."""</span>
 
     <span class="c1"># Core GRPO</span>
     <span class="n">group_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span>
@@ -1729,20 +1729,20 @@ Backward pass: Manifold-aware learning update
     <span class="c1"># Dr.GRPO fixes</span>
     <span class="n">kl_coef</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>  <span class="c1"># No KL loss</span>
     <span class="n">normalize_advantages</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">normalize_by_std</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Don&#39;t divide by std</span>
+    <span class="n">normalize_by_std</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Don't divide by std</span>
 
     <span class="c1"># DeepSeek V3.2 improvements</span>
     <span class="n">reweight_kl</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">off_policy_masking</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">off_policy_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
     <span class="n">keep_sampling_mask</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">domain_kl_weights</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># {&quot;math&quot;: 0.0, &quot;code&quot;: 0.1}</span>
+    <span class="n">domain_kl_weights</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># {"math": 0.0, "code": 0.1}</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">SAHOOLGRPOTrainer</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    GRPO trainer with agricultural domain adaptations.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">GRPOConfig</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
@@ -1752,11 +1752,11 @@ Backward pass: Manifold-aware learning update
         <span class="n">rewards</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">group_size</span><span class="p">:</span> <span class="nb">int</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Compute group-relative advantages.</span>
 
-<span class="sd">        Dr.GRPO: Don&#39;t normalize by std</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        Dr.GRPO: Don't normalize by std</span>
+<span class="sd">        """</span>
         <span class="c1"># Reshape to groups</span>
         <span class="n">grouped</span> <span class="o">=</span> <span class="n">rewards</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">group_size</span><span class="p">)</span>
 
@@ -1777,11 +1777,11 @@ Backward pass: Manifold-aware learning update
         <span class="n">advantage</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">policy_divergence</span><span class="p">:</span> <span class="nb">float</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        DeepSeek V3.2: Off-policy sequence masking.</span>
 
 <span class="sd">        Mask highly off-policy negative samples.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">off_policy_masking</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
 
@@ -1795,11 +1795,11 @@ Backward pass: Manifold-aware learning update
         <span class="n">log_probs</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">ref_log_probs</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">importance_ratio</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
-        <span class="n">domain</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;general&quot;</span>
+        <span class="n">domain</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"general"</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Reweighted KL with domain-specific weights.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Get domain-specific weight</span>
         <span class="n">kl_weight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">kl_coef</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">domain_kl_weights</span><span class="p">:</span>
@@ -1827,14 +1827,14 @@ Backward pass: Manifold-aware learning update
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">OTEmbeddingMatcher</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Optimal Transport-based embedding matching.</span>
 
 <span class="sd">    Better for:</span>
 <span class="sd">    - Bilingual text alignment (AR ↔ EN)</span>
 <span class="sd">    - Advisory similarity ranking</span>
 <span class="sd">    - Field boundary matching</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reg</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reg</span> <span class="o">=</span> <span class="n">reg</span>  <span class="c1"># Sinkhorn regularization</span>
@@ -1845,13 +1845,13 @@ Backward pass: Manifold-aware learning update
         <span class="n">target</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">num_iters</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Compute Sinkhorn (entropic OT) distance.</span>
 
 <span class="sd">        More robust than cosine similarity for:</span>
 <span class="sd">        - Variable-length sequences</span>
 <span class="sd">        - Cross-lingual matching</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Cost matrix (pairwise distances)</span>
         <span class="n">C</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cdist</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
@@ -1876,11 +1876,11 @@ Backward pass: Manifold-aware learning update
         <span class="n">candidates_en</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
         <span class="n">top_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">tuple</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Match Arabic query to English candidates using OT.</span>
 
 <span class="sd">        Better than cosine for cross-lingual retrieval.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Get embeddings</span>
         <span class="n">query_emb</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">embed</span><span class="p">(</span><span class="n">query_ar</span><span class="p">)</span>
         <span class="n">cand_embs</span> <span class="o">=</span> <span class="p">[</span><span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">embed</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">candidates_en</span><span class="p">]</span>
@@ -1906,11 +1906,11 @@ Backward pass: Manifold-aware learning update
 
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">InferenceConfig</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Hardware-aware inference configuration.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Hardware-aware inference configuration."""</span>
 
     <span class="c1"># Tensor Core optimization</span>
     <span class="n">use_tensor_cores</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">precision</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;bf16&quot;</span>  <span class="c1"># bf16, fp16, int8</span>
+    <span class="n">precision</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"bf16"</span>  <span class="c1"># bf16, fp16, int8</span>
 
     <span class="c1"># Attention optimization (address SFU bottleneck)</span>
     <span class="n">flash_attention</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
@@ -1926,18 +1926,18 @@ Backward pass: Manifold-aware learning update
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">HardwareAwareInference</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Optimize inference based on hardware capabilities.</span>
 
-<span class="sd">    Applies insights from Zartbot&#39;s GPU architecture analysis.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    Applies insights from Zartbot's GPU architecture analysis.</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">InferenceConfig</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_detect_hardware</span><span class="p">()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_detect_hardware</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Detect GPU generation and capabilities.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Detect GPU generation and capabilities."""</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
 
         <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>
@@ -1957,11 +1957,11 @@ Backward pass: Manifold-aware learning update
                 <span class="bp">self</span><span class="o">.</span><span class="n">use_wgmma</span> <span class="o">=</span> <span class="kc">False</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">optimize_attention</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Apply attention optimizations.</span>
 
 <span class="sd">        Address SFU bottleneck identified by Zartbot.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">flash_attention</span><span class="p">:</span>
             <span class="c1"># Use Flash Attention to reduce SFU pressure</span>
             <span class="n">model</span><span class="o">.</span><span class="n">enable_flash_attention</span><span class="p">()</span>
@@ -2078,8 +2078,8 @@ python<span class="w"> </span>-m<span class="w"> </span>dllm.examples.llada.trai
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">trl</span><span class="w"> </span><span class="kn">import</span> <span class="n">GRPOConfig</span><span class="p">,</span> <span class="n">GRPOTrainer</span>
 
 <span class="n">config</span> <span class="o">=</span> <span class="n">GRPOConfig</span><span class="p">(</span>
-    <span class="n">model_name_or_path</span><span class="o">=</span><span class="s2">&quot;sahool/advisory-base&quot;</span><span class="p">,</span>
-    <span class="n">reward_model_name_or_path</span><span class="o">=</span><span class="s2">&quot;sahool/advisory-reward&quot;</span><span class="p">,</span>
+    <span class="n">model_name_or_path</span><span class="o">=</span><span class="s2">"sahool/advisory-base"</span><span class="p">,</span>
+    <span class="n">reward_model_name_or_path</span><span class="o">=</span><span class="s2">"sahool/advisory-reward"</span><span class="p">,</span>
     <span class="n">num_train_epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="n">per_device_train_batch_size</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
     <span class="n">gradient_accumulation_steps</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
@@ -2151,10 +2151,10 @@ python<span class="w"> </span>-m<span class="w"> </span>dllm.examples.llada.trai
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1121,67 +1121,67 @@
 <p>When you create a task with a <code>due_date</code>, the service automatically fetches and populates astronomical data.</p>
 <h3 id="request">Request<a class="headerlink" href="#request" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8103/api/v1/tasks<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;X-Tenant-Id: farm_001&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
-<span class="s1">    &quot;title&quot;: &quot;Plant Wheat Seeds&quot;,</span>
-<span class="s1">    &quot;title_ar&quot;: &quot;زراعة بذور القمح&quot;,</span>
-<span class="s1">    &quot;description&quot;: &quot;Plant winter wheat in north field&quot;,</span>
-<span class="s1">    &quot;description_ar&quot;: &quot;زراعة القمح الشتوي في الحقل الشمالي&quot;,</span>
-<span class="s1">    &quot;task_type&quot;: &quot;planting&quot;,</span>
-<span class="s1">    &quot;priority&quot;: &quot;high&quot;,</span>
-<span class="s1">    &quot;field_id&quot;: &quot;field_north_001&quot;,</span>
-<span class="s1">    &quot;due_date&quot;: &quot;2026-01-20T07:00:00Z&quot;</span>
-<span class="s1">  }&#39;</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"X-Tenant-Id: farm_001"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "title": "Plant Wheat Seeds",</span>
+<span class="s1">    "title_ar": "زراعة بذور القمح",</span>
+<span class="s1">    "description": "Plant winter wheat in north field",</span>
+<span class="s1">    "description_ar": "زراعة القمح الشتوي في الحقل الشمالي",</span>
+<span class="s1">    "task_type": "planting",</span>
+<span class="s1">    "priority": "high",</span>
+<span class="s1">    "field_id": "field_north_001",</span>
+<span class="s1">    "due_date": "2026-01-20T07:00:00Z"</span>
+<span class="s1">  }'</span>
 </code></pre></div>
 
 <h3 id="response-if-january-20th-is-a-good-planting-day">Response (if January 20th is a good planting day)<a class="headerlink" href="#response-if-january-20th-is-a-good-planting-day" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;task_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;task_abc123def456&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;tenant_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;farm_001&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Plant Wheat Seeds&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;title_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;زراعة بذور القمح&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Plant winter wheat in north field&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;description_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;زراعة القمح الشتوي في الحقل الشمالي&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;task_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;planting&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;priority&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;high&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pending&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_north_001&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;due_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-01-20T07:00:00Z&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;created_by&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user_system&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-01-05T10:30:00Z&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;updated_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-01-05T10:30:00Z&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"task_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"task_abc123def456"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"tenant_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"farm_001"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Plant Wheat Seeds"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"title_ar"</span><span class="p">:</span><span class="w"> </span><span class="s2">"زراعة بذور القمح"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Plant winter wheat in north field"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"description_ar"</span><span class="p">:</span><span class="w"> </span><span class="s2">"زراعة القمح الشتوي في الحقل الشمالي"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"task_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"planting"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"priority"</span><span class="p">:</span><span class="w"> </span><span class="s2">"high"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pending"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"field_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"field_north_001"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"due_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-01-20T07:00:00Z"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"created_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user_system"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-01-05T10:30:00Z"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"updated_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-01-05T10:30:00Z"</span><span class="p">,</span>
 
-<span class="w">  </span><span class="nt">&quot;astronomical_score&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;moon_phase_at_due_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;الهلال المتزايد&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;lunar_mansion_at_due_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;الثريا&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;optimal_time_of_day&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;07:00-10:00&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;suggested_by_calendar&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;astronomical_warnings&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
-<span class="w">  </span><span class="nt">&quot;astronomical_recommendation&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;date_gregorian&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-01-20&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;date_hijri&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;year&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1447</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;month&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;day&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;month_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;شعبان&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;weekday&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;الثلاثاء&quot;</span>
+<span class="w">  </span><span class="nt">"astronomical_score"</span><span class="p">:</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"moon_phase_at_due_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"الهلال المتزايد"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"lunar_mansion_at_due_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"الثريا"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"optimal_time_of_day"</span><span class="p">:</span><span class="w"> </span><span class="s2">"07:00-10:00"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"suggested_by_calendar"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"astronomical_warnings"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">  </span><span class="nt">"astronomical_recommendation"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"date_gregorian"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-01-20"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"date_hijri"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"year"</span><span class="p">:</span><span class="w"> </span><span class="mi">1447</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"month"</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"day"</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"month_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"شعبان"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"weekday"</span><span class="p">:</span><span class="w"> </span><span class="s2">"الثلاثاء"</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">&quot;moon_phase&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;phase_key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;waxing_crescent&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;الهلال المتزايد&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;icon&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;🌒&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;illumination&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">22.5</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;is_waxing&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;farming_good&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">    </span><span class="nt">"moon_phase"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"phase_key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"waxing_crescent"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"الهلال المتزايد"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"icon"</span><span class="p">:</span><span class="w"> </span><span class="s2">"🌒"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"illumination"</span><span class="p">:</span><span class="w"> </span><span class="mf">22.5</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"is_waxing"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"farming_good"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">&quot;lunar_mansion&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;number&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;الثريا&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;farming_score&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;crops&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;جميع المحاصيل&quot;</span><span class="p">]</span>
+<span class="w">    </span><span class="nt">"lunar_mansion"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"number"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"الثريا"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"farming_score"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"crops"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"جميع المحاصيل"</span><span class="p">]</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">&quot;overall_farming_score&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">9</span>
+<span class="w">    </span><span class="nt">"overall_farming_score"</span><span class="p">:</span><span class="w"> </span><span class="mi">9</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1190,36 +1190,36 @@
 <h2 id="example-2-task-on-non-optimal-date-with-warnings">Example 2: Task on Non-Optimal Date (with Warnings)<a class="headerlink" href="#example-2-task-on-non-optimal-date-with-warnings" title="Permanent link">&para;</a></h2>
 <h3 id="request_1">Request<a class="headerlink" href="#request_1" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8103/api/v1/tasks<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;X-Tenant-Id: farm_001&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
-<span class="s1">    &quot;title&quot;: &quot;Plant Tomatoes&quot;,</span>
-<span class="s1">    &quot;title_ar&quot;: &quot;زراعة الطماطم&quot;,</span>
-<span class="s1">    &quot;task_type&quot;: &quot;planting&quot;,</span>
-<span class="s1">    &quot;field_id&quot;: &quot;field_south_002&quot;,</span>
-<span class="s1">    &quot;due_date&quot;: &quot;2026-01-25T08:00:00Z&quot;</span>
-<span class="s1">  }&#39;</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"X-Tenant-Id: farm_001"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "title": "Plant Tomatoes",</span>
+<span class="s1">    "title_ar": "زراعة الطماطم",</span>
+<span class="s1">    "task_type": "planting",</span>
+<span class="s1">    "field_id": "field_south_002",</span>
+<span class="s1">    "due_date": "2026-01-25T08:00:00Z"</span>
+<span class="s1">  }'</span>
 </code></pre></div>
 
 <h3 id="response-if-january-25th-is-not-optimal">Response (if January 25th is not optimal)<a class="headerlink" href="#response-if-january-25th-is-not-optimal" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;task_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;task_xyz789ghi012&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Plant Tomatoes&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;title_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;زراعة الطماطم&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;task_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;planting&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_south_002&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;due_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-01-25T08:00:00Z&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"task_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"task_xyz789ghi012"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Plant Tomatoes"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"title_ar"</span><span class="p">:</span><span class="w"> </span><span class="s2">"زراعة الطماطم"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"task_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"planting"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"field_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"field_south_002"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"due_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-01-25T08:00:00Z"</span><span class="p">,</span>
 
-<span class="w">  </span><span class="nt">&quot;astronomical_score&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;moon_phase_at_due_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;الهلال المتناقص&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;lunar_mansion_at_due_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;الشولة&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;optimal_time_of_day&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;07:00-10:00&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;suggested_by_calendar&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;astronomical_warnings&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="s2">&quot;التاريخ المحدد غير مثالي للنشاط (زراعة). الدرجة: 3/10&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="s2">&quot;Selected date is not optimal for planting. Score: 3/10&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="s2">&quot;مرحلة القمر (الهلال المتناقص) غير مناسبة للزراعة&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="s2">&quot;Moon phase (waning_crescent) is not suitable for planting&quot;</span>
+<span class="w">  </span><span class="nt">"astronomical_score"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"moon_phase_at_due_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"الهلال المتناقص"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"lunar_mansion_at_due_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"الشولة"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"optimal_time_of_day"</span><span class="p">:</span><span class="w"> </span><span class="s2">"07:00-10:00"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"suggested_by_calendar"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"astronomical_warnings"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">"التاريخ المحدد غير مثالي للنشاط (زراعة). الدرجة: 3/10"</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"Selected date is not optimal for planting. Score: 3/10"</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"مرحلة القمر (الهلال المتناقص) غير مناسبة للزراعة"</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"Moon phase (waning_crescent) is not suitable for planting"</span>
 <span class="w">  </span><span class="p">]</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1229,11 +1229,11 @@
 <p>When you update a task's <code>due_date</code>, astronomical data is automatically refreshed.</p>
 <h3 id="request_2">Request<a class="headerlink" href="#request_2" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>PUT<span class="w"> </span>http://localhost:8103/api/v1/tasks/task_abc123def456<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;X-Tenant-Id: farm_001&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
-<span class="s1">    &quot;due_date&quot;: &quot;2026-01-22T06:00:00Z&quot;</span>
-<span class="s1">  }&#39;</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"X-Tenant-Id: farm_001"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "due_date": "2026-01-22T06:00:00Z"</span>
+<span class="s1">  }'</span>
 </code></pre></div>
 
 <h3 id="response">Response<a class="headerlink" href="#response" title="Permanent link">&para;</a></h3>
@@ -1243,33 +1243,33 @@
 <p>Tasks without due dates won't have astronomical data auto-populated.</p>
 <h3 id="request_3">Request<a class="headerlink" href="#request_3" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8103/api/v1/tasks<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;X-Tenant-Id: farm_001&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
-<span class="s1">    &quot;title&quot;: &quot;Inspect Irrigation System&quot;,</span>
-<span class="s1">    &quot;title_ar&quot;: &quot;فحص نظام الري&quot;,</span>
-<span class="s1">    &quot;task_type&quot;: &quot;maintenance&quot;,</span>
-<span class="s1">    &quot;field_id&quot;: &quot;field_all&quot;,</span>
-<span class="s1">    &quot;priority&quot;: &quot;medium&quot;</span>
-<span class="s1">  }&#39;</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"X-Tenant-Id: farm_001"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "title": "Inspect Irrigation System",</span>
+<span class="s1">    "title_ar": "فحص نظام الري",</span>
+<span class="s1">    "task_type": "maintenance",</span>
+<span class="s1">    "field_id": "field_all",</span>
+<span class="s1">    "priority": "medium"</span>
+<span class="s1">  }'</span>
 </code></pre></div>
 
 <h3 id="response_1">Response<a class="headerlink" href="#response_1" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;task_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;task_mno345pqr678&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Inspect Irrigation System&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;title_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;فحص نظام الري&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;task_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;maintenance&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;priority&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;medium&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_all&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;due_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"task_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"task_mno345pqr678"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Inspect Irrigation System"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"title_ar"</span><span class="p">:</span><span class="w"> </span><span class="s2">"فحص نظام الري"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"task_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"maintenance"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"priority"</span><span class="p">:</span><span class="w"> </span><span class="s2">"medium"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"field_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"field_all"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"due_date"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
 
-<span class="w">  </span><span class="nt">&quot;astronomical_score&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;moon_phase_at_due_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;lunar_mansion_at_due_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;optimal_time_of_day&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;suggested_by_calendar&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;astronomical_warnings&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">  </span><span class="nt">"astronomical_score"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"moon_phase_at_due_date"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"lunar_mansion_at_due_date"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"optimal_time_of_day"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"suggested_by_calendar"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"astronomical_warnings"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1369,7 +1369,7 @@
 <h2 id="integration-notes">Integration Notes<a class="headerlink" href="#integration-notes" title="Permanent link">&para;</a></h2>
 <h3 id="environment-variables">Environment Variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h3>
 <p>Set the astronomical service URL if needed:</p>
-<div class="codehilite"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">ASTRONOMICAL_SERVICE_URL</span><span class="o">=</span><span class="s2">&quot;http://astronomical-calendar:8111&quot;</span>
+<div class="codehilite"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">ASTRONOMICAL_SERVICE_URL</span><span class="o">=</span><span class="s2">"http://astronomical-calendar:8111"</span>
 </code></pre></div>
 
 <h3 id="error-handling">Error Handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h3>
@@ -1392,41 +1392,41 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
 
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create_task_with_astronomy</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a task and get astronomical recommendations&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Create a task and get astronomical recommendations"""</span>
 
     <span class="c1"># Calculate due date 3 days from now</span>
     <span class="n">due_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 
     <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
         <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
-            <span class="s2">&quot;http://localhost:8103/api/v1/tasks&quot;</span><span class="p">,</span>
+            <span class="s2">"http://localhost:8103/api/v1/tasks"</span><span class="p">,</span>
             <span class="n">headers</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;X-Tenant-Id&quot;</span><span class="p">:</span> <span class="s2">&quot;farm_001&quot;</span>
+                <span class="s2">"Content-Type"</span><span class="p">:</span> <span class="s2">"application/json"</span><span class="p">,</span>
+                <span class="s2">"X-Tenant-Id"</span><span class="p">:</span> <span class="s2">"farm_001"</span>
             <span class="p">},</span>
             <span class="n">json</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Plant Barley&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;title_ar&quot;</span><span class="p">:</span> <span class="s2">&quot;زراعة الشعير&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;task_type&quot;</span><span class="p">:</span> <span class="s2">&quot;planting&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;field_id&quot;</span><span class="p">:</span> <span class="s2">&quot;field_001&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;priority&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;due_date&quot;</span><span class="p">:</span> <span class="n">due_date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+                <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"Plant Barley"</span><span class="p">,</span>
+                <span class="s2">"title_ar"</span><span class="p">:</span> <span class="s2">"زراعة الشعير"</span><span class="p">,</span>
+                <span class="s2">"task_type"</span><span class="p">:</span> <span class="s2">"planting"</span><span class="p">,</span>
+                <span class="s2">"field_id"</span><span class="p">:</span> <span class="s2">"field_001"</span><span class="p">,</span>
+                <span class="s2">"priority"</span><span class="p">:</span> <span class="s2">"high"</span><span class="p">,</span>
+                <span class="s2">"due_date"</span><span class="p">:</span> <span class="n">due_date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
             <span class="p">}</span>
         <span class="p">)</span>
 
         <span class="n">task</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
 
         <span class="c1"># Check astronomical score</span>
-        <span class="k">if</span> <span class="n">task</span><span class="p">[</span><span class="s2">&quot;astronomical_score&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">task</span><span class="p">[</span><span class="s2">&quot;astronomical_score&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;⚠️ Warning: Date not optimal!&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Score: </span><span class="si">{</span><span class="n">task</span><span class="p">[</span><span class="s1">&#39;astronomical_score&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">/10&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warnings: </span><span class="si">{</span><span class="n">task</span><span class="p">[</span><span class="s1">&#39;astronomical_warnings&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">task</span><span class="p">[</span><span class="s2">"astronomical_score"</span><span class="p">]</span> <span class="ow">and</span> <span class="n">task</span><span class="p">[</span><span class="s2">"astronomical_score"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"⚠️ Warning: Date not optimal!"</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Score: </span><span class="si">{</span><span class="n">task</span><span class="p">[</span><span class="s1">'astronomical_score'</span><span class="p">]</span><span class="si">}</span><span class="s2">/10"</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Warnings: </span><span class="si">{</span><span class="n">task</span><span class="p">[</span><span class="s1">'astronomical_warnings'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ Good date for planting!&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Score: </span><span class="si">{</span><span class="n">task</span><span class="p">[</span><span class="s1">&#39;astronomical_score&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">/10&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Moon phase: </span><span class="si">{</span><span class="n">task</span><span class="p">[</span><span class="s1">&#39;moon_phase_at_due_date&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Lunar mansion: </span><span class="si">{</span><span class="n">task</span><span class="p">[</span><span class="s1">&#39;lunar_mansion_at_due_date&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Best time: </span><span class="si">{</span><span class="n">task</span><span class="p">[</span><span class="s1">&#39;optimal_time_of_day&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"✅ Good date for planting!"</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Score: </span><span class="si">{</span><span class="n">task</span><span class="p">[</span><span class="s1">'astronomical_score'</span><span class="p">]</span><span class="si">}</span><span class="s2">/10"</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Moon phase: </span><span class="si">{</span><span class="n">task</span><span class="p">[</span><span class="s1">'moon_phase_at_due_date'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Lunar mansion: </span><span class="si">{</span><span class="n">task</span><span class="p">[</span><span class="s1">'lunar_mansion_at_due_date'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Best time: </span><span class="si">{</span><span class="n">task</span><span class="p">[</span><span class="s1">'optimal_time_of_day'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">task</span>
 </code></pre></div>
@@ -1436,14 +1436,14 @@
 <h3 id="test-with-curl">Test with cURL<a class="headerlink" href="#test-with-curl" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Test with good date (example)</span>
 curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8103/api/v1/tasks<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;X-Tenant-Id: test_farm&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
-<span class="s1">    &quot;title&quot;: &quot;Test Planting&quot;,</span>
-<span class="s1">    &quot;task_type&quot;: &quot;planting&quot;,</span>
-<span class="s1">    &quot;field_id&quot;: &quot;test_field&quot;,</span>
-<span class="s1">    &quot;due_date&quot;: &quot;2026-01-20T08:00:00Z&quot;</span>
-<span class="s1">  }&#39;</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"X-Tenant-Id: test_farm"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "title": "Test Planting",</span>
+<span class="s1">    "task_type": "planting",</span>
+<span class="s1">    "field_id": "test_field",</span>
+<span class="s1">    "due_date": "2026-01-20T08:00:00Z"</span>
+<span class="s1">  }'</span>
 
 <span class="c1"># Check the astronomical_score and warnings in response</span>
 </code></pre></div>
@@ -1451,8 +1451,8 @@ curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </spa
 <h3 id="verify-logs">Verify Logs<a class="headerlink" href="#verify-logs" title="Permanent link">&para;</a></h3>
 <p>Check service logs for astronomical data fetching:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Look for these log messages:</span>
-<span class="c1"># &quot;Fetched astronomical data for 2026-01-20: score=9, moon=الهلال المتزايد, mansion=الثريا&quot;</span>
-<span class="c1"># &quot;Task task_abc123 scheduled on non-optimal date: score=3/10, warnings=[...]&quot;</span>
+<span class="c1"># "Fetched astronomical data for 2026-01-20: score=9, moon=الهلال المتزايد, mansion=الثريا"</span>
+<span class="c1"># "Task task_abc123 scheduled on non-optimal date: score=3/10, warnings=[...]"</span>
 </code></pre></div>
 
 <hr />
@@ -1516,10 +1516,10 @@ curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </spa
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

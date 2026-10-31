@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1275,7 +1275,7 @@
 
 <span class="nd">@register_mcp_tool</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">sahool_field_data</span><span class="p">(</span><span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch SAHOOL field data&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Fetch SAHOOL field data"""</span>
     <span class="k">return</span> <span class="n">get_field_by_id</span><span class="p">(</span><span class="n">field_id</span><span class="p">)</span>
 </code></pre></div>
 
@@ -1345,14 +1345,14 @@ npm<span class="w"> </span>run<span class="w"> </span>dev
 
 <h3 id="architecture_1">Architecture<a class="headerlink" href="#architecture_1" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Video as React Component</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Composition</span><span class="p">,</span><span class="w"> </span><span class="nx">useCurrentFrame</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;remotion&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Composition</span><span class="p">,</span><span class="w"> </span><span class="nx">useCurrentFrame</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'remotion'</span><span class="p">;</span>
 
 <span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">MyVideo</span><span class="o">:</span><span class="w"> </span><span class="kt">React.FC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">frame</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useCurrentFrame</span><span class="p">();</span>
 
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
 <span class="w">    </span><span class="p">&lt;</span><span class="nt">Composition</span>
-<span class="w">      </span><span class="na">id</span><span class="o">=</span><span class="s">&quot;AgriculturalTip&quot;</span>
+<span class="w">      </span><span class="na">id</span><span class="o">=</span><span class="s">"AgriculturalTip"</span>
 <span class="w">      </span><span class="na">component</span><span class="o">=</span><span class="p">{</span><span class="nx">AgriculturalTip</span><span class="p">}</span>
 <span class="w">      </span><span class="na">durationInFrames</span><span class="o">=</span><span class="p">{</span><span class="mf">150</span><span class="p">}</span>
 <span class="w">      </span><span class="na">fps</span><span class="o">=</span><span class="p">{</span><span class="mf">30</span><span class="p">}</span>
@@ -1367,7 +1367,7 @@ npm<span class="w"> </span>run<span class="w"> </span>dev
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">tip</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useFetch</span><span class="p">(</span><span class="sb">`/api/tips/</span><span class="si">${</span><span class="nx">tipId</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
 
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
-<span class="w">    </span><span class="p">&lt;</span><span class="nt">AbsoluteFill</span><span class="w"> </span><span class="na">style</span><span class="o">=</span><span class="p">{{</span><span class="nx">background</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#1a5f2a&#39;</span><span class="p">}}&gt;</span>
+<span class="w">    </span><span class="p">&lt;</span><span class="nt">AbsoluteFill</span><span class="w"> </span><span class="na">style</span><span class="o">=</span><span class="p">{{</span><span class="nx">background</span><span class="o">:</span><span class="w"> </span><span class="s1">'#1a5f2a'</span><span class="p">}}&gt;</span>
 <span class="w">      </span><span class="p">&lt;</span><span class="nt">Title</span><span class="w"> </span><span class="na">text</span><span class="o">=</span><span class="p">{</span><span class="nx">tip</span><span class="p">.</span><span class="nx">title_ar</span><span class="p">}</span><span class="w"> </span><span class="p">/&gt;</span>
 <span class="w">      </span><span class="p">&lt;</span><span class="nt">Animation</span><span class="w"> </span><span class="na">data</span><span class="o">=</span><span class="p">{</span><span class="nx">tip</span><span class="p">.</span><span class="nx">animation</span><span class="p">}</span><span class="w"> </span><span class="p">/&gt;</span>
 <span class="w">      </span><span class="p">&lt;</span><span class="nt">Narration</span><span class="w"> </span><span class="na">audio</span><span class="o">=</span><span class="p">{</span><span class="nx">tip</span><span class="p">.</span><span class="nx">audio_ar</span><span class="p">}</span><span class="w"> </span><span class="p">/&gt;</span>
@@ -1459,7 +1459,7 @@ npm<span class="w"> </span>install<span class="w"> </span>remotion<span class="w
 <div class="codehilite"><pre><span></span><code><span class="nv">Traditional</span><span class="w"> </span><span class="nv">Chat</span>:<span class="w">              </span><span class="nv">Tambo</span><span class="w"> </span><span class="nv">Generative</span><span class="w"> </span><span class="nv">UI</span>:
 ┌──────────────────┐<span class="w">          </span>┌──────────────────┐
 │<span class="w"> </span><span class="nv">User</span>:<span class="w"> </span><span class="k">Show</span><span class="w"> </span><span class="nv">sales</span><span class="w"> </span>│<span class="w">          </span>│<span class="w"> </span><span class="nv">User</span>:<span class="w"> </span><span class="k">Show</span><span class="w"> </span><span class="nv">sales</span><span class="w"> </span>│
-│<span class="w"> </span><span class="nv">Bot</span>:<span class="w"> </span><span class="nv">Here</span><span class="err">&#39;s data │    →     │ ┌──────────────┐ │</span>
+│<span class="w"> </span><span class="nv">Bot</span>:<span class="w"> </span><span class="nv">Here</span><span class="err">'s data │    →     │ ┌──────────────┐ │</span>
 <span class="err">│      in text...  │          │ │ 📊 LineChart │ │</span>
 <span class="err">│                  │          │ │ Interactive  │ │</span>
 <span class="err">└──────────────────┘          │ └──────────────┘ │</span>
@@ -1491,8 +1491,8 @@ npm<span class="w"> </span>install<span class="w"> </span>remotion<span class="w
 <p>Created on-demand, render once:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Register chart component</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">components</span><span class="o">:</span><span class="w"> </span><span class="kt">TamboComponent</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[{</span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;IrrigationChart&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">description</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Displays irrigation schedule as a chart&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">"IrrigationChart"</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">description</span><span class="o">:</span><span class="w"> </span><span class="s2">"Displays irrigation schedule as a chart"</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="kt">IrrigationChart</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">propsSchema</span><span class="o">:</span><span class="w"> </span><span class="kt">z.object</span><span class="p">({</span>
 <span class="w">    </span><span class="nx">fieldId</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">(),</span>
@@ -1500,7 +1500,7 @@ npm<span class="w"> </span>install<span class="w"> </span>remotion<span class="w
 <span class="w">      </span><span class="nx">date</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">(),</span>
 <span class="w">      </span><span class="nx">amount_mm</span><span class="o">:</span><span class="w"> </span><span class="kt">z.number</span><span class="p">(),</span>
 <span class="w">    </span><span class="p">})),</span>
-<span class="w">    </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="nx">z</span><span class="p">.</span><span class="kd">enum</span><span class="p">([</span><span class="s2">&quot;line&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;bar&quot;</span><span class="p">]),</span>
+<span class="w">    </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="nx">z</span><span class="p">.</span><span class="kd">enum</span><span class="p">([</span><span class="s2">"line"</span><span class="p">,</span><span class="w"> </span><span class="s2">"bar"</span><span class="p">]),</span>
 <span class="w">  </span><span class="p">}),</span>
 <span class="p">}];</span>
 </code></pre></div>
@@ -1519,7 +1519,7 @@ npm<span class="w"> </span>install<span class="w"> </span>remotion<span class="w
 
 <h3 id="integration-example">Integration Example<a class="headerlink" href="#integration-example" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Setup</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">TamboProvider</span><span class="p">,</span><span class="w"> </span><span class="nx">useTamboThread</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@tambo-ai/react&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">TamboProvider</span><span class="p">,</span><span class="w"> </span><span class="nx">useTamboThread</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@tambo-ai/react'</span><span class="p">;</span>
 
 <span class="kd">function</span><span class="w"> </span><span class="nx">App</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
@@ -1551,13 +1551,13 @@ npm<span class="w"> </span>install<span class="w"> </span>remotion<span class="w
 <h3 id="mcp-integration_1">MCP Integration<a class="headerlink" href="#mcp-integration_1" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1">// External tool integration</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">tools</span><span class="o">:</span><span class="w"> </span><span class="kt">TamboTool</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[{</span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;getFieldNDVI&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">"getFieldNDVI"</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">tool</span><span class="o">:</span><span class="w"> </span><span class="kt">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">fieldId</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span>
 <span class="w">    </span><span class="nx">fetch</span><span class="p">(</span><span class="sb">`/api/fields/</span><span class="si">${</span><span class="nx">fieldId</span><span class="si">}</span><span class="sb">/ndvi`</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">r</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">json</span><span class="p">()),</span>
 <span class="w">  </span><span class="nx">inputSchema</span><span class="o">:</span><span class="w"> </span><span class="kt">z.object</span><span class="p">({</span><span class="w"> </span><span class="nx">fieldId</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">()</span><span class="w"> </span><span class="p">}),</span>
 <span class="w">  </span><span class="nx">outputSchema</span><span class="o">:</span><span class="w"> </span><span class="kt">z.object</span><span class="p">({</span>
 <span class="w">    </span><span class="nx">ndvi</span><span class="o">:</span><span class="w"> </span><span class="kt">z.number</span><span class="p">(),</span>
-<span class="w">    </span><span class="nx">health</span><span class="o">:</span><span class="w"> </span><span class="kt">z.enum</span><span class="p">([</span><span class="s2">&quot;good&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;moderate&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;poor&quot;</span><span class="p">])</span>
+<span class="w">    </span><span class="nx">health</span><span class="o">:</span><span class="w"> </span><span class="kt">z.enum</span><span class="p">([</span><span class="s2">"good"</span><span class="p">,</span><span class="w"> </span><span class="s2">"moderate"</span><span class="p">,</span><span class="w"> </span><span class="s2">"poor"</span><span class="p">])</span>
 <span class="w">  </span><span class="p">}),</span>
 <span class="p">}];</span>
 </code></pre></div>
@@ -1839,10 +1839,10 @@ AionUi<span class="w"> </span>--webui<span class="w"> </span>--remote
 <span class="kn">from</span><span class="w"> </span><span class="nn">eigent</span><span class="w"> </span><span class="kn">import</span> <span class="n">EigentOrchestrator</span><span class="p">,</span> <span class="n">Agent</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">SAHOOLEigentOrchestrator</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Integrate Eigent&#39;s CAMEL-based multi-agent system</span>
-<span class="sd">    with SAHOOL&#39;s agricultural domain.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Integrate Eigent's CAMEL-based multi-agent system</span>
+<span class="sd">    with SAHOOL's agricultural domain.</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">orchestrator</span> <span class="o">=</span> <span class="n">EigentOrchestrator</span><span class="p">()</span>
@@ -1857,10 +1857,10 @@ AionUi<span class="w"> </span>--webui<span class="w"> </span>--remote
         <span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">execute_complex_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Execute complex agricultural task with</span>
 <span class="sd">        multiple agents working in parallel.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">orchestrator</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
             <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span>
             <span class="n">human_in_the_loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -1870,7 +1870,7 @@ AionUi<span class="w"> </span>--webui<span class="w"> </span>--remote
 <span class="c1"># Usage</span>
 <span class="n">orchestrator</span> <span class="o">=</span> <span class="n">SAHOOLEigentOrchestrator</span><span class="p">()</span>
 <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">orchestrator</span><span class="o">.</span><span class="n">execute_complex_task</span><span class="p">(</span>
-    <span class="s2">&quot;تحليل شامل لحقل القمح: الري، التسميد، مكافحة الآفات&quot;</span>
+    <span class="s2">"تحليل شامل لحقل القمح: الري، التسميد، مكافحة الآفات"</span>
 <span class="p">)</span>
 </code></pre></div>
 
@@ -1884,14 +1884,14 @@ AionUi<span class="w"> </span>--webui<span class="w"> </span>--remote
 <p><strong>Recommended Implementation</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// apps/web/src/components/FarmerChat.tsx</span>
 
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">TamboProvider</span><span class="p">,</span><span class="w"> </span><span class="nx">useTamboThread</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@tambo-ai/react&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">z</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;zod&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">TamboProvider</span><span class="p">,</span><span class="w"> </span><span class="nx">useTamboThread</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@tambo-ai/react'</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">z</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'zod'</span><span class="p">;</span>
 
 <span class="c1">// Register agricultural components</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">agriculturalComponents</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
 <span class="w">  </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;IrrigationSchedule&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">description</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;عرض جدول الري للحقل&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">"IrrigationSchedule"</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">description</span><span class="o">:</span><span class="w"> </span><span class="s2">"عرض جدول الري للحقل"</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="kt">IrrigationScheduleChart</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">propsSchema</span><span class="o">:</span><span class="w"> </span><span class="kt">z.object</span><span class="p">({</span>
 <span class="w">      </span><span class="nx">fieldId</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">(),</span>
@@ -1903,8 +1903,8 @@ AionUi<span class="w"> </span>--webui<span class="w"> </span>--remote
 <span class="w">    </span><span class="p">}),</span>
 <span class="w">  </span><span class="p">},</span>
 <span class="w">  </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;NDVIMap&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">description</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;خريطة صحة المحصول NDVI&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">"NDVIMap"</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">description</span><span class="o">:</span><span class="w"> </span><span class="s2">"خريطة صحة المحصول NDVI"</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="kt">NDVIMapVisualization</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">propsSchema</span><span class="o">:</span><span class="w"> </span><span class="kt">z.object</span><span class="p">({</span>
 <span class="w">      </span><span class="nx">fieldId</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">(),</span>
@@ -1916,13 +1916,13 @@ AionUi<span class="w"> </span>--webui<span class="w"> </span>--remote
 <span class="w">    </span><span class="p">}),</span>
 <span class="w">  </span><span class="p">},</span>
 <span class="w">  </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;CropAdvisoryCard&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">description</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;بطاقة استشارة زراعية&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">"CropAdvisoryCard"</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">description</span><span class="o">:</span><span class="w"> </span><span class="s2">"بطاقة استشارة زراعية"</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="kt">CropAdvisoryCard</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">propsSchema</span><span class="o">:</span><span class="w"> </span><span class="kt">z.object</span><span class="p">({</span>
 <span class="w">      </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">(),</span>
 <span class="w">      </span><span class="nx">title_ar</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">(),</span>
-<span class="w">      </span><span class="nx">priority</span><span class="o">:</span><span class="w"> </span><span class="kt">z.enum</span><span class="p">([</span><span class="s2">&quot;critical&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;warning&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;info&quot;</span><span class="p">]),</span>
+<span class="w">      </span><span class="nx">priority</span><span class="o">:</span><span class="w"> </span><span class="kt">z.enum</span><span class="p">([</span><span class="s2">"critical"</span><span class="p">,</span><span class="w"> </span><span class="s2">"warning"</span><span class="p">,</span><span class="w"> </span><span class="s2">"info"</span><span class="p">]),</span>
 <span class="w">      </span><span class="nx">actions</span><span class="o">:</span><span class="w"> </span><span class="kt">z.array</span><span class="p">(</span><span class="nx">z</span><span class="p">.</span><span class="nx">object</span><span class="p">({</span>
 <span class="w">        </span><span class="nx">action</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">(),</span>
 <span class="w">        </span><span class="nx">action_ar</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">(),</span>
@@ -1931,8 +1931,8 @@ AionUi<span class="w"> </span>--webui<span class="w"> </span>--remote
 <span class="w">    </span><span class="p">}),</span>
 <span class="w">  </span><span class="p">},</span>
 <span class="w">  </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;WeatherForecast&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">description</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;توقعات الطقس للمزرعة&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">"WeatherForecast"</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">description</span><span class="o">:</span><span class="w"> </span><span class="s2">"توقعات الطقس للمزرعة"</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="kt">WeatherForecastWidget</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">propsSchema</span><span class="o">:</span><span class="w"> </span><span class="kt">z.object</span><span class="p">({</span>
 <span class="w">      </span><span class="nx">farmId</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">(),</span>
@@ -1944,19 +1944,19 @@ AionUi<span class="w"> </span>--webui<span class="w"> </span>--remote
 <span class="c1">// SAHOOL tools for Tambo</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">sahoolTools</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
 <span class="w">  </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;getFieldData&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">"getFieldData"</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">tool</span><span class="o">:</span><span class="w"> </span><span class="kt">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">fieldId</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span>
 <span class="w">      </span><span class="nx">fetch</span><span class="p">(</span><span class="sb">`/api/fields/</span><span class="si">${</span><span class="nx">fieldId</span><span class="si">}</span><span class="sb">`</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">r</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">json</span><span class="p">()),</span>
 <span class="w">    </span><span class="nx">inputSchema</span><span class="o">:</span><span class="w"> </span><span class="kt">z.object</span><span class="p">({</span><span class="w"> </span><span class="nx">fieldId</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">()</span><span class="w"> </span><span class="p">}),</span>
 <span class="w">  </span><span class="p">},</span>
 <span class="w">  </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;getNDVI&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">"getNDVI"</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">tool</span><span class="o">:</span><span class="w"> </span><span class="kt">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">fieldId</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span>
 <span class="w">      </span><span class="nx">fetch</span><span class="p">(</span><span class="sb">`/api/fields/</span><span class="si">${</span><span class="nx">fieldId</span><span class="si">}</span><span class="sb">/ndvi`</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">r</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">json</span><span class="p">()),</span>
 <span class="w">    </span><span class="nx">inputSchema</span><span class="o">:</span><span class="w"> </span><span class="kt">z.object</span><span class="p">({</span><span class="w"> </span><span class="nx">fieldId</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">()</span><span class="w"> </span><span class="p">}),</span>
 <span class="w">  </span><span class="p">},</span>
 <span class="w">  </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;getIrrigationRecommendation&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">"getIrrigationRecommendation"</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">tool</span><span class="o">:</span><span class="w"> </span><span class="kt">async</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">fieldId</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">=&gt;</span>
 <span class="w">      </span><span class="nx">fetch</span><span class="p">(</span><span class="sb">`/api/advisory/irrigation/</span><span class="si">${</span><span class="nx">fieldId</span><span class="si">}</span><span class="sb">`</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">r</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">json</span><span class="p">()),</span>
 <span class="w">    </span><span class="nx">inputSchema</span><span class="o">:</span><span class="w"> </span><span class="kt">z.object</span><span class="p">({</span><span class="w"> </span><span class="nx">fieldId</span><span class="o">:</span><span class="w"> </span><span class="kt">z.string</span><span class="p">()</span><span class="w"> </span><span class="p">}),</span>
@@ -1977,7 +1977,7 @@ AionUi<span class="w"> </span>--webui<span class="w"> </span>--remote
 </code></pre></div>
 
 <p><strong>User Experience</strong>:</p>
-<div class="codehilite"><pre><span></span><code>المزارع: &quot;أرني حالة حقل القمح رقم 3&quot;
+<div class="codehilite"><pre><span></span><code>المزارع: "أرني حالة حقل القمح رقم 3"
 
 ┌────────────────────────────────────────┐
 │  🌾 حقل القمح #3                       │
@@ -1997,7 +1997,7 @@ AionUi<span class="w"> </span>--webui<span class="w"> </span>--remote
 <p><strong>Recommended Implementation</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// packages/video-generator/src/compositions/IrrigationTip.tsx</span>
 
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Composition</span><span class="p">,</span><span class="w"> </span><span class="nx">useCurrentFrame</span><span class="p">,</span><span class="w"> </span><span class="nx">interpolate</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;remotion&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Composition</span><span class="p">,</span><span class="w"> </span><span class="nx">useCurrentFrame</span><span class="p">,</span><span class="w"> </span><span class="nx">interpolate</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'remotion'</span><span class="p">;</span>
 
 <span class="kd">interface</span><span class="w"> </span><span class="nx">IrrigationTipProps</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="nx">cropType</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
@@ -2018,10 +2018,10 @@ AionUi<span class="w"> </span>--webui<span class="w"> </span>--remote
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">chartProgress</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">interpolate</span><span class="p">(</span><span class="nx">frame</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mf">30</span><span class="p">,</span><span class="w"> </span><span class="mf">90</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="mf">1</span><span class="p">]);</span>
 
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
-<span class="w">    </span><span class="p">&lt;</span><span class="nt">AbsoluteFill</span><span class="w"> </span><span class="na">style</span><span class="o">=</span><span class="p">{{</span><span class="w"> </span><span class="nx">background</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#1a5f2a&#39;</span><span class="w"> </span><span class="p">}}&gt;</span>
+<span class="w">    </span><span class="p">&lt;</span><span class="nt">AbsoluteFill</span><span class="w"> </span><span class="na">style</span><span class="o">=</span><span class="p">{{</span><span class="w"> </span><span class="nx">background</span><span class="o">:</span><span class="w"> </span><span class="s1">'#1a5f2a'</span><span class="w"> </span><span class="p">}}&gt;</span>
 <span class="w">      </span><span class="p">{</span><span class="cm">/* Title */</span><span class="p">}</span>
-<span class="w">      </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">style</span><span class="o">=</span><span class="p">{{</span><span class="w"> </span><span class="nx">opacity</span><span class="o">:</span><span class="w"> </span><span class="kt">titleOpacity</span><span class="p">,</span><span class="w"> </span><span class="nx">textAlign</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;right&#39;</span><span class="w"> </span><span class="p">}}&gt;</span>
-<span class="w">        </span><span class="p">&lt;</span><span class="nt">h1</span><span class="w"> </span><span class="na">style</span><span class="o">=</span><span class="p">{{</span><span class="w"> </span><span class="nx">color</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;white&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">fontSize</span><span class="o">:</span><span class="w"> </span><span class="kt">48</span><span class="w"> </span><span class="p">}}&gt;</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">style</span><span class="o">=</span><span class="p">{{</span><span class="w"> </span><span class="nx">opacity</span><span class="o">:</span><span class="w"> </span><span class="kt">titleOpacity</span><span class="p">,</span><span class="w"> </span><span class="nx">textAlign</span><span class="o">:</span><span class="w"> </span><span class="s1">'right'</span><span class="w"> </span><span class="p">}}&gt;</span>
+<span class="w">        </span><span class="p">&lt;</span><span class="nt">h1</span><span class="w"> </span><span class="na">style</span><span class="o">=</span><span class="p">{{</span><span class="w"> </span><span class="nx">color</span><span class="o">:</span><span class="w"> </span><span class="s1">'white'</span><span class="p">,</span><span class="w"> </span><span class="nx">fontSize</span><span class="o">:</span><span class="w"> </span><span class="kt">48</span><span class="w"> </span><span class="p">}}&gt;</span>
 <span class="w">          </span><span class="nx">نصيحة</span><span class="w"> </span><span class="nx">ري</span><span class="w"> </span><span class="p">{</span><span class="nx">cropType_ar</span><span class="p">}</span>
 <span class="w">        </span><span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
 <span class="w">      </span><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
@@ -2034,12 +2034,12 @@ AionUi<span class="w"> </span>--webui<span class="w"> </span>--remote
 
 <span class="w">      </span><span class="p">{</span><span class="cm">/* Tip Text */</span><span class="p">}</span>
 <span class="w">      </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">style</span><span class="o">=</span><span class="p">{{</span>
-<span class="w">        </span><span class="nx">position</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;absolute&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">position</span><span class="o">:</span><span class="w"> </span><span class="s1">'absolute'</span><span class="p">,</span>
 <span class="w">        </span><span class="nx">bottom</span><span class="o">:</span><span class="w"> </span><span class="kt">100</span><span class="p">,</span>
 <span class="w">        </span><span class="nx">right</span><span class="o">:</span><span class="w"> </span><span class="kt">50</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">color</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;white&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">color</span><span class="o">:</span><span class="w"> </span><span class="s1">'white'</span><span class="p">,</span>
 <span class="w">        </span><span class="nx">fontSize</span><span class="o">:</span><span class="w"> </span><span class="kt">32</span><span class="p">,</span>
-<span class="w">        </span><span class="nx">textAlign</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;right&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">textAlign</span><span class="o">:</span><span class="w"> </span><span class="s1">'right'</span><span class="p">,</span>
 <span class="w">      </span><span class="p">}}&gt;</span>
 <span class="w">        </span><span class="p">{</span><span class="nx">tipText_ar</span><span class="p">}</span>
 <span class="w">      </span><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
@@ -2055,16 +2055,16 @@ AionUi<span class="w"> </span>--webui<span class="w"> </span>--remote
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
 <span class="w">    </span><span class="p">&lt;&gt;</span>
 <span class="w">      </span><span class="p">&lt;</span><span class="nt">Composition</span>
-<span class="w">        </span><span class="na">id</span><span class="o">=</span><span class="s">&quot;IrrigationTip&quot;</span>
+<span class="w">        </span><span class="na">id</span><span class="o">=</span><span class="s">"IrrigationTip"</span>
 <span class="w">        </span><span class="na">component</span><span class="o">=</span><span class="p">{</span><span class="nx">IrrigationTipVideo</span><span class="p">}</span>
 <span class="w">        </span><span class="na">durationInFrames</span><span class="o">=</span><span class="p">{</span><span class="mf">150</span><span class="p">}</span>
 <span class="w">        </span><span class="na">fps</span><span class="o">=</span><span class="p">{</span><span class="mf">30</span><span class="p">}</span>
 <span class="w">        </span><span class="na">width</span><span class="o">=</span><span class="p">{</span><span class="mf">1920</span><span class="p">}</span>
 <span class="w">        </span><span class="na">height</span><span class="o">=</span><span class="p">{</span><span class="mf">1080</span><span class="p">}</span>
 <span class="w">        </span><span class="na">defaultProps</span><span class="o">=</span><span class="p">{{</span>
-<span class="w">          </span><span class="nx">cropType</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;wheat&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="nx">cropType_ar</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;القمح&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="nx">tipText_ar</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;يُنصح بالري كل 10-14 يوم في مرحلة التفريع&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">cropType</span><span class="o">:</span><span class="w"> </span><span class="s2">"wheat"</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">cropType_ar</span><span class="o">:</span><span class="w"> </span><span class="s2">"القمح"</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">tipText_ar</span><span class="o">:</span><span class="w"> </span><span class="s2">"يُنصح بالري كل 10-14 يوم في مرحلة التفريع"</span><span class="p">,</span>
 <span class="w">          </span><span class="nx">schedule</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">            </span><span class="p">{</span><span class="w"> </span><span class="nx">day</span><span class="o">:</span><span class="w"> </span><span class="kt">1</span><span class="p">,</span><span class="w"> </span><span class="nx">amount_mm</span><span class="o">:</span><span class="w"> </span><span class="kt">25</span><span class="w"> </span><span class="p">},</span>
 <span class="w">            </span><span class="p">{</span><span class="w"> </span><span class="nx">day</span><span class="o">:</span><span class="w"> </span><span class="kt">10</span><span class="p">,</span><span class="w"> </span><span class="nx">amount_mm</span><span class="o">:</span><span class="w"> </span><span class="kt">30</span><span class="w"> </span><span class="p">},</span>
@@ -2080,19 +2080,19 @@ AionUi<span class="w"> </span>--webui<span class="w"> </span>--remote
 <p><strong>Batch Video Generation</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// scripts/generate-advisory-videos.ts</span>
 
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">bundle</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@remotion/bundler&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">renderMedia</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@remotion/renderer&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">bundle</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@remotion/bundler'</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">renderMedia</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@remotion/renderer'</span><span class="p">;</span>
 
 <span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">generateAdvisoryVideos</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">tips</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span><span class="s1">&#39;/api/advisory/tips&#39;</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">r</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">json</span><span class="p">());</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">tips</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span><span class="s1">'/api/advisory/tips'</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">r</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">r</span><span class="p">.</span><span class="nx">json</span><span class="p">());</span>
 
-<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">bundled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">bundle</span><span class="p">(</span><span class="s1">&#39;./src/index.ts&#39;</span><span class="p">);</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">bundled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">bundle</span><span class="p">(</span><span class="s1">'./src/index.ts'</span><span class="p">);</span>
 
 <span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="nx">tip</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nx">tips</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">renderMedia</span><span class="p">({</span>
-<span class="w">      </span><span class="nx">composition</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;IrrigationTip&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">composition</span><span class="o">:</span><span class="w"> </span><span class="s1">'IrrigationTip'</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">serveUrl</span><span class="o">:</span><span class="w"> </span><span class="kt">bundled</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">codec</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;h264&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">codec</span><span class="o">:</span><span class="w"> </span><span class="s1">'h264'</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">outputLocation</span><span class="o">:</span><span class="w"> </span><span class="sb">`./output/</span><span class="si">${</span><span class="nx">tip</span><span class="p">.</span><span class="nx">id</span><span class="si">}</span><span class="sb">.mp4`</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">inputProps</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="nx">cropType_ar</span><span class="o">:</span><span class="w"> </span><span class="kt">tip.crop_ar</span><span class="p">,</span>
@@ -2138,20 +2138,20 @@ AionUi<span class="w"> </span>--config<span class="w"> </span>sahool-config.json
 
 <div class="codehilite"><pre><span></span><code><span class="c1">// sahool-config.json</span>
 <span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;agents&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="nt">"agents"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SAHOOL Advisor&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python -m sahool.advisor&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;model&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ollama:llama3&quot;</span>
+<span class="w">      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SAHOOL Advisor"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"python -m sahool.advisor"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"model"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ollama:llama3"</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Field Analyst&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python -m sahool.analyst&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;model&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;gemini-2.5-flash&quot;</span>
+<span class="w">      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Field Analyst"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"python -m sahool.analyst"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"model"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gemini-2.5-flash"</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">],</span>
-<span class="w">  </span><span class="nt">&quot;tools&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;sahool_api&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://localhost:8000&quot;</span>
+<span class="w">  </span><span class="nt">"tools"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"sahool_api"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://localhost:8000"</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -2375,10 +2375,10 @@ AionUi<span class="w"> </span>--config<span class="w"> </span>sahool-config.json
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1157,17 +1157,17 @@
 <p><strong>New Standard Configuration:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="nx">ThrottlerModule</span><span class="p">.</span><span class="nx">forRoot</span><span class="p">([</span>
 <span class="w">  </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;short&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">"short"</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">ttl</span><span class="o">:</span><span class="w"> </span><span class="kt">1000</span><span class="p">,</span><span class="w"> </span><span class="c1">// 1 second</span>
 <span class="w">    </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">10</span><span class="p">,</span><span class="w"> </span><span class="c1">// 10 requests per second</span>
 <span class="w">  </span><span class="p">},</span>
 <span class="w">  </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;medium&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">"medium"</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">ttl</span><span class="o">:</span><span class="w"> </span><span class="kt">60000</span><span class="p">,</span><span class="w"> </span><span class="c1">// 1 minute</span>
 <span class="w">    </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">100</span><span class="p">,</span><span class="w"> </span><span class="c1">// 100 requests per minute</span>
 <span class="w">  </span><span class="p">},</span>
 <span class="w">  </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;long&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">"long"</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">ttl</span><span class="o">:</span><span class="w"> </span><span class="kt">3600000</span><span class="p">,</span><span class="w"> </span><span class="c1">// 1 hour</span>
 <span class="w">    </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">1000</span><span class="p">,</span><span class="w"> </span><span class="c1">// 1000 requests per hour</span>
 <span class="w">  </span><span class="p">},</span>
@@ -1247,10 +1247,10 @@
 </ul>
 <p><strong>Recommendation:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Add to seller verification endpoint</span>
-<span class="kd">@Post</span><span class="p">(</span><span class="s1">&#39;sellers/:id/verify&#39;</span><span class="p">)</span>
+<span class="kd">@Post</span><span class="p">(</span><span class="s1">'sellers/:id/verify'</span><span class="p">)</span>
 <span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">,</span><span class="w"> </span><span class="nx">RolesGuard</span><span class="p">)</span>
-<span class="kd">@Roles</span><span class="p">(</span><span class="s1">&#39;admin&#39;</span><span class="p">)</span>
-<span class="nx">verifySeller</span><span class="p">(</span><span class="kd">@Param</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="kd">@Roles</span><span class="p">(</span><span class="s1">'admin'</span><span class="p">)</span>
+<span class="nx">verifySeller</span><span class="p">(</span><span class="kd">@Param</span><span class="p">(</span><span class="s1">'id'</span><span class="p">)</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">marketService</span><span class="p">.</span><span class="nx">verifySeller</span><span class="p">(</span><span class="nx">id</span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1280,10 +1280,10 @@
 </ul>
 <p><strong>Recommendation:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Add role-based access to sensitive operations</span>
-<span class="kd">@Delete</span><span class="p">(</span><span class="s1">&#39;experiments/:id&#39;</span><span class="p">)</span>
+<span class="kd">@Delete</span><span class="p">(</span><span class="s1">'experiments/:id'</span><span class="p">)</span>
 <span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">,</span><span class="w"> </span><span class="nx">RolesGuard</span><span class="p">)</span>
-<span class="kd">@Roles</span><span class="p">(</span><span class="s1">&#39;researcher&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;admin&#39;</span><span class="p">)</span>
-<span class="nx">deleteExperiment</span><span class="p">(</span><span class="kd">@Param</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="kd">@Roles</span><span class="p">(</span><span class="s1">'researcher'</span><span class="p">,</span><span class="w"> </span><span class="s1">'admin'</span><span class="p">)</span>
+<span class="nx">deleteExperiment</span><span class="p">(</span><span class="kd">@Param</span><span class="p">(</span><span class="s1">'id'</span><span class="p">)</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">experimentsService</span><span class="p">.</span><span class="ow">delete</span><span class="p">(</span><span class="nx">id</span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1398,7 +1398,7 @@
        const user = request.user;
        const resourceUserId = request.params.userId;</p>
 <div class="codehilite"><pre><span></span><code><span class="w">   </span><span class="c1">// Allow if admin or owner</span>
-<span class="w">   </span><span class="k">return</span><span class="w"> </span><span class="nb">user</span><span class="p">.</span><span class="n">roles</span><span class="p">.</span><span class="n">includes</span><span class="p">(</span><span class="s">&quot;admin&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">user</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="o">==</span><span class="p">=</span><span class="w"> </span><span class="n">resourceUserId</span><span class="p">;</span>
+<span class="w">   </span><span class="k">return</span><span class="w"> </span><span class="nb">user</span><span class="p">.</span><span class="n">roles</span><span class="p">.</span><span class="n">includes</span><span class="p">(</span><span class="s">"admin"</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">user</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="o">==</span><span class="p">=</span><span class="w"> </span><span class="n">resourceUserId</span><span class="p">;</span>
 <span class="w"> </span><span class="p">}</span>
 </code></pre></div>
 
@@ -1439,7 +1439,7 @@
 <h2 id="implementation-examples">Implementation Examples<a class="headerlink" href="#implementation-examples" title="Permanent link">&para;</a></h2>
 <h3 id="adding-tokenrevocationguard-to-a-service">Adding TokenRevocationGuard to a Service<a class="headerlink" href="#adding-tokenrevocationguard-to-a-service" title="Permanent link">&para;</a></h3>
 <p><strong>Step 1:</strong> Update app.module.ts</p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">TokenRevocationGuard</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/nestjs-auth&quot;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">TokenRevocationGuard</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@sahool/nestjs-auth"</span><span class="p">;</span>
 
 <span class="kd">@Module</span><span class="p">({</span>
 <span class="w">  </span><span class="nx">providers</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
@@ -1455,44 +1455,44 @@
 
 <p><strong>Step 2:</strong> Update package.json dependencies (if needed)</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;dependencies&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;@sahool/nestjs-auth&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^1.0.0&quot;</span>
+<span class="w">  </span><span class="nt">"dependencies"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"@sahool/nestjs-auth"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^1.0.0"</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <h3 id="adding-rolesguard-to-admin-endpoints">Adding RolesGuard to Admin Endpoints<a class="headerlink" href="#adding-rolesguard-to-admin-endpoints" title="Permanent link">&para;</a></h3>
 <p><strong>Before:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="kd">@Patch</span><span class="p">(</span><span class="s1">&#39;user/:userId/verify&#39;</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><code><span class="kd">@Patch</span><span class="p">(</span><span class="s1">'user/:userId/verify'</span><span class="p">)</span>
 <span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">)</span>
-<span class="k">async</span><span class="w"> </span><span class="nx">verifySeller</span><span class="p">(</span><span class="kd">@Param</span><span class="p">(</span><span class="s1">&#39;userId&#39;</span><span class="p">)</span><span class="w"> </span><span class="nx">userId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="k">async</span><span class="w"> </span><span class="nx">verifySeller</span><span class="p">(</span><span class="kd">@Param</span><span class="p">(</span><span class="s1">'userId'</span><span class="p">)</span><span class="w"> </span><span class="nx">userId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">service</span><span class="p">.</span><span class="nx">verify</span><span class="p">(</span><span class="nx">userId</span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <p><strong>After:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="kd">@Patch</span><span class="p">(</span><span class="s1">&#39;user/:userId/verify&#39;</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><code><span class="kd">@Patch</span><span class="p">(</span><span class="s1">'user/:userId/verify'</span><span class="p">)</span>
 <span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">,</span><span class="w"> </span><span class="nx">RolesGuard</span><span class="p">)</span>
-<span class="kd">@Roles</span><span class="p">(</span><span class="s1">&#39;admin&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;manager&#39;</span><span class="p">)</span>
-<span class="k">async</span><span class="w"> </span><span class="nx">verifySeller</span><span class="p">(</span><span class="kd">@Param</span><span class="p">(</span><span class="s1">&#39;userId&#39;</span><span class="p">)</span><span class="w"> </span><span class="nx">userId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="kd">@Roles</span><span class="p">(</span><span class="s1">'admin'</span><span class="p">,</span><span class="w"> </span><span class="s1">'manager'</span><span class="p">)</span>
+<span class="k">async</span><span class="w"> </span><span class="nx">verifySeller</span><span class="p">(</span><span class="kd">@Param</span><span class="p">(</span><span class="s1">'userId'</span><span class="p">)</span><span class="w"> </span><span class="nx">userId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">service</span><span class="p">.</span><span class="nx">verify</span><span class="p">(</span><span class="nx">userId</span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <h3 id="adding-permissionsguard-to-sensitive-operations">Adding PermissionsGuard to Sensitive Operations<a class="headerlink" href="#adding-permissionsguard-to-sensitive-operations" title="Permanent link">&para;</a></h3>
 <p><strong>Before:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="kd">@Delete</span><span class="p">(</span><span class="s1">&#39;products/:id&#39;</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><code><span class="kd">@Delete</span><span class="p">(</span><span class="s1">'products/:id'</span><span class="p">)</span>
 <span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">)</span>
-<span class="k">async</span><span class="w"> </span><span class="nx">deleteProduct</span><span class="p">(</span><span class="kd">@Param</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="k">async</span><span class="w"> </span><span class="nx">deleteProduct</span><span class="p">(</span><span class="kd">@Param</span><span class="p">(</span><span class="s1">'id'</span><span class="p">)</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">service</span><span class="p">.</span><span class="ow">delete</span><span class="p">(</span><span class="nx">id</span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <p><strong>After:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="kd">@Delete</span><span class="p">(</span><span class="s1">&#39;products/:id&#39;</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><code><span class="kd">@Delete</span><span class="p">(</span><span class="s1">'products/:id'</span><span class="p">)</span>
 <span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">,</span><span class="w"> </span><span class="nx">PermissionsGuard</span><span class="p">)</span>
-<span class="kd">@RequirePermissions</span><span class="p">(</span><span class="s1">&#39;product:delete&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;product:admin&#39;</span><span class="p">)</span>
-<span class="k">async</span><span class="w"> </span><span class="nx">deleteProduct</span><span class="p">(</span><span class="kd">@Param</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="kd">@RequirePermissions</span><span class="p">(</span><span class="s1">'product:delete'</span><span class="p">,</span><span class="w"> </span><span class="s1">'product:admin'</span><span class="p">)</span>
+<span class="k">async</span><span class="w"> </span><span class="nx">deleteProduct</span><span class="p">(</span><span class="kd">@Param</span><span class="p">(</span><span class="s1">'id'</span><span class="p">)</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">service</span><span class="p">.</span><span class="ow">delete</span><span class="p">(</span><span class="nx">id</span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1750,10 +1750,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

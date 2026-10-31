@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1398,7 +1398,7 @@ docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> 
 <h2 id="health-checks">التحقق من الصحة | Health Checks<a class="headerlink" href="#health-checks" title="Permanent link">&para;</a></h2>
 <div class="codehilite"><pre><span></span><code><span class="c1"># فحص صحة جميع الخدمات</span>
 <span class="k">for</span><span class="w"> </span>port<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">8089</span><span class="w"> </span><span class="m">8090</span><span class="w"> </span><span class="m">8091</span><span class="w"> </span><span class="m">8092</span><span class="w"> </span><span class="m">8093</span><span class="w"> </span><span class="m">8094</span><span class="w"> </span><span class="m">8095</span><span class="w"> </span><span class="m">8096</span><span class="w"> </span><span class="m">8098</span><span class="w"> </span><span class="m">8110</span><span class="w"> </span><span class="m">8111</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
-<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Port </span><span class="nv">$port</span><span class="s2">: </span><span class="k">$(</span>curl<span class="w"> </span>-s<span class="w"> </span>http://localhost:<span class="nv">$port</span>/healthz<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.status // &quot;error&quot;&#39;</span><span class="k">)</span><span class="s2">&quot;</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"Port </span><span class="nv">$port</span><span class="s2">: </span><span class="k">$(</span>curl<span class="w"> </span>-s<span class="w"> </span>http://localhost:<span class="nv">$port</span>/healthz<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">'.status // "error"'</span><span class="k">)</span><span class="s2">"</span>
 <span class="k">done</span>
 
 <span class="c1"># فحص خدمة محددة</span>
@@ -1457,7 +1457,7 @@ docker<span class="w"> </span>compose<span class="w"> </span>build<span class="w
 <span class="w">            </span>--fetch-timeout<span class="o">=</span><span class="m">300000</span><span class="w"> </span><span class="se">\</span>
 <span class="w">            </span>--no-audit<span class="w"> </span><span class="se">\</span>
 <span class="w">            </span>--no-fund<span class="p">;</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="k">break</span><span class="p">;</span><span class="w"> </span><span class="k">fi</span><span class="p">;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$i</span><span class="s2">&quot;</span><span class="w"> </span>!<span class="o">=</span><span class="w"> </span><span class="s2">&quot;5&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Attempt </span><span class="nv">$i</span><span class="s2"> failed, waiting before retry...&quot;</span><span class="p">;</span><span class="w"> </span>sleep<span class="w"> </span><span class="k">$((</span><span class="nv">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="m">10</span><span class="k">))</span><span class="p">;</span><span class="w"> </span><span class="k">else</span><span class="w"> </span>false<span class="p">;</span><span class="w"> </span><span class="k">fi</span><span class="p">;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">"</span><span class="nv">$i</span><span class="s2">"</span><span class="w"> </span>!<span class="o">=</span><span class="w"> </span><span class="s2">"5"</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"Attempt </span><span class="nv">$i</span><span class="s2"> failed, waiting before retry..."</span><span class="p">;</span><span class="w"> </span>sleep<span class="w"> </span><span class="k">$((</span><span class="nv">i</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="m">10</span><span class="k">))</span><span class="p">;</span><span class="w"> </span><span class="k">else</span><span class="w"> </span>false<span class="p">;</span><span class="w"> </span><span class="k">fi</span><span class="p">;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span><span class="k">done</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span><span class="o">(</span>npm<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>registry<span class="w"> </span>https://registry.npmmirror.com<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">     </span>npm<span class="w"> </span>install<span class="w"> </span>--legacy-peer-deps<span class="o">)</span>
@@ -1669,10 +1669,10 @@ helm<span class="w"> </span>install<span class="w"> </span>sahool<span class="w"
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

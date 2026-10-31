@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1203,20 +1203,20 @@
 <p><strong>Changes:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Added custom tier function for intelligent routing</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">ai_agents_tier_func</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RateLimitTier</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Determine rate limit tier for AI agents endpoints&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;X-Internal-Service&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Determine rate limit tier for AI agents endpoints"""</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"X-Internal-Service"</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">RateLimitTier</span><span class="o">.</span><span class="n">INTERNAL</span>
-    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;/api/v1/analyze&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"/api/v1/analyze"</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">RateLimitTier</span><span class="o">.</span><span class="n">STANDARD</span>
-    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;/api/v1/edge&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"/api/v1/edge"</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">RateLimitTier</span><span class="o">.</span><span class="n">PREMIUM</span>
     <span class="k">return</span> <span class="n">RateLimitTier</span><span class="o">.</span><span class="n">STANDARD</span>
 
 <span class="n">rate_limiter</span> <span class="o">=</span> <span class="n">setup_rate_limiting</span><span class="p">(</span>
     <span class="n">app</span><span class="p">,</span>
-    <span class="n">use_redis</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;REDIS_URL&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">use_redis</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"REDIS_URL"</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">tier_func</span><span class="o">=</span><span class="n">ai_agents_tier_func</span><span class="p">,</span>
-    <span class="n">exclude_paths</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;/healthz&quot;</span><span class="p">,</span> <span class="s2">&quot;/api/v1/system/status&quot;</span><span class="p">],</span>
+    <span class="n">exclude_paths</span><span class="o">=</span><span class="p">[</span><span class="s2">"/healthz"</span><span class="p">,</span> <span class="s2">"/api/v1/system/status"</span><span class="p">],</span>
 <span class="p">)</span>
 </code></pre></div>
 
@@ -1231,22 +1231,22 @@
 <p><strong>Changes:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Added custom tier function for IoT operations</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">iot_tier_func</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RateLimitTier</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Determine rate limit tier for IoT Gateway endpoints&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;X-Internal-Service&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Determine rate limit tier for IoT Gateway endpoints"""</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"X-Internal-Service"</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">RateLimitTier</span><span class="o">.</span><span class="n">INTERNAL</span>
-    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="o">.</span><span class="n">path</span> <span class="o">==</span> <span class="s2">&quot;/sensor/batch&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="o">.</span><span class="n">path</span> <span class="o">==</span> <span class="s2">"/sensor/batch"</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">RateLimitTier</span><span class="o">.</span><span class="n">PREMIUM</span>
-    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="o">.</span><span class="n">path</span> <span class="o">==</span> <span class="s2">&quot;/sensor/reading&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="o">.</span><span class="n">path</span> <span class="o">==</span> <span class="s2">"/sensor/reading"</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">RateLimitTier</span><span class="o">.</span><span class="n">STANDARD</span>
-    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;/device&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"/device"</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">RateLimitTier</span><span class="o">.</span><span class="n">PREMIUM</span>
     <span class="k">return</span> <span class="n">RateLimitTier</span><span class="o">.</span><span class="n">STANDARD</span>
 
 <span class="n">rate_limiter</span> <span class="o">=</span> <span class="n">setup_rate_limiting</span><span class="p">(</span>
     <span class="n">app</span><span class="p">,</span>
-    <span class="n">use_redis</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;REDIS_URL&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">use_redis</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"REDIS_URL"</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">tier_func</span><span class="o">=</span><span class="n">iot_tier_func</span><span class="p">,</span>
-    <span class="n">exclude_paths</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;/healthz&quot;</span><span class="p">,</span> <span class="s2">&quot;/health&quot;</span><span class="p">,</span> <span class="s2">&quot;/stats&quot;</span><span class="p">],</span>
+    <span class="n">exclude_paths</span><span class="o">=</span><span class="p">[</span><span class="s2">"/healthz"</span><span class="p">,</span> <span class="s2">"/health"</span><span class="p">,</span> <span class="s2">"/stats"</span><span class="p">],</span>
 <span class="p">)</span>
 </code></pre></div>
 
@@ -1338,25 +1338,25 @@
 <p>Test rate limits for each service:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Test AI Agents Core analysis endpoint</span>
 <span class="k">for</span><span class="w"> </span>i<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="o">{</span><span class="m">1</span>..70<span class="o">}</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
-<span class="w">  </span>curl<span class="w"> </span>-w<span class="w"> </span><span class="s2">&quot;%{http_code}\n&quot;</span><span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>curl<span class="w"> </span>-w<span class="w"> </span><span class="s2">"%{http_code}\n"</span><span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>http://localhost:8120/api/v1/analyze<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;field_id&quot;:&quot;test&quot;,&quot;crop_type&quot;:&quot;wheat&quot;}&#39;</span>
+<span class="w">    </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-d<span class="w"> </span><span class="s1">'{"field_id":"test","crop_type":"wheat"}'</span>
 <span class="k">done</span>
 
 <span class="c1"># Test IoT Gateway sensor reading</span>
 <span class="k">for</span><span class="w"> </span>i<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="o">{</span><span class="m">1</span>..70<span class="o">}</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
-<span class="w">  </span>curl<span class="w"> </span>-w<span class="w"> </span><span class="s2">&quot;%{http_code}\n&quot;</span><span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>curl<span class="w"> </span>-w<span class="w"> </span><span class="s2">"%{http_code}\n"</span><span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>http://localhost:8106/sensor/reading<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;device_id&quot;:&quot;test&quot;,&quot;tenant_id&quot;:&quot;default&quot;,&quot;field_id&quot;:&quot;f1&quot;,&quot;sensor_type&quot;:&quot;temperature&quot;,&quot;value&quot;:25.5}&#39;</span>
+<span class="w">    </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-d<span class="w"> </span><span class="s1">'{"device_id":"test","tenant_id":"default","field_id":"f1","sensor_type":"temperature","value":25.5}'</span>
 <span class="k">done</span>
 </code></pre></div>
 
 <h3 id="2-load-testing">2. Load Testing<a class="headerlink" href="#2-load-testing" title="Permanent link">&para;</a></h3>
 <p>Use tools like Apache Bench or Locust:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Test with Apache Bench</span>
-ab<span class="w"> </span>-n<span class="w"> </span><span class="m">1000</span><span class="w"> </span>-c<span class="w"> </span><span class="m">10</span><span class="w"> </span>-T<span class="w"> </span><span class="s1">&#39;application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+ab<span class="w"> </span>-n<span class="w"> </span><span class="m">1000</span><span class="w"> </span>-c<span class="w"> </span><span class="m">10</span><span class="w"> </span>-T<span class="w"> </span><span class="s1">'application/json'</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-p<span class="w"> </span>request.json<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>http://localhost:8120/api/v1/analyze
 
@@ -1446,17 +1446,17 @@ locust<span class="w"> </span>-f<span class="w"> </span>load_test.py<span class=
 redis-cli<span class="w"> </span>-h<span class="w"> </span>redis<span class="w"> </span>ping
 
 <span class="c1"># View rate limit keys</span>
-redis-cli<span class="w"> </span>-h<span class="w"> </span>redis<span class="w"> </span>KEYS<span class="w"> </span><span class="s2">&quot;ratelimit:*&quot;</span>
+redis-cli<span class="w"> </span>-h<span class="w"> </span>redis<span class="w"> </span>KEYS<span class="w"> </span><span class="s2">"ratelimit:*"</span>
 
 <span class="c1"># Check service logs</span>
-docker<span class="w"> </span>logs<span class="w"> </span>sahool-ai-agents-core<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;rate&quot;</span>
-docker<span class="w"> </span>logs<span class="w"> </span>sahool-iot-gateway<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;rate&quot;</span>
+docker<span class="w"> </span>logs<span class="w"> </span>sahool-ai-agents-core<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">"rate"</span>
+docker<span class="w"> </span>logs<span class="w"> </span>sahool-iot-gateway<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">"rate"</span>
 
 <span class="c1"># Test rate limit response</span>
 curl<span class="w"> </span>-v<span class="w"> </span>http://localhost:8120/api/v1/analyze<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;field_id&quot;:&quot;test&quot;,&quot;crop_type&quot;:&quot;wheat&quot;}&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;x-ratelimit&quot;</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"field_id":"test","crop_type":"wheat"}'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">"x-ratelimit"</span>
 </code></pre></div>
 
 <h2 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h2>
@@ -1535,10 +1535,10 @@ curl<span class="w"> </span>-v<span class="w"> </span>http://localhost:8120/api/
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

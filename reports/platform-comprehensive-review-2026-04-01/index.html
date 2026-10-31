@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1782,7 +1782,7 @@ All previous audit reports have been consolidated into this single authoritative
 
 <p><strong>قاعدة الاستيراد (مُطبَّقة عبر ESLint):</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// ✅ صحيح</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SERVICE_PORTS</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/shared-types/contracts&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SERVICE_PORTS</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@sahool/shared-types/contracts"</span><span class="p">;</span>
 <span class="c1">// ❌ خطأ — لا تعرّف ثوابت محلية</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">PORT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3000</span><span class="p">;</span>
 </code></pre></div>
@@ -1992,9 +1992,9 @@ All previous audit reports have been consolidated into this single authoritative
 <h3 id="51-jwt">5.1 بنية JWT<a class="headerlink" href="#51-jwt" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># shared/auth/config.py</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">JWTConfig</span><span class="p">:</span>
-    <span class="n">issuer</span>   <span class="o">=</span> <span class="s2">&quot;sahool-platform&quot;</span>
-    <span class="n">audience</span> <span class="o">=</span> <span class="s2">&quot;sahool-api&quot;</span>
-    <span class="n">algorithm</span> <span class="o">=</span> <span class="s2">&quot;HS256&quot;</span>  <span class="c1"># ⚠️ رأس واحد فقط — لا دعم لـ RS256/ES256</span>
+    <span class="n">issuer</span>   <span class="o">=</span> <span class="s2">"sahool-platform"</span>
+    <span class="n">audience</span> <span class="o">=</span> <span class="s2">"sahool-api"</span>
+    <span class="n">algorithm</span> <span class="o">=</span> <span class="s2">"HS256"</span>  <span class="c1"># ⚠️ رأس واحد فقط — لا دعم لـ RS256/ES256</span>
 </code></pre></div>
 
 <blockquote>
@@ -2142,7 +2142,7 @@ All previous audit reports have been consolidated into this single authoritative
 <h3 id="62-ssl">6.2 تكوين SSL<a class="headerlink" href="#62-ssl" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1">// shared/db/connection-pool-config.ts</span>
 <span class="c1">// SSL مُطبَّق افتراضياً:</span>
-<span class="nx">url</span><span class="p">.</span><span class="nx">searchParams</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;sslmode&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;require&#39;</span><span class="p">);</span>
+<span class="nx">url</span><span class="p">.</span><span class="nx">searchParams</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">'sslmode'</span><span class="p">,</span><span class="w"> </span><span class="s1">'require'</span><span class="p">);</span>
 </code></pre></div>
 
 <blockquote>
@@ -2159,11 +2159,11 @@ All previous audit reports have been consolidated into this single authoritative
 <h2 id="7-event-system-nats">7. 📡 نظام الأحداث — Event System (NATS)<a class="headerlink" href="#7-event-system-nats" title="Permanent link">&para;</a></h2>
 <h3 id="71">7.1 مواضيع الأحداث الرئيسية<a class="headerlink" href="#71" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># shared/events/subjects.py — أنماط المواضيع</span>
-<span class="n">SAHOOL_FIELD_CREATED</span>    <span class="o">=</span> <span class="s2">&quot;sahool.field.created&quot;</span>
-<span class="n">SAHOOL_WEATHER_ALERT</span>    <span class="o">=</span> <span class="s2">&quot;sahool.weather.alert&quot;</span>
-<span class="n">SAHOOL_SATELLITE_</span><span class="o">*</span>      <span class="o">=</span> <span class="s2">&quot;sahool.satellite.*&quot;</span>
+<span class="n">SAHOOL_FIELD_CREATED</span>    <span class="o">=</span> <span class="s2">"sahool.field.created"</span>
+<span class="n">SAHOOL_WEATHER_ALERT</span>    <span class="o">=</span> <span class="s2">"sahool.weather.alert"</span>
+<span class="n">SAHOOL_SATELLITE_</span><span class="o">*</span>      <span class="o">=</span> <span class="s2">"sahool.satellite.*"</span>
 <span class="c1"># مخصصة للمستأجر:</span>
-<span class="n">SAHOOL_TENANT_</span><span class="o">*</span>         <span class="o">=</span> <span class="s2">&quot;sahool.tenant.</span><span class="si">{tenant_id}</span><span class="s2">.</span><span class="si">{domain}</span><span class="s2">.</span><span class="si">{action}</span><span class="s2">&quot;</span>
+<span class="n">SAHOOL_TENANT_</span><span class="o">*</span>         <span class="o">=</span> <span class="s2">"sahool.tenant.</span><span class="si">{tenant_id}</span><span class="s2">.</span><span class="si">{domain}</span><span class="s2">.</span><span class="si">{action}</span><span class="s2">"</span>
 </code></pre></div>
 
 <h3 id="72-streams">7.2 Streams المحددة<a class="headerlink" href="#72-streams" title="Permanent link">&para;</a></h3>
@@ -2504,8 +2504,8 @@ vision, vra, wallet, weather
 <span class="nv">JWT_SECRET_KEY</span><span class="o">=</span>test-secret-key-for-unit-tests-only-32chars
 <span class="nv">JWT_ISSUER</span><span class="o">=</span>sahool-platform<span class="w">    </span><span class="c1"># مهم: القيمة الدقيقة</span>
 <span class="nv">JWT_AUDIENCE</span><span class="o">=</span>sahool-api<span class="w">       </span><span class="c1"># مهم: القيمة الدقيقة</span>
-<span class="nv">DATABASE_URL</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="w">               </span><span class="c1"># فارغ للاختبارات الوحدوية</span>
-<span class="nv">NATS_URL</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+<span class="nv">DATABASE_URL</span><span class="o">=</span><span class="s2">""</span><span class="w">               </span><span class="c1"># فارغ للاختبارات الوحدوية</span>
+<span class="nv">NATS_URL</span><span class="o">=</span><span class="s2">""</span>
 </code></pre></div>
 
 <h3 id="113">11.3 تشغيل الاختبارات<a class="headerlink" href="#113" title="Permanent link">&para;</a></h3>
@@ -3938,7 +3938,7 @@ FAILED tests/unit/ai/test_knowledge_crag_comprehensive.py
 
 FAILED tests/unit/test_infrastructure_fixes.py
        ::TestNoGhostServices::test_all_kong_services_have_docker_container
-       → Kong service &#39;chat-service-health&#39; has no Docker container
+       → Kong service 'chat-service-health' has no Docker container
 
 FAILED tests/unit/test_infrastructure_fixes.py
        ::TestKongConfigIntegrity::test_kong_service_count_reasonable
@@ -4143,10 +4143,10 @@ FAILED tests/unit/test_water_management.py
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

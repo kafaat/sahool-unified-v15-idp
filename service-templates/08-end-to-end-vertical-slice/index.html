@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1542,7 +1542,7 @@ Reply unified <span class="sb">`{success, data, meta}`</span> envelope back thro
 </code></pre></div>
 
 <h3 id="b-send-chat-message-pattern-01-nestjs-pattern-06-bridge">B. Send chat message (Pattern 01 · NestJS + Pattern 06 bridge)<a class="headerlink" href="#b-send-chat-message-pattern-01-nestjs-pattern-06-bridge" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code>Web   Socket.IO &#39;send_message&#39; event                apps/web/src/features/chat/…
+<div class="codehilite"><pre><span></span><code>Web   Socket.IO 'send_message' event                apps/web/src/features/chat/…
 Kong  (for HTTP-initiated auth handshake only; WS lives on ws-gateway after upgrade)
 Service ChatGateway.handleSendMessage
   → ChatService.sendMessage(dto, tenantId)
@@ -1573,11 +1573,11 @@ Web   Socket.IO broadcast back to conversation room
 <span class="n">Kong</span><span class="w">    </span><span class="n">JWT</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">rate</span><span class="o">-</span><span class="n">limit</span><span class="w"> </span><span class="p">(</span><span class="n">Enterprise</span><span class="w"> </span><span class="n">tier</span><span class="p">:</span><span class="w"> </span><span class="mi">120</span><span class="w"> </span><span class="n">req</span><span class="o">/</span><span class="nb">min</span><span class="p">)</span>
 <span class="n">Service</span><span class="w"> </span><span class="n">yolo26</span><span class="o">-</span><span class="n">vision</span><span class="o">-</span><span class="n">service</span><span class="p">:</span><span class="mi">8150</span>
 <span class="w">  </span><span class="err">→</span><span class="w"> </span><span class="n">guard</span><span class="p">:</span><span class="w"> </span><span class="n">content</span><span class="o">-</span><span class="n">type</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="err">≤</span><span class="w"> </span><span class="n">MAX_UPLOAD_SIZE_MB</span>
-<span class="w">  </span><span class="err">→</span><span class="w"> </span><span class="n">ModelManager</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;pest&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">variant</span><span class="o">=</span><span class="s1">&#39;m&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="n">LRU</span><span class="w"> </span><span class="n">cache</span><span class="p">)</span>
+<span class="w">  </span><span class="err">→</span><span class="w"> </span><span class="n">ModelManager</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'pest'</span><span class="p">,</span><span class="w"> </span><span class="n">variant</span><span class="o">=</span><span class="s1">'m'</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="n">LRU</span><span class="w"> </span><span class="n">cache</span><span class="p">)</span>
 <span class="w">  </span><span class="err">→</span><span class="w"> </span><span class="n">inference</span><span class="w"> </span><span class="p">(</span><span class="n">FP16</span><span class="p">,</span><span class="w"> </span><span class="o">&lt;</span><span class="mi">500</span><span class="w"> </span><span class="n">ms</span><span class="w"> </span><span class="n">P95</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="n">RTX</span><span class="w"> </span><span class="mi">3090</span><span class="p">)</span>
 <span class="w">  </span><span class="err">→</span><span class="w"> </span><span class="n">post</span><span class="o">-</span><span class="n">process</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">NMS</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">severity</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">recommendations</span><span class="w"> </span><span class="p">(</span><span class="n">bilingual</span><span class="p">)</span>
 <span class="w">  </span><span class="err">→</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">critical</span><span class="p">:</span><span class="w"> </span><span class="n">publish</span><span class="w"> </span><span class="n">sahool</span><span class="o">.</span><span class="n">vision</span><span class="o">.</span><span class="n">critical</span><span class="o">.</span><span class="n">alert</span>
-<span class="n">Reply</span><span class="w"> </span><span class="err">`</span><span class="p">{</span><span class="n">detections</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="o">...</span><span class="p">],</span><span class="w"> </span><span class="n">model</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;m&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">inference_ms</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">}</span><span class="err">`</span>
+<span class="n">Reply</span><span class="w"> </span><span class="err">`</span><span class="p">{</span><span class="n">detections</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="o">...</span><span class="p">],</span><span class="w"> </span><span class="n">model</span><span class="p">:</span><span class="w"> </span><span class="s1">'m'</span><span class="p">,</span><span class="w"> </span><span class="n">inference_ms</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">}</span><span class="err">`</span>
 </code></pre></div>
 
 <hr />
@@ -1709,10 +1709,10 @@ Web   Socket.IO broadcast back to conversation room
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

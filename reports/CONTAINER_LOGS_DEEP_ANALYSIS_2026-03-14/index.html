@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1231,8 +1231,8 @@
 <p><strong>Verification Result:</strong> <strong>Confirmed</strong> — <code>infrastructure/core/postgres/init/04-mlflow-db.sql</code> line 23-24 still contains <code>\gexec</code> psql meta-command. However, note that the script first logs a NOTICE via a valid <code>DO $$</code> block (lines 10-19) indicating the database needs creating. The <code>\gexec</code> line is a secondary attempt.</p>
 </blockquote>
 <p><strong>File:</strong> <code>infrastructure/core/postgres/init/04-mlflow-db.sql</code> (Line 24)</p>
-<div class="codehilite"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="s1">&#39;CREATE DATABASE mlflow&#39;</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">pg_database</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">datname</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;mlflow&#39;</span><span class="p">)</span><span class="err">\</span><span class="n">gexec</span>
+<div class="codehilite"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="s1">'CREATE DATABASE mlflow'</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">pg_database</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">datname</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'mlflow'</span><span class="p">)</span><span class="err">\</span><span class="n">gexec</span>
 </code></pre></div>
 
 <p><strong>Root Cause:</strong> <code>\gexec</code> is a psql meta-command, not valid SQL. Docker's init runs SQL files via <code>psql -f</code>, so <code>\gexec</code> actually WORKS in Docker init context (unlike being sent as raw SQL). However, this is fragile — it depends on the init runner being psql.</p>
@@ -1241,8 +1241,8 @@
 <p><strong>Fix:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="k">DO</span><span class="w"> </span><span class="err">$$</span>
 <span class="k">BEGIN</span>
-<span class="w">    </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">pg_database</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">datname</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;mlflow&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
-<span class="w">        </span><span class="n">PERFORM</span><span class="w"> </span><span class="n">dblink_exec</span><span class="p">(</span><span class="s1">&#39;dbname=postgres&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;CREATE DATABASE mlflow&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">pg_database</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">datname</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'mlflow'</span><span class="p">)</span><span class="w"> </span><span class="k">THEN</span>
+<span class="w">        </span><span class="n">PERFORM</span><span class="w"> </span><span class="n">dblink_exec</span><span class="p">(</span><span class="s1">'dbname=postgres'</span><span class="p">,</span><span class="w"> </span><span class="s1">'CREATE DATABASE mlflow'</span><span class="p">);</span>
 <span class="w">    </span><span class="k">END</span><span class="w"> </span><span class="k">IF</span><span class="p">;</span>
 <span class="k">END</span><span class="w"> </span><span class="err">$$</span><span class="p">;</span>
 </code></pre></div>
@@ -1261,7 +1261,7 @@ T=18s   02-pgbouncer-user.sql creates the schema (too late)
 
 <p><strong>Current Code (Fixed):</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Phase 2: Wait for init scripts to complete by checking for pgbouncer schema</span>
-<span class="nv">_schema_exists</span><span class="o">=</span><span class="k">$(</span><span class="nv">PGPASSWORD</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$DB_PASSWORD</span><span class="s2">&quot;</span><span class="w"> </span>psql<span class="w"> </span>...<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SELECT EXISTS(SELECT 1 FROM information_schema.schemata WHERE schema_name = &#39;pgbouncer&#39;)&quot;</span><span class="w"> </span>...<span class="k">)</span>
+<span class="nv">_schema_exists</span><span class="o">=</span><span class="k">$(</span><span class="nv">PGPASSWORD</span><span class="o">=</span><span class="s2">"</span><span class="nv">$DB_PASSWORD</span><span class="s2">"</span><span class="w"> </span>psql<span class="w"> </span>...<span class="w"> </span>-c<span class="w"> </span><span class="s2">"SELECT EXISTS(SELECT 1 FROM information_schema.schemata WHERE schema_name = 'pgbouncer')"</span><span class="w"> </span>...<span class="k">)</span>
 </code></pre></div>
 
 <p><strong>Residual Risk:</strong> If psql cannot be installed (locked-down environment), falls back to 15s fixed delay which may still be insufficient.</p>
@@ -1269,8 +1269,8 @@ T=18s   02-pgbouncer-user.sql creates the schema (too late)
 <hr />
 <h3 id="14-high-missing-calibration_run-table-query">1.4 HIGH: Missing <code>calibration_run</code> Table Query<a class="headerlink" href="#14-high-missing-calibration_run-table-query" title="Permanent link">&para;</a></h3>
 <p><strong>Log Evidence:</strong></p>
-<div class="codehilite"><pre><span></span><code>sahool-postgres | ERROR: relation &quot;calibration_run&quot; does not exist
-sahool-postgres | STATEMENT: SELECT id::text, tenant_id, field_id ... FROM calibration_run WHERE status = &#39;queued&#39;
+<div class="codehilite"><pre><span></span><code>sahool-postgres | ERROR: relation "calibration_run" does not exist
+sahool-postgres | STATEMENT: SELECT id::text, tenant_id, field_id ... FROM calibration_run WHERE status = 'queued'
 </code></pre></div>
 
 <p><strong>Root Cause:</strong> Service queries <code>calibration_run</code> before <code>07-calibration-tables.sql</code> finishes executing.</p>
@@ -1314,8 +1314,8 @@ sahool-pgbouncer | LOG: closing because: server lifetime over (age=1844674407370
 </blockquote>
 <p><strong>Current Code (Fixed):</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Write parsed data to temp file from subshell</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$POOL_DATA</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="nv">IFS</span><span class="o">=</span><span class="s1">&#39;|&#39;</span><span class="w"> </span><span class="nb">read</span><span class="w"> </span>-r<span class="w"> </span>...<span class="w"> </span><span class="k">do</span>
-<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$cl_active</span><span class="s2"> </span><span class="nv">$cl_waiting</span><span class="s2"> </span><span class="nv">$sv_active</span><span class="s2"> </span><span class="nv">$sv_idle</span><span class="s2"> </span><span class="nv">$maxwait</span><span class="s2">&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"</span><span class="nv">$POOL_DATA</span><span class="s2">"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="nv">IFS</span><span class="o">=</span><span class="s1">'|'</span><span class="w"> </span><span class="nb">read</span><span class="w"> </span>-r<span class="w"> </span>...<span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"</span><span class="nv">$cl_active</span><span class="s2"> </span><span class="nv">$cl_waiting</span><span class="s2"> </span><span class="nv">$sv_active</span><span class="s2"> </span><span class="nv">$sv_idle</span><span class="s2"> </span><span class="nv">$maxwait</span><span class="s2">"</span>
 <span class="k">done</span><span class="w"> </span>&gt;<span class="w"> </span>/tmp/pgbouncer_pool_data.<span class="nv">$$</span>
 
 <span class="c1"># Read back in main shell (variables persist)</span>
@@ -1366,7 +1366,7 @@ rm<span class="w"> </span>-f<span class="w"> </span>/tmp/pgbouncer_pool_data.<sp
 <hr />
 <h3 id="33-high-wildcard-cors-origin">3.3 HIGH: Wildcard CORS Origin<a class="headerlink" href="#33-high-wildcard-cors-origin" title="Permanent link">&para;</a></h3>
 <p><strong>File:</strong> <code>infrastructure/gateway/kong/kong.yml</code> (Line 28)</p>
-<div class="codehilite"><pre><span></span><code><span class="nt">origins</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;*&quot;</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># Replace with ${KONG_CORS_ORIGINS:-*} in production</span>
+<div class="codehilite"><pre><span></span><code><span class="nt">origins</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"*"</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># Replace with ${KONG_CORS_ORIGINS:-*} in production</span>
 </code></pre></div>
 
 <p>Template syntax is NOT implemented — <code>*</code> is hardcoded. All origins are allowed.</p>
@@ -1448,7 +1448,7 @@ rm<span class="w"> </span>-f<span class="w"> </span>/tmp/pgbouncer_pool_data.<sp
 <h2 id="6-infrastructure-vault-sahool-vault">6. Infrastructure: Vault (sahool-vault)<a class="headerlink" href="#6-infrastructure-vault-sahool-vault" title="Permanent link">&para;</a></h2>
 <h3 id="61-critical-unsubstituted-cluster_addr-placeholder">6.1 CRITICAL: Unsubstituted cluster_addr Placeholder<a class="headerlink" href="#61-critical-unsubstituted-cluster_addr-placeholder" title="Permanent link">&para;</a></h3>
 <p><strong>File:</strong> <code>infrastructure/core/vault/vault-production.hcl</code> (Line 68)</p>
-<div class="codehilite"><pre><span></span><code><span class="na">cluster_addr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://VAULT_NODE_IP:8201&quot;</span>
+<div class="codehilite"><pre><span></span><code><span class="na">cluster_addr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"https://VAULT_NODE_IP:8201"</span>
 </code></pre></div>
 
 <p>Literal <code>VAULT_NODE_IP</code> is never substituted. Vault HA clustering will fail.</p>
@@ -1469,7 +1469,7 @@ rm<span class="w"> </span>-f<span class="w"> </span>/tmp/pgbouncer_pool_data.<sp
 <blockquote>
 <p><strong>Verification Result:</strong> <strong>Confirmed</strong> — the healthcheck uses <code>/proc/net/tcp</code> port check. However, the code includes a documented justification (docker-compose.yml lines 491-495): "qdrant/qdrant image is minimal Debian (no curl/wget/nc/bash). Use /proc/net/tcp to verify port 6333." A link to the Qdrant GitHub issue is provided. For full HTTP health, K8s <code>livenessProbe</code> against <code>/healthz</code> is recommended.</p>
 </blockquote>
-<div class="codehilite"><pre><span></span><code><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CMD-SHELL&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;grep</span><span class="nv"> </span><span class="s">-q</span><span class="nv"> </span><span class="s">&#39;:18BD&#39;</span><span class="nv"> </span><span class="s">/proc/net/tcp</span><span class="nv"> </span><span class="s">||</span><span class="nv"> </span><span class="s">exit</span><span class="nv"> </span><span class="s">1&quot;</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># 0x18BD = 6333</span>
+<div class="codehilite"><pre><span></span><code><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"CMD-SHELL"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"grep</span><span class="nv"> </span><span class="s">-q</span><span class="nv"> </span><span class="s">':18BD'</span><span class="nv"> </span><span class="s">/proc/net/tcp</span><span class="nv"> </span><span class="s">||</span><span class="nv"> </span><span class="s">exit</span><span class="nv"> </span><span class="s">1"</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># 0x18BD = 6333</span>
 </code></pre></div>
 
 <p><strong>Limitation:</strong> Only verifies TCP socket is listening; doesn't check HTTP readiness. This is a known limitation of the minimal Qdrant Docker image.</p>
@@ -1501,7 +1501,7 @@ rm<span class="w"> </span>-f<span class="w"> </span>/tmp/pgbouncer_pool_data.<sp
 <p>The pattern described in the original report (<code>app.state.nc.publish(...)</code> without null check) was <strong>not found</strong> in any verified service.</p>
 </blockquote>
 <p><strong>Typical Actual Pattern (found across all services):</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="s2">&quot;nc&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">nc</span><span class="p">:</span>
+<div class="codehilite"><pre><span></span><code><span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="s2">"nc"</span><span class="p">)</span> <span class="ow">and</span> <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">nc</span><span class="p">:</span>
     <span class="k">await</span> <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">nc</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span>
 </code></pre></div>
 
@@ -2003,7 +2003,7 @@ rm<span class="w"> </span>-f<span class="w"> </span>/tmp/pgbouncer_pool_data.<sp
 <div class="codehilite"><pre><span></span><code><span class="c1"># docker-compose.yml</span>
 <span class="nt">postgres</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">healthcheck</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CMD-SHELL&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;pg_isready</span><span class="nv"> </span><span class="s">-U</span><span class="nv"> </span><span class="s">sahool</span><span class="nv"> </span><span class="s">&amp;&amp;</span><span class="nv"> </span><span class="s">test</span><span class="nv"> </span><span class="s">-f</span><span class="nv"> </span><span class="s">/tmp/init-complete&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"CMD-SHELL"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"pg_isready</span><span class="nv"> </span><span class="s">-U</span><span class="nv"> </span><span class="s">sahool</span><span class="nv"> </span><span class="s">&amp;&amp;</span><span class="nv"> </span><span class="s">test</span><span class="nv"> </span><span class="s">-f</span><span class="nv"> </span><span class="s">/tmp/init-complete"</span><span class="p p-Indicator">]</span>
 <span class="w">    </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">15s</span>
 <span class="w">    </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10s</span>
 <span class="w">    </span><span class="nt">retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
@@ -2015,17 +2015,17 @@ rm<span class="w"> </span>-f<span class="w"> </span>/tmp/pgbouncer_pool_data.<sp
 <p>Create a shared startup validator for all Python services:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># shared/startup.py</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">validate_startup</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="n">FastAPI</span><span class="p">,</span> <span class="n">require_db</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">require_nats</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate all required connections before accepting traffic.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Validate all required connections before accepting traffic."""</span>
     <span class="k">if</span> <span class="n">require_db</span><span class="p">:</span>
-        <span class="n">db_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DATABASE_URL&quot;</span><span class="p">)</span>
+        <span class="n">db_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"DATABASE_URL"</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">db_url</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;DATABASE_URL not set&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"DATABASE_URL not set"</span><span class="p">)</span>
             <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">db_pool</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncpg</span><span class="o">.</span><span class="n">create_pool</span><span class="p">(</span><span class="n">db_url</span><span class="p">)</span>
         <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">db_connected</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="k">if</span> <span class="n">require_nats</span><span class="p">:</span>
-        <span class="n">nats_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;NATS_URL&quot;</span><span class="p">)</span>
+        <span class="n">nats_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"NATS_URL"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">nats_url</span><span class="p">:</span>
             <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">nc</span> <span class="o">=</span> <span class="k">await</span> <span class="n">nats</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">nats_url</span><span class="p">)</span>
             <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">nats_connected</span> <span class="o">=</span> <span class="kc">True</span>
@@ -2285,10 +2285,10 @@ rm<span class="w"> </span>-f<span class="w"> </span>/tmp/pgbouncer_pool_data.<sp
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1284,7 +1284,7 @@
 <h3 id="1-cache-stampede-protection">1. Cache Stampede Protection<a class="headerlink" href="#1-cache-stampede-protection" title="Permanent link">&para;</a></h3>
 <p>Prevents multiple concurrent requests from overwhelming the database when cache expires.</p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Automatic stampede protection</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">cacheManager</span><span class="p">.</span><span class="nx">getOrFetch</span><span class="p">(</span><span class="s2">&quot;expensive-key&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">cacheManager</span><span class="p">.</span><span class="nx">getOrFetch</span><span class="p">(</span><span class="s2">"expensive-key"</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="c1">// Only ONE request executes this, even with 100 concurrent calls</span>
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">expensiveOperation</span><span class="p">();</span>
 <span class="p">});</span>
@@ -1295,7 +1295,7 @@
 <p>Proactive loading of frequently accessed data to reduce cold start latency.</p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Register warming strategy</span>
 <span class="nx">cacheWarming</span><span class="p">.</span><span class="nx">registerStrategy</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;user-validation-warming&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">"user-validation-warming"</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">getKeys</span><span class="o">:</span><span class="w"> </span><span class="kt">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">getTopActiveUsers</span><span class="p">(),</span>
 <span class="w">  </span><span class="nx">fetcher</span><span class="o">:</span><span class="w"> </span><span class="kt">async</span><span class="w"> </span><span class="p">(</span><span class="nx">key</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">fetchUserData</span><span class="p">(</span><span class="nx">key</span><span class="p">),</span>
 <span class="w">  </span><span class="nx">ttl</span><span class="o">:</span><span class="w"> </span><span class="kt">CacheTTL.USER_VALIDATION</span><span class="p">,</span>
@@ -1317,7 +1317,7 @@
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">health</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">cacheMetrics</span><span class="p">.</span><span class="nx">getHealthStatus</span><span class="p">();</span>
 <span class="c1">// {</span>
-<span class="c1">//   status: &#39;healthy&#39;,</span>
+<span class="c1">//   status: 'healthy',</span>
 <span class="c1">//   issues: [],</span>
 <span class="c1">//   recommendations: []</span>
 <span class="c1">// }</span>
@@ -1458,7 +1458,7 @@
 </code></pre></div>
 
 <h3 id="cache-warming">Cache Warming<a class="headerlink" href="#cache-warming" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="k">await</span><span class="w"> </span><span class="nx">cacheWarming</span><span class="p">.</span><span class="nx">warmNow</span><span class="p">(</span><span class="s2">&quot;user-validation-warming&quot;</span><span class="p">);</span>
+<div class="codehilite"><pre><span></span><code><span class="k">await</span><span class="w"> </span><span class="nx">cacheWarming</span><span class="p">.</span><span class="nx">warmNow</span><span class="p">(</span><span class="s2">"user-validation-warming"</span><span class="p">);</span>
 </code></pre></div>
 
 <hr />
@@ -1479,8 +1479,8 @@
 </code></pre></div>
 
 <h3 id="2-nestjs-module-setup">2. NestJS Module Setup<a class="headerlink" href="#2-nestjs-module-setup" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">CacheMetricsService</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@shared/cache/cache-metrics.service&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">CacheWarmingService</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@shared/cache/cache-warming.service&quot;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">CacheMetricsService</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@shared/cache/cache-metrics.service"</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">CacheWarmingService</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@shared/cache/cache-warming.service"</span><span class="p">;</span>
 
 <span class="kd">@Module</span><span class="p">({</span>
 <span class="w">  </span><span class="nx">providers</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">CacheMetricsService</span><span class="p">,</span><span class="w"> </span><span class="nx">CacheWarmingService</span><span class="p">],</span>
@@ -1521,11 +1521,11 @@ curl<span class="w"> </span>http://localhost:3000/health/cache
 <div class="codehilite"><pre><span></span><code>GET<span class="w"> </span>/health/cache
 
 <span class="o">{</span>
-<span class="w">  </span><span class="s2">&quot;status&quot;</span>:<span class="w"> </span><span class="s2">&quot;healthy&quot;</span>,
-<span class="w">  </span><span class="s2">&quot;hitRate&quot;</span>:<span class="w"> </span><span class="m">0</span>.85,
-<span class="w">  </span><span class="s2">&quot;errorRate&quot;</span>:<span class="w"> </span><span class="m">0</span>.001,
-<span class="w">  </span><span class="s2">&quot;issues&quot;</span>:<span class="w"> </span><span class="o">[]</span>,
-<span class="w">  </span><span class="s2">&quot;recommendations&quot;</span>:<span class="w"> </span><span class="o">[]</span>
+<span class="w">  </span><span class="s2">"status"</span>:<span class="w"> </span><span class="s2">"healthy"</span>,
+<span class="w">  </span><span class="s2">"hitRate"</span>:<span class="w"> </span><span class="m">0</span>.85,
+<span class="w">  </span><span class="s2">"errorRate"</span>:<span class="w"> </span><span class="m">0</span>.001,
+<span class="w">  </span><span class="s2">"issues"</span>:<span class="w"> </span><span class="o">[]</span>,
+<span class="w">  </span><span class="s2">"recommendations"</span>:<span class="w"> </span><span class="o">[]</span>
 <span class="o">}</span>
 </code></pre></div>
 
@@ -1533,12 +1533,12 @@ curl<span class="w"> </span>http://localhost:3000/health/cache
 <div class="codehilite"><pre><span></span><code>GET<span class="w"> </span>/metrics/cache
 
 <span class="o">{</span>
-<span class="w">  </span><span class="s2">&quot;hits&quot;</span>:<span class="w"> </span><span class="m">15000</span>,
-<span class="w">  </span><span class="s2">&quot;misses&quot;</span>:<span class="w"> </span><span class="m">2500</span>,
-<span class="w">  </span><span class="s2">&quot;hitRate&quot;</span>:<span class="w"> </span><span class="m">0</span>.857,
-<span class="w">  </span><span class="s2">&quot;stampedePreventions&quot;</span>:<span class="w"> </span><span class="m">150</span>,
-<span class="w">  </span><span class="s2">&quot;averageGetLatency&quot;</span>:<span class="w"> </span><span class="m">2</span>.1,
-<span class="w">  </span><span class="s2">&quot;averageSetLatency&quot;</span>:<span class="w"> </span><span class="m">3</span>.2
+<span class="w">  </span><span class="s2">"hits"</span>:<span class="w"> </span><span class="m">15000</span>,
+<span class="w">  </span><span class="s2">"misses"</span>:<span class="w"> </span><span class="m">2500</span>,
+<span class="w">  </span><span class="s2">"hitRate"</span>:<span class="w"> </span><span class="m">0</span>.857,
+<span class="w">  </span><span class="s2">"stampedePreventions"</span>:<span class="w"> </span><span class="m">150</span>,
+<span class="w">  </span><span class="s2">"averageGetLatency"</span>:<span class="w"> </span><span class="m">2</span>.1,
+<span class="w">  </span><span class="s2">"averageSetLatency"</span>:<span class="w"> </span><span class="m">3</span>.2
 <span class="o">}</span>
 </code></pre></div>
 
@@ -1667,10 +1667,10 @@ curl<span class="w"> </span>http://localhost:3000/health/cache
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

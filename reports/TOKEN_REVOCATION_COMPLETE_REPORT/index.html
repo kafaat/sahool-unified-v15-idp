@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1384,8 +1384,8 @@ docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </sp
 </code></pre></div>
 
 <p><strong>TypeScript (NestJS):</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">APP_GUARD</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@nestjs/core&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">TokenRevocationGuard</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@shared/auth/token-revocation.guard&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">APP_GUARD</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@nestjs/core'</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">TokenRevocationGuard</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@shared/auth/token-revocation.guard'</span><span class="p">;</span>
 
 <span class="p">{</span>
 <span class="w">  </span><span class="nx">provide</span><span class="o">:</span><span class="w"> </span><span class="kt">APP_GUARD</span><span class="p">,</span>
@@ -1401,7 +1401,7 @@ docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </sp
 </code></pre></div>
 
 <p><strong>TypeScript:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">RevocationController</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@shared/auth/revocation.controller&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">RevocationController</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@shared/auth/revocation.controller'</span><span class="p">;</span>
 
 <span class="kd">@Module</span><span class="p">({</span>
 <span class="w">  </span><span class="nx">controllers</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">RevocationController</span><span class="p">],</span>
@@ -1414,7 +1414,7 @@ curl<span class="w"> </span>http://localhost:3000/auth/revocation/health
 
 <span class="c1"># Test logout</span>
 curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3000/auth/revocation/revoke-current<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Authorization: Bearer YOUR_TOKEN"</span>
 </code></pre></div>
 
 <h3 id="6-monitor-and-maintain">6. Monitor and Maintain<a class="headerlink" href="#6-monitor-and-maintain" title="Permanent link">&para;</a></h3>
@@ -1452,47 +1452,47 @@ curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </spa
 <h3 id="user-logout-python">User Logout (Python)<a class="headerlink" href="#user-logout-python" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.auth</span><span class="w"> </span><span class="kn">import</span> <span class="n">revoke_token</span><span class="p">,</span> <span class="n">verify_token</span>
 
-<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/logout&quot;</span><span class="p">)</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">"/logout"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">logout</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
-    <span class="n">token</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s2">&quot;Authorization&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">token</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s2">"Authorization"</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">" "</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">payload</span> <span class="o">=</span> <span class="n">verify_token</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
-    <span class="k">await</span> <span class="n">revoke_token</span><span class="p">(</span><span class="n">jti</span><span class="o">=</span><span class="n">payload</span><span class="o">.</span><span class="n">jti</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;user_logout&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Logged out successfully&quot;</span><span class="p">}</span>
+    <span class="k">await</span> <span class="n">revoke_token</span><span class="p">(</span><span class="n">jti</span><span class="o">=</span><span class="n">payload</span><span class="o">.</span><span class="n">jti</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s2">"user_logout"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">"message"</span><span class="p">:</span> <span class="s2">"Logged out successfully"</span><span class="p">}</span>
 </code></pre></div>
 
 <h3 id="user-logout-typescript">User Logout (TypeScript)<a class="headerlink" href="#user-logout-typescript" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="kd">@Post</span><span class="p">(</span><span class="s1">&#39;logout&#39;</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><code><span class="kd">@Post</span><span class="p">(</span><span class="s1">'logout'</span><span class="p">)</span>
 <span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">)</span>
 <span class="k">async</span><span class="w"> </span><span class="nx">logout</span><span class="p">(</span><span class="kd">@Request</span><span class="p">()</span><span class="w"> </span><span class="nx">req</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">headers</span><span class="p">.</span><span class="nx">authorization</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)[</span><span class="mf">1</span><span class="p">];</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">headers</span><span class="p">.</span><span class="nx">authorization</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s1">' '</span><span class="p">)[</span><span class="mf">1</span><span class="p">];</span>
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">payload</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">jwtService</span><span class="p">.</span><span class="nx">decode</span><span class="p">(</span><span class="nx">token</span><span class="p">);</span>
 <span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">revocationStore</span><span class="p">.</span><span class="nx">revokeToken</span><span class="p">(</span><span class="nx">payload</span><span class="p">.</span><span class="nx">jti</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">reason</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;user_logout&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">reason</span><span class="o">:</span><span class="w"> </span><span class="s1">'user_logout'</span><span class="p">,</span>
 <span class="w">  </span><span class="p">});</span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Logged out successfully&#39;</span><span class="w"> </span><span class="p">};</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="s1">'Logged out successfully'</span><span class="w"> </span><span class="p">};</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <h3 id="password-change-python">Password Change (Python)<a class="headerlink" href="#password-change-python" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.auth</span><span class="w"> </span><span class="kn">import</span> <span class="n">revoke_all_user_tokens</span>
 
-<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/change-password&quot;</span><span class="p">)</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">"/change-password"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">change_password</span><span class="p">(</span><span class="n">user_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
     <span class="c1"># Update password...</span>
-    <span class="k">await</span> <span class="n">revoke_all_user_tokens</span><span class="p">(</span><span class="n">user_id</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;password_change&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Password changed. Please login again.&quot;</span><span class="p">}</span>
+    <span class="k">await</span> <span class="n">revoke_all_user_tokens</span><span class="p">(</span><span class="n">user_id</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s2">"password_change"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">"message"</span><span class="p">:</span> <span class="s2">"Password changed. Please login again."</span><span class="p">}</span>
 </code></pre></div>
 
 <h3 id="password-change-typescript">Password Change (TypeScript)<a class="headerlink" href="#password-change-typescript" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="kd">@Post</span><span class="p">(</span><span class="s1">&#39;change-password&#39;</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><code><span class="kd">@Post</span><span class="p">(</span><span class="s1">'change-password'</span><span class="p">)</span>
 <span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">)</span>
 <span class="k">async</span><span class="w"> </span><span class="nx">changePassword</span><span class="p">(</span><span class="kd">@Body</span><span class="p">()</span><span class="w"> </span><span class="nx">dto</span><span class="o">:</span><span class="w"> </span><span class="kt">ChangePasswordDto</span><span class="p">,</span><span class="w"> </span><span class="kd">@Request</span><span class="p">()</span><span class="w"> </span><span class="nx">req</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="c1">// Update password...</span>
 <span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">revocationStore</span><span class="p">.</span><span class="nx">revokeAllUserTokens</span><span class="p">(</span>
 <span class="w">    </span><span class="nx">req</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span>
-<span class="w">    </span><span class="s1">&#39;password_change&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">'password_change'</span><span class="p">,</span>
 <span class="w">  </span><span class="p">);</span>
-<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Password changed. Please login again.&#39;</span><span class="w"> </span><span class="p">};</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="s1">'Password changed. Please login again.'</span><span class="w"> </span><span class="p">};</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1706,10 +1706,10 @@ curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </spa
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

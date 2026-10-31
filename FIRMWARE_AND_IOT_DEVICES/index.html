@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1866,14 +1866,14 @@
 <h2 id="device-registration">Device Registration | تسجيل الأجهزة<a class="headerlink" href="#device-registration" title="Permanent link">&para;</a></h2>
 <h3 id="device-types">Device Types | أنواع الأجهزة<a class="headerlink" href="#device-types" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DeviceType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-    <span class="n">SOIL_SENSOR</span> <span class="o">=</span> <span class="s2">&quot;soil_sensor&quot;</span>           <span class="c1"># مستشعر تربة</span>
-    <span class="n">WEATHER_STATION</span> <span class="o">=</span> <span class="s2">&quot;weather_station&quot;</span>   <span class="c1"># محطة طقس</span>
-    <span class="n">WATER_SENSOR</span> <span class="o">=</span> <span class="s2">&quot;water_sensor&quot;</span>         <span class="c1"># مستشعر مياه</span>
-    <span class="n">FLOW_METER</span> <span class="o">=</span> <span class="s2">&quot;flow_meter&quot;</span>             <span class="c1"># عداد تدفق</span>
-    <span class="n">VALVE_CONTROLLER</span> <span class="o">=</span> <span class="s2">&quot;valve_controller&quot;</span> <span class="c1"># التحكم بالصمام</span>
-    <span class="n">GATEWAY</span> <span class="o">=</span> <span class="s2">&quot;gateway&quot;</span>                   <span class="c1"># بوابة</span>
-    <span class="n">CAMERA</span> <span class="o">=</span> <span class="s2">&quot;camera&quot;</span>                     <span class="c1"># كاميرا</span>
-    <span class="n">UNKNOWN</span> <span class="o">=</span> <span class="s2">&quot;unknown&quot;</span>                   <span class="c1"># غير معروف</span>
+    <span class="n">SOIL_SENSOR</span> <span class="o">=</span> <span class="s2">"soil_sensor"</span>           <span class="c1"># مستشعر تربة</span>
+    <span class="n">WEATHER_STATION</span> <span class="o">=</span> <span class="s2">"weather_station"</span>   <span class="c1"># محطة طقس</span>
+    <span class="n">WATER_SENSOR</span> <span class="o">=</span> <span class="s2">"water_sensor"</span>         <span class="c1"># مستشعر مياه</span>
+    <span class="n">FLOW_METER</span> <span class="o">=</span> <span class="s2">"flow_meter"</span>             <span class="c1"># عداد تدفق</span>
+    <span class="n">VALVE_CONTROLLER</span> <span class="o">=</span> <span class="s2">"valve_controller"</span> <span class="c1"># التحكم بالصمام</span>
+    <span class="n">GATEWAY</span> <span class="o">=</span> <span class="s2">"gateway"</span>                   <span class="c1"># بوابة</span>
+    <span class="n">CAMERA</span> <span class="o">=</span> <span class="s2">"camera"</span>                     <span class="c1"># كاميرا</span>
+    <span class="n">UNKNOWN</span> <span class="o">=</span> <span class="s2">"unknown"</span>                   <span class="c1"># غير معروف</span>
 </code></pre></div>
 
 <h3 id="registration-process">Registration Process | عملية التسجيل<a class="headerlink" href="#registration-process" title="Permanent link">&para;</a></h3>
@@ -2055,23 +2055,23 @@
 <span class="err">X-Tenant-ID: {tenant_id}</span>
 
 <span class="err">{</span>
-<span class="err">  &quot;command&quot;: &quot;set_interval&quot;,</span>
-<span class="err">  &quot;parameters&quot;: {</span>
-<span class="err">    &quot;interval_seconds&quot;: 300</span>
+<span class="err">  "command": "set_interval",</span>
+<span class="err">  "parameters": {</span>
+<span class="err">    "interval_seconds": 300</span>
 <span class="err">  }</span>
 <span class="err">}</span>
 </code></pre></div>
 
 <h3 id="command-response">Command Response | استجابة الأوامر<a class="headerlink" href="#command-response" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;command_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;cmd_a1b2c3d4&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;device_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SM-100-001&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;set_interval&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pending&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;sent_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-01-24T10:30:00Z&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;acknowledged_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;completed_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;result&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span>
+<span class="w">  </span><span class="nt">"command_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cmd_a1b2c3d4"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"device_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SM-100-001"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"set_interval"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pending"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"sent_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-01-24T10:30:00Z"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"acknowledged_at"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"completed_at"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"result"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -2096,24 +2096,24 @@
 <span class="err">Content-Type: application/json</span>
 
 <span class="err">{</span>
-<span class="err">  &quot;command&quot;: &quot;update_firmware&quot;,</span>
-<span class="err">  &quot;parameters&quot;: {</span>
-<span class="err">    &quot;version&quot;: &quot;2.4.0&quot;,</span>
-<span class="err">    &quot;url&quot;: &quot;https://firmware.sahool.sa/SM-100/2.4.0.bin&quot;,</span>
-<span class="err">    &quot;checksum&quot;: &quot;sha256:abc123...&quot;,</span>
-<span class="err">    &quot;force&quot;: false</span>
+<span class="err">  "command": "update_firmware",</span>
+<span class="err">  "parameters": {</span>
+<span class="err">    "version": "2.4.0",</span>
+<span class="err">    "url": "https://firmware.sahool.sa/SM-100/2.4.0.bin",</span>
+<span class="err">    "checksum": "sha256:abc123...",</span>
+<span class="err">    "force": false</span>
 <span class="err">  }</span>
 <span class="err">}</span>
 </code></pre></div>
 
 <h3 id="update-status">Update Status | حالة التحديث<a class="headerlink" href="#update-status" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;firmware&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2.3.1&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;updateAvailable&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;latestVersion&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2.4.0&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;updateStatus&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;downloading&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;progress&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">45</span>
+<span class="w">  </span><span class="nt">"firmware"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2.3.1"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"updateAvailable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"latestVersion"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2.4.0"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"updateStatus"</span><span class="p">:</span><span class="w"> </span><span class="s2">"downloading"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"progress"</span><span class="p">:</span><span class="w"> </span><span class="mi">45</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -2165,18 +2165,18 @@
 </table>
 <h3 id="health-response">Health Response | استجابة الصحة<a class="headerlink" href="#health-response" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;device_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SM-100-001&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;online&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;health&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;battery_level&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">85</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;signal_strength&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">-65</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;uptime_percentage&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">99.5</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;drift_detected&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;last_successful_reading&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-01-24T10:25:00Z&quot;</span>
+<span class="w">  </span><span class="nt">"device_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SM-100-001"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"online"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"health"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"battery_level"</span><span class="p">:</span><span class="w"> </span><span class="mi">85</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"signal_strength"</span><span class="p">:</span><span class="w"> </span><span class="mi">-65</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"uptime_percentage"</span><span class="p">:</span><span class="w"> </span><span class="mf">99.5</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"drift_detected"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"last_successful_reading"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-01-24T10:25:00Z"</span>
 <span class="w">  </span><span class="p">},</span>
-<span class="w">  </span><span class="nt">&quot;firmware&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2.3.1&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;updateAvailable&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">  </span><span class="nt">"firmware"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2.3.1"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"updateAvailable"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -2185,7 +2185,7 @@
 <div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">SensorHealth</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
     <span class="n">sensor_id</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">sensor_type</span><span class="p">:</span> <span class="n">SensorType</span>
-    <span class="n">status</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;unknown&quot;</span>
+    <span class="n">status</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"unknown"</span>
     <span class="n">battery_level</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>      <span class="c1"># 0-100%</span>
     <span class="n">signal_strength</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>      <span class="c1"># dBm</span>
     <span class="n">last_reading_time</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
@@ -2274,19 +2274,19 @@
 </table>
 <h3 id="alert-configuration">Alert Configuration | تكوين التنبيهات<a class="headerlink" href="#alert-configuration" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="n">YEMEN_ALERT_THRESHOLDS</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;soil_moisture&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;warning_low&quot;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span>
-        <span class="s2">&quot;warning_high&quot;</span><span class="p">:</span> <span class="mi">80</span><span class="p">,</span>
-        <span class="s2">&quot;critical_low&quot;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
-        <span class="s2">&quot;critical_high&quot;</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span>
-        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;%&quot;</span>
+    <span class="s2">"soil_moisture"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"warning_low"</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span>
+        <span class="s2">"warning_high"</span><span class="p">:</span> <span class="mi">80</span><span class="p">,</span>
+        <span class="s2">"critical_low"</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+        <span class="s2">"critical_high"</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span>
+        <span class="s2">"unit"</span><span class="p">:</span> <span class="s2">"%"</span>
     <span class="p">},</span>
-    <span class="s2">&quot;air_temperature&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;warning_low&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
-        <span class="s2">&quot;warning_high&quot;</span><span class="p">:</span> <span class="mi">40</span><span class="p">,</span>
-        <span class="s2">&quot;critical_low&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="s2">&quot;critical_high&quot;</span><span class="p">:</span> <span class="mi">45</span><span class="p">,</span>
-        <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;°C&quot;</span>
+    <span class="s2">"air_temperature"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"warning_low"</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="s2">"warning_high"</span><span class="p">:</span> <span class="mi">40</span><span class="p">,</span>
+        <span class="s2">"critical_low"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">"critical_high"</span><span class="p">:</span> <span class="mi">45</span><span class="p">,</span>
+        <span class="s2">"unit"</span><span class="p">:</span> <span class="s2">"°C"</span>
     <span class="p">}</span>
     <span class="c1"># ... additional thresholds</span>
 <span class="p">}</span>
@@ -2538,10 +2538,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

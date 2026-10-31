@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1298,7 +1298,7 @@ sudo<span class="w"> </span>./scripts/security/harden-docker.sh<span class="w"> 
 <h4 id="authentication">Authentication<a class="headerlink" href="#authentication" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Enable SCRAM-SHA-256 password encryption</span>
 docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span><span class="s2">&quot;ALTER SYSTEM SET password_encryption = &#39;scram-sha-256&#39;;&quot;</span>
+<span class="w">  </span><span class="s2">"ALTER SYSTEM SET password_encryption = 'scram-sha-256';"</span>
 
 <span class="c1"># Update pg_hba.conf for strict authentication</span>
 cat<span class="w"> </span>&gt;<span class="w"> </span>/path/to/pg_hba.conf<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
@@ -1312,11 +1312,11 @@ cat<span class="w"> </span>&gt;<span class="w"> </span>/path/to/pg_hba.conf<span
 <div class="codehilite"><pre><span></span><code><span class="c1"># Enable SSL in postgresql.conf</span>
 cat<span class="w"> </span>&gt;&gt;<span class="w"> </span>/path/to/postgresql.conf<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
 <span class="s">ssl = on</span>
-<span class="s">ssl_cert_file = &#39;/var/lib/postgresql/server.crt&#39;</span>
-<span class="s">ssl_key_file = &#39;/var/lib/postgresql/server.key&#39;</span>
-<span class="s">ssl_ca_file = &#39;/var/lib/postgresql/root.crt&#39;</span>
-<span class="s">ssl_min_protocol_version = &#39;TLSv1.2&#39;</span>
-<span class="s">ssl_ciphers = &#39;HIGH:MEDIUM:+3DES:!aNULL&#39;</span>
+<span class="s">ssl_cert_file = '/var/lib/postgresql/server.crt'</span>
+<span class="s">ssl_key_file = '/var/lib/postgresql/server.key'</span>
+<span class="s">ssl_ca_file = '/var/lib/postgresql/root.crt'</span>
+<span class="s">ssl_min_protocol_version = 'TLSv1.2'</span>
+<span class="s">ssl_ciphers = 'HIGH:MEDIUM:+3DES:!aNULL'</span>
 <span class="s">ssl_prefer_server_ciphers = on</span>
 <span class="s">EOF</span>
 </code></pre></div>
@@ -1325,8 +1325,8 @@ cat<span class="w"> </span>&gt;&gt;<span class="w"> </span>/path/to/postgresql.c
 <div class="codehilite"><pre><span></span><code><span class="c1">-- Set connection limits</span>
 <span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">max_connections</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">250</span><span class="p">;</span>
 <span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">superuser_reserved_connections</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
-<span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">statement_timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;30s&#39;</span><span class="p">;</span>
-<span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">idle_in_transaction_session_timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;10min&#39;</span><span class="p">;</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">statement_timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'30s'</span><span class="p">;</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">idle_in_transaction_session_timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'10min'</span><span class="p">;</span>
 
 <span class="c1">-- Reload configuration</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="n">pg_reload_conf</span><span class="p">();</span>
@@ -1336,8 +1336,8 @@ cat<span class="w"> </span>&gt;&gt;<span class="w"> </span>/path/to/postgresql.c
 <div class="codehilite"><pre><span></span><code><span class="c1">-- Enable comprehensive logging</span>
 <span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">log_connections</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">on</span><span class="p">;</span>
 <span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">log_disconnections</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">on</span><span class="p">;</span>
-<span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">log_line_prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;%t [%p]: user=%u,db=%d,app=%a,client=%h &#39;</span><span class="p">;</span>
-<span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">log_statement</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;ddl&#39;</span><span class="p">;</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">log_line_prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'%t [%p]: user=%u,db=%d,app=%a,client=%h '</span><span class="p">;</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">log_statement</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'ddl'</span><span class="p">;</span>
 <span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">log_min_duration_statement</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1000</span><span class="p">;</span>
 </code></pre></div>
 
@@ -1349,13 +1349,13 @@ cat<span class="w"> </span>&gt;&gt;<span class="w"> </span>/path/to/postgresql.c
 <span class="k">CREATE</span><span class="w"> </span><span class="n">POLICY</span><span class="w"> </span><span class="n">user_access_policy</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">users</span>
 <span class="w">  </span><span class="k">FOR</span><span class="w"> </span><span class="k">ALL</span>
 <span class="w">  </span><span class="k">TO</span><span class="w"> </span><span class="n">app_user</span>
-<span class="w">  </span><span class="k">USING</span><span class="w"> </span><span class="p">(</span><span class="n">user_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_setting</span><span class="p">(</span><span class="s1">&#39;app.current_user_id&#39;</span><span class="p">)::</span><span class="nb">INTEGER</span><span class="p">);</span>
+<span class="w">  </span><span class="k">USING</span><span class="w"> </span><span class="p">(</span><span class="n">user_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_setting</span><span class="p">(</span><span class="s1">'app.current_user_id'</span><span class="p">)::</span><span class="nb">INTEGER</span><span class="p">);</span>
 </code></pre></div>
 
 <h3 id="redis-hardening">Redis Hardening<a class="headerlink" href="#redis-hardening" title="Permanent link">&para;</a></h3>
 <h4 id="authentication_1">Authentication<a class="headerlink" href="#authentication_1" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Set strong password</span>
-redis-cli<span class="w"> </span>CONFIG<span class="w"> </span>SET<span class="w"> </span>requirepass<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span><span class="k">)</span><span class="s2">&quot;</span>
+redis-cli<span class="w"> </span>CONFIG<span class="w"> </span>SET<span class="w"> </span>requirepass<span class="w"> </span><span class="s2">"</span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span><span class="k">)</span><span class="s2">"</span>
 
 <span class="c1"># Configure ACL users</span>
 redis-cli<span class="w"> </span>ACL<span class="w"> </span>SETUSER<span class="w"> </span>admin<span class="w"> </span>on<span class="w"> </span>&gt;admin_password<span class="w"> </span>~*<span class="w"> </span><span class="p">&amp;</span>*<span class="w"> </span>+@all
@@ -1366,11 +1366,11 @@ redis-cli<span class="w"> </span>ACL<span class="w"> </span>SETUSER<span class="
 <h4 id="rename-dangerous-commands">Rename Dangerous Commands<a class="headerlink" href="#rename-dangerous-commands" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Add to redis.conf</span>
 cat<span class="w"> </span>&gt;&gt;<span class="w"> </span>/etc/redis/redis.conf<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
-<span class="s">rename-command FLUSHDB &quot;FLUSHDB_MY_SECRET_$(openssl rand -hex 16)&quot;</span>
-<span class="s">rename-command FLUSHALL &quot;FLUSHALL_MY_SECRET_$(openssl rand -hex 16)&quot;</span>
-<span class="s">rename-command CONFIG &quot;CONFIG_MY_SECRET_$(openssl rand -hex 16)&quot;</span>
-<span class="s">rename-command KEYS &quot;&quot;</span>
-<span class="s">rename-command SHUTDOWN &quot;SHUTDOWN_MY_SECRET_$(openssl rand -hex 16)&quot;</span>
+<span class="s">rename-command FLUSHDB "FLUSHDB_MY_SECRET_$(openssl rand -hex 16)"</span>
+<span class="s">rename-command FLUSHALL "FLUSHALL_MY_SECRET_$(openssl rand -hex 16)"</span>
+<span class="s">rename-command CONFIG "CONFIG_MY_SECRET_$(openssl rand -hex 16)"</span>
+<span class="s">rename-command KEYS ""</span>
+<span class="s">rename-command SHUTDOWN "SHUTDOWN_MY_SECRET_$(openssl rand -hex 16)"</span>
 <span class="s">EOF</span>
 </code></pre></div>
 
@@ -1382,7 +1382,7 @@ cat<span class="w"> </span>&gt;&gt;<span class="w"> </span>/etc/redis/redis.conf
 <span class="s">tls-cert-file /etc/redis/certs/redis.crt</span>
 <span class="s">tls-key-file /etc/redis/certs/redis.key</span>
 <span class="s">tls-ca-cert-file /etc/redis/certs/ca.crt</span>
-<span class="s">tls-protocols &quot;TLSv1.2 TLSv1.3&quot;</span>
+<span class="s">tls-protocols "TLSv1.2 TLSv1.3"</span>
 <span class="s">tls-prefer-server-ciphers yes</span>
 <span class="s">tls-auth-clients yes</span>
 <span class="s">EOF</span>
@@ -1394,7 +1394,7 @@ cat<span class="w"> </span>&gt;&gt;<span class="w"> </span>/etc/redis/redis.conf
 <span class="s">maxmemory 512mb</span>
 <span class="s">maxmemory-policy allkeys-lru</span>
 <span class="s">appendonly yes</span>
-<span class="s">appendfilename &quot;appendonly.aof&quot;</span>
+<span class="s">appendfilename "appendonly.aof"</span>
 <span class="s">appendfsync everysec</span>
 <span class="s">EOF</span>
 </code></pre></div>
@@ -1423,12 +1423,12 @@ cat<span class="w"> </span>&gt;<span class="w"> </span>/path/to/service-config.y
 <div class="codehilite"><pre><span></span><code><span class="c1"># Add to nats-server.conf</span>
 cat<span class="w"> </span>&gt;&gt;<span class="w"> </span>/etc/nats/nats-server.conf<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
 <span class="s">tls {</span>
-<span class="s">  cert_file: &quot;/etc/nats/certs/nats.crt&quot;</span>
-<span class="s">  key_file: &quot;/etc/nats/certs/nats.key&quot;</span>
-<span class="s">  ca_file: &quot;/etc/nats/certs/ca.crt&quot;</span>
+<span class="s">  cert_file: "/etc/nats/certs/nats.crt"</span>
+<span class="s">  key_file: "/etc/nats/certs/nats.key"</span>
+<span class="s">  ca_file: "/etc/nats/certs/ca.crt"</span>
 <span class="s">  verify: true</span>
 <span class="s">  timeout: 2</span>
-<span class="s">  min_version: &quot;1.2&quot;</span>
+<span class="s">  min_version: "1.2"</span>
 <span class="s">}</span>
 <span class="s">EOF</span>
 </code></pre></div>
@@ -1437,10 +1437,10 @@ cat<span class="w"> </span>&gt;&gt;<span class="w"> </span>/etc/nats/nats-server
 <div class="codehilite"><pre><span></span><code><span class="c1"># Configure JetStream with security</span>
 cat<span class="w"> </span>&gt;&gt;<span class="w"> </span>/etc/nats/nats-server.conf<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
 <span class="s">jetstream {</span>
-<span class="s">  store_dir: &quot;/data/jetstream&quot;</span>
+<span class="s">  store_dir: "/data/jetstream"</span>
 <span class="s">  max_memory_store: 1GB</span>
 <span class="s">  max_file_store: 10GB</span>
-<span class="s">  domain: &quot;sahool&quot;</span>
+<span class="s">  domain: "sahool"</span>
 <span class="s">}</span>
 
 <span class="s">accounts {</span>
@@ -1459,16 +1459,16 @@ cat<span class="w"> </span>&gt;&gt;<span class="w"> </span>/etc/nats/nats-server
 <h3 id="docker-hardening">Docker Hardening<a class="headerlink" href="#docker-hardening" title="Permanent link">&para;</a></h3>
 <h4 id="daemon-configuration">Daemon Configuration<a class="headerlink" href="#daemon-configuration" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;icc&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;userns-remap&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;default&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;log-driver&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;json-file&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;log-opts&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;max-size&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;10m&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;max-file&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;3&quot;</span>
+<span class="w">  </span><span class="nt">"icc"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"userns-remap"</span><span class="p">:</span><span class="w"> </span><span class="s2">"default"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"log-driver"</span><span class="p">:</span><span class="w"> </span><span class="s2">"json-file"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"log-opts"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"max-size"</span><span class="p">:</span><span class="w"> </span><span class="s2">"10m"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"max-file"</span><span class="p">:</span><span class="w"> </span><span class="s2">"3"</span>
 <span class="w">  </span><span class="p">},</span>
-<span class="w">  </span><span class="nt">&quot;live-restore&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;userland-proxy&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;no-new-privileges&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">  </span><span class="nt">"live-restore"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"userland-proxy"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"no-new-privileges"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1477,7 +1477,7 @@ cat<span class="w"> </span>&gt;&gt;<span class="w"> </span>/etc/nats/nats-server
 <span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">secure-service</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">your-image:tag</span>
-<span class="w">    </span><span class="nt">user</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1000:1000&quot;</span><span class="w"> </span><span class="c1"># Non-root user</span>
+<span class="w">    </span><span class="nt">user</span><span class="p">:</span><span class="w"> </span><span class="s">"1000:1000"</span><span class="w"> </span><span class="c1"># Non-root user</span>
 <span class="w">    </span><span class="nt">read_only</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"> </span><span class="c1"># Read-only filesystem</span>
 
 <span class="w">    </span><span class="nt">security_opt</span><span class="p">:</span>
@@ -1496,7 +1496,7 @@ cat<span class="w"> </span>&gt;&gt;<span class="w"> </span>/etc/nats/nats-server
 <span class="w">    </span><span class="nt">deploy</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">resources</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">limits</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">cpus</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1.0&quot;</span>
+<span class="w">          </span><span class="nt">cpus</span><span class="p">:</span><span class="w"> </span><span class="s">"1.0"</span>
 <span class="w">          </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512M</span>
 <span class="w">          </span><span class="nt">pids</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
 </code></pre></div>
@@ -1651,7 +1651,7 @@ cat<span class="w"> </span>&gt;&gt;<span class="w"> </span>/etc/nats/nats-server
 <div class="codehilite"><pre><span></span><code><span class="c1"># Enable audit logging for PostgreSQL</span>
 docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>sahool<span class="w"> </span><span class="s">&lt;&lt;SQL</span>
 <span class="s">CREATE EXTENSION IF NOT EXISTS pgaudit;</span>
-<span class="s">ALTER SYSTEM SET pgaudit.log = &#39;write, ddl&#39;;</span>
+<span class="s">ALTER SYSTEM SET pgaudit.log = 'write, ddl';</span>
 <span class="s">ALTER SYSTEM SET pgaudit.log_catalog = off;</span>
 <span class="s">ALTER SYSTEM SET pgaudit.log_parameter = on;</span>
 <span class="s">SELECT pg_reload_conf();</span>
@@ -1994,10 +1994,10 @@ docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </spa
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

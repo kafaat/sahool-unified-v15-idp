@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1318,7 +1318,7 @@
 </table>
 <h3 id="22">2.2 محتوى مقترح للملفات الفارغة<a class="headerlink" href="#22" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># apps/services/shared/globalgap/integrations/__init__.py</span>
-<span class="sd">&quot;&quot;&quot;GlobalGAP Integration Modules - تكاملات GlobalGAP&quot;&quot;&quot;</span>
+<span class="sd">"""GlobalGAP Integration Modules - تكاملات GlobalGAP"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.crop_health_integration</span><span class="w"> </span><span class="kn">import</span> <span class="n">CropHealthIntegration</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.fertilizer_integration</span><span class="w"> </span><span class="kn">import</span> <span class="n">FertilizerIntegration</span>
@@ -1326,19 +1326,19 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.events</span><span class="w"> </span><span class="kn">import</span> <span class="n">EventPublisher</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;CropHealthIntegration&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;FertilizerIntegration&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;IrrigationIntegration&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;EventPublisher&quot;</span><span class="p">,</span>
+    <span class="s2">"CropHealthIntegration"</span><span class="p">,</span>
+    <span class="s2">"FertilizerIntegration"</span><span class="p">,</span>
+    <span class="s2">"IrrigationIntegration"</span><span class="p">,</span>
+    <span class="s2">"EventPublisher"</span><span class="p">,</span>
 <span class="p">]</span>
 </code></pre></div>
 
 <div class="codehilite"><pre><span></span><code><span class="c1"># apps/services/shared/utils/__init__.py</span>
-<span class="sd">&quot;&quot;&quot;SAHOOL Shared Utilities - أدوات مشتركة&quot;&quot;&quot;</span>
+<span class="sd">"""SAHOOL Shared Utilities - أدوات مشتركة"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.fallback_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">FallbackManager</span><span class="p">,</span> <span class="n">fallback</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;FallbackManager&quot;</span><span class="p">,</span> <span class="s2">&quot;fallback&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"FallbackManager"</span><span class="p">,</span> <span class="s2">"fallback"</span><span class="p">]</span>
 </code></pre></div>
 
 <hr />
@@ -1432,8 +1432,8 @@
 
 <h3 id="43-syspath-manipulation-medium-62">4.3 sys.path Manipulation | Medium (62+ حالة)<a class="headerlink" href="#43-syspath-manipulation-medium-62" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># نمط سيء متكرر:</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;/home/user/sahool-unified-v15-idp/apps/services/...&quot;</span><span class="p">)</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;../../../../shared&quot;</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"/home/user/sahool-unified-v15-idp/apps/services/..."</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"../../../../shared"</span><span class="p">)</span>
 
 <span class="c1"># الحل: استخدام PYTHONPATH أو relative imports</span>
 </code></pre></div>
@@ -1627,10 +1627,10 @@ apps/services/task-service/src/main.py
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

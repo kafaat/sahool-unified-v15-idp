@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1150,7 +1150,7 @@ HTTP REST, subscribes to NATS events and publishes its own.</p>
 <span class="err">├──</span><span class="w"> </span><span class="n">README</span><span class="o">.</span><span class="n">md</span><span class="w">                          </span><span class="c1"># bilingual Purpose · Architecture · API · Events · Ops</span>
 <span class="err">└──</span><span class="w"> </span><span class="n">src</span><span class="o">/</span>
 <span class="w">    </span><span class="err">├──</span><span class="w"> </span><span class="n">__init__</span><span class="o">.</span><span class="n">py</span>
-<span class="w">    </span><span class="err">├──</span><span class="w"> </span><span class="n">main</span><span class="o">.</span><span class="n">py</span><span class="w">                        </span><span class="c1"># FastAPI app + lifespan — see §&quot;Bootstrap&quot;</span>
+<span class="w">    </span><span class="err">├──</span><span class="w"> </span><span class="n">main</span><span class="o">.</span><span class="n">py</span><span class="w">                        </span><span class="c1"># FastAPI app + lifespan — see §"Bootstrap"</span>
 <span class="w">    </span><span class="err">├──</span><span class="w"> </span><span class="n">database</span><span class="o">.</span><span class="n">py</span><span class="w">                    </span><span class="c1"># asyncpg pool lifecycle</span>
 <span class="w">    </span><span class="err">├──</span><span class="w"> </span><span class="n">models</span><span class="o">.</span><span class="n">py</span><span class="w">                      </span><span class="c1"># Pydantic request/response schemas</span>
 <span class="w">    </span><span class="err">├──</span><span class="w"> </span><span class="o">&lt;</span><span class="n">domain</span><span class="o">&gt;</span><span class="n">_controller</span><span class="o">.</span><span class="n">py</span><span class="w">         </span><span class="c1"># one APIRouter per aggregate</span>
@@ -1182,51 +1182,51 @@ aggregate. No generic <code>routes/</code> or <code>services/</code> god-directo
 <span class="kn">from</span><span class="w"> </span><span class="nn">shared.middleware.rate_limiter</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_rate_limiter</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">shared.monitoring.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">PrometheusMiddleware</span><span class="p">,</span> <span class="n">metrics_endpoint</span>
 
-<span class="n">configure_structlog</span><span class="p">(</span><span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;&lt;service&gt;&quot;</span><span class="p">)</span>
+<span class="n">configure_structlog</span><span class="p">(</span><span class="n">service_name</span><span class="o">=</span><span class="s2">"&lt;service&gt;"</span><span class="p">)</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">structlog</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
 
 
 <span class="nd">@asynccontextmanager</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">lifespan</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="n">FastAPI</span><span class="p">):</span>
     <span class="c1"># ── Startup ────────────────────────────────────────────────────</span>
-    <span class="n">db_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DATABASE_URL&quot;</span><span class="p">)</span>
+    <span class="n">db_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"DATABASE_URL"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">db_url</span><span class="p">:</span>
         <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">db_pool</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncpg</span><span class="o">.</span><span class="n">create_pool</span><span class="p">(</span><span class="n">db_url</span><span class="p">,</span> <span class="n">min_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
         <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">db_connected</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;db_pool_ready&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"db_pool_ready"</span><span class="p">)</span>
 
-    <span class="n">nats_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;NATS_URL&quot;</span><span class="p">)</span>
+    <span class="n">nats_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"NATS_URL"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">nats_url</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">nc</span> <span class="o">=</span> <span class="k">await</span> <span class="n">nats</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">nats_url</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;&lt;service&gt;&quot;</span><span class="p">)</span>
+            <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">nc</span> <span class="o">=</span> <span class="k">await</span> <span class="n">nats</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">nats_url</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"&lt;service&gt;"</span><span class="p">)</span>
             <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">nats_connected</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;nats_connected&quot;</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="n">nats_url</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"nats_connected"</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="n">nats_url</span><span class="p">)</span>
             <span class="c1"># subscribers</span>
             <span class="kn">from</span><span class="w"> </span><span class="nn">.nats_subscriber</span><span class="w"> </span><span class="kn">import</span> <span class="n">start_subscription</span>
             <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">subscriber</span> <span class="o">=</span> <span class="k">await</span> <span class="n">start_subscription</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;nats_degraded&quot;</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"nats_degraded"</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
             <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">nats_connected</span> <span class="o">=</span> <span class="kc">False</span>
 
     <span class="k">yield</span>
 
     <span class="c1"># ── Shutdown ───────────────────────────────────────────────────</span>
-    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="s2">&quot;subscriber&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="s2">"subscriber"</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
         <span class="k">await</span> <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">subscriber</span><span class="o">.</span><span class="n">drain</span><span class="p">()</span>
-    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="s2">&quot;nc&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="s2">"nc"</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
         <span class="k">await</span> <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">nc</span><span class="o">.</span><span class="n">drain</span><span class="p">()</span>
         <span class="k">await</span> <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">nc</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="s2">&quot;db_pool&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="s2">"db_pool"</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
         <span class="k">await</span> <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">db_pool</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;shutdown_complete&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"shutdown_complete"</span><span class="p">)</span>
 
 
 <span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span>
-    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;&lt;Service&gt;&quot;</span><span class="p">,</span>
-    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;16.0.0&quot;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">"&lt;Service&gt;"</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="s2">"16.0.0"</span><span class="p">,</span>
     <span class="n">lifespan</span><span class="o">=</span><span class="n">lifespan</span><span class="p">,</span>
     <span class="c1"># OpenAPI in development only</span>
-    <span class="n">openapi_url</span><span class="o">=</span><span class="s2">&quot;/openapi.json&quot;</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;ENVIRONMENT&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;production&quot;</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">openapi_url</span><span class="o">=</span><span class="s2">"/openapi.json"</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"ENVIRONMENT"</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">"production"</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="c1"># Cross-cutting middleware — ORDER MATTERS:</span>
@@ -1242,24 +1242,24 @@ aggregate. No generic <code>routes/</code> or <code>services/</code> god-directo
 <span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span><span class="n">PrometheusMiddleware</span><span class="p">)</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="o">&lt;</span><span class="n">domain</span><span class="o">&gt;</span><span class="n">_controller</span>     <span class="c1"># noqa: E402  routers imported last</span>
-<span class="n">app</span><span class="o">.</span><span class="n">include_router</span><span class="p">(</span><span class="o">&lt;</span><span class="n">domain</span><span class="o">&gt;</span><span class="n">_controller</span><span class="o">.</span><span class="n">router</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;/api/v1/&lt;domain&gt;&quot;</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">include_router</span><span class="p">(</span><span class="o">&lt;</span><span class="n">domain</span><span class="o">&gt;</span><span class="n">_controller</span><span class="o">.</span><span class="n">router</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">"/api/v1/&lt;domain&gt;"</span><span class="p">)</span>
 
 <span class="c1"># Health probes NEVER under /api/v1</span>
-<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/healthz&quot;</span><span class="p">)</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/healthz"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">healthz</span><span class="p">():</span>
-    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;ok&quot;</span><span class="p">,</span> <span class="s2">&quot;service&quot;</span><span class="p">:</span> <span class="s2">&quot;&lt;service&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;16.0.0&quot;</span><span class="p">}</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">"status"</span><span class="p">:</span> <span class="s2">"ok"</span><span class="p">,</span> <span class="s2">"service"</span><span class="p">:</span> <span class="s2">"&lt;service&gt;"</span><span class="p">,</span> <span class="s2">"version"</span><span class="p">:</span> <span class="s2">"16.0.0"</span><span class="p">}</span>
 
 
-<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/readyz&quot;</span><span class="p">)</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/readyz"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">readyz</span><span class="p">():</span>
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;ok&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;database&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="s2">&quot;db_connected&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
-        <span class="s2">&quot;nats&quot;</span><span class="p">:</span>     <span class="nb">getattr</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="s2">&quot;nats_connected&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="s2">"status"</span><span class="p">:</span> <span class="s2">"ok"</span><span class="p">,</span>
+        <span class="s2">"database"</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="s2">"db_connected"</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="s2">"nats"</span><span class="p">:</span>     <span class="nb">getattr</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="s2">"nats_connected"</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
     <span class="p">}</span>
 
 
-<span class="n">app</span><span class="o">.</span><span class="n">add_api_route</span><span class="p">(</span><span class="s2">&quot;/metrics&quot;</span><span class="p">,</span> <span class="n">metrics_endpoint</span><span class="p">,</span> <span class="n">include_in_schema</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">add_api_route</span><span class="p">(</span><span class="s2">"/metrics"</span><span class="p">,</span> <span class="n">metrics_endpoint</span><span class="p">,</span> <span class="n">include_in_schema</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </code></pre></div>
 
 <hr />
@@ -1278,7 +1278,7 @@ aggregate. No generic <code>routes/</code> or <code>services/</code> god-directo
 <p>Tenant scoping is <strong>not optional</strong> — every query takes <code>tenant_id</code> as the
 first filter:</p>
 <div class="codehilite"><pre><span></span><code><span class="n">rows</span> <span class="o">=</span> <span class="k">await</span> <span class="n">conn</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span>
-    <span class="s2">&quot;SELECT id, name FROM notifications WHERE tenant_id = $1 AND status = $2&quot;</span><span class="p">,</span>
+    <span class="s2">"SELECT id, name FROM notifications WHERE tenant_id = $1 AND status = $2"</span><span class="p">,</span>
     <span class="n">tenant_id</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span>
 <span class="p">)</span>
 </code></pre></div>
@@ -1294,7 +1294,7 @@ first filter:</p>
 <span class="n">publisher</span> <span class="o">=</span> <span class="n">EventPublisher</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">nc</span><span class="p">)</span>
 <span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span>
     <span class="n">SAHOOL_NOTIFICATION_SENT</span><span class="p">,</span>
-    <span class="n">payload</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;notification_id&quot;</span><span class="p">:</span> <span class="n">n</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="s2">&quot;tenant_id&quot;</span><span class="p">:</span> <span class="n">n</span><span class="o">.</span><span class="n">tenant_id</span><span class="p">,</span> <span class="o">...</span><span class="p">},</span>
+    <span class="n">payload</span><span class="o">=</span><span class="p">{</span><span class="s2">"notification_id"</span><span class="p">:</span> <span class="n">n</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="s2">"tenant_id"</span><span class="p">:</span> <span class="n">n</span><span class="o">.</span><span class="n">tenant_id</span><span class="p">,</span> <span class="o">...</span><span class="p">},</span>
 <span class="p">)</span>
 </code></pre></div>
 
@@ -1308,9 +1308,9 @@ copy the structure: connect → <code>subscribe(subject=..., queue="&lt;service&
         <span class="k">await</span> <span class="n">process</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
         <span class="k">await</span> <span class="n">msg</span><span class="o">.</span><span class="n">ack</span><span class="p">()</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;handler_failed&quot;</span><span class="p">,</span> <span class="n">subject</span><span class="o">=</span><span class="n">msg</span><span class="o">.</span><span class="n">subject</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"handler_failed"</span><span class="p">,</span> <span class="n">subject</span><span class="o">=</span><span class="n">msg</span><span class="o">.</span><span class="n">subject</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
         <span class="k">await</span> <span class="n">publish_to_dlq</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
-        <span class="k">await</span> <span class="n">msg</span><span class="o">.</span><span class="n">term</span><span class="p">()</span>      <span class="c1"># don&#39;t re-deliver — DLQ replay-er will.</span>
+        <span class="k">await</span> <span class="n">msg</span><span class="o">.</span><span class="n">term</span><span class="p">()</span>      <span class="c1"># don't re-deliver — DLQ replay-er will.</span>
 </code></pre></div>
 
 <p>Every subscriber uses a <strong>queue group</strong> named <code>&lt;service&gt;-&lt;consumer&gt;</code> so
@@ -1320,7 +1320,7 @@ parallel replicas load-balance instead of each receiving the same message.</p>
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.auth.dependencies</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_current_user</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">shared.auth.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">User</span>
 
-<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">"/"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span>
     <span class="n">dto</span><span class="p">:</span> <span class="n">CreateNotificationDTO</span><span class="p">,</span>
     <span class="n">user</span><span class="p">:</span> <span class="n">User</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_current_user</span><span class="p">),</span>
@@ -1337,12 +1337,12 @@ parallel replicas load-balance instead of each receiving the same message.</p>
 <h2 id="error-handling">Error handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h2>
 <p>All handlers return the unified envelope via <code>shared/errors_py.py</code>:</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-  <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
-  <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Human-readable English message&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;error_ar&quot;</span><span class="p">:</span> <span class="s2">&quot;الرسالة بالعربية&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="s2">&quot;E4001&quot;</span><span class="p">,</span>                  <span class="c1"># stable error code from shared/errors_py.ERROR_CODES</span>
-  <span class="s2">&quot;requestId&quot;</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span><span class="p">,</span>               <span class="c1"># from x-request-id</span>
-  <span class="s2">&quot;traceId&quot;</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span>                  <span class="c1"># OTel trace id</span>
+  <span class="s2">"success"</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+  <span class="s2">"error"</span><span class="p">:</span> <span class="s2">"Human-readable English message"</span><span class="p">,</span>
+  <span class="s2">"error_ar"</span><span class="p">:</span> <span class="s2">"الرسالة بالعربية"</span><span class="p">,</span>
+  <span class="s2">"code"</span><span class="p">:</span> <span class="s2">"E4001"</span><span class="p">,</span>                  <span class="c1"># stable error code from shared/errors_py.ERROR_CODES</span>
+  <span class="s2">"requestId"</span><span class="p">:</span> <span class="s2">"..."</span><span class="p">,</span>               <span class="c1"># from x-request-id</span>
+  <span class="s2">"traceId"</span><span class="p">:</span> <span class="s2">"..."</span>                  <span class="c1"># OTel trace id</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1378,7 +1378,7 @@ domain exception subclass and let the handler format the envelope.</p>
 
 <span class="k">FROM</span><span class="w"> </span><span class="s">base</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="s">builder</span>
 <span class="k">COPY</span><span class="w"> </span>requirements.txt<span class="w"> </span>.
-<span class="c"># 3-tier mirror fallback — see CLAUDE.md §&quot;Pip Mirror Configuration&quot;</span>
+<span class="c"># 3-tier mirror fallback — see CLAUDE.md §"Pip Mirror Configuration"</span>
 <span class="k">RUN</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--index-url<span class="w"> </span>https://pypi.org/simple<span class="w"> </span>-r<span class="w"> </span>requirements.txt<span class="w"> </span><span class="se">\</span>
 <span class="w"> </span><span class="o">||</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-i<span class="w"> </span>https://mirrors.aliyun.com/pypi/simple/<span class="w"> </span>--trusted-host<span class="w"> </span>mirrors.aliyun.com<span class="w"> </span>-r<span class="w"> </span>requirements.txt<span class="w"> </span><span class="se">\</span>
 <span class="w"> </span><span class="o">||</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-i<span class="w"> </span>https://mirrors.cloud.tencent.com/pypi/simple<span class="w"> </span>--trusted-host<span class="w"> </span>mirrors.cloud.tencent.com<span class="w"> </span>-r<span class="w"> </span>requirements.txt
@@ -1390,8 +1390,8 @@ domain exception subclass and let the handler format the envelope.</p>
 <span class="k">USER</span><span class="w"> </span><span class="s">sahool</span>
 <span class="k">EXPOSE</span><span class="w"> </span><span class="s">8110</span>
 <span class="k">HEALTHCHECK</span><span class="w"> </span>--interval<span class="o">=</span>30s<span class="w"> </span>--timeout<span class="o">=</span>5s<span class="w"> </span>--start-period<span class="o">=</span>15s<span class="w"> </span>--retries<span class="o">=</span><span class="m">3</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>CMD<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import urllib.request; urllib.request.urlopen(&#39;http://localhost:8110/healthz&#39;)&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
-<span class="k">CMD</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;python&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;-m&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;uvicorn&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;src.main:app&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;0.0.0.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--port&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;8110&quot;</span><span class="p">]</span>
+<span class="w">  </span>CMD<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import urllib.request; urllib.request.urlopen('http://localhost:8110/healthz')"</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="k">CMD</span><span class="w"> </span><span class="p">[</span><span class="s2">"python"</span><span class="p">,</span><span class="w"> </span><span class="s2">"-m"</span><span class="p">,</span><span class="w"> </span><span class="s2">"uvicorn"</span><span class="p">,</span><span class="w"> </span><span class="s2">"src.main:app"</span><span class="p">,</span><span class="w"> </span><span class="s2">"--host"</span><span class="p">,</span><span class="w"> </span><span class="s2">"0.0.0.0"</span><span class="p">,</span><span class="w"> </span><span class="s2">"--port"</span><span class="p">,</span><span class="w"> </span><span class="s2">"8110"</span><span class="p">]</span>
 </code></pre></div>
 
 <hr />
@@ -1561,10 +1561,10 @@ domain exception subclass and let the handler format the envelope.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

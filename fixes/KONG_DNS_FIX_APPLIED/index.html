@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1146,7 +1146,7 @@
 <div class="codehilite"><pre><span></span><code><span class="nt">KONG_DNS_CACHE_TTL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">300</span><span class="w"> </span><span class="c1"># Cache successful lookups for 5 minutes (reduces queries)</span>
 <span class="nt">KONG_DNS_STALE_TTL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span><span class="w"> </span><span class="c1"># Use stale entries for 30 seconds (more tolerance)</span>
 <span class="nt">KONG_DNS_ERROR_TTL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span><span class="w"> </span><span class="c1"># Cache errors for 30 seconds (reduces repeated failed queries)</span>
-<span class="nt">KONG_DNS_NOT_FOUND_TTL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span><span class="w"> </span><span class="c1"># Cache &quot;not found&quot; responses for 30 seconds</span>
+<span class="nt">KONG_DNS_NOT_FOUND_TTL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span><span class="w"> </span><span class="c1"># Cache "not found" responses for 30 seconds</span>
 </code></pre></div>
 
 <p><strong>Impact:</strong></p>
@@ -1216,13 +1216,13 @@
 <h2 id="verification">Verification<a class="headerlink" href="#verification" title="Permanent link">&para;</a></h2>
 <p>To verify the fixes are working:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Check Kong logs - DNS errors should be less frequent</span>
-docker<span class="w"> </span>logs<span class="w"> </span>sahool-kong<span class="w"> </span>--tail<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;dns&quot;</span>
+docker<span class="w"> </span>logs<span class="w"> </span>sahool-kong<span class="w"> </span>--tail<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">"dns"</span>
 
 <span class="c1"># Check service status</span>
 docker<span class="w"> </span>compose<span class="w"> </span>ps<span class="w"> </span>marketplace-service<span class="w"> </span>research-core<span class="w"> </span>billing-core
 
 <span class="c1"># Monitor Kong health checks</span>
-docker<span class="w"> </span>logs<span class="w"> </span>sahool-kong<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;health&quot;</span>
+docker<span class="w"> </span>logs<span class="w"> </span>sahool-kong<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">"health"</span>
 </code></pre></div>
 
 <h2 id="configuration-files-modified">Configuration Files Modified<a class="headerlink" href="#configuration-files-modified" title="Permanent link">&para;</a></h2>
@@ -1282,10 +1282,10 @@ docker<span class="w"> </span>logs<span class="w"> </span>sahool-kong<span class
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

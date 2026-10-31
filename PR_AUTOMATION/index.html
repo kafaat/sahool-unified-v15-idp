@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1146,16 +1146,16 @@
 <p><strong>Usage</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Via GitHub UI:</span>
 <span class="c1"># 1. Go to Actions → Auto-Merge PRs → Run workflow</span>
-<span class="c1"># 2. Enter PR numbers (e.g., &quot;123,456&quot; or &quot;all&quot;)</span>
+<span class="c1"># 2. Enter PR numbers (e.g., "123,456" or "all")</span>
 <span class="c1"># 3. Select merge and conflict strategies</span>
 <span class="c1"># 4. Choose dry-run for testing</span>
-<span class="c1"># 5. Click &quot;Run workflow&quot;</span>
+<span class="c1"># 5. Click "Run workflow"</span>
 
 <span class="c1"># Via GitHub CLI:</span>
 gh<span class="w"> </span>workflow<span class="w"> </span>run<span class="w"> </span>auto-merge-prs.yml<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-f<span class="w"> </span><span class="nv">pr_numbers</span><span class="o">=</span><span class="s2">&quot;123,456&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-f<span class="w"> </span><span class="nv">merge_strategy</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-f<span class="w"> </span><span class="nv">conflict_strategy</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-f<span class="w"> </span><span class="nv">pr_numbers</span><span class="o">=</span><span class="s2">"123,456"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-f<span class="w"> </span><span class="nv">merge_strategy</span><span class="o">=</span><span class="s2">"auto"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-f<span class="w"> </span><span class="nv">conflict_strategy</span><span class="o">=</span><span class="s2">"auto"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-f<span class="w"> </span><span class="nv">require_approvals</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-f<span class="w"> </span><span class="nv">dry_run</span><span class="o">=</span><span class="nb">false</span>
 </code></pre></div>
@@ -1256,7 +1256,7 @@ gh<span class="w"> </span>workflow<span class="w"> </span>run<span class="w"> </
 <span class="c1"># 1. Go to Actions → PR Status Monitor → Run workflow</span>
 <span class="c1"># 2. Choose to auto-update branches</span>
 <span class="c1"># 3. Choose to send notifications</span>
-<span class="c1"># 4. Click &quot;Run workflow&quot;</span>
+<span class="c1"># 4. Click "Run workflow"</span>
 
 <span class="c1"># Via GitHub CLI:</span>
 gh<span class="w"> </span>workflow<span class="w"> </span>run<span class="w"> </span>pr-status-monitor.yml<span class="w"> </span><span class="se">\</span>
@@ -1413,7 +1413,7 @@ ls<span class="w"> </span>-l<span class="w"> </span>merge-reports/
 <span class="nv">MIN_APPROVALS</span><span class="o">=</span><span class="m">1</span>
 
 <span class="c1"># Protected branches (comma-separated)</span>
-<span class="nv">PROTECTED_BRANCHES</span><span class="o">=</span><span class="s2">&quot;main,develop&quot;</span>
+<span class="nv">PROTECTED_BRANCHES</span><span class="o">=</span><span class="s2">"main,develop"</span>
 
 <span class="c1"># GitHub token for authentication</span>
 <span class="nv">GITHUB_TOKEN</span><span class="o">=</span>&lt;your-token&gt;
@@ -1422,9 +1422,9 @@ ls<span class="w"> </span>-l<span class="w"> </span>merge-reports/
 <h3 id="workflow-inputs">Workflow Inputs<a class="headerlink" href="#workflow-inputs" title="Permanent link">&para;</a></h3>
 <p>All workflows accept inputs for customization:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Auto-Merge Workflow</span>
-<span class="nt">pr_numbers</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;all&quot;</span><span class="w">           </span><span class="c1"># PR numbers to merge</span>
-<span class="nt">merge_strategy</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;auto&quot;</span><span class="w">      </span><span class="c1"># Merge strategy</span>
-<span class="nt">conflict_strategy</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;auto&quot;</span><span class="w">   </span><span class="c1"># Conflict resolution</span>
+<span class="nt">pr_numbers</span><span class="p">:</span><span class="w"> </span><span class="s">"all"</span><span class="w">           </span><span class="c1"># PR numbers to merge</span>
+<span class="nt">merge_strategy</span><span class="p">:</span><span class="w"> </span><span class="s">"auto"</span><span class="w">      </span><span class="c1"># Merge strategy</span>
+<span class="nt">conflict_strategy</span><span class="p">:</span><span class="w"> </span><span class="s">"auto"</span><span class="w">   </span><span class="c1"># Conflict resolution</span>
 <span class="nt">require_approvals</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">     </span><span class="c1"># Require approvals</span>
 <span class="nt">dry_run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">              </span><span class="c1"># Test mode</span>
 
@@ -1545,7 +1545,7 @@ gh<span class="w"> </span>workflow<span class="w"> </span>run<span class="w"> </
 <span class="w">    </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">test</span>
 <span class="w">    </span><span class="nt">if</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
 <span class="w">      </span><span class="no">github.event.pull_request.draft == false &amp;&amp;</span>
-<span class="w">      </span><span class="no">contains(github.event.pull_request.labels.*.name, &#39;auto-merge&#39;)</span>
+<span class="w">      </span><span class="no">contains(github.event.pull_request.labels.*.name, 'auto-merge')</span>
 <span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
 <span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Auto-merge PR</span>
@@ -1635,10 +1635,10 @@ chmod<span class="w"> </span>+x<span class="w"> </span>scripts/auto-merge-prs.sh
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

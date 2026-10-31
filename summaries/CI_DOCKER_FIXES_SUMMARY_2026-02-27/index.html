@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1133,7 +1133,7 @@ had dependency, path, and configuration issues preventing successful image creat
 <p><strong>Root cause</strong>: <code>pyproject.toml</code> <code>addopts</code> included <code>--cov=shared --cov=apps/services</code>
 which was automatically applied to ALL pytest runs, including per-service matrix tests.</p>
 <div class="codehilite"><pre><span></span><code><span class="gh">#</span> pyproject.toml (before fix)
-addopts = &quot;-v --tb=short --strict-markers --cov=shared --cov=apps/services --cov-report=term-missing --cov-report=html:coverage_html&quot;
+addopts = "-v --tb=short --strict-markers --cov=shared --cov=apps/services --cov-report=term-missing --cov-report=html:coverage_html"
 </code></pre></div>
 
 <p>When CI ran per-service tests (e.g., <code>pytest apps/services/irrigation-smart/tests/</code>),
@@ -1205,11 +1205,11 @@ which fell below the <code>fail_under = 5</code> threshold in <code>[tool.covera
 <h3 id="1-ci-coverage-fix">1. CI Coverage Fix<a class="headerlink" href="#1-ci-coverage-fix" title="Permanent link">&para;</a></h3>
 <p><strong><code>pyproject.toml</code></strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Before</span>
-<span class="n">addopts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;-v --tb=short --strict-markers --cov=shared --cov=apps/services --cov-report=term-missing --cov-report=html:coverage_html&quot;</span>
+<span class="n">addopts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"-v --tb=short --strict-markers --cov=shared --cov=apps/services --cov-report=term-missing --cov-report=html:coverage_html"</span>
 <span class="n">fail_under</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span>
 
 <span class="c1"># After</span>
-<span class="n">addopts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;-v --tb=short --strict-markers&quot;</span>
+<span class="n">addopts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"-v --tb=short --strict-markers"</span>
 <span class="n">fail_under</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
 </code></pre></div>
 
@@ -1371,10 +1371,10 @@ docker<span class="w"> </span>build<span class="w"> </span>-f<span class="w"> </
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

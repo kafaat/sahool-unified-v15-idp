@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1477,7 +1477,7 @@ cp<span class="w"> </span>config/postgres/.env.ha.example<span class="w"> </span
 <span class="c1"># 2. Generate TLS certificates (or use production certs)</span>
 <span class="nb">cd</span><span class="w"> </span>config/certs/postgres
 openssl<span class="w"> </span>req<span class="w"> </span>-new<span class="w"> </span>-x509<span class="w"> </span>-days<span class="w"> </span><span class="m">365</span><span class="w"> </span>-nodes<span class="w"> </span>-text<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-out<span class="w"> </span>server.crt<span class="w"> </span>-keyout<span class="w"> </span>server.key<span class="w"> </span>-subj<span class="w"> </span><span class="s2">&quot;/CN=postgres&quot;</span>
+<span class="w">  </span>-out<span class="w"> </span>server.crt<span class="w"> </span>-keyout<span class="w"> </span>server.key<span class="w"> </span>-subj<span class="w"> </span><span class="s2">"/CN=postgres"</span>
 chmod<span class="w"> </span><span class="m">600</span><span class="w"> </span>server.key
 cp<span class="w"> </span>server.crt<span class="w"> </span>ca.crt
 
@@ -1488,7 +1488,7 @@ mkdir<span class="w"> </span>-p<span class="w"> </span>data/<span class="o">{</s
 docker-compose<span class="w"> </span>-f<span class="w"> </span>docker-compose.yml<span class="w"> </span>-f<span class="w"> </span>docker-compose.ha.yml<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>postgres<span class="w"> </span>postgres-replica
 
 <span class="c1"># 5. Verify replication</span>
-docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-postgres-primary<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SELECT * FROM pg_stat_replication;&quot;</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-postgres-primary<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">"SELECT * FROM pg_stat_replication;"</span>
 
 <span class="c1"># 6. Start remaining services</span>
 docker-compose<span class="w"> </span>-f<span class="w"> </span>docker-compose.yml<span class="w"> </span>-f<span class="w"> </span>docker-compose.ha.yml<span class="w"> </span>up<span class="w"> </span>-d
@@ -1503,10 +1503,10 @@ docker-compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w
 <h2 id="verification-commands">📊 Verification Commands<a class="headerlink" href="#verification-commands" title="Permanent link">&para;</a></h2>
 <h3 id="check-replication-status">Check Replication Status<a class="headerlink" href="#check-replication-status" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># On primary - should show connected replica</span>
-docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-postgres-primary<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-postgres-primary<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
 <span class="s2">SELECT application_name, client_addr, state, sync_state,</span>
 <span class="s2">       pg_wal_lsn_diff(pg_current_wal_lsn(), replay_lsn) AS lag_bytes</span>
-<span class="s2">FROM pg_stat_replication;&quot;</span>
+<span class="s2">FROM pg_stat_replication;"</span>
 </code></pre></div>
 
 <p><strong>Expected Output:</strong></p>
@@ -1517,7 +1517,7 @@ docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </spa
 
 <h3 id="check-connection-pool">Check Connection Pool<a class="headerlink" href="#check-connection-pool" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># PgBouncer status</span>
-docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-pgbouncer<span class="w"> </span>psql<span class="w"> </span>-h<span class="w"> </span>localhost<span class="w"> </span>-p<span class="w"> </span><span class="m">6432</span><span class="w"> </span>-U<span class="w"> </span>pgbouncer_admin<span class="w"> </span>pgbouncer<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SHOW POOLS;&quot;</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-pgbouncer<span class="w"> </span>psql<span class="w"> </span>-h<span class="w"> </span>localhost<span class="w"> </span>-p<span class="w"> </span><span class="m">6432</span><span class="w"> </span>-U<span class="w"> </span>pgbouncer_admin<span class="w"> </span>pgbouncer<span class="w"> </span>-c<span class="w"> </span><span class="s2">"SHOW POOLS;"</span>
 </code></pre></div>
 
 <p><strong>Expected Output:</strong></p>
@@ -1528,22 +1528,22 @@ docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </spa
 
 <h3 id="check-ssltls">Check SSL/TLS<a class="headerlink" href="#check-ssltls" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Verify SSL is enabled</span>
-docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-postgres-primary<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SHOW ssl;&quot;</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-postgres-primary<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">"SHOW ssl;"</span>
 <span class="c1"># Expected: on</span>
 
 <span class="c1"># Check SSL connections</span>
-docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-postgres-primary<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
-<span class="s2">SELECT datname, usename, ssl, version FROM pg_stat_ssl JOIN pg_stat_activity USING (pid);&quot;</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-postgres-primary<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
+<span class="s2">SELECT datname, usename, ssl, version FROM pg_stat_ssl JOIN pg_stat_activity USING (pid);"</span>
 </code></pre></div>
 
 <h3 id="check-performance-extensions">Check Performance Extensions<a class="headerlink" href="#check-performance-extensions" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Verify pg_stat_statements is loaded</span>
-docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-postgres-primary<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
-<span class="s2">SELECT * FROM pg_extension WHERE extname = &#39;pg_stat_statements&#39;;&quot;</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-postgres-primary<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
+<span class="s2">SELECT * FROM pg_extension WHERE extname = 'pg_stat_statements';"</span>
 
 <span class="c1"># Show top queries</span>
-docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-postgres-primary<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
-<span class="s2">SELECT query, calls, mean_exec_time FROM pg_stat_statements ORDER BY mean_exec_time DESC LIMIT 5;&quot;</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-postgres-primary<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
+<span class="s2">SELECT query, calls, mean_exec_time FROM pg_stat_statements ORDER BY mean_exec_time DESC LIMIT 5;"</span>
 </code></pre></div>
 
 <hr />
@@ -1765,10 +1765,10 @@ docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </spa
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

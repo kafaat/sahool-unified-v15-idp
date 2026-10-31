@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1375,27 +1375,27 @@ curl<span class="w"> </span>http://localhost:8113/readyz
 <h2 id="testing-the-migration">Testing the Migration<a class="headerlink" href="#testing-the-migration" title="Permanent link">&para;</a></h2>
 <h3 id="1-create-an-alert">1. Create an Alert<a class="headerlink" href="#1-create-an-alert" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8113/alerts<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;X-Tenant-Id: test-tenant-123&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
-<span class="s1">    &quot;field_id&quot;: &quot;field-001&quot;,</span>
-<span class="s1">    &quot;type&quot;: &quot;weather&quot;,</span>
-<span class="s1">    &quot;severity&quot;: &quot;high&quot;,</span>
-<span class="s1">    &quot;title&quot;: &quot;تنبيه طقس عاجل&quot;,</span>
-<span class="s1">    &quot;title_en&quot;: &quot;Urgent Weather Alert&quot;,</span>
-<span class="s1">    &quot;message&quot;: &quot;عاصفة قوية متوقعة خلال 6 ساعات&quot;,</span>
-<span class="s1">    &quot;message_en&quot;: &quot;Strong storm expected within 6 hours&quot;</span>
-<span class="s1">  }&#39;</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"X-Tenant-Id: test-tenant-123"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "field_id": "field-001",</span>
+<span class="s1">    "type": "weather",</span>
+<span class="s1">    "severity": "high",</span>
+<span class="s1">    "title": "تنبيه طقس عاجل",</span>
+<span class="s1">    "title_en": "Urgent Weather Alert",</span>
+<span class="s1">    "message": "عاصفة قوية متوقعة خلال 6 ساعات",</span>
+<span class="s1">    "message_en": "Strong storm expected within 6 hours"</span>
+<span class="s1">  }'</span>
 </code></pre></div>
 
 <h3 id="2-list-alerts-for-field">2. List Alerts for Field<a class="headerlink" href="#2-list-alerts-for-field" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s2">&quot;http://localhost:8113/alerts/field/field-001&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;X-Tenant-Id: test-tenant-123&quot;</span>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s2">"http://localhost:8113/alerts/field/field-001"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"X-Tenant-Id: test-tenant-123"</span>
 </code></pre></div>
 
 <h3 id="3-get-statistics">3. Get Statistics<a class="headerlink" href="#3-get-statistics" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s2">&quot;http://localhost:8113/alerts/stats?period=30d&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;X-Tenant-Id: test-tenant-123&quot;</span>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s2">"http://localhost:8113/alerts/stats?period=30d"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"X-Tenant-Id: test-tenant-123"</span>
 </code></pre></div>
 
 <h3 id="4-verify-persistence">4. Verify Persistence<a class="headerlink" href="#4-verify-persistence" title="Permanent link">&para;</a></h3>
@@ -1403,8 +1403,8 @@ curl<span class="w"> </span>http://localhost:8113/readyz
 docker-compose<span class="w"> </span>restart<span class="w"> </span>alert-service
 
 <span class="c1"># Retrieve alerts again - they should still be there</span>
-curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s2">&quot;http://localhost:8113/alerts/field/field-001&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;X-Tenant-Id: test-tenant-123&quot;</span>
+curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s2">"http://localhost:8113/alerts/field/field-001"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"X-Tenant-Id: test-tenant-123"</span>
 </code></pre></div>
 
 <hr />
@@ -1620,10 +1620,10 @@ docker-compose<span class="w"> </span>logs<span class="w"> </span>-f<span class=
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

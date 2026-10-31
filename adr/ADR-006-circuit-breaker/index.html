@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1143,15 +1143,15 @@
 
 <span class="c1"># Simple API call with automatic failover</span>
 <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">circuit_breaker</span><span class="o">.</span><span class="n">call</span><span class="p">(</span>
-    <span class="n">service</span><span class="o">=</span><span class="s2">&quot;field-ops&quot;</span><span class="p">,</span>
-    <span class="n">path</span><span class="o">=</span><span class="s2">&quot;/api/v1/fields&quot;</span><span class="p">,</span>
-    <span class="n">method</span><span class="o">=</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span>
+    <span class="n">service</span><span class="o">=</span><span class="s2">"field-ops"</span><span class="p">,</span>
+    <span class="n">path</span><span class="o">=</span><span class="s2">"/api/v1/fields"</span><span class="p">,</span>
+    <span class="n">method</span><span class="o">=</span><span class="s2">"GET"</span><span class="p">,</span>
     <span class="n">timeout</span><span class="o">=</span><span class="mf">5.0</span>
 <span class="p">)</span>
 
 <span class="c1"># Check if result is fallback data</span>
-<span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;_fallback&quot;</span><span class="p">):</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Using cached/fallback data&quot;</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"_fallback"</span><span class="p">):</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"Using cached/fallback data"</span><span class="p">)</span>
 </code></pre></div>
 
 <h3 id="state-machine">State Machine<a class="headerlink" href="#state-machine" title="Permanent link">&para;</a></h3>
@@ -1186,9 +1186,9 @@
     <span class="n">failure_threshold</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>      <span class="c1"># Open after 5 failures</span>
     <span class="n">recovery_timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>      <span class="c1"># Try again after 60 seconds</span>
     <span class="n">endpoints</span><span class="o">=</span><span class="p">[</span>               <span class="c1"># Kong HA endpoints</span>
-        <span class="s2">&quot;http://kong-primary:8000&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;http://kong-secondary:8000&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;http://kong-tertiary:8000&quot;</span><span class="p">,</span>
+        <span class="s2">"http://kong-primary:8000"</span><span class="p">,</span>
+        <span class="s2">"http://kong-secondary:8000"</span><span class="p">,</span>
+        <span class="s2">"http://kong-tertiary:8000"</span><span class="p">,</span>
     <span class="p">]</span>
 <span class="p">)</span>
 </code></pre></div>
@@ -1245,20 +1245,20 @@
 <div class="codehilite"><pre><span></span><code><span class="c1"># Get circuit breaker status</span>
 <span class="n">status</span> <span class="o">=</span> <span class="n">circuit_breaker</span><span class="o">.</span><span class="n">get_status</span><span class="p">()</span>
 <span class="c1"># {</span>
-<span class="c1">#     &quot;services&quot;: {</span>
-<span class="c1">#         &quot;field-ops&quot;: {</span>
-<span class="c1">#             &quot;state&quot;: &quot;closed&quot;,</span>
-<span class="c1">#             &quot;failures&quot;: 0,</span>
-<span class="c1">#             &quot;last_failure&quot;: &quot;N/A&quot;</span>
+<span class="c1">#     "services": {</span>
+<span class="c1">#         "field-ops": {</span>
+<span class="c1">#             "state": "closed",</span>
+<span class="c1">#             "failures": 0,</span>
+<span class="c1">#             "last_failure": "N/A"</span>
 <span class="c1">#         }</span>
 <span class="c1">#     },</span>
-<span class="c1">#     &quot;endpoints&quot;: [...],</span>
-<span class="c1">#     &quot;config&quot;: {...}</span>
+<span class="c1">#     "endpoints": [...],</span>
+<span class="c1">#     "config": {...}</span>
 <span class="c1"># }</span>
 
 <span class="c1"># Health check all endpoints</span>
 <span class="n">health</span> <span class="o">=</span> <span class="k">await</span> <span class="n">circuit_breaker</span><span class="o">.</span><span class="n">health_check</span><span class="p">()</span>
-<span class="c1"># {&quot;http://kong-primary:8000&quot;: True, ...}</span>
+<span class="c1"># {"http://kong-primary:8000": True, ...}</span>
 </code></pre></div>
 
 <h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
@@ -1316,10 +1316,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

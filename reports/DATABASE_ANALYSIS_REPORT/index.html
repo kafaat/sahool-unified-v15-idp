@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1222,29 +1222,29 @@
 <div class="codehilite"><pre><span></span><code><span class="o">//</span><span class="w"> </span><span class="n">apps</span><span class="o">/</span><span class="n">services</span><span class="o">/</span><span class="n">iot</span><span class="o">-</span><span class="n">service</span><span class="o">/</span><span class="n">prisma</span><span class="o">/</span><span class="k">schema</span><span class="p">.</span><span class="n">prisma</span>
 <span class="n">model</span><span class="w"> </span><span class="n">Device</span><span class="w"> </span><span class="err">{</span>
 <span class="w">  </span><span class="n">id</span><span class="w">            </span><span class="n">String</span><span class="w">   </span><span class="nv">@id</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">uuid</span><span class="p">())</span>
-<span class="w">  </span><span class="n">tenantId</span><span class="w">      </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;tenant_id&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="n">deviceId</span><span class="w">      </span><span class="n">String</span><span class="w">   </span><span class="nv">@unique</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;device_id&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">tenantId</span><span class="w">      </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"tenant_id"</span><span class="p">)</span>
+<span class="w">  </span><span class="n">deviceId</span><span class="w">      </span><span class="n">String</span><span class="w">   </span><span class="nv">@unique</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"device_id"</span><span class="p">)</span>
 <span class="w">  </span><span class="n">name</span><span class="w">          </span><span class="n">String</span>
 <span class="w">  </span><span class="n">type</span><span class="w">          </span><span class="n">DeviceType</span>
 <span class="w">  </span><span class="n">status</span><span class="w">        </span><span class="n">DeviceStatus</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">OFFLINE</span><span class="p">)</span>
-<span class="w">  </span><span class="n">lastSeen</span><span class="w">      </span><span class="nc">DateTime</span><span class="vm">?</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;last_seen&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">lastSeen</span><span class="w">      </span><span class="nc">DateTime</span><span class="vm">?</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"last_seen"</span><span class="p">)</span>
 <span class="w">  </span><span class="n">metadata</span><span class="w">      </span><span class="n">Json</span><span class="vm">?</span>
-<span class="w">  </span><span class="n">fieldId</span><span class="w">       </span><span class="n">String</span><span class="vm">?</span><span class="w">  </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;field_id&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="n">createdAt</span><span class="w">     </span><span class="nc">DateTime</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">now</span><span class="p">())</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;created_at&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="n">updatedAt</span><span class="w">     </span><span class="nc">DateTime</span><span class="w"> </span><span class="nv">@updatedAt</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;updated_at&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">fieldId</span><span class="w">       </span><span class="n">String</span><span class="vm">?</span><span class="w">  </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"field_id"</span><span class="p">)</span>
+<span class="w">  </span><span class="n">createdAt</span><span class="w">     </span><span class="nc">DateTime</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">now</span><span class="p">())</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"created_at"</span><span class="p">)</span>
+<span class="w">  </span><span class="n">updatedAt</span><span class="w">     </span><span class="nc">DateTime</span><span class="w"> </span><span class="nv">@updatedAt</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"updated_at"</span><span class="p">)</span>
 
 <span class="w">  </span><span class="n">sensors</span><span class="w">       </span><span class="n">Sensor</span><span class="err">[]</span>
 <span class="w">  </span><span class="n">actuators</span><span class="w">     </span><span class="n">Actuator</span><span class="err">[]</span>
 
 <span class="w">  </span><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">tenantId</span><span class="o">]</span><span class="p">)</span>
 <span class="w">  </span><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">fieldId</span><span class="o">]</span><span class="p">)</span>
-<span class="w">  </span><span class="nb">@@map</span><span class="p">(</span><span class="ss">&quot;iot_devices&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="nb">@@map</span><span class="p">(</span><span class="ss">"iot_devices"</span><span class="p">)</span>
 <span class="err">}</span>
 
 <span class="n">model</span><span class="w"> </span><span class="n">SensorReading</span><span class="w"> </span><span class="err">{</span>
 <span class="w">  </span><span class="n">id</span><span class="w">        </span><span class="n">String</span><span class="w">   </span><span class="nv">@id</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">uuid</span><span class="p">())</span>
-<span class="w">  </span><span class="n">deviceId</span><span class="w">  </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;device_id&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="n">sensorType</span><span class="w"> </span><span class="n">String</span><span class="w">  </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;sensor_type&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">deviceId</span><span class="w">  </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"device_id"</span><span class="p">)</span>
+<span class="w">  </span><span class="n">sensorType</span><span class="w"> </span><span class="n">String</span><span class="w">  </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"sensor_type"</span><span class="p">)</span>
 <span class="w">  </span><span class="k">value</span><span class="w">     </span><span class="nc">Float</span>
 <span class="w">  </span><span class="n">unit</span><span class="w">      </span><span class="n">String</span>
 <span class="w">  </span><span class="nc">timestamp</span><span class="w"> </span><span class="nc">DateTime</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">now</span><span class="p">())</span>
@@ -1254,7 +1254,7 @@
 
 <span class="w">  </span><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">deviceId, timestamp</span><span class="o">]</span><span class="p">)</span>
 <span class="w">  </span><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">sensorType, timestamp</span><span class="o">]</span><span class="p">)</span>
-<span class="w">  </span><span class="nb">@@map</span><span class="p">(</span><span class="ss">&quot;sensor_readings&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="nb">@@map</span><span class="p">(</span><span class="ss">"sensor_readings"</span><span class="p">)</span>
 <span class="err">}</span>
 </code></pre></div>
 
@@ -1278,19 +1278,19 @@ inventory:         created_by: String (no FK)
 <div class="codehilite"><pre><span></span><code><span class="o">//</span><span class="w"> </span><span class="n">apps</span><span class="o">/</span><span class="n">services</span><span class="o">/</span><span class="k">user</span><span class="o">-</span><span class="n">service</span><span class="o">/</span><span class="n">prisma</span><span class="o">/</span><span class="k">schema</span><span class="p">.</span><span class="n">prisma</span><span class="w"> </span><span class="p">(</span><span class="n">جديد</span><span class="p">)</span>
 <span class="n">model</span><span class="w"> </span><span class="k">User</span><span class="w"> </span><span class="err">{</span>
 <span class="w">  </span><span class="n">id</span><span class="w">              </span><span class="n">String</span><span class="w">   </span><span class="nv">@id</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">uuid</span><span class="p">())</span>
-<span class="w">  </span><span class="n">tenantId</span><span class="w">        </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;tenant_id&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">tenantId</span><span class="w">        </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"tenant_id"</span><span class="p">)</span>
 <span class="w">  </span><span class="n">email</span><span class="w">           </span><span class="n">String</span><span class="w">   </span><span class="nv">@unique</span>
 <span class="w">  </span><span class="n">phone</span><span class="w">           </span><span class="n">String</span><span class="vm">?</span><span class="w">  </span><span class="nv">@unique</span>
-<span class="w">  </span><span class="n">passwordHash</span><span class="w">    </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;password_hash&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="n">firstName</span><span class="w">       </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;first_name&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="n">lastName</span><span class="w">        </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;last_name&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">passwordHash</span><span class="w">    </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"password_hash"</span><span class="p">)</span>
+<span class="w">  </span><span class="n">firstName</span><span class="w">       </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"first_name"</span><span class="p">)</span>
+<span class="w">  </span><span class="n">lastName</span><span class="w">        </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"last_name"</span><span class="p">)</span>
 <span class="w">  </span><span class="k">role</span><span class="w">            </span><span class="n">UserRole</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">FARMER</span><span class="p">)</span>
 <span class="w">  </span><span class="n">status</span><span class="w">          </span><span class="n">UserStatus</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">ACTIVE</span><span class="p">)</span>
-<span class="w">  </span><span class="n">emailVerified</span><span class="w">   </span><span class="k">Boolean</span><span class="w">  </span><span class="nv">@default</span><span class="p">(</span><span class="k">false</span><span class="p">)</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;email_verified&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="n">phoneVerified</span><span class="w">   </span><span class="k">Boolean</span><span class="w">  </span><span class="nv">@default</span><span class="p">(</span><span class="k">false</span><span class="p">)</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;phone_verified&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="n">lastLoginAt</span><span class="w">     </span><span class="nc">DateTime</span><span class="vm">?</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;last_login_at&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="n">createdAt</span><span class="w">       </span><span class="nc">DateTime</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">now</span><span class="p">())</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;created_at&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="n">updatedAt</span><span class="w">       </span><span class="nc">DateTime</span><span class="w"> </span><span class="nv">@updatedAt</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;updated_at&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">emailVerified</span><span class="w">   </span><span class="k">Boolean</span><span class="w">  </span><span class="nv">@default</span><span class="p">(</span><span class="k">false</span><span class="p">)</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"email_verified"</span><span class="p">)</span>
+<span class="w">  </span><span class="n">phoneVerified</span><span class="w">   </span><span class="k">Boolean</span><span class="w">  </span><span class="nv">@default</span><span class="p">(</span><span class="k">false</span><span class="p">)</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"phone_verified"</span><span class="p">)</span>
+<span class="w">  </span><span class="n">lastLoginAt</span><span class="w">     </span><span class="nc">DateTime</span><span class="vm">?</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"last_login_at"</span><span class="p">)</span>
+<span class="w">  </span><span class="n">createdAt</span><span class="w">       </span><span class="nc">DateTime</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">now</span><span class="p">())</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"created_at"</span><span class="p">)</span>
+<span class="w">  </span><span class="n">updatedAt</span><span class="w">       </span><span class="nc">DateTime</span><span class="w"> </span><span class="nv">@updatedAt</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"updated_at"</span><span class="p">)</span>
 
 <span class="w">  </span><span class="n">profile</span><span class="w">         </span><span class="n">UserProfile</span><span class="vm">?</span>
 <span class="w">  </span><span class="n">farms</span><span class="w">           </span><span class="n">Farm</span><span class="err">[]</span>
@@ -1299,23 +1299,23 @@ inventory:         created_by: String (no FK)
 <span class="w">  </span><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">tenantId</span><span class="o">]</span><span class="p">)</span>
 <span class="w">  </span><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">email</span><span class="o">]</span><span class="p">)</span>
 <span class="w">  </span><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">phone</span><span class="o">]</span><span class="p">)</span>
-<span class="w">  </span><span class="nb">@@map</span><span class="p">(</span><span class="ss">&quot;users&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="nb">@@map</span><span class="p">(</span><span class="ss">"users"</span><span class="p">)</span>
 <span class="err">}</span>
 
 <span class="n">model</span><span class="w"> </span><span class="n">UserProfile</span><span class="w"> </span><span class="err">{</span>
 <span class="w">  </span><span class="n">id</span><span class="w">              </span><span class="n">String</span><span class="w">   </span><span class="nv">@id</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">uuid</span><span class="p">())</span>
-<span class="w">  </span><span class="n">userId</span><span class="w">          </span><span class="n">String</span><span class="w">   </span><span class="nv">@unique</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;user_id&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="n">nationalId</span><span class="w">      </span><span class="n">String</span><span class="vm">?</span><span class="w">  </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;national_id&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="n">dateOfBirth</span><span class="w">     </span><span class="nc">DateTime</span><span class="vm">?</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;date_of_birth&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">userId</span><span class="w">          </span><span class="n">String</span><span class="w">   </span><span class="nv">@unique</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"user_id"</span><span class="p">)</span>
+<span class="w">  </span><span class="n">nationalId</span><span class="w">      </span><span class="n">String</span><span class="vm">?</span><span class="w">  </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"national_id"</span><span class="p">)</span>
+<span class="w">  </span><span class="n">dateOfBirth</span><span class="w">     </span><span class="nc">DateTime</span><span class="vm">?</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"date_of_birth"</span><span class="p">)</span>
 <span class="w">  </span><span class="n">address</span><span class="w">         </span><span class="n">String</span><span class="vm">?</span>
 <span class="w">  </span><span class="n">city</span><span class="w">            </span><span class="n">String</span><span class="vm">?</span>
 <span class="w">  </span><span class="n">region</span><span class="w">          </span><span class="n">String</span><span class="vm">?</span>
-<span class="w">  </span><span class="n">country</span><span class="w">         </span><span class="n">String</span><span class="w">   </span><span class="nv">@default</span><span class="p">(</span><span class="ss">&quot;SA&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="n">avatarUrl</span><span class="w">       </span><span class="n">String</span><span class="vm">?</span><span class="w">  </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;avatar_url&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">country</span><span class="w">         </span><span class="n">String</span><span class="w">   </span><span class="nv">@default</span><span class="p">(</span><span class="ss">"SA"</span><span class="p">)</span>
+<span class="w">  </span><span class="n">avatarUrl</span><span class="w">       </span><span class="n">String</span><span class="vm">?</span><span class="w">  </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"avatar_url"</span><span class="p">)</span>
 
 <span class="w">  </span><span class="k">user</span><span class="w">            </span><span class="k">User</span><span class="w">     </span><span class="nv">@relation</span><span class="p">(</span><span class="nl">fields</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="n">userId</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="k">references</span><span class="err">:</span><span class="w"> </span><span class="o">[</span><span class="n">id</span><span class="o">]</span><span class="p">)</span>
 
-<span class="w">  </span><span class="nb">@@map</span><span class="p">(</span><span class="ss">&quot;user_profiles&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="nb">@@map</span><span class="p">(</span><span class="ss">"user_profiles"</span><span class="p">)</span>
 <span class="err">}</span>
 </code></pre></div>
 
@@ -1404,32 +1404,32 @@ inventory:         created_by: String (no FK)
 <p><strong>الحل المقترح:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="n">model</span><span class="w"> </span><span class="n">WeatherObservation</span><span class="w"> </span><span class="err">{</span>
 <span class="w">  </span><span class="n">id</span><span class="w">          </span><span class="n">String</span><span class="w">   </span><span class="nv">@id</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">uuid</span><span class="p">())</span>
-<span class="w">  </span><span class="n">locationId</span><span class="w">  </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;location_id&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">locationId</span><span class="w">  </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"location_id"</span><span class="p">)</span>
 <span class="w">  </span><span class="n">latitude</span><span class="w">    </span><span class="nc">Float</span>
 <span class="w">  </span><span class="n">longitude</span><span class="w">   </span><span class="nc">Float</span>
 <span class="w">  </span><span class="nc">timestamp</span><span class="w">   </span><span class="nc">DateTime</span>
 <span class="w">  </span><span class="n">temperature</span><span class="w"> </span><span class="nc">Float</span>
 <span class="w">  </span><span class="n">humidity</span><span class="w">    </span><span class="nc">Float</span>
 <span class="w">  </span><span class="n">pressure</span><span class="w">    </span><span class="nc">Float</span><span class="vm">?</span>
-<span class="w">  </span><span class="n">windSpeed</span><span class="w">   </span><span class="nc">Float</span><span class="vm">?</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;wind_speed&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="n">windDir</span><span class="w">     </span><span class="nc">Float</span><span class="vm">?</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;wind_direction&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">windSpeed</span><span class="w">   </span><span class="nc">Float</span><span class="vm">?</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"wind_speed"</span><span class="p">)</span>
+<span class="w">  </span><span class="n">windDir</span><span class="w">     </span><span class="nc">Float</span><span class="vm">?</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"wind_direction"</span><span class="p">)</span>
 <span class="w">  </span><span class="n">rainfall</span><span class="w">    </span><span class="nc">Float</span><span class="vm">?</span>
-<span class="w">  </span><span class="n">uvIndex</span><span class="w">     </span><span class="nc">Float</span><span class="vm">?</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;uv_index&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">uvIndex</span><span class="w">     </span><span class="nc">Float</span><span class="vm">?</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"uv_index"</span><span class="p">)</span>
 <span class="w">  </span><span class="n">source</span><span class="w">      </span><span class="n">String</span><span class="w">   </span><span class="o">//</span><span class="w"> </span><span class="n">API</span><span class="w"> </span><span class="n">source</span><span class="w"> </span><span class="p">(</span><span class="n">openweather</span><span class="p">,</span><span class="w"> </span><span class="n">weatherapi</span><span class="p">,</span><span class="w"> </span><span class="n">etc</span><span class="p">)</span>
 
 <span class="w">  </span><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">locationId, timestamp</span><span class="o">]</span><span class="p">)</span>
-<span class="w">  </span><span class="nb">@@map</span><span class="p">(</span><span class="ss">&quot;weather_observations&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="nb">@@map</span><span class="p">(</span><span class="ss">"weather_observations"</span><span class="p">)</span>
 <span class="err">}</span>
 
 <span class="n">model</span><span class="w"> </span><span class="n">WeatherForecast</span><span class="w"> </span><span class="err">{</span>
 <span class="w">  </span><span class="n">id</span><span class="w">          </span><span class="n">String</span><span class="w">   </span><span class="nv">@id</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">uuid</span><span class="p">())</span>
-<span class="w">  </span><span class="n">locationId</span><span class="w">  </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;location_id&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="n">forecastFor</span><span class="w"> </span><span class="nc">DateTime</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;forecast_for&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="n">fetchedAt</span><span class="w">   </span><span class="nc">DateTime</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;fetched_at&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">locationId</span><span class="w">  </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"location_id"</span><span class="p">)</span>
+<span class="w">  </span><span class="n">forecastFor</span><span class="w"> </span><span class="nc">DateTime</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"forecast_for"</span><span class="p">)</span>
+<span class="w">  </span><span class="n">fetchedAt</span><span class="w">   </span><span class="nc">DateTime</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"fetched_at"</span><span class="p">)</span>
 <span class="w">  </span><span class="k">data</span><span class="w">        </span><span class="n">Json</span>
 
 <span class="w">  </span><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">locationId, forecastFor</span><span class="o">]</span><span class="p">)</span>
-<span class="w">  </span><span class="nb">@@map</span><span class="p">(</span><span class="ss">&quot;weather_forecasts&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="nb">@@map</span><span class="p">(</span><span class="ss">"weather_forecasts"</span><span class="p">)</span>
 <span class="err">}</span>
 </code></pre></div>
 
@@ -1439,22 +1439,22 @@ inventory:         created_by: String (no FK)
 <div class="codehilite"><pre><span></span><code><span class="o">//</span><span class="w"> </span><span class="n">مطلوب</span><span class="w"> </span><span class="n">إضافة</span>
 <span class="n">model</span><span class="w"> </span><span class="n">SellerProfile</span><span class="w"> </span><span class="err">{</span>
 <span class="w">  </span><span class="n">id</span><span class="w">            </span><span class="n">String</span><span class="w">   </span><span class="nv">@id</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">uuid</span><span class="p">())</span>
-<span class="w">  </span><span class="n">userId</span><span class="w">        </span><span class="n">String</span><span class="w">   </span><span class="nv">@unique</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;user_id&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="n">businessName</span><span class="w">  </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;business_name&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">userId</span><span class="w">        </span><span class="n">String</span><span class="w">   </span><span class="nv">@unique</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"user_id"</span><span class="p">)</span>
+<span class="w">  </span><span class="n">businessName</span><span class="w">  </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"business_name"</span><span class="p">)</span>
 <span class="w">  </span><span class="n">businessType</span><span class="w">  </span><span class="n">BusinessType</span>
-<span class="w">  </span><span class="n">taxId</span><span class="w">         </span><span class="n">String</span><span class="vm">?</span><span class="w">  </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;tax_id&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">taxId</span><span class="w">         </span><span class="n">String</span><span class="vm">?</span><span class="w">  </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"tax_id"</span><span class="p">)</span>
 <span class="w">  </span><span class="n">rating</span><span class="w">        </span><span class="nc">Float</span><span class="w">    </span><span class="nv">@default</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-<span class="w">  </span><span class="n">totalSales</span><span class="w">    </span><span class="nc">Int</span><span class="w">      </span><span class="nv">@default</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;total_sales&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">totalSales</span><span class="w">    </span><span class="nc">Int</span><span class="w">      </span><span class="nv">@default</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"total_sales"</span><span class="p">)</span>
 <span class="w">  </span><span class="n">verified</span><span class="w">      </span><span class="k">Boolean</span><span class="w">  </span><span class="nv">@default</span><span class="p">(</span><span class="k">false</span><span class="p">)</span>
 
 <span class="w">  </span><span class="n">products</span><span class="w">      </span><span class="n">Product</span><span class="err">[]</span>
-<span class="w">  </span><span class="n">orders</span><span class="w">        </span><span class="k">Order</span><span class="err">[]</span><span class="w">  </span><span class="nv">@relation</span><span class="p">(</span><span class="ss">&quot;SellerOrders&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">orders</span><span class="w">        </span><span class="k">Order</span><span class="err">[]</span><span class="w">  </span><span class="nv">@relation</span><span class="p">(</span><span class="ss">"SellerOrders"</span><span class="p">)</span>
 <span class="err">}</span>
 
 <span class="n">model</span><span class="w"> </span><span class="n">ProductReview</span><span class="w"> </span><span class="err">{</span>
 <span class="w">  </span><span class="n">id</span><span class="w">        </span><span class="n">String</span><span class="w">   </span><span class="nv">@id</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">uuid</span><span class="p">())</span>
-<span class="w">  </span><span class="n">productId</span><span class="w"> </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;product_id&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="n">buyerId</span><span class="w">   </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;buyer_id&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">productId</span><span class="w"> </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"product_id"</span><span class="p">)</span>
+<span class="w">  </span><span class="n">buyerId</span><span class="w">   </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"buyer_id"</span><span class="p">)</span>
 <span class="w">  </span><span class="n">rating</span><span class="w">    </span><span class="nc">Int</span><span class="w">      </span><span class="o">//</span><span class="w"> </span><span class="mi">1</span><span class="o">-</span><span class="mi">5</span>
 <span class="w">  </span><span class="n">comment</span><span class="w">   </span><span class="n">String</span><span class="vm">?</span>
 <span class="w">  </span><span class="n">verified</span><span class="w">  </span><span class="k">Boolean</span><span class="w">  </span><span class="nv">@default</span><span class="p">(</span><span class="k">false</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">verified</span><span class="w"> </span><span class="n">purchase</span>
@@ -1482,7 +1482,7 @@ inventory:         created_by: String (no FK)
 <strong>المطلوب:</strong> Email, SMS, WhatsApp, In-App</p>
 <div class="codehilite"><pre><span></span><code><span class="nx">model</span><span class="w"> </span><span class="nx">NotificationChannel</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="nx">id</span><span class="w">        </span><span class="nx">String</span><span class="w">   </span><span class="err">@</span><span class="nx">id</span><span class="w"> </span><span class="err">@</span><span class="k">default</span><span class="p">(</span><span class="nx">uuid</span><span class="p">())</span>
-<span class="w">  </span><span class="nx">userId</span><span class="w">    </span><span class="nx">String</span><span class="w">   </span><span class="err">@</span><span class="nx">map</span><span class="p">(</span><span class="s">&quot;user_id&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">userId</span><span class="w">    </span><span class="nx">String</span><span class="w">   </span><span class="err">@</span><span class="nx">map</span><span class="p">(</span><span class="s">"user_id"</span><span class="p">)</span>
 <span class="w">  </span><span class="nx">channel</span><span class="w">   </span><span class="nx">ChannelType</span><span class="w"> </span><span class="c1">// EMAIL, SMS, PUSH, WHATSAPP</span>
 <span class="w">  </span><span class="nx">address</span><span class="w">   </span><span class="nx">String</span><span class="w">   </span><span class="c1">// email address, phone number, device token</span>
 <span class="w">  </span><span class="nx">verified</span><span class="w">  </span><span class="nx">Boolean</span><span class="w">  </span><span class="err">@</span><span class="k">default</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
@@ -1493,12 +1493,12 @@ inventory:         created_by: String (no FK)
 
 <span class="nx">model</span><span class="w"> </span><span class="nx">NotificationPreference</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="nx">id</span><span class="w">          </span><span class="nx">String</span><span class="w">   </span><span class="err">@</span><span class="nx">id</span><span class="w"> </span><span class="err">@</span><span class="k">default</span><span class="p">(</span><span class="nx">uuid</span><span class="p">())</span>
-<span class="w">  </span><span class="nx">userId</span><span class="w">      </span><span class="nx">String</span><span class="w">   </span><span class="err">@</span><span class="nx">map</span><span class="p">(</span><span class="s">&quot;user_id&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="nx">eventType</span><span class="w">   </span><span class="nx">String</span><span class="w">   </span><span class="err">@</span><span class="nx">map</span><span class="p">(</span><span class="s">&quot;event_type&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="nx">channels</span><span class="w">    </span><span class="nx">String</span><span class="p">[]</span><span class="w"> </span><span class="c1">// [&quot;EMAIL&quot;, &quot;PUSH&quot;]</span>
+<span class="w">  </span><span class="nx">userId</span><span class="w">      </span><span class="nx">String</span><span class="w">   </span><span class="err">@</span><span class="nx">map</span><span class="p">(</span><span class="s">"user_id"</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">eventType</span><span class="w">   </span><span class="nx">String</span><span class="w">   </span><span class="err">@</span><span class="nx">map</span><span class="p">(</span><span class="s">"event_type"</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">channels</span><span class="w">    </span><span class="nx">String</span><span class="p">[]</span><span class="w"> </span><span class="c1">// ["EMAIL", "PUSH"]</span>
 <span class="w">  </span><span class="nx">enabled</span><span class="w">     </span><span class="nx">Boolean</span><span class="w">  </span><span class="err">@</span><span class="k">default</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
-<span class="w">  </span><span class="nx">quietStart</span><span class="w">  </span><span class="nx">String</span><span class="p">?</span><span class="w">  </span><span class="err">@</span><span class="nx">map</span><span class="p">(</span><span class="s">&quot;quiet_hours_start&quot;</span><span class="p">)</span><span class="w"> </span><span class="c1">// &quot;22:00&quot;</span>
-<span class="w">  </span><span class="nx">quietEnd</span><span class="w">    </span><span class="nx">String</span><span class="p">?</span><span class="w">  </span><span class="err">@</span><span class="nx">map</span><span class="p">(</span><span class="s">&quot;quiet_hours_end&quot;</span><span class="p">)</span><span class="w">   </span><span class="c1">// &quot;06:00&quot;</span>
+<span class="w">  </span><span class="nx">quietStart</span><span class="w">  </span><span class="nx">String</span><span class="p">?</span><span class="w">  </span><span class="err">@</span><span class="nx">map</span><span class="p">(</span><span class="s">"quiet_hours_start"</span><span class="p">)</span><span class="w"> </span><span class="c1">// "22:00"</span>
+<span class="w">  </span><span class="nx">quietEnd</span><span class="w">    </span><span class="nx">String</span><span class="p">?</span><span class="w">  </span><span class="err">@</span><span class="nx">map</span><span class="p">(</span><span class="s">"quiet_hours_end"</span><span class="p">)</span><span class="w">   </span><span class="c1">// "06:00"</span>
 
 <span class="w">  </span><span class="err">@@</span><span class="nx">unique</span><span class="p">([</span><span class="nx">userId</span><span class="p">,</span><span class="w"> </span><span class="nx">eventType</span><span class="p">])</span>
 <span class="p">}</span>
@@ -1507,13 +1507,13 @@ inventory:         created_by: String (no FK)
 <h3 id="8-field-core-">8. Field Core - إدارة الآفات مفقودة<a class="headerlink" href="#8-field-core-" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="n">model</span><span class="w"> </span><span class="n">PestIncident</span><span class="w"> </span><span class="err">{</span>
 <span class="w">  </span><span class="n">id</span><span class="w">            </span><span class="n">String</span><span class="w">   </span><span class="nv">@id</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">uuid</span><span class="p">())</span>
-<span class="w">  </span><span class="n">fieldId</span><span class="w">       </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;field_id&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="n">cropSeasonId</span><span class="w">  </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;crop_season_id&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">fieldId</span><span class="w">       </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"field_id"</span><span class="p">)</span>
+<span class="w">  </span><span class="n">cropSeasonId</span><span class="w">  </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"crop_season_id"</span><span class="p">)</span>
 <span class="w">  </span><span class="n">pestType</span><span class="w">      </span><span class="n">PestType</span>
 <span class="w">  </span><span class="n">severityLevel</span><span class="w"> </span><span class="nc">Int</span><span class="w">      </span><span class="o">//</span><span class="w"> </span><span class="mi">1</span><span class="o">-</span><span class="mi">5</span>
-<span class="w">  </span><span class="n">affectedArea</span><span class="w">  </span><span class="nc">Float</span><span class="w">    </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;affected_area&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">hectares</span>
-<span class="w">  </span><span class="n">detectedAt</span><span class="w">    </span><span class="nc">DateTime</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;detected_at&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="n">reportedBy</span><span class="w">    </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;reported_by&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">affectedArea</span><span class="w">  </span><span class="nc">Float</span><span class="w">    </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"affected_area"</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">hectares</span>
+<span class="w">  </span><span class="n">detectedAt</span><span class="w">    </span><span class="nc">DateTime</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"detected_at"</span><span class="p">)</span>
+<span class="w">  </span><span class="n">reportedBy</span><span class="w">    </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"reported_by"</span><span class="p">)</span>
 <span class="w">  </span><span class="n">status</span><span class="w">        </span><span class="n">IncidentStatus</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">ACTIVE</span><span class="p">)</span>
 
 <span class="w">  </span><span class="n">treatments</span><span class="w">    </span><span class="n">PestTreatment</span><span class="err">[]</span>
@@ -1523,12 +1523,12 @@ inventory:         created_by: String (no FK)
 
 <span class="n">model</span><span class="w"> </span><span class="n">PestTreatment</span><span class="w"> </span><span class="err">{</span>
 <span class="w">  </span><span class="n">id</span><span class="w">          </span><span class="n">String</span><span class="w">   </span><span class="nv">@id</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">uuid</span><span class="p">())</span>
-<span class="w">  </span><span class="n">incidentId</span><span class="w">  </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;incident_id&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="n">treatmentDate</span><span class="w"> </span><span class="nc">DateTime</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;treatment_date&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">incidentId</span><span class="w">  </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"incident_id"</span><span class="p">)</span>
+<span class="w">  </span><span class="n">treatmentDate</span><span class="w"> </span><span class="nc">DateTime</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"treatment_date"</span><span class="p">)</span>
 <span class="w">  </span><span class="k">method</span><span class="w">      </span><span class="n">String</span>
-<span class="w">  </span><span class="n">productUsed</span><span class="w"> </span><span class="n">String</span><span class="vm">?</span><span class="w">  </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;product_used&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">productUsed</span><span class="w"> </span><span class="n">String</span><span class="vm">?</span><span class="w">  </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"product_used"</span><span class="p">)</span>
 <span class="w">  </span><span class="n">quantity</span><span class="w">    </span><span class="nc">Float</span><span class="vm">?</span>
-<span class="w">  </span><span class="n">appliedBy</span><span class="w">   </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;applied_by&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">appliedBy</span><span class="w">   </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"applied_by"</span><span class="p">)</span>
 <span class="w">  </span><span class="n">effectiveness</span><span class="w"> </span><span class="nc">Int</span><span class="vm">?</span><span class="w">   </span><span class="o">//</span><span class="w"> </span><span class="mi">1</span><span class="o">-</span><span class="mi">5</span><span class="w"> </span><span class="n">rating</span>
 
 <span class="w">  </span><span class="n">incident</span><span class="w">    </span><span class="n">PestIncident</span><span class="w"> </span><span class="nv">@relation</span><span class="p">(</span><span class="nl">fields</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="n">incidentId</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="k">references</span><span class="err">:</span><span class="w"> </span><span class="o">[</span><span class="n">id</span><span class="o">]</span><span class="p">)</span>
@@ -1550,9 +1550,9 @@ inventory:         created_by: String (no FK)
 
 <p><strong>المطلوب:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// نشر الأحداث عند التغييرات</span>
-<span class="k">await</span><span class="w"> </span><span class="nx">natsClient</span><span class="p">.</span><span class="nx">publish</span><span class="p">(</span><span class="s2">&quot;field.created&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">fieldId</span><span class="p">,</span><span class="w"> </span><span class="nx">tenantId</span><span class="w"> </span><span class="p">});</span>
-<span class="k">await</span><span class="w"> </span><span class="nx">natsClient</span><span class="p">.</span><span class="nx">publish</span><span class="p">(</span><span class="s2">&quot;order.placed&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">orderId</span><span class="p">,</span><span class="w"> </span><span class="nx">buyerId</span><span class="w"> </span><span class="p">});</span>
-<span class="k">await</span><span class="w"> </span><span class="nx">natsClient</span><span class="p">.</span><span class="nx">publish</span><span class="p">(</span><span class="s2">&quot;sensor.reading&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">deviceId</span><span class="p">,</span><span class="w"> </span><span class="nx">value</span><span class="w"> </span><span class="p">});</span>
+<span class="k">await</span><span class="w"> </span><span class="nx">natsClient</span><span class="p">.</span><span class="nx">publish</span><span class="p">(</span><span class="s2">"field.created"</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">fieldId</span><span class="p">,</span><span class="w"> </span><span class="nx">tenantId</span><span class="w"> </span><span class="p">});</span>
+<span class="k">await</span><span class="w"> </span><span class="nx">natsClient</span><span class="p">.</span><span class="nx">publish</span><span class="p">(</span><span class="s2">"order.placed"</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">orderId</span><span class="p">,</span><span class="w"> </span><span class="nx">buyerId</span><span class="w"> </span><span class="p">});</span>
+<span class="k">await</span><span class="w"> </span><span class="nx">natsClient</span><span class="p">.</span><span class="nx">publish</span><span class="p">(</span><span class="s2">"sensor.reading"</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">deviceId</span><span class="p">,</span><span class="w"> </span><span class="nx">value</span><span class="w"> </span><span class="p">});</span>
 </code></pre></div>
 
 <hr />
@@ -1595,8 +1595,8 @@ marketplace:   tenantId: String
 <p>معظم الجداول تستخدم <code>is_active</code> بدلاً من <code>deleted_at</code>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// المطلوب</span>
 <span class="n">model</span><span class="w"> </span><span class="n">BaseEntity</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="n">deletedAt</span><span class="w"> </span><span class="n">DateTime</span>?<span class="w"> </span><span class="p">@</span><span class="n">map</span><span class="p">(</span><span class="s">&quot;deleted_at&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="n">deletedBy</span><span class="w"> </span><span class="n">String</span>?<span class="w">   </span><span class="p">@</span><span class="n">map</span><span class="p">(</span><span class="s">&quot;deleted_by&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">deletedAt</span><span class="w"> </span><span class="n">DateTime</span>?<span class="w"> </span><span class="p">@</span><span class="n">map</span><span class="p">(</span><span class="s">"deleted_at"</span><span class="p">)</span>
+<span class="w">  </span><span class="n">deletedBy</span><span class="w"> </span><span class="n">String</span>?<span class="w">   </span><span class="p">@</span><span class="n">map</span><span class="p">(</span><span class="s">"deleted_by"</span><span class="p">)</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1779,10 +1779,10 @@ apps/services/weather-service/prisma/
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1252,10 +1252,10 @@
 <div class="codehilite"><pre><span></span><code><span class="c1"># docker-compose.yml &amp; docker-compose.pgbouncer.yml</span>
 <span class="nt">healthcheck</span><span class="p">:</span>
 <span class="w">  </span><span class="c1"># BEFORE: Basic port check</span>
-<span class="w">  </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CMD&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;pg_isready&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;-h&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;localhost&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;-p&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;6432&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"CMD"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"pg_isready"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"-h"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"localhost"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"-p"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"6432"</span><span class="p p-Indicator">]</span>
 
 <span class="w">  </span><span class="c1"># AFTER: Active pool verification</span>
-<span class="w">  </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CMD-SHELL&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;psql</span><span class="nv"> </span><span class="s">-h</span><span class="nv"> </span><span class="s">localhost</span><span class="nv"> </span><span class="s">-p</span><span class="nv"> </span><span class="s">6432</span><span class="nv"> </span><span class="s">-U</span><span class="nv"> </span><span class="s">${POSTGRES_USER:-sahool}</span><span class="nv"> </span><span class="s">-d</span><span class="nv"> </span><span class="s">pgbouncer</span><span class="nv"> </span><span class="s">-c</span><span class="nv"> </span><span class="s">&#39;SHOW</span><span class="nv"> </span><span class="s">POOLS;&#39;</span><span class="nv"> </span><span class="s">||</span><span class="nv"> </span><span class="s">exit</span><span class="nv"> </span><span class="s">1&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"CMD-SHELL"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"psql</span><span class="nv"> </span><span class="s">-h</span><span class="nv"> </span><span class="s">localhost</span><span class="nv"> </span><span class="s">-p</span><span class="nv"> </span><span class="s">6432</span><span class="nv"> </span><span class="s">-U</span><span class="nv"> </span><span class="s">${POSTGRES_USER:-sahool}</span><span class="nv"> </span><span class="s">-d</span><span class="nv"> </span><span class="s">pgbouncer</span><span class="nv"> </span><span class="s">-c</span><span class="nv"> </span><span class="s">'SHOW</span><span class="nv"> </span><span class="s">POOLS;'</span><span class="nv"> </span><span class="s">||</span><span class="nv"> </span><span class="s">exit</span><span class="nv"> </span><span class="s">1"</span><span class="p p-Indicator">]</span>
 <span class="w">  </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span>
 <span class="w">  </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10s</span>
 <span class="w">  </span><span class="nt">retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
@@ -1443,7 +1443,7 @@ docker-compose.pgbouncer.yml:
 <span class="nb">cd</span><span class="w"> </span>/home/user/sahool-unified-v15-idp
 
 <span class="c1"># 2. Verify configuration</span>
-grep<span class="w"> </span><span class="s2">&quot;max_db_connections\|client_idle_timeout&quot;</span><span class="w"> </span>infrastructure/core/pgbouncer/pgbouncer.ini
+grep<span class="w"> </span><span class="s2">"max_db_connections\|client_idle_timeout"</span><span class="w"> </span>infrastructure/core/pgbouncer/pgbouncer.ini
 
 <span class="c1"># Expected output:</span>
 <span class="c1"># max_db_connections = 250</span>
@@ -1457,10 +1457,10 @@ docker<span class="w"> </span>ps<span class="w"> </span><span class="p">|</span>
 docker<span class="w"> </span>logs<span class="w"> </span>sahool-pgbouncer<span class="w"> </span>--tail<span class="w"> </span><span class="m">50</span>
 
 <span class="c1"># 5. Test connection</span>
-<span class="nv">PGPASSWORD</span><span class="o">=</span><span class="nv">$POSTGRES_PASSWORD</span><span class="w"> </span>psql<span class="w"> </span>-h<span class="w"> </span><span class="m">127</span>.0.0.1<span class="w"> </span>-p<span class="w"> </span><span class="m">6432</span><span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SELECT 1;&quot;</span>
+<span class="nv">PGPASSWORD</span><span class="o">=</span><span class="nv">$POSTGRES_PASSWORD</span><span class="w"> </span>psql<span class="w"> </span>-h<span class="w"> </span><span class="m">127</span>.0.0.1<span class="w"> </span>-p<span class="w"> </span><span class="m">6432</span><span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">"SELECT 1;"</span>
 
 <span class="c1"># 6. Check pool status</span>
-<span class="nv">PGPASSWORD</span><span class="o">=</span><span class="nv">$POSTGRES_PASSWORD</span><span class="w"> </span>psql<span class="w"> </span>-h<span class="w"> </span><span class="m">127</span>.0.0.1<span class="w"> </span>-p<span class="w"> </span><span class="m">6432</span><span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>pgbouncer<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SHOW POOLS;&quot;</span>
+<span class="nv">PGPASSWORD</span><span class="o">=</span><span class="nv">$POSTGRES_PASSWORD</span><span class="w"> </span>psql<span class="w"> </span>-h<span class="w"> </span><span class="m">127</span>.0.0.1<span class="w"> </span>-p<span class="w"> </span><span class="m">6432</span><span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>pgbouncer<span class="w"> </span>-c<span class="w"> </span><span class="s2">"SHOW POOLS;"</span>
 
 <span class="c1"># 7. Run health check</span>
 ./infrastructure/core/pgbouncer/healthcheck.sh<span class="w"> </span>--verbose
@@ -1481,22 +1481,22 @@ docker<span class="w"> </span>logs<span class="w"> </span>sahool-pgbouncer<span 
 <h2 id="testing-procedures">Testing Procedures<a class="headerlink" href="#testing-procedures" title="Permanent link">&para;</a></h2>
 <h3 id="1-basic-connectivity-test">1. Basic Connectivity Test<a class="headerlink" href="#1-basic-connectivity-test" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="nv">PGPASSWORD</span><span class="o">=</span><span class="nv">$POSTGRES_PASSWORD</span><span class="w"> </span>psql<span class="w"> </span>-h<span class="w"> </span><span class="m">127</span>.0.0.1<span class="w"> </span>-p<span class="w"> </span><span class="m">6432</span><span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>sahool<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-c<span class="w"> </span><span class="s2">&quot;SELECT current_user, current_database(), version();&quot;</span>
+<span class="w">  </span>-c<span class="w"> </span><span class="s2">"SELECT current_user, current_database(), version();"</span>
 </code></pre></div>
 
 <p><strong>Expected:</strong> Connection successful, returns user, database, version</p>
 <h3 id="2-pool-status-check">2. Pool Status Check<a class="headerlink" href="#2-pool-status-check" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="nv">PGPASSWORD</span><span class="o">=</span><span class="nv">$POSTGRES_PASSWORD</span><span class="w"> </span>psql<span class="w"> </span>-h<span class="w"> </span><span class="m">127</span>.0.0.1<span class="w"> </span>-p<span class="w"> </span><span class="m">6432</span><span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>pgbouncer<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-c<span class="w"> </span><span class="s2">&quot;SHOW POOLS;&quot;</span>
+<span class="w">  </span>-c<span class="w"> </span><span class="s2">"SHOW POOLS;"</span>
 </code></pre></div>
 
 <p><strong>Expected:</strong> Shows pools with cl_active, sv_active, sv_idle columns</p>
 <h3 id="3-load-test-100-concurrent-connections">3. Load Test (100 concurrent connections)<a class="headerlink" href="#3-load-test-100-concurrent-connections" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code>seq<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>xargs<span class="w"> </span>-P<span class="w"> </span><span class="m">100</span><span class="w"> </span>-I<span class="w"> </span><span class="o">{}</span><span class="w"> </span>psql<span class="w"> </span>-h<span class="w"> </span><span class="m">127</span>.0.0.1<span class="w"> </span>-p<span class="w"> </span><span class="m">6432</span><span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>sahool<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-c<span class="w"> </span><span class="s2">&quot;SELECT pg_sleep(0.1), current_user;&quot;</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">  </span>-c<span class="w"> </span><span class="s2">"SELECT pg_sleep(0.1), current_user;"</span><span class="w"> </span><span class="p">&amp;</span>
 
 <span class="c1"># Monitor in separate terminal</span>
-watch<span class="w"> </span>-n<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="s2">&quot;PGPASSWORD=\$POSTGRES_PASSWORD psql -h 127.0.0.1 -p 6432 -U sahool -d pgbouncer -c &#39;SHOW POOLS;&#39;&quot;</span>
+watch<span class="w"> </span>-n<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="s2">"PGPASSWORD=\$POSTGRES_PASSWORD psql -h 127.0.0.1 -p 6432 -U sahool -d pgbouncer -c 'SHOW POOLS;'"</span>
 </code></pre></div>
 
 <p><strong>Expected:</strong></p>
@@ -1520,10 +1520,10 @@ SELECT<span class="w"> </span><span class="m">1</span><span class="p">;</span>
 <h3 id="5-tls-verification">5. TLS Verification<a class="headerlink" href="#5-tls-verification" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Should succeed</span>
 <span class="nv">PGSSLMODE</span><span class="o">=</span>require<span class="w"> </span><span class="nv">PGPASSWORD</span><span class="o">=</span><span class="nv">$POSTGRES_PASSWORD</span><span class="w"> </span>psql<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-h<span class="w"> </span><span class="m">127</span>.0.0.1<span class="w"> </span>-p<span class="w"> </span><span class="m">6432</span><span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SELECT 1;&quot;</span>
+<span class="w">  </span>-h<span class="w"> </span><span class="m">127</span>.0.0.1<span class="w"> </span>-p<span class="w"> </span><span class="m">6432</span><span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">"SELECT 1;"</span>
 
 <span class="c1"># Check TLS in logs</span>
-docker<span class="w"> </span>logs<span class="w"> </span>sahool-pgbouncer<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;tls\|ssl&quot;</span>
+docker<span class="w"> </span>logs<span class="w"> </span>sahool-pgbouncer<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">"tls\|ssl"</span>
 </code></pre></div>
 
 <p><strong>Expected:</strong> TLS connection successful</p>
@@ -1547,10 +1547,10 @@ docker<span class="w"> </span>logs<span class="w"> </span>sahool-pgbouncer<span 
 <h2 id="monitoring-setup">Monitoring Setup<a class="headerlink" href="#monitoring-setup" title="Permanent link">&para;</a></h2>
 <h3 id="real-time-monitoring">Real-Time Monitoring<a class="headerlink" href="#real-time-monitoring" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Watch pool status every 5 seconds</span>
-watch<span class="w"> </span>-n<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="s2">&quot;PGPASSWORD=\$POSTGRES_PASSWORD psql -h 127.0.0.1 -p 6432 -U sahool -d pgbouncer -c &#39;SHOW POOLS;&#39;&quot;</span>
+watch<span class="w"> </span>-n<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="s2">"PGPASSWORD=\$POSTGRES_PASSWORD psql -h 127.0.0.1 -p 6432 -U sahool -d pgbouncer -c 'SHOW POOLS;'"</span>
 
 <span class="c1"># Health check every 30 seconds</span>
-watch<span class="w"> </span>-n<span class="w"> </span><span class="m">30</span><span class="w"> </span><span class="s2">&quot;./infrastructure/core/pgbouncer/healthcheck.sh --json&quot;</span>
+watch<span class="w"> </span>-n<span class="w"> </span><span class="m">30</span><span class="w"> </span><span class="s2">"./infrastructure/core/pgbouncer/healthcheck.sh --json"</span>
 </code></pre></div>
 
 <h3 id="automated-health-checks-cron">Automated Health Checks (Cron)<a class="headerlink" href="#automated-health-checks-cron" title="Permanent link">&para;</a></h3>
@@ -1680,10 +1680,10 @@ docker<span class="w"> </span>compose<span class="w"> </span>restart<span class=
 </ul>
 <h3 id="quick-reference">Quick Reference<a class="headerlink" href="#quick-reference" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># View current configuration</span>
-cat<span class="w"> </span>infrastructure/core/pgbouncer/pgbouncer.ini<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s2">&quot;max_db|pool_size|idle_timeout&quot;</span>
+cat<span class="w"> </span>infrastructure/core/pgbouncer/pgbouncer.ini<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s2">"max_db|pool_size|idle_timeout"</span>
 
 <span class="c1"># Check pool status</span>
-<span class="nv">PGPASSWORD</span><span class="o">=</span><span class="nv">$POSTGRES_PASSWORD</span><span class="w"> </span>psql<span class="w"> </span>-h<span class="w"> </span><span class="m">127</span>.0.0.1<span class="w"> </span>-p<span class="w"> </span><span class="m">6432</span><span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>pgbouncer<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SHOW POOLS;&quot;</span>
+<span class="nv">PGPASSWORD</span><span class="o">=</span><span class="nv">$POSTGRES_PASSWORD</span><span class="w"> </span>psql<span class="w"> </span>-h<span class="w"> </span><span class="m">127</span>.0.0.1<span class="w"> </span>-p<span class="w"> </span><span class="m">6432</span><span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>pgbouncer<span class="w"> </span>-c<span class="w"> </span><span class="s2">"SHOW POOLS;"</span>
 
 <span class="c1"># Run health check</span>
 ./infrastructure/core/pgbouncer/healthcheck.sh<span class="w"> </span>--verbose
@@ -1749,7 +1749,7 @@ docker<span class="w"> </span>logs<span class="w"> </span>sahool-pgbouncer<span 
 <h3 id="recommended-next-action">Recommended Next Action<a class="headerlink" href="#recommended-next-action" title="Permanent link">&para;</a></h3>
 <p><strong>Deploy to production and monitor for 1-2 weeks</strong></p>
 <div class="codehilite"><pre><span></span><code>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>pgbouncer
-watch<span class="w"> </span>-n<span class="w"> </span><span class="m">30</span><span class="w"> </span><span class="s2">&quot;./infrastructure/core/pgbouncer/healthcheck.sh --verbose&quot;</span>
+watch<span class="w"> </span>-n<span class="w"> </span><span class="m">30</span><span class="w"> </span><span class="s2">"./infrastructure/core/pgbouncer/healthcheck.sh --verbose"</span>
 </code></pre></div>
 
 <hr />
@@ -1812,10 +1812,10 @@ watch<span class="w"> </span>-n<span class="w"> </span><span class="m">30</span>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

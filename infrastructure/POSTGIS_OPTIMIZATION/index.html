@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1236,7 +1236,7 @@
 <span class="c1">-- Monthly partitions</span>
 <span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">ndvi_readings_2024_01</span>
 <span class="n">PARTITION</span><span class="w"> </span><span class="k">OF</span><span class="w"> </span><span class="n">ndvi_readings</span>
-<span class="k">FOR</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;2024-01-01&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;2024-02-01&#39;</span><span class="p">);</span>
+<span class="k">FOR</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="s1">'2024-01-01'</span><span class="p">)</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="p">(</span><span class="s1">'2024-02-01'</span><span class="p">);</span>
 </code></pre></div>
 
 <h3 id="benefits">Benefits<a class="headerlink" href="#benefits" title="Permanent link">&para;</a></h3>
@@ -1250,7 +1250,7 @@
 <div class="codehilite"><pre><span></span><code><span class="c1">-- Create new partition (run monthly)</span>
 <span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">ndvi_readings_2025_02</span>
 <span class="n">PARTITION</span><span class="w"> </span><span class="k">OF</span><span class="w"> </span><span class="n">ndvi_readings</span>
-<span class="k">FOR</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;2025-02-01&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;2025-03-01&#39;</span><span class="p">);</span>
+<span class="k">FOR</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="s1">'2025-02-01'</span><span class="p">)</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="p">(</span><span class="s1">'2025-03-01'</span><span class="p">);</span>
 
 <span class="c1">-- Drop old partition (data retention)</span>
 <span class="k">DROP</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">ndvi_readings_2023_01</span><span class="p">;</span>
@@ -1273,7 +1273,7 @@
 <span class="w">    </span><span class="k">MAX</span><span class="p">(</span><span class="n">r</span><span class="p">.</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">max_ndvi</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="n">f</span>
 <span class="k">LEFT</span><span class="w"> </span><span class="k">JOIN</span><span class="w"> </span><span class="n">ndvi_readings</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">f</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">field_id</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="k">timestamp</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">NOW</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">INTERVAL</span><span class="w"> </span><span class="s1">&#39;90 days&#39;</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="k">timestamp</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">NOW</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">INTERVAL</span><span class="w"> </span><span class="s1">'90 days'</span>
 <span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">f</span><span class="p">.</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">f</span><span class="p">.</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="nb">DATE</span><span class="p">(</span><span class="n">r</span><span class="p">.</span><span class="k">timestamp</span><span class="p">)</span>
 <span class="k">WITH</span><span class="w"> </span><span class="k">DATA</span><span class="p">;</span>
 
@@ -1287,33 +1287,33 @@
 <span class="k">SELECT</span>
 <span class="w">    </span><span class="n">f</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">field_id</span><span class="p">,</span>
 <span class="w">    </span><span class="n">f</span><span class="p">.</span><span class="n">crop_type</span><span class="p">,</span>
-<span class="w">    </span><span class="n">DATE_TRUNC</span><span class="p">(</span><span class="s1">&#39;week&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="k">timestamp</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">week_start</span><span class="p">,</span>
+<span class="w">    </span><span class="n">DATE_TRUNC</span><span class="p">(</span><span class="s1">'week'</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="k">timestamp</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">week_start</span><span class="p">,</span>
 <span class="w">    </span><span class="k">AVG</span><span class="p">(</span><span class="n">r</span><span class="p">.</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">avg_ndvi</span><span class="p">,</span>
 <span class="w">    </span><span class="k">CASE</span>
-<span class="w">        </span><span class="k">WHEN</span><span class="w"> </span><span class="k">AVG</span><span class="p">(</span><span class="n">r</span><span class="p">.</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">.</span><span class="mi">6</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="s1">&#39;healthy&#39;</span>
-<span class="w">        </span><span class="k">WHEN</span><span class="w"> </span><span class="k">AVG</span><span class="p">(</span><span class="n">r</span><span class="p">.</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">.</span><span class="mi">4</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="s1">&#39;moderate&#39;</span>
-<span class="w">        </span><span class="k">WHEN</span><span class="w"> </span><span class="k">AVG</span><span class="p">(</span><span class="n">r</span><span class="p">.</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">.</span><span class="mi">2</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="s1">&#39;stressed&#39;</span>
-<span class="w">        </span><span class="k">ELSE</span><span class="w"> </span><span class="s1">&#39;critical&#39;</span>
+<span class="w">        </span><span class="k">WHEN</span><span class="w"> </span><span class="k">AVG</span><span class="p">(</span><span class="n">r</span><span class="p">.</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">.</span><span class="mi">6</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="s1">'healthy'</span>
+<span class="w">        </span><span class="k">WHEN</span><span class="w"> </span><span class="k">AVG</span><span class="p">(</span><span class="n">r</span><span class="p">.</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">.</span><span class="mi">4</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="s1">'moderate'</span>
+<span class="w">        </span><span class="k">WHEN</span><span class="w"> </span><span class="k">AVG</span><span class="p">(</span><span class="n">r</span><span class="p">.</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">.</span><span class="mi">2</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="s1">'stressed'</span>
+<span class="w">        </span><span class="k">ELSE</span><span class="w"> </span><span class="s1">'critical'</span>
 <span class="w">    </span><span class="k">END</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">health_status</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="n">f</span>
 <span class="k">JOIN</span><span class="w"> </span><span class="n">ndvi_readings</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">f</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="n">field_id</span>
-<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">f</span><span class="p">.</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">f</span><span class="p">.</span><span class="n">crop_type</span><span class="p">,</span><span class="w"> </span><span class="n">DATE_TRUNC</span><span class="p">(</span><span class="s1">&#39;week&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="k">timestamp</span><span class="p">)</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">f</span><span class="p">.</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">f</span><span class="p">.</span><span class="n">crop_type</span><span class="p">,</span><span class="w"> </span><span class="n">DATE_TRUNC</span><span class="p">(</span><span class="s1">'week'</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">.</span><span class="k">timestamp</span><span class="p">)</span>
 <span class="k">WITH</span><span class="w"> </span><span class="k">DATA</span><span class="p">;</span>
 </code></pre></div>
 
 <h3 id="scheduled-refresh-pg_cron">Scheduled Refresh (pg_cron)<a class="headerlink" href="#scheduled-refresh-pg_cron" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1">-- Refresh daily summary every hour</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="n">cron</span><span class="p">.</span><span class="n">schedule</span><span class="p">(</span>
-<span class="w">    </span><span class="s1">&#39;refresh-daily-summary&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="s1">&#39;0 * * * *&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="s1">&#39;REFRESH MATERIALIZED VIEW CONCURRENTLY mv_daily_field_summary&#39;</span>
+<span class="w">    </span><span class="s1">'refresh-daily-summary'</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">'0 * * * *'</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">'REFRESH MATERIALIZED VIEW CONCURRENTLY mv_daily_field_summary'</span>
 <span class="p">);</span>
 
 <span class="c1">-- Refresh weekly health every 6 hours</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="n">cron</span><span class="p">.</span><span class="n">schedule</span><span class="p">(</span>
-<span class="w">    </span><span class="s1">&#39;refresh-weekly-health&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="s1">&#39;0 */6 * * *&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="s1">&#39;REFRESH MATERIALIZED VIEW CONCURRENTLY mv_weekly_crop_health&#39;</span>
+<span class="w">    </span><span class="s1">'refresh-weekly-health'</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">'0 */6 * * *'</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">'REFRESH MATERIALIZED VIEW CONCURRENTLY mv_weekly_crop_health'</span>
 <span class="p">);</span>
 </code></pre></div>
 
@@ -1343,15 +1343,15 @@
 <div class="codehilite"><pre><span></span><code><span class="c1">-- From weekly health view</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="n">field_id</span><span class="p">,</span><span class="w"> </span><span class="n">crop_type</span><span class="p">,</span><span class="w"> </span><span class="n">avg_ndvi</span><span class="p">,</span><span class="w"> </span><span class="n">health_status</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">mv_weekly_crop_health</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">week_start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DATE_TRUNC</span><span class="p">(</span><span class="s1">&#39;week&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">NOW</span><span class="p">())</span>
-<span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">health_status</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;stressed&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;critical&#39;</span><span class="p">)</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">week_start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DATE_TRUNC</span><span class="p">(</span><span class="s1">'week'</span><span class="p">,</span><span class="w"> </span><span class="n">NOW</span><span class="p">())</span>
+<span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">health_status</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">'stressed'</span><span class="p">,</span><span class="w"> </span><span class="s1">'critical'</span><span class="p">)</span>
 <span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">avg_ndvi</span><span class="w"> </span><span class="k">ASC</span><span class="p">;</span>
 </code></pre></div>
 
 <hr />
 <h2 id="query-anti-patterns">Query Anti-Patterns | أنماط يجب تجنبها<a class="headerlink" href="#query-anti-patterns" title="Permanent link">&para;</a></h2>
 <h3 id="bad-geometry-cast-in-where">Bad: Geometry Cast in WHERE<a class="headerlink" href="#bad-geometry-cast-in-where" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="c1">-- SLOW: casts to geometry, can&#39;t use geography index</span>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- SLOW: casts to geometry, can't use geography index</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">fields</span>
 <span class="k">WHERE</span><span class="w"> </span><span class="n">ST_DWithin</span><span class="p">(</span><span class="n">geom</span><span class="p">::</span><span class="n">geometry</span><span class="p">,</span><span class="w"> </span><span class="n">point</span><span class="p">::</span><span class="n">geometry</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">.</span><span class="mi">05</span><span class="p">);</span>
 </code></pre></div>
@@ -1382,7 +1382,7 @@
 <span class="w">    </span><span class="n">idx_scan</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">scans</span><span class="p">,</span>
 <span class="w">    </span><span class="n">pg_size_pretty</span><span class="p">(</span><span class="n">pg_relation_size</span><span class="p">(</span><span class="n">indexrelid</span><span class="p">))</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="k">size</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">pg_stat_user_indexes</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">schemaname</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;public&#39;</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">schemaname</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'public'</span>
 <span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">idx_scan</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
 </code></pre></div>
 
@@ -1405,7 +1405,7 @@
 <span class="k">FROM</span><span class="w"> </span><span class="n">pg_inherits</span>
 <span class="k">JOIN</span><span class="w"> </span><span class="n">pg_class</span><span class="w"> </span><span class="n">parent</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">pg_inherits</span><span class="p">.</span><span class="n">inhparent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parent</span><span class="p">.</span><span class="n">oid</span>
 <span class="k">JOIN</span><span class="w"> </span><span class="n">pg_class</span><span class="w"> </span><span class="n">child</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">pg_inherits</span><span class="p">.</span><span class="n">inhrelid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">child</span><span class="p">.</span><span class="n">oid</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">parent</span><span class="p">.</span><span class="n">relname</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;ndvi_readings&#39;</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">parent</span><span class="p">.</span><span class="n">relname</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'ndvi_readings'</span>
 <span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">child</span><span class="p">.</span><span class="n">relname</span><span class="p">;</span>
 </code></pre></div>
 
@@ -1447,7 +1447,7 @@ psql<span class="w"> </span>-h<span class="w"> </span>localhost<span class="w"> 
 <span class="k">ANALYZE</span><span class="w"> </span><span class="n">mv_daily_field_summary</span><span class="p">;</span>
 
 <span class="c1">-- Check for bloat</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">pgstattuple</span><span class="p">(</span><span class="s1">&#39;fields&#39;</span><span class="p">);</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">pgstattuple</span><span class="p">(</span><span class="s1">'fields'</span><span class="p">);</span>
 </code></pre></div>
 
 <h3 id="monthly-tasks">Monthly Tasks<a class="headerlink" href="#monthly-tasks" title="Permanent link">&para;</a></h3>
@@ -1511,10 +1511,10 @@ psql<span class="w"> </span>-h<span class="w"> </span>localhost<span class="w"> 
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

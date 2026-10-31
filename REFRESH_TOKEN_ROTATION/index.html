@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1177,16 +1177,16 @@ Reuse Attack (using Token 1 again)
 </ul>
 <div class="codehilite"><pre><span></span><code><span class="n">model</span><span class="w"> </span><span class="n">RefreshToken</span><span class="w"> </span><span class="err">{</span>
 <span class="w">  </span><span class="n">id</span><span class="w">          </span><span class="n">String</span><span class="w">   </span><span class="nv">@id</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">uuid</span><span class="p">())</span>
-<span class="w">  </span><span class="n">userId</span><span class="w">      </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;user_id&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">userId</span><span class="w">      </span><span class="n">String</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"user_id"</span><span class="p">)</span>
 <span class="w">  </span><span class="n">jti</span><span class="w">         </span><span class="n">String</span><span class="w">   </span><span class="nv">@unique</span>
 <span class="w">  </span><span class="n">family</span><span class="w">      </span><span class="n">String</span><span class="w">   </span><span class="o">//</span><span class="w"> </span><span class="n">Token</span><span class="w"> </span><span class="n">family</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">rotation</span><span class="w"> </span><span class="n">tracking</span>
 <span class="w">  </span><span class="n">token</span><span class="w">       </span><span class="n">String</span><span class="w">   </span><span class="nv">@unique</span>
-<span class="w">  </span><span class="n">expiresAt</span><span class="w">   </span><span class="nc">DateTime</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;expires_at&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">expiresAt</span><span class="w">   </span><span class="nc">DateTime</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"expires_at"</span><span class="p">)</span>
 <span class="w">  </span><span class="n">revoked</span><span class="w">     </span><span class="k">Boolean</span><span class="w">  </span><span class="nv">@default</span><span class="p">(</span><span class="k">false</span><span class="p">)</span>
 <span class="w">  </span><span class="n">used</span><span class="w">        </span><span class="k">Boolean</span><span class="w">  </span><span class="nv">@default</span><span class="p">(</span><span class="k">false</span><span class="p">)</span>
-<span class="w">  </span><span class="n">usedAt</span><span class="w">      </span><span class="nc">DateTime</span><span class="vm">?</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;used_at&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="n">replacedBy</span><span class="w">  </span><span class="n">String</span><span class="vm">?</span><span class="w">  </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;replaced_by&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="n">createdAt</span><span class="w">   </span><span class="nc">DateTime</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">now</span><span class="p">())</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;created_at&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">usedAt</span><span class="w">      </span><span class="nc">DateTime</span><span class="vm">?</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"used_at"</span><span class="p">)</span>
+<span class="w">  </span><span class="n">replacedBy</span><span class="w">  </span><span class="n">String</span><span class="vm">?</span><span class="w">  </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"replaced_by"</span><span class="p">)</span>
+<span class="w">  </span><span class="n">createdAt</span><span class="w">   </span><span class="nc">DateTime</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">now</span><span class="p">())</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"created_at"</span><span class="p">)</span>
 
 <span class="w">  </span><span class="k">user</span><span class="w">        </span><span class="k">User</span><span class="w">     </span><span class="nv">@relation</span><span class="p">(</span><span class="nl">fields</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="n">userId</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="k">references</span><span class="err">:</span><span class="w"> </span><span class="o">[</span><span class="n">id</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="nl">onDelete</span><span class="p">:</span><span class="w"> </span><span class="k">Cascade</span><span class="p">)</span>
 
@@ -1195,7 +1195,7 @@ Reuse Attack (using Token 1 again)
 <span class="w">  </span><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">family</span><span class="o">]</span><span class="p">)</span>
 <span class="w">  </span><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">token</span><span class="o">]</span><span class="p">)</span>
 <span class="w">  </span><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">expiresAt</span><span class="o">]</span><span class="p">)</span>
-<span class="w">  </span><span class="nb">@@map</span><span class="p">(</span><span class="ss">&quot;refresh_tokens&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="nb">@@map</span><span class="p">(</span><span class="ss">"refresh_tokens"</span><span class="p">)</span>
 <span class="err">}</span>
 </code></pre></div>
 
@@ -1208,7 +1208,7 @@ Reuse Attack (using Token 1 again)
 <span class="w">  </span><span class="nx">roles</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">[];</span>
 <span class="w">  </span><span class="nx">tid?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
 <span class="w">  </span><span class="nx">jti</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
-<span class="w">  </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;access&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;refresh&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s2">"access"</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">"refresh"</span><span class="p">;</span>
 <span class="w">  </span><span class="nx">family?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w"> </span><span class="c1">// Token family for refresh token rotation</span>
 <span class="w">  </span><span class="nx">iat?</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
 <span class="w">  </span><span class="nx">exp?</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
@@ -1273,7 +1273,7 @@ Reuse Attack (using Token 1 again)
 <span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">revokePromises</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">familyTokens</span><span class="p">.</span><span class="nx">map</span><span class="p">((</span><span class="nx">token</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span>
 <span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">revocationStore</span><span class="p">.</span><span class="nx">revokeToken</span><span class="p">(</span><span class="nx">token</span><span class="p">.</span><span class="nx">jti</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="nx">expiresIn</span><span class="o">:</span><span class="w"> </span><span class="kt">JWTConfig.REFRESH_TOKEN_EXPIRE_DAYS</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">24</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">60</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">60</span><span class="p">,</span>
-<span class="w">      </span><span class="nx">reason</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;token_reuse_detected&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">reason</span><span class="o">:</span><span class="w"> </span><span class="s1">'token_reuse_detected'</span><span class="p">,</span>
 <span class="w">    </span><span class="p">}),</span>
 <span class="w">  </span><span class="p">);</span>
 
@@ -1314,7 +1314,7 @@ Reuse Attack (using Token 1 again)
 <span class="w">  </span><span class="p">}</span>
 
 <span class="w">  </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">UnauthorizedException</span><span class="p">(</span>
-<span class="w">    </span><span class="s2">&quot;Token reuse detected - all tokens in family have been invalidated&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"Token reuse detected - all tokens in family have been invalidated"</span><span class="p">,</span>
 <span class="w">  </span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1324,14 +1324,14 @@ Reuse Attack (using Token 1 again)
 <p>Updated <code>/auth/refresh</code> endpoint to return new refresh token:</p>
 <div class="codehilite"><pre><span></span><code><span class="kd">@ApiResponse</span><span class="p">({</span>
 <span class="w">  </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="kt">200</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">description</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Token refreshed successfully with rotation&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">description</span><span class="o">:</span><span class="w"> </span><span class="s1">'Token refreshed successfully with rotation'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">schema</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;object&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'object'</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">properties</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nx">access_token</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;string&#39;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">      </span><span class="nx">refresh_token</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;string&#39;</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="c1">// NEW: rotated refresh token</span>
-<span class="w">      </span><span class="nx">expires_in</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;number&#39;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">      </span><span class="nx">token_type</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;string&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="nx">access_token</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'string'</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="nx">refresh_token</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'string'</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="c1">// NEW: rotated refresh token</span>
+<span class="w">      </span><span class="nx">expires_in</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'number'</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="nx">token_type</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'string'</span><span class="w"> </span><span class="p">},</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">  </span><span class="p">},</span>
 <span class="p">})</span>
@@ -1345,12 +1345,12 @@ Reuse Attack (using Token 1 again)
 <p>Updated to store new refresh token in cookies:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Update refresh token (always rotated now)</span>
 <span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">refresh_token</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">cookieStore</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s2">&quot;sahool_admin_refresh_token&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">refresh_token</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">cookieStore</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s2">"sahool_admin_refresh_token"</span><span class="p">,</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">refresh_token</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">httpOnly</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">secure</span><span class="o">:</span><span class="w"> </span><span class="kt">process.env.NODE_ENV</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">&quot;production&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">sameSite</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;strict&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">secure</span><span class="o">:</span><span class="w"> </span><span class="kt">process.env.NODE_ENV</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">"production"</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">sameSite</span><span class="o">:</span><span class="w"> </span><span class="s2">"strict"</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">maxAge</span><span class="o">:</span><span class="w"> </span><span class="kt">604800</span><span class="p">,</span><span class="w"> </span><span class="c1">// 7 days</span>
-<span class="w">    </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;/&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s2">"/"</span><span class="p">,</span>
 <span class="w">  </span><span class="p">});</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1428,39 +1428,39 @@ npm<span class="w"> </span>run<span class="w"> </span>dev
 <h3 id="test-token-rotation">Test Token Rotation<a class="headerlink" href="#test-token-rotation" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># 1. Login</span>
 curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3000/api/v1/auth/login<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;email&quot;:&quot;user@sahool.com&quot;,&quot;password&quot;:&quot;password123&quot;}&#39;</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"email":"user@sahool.com","password":"password123"}'</span>
 
 <span class="c1"># Response:</span>
 <span class="c1"># {</span>
-<span class="c1">#   &quot;access_token&quot;: &quot;eyJ...&quot;,</span>
-<span class="c1">#   &quot;refresh_token&quot;: &quot;eyJ...&quot;,</span>
-<span class="c1">#   &quot;expires_in&quot;: 1800,</span>
-<span class="c1">#   &quot;token_type&quot;: &quot;Bearer&quot;</span>
+<span class="c1">#   "access_token": "eyJ...",</span>
+<span class="c1">#   "refresh_token": "eyJ...",</span>
+<span class="c1">#   "expires_in": 1800,</span>
+<span class="c1">#   "token_type": "Bearer"</span>
 <span class="c1"># }</span>
 
 <span class="c1"># 2. Refresh token (first time - should work)</span>
 curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3000/api/v1/auth/refresh<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;refreshToken&quot;:&quot;eyJ...&quot;}&#39;</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"refreshToken":"eyJ..."}'</span>
 
 <span class="c1"># Response:</span>
 <span class="c1"># {</span>
-<span class="c1">#   &quot;access_token&quot;: &quot;eyJ...&quot;,</span>
-<span class="c1">#   &quot;refresh_token&quot;: &quot;eyJ...&quot;,  # NEW rotated token</span>
-<span class="c1">#   &quot;expires_in&quot;: 1800,</span>
-<span class="c1">#   &quot;token_type&quot;: &quot;Bearer&quot;</span>
+<span class="c1">#   "access_token": "eyJ...",</span>
+<span class="c1">#   "refresh_token": "eyJ...",  # NEW rotated token</span>
+<span class="c1">#   "expires_in": 1800,</span>
+<span class="c1">#   "token_type": "Bearer"</span>
 <span class="c1"># }</span>
 
 <span class="c1"># 3. Try to reuse old refresh token (should fail)</span>
 curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3000/api/v1/auth/refresh<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;refreshToken&quot;:&quot;eyJ...&quot;}&#39;</span><span class="w">  </span><span class="c1"># Old token</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"refreshToken":"eyJ..."}'</span><span class="w">  </span><span class="c1"># Old token</span>
 
 <span class="c1"># Response:</span>
 <span class="c1"># {</span>
-<span class="c1">#   &quot;statusCode&quot;: 401,</span>
-<span class="c1">#   &quot;message&quot;: &quot;Token reuse detected - all tokens in family have been invalidated&quot;</span>
+<span class="c1">#   "statusCode": 401,</span>
+<span class="c1">#   "message": "Token reuse detected - all tokens in family have been invalidated"</span>
 <span class="c1"># }</span>
 </code></pre></div>
 
@@ -1468,13 +1468,13 @@ curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </spa
 <div class="codehilite"><pre><span></span><code><span class="c1">-- Check refresh tokens for a user</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">jti</span><span class="p">,</span><span class="w"> </span><span class="n">family</span><span class="p">,</span><span class="w"> </span><span class="n">used</span><span class="p">,</span><span class="w"> </span><span class="n">used_at</span><span class="p">,</span><span class="w"> </span><span class="n">replaced_by</span><span class="p">,</span><span class="w"> </span><span class="n">revoked</span><span class="p">,</span><span class="w"> </span><span class="n">created_at</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">refresh_tokens</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">user_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;your-user-id&#39;</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">user_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'your-user-id'</span>
 <span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">created_at</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
 
 <span class="c1">-- Check token family</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="n">jti</span><span class="p">,</span><span class="w"> </span><span class="n">used</span><span class="p">,</span><span class="w"> </span><span class="n">revoked</span><span class="p">,</span><span class="w"> </span><span class="n">created_at</span><span class="p">,</span><span class="w"> </span><span class="n">replaced_by</span>
 <span class="k">FROM</span><span class="w"> </span><span class="n">refresh_tokens</span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">family</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;family-id&#39;</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">family</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'family-id'</span>
 <span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">created_at</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
 </code></pre></div>
 
@@ -1619,10 +1619,10 @@ Token family invalidated due to reuse detection: family=xyz789...
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

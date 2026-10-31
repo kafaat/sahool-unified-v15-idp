@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1235,21 +1235,21 @@ openssl<span class="w"> </span>genrsa<span class="w"> </span>-out<span class="w"
 <span class="c1"># Generate CA certificate (valid for 10 years)</span>
 openssl<span class="w"> </span>req<span class="w"> </span>-x509<span class="w"> </span>-new<span class="w"> </span>-nodes<span class="w"> </span>-key<span class="w"> </span>ca.key<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-sha256<span class="w"> </span>-days<span class="w"> </span><span class="m">3650</span><span class="w"> </span>-out<span class="w"> </span>ca.crt<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-subj<span class="w"> </span><span class="s2">&quot;/C=YE/ST=Sanaa/L=Sanaa/O=SAHOOL/CN=SAHOOL Certificate Authority&quot;</span>
+<span class="w">  </span>-subj<span class="w"> </span><span class="s2">"/C=YE/ST=Sanaa/L=Sanaa/O=SAHOOL/CN=SAHOOL Certificate Authority"</span>
 </code></pre></div>
 
 <h4 id="step-2-generate-postgresql-certificates">Step 2: Generate PostgreSQL Certificates<a class="headerlink" href="#step-2-generate-postgresql-certificates" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Server certificate</span>
 openssl<span class="w"> </span>genrsa<span class="w"> </span>-out<span class="w"> </span>server.key<span class="w"> </span><span class="m">2048</span>
 openssl<span class="w"> </span>req<span class="w"> </span>-new<span class="w"> </span>-key<span class="w"> </span>server.key<span class="w"> </span>-out<span class="w"> </span>server.csr<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-subj<span class="w"> </span><span class="s2">&quot;/C=YE/ST=Sanaa/L=Sanaa/O=SAHOOL/CN=postgres&quot;</span>
+<span class="w">  </span>-subj<span class="w"> </span><span class="s2">"/C=YE/ST=Sanaa/L=Sanaa/O=SAHOOL/CN=postgres"</span>
 openssl<span class="w"> </span>x509<span class="w"> </span>-req<span class="w"> </span>-in<span class="w"> </span>server.csr<span class="w"> </span>-CA<span class="w"> </span>ca.crt<span class="w"> </span>-CAkey<span class="w"> </span>ca.key<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-CAcreateserial<span class="w"> </span>-out<span class="w"> </span>server.crt<span class="w"> </span>-days<span class="w"> </span><span class="m">825</span><span class="w"> </span>-sha256
 
 <span class="c1"># Client certificate</span>
 openssl<span class="w"> </span>genrsa<span class="w"> </span>-out<span class="w"> </span>client.key<span class="w"> </span><span class="m">2048</span>
 openssl<span class="w"> </span>req<span class="w"> </span>-new<span class="w"> </span>-key<span class="w"> </span>client.key<span class="w"> </span>-out<span class="w"> </span>client.csr<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-subj<span class="w"> </span><span class="s2">&quot;/C=YE/ST=Sanaa/L=Sanaa/O=SAHOOL/CN=sahool_client&quot;</span>
+<span class="w">  </span>-subj<span class="w"> </span><span class="s2">"/C=YE/ST=Sanaa/L=Sanaa/O=SAHOOL/CN=sahool_client"</span>
 openssl<span class="w"> </span>x509<span class="w"> </span>-req<span class="w"> </span>-in<span class="w"> </span>client.csr<span class="w"> </span>-CA<span class="w"> </span>ca.crt<span class="w"> </span>-CAkey<span class="w"> </span>ca.key<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-CAcreateserial<span class="w"> </span>-out<span class="w"> </span>client.crt<span class="w"> </span>-days<span class="w"> </span><span class="m">825</span><span class="w"> </span>-sha256
 
@@ -1261,14 +1261,14 @@ rm<span class="w"> </span>-f<span class="w"> </span>server.csr<span class="w"> <
 <div class="codehilite"><pre><span></span><code><span class="c1"># Server certificate</span>
 openssl<span class="w"> </span>genrsa<span class="w"> </span>-out<span class="w"> </span>redis-server.key<span class="w"> </span><span class="m">2048</span>
 openssl<span class="w"> </span>req<span class="w"> </span>-new<span class="w"> </span>-key<span class="w"> </span>redis-server.key<span class="w"> </span>-out<span class="w"> </span>redis-server.csr<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-subj<span class="w"> </span><span class="s2">&quot;/C=YE/ST=Sanaa/L=Sanaa/O=SAHOOL/CN=redis&quot;</span>
+<span class="w">  </span>-subj<span class="w"> </span><span class="s2">"/C=YE/ST=Sanaa/L=Sanaa/O=SAHOOL/CN=redis"</span>
 openssl<span class="w"> </span>x509<span class="w"> </span>-req<span class="w"> </span>-in<span class="w"> </span>redis-server.csr<span class="w"> </span>-CA<span class="w"> </span>ca.crt<span class="w"> </span>-CAkey<span class="w"> </span>ca.key<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-CAcreateserial<span class="w"> </span>-out<span class="w"> </span>redis-server.crt<span class="w"> </span>-days<span class="w"> </span><span class="m">825</span><span class="w"> </span>-sha256
 
 <span class="c1"># Client certificate</span>
 openssl<span class="w"> </span>genrsa<span class="w"> </span>-out<span class="w"> </span>redis-client.key<span class="w"> </span><span class="m">2048</span>
 openssl<span class="w"> </span>req<span class="w"> </span>-new<span class="w"> </span>-key<span class="w"> </span>redis-client.key<span class="w"> </span>-out<span class="w"> </span>redis-client.csr<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-subj<span class="w"> </span><span class="s2">&quot;/C=YE/ST=Sanaa/L=Sanaa/O=SAHOOL/CN=redis_client&quot;</span>
+<span class="w">  </span>-subj<span class="w"> </span><span class="s2">"/C=YE/ST=Sanaa/L=Sanaa/O=SAHOOL/CN=redis_client"</span>
 openssl<span class="w"> </span>x509<span class="w"> </span>-req<span class="w"> </span>-in<span class="w"> </span>redis-client.csr<span class="w"> </span>-CA<span class="w"> </span>ca.crt<span class="w"> </span>-CAkey<span class="w"> </span>ca.key<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-CAcreateserial<span class="w"> </span>-out<span class="w"> </span>redis-client.crt<span class="w"> </span>-days<span class="w"> </span><span class="m">825</span><span class="w"> </span>-sha256
 
@@ -1279,14 +1279,14 @@ rm<span class="w"> </span>-f<span class="w"> </span>redis-server.csr<span class=
 <div class="codehilite"><pre><span></span><code><span class="c1"># Server certificate</span>
 openssl<span class="w"> </span>genrsa<span class="w"> </span>-out<span class="w"> </span>nats-server.key<span class="w"> </span><span class="m">2048</span>
 openssl<span class="w"> </span>req<span class="w"> </span>-new<span class="w"> </span>-key<span class="w"> </span>nats-server.key<span class="w"> </span>-out<span class="w"> </span>nats-server.csr<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-subj<span class="w"> </span><span class="s2">&quot;/C=YE/ST=Sanaa/L=Sanaa/O=SAHOOL/CN=nats&quot;</span>
+<span class="w">  </span>-subj<span class="w"> </span><span class="s2">"/C=YE/ST=Sanaa/L=Sanaa/O=SAHOOL/CN=nats"</span>
 openssl<span class="w"> </span>x509<span class="w"> </span>-req<span class="w"> </span>-in<span class="w"> </span>nats-server.csr<span class="w"> </span>-CA<span class="w"> </span>ca.crt<span class="w"> </span>-CAkey<span class="w"> </span>ca.key<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-CAcreateserial<span class="w"> </span>-out<span class="w"> </span>nats-server.crt<span class="w"> </span>-days<span class="w"> </span><span class="m">825</span><span class="w"> </span>-sha256
 
 <span class="c1"># Client certificate</span>
 openssl<span class="w"> </span>genrsa<span class="w"> </span>-out<span class="w"> </span>nats-client.key<span class="w"> </span><span class="m">2048</span>
 openssl<span class="w"> </span>req<span class="w"> </span>-new<span class="w"> </span>-key<span class="w"> </span>nats-client.key<span class="w"> </span>-out<span class="w"> </span>nats-client.csr<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-subj<span class="w"> </span><span class="s2">&quot;/C=YE/ST=Sanaa/L=Sanaa/O=SAHOOL/CN=nats_client&quot;</span>
+<span class="w">  </span>-subj<span class="w"> </span><span class="s2">"/C=YE/ST=Sanaa/L=Sanaa/O=SAHOOL/CN=nats_client"</span>
 openssl<span class="w"> </span>x509<span class="w"> </span>-req<span class="w"> </span>-in<span class="w"> </span>nats-client.csr<span class="w"> </span>-CA<span class="w"> </span>ca.crt<span class="w"> </span>-CAkey<span class="w"> </span>ca.key<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-CAcreateserial<span class="w"> </span>-out<span class="w"> </span>nats-client.crt<span class="w"> </span>-days<span class="w"> </span><span class="m">825</span><span class="w"> </span>-sha256
 
@@ -1321,13 +1321,13 @@ ls<span class="w"> </span>-la
 <p>Create <code>/config/postgres/postgresql-tls.conf</code>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># TLS Configuration</span>
 <span class="n">ssl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">on</span>
-<span class="n">ssl_cert_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;/var/lib/postgresql/certs/server.crt&#39;</span>
-<span class="n">ssl_key_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;/var/lib/postgresql/certs/server.key&#39;</span>
-<span class="n">ssl_ca_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;/var/lib/postgresql/certs/ca.crt&#39;</span>
+<span class="n">ssl_cert_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'/var/lib/postgresql/certs/server.crt'</span>
+<span class="n">ssl_key_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'/var/lib/postgresql/certs/server.key'</span>
+<span class="n">ssl_ca_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'/var/lib/postgresql/certs/ca.crt'</span>
 
 <span class="c1"># Enforce TLS for all connections</span>
-<span class="n">ssl_min_protocol_version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;TLSv1.2&#39;</span>
-<span class="n">ssl_ciphers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;HIGH:MEDIUM:+3DES:!aNULL&#39;</span>
+<span class="n">ssl_min_protocol_version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'TLSv1.2'</span>
+<span class="n">ssl_ciphers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'HIGH:MEDIUM:+3DES:!aNULL'</span>
 <span class="n">ssl_prefer_server_ciphers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">on</span>
 </code></pre></div>
 
@@ -1364,7 +1364,7 @@ tls-ca-cert-file /etc/redis/certs/ca.crt
 
 # TLS Client Authentication
 tls-auth-clients yes                # Require client certificates
-tls-protocols &quot;TLSv1.2 TLSv1.3&quot;    # Only TLS 1.2+
+tls-protocols "TLSv1.2 TLSv1.3"    # Only TLS 1.2+
 tls-ciphers HIGH:!aNULL:!MD5:!RC4
 tls-prefer-server-ciphers yes
 </code></pre></div>
@@ -1389,9 +1389,9 @@ tls-prefer-server-ciphers yes
 <p>Update <code>/config/nats/nats-secure.conf</code>:</p>
 <div class="codehilite"><pre><span></span><code><span class="gh">#</span> TLS Configuration
 tls {
-  cert_file: &quot;/etc/nats/certs/nats-server.crt&quot;
-  key_file: &quot;/etc/nats/certs/nats-server.key&quot;
-  ca_file: &quot;/etc/nats/certs/ca.crt&quot;
+  cert_file: "/etc/nats/certs/nats-server.crt"
+  key_file: "/etc/nats/certs/nats-server.key"
+  ca_file: "/etc/nats/certs/ca.crt"
   verify: true
   timeout: 5
 }
@@ -1422,8 +1422,8 @@ tls_port: 4223 # TLS port (production)
 <h3 id="prisma-services">Prisma Services<a class="headerlink" href="#prisma-services" title="Permanent link">&para;</a></h3>
 <p>All Prisma schema files include SSL documentation:</p>
 <div class="codehilite"><pre><span></span><code><span class="n">datasource</span><span class="w"> </span><span class="n">db</span><span class="w"> </span><span class="err">{</span>
-<span class="w">  </span><span class="n">provider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">&quot;postgresql&quot;</span>
-<span class="w">  </span><span class="n">url</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">env</span><span class="p">(</span><span class="ss">&quot;DATABASE_URL&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">provider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">"postgresql"</span>
+<span class="w">  </span><span class="n">url</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">env</span><span class="p">(</span><span class="ss">"DATABASE_URL"</span><span class="p">)</span>
 <span class="w">  </span><span class="o">//</span><span class="w"> </span><span class="n">TLS</span><span class="o">/</span><span class="n">SSL</span><span class="w"> </span><span class="n">enforcement</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">secure</span><span class="w"> </span><span class="n">connections</span>
 <span class="w">  </span><span class="o">//</span><span class="w"> </span><span class="n">Requires</span><span class="w"> </span><span class="n">DATABASE_URL</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="k">include</span><span class="w"> </span><span class="n">sslmode</span><span class="o">=</span><span class="n">require</span><span class="w"> </span><span class="k">parameter</span>
 <span class="w">  </span><span class="o">//</span><span class="w"> </span><span class="nl">Example</span><span class="p">:</span><span class="w"> </span><span class="nl">postgresql</span><span class="p">:</span><span class="o">//</span><span class="k">user</span><span class="err">:</span><span class="n">pass</span><span class="nv">@host</span><span class="err">:</span><span class="mi">5432</span><span class="o">/</span><span class="n">db</span><span class="vm">?</span><span class="n">sslmode</span><span class="o">=</span><span class="n">require</span>
@@ -1435,10 +1435,10 @@ tls_port: 4223 # TLS port (production)
 <div class="codehilite"><pre><span></span><code><span class="n">engine</span> <span class="o">=</span> <span class="n">create_async_engine</span><span class="p">(</span>
     <span class="n">DATABASE_URL</span><span class="p">,</span>  <span class="c1"># Must include sslmode=require</span>
     <span class="n">connect_args</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;timeout&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
-        <span class="s2">&quot;command_timeout&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
-        <span class="s2">&quot;server_settings&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;application_name&quot;</span><span class="p">:</span> <span class="s2">&quot;sahool-service&quot;</span><span class="p">,</span>
+        <span class="s2">"timeout"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="s2">"command_timeout"</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+        <span class="s2">"server_settings"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"application_name"</span><span class="p">:</span> <span class="s2">"sahool-service"</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">},</span>
 <span class="p">)</span>
@@ -1448,7 +1448,7 @@ tls_port: 4223 # TLS port (production)
 <h2 id="testing-tls-connections">Testing TLS Connections<a class="headerlink" href="#testing-tls-connections" title="Permanent link">&para;</a></h2>
 <h3 id="test-postgresql-tls">Test PostgreSQL TLS<a class="headerlink" href="#test-postgresql-tls" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Test direct connection</span>
-psql<span class="w"> </span><span class="s2">&quot;postgresql://sahool:password@localhost:5432/sahool?sslmode=require&quot;</span>
+psql<span class="w"> </span><span class="s2">"postgresql://sahool:password@localhost:5432/sahool?sslmode=require"</span>
 
 <span class="c1"># Verify SSL is active</span>
 <span class="se">\c</span>
@@ -1462,7 +1462,7 @@ redis-cli<span class="w"> </span>--tls<span class="w"> </span><span class="se">\
 <span class="w">  </span>--cert<span class="w"> </span>/home/user/sahool-unified-v15-idp/config/certs/redis-client.crt<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--key<span class="w"> </span>/home/user/sahool-unified-v15-idp/config/certs/redis-client.key<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--cacert<span class="w"> </span>/home/user/sahool-unified-v15-idp/config/certs/ca.crt<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-p<span class="w"> </span><span class="m">6380</span><span class="w"> </span>-a<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">REDIS_PASSWORD</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>PING
+<span class="w">  </span>-p<span class="w"> </span><span class="m">6380</span><span class="w"> </span>-a<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">REDIS_PASSWORD</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span>PING
 
 <span class="c1"># Expected output: PONG</span>
 </code></pre></div>
@@ -1474,7 +1474,7 @@ nats-cli<span class="w"> </span>--server<span class="o">=</span>tls://localhost:
 <span class="w">  </span>--tlskey<span class="o">=</span>/home/user/sahool-unified-v15-idp/config/certs/nats-client.key<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--tlsca<span class="o">=</span>/home/user/sahool-unified-v15-idp/config/certs/ca.crt<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--user<span class="o">=</span><span class="si">${</span><span class="nv">NATS_USER</span><span class="si">}</span><span class="w"> </span>--password<span class="o">=</span><span class="si">${</span><span class="nv">NATS_PASSWORD</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>pub<span class="w"> </span><span class="nb">test</span><span class="w"> </span><span class="s2">&quot;Hello TLS&quot;</span>
+<span class="w">  </span>pub<span class="w"> </span><span class="nb">test</span><span class="w"> </span><span class="s2">"Hello TLS"</span>
 </code></pre></div>
 
 <h3 id="test-application-connections">Test Application Connections<a class="headerlink" href="#test-application-connections" title="Permanent link">&para;</a></h3>
@@ -1487,7 +1487,7 @@ docker-compose<span class="w"> </span>logs<span class="w"> </span>redis<span cla
 docker-compose<span class="w"> </span>logs<span class="w"> </span>nats<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>TLS
 
 <span class="c1"># Verify no SSL errors</span>
-docker-compose<span class="w"> </span>logs<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;ssl error&quot;</span>
+docker-compose<span class="w"> </span>logs<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">"ssl error"</span>
 </code></pre></div>
 
 <hr />
@@ -1568,14 +1568,14 @@ sudo<span class="w"> </span>ufw<span class="w"> </span>status
 
 <h3 id="verification-commands">Verification Commands<a class="headerlink" href="#verification-commands" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Verify all connection strings use TLS</span>
-grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;DATABASE_URL&quot;</span><span class="w"> </span>.env<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;sslmode=require&quot;</span>
-grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;REDIS_URL&quot;</span><span class="w"> </span>.env<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;rediss://&quot;</span>
-grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;NATS_URL&quot;</span><span class="w"> </span>.env<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;tls://&quot;</span>
+grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">"DATABASE_URL"</span><span class="w"> </span>.env<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">"sslmode=require"</span>
+grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">"REDIS_URL"</span><span class="w"> </span>.env<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">"rediss://"</span>
+grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">"NATS_URL"</span><span class="w"> </span>.env<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">"tls://"</span>
 
 <span class="c1"># No plaintext connections</span>
-!<span class="w"> </span>grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;DATABASE_URL&quot;</span><span class="w"> </span>.env<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-v<span class="w"> </span><span class="s2">&quot;sslmode=require&quot;</span>
-!<span class="w"> </span>grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;REDIS_URL&quot;</span><span class="w"> </span>.env<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;redis://&quot;</span>
-!<span class="w"> </span>grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;NATS_URL&quot;</span><span class="w"> </span>.env<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;nats://&quot;</span>
+!<span class="w"> </span>grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">"DATABASE_URL"</span><span class="w"> </span>.env<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-v<span class="w"> </span><span class="s2">"sslmode=require"</span>
+!<span class="w"> </span>grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">"REDIS_URL"</span><span class="w"> </span>.env<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">"redis://"</span>
+!<span class="w"> </span>grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">"NATS_URL"</span><span class="w"> </span>.env<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">"nats://"</span>
 </code></pre></div>
 
 <hr />
@@ -1678,10 +1678,10 @@ docker-compose<span class="w"> </span>restart<span class="w"> </span>postgres<sp
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

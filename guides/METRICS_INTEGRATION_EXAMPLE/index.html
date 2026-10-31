@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1119,10 +1119,10 @@
 <h1 id="ai-skills-metrics-integration-example">AI Skills Metrics Integration Example<a class="headerlink" href="#ai-skills-metrics-integration-example" title="Permanent link">&para;</a></h1>
 <h2 id="complete-service-example">Complete Service Example<a class="headerlink" href="#complete-service-example" title="Permanent link">&para;</a></h2>
 <p>Here's a complete example of integrating AI Skills Prometheus metrics into a FastAPI service:</p>
-<div class="codehilite"><pre><span></span><code><span class="sd">&quot;&quot;&quot;</span>
+<div class="codehilite"><pre><span></span><code><span class="sd">"""</span>
 <span class="sd">AI Advisor Service - Metrics Integration Example</span>
 <span class="sd">Demonstrates how to use AI metrics throughout a service</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">asynccontextmanager</span>
@@ -1157,7 +1157,7 @@
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">FieldData</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Field data for processing&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Field data for processing"""</span>
     <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">soil_moisture</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">temperature</span><span class="p">:</span> <span class="nb">float</span>
@@ -1166,7 +1166,7 @@
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">RecommendationRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Request for fertilizer recommendation&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Request for fertilizer recommendation"""</span>
     <span class="n">farm_id</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">recommendation</span><span class="p">:</span> <span class="nb">str</span>
@@ -1174,10 +1174,10 @@
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">CompressionRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Request for context compression&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Request for context compression"""</span>
     <span class="n">farm_id</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span>
-    <span class="n">strategy</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;hybrid&quot;</span>
+    <span class="n">strategy</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"hybrid"</span>
 
 
 <span class="c1"># ─────────────────────────────────────────────────────────────────────────────</span>
@@ -1187,26 +1187,26 @@
 
 <span class="nd">@asynccontextmanager</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">lifespan</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="n">FastAPI</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Service lifecycle management&quot;&quot;&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting AI Advisor Service...&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Service lifecycle management"""</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Starting AI Advisor Service..."</span><span class="p">)</span>
 
     <span class="c1"># Initialize AI metrics registry (optional - happens on first use)</span>
     <span class="n">metrics</span> <span class="o">=</span> <span class="n">get_ai_metrics_registry</span><span class="p">()</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;AI metrics registry initialized&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"AI metrics registry initialized"</span><span class="p">)</span>
 
     <span class="k">yield</span>
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Shutting down AI Advisor Service...&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Shutting down AI Advisor Service..."</span><span class="p">)</span>
 
 
 <span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span>
-    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;AI Advisor Service&quot;</span><span class="p">,</span>
-    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">"AI Advisor Service"</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="s2">"1.0.0"</span><span class="p">,</span>
     <span class="n">lifespan</span><span class="o">=</span><span class="n">lifespan</span>
 <span class="p">)</span>
 
 <span class="c1"># Setup standard HTTP metrics (request count, latency, errors)</span>
-<span class="n">setup_metrics</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;ai_advisor_service&quot;</span><span class="p">)</span>
+<span class="n">setup_metrics</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="s2">"ai_advisor_service"</span><span class="p">)</span>
 
 
 <span class="c1"># ─────────────────────────────────────────────────────────────────────────────</span>
@@ -1214,10 +1214,10 @@
 <span class="c1"># ─────────────────────────────────────────────────────────────────────────────</span>
 
 
-<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/api/v1/compression/compress-field-data&quot;</span><span class="p">)</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">"/api/v1/compression/compress-field-data"</span><span class="p">)</span>
 <span class="nd">@track_compression</span>  <span class="c1"># Metrics tracked automatically</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">compress_field_data</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">CompressionRequest</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Compress field data for efficient context windows.</span>
 
 <span class="sd">    Automatically tracked metrics:</span>
@@ -1227,7 +1227,7 @@
 <span class="sd">    - compression_compressed_tokens</span>
 <span class="sd">    - compression_ratio</span>
 <span class="sd">    - compression_tokens_saved</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">compressor</span> <span class="o">=</span> <span class="n">ContextCompressor</span><span class="p">()</span>
 
@@ -1238,20 +1238,20 @@
         <span class="p">)</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Field data compressed: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">compression_ratio</span><span class="si">:</span><span class="s2">.2%</span><span class="si">}</span><span class="s2"> &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;compression from </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">original_tokens</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">compressed_tokens</span><span class="si">}</span><span class="s2"> tokens&quot;</span>
+            <span class="sa">f</span><span class="s2">"Field data compressed: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">compression_ratio</span><span class="si">:</span><span class="s2">.2%</span><span class="si">}</span><span class="s2"> "</span>
+            <span class="sa">f</span><span class="s2">"compression from </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">original_tokens</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">compressed_tokens</span><span class="si">}</span><span class="s2"> tokens"</span>
         <span class="p">)</span>
 
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;success&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;original_tokens&quot;</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">original_tokens</span><span class="p">,</span>
-            <span class="s2">&quot;compressed_tokens&quot;</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">compressed_tokens</span><span class="p">,</span>
-            <span class="s2">&quot;compression_ratio&quot;</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">compression_ratio</span><span class="p">,</span>
-            <span class="s2">&quot;tokens_saved&quot;</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">tokens_saved</span><span class="p">,</span>
-            <span class="s2">&quot;compressed_text&quot;</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">compressed_text</span><span class="p">,</span>
+            <span class="s2">"status"</span><span class="p">:</span> <span class="s2">"success"</span><span class="p">,</span>
+            <span class="s2">"original_tokens"</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">original_tokens</span><span class="p">,</span>
+            <span class="s2">"compressed_tokens"</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">compressed_tokens</span><span class="p">,</span>
+            <span class="s2">"compression_ratio"</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">compression_ratio</span><span class="p">,</span>
+            <span class="s2">"tokens_saved"</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">tokens_saved</span><span class="p">,</span>
+            <span class="s2">"compressed_text"</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">compressed_text</span><span class="p">,</span>
         <span class="p">}</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Compression failed: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Compression failed: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
 
 
@@ -1260,24 +1260,24 @@
 <span class="c1"># ─────────────────────────────────────────────────────────────────────────────</span>
 
 
-<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/api/v1/memory/store-observation&quot;</span><span class="p">)</span>
-<span class="nd">@track_memory_operation</span><span class="p">(</span><span class="n">operation_type</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">)</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">"/api/v1/memory/store-observation"</span><span class="p">)</span>
+<span class="nd">@track_memory_operation</span><span class="p">(</span><span class="n">operation_type</span><span class="o">=</span><span class="s2">"store"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">store_field_observation</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">FieldData</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Store field observation in memory.</span>
 
 <span class="sd">    Automatically tracked metrics:</span>
 <span class="sd">    - memory_operations_total</span>
 <span class="sd">    - memory_storage_latency_seconds</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">memory</span> <span class="o">=</span> <span class="n">FarmMemory</span><span class="p">()</span>
 
         <span class="n">observation</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;field_id&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">field_id</span><span class="p">,</span>
-            <span class="s2">&quot;soil_moisture&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">soil_moisture</span><span class="p">,</span>
-            <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span>
-            <span class="s2">&quot;weather&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">weather_forecast</span><span class="p">,</span>
+            <span class="s2">"field_id"</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">field_id</span><span class="p">,</span>
+            <span class="s2">"soil_moisture"</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">soil_moisture</span><span class="p">,</span>
+            <span class="s2">"temperature"</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span>
+            <span class="s2">"weather"</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">weather_forecast</span><span class="p">,</span>
         <span class="p">}</span>
 
         <span class="n">entry</span> <span class="o">=</span> <span class="k">await</span> <span class="n">memory</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
@@ -1299,31 +1299,31 @@
         <span class="n">update_memory_usage</span><span class="p">(</span><span class="n">total_entries</span><span class="p">,</span> <span class="n">total_bytes</span><span class="p">)</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Observation stored for field </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">field_id</span><span class="si">}</span><span class="s2">: &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">total_entries</span><span class="si">}</span><span class="s2"> entries, </span><span class="si">{</span><span class="n">total_bytes</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">1000</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">KB used&quot;</span>
+            <span class="sa">f</span><span class="s2">"Observation stored for field </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">field_id</span><span class="si">}</span><span class="s2">: "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">total_entries</span><span class="si">}</span><span class="s2"> entries, </span><span class="si">{</span><span class="n">total_bytes</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">1000</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">KB used"</span>
         <span class="p">)</span>
 
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;success&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;entry_id&quot;</span><span class="p">:</span> <span class="n">entry</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
-            <span class="s2">&quot;entries_count&quot;</span><span class="p">:</span> <span class="n">total_entries</span><span class="p">,</span>
-            <span class="s2">&quot;memory_usage_kb&quot;</span><span class="p">:</span> <span class="n">total_bytes</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">,</span>
+            <span class="s2">"status"</span><span class="p">:</span> <span class="s2">"success"</span><span class="p">,</span>
+            <span class="s2">"entry_id"</span><span class="p">:</span> <span class="n">entry</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="s2">"entries_count"</span><span class="p">:</span> <span class="n">total_entries</span><span class="p">,</span>
+            <span class="s2">"memory_usage_kb"</span><span class="p">:</span> <span class="n">total_bytes</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">,</span>
         <span class="p">}</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to store observation: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to store observation: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
 
 
-<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/api/v1/memory/get-recent-history&quot;</span><span class="p">)</span>
-<span class="nd">@track_memory_operation</span><span class="p">(</span><span class="n">operation_type</span><span class="o">=</span><span class="s2">&quot;retrieve&quot;</span><span class="p">)</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/api/v1/memory/get-recent-history"</span><span class="p">)</span>
+<span class="nd">@track_memory_operation</span><span class="p">(</span><span class="n">operation_type</span><span class="o">=</span><span class="s2">"retrieve"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_recent_history</span><span class="p">(</span><span class="n">farm_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Retrieve recent memory entries.</span>
 
 <span class="sd">    Automatically tracked metrics:</span>
 <span class="sd">    - memory_operations_total</span>
 <span class="sd">    - memory_retrieval_latency_seconds</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">memory</span> <span class="o">=</span> <span class="n">FarmMemory</span><span class="p">()</span>
 
@@ -1333,22 +1333,22 @@
             <span class="n">limit</span><span class="o">=</span><span class="n">limit</span>
         <span class="p">)</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Retrieved </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">entries</span><span class="p">)</span><span class="si">}</span><span class="s2"> entries for farm </span><span class="si">{</span><span class="n">farm_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Retrieved </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">entries</span><span class="p">)</span><span class="si">}</span><span class="s2"> entries for farm </span><span class="si">{</span><span class="n">farm_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;success&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;entries_count&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">entries</span><span class="p">),</span>
-            <span class="s2">&quot;entries&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">"status"</span><span class="p">:</span> <span class="s2">"success"</span><span class="p">,</span>
+            <span class="s2">"entries_count"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">entries</span><span class="p">),</span>
+            <span class="s2">"entries"</span><span class="p">:</span> <span class="p">[</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">entry</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
-                    <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">entry</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
-                    <span class="s2">&quot;created_at&quot;</span><span class="p">:</span> <span class="n">entry</span><span class="o">.</span><span class="n">created_at</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+                    <span class="s2">"id"</span><span class="p">:</span> <span class="n">entry</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                    <span class="s2">"data"</span><span class="p">:</span> <span class="n">entry</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+                    <span class="s2">"created_at"</span><span class="p">:</span> <span class="n">entry</span><span class="o">.</span><span class="n">created_at</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
                 <span class="p">}</span>
                 <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span>
             <span class="p">],</span>
         <span class="p">}</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to retrieve history: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to retrieve history: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
 
 
@@ -1357,10 +1357,10 @@
 <span class="c1"># ─────────────────────────────────────────────────────────────────────────────</span>
 
 
-<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/api/v1/recommendations/evaluate&quot;</span><span class="p">)</span>
-<span class="nd">@track_evaluation</span><span class="p">(</span><span class="n">recommendation_type</span><span class="o">=</span><span class="s2">&quot;fertilization&quot;</span><span class="p">)</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">"/api/v1/recommendations/evaluate"</span><span class="p">)</span>
+<span class="nd">@track_evaluation</span><span class="p">(</span><span class="n">recommendation_type</span><span class="o">=</span><span class="s2">"fertilization"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">evaluate_fertilizer_recommendation</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">RecommendationRequest</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Evaluate a fertilizer recommendation using LLM-as-Judge.</span>
 
 <span class="sd">    Automatically tracked metrics:</span>
@@ -1374,7 +1374,7 @@
 <span class="sd">    - evaluation_score_completeness</span>
 <span class="sd">    - evaluation_score_clarity</span>
 <span class="sd">    - evaluation_grades_total</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">evaluator</span> <span class="o">=</span> <span class="n">RecommendationEvaluator</span><span class="p">()</span>
 
@@ -1392,19 +1392,19 @@
         <span class="p">)</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Recommendation evaluated: score=</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">overall_score</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;grade=</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">grade</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Recommendation evaluated: score=</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">overall_score</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, "</span>
+            <span class="sa">f</span><span class="s2">"grade=</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">grade</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
 
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;success&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;overall_score&quot;</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">overall_score</span><span class="p">,</span>
-            <span class="s2">&quot;grade&quot;</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">grade</span><span class="p">,</span>
-            <span class="s2">&quot;criteria_scores&quot;</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">criteria_scores</span><span class="p">,</span>
-            <span class="s2">&quot;feedback&quot;</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">feedback</span><span class="p">,</span>
+            <span class="s2">"status"</span><span class="p">:</span> <span class="s2">"success"</span><span class="p">,</span>
+            <span class="s2">"overall_score"</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">overall_score</span><span class="p">,</span>
+            <span class="s2">"grade"</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">grade</span><span class="p">,</span>
+            <span class="s2">"criteria_scores"</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">criteria_scores</span><span class="p">,</span>
+            <span class="s2">"feedback"</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">feedback</span><span class="p">,</span>
         <span class="p">}</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Evaluation failed: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Evaluation failed: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
 
 
@@ -1413,15 +1413,15 @@
 <span class="c1"># ─────────────────────────────────────────────────────────────────────────────</span>
 
 
-<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/metrics&quot;</span><span class="p">)</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/metrics"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">metrics_endpoint</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Prometheus metrics endpoint.</span>
 <span class="sd">    Exposes all metrics collected by the service.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">shared.monitoring.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_registry</span>
 
-    <span class="n">registry</span> <span class="o">=</span> <span class="n">get_registry</span><span class="p">(</span><span class="s2">&quot;sahool_ai&quot;</span><span class="p">)</span>
+    <span class="n">registry</span> <span class="o">=</span> <span class="n">get_registry</span><span class="p">(</span><span class="s2">"sahool_ai"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">registry</span><span class="o">.</span><span class="n">export</span><span class="p">()</span>
 
 
@@ -1430,26 +1430,26 @@
 <span class="c1"># ─────────────────────────────────────────────────────────────────────────────</span>
 
 
-<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/healthz&quot;</span><span class="p">)</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/healthz"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">liveness</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Liveness probe&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Liveness probe"""</span>
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;ok&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;service&quot;</span><span class="p">:</span> <span class="s2">&quot;ai_advisor_service&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;1.0.0&quot;</span>
+        <span class="s2">"status"</span><span class="p">:</span> <span class="s2">"ok"</span><span class="p">,</span>
+        <span class="s2">"service"</span><span class="p">:</span> <span class="s2">"ai_advisor_service"</span><span class="p">,</span>
+        <span class="s2">"version"</span><span class="p">:</span> <span class="s2">"1.0.0"</span>
     <span class="p">}</span>
 
 
-<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/readyz&quot;</span><span class="p">)</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/readyz"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">readiness</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Readiness probe&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Readiness probe"""</span>
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;ok&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;service&quot;</span><span class="p">:</span> <span class="s2">&quot;ai_advisor_service&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;dependencies&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;compression&quot;</span><span class="p">:</span> <span class="s2">&quot;ready&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;memory&quot;</span><span class="p">:</span> <span class="s2">&quot;ready&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;evaluation&quot;</span><span class="p">:</span> <span class="s2">&quot;ready&quot;</span><span class="p">,</span>
+        <span class="s2">"status"</span><span class="p">:</span> <span class="s2">"ok"</span><span class="p">,</span>
+        <span class="s2">"service"</span><span class="p">:</span> <span class="s2">"ai_advisor_service"</span><span class="p">,</span>
+        <span class="s2">"dependencies"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"compression"</span><span class="p">:</span> <span class="s2">"ready"</span><span class="p">,</span>
+            <span class="s2">"memory"</span><span class="p">:</span> <span class="s2">"ready"</span><span class="p">,</span>
+            <span class="s2">"evaluation"</span><span class="p">:</span> <span class="s2">"ready"</span><span class="p">,</span>
         <span class="p">}</span>
     <span class="p">}</span>
 
@@ -1459,14 +1459,14 @@
 <span class="c1"># ─────────────────────────────────────────────────────────────────────────────</span>
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">uvicorn</span>
 
     <span class="n">uvicorn</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
         <span class="n">app</span><span class="p">,</span>
-        <span class="n">host</span><span class="o">=</span><span class="s2">&quot;0.0.0.0&quot;</span><span class="p">,</span>
+        <span class="n">host</span><span class="o">=</span><span class="s2">"0.0.0.0"</span><span class="p">,</span>
         <span class="n">port</span><span class="o">=</span><span class="mi">8000</span><span class="p">,</span>
-        <span class="n">log_level</span><span class="o">=</span><span class="s2">&quot;info&quot;</span>
+        <span class="n">log_level</span><span class="o">=</span><span class="s2">"info"</span>
     <span class="p">)</span>
 </code></pre></div>
 
@@ -1478,7 +1478,7 @@
 <span class="w">      </span><span class="nt">context</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./apps/services/ai-advisor</span>
 <span class="w">      </span><span class="nt">dockerfile</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Dockerfile</span>
 <span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;8000:8000&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"8000:8000"</span>
 <span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">DATABASE_URL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgresql://sahool:password@postgres:5432/sahool?sslmode=require</span>
 <span class="w">      </span><span class="nt">NATS_URL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nats://nats:4222</span>
@@ -1488,7 +1488,7 @@
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgres</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nats</span>
 <span class="w">    </span><span class="nt">healthcheck</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CMD&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;curl&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;-f&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;http://localhost:8000/healthz&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"CMD"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"curl"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"-f"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"http://localhost:8000/healthz"</span><span class="p p-Indicator">]</span>
 <span class="w">      </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span>
 <span class="w">      </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10s</span>
 <span class="w">      </span><span class="nt">retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
@@ -1501,39 +1501,39 @@
 <span class="w">  </span><span class="nt">evaluation_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">15s</span>
 
 <span class="nt">scrape_configs</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;ai_advisor_service&#39;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="s">'ai_advisor_service'</span>
 <span class="w">    </span><span class="nt">static_configs</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">targets</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&#39;localhost:8000&#39;</span><span class="p p-Indicator">]</span>
-<span class="w">    </span><span class="nt">metrics_path</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;/metrics&#39;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">targets</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">'localhost:8000'</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">metrics_path</span><span class="p">:</span><span class="w"> </span><span class="s">'/metrics'</span>
 <span class="w">    </span><span class="nt">scrape_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10s</span>
 </code></pre></div>
 
 <h2 id="grafana-dashboards">Grafana Dashboards<a class="headerlink" href="#grafana-dashboards" title="Permanent link">&para;</a></h2>
 <h3 id="dashboard-1-compression-efficiency">Dashboard 1: Compression Efficiency<a class="headerlink" href="#dashboard-1-compression-efficiency" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;AI Context Compression&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;panels&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AI Context Compression"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"panels"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Compression Ratio&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;targets&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Compression Ratio"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"targets"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">        </span><span class="p">{</span>
-<span class="w">          </span><span class="nt">&quot;expr&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;avg(sahool_ai_compression_ratio)&quot;</span>
+<span class="w">          </span><span class="nt">"expr"</span><span class="p">:</span><span class="w"> </span><span class="s2">"avg(sahool_ai_compression_ratio)"</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">      </span><span class="p">]</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Operations/sec&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;targets&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Operations/sec"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"targets"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">        </span><span class="p">{</span>
-<span class="w">          </span><span class="nt">&quot;expr&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;rate(sahool_ai_compression_operations_total[1m])&quot;</span>
+<span class="w">          </span><span class="nt">"expr"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rate(sahool_ai_compression_operations_total[1m])"</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">      </span><span class="p">]</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Latency (p95)&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;targets&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Latency (p95)"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"targets"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">        </span><span class="p">{</span>
-<span class="w">          </span><span class="nt">&quot;expr&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;histogram_quantile(0.95, rate(sahool_ai_compression_latency_seconds_bucket[5m]))&quot;</span>
+<span class="w">          </span><span class="nt">"expr"</span><span class="p">:</span><span class="w"> </span><span class="s2">"histogram_quantile(0.95, rate(sahool_ai_compression_latency_seconds_bucket[5m]))"</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">      </span><span class="p">]</span>
 <span class="w">    </span><span class="p">}</span>
@@ -1543,29 +1543,29 @@
 
 <h3 id="dashboard-2-memory-usage">Dashboard 2: Memory Usage<a class="headerlink" href="#dashboard-2-memory-usage" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;AI Memory Management&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;panels&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AI Memory Management"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"panels"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Memory Usage (MB)&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;targets&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Memory Usage (MB)"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"targets"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">        </span><span class="p">{</span>
-<span class="w">          </span><span class="nt">&quot;expr&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sahool_ai_memory_usage_bytes / 1000000&quot;</span>
+<span class="w">          </span><span class="nt">"expr"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sahool_ai_memory_usage_bytes / 1000000"</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">      </span><span class="p">]</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Entries Count&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;targets&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Entries Count"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"targets"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">        </span><span class="p">{</span>
-<span class="w">          </span><span class="nt">&quot;expr&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sahool_ai_memory_entries_stored&quot;</span>
+<span class="w">          </span><span class="nt">"expr"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sahool_ai_memory_entries_stored"</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">      </span><span class="p">]</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Evictions/min&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;targets&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Evictions/min"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"targets"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">        </span><span class="p">{</span>
-<span class="w">          </span><span class="nt">&quot;expr&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;rate(sahool_ai_memory_evictions_total[1m])&quot;</span>
+<span class="w">          </span><span class="nt">"expr"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rate(sahool_ai_memory_evictions_total[1m])"</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">      </span><span class="p">]</span>
 <span class="w">    </span><span class="p">}</span>
@@ -1582,8 +1582,8 @@
 <span class="w">        </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rate(sahool_ai_compression_errors_total[5m]) &gt; 0.1</span>
 <span class="w">        </span><span class="nt">for</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5m</span>
 <span class="w">        </span><span class="nt">annotations</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;High</span><span class="nv"> </span><span class="s">compression</span><span class="nv"> </span><span class="s">error</span><span class="nv"> </span><span class="s">rate&quot;</span>
-<span class="w">          </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Compression</span><span class="nv"> </span><span class="s">error</span><span class="nv"> </span><span class="s">rate</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">{{</span><span class="nv"> </span><span class="s">$value</span><span class="nv"> </span><span class="s">}}</span><span class="nv"> </span><span class="s">errors/sec&quot;</span>
+<span class="w">          </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="s">"High</span><span class="nv"> </span><span class="s">compression</span><span class="nv"> </span><span class="s">error</span><span class="nv"> </span><span class="s">rate"</span>
+<span class="w">          </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">"Compression</span><span class="nv"> </span><span class="s">error</span><span class="nv"> </span><span class="s">rate</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">{{</span><span class="nv"> </span><span class="s">$value</span><span class="nv"> </span><span class="s">}}</span><span class="nv"> </span><span class="s">errors/sec"</span>
 </code></pre></div>
 
 <h3 id="alert-memory-growing">Alert: Memory Growing<a class="headerlink" href="#alert-memory-growing" title="Permanent link">&para;</a></h3>
@@ -1594,8 +1594,8 @@
 <span class="w">        </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool_ai_memory_usage_bytes &gt; 500000000</span>
 <span class="w">        </span><span class="nt">for</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5m</span>
 <span class="w">        </span><span class="nt">annotations</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;High</span><span class="nv"> </span><span class="s">memory</span><span class="nv"> </span><span class="s">usage&quot;</span>
-<span class="w">          </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Memory</span><span class="nv"> </span><span class="s">usage</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">{{</span><span class="nv"> </span><span class="s">humanize</span><span class="nv"> </span><span class="s">$value</span><span class="nv"> </span><span class="s">}}</span><span class="nv"> </span><span class="s">bytes&quot;</span>
+<span class="w">          </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="s">"High</span><span class="nv"> </span><span class="s">memory</span><span class="nv"> </span><span class="s">usage"</span>
+<span class="w">          </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">"Memory</span><span class="nv"> </span><span class="s">usage</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">{{</span><span class="nv"> </span><span class="s">humanize</span><span class="nv"> </span><span class="s">$value</span><span class="nv"> </span><span class="s">}}</span><span class="nv"> </span><span class="s">bytes"</span>
 </code></pre></div>
 
 <h3 id="alert-high-evaluation-latency">Alert: High Evaluation Latency<a class="headerlink" href="#alert-high-evaluation-latency" title="Permanent link">&para;</a></h3>
@@ -1606,8 +1606,8 @@
 <span class="w">        </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">histogram_quantile(0.95, rate(sahool_ai_evaluation_latency_seconds_bucket[5m])) &gt; 10</span>
 <span class="w">        </span><span class="nt">for</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5m</span>
 <span class="w">        </span><span class="nt">annotations</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;High</span><span class="nv"> </span><span class="s">evaluation</span><span class="nv"> </span><span class="s">latency&quot;</span>
-<span class="w">          </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;p95</span><span class="nv"> </span><span class="s">latency</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">{{</span><span class="nv"> </span><span class="s">$value</span><span class="nv"> </span><span class="s">}}s&quot;</span>
+<span class="w">          </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="s">"High</span><span class="nv"> </span><span class="s">evaluation</span><span class="nv"> </span><span class="s">latency"</span>
+<span class="w">          </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">"p95</span><span class="nv"> </span><span class="s">latency</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">{{</span><span class="nv"> </span><span class="s">$value</span><span class="nv"> </span><span class="s">}}s"</span>
 </code></pre></div>
 
 <h2 id="testing-the-integration">Testing the Integration<a class="headerlink" href="#testing-the-integration" title="Permanent link">&para;</a></h2>
@@ -1616,12 +1616,12 @@ python<span class="w"> </span>apps/services/ai-advisor/src/main.py
 
 <span class="c1"># Test compression endpoint</span>
 curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8000/api/v1/compression/compress-field-data<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
-<span class="s1">    &quot;farm_id&quot;: &quot;farm_123&quot;,</span>
-<span class="s1">    &quot;data&quot;: {&quot;field_data&quot;: &quot;...&quot;},</span>
-<span class="s1">    &quot;strategy&quot;: &quot;hybrid&quot;</span>
-<span class="s1">  }&#39;</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "farm_id": "farm_123",</span>
+<span class="s1">    "data": {"field_data": "..."},</span>
+<span class="s1">    "strategy": "hybrid"</span>
+<span class="s1">  }'</span>
 
 <span class="c1"># View metrics</span>
 curl<span class="w"> </span>http://localhost:8000/metrics
@@ -1634,23 +1634,23 @@ curl<span class="w"> </span>http://localhost:8000/healthz
 <p>After running some operations, you should see:</p>
 <div class="codehilite"><pre><span></span><code><span class="gh">#</span> HELP sahool_ai_compression_operations_total Total context compression operations performed
 <span class="gh">#</span> TYPE sahool_ai_compression_operations_total counter
-sahool_ai_compression_operations_total{service=&quot;ai_context_engineering&quot;,component=&quot;compression&quot;} 5
+sahool_ai_compression_operations_total{service="ai_context_engineering",component="compression"} 5
 
 <span class="gh">#</span> HELP sahool_ai_memory_entries_stored Current number of memory entries stored
 <span class="gh">#</span> TYPE sahool_ai_memory_entries_stored gauge
-sahool_ai_memory_entries_stored{service=&quot;ai_context_engineering&quot;,component=&quot;memory&quot;} 42
+sahool_ai_memory_entries_stored{service="ai_context_engineering",component="memory"} 42
 
 <span class="gh">#</span> HELP sahool_ai_evaluation_operations_total Total recommendation evaluations performed
 <span class="gh">#</span> TYPE sahool_ai_evaluation_operations_total counter
-sahool_ai_evaluation_operations_total{service=&quot;ai_context_engineering&quot;,component=&quot;evaluation&quot;} 3
+sahool_ai_evaluation_operations_total{service="ai_context_engineering",component="evaluation"} 3
 
 <span class="gh">#</span> HELP sahool_ai_compression_latency_seconds Context compression latency in seconds
 <span class="gh">#</span> TYPE sahool_ai_compression_latency_seconds histogram
-sahool_ai_compression_latency_seconds_bucket{service=&quot;ai_context_engineering&quot;,component=&quot;compression&quot;,le=&quot;0.01&quot;} 2
-sahool_ai_compression_latency_seconds_bucket{service=&quot;ai_context_engineering&quot;,component=&quot;compression&quot;,le=&quot;0.025&quot;} 4
+sahool_ai_compression_latency_seconds_bucket{service="ai_context_engineering",component="compression",le="0.01"} 2
+sahool_ai_compression_latency_seconds_bucket{service="ai_context_engineering",component="compression",le="0.025"} 4
 ...
-sahool_ai_compression_latency_seconds_sum{service=&quot;ai_context_engineering&quot;,component=&quot;compression&quot;} 0.15
-sahool_ai_compression_latency_seconds_count{service=&quot;ai_context_engineering&quot;,component=&quot;compression&quot;} 5
+sahool_ai_compression_latency_seconds_sum{service="ai_context_engineering",component="compression"} 0.15
+sahool_ai_compression_latency_seconds_count{service="ai_context_engineering",component="compression"} 5
 </code></pre></div>
 
 <h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
@@ -1712,10 +1712,10 @@ sahool_ai_compression_latency_seconds_count{service=&quot;ai_context_engineering
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

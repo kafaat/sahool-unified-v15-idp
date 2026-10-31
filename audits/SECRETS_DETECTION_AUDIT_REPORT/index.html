@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1162,14 +1162,14 @@
 <li><code>/home/user/sahool-unified-v15-idp/apps/services/field-management-service/src/rotation_models.py</code></li>
 </ul>
 <p><strong>Issue:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="n">engine</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span><span class="s2">&quot;postgresql://user:password@localhost/sahool_rotation&quot;</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><code><span class="n">engine</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span><span class="s2">"postgresql://user:password@localhost/sahool_rotation"</span><span class="p">)</span>
 </code></pre></div>
 
 <p><strong>Fix Applied:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Security: Use environment variable for database credentials</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="n">engine</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DATABASE_URL&quot;</span><span class="p">,</span> <span class="s2">&quot;postgresql://localhost/sahool_rotation&quot;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"DATABASE_URL"</span><span class="p">,</span> <span class="s2">"postgresql://localhost/sahool_rotation"</span><span class="p">)</span>
 <span class="p">)</span>
 </code></pre></div>
 
@@ -1179,14 +1179,14 @@
 <p><strong>Severity:</strong> 🔴 CRITICAL
 <strong>File:</strong> <code>/home/user/sahool-unified-v15-idp/apps/services/provider-config/src/main.py</code></p>
 <p><strong>Issues:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="n">database_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DATABASE_URL&quot;</span><span class="p">,</span> <span class="s2">&quot;postgresql://sahool:sahool@pgbouncer:6432/sahool&quot;</span><span class="p">)</span>
-<span class="n">redis_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;REDIS_URL&quot;</span><span class="p">,</span> <span class="s2">&quot;redis://:password@redis:6379/0&quot;</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><code><span class="n">database_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"DATABASE_URL"</span><span class="p">,</span> <span class="s2">"postgresql://sahool:sahool@pgbouncer:6432/sahool"</span><span class="p">)</span>
+<span class="n">redis_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"REDIS_URL"</span><span class="p">,</span> <span class="s2">"redis://:password@redis:6379/0"</span><span class="p">)</span>
 </code></pre></div>
 
 <p><strong>Fix Applied:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Security: No fallback credentials - require env vars to be set</span>
-<span class="n">database_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DATABASE_URL&quot;</span><span class="p">,</span> <span class="s2">&quot;postgresql://pgbouncer:6432/sahool&quot;</span><span class="p">)</span>
-<span class="n">redis_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;REDIS_URL&quot;</span><span class="p">,</span> <span class="s2">&quot;redis://redis:6379/0&quot;</span><span class="p">)</span>
+<span class="n">database_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"DATABASE_URL"</span><span class="p">,</span> <span class="s2">"postgresql://pgbouncer:6432/sahool"</span><span class="p">)</span>
+<span class="n">redis_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"REDIS_URL"</span><span class="p">,</span> <span class="s2">"redis://redis:6379/0"</span><span class="p">)</span>
 </code></pre></div>
 
 <p><strong>Impact:</strong> Removed hardcoded passwords from fallback connection strings.</p>
@@ -1195,12 +1195,12 @@
 <p><strong>Severity:</strong> 🟡 MEDIUM
 <strong>File:</strong> <code>/home/user/sahool-unified-v15-idp/apps/kernel/common/database/example_usage.py</code></p>
 <p><strong>Issue:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="n">database_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;DATABASE_URL&#39;</span><span class="p">,</span> <span class="s1">&#39;postgresql://sahool:password@localhost/sahool&#39;</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><code><span class="n">database_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">'DATABASE_URL'</span><span class="p">,</span> <span class="s1">'postgresql://sahool:password@localhost/sahool'</span><span class="p">)</span>
 </code></pre></div>
 
 <p><strong>Fix Applied:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Security: No fallback credentials in example code</span>
-<span class="n">database_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;DATABASE_URL&#39;</span><span class="p">,</span> <span class="s1">&#39;postgresql://localhost/sahool&#39;</span><span class="p">)</span>
+<span class="n">database_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">'DATABASE_URL'</span><span class="p">,</span> <span class="s1">'postgresql://localhost/sahool'</span><span class="p">)</span>
 </code></pre></div>
 
 <p><strong>Impact:</strong> Removed hardcoded password from example/demo code.</p>
@@ -1209,12 +1209,12 @@
 <p><strong>Severity:</strong> 🔴 CRITICAL
 <strong>File:</strong> <code>/home/user/sahool-unified-v15-idp/apps/services/equipment-service/src/database.py</code></p>
 <p><strong>Issue:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="n">DATABASE_URL</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DATABASE_URL&quot;</span><span class="p">,</span> <span class="s2">&quot;postgresql://postgres:postgres@localhost:5432/sahool&quot;</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><code><span class="n">DATABASE_URL</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"DATABASE_URL"</span><span class="p">,</span> <span class="s2">"postgresql://postgres:postgres@localhost:5432/sahool"</span><span class="p">)</span>
 </code></pre></div>
 
 <p><strong>Fix Applied:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Security: No fallback credentials - require DATABASE_URL to be set</span>
-<span class="n">DATABASE_URL</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DATABASE_URL&quot;</span><span class="p">,</span> <span class="s2">&quot;postgresql://localhost:5432/sahool&quot;</span><span class="p">)</span>
+<span class="n">DATABASE_URL</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"DATABASE_URL"</span><span class="p">,</span> <span class="s2">"postgresql://localhost:5432/sahool"</span><span class="p">)</span>
 </code></pre></div>
 
 <p><strong>Impact:</strong> Removed hardcoded postgres credentials.</p>
@@ -1223,12 +1223,12 @@
 <p><strong>Severity:</strong> 🔴 CRITICAL
 <strong>File:</strong> <code>/home/user/sahool-unified-v15-idp/apps/services/alert-service/src/database.py</code></p>
 <p><strong>Issue:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="n">DATABASE_URL</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DATABASE_URL&quot;</span><span class="p">,</span> <span class="s2">&quot;postgresql://postgres:postgres@localhost:5432/sahool_alerts&quot;</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><code><span class="n">DATABASE_URL</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"DATABASE_URL"</span><span class="p">,</span> <span class="s2">"postgresql://postgres:postgres@localhost:5432/sahool_alerts"</span><span class="p">)</span>
 </code></pre></div>
 
 <p><strong>Fix Applied:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Security: No fallback credentials - require DATABASE_URL to be set</span>
-<span class="n">DATABASE_URL</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DATABASE_URL&quot;</span><span class="p">,</span> <span class="s2">&quot;postgresql://localhost:5432/sahool_alerts&quot;</span><span class="p">)</span>
+<span class="n">DATABASE_URL</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"DATABASE_URL"</span><span class="p">,</span> <span class="s2">"postgresql://localhost:5432/sahool_alerts"</span><span class="p">)</span>
 </code></pre></div>
 
 <p><strong>Impact:</strong> Removed hardcoded postgres credentials.</p>
@@ -1237,12 +1237,12 @@
 <p><strong>Severity:</strong> 🔴 CRITICAL
 <strong>File:</strong> <code>/home/user/sahool-unified-v15-idp/apps/services/globalgap-compliance/src/database.py</code></p>
 <p><strong>Issue:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="n">DATABASE_URL</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DATABASE_URL&quot;</span><span class="p">,</span> <span class="s2">&quot;postgresql://sahool:sahool@postgres:5432/sahool_globalgap&quot;</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><code><span class="n">DATABASE_URL</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"DATABASE_URL"</span><span class="p">,</span> <span class="s2">"postgresql://sahool:sahool@postgres:5432/sahool_globalgap"</span><span class="p">)</span>
 </code></pre></div>
 
 <p><strong>Fix Applied:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Security: No fallback credentials - require DATABASE_URL to be set</span>
-<span class="n">DATABASE_URL</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DATABASE_URL&quot;</span><span class="p">,</span> <span class="s2">&quot;postgresql://postgres:5432/sahool_globalgap&quot;</span><span class="p">)</span>
+<span class="n">DATABASE_URL</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"DATABASE_URL"</span><span class="p">,</span> <span class="s2">"postgresql://postgres:5432/sahool_globalgap"</span><span class="p">)</span>
 </code></pre></div>
 
 <p><strong>Impact:</strong> Removed hardcoded sahool user credentials.</p>
@@ -1301,8 +1301,8 @@
 <p>The codebase properly uses environment variables for sensitive data:</p>
 <p><strong>Examples:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Python</span>
-<span class="n">api_key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;ANTHROPIC_API_KEY&quot;</span><span class="p">)</span>
-<span class="n">jwt_secret</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;JWT_SECRET_KEY&quot;</span><span class="p">)</span>
+<span class="n">api_key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"ANTHROPIC_API_KEY"</span><span class="p">)</span>
+<span class="n">jwt_secret</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"JWT_SECRET_KEY"</span><span class="p">)</span>
 
 <span class="c1"># TypeScript/JavaScript</span>
 <span class="n">const</span> <span class="n">jwtSecret</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">JWT_SECRET_KEY</span>
@@ -1437,7 +1437,7 @@ gitleaks<span class="w"> </span>detect<span class="w"> </span>--source<span clas
 gitleaks<span class="w"> </span>detect<span class="w"> </span>--source<span class="w"> </span>.<span class="w"> </span>--config<span class="w"> </span>.gitleaks.toml
 
 <span class="c1"># Scan git history</span>
-gitleaks<span class="w"> </span>detect<span class="w"> </span>--source<span class="w"> </span>.<span class="w"> </span>--log-opts<span class="o">=</span><span class="s2">&quot;--all&quot;</span>
+gitleaks<span class="w"> </span>detect<span class="w"> </span>--source<span class="w"> </span>.<span class="w"> </span>--log-opts<span class="o">=</span><span class="s2">"--all"</span>
 </code></pre></div>
 
 <hr />
@@ -1493,10 +1493,10 @@ gitleaks<span class="w"> </span>detect<span class="w"> </span>--source<span clas
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

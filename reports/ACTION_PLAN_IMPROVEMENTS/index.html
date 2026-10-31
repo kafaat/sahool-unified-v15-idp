@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1130,7 +1130,7 @@
 <h4 id="11-cors-wildcard">1.1 إصلاح CORS Wildcard في جميع الخدمات<a class="headerlink" href="#11-cors-wildcard" title="Permanent link">&para;</a></h4>
 <p><strong>المشكلة:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># في 3+ خدمات:</span>
-<span class="n">allow_origins</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">]</span>  <span class="c1"># خطر أمني!</span>
+<span class="n">allow_origins</span><span class="o">=</span><span class="p">[</span><span class="s2">"*"</span><span class="p">]</span>  <span class="c1"># خطر أمني!</span>
 </code></pre></div>
 
 <p><strong>الحل:</strong></p>
@@ -1147,26 +1147,26 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseSettings</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">CORSSettings</span><span class="p">(</span><span class="n">BaseSettings</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Centralized CORS configuration&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Centralized CORS configuration"""</span>
 
     <span class="n">allowed_origins</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;https://admin.sahool.io&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;https://app.sahool.io&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;https://dashboard.sahool.io&quot;</span><span class="p">,</span>
+        <span class="s2">"https://admin.sahool.io"</span><span class="p">,</span>
+        <span class="s2">"https://app.sahool.io"</span><span class="p">,</span>
+        <span class="s2">"https://dashboard.sahool.io"</span><span class="p">,</span>
     <span class="p">]</span>
 
     <span class="c1"># Development only</span>
     <span class="n">dev_origins</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;http://localhost:3000&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;http://localhost:3001&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;http://localhost:8080&quot;</span><span class="p">,</span>
+        <span class="s2">"http://localhost:3000"</span><span class="p">,</span>
+        <span class="s2">"http://localhost:3001"</span><span class="p">,</span>
+        <span class="s2">"http://localhost:8080"</span><span class="p">,</span>
     <span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">all_origins</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get all allowed origins based on environment&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Get all allowed origins based on environment"""</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;ENVIRONMENT&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;development&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"ENVIRONMENT"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"development"</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">allowed_origins</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">dev_origins</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">allowed_origins</span>
 
@@ -1179,15 +1179,15 @@
     <span class="n">CORSMiddleware</span><span class="p">,</span>
     <span class="n">allow_origins</span><span class="o">=</span><span class="n">cors_settings</span><span class="o">.</span><span class="n">all_origins</span><span class="p">,</span>
     <span class="n">allow_credentials</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">allow_methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;GET&quot;</span><span class="p">,</span> <span class="s2">&quot;POST&quot;</span><span class="p">,</span> <span class="s2">&quot;PUT&quot;</span><span class="p">,</span> <span class="s2">&quot;DELETE&quot;</span><span class="p">,</span> <span class="s2">&quot;PATCH&quot;</span><span class="p">],</span>
-    <span class="n">allow_headers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">],</span>
+    <span class="n">allow_methods</span><span class="o">=</span><span class="p">[</span><span class="s2">"GET"</span><span class="p">,</span> <span class="s2">"POST"</span><span class="p">,</span> <span class="s2">"PUT"</span><span class="p">,</span> <span class="s2">"DELETE"</span><span class="p">,</span> <span class="s2">"PATCH"</span><span class="p">],</span>
+    <span class="n">allow_headers</span><span class="o">=</span><span class="p">[</span><span class="s2">"*"</span><span class="p">],</span>
 <span class="p">)</span>
 </code></pre></div>
 
 <p><strong>خطوات التنفيذ:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># 1. إنشاء ملف التهيئة المشترك</span>
 mkdir<span class="w"> </span>-p<span class="w"> </span>shared/config
-cat<span class="w"> </span>&gt;<span class="w"> </span>shared/config/cors_config.py<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>shared/config/cors_config.py<span class="w"> </span><span class="s">&lt;&lt; 'EOF'</span>
 <span class="s">[الكود أعلاه]</span>
 <span class="s">EOF</span>
 
@@ -1199,14 +1199,14 @@ pytest<span class="w"> </span>tests/security/test_cors.py
 
 <span class="c1"># 4. النشر</span>
 git<span class="w"> </span>add<span class="w"> </span>.
-git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Security: Fix CORS wildcard in all services&quot;</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">"Security: Fix CORS wildcard in all services"</span>
 git<span class="w"> </span>push
 </code></pre></div>
 
 <p><strong>التحقق:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># اختبار CORS</span>
-curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Origin: https://malicious-site.com&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">     </span>-H<span class="w"> </span><span class="s2">&quot;Access-Control-Request-Method: POST&quot;</span><span class="w"> </span><span class="se">\</span>
+curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">"Origin: https://malicious-site.com"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">     </span>-H<span class="w"> </span><span class="s2">"Access-Control-Request-Method: POST"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">     </span>-X<span class="w"> </span>OPTIONS<span class="w"> </span>https://api.sahool.io/v1/diagnose
 
 <span class="c1"># يجب أن يرفض الطلب</span>
@@ -1274,10 +1274,10 @@ curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Ori
 <div class="codehilite"><pre><span></span><code><span class="ch">#!/bin/bash</span>
 <span class="c1"># scripts/security/generate-env.sh</span>
 
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;═══════════════════════════════════════════════════════&quot;</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;SAHOOL Platform - Secure Environment Generator&quot;</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;═══════════════════════════════════════════════════════&quot;</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"═══════════════════════════════════════════════════════"</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"SAHOOL Platform - Secure Environment Generator"</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"═══════════════════════════════════════════════════════"</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">""</span>
 
 <span class="c1"># Generate random secure passwords</span>
 <span class="nv">POSTGRES_PASSWORD</span><span class="o">=</span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span><span class="k">)</span>
@@ -1300,15 +1300,15 @@ cat<span class="w"> </span>&gt;<span class="w"> </span>.env<span class="w"> </sp
 <span class="s">ENVIRONMENT=production</span>
 <span class="s">EOF</span>
 
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✅ .env file created successfully!&quot;</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;&quot;</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;⚠️  IMPORTANT: Keep this file secure!&quot;</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;⚠️  Add to .gitignore to prevent committing&quot;</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;&quot;</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Generated credentials:&quot;</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  - PostgreSQL Password: </span><span class="si">${</span><span class="nv">POSTGRES_PASSWORD</span><span class="p">:</span><span class="nv">0</span><span class="p">:</span><span class="nv">8</span><span class="si">}</span><span class="s2">...&quot;</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  - Redis Password: </span><span class="si">${</span><span class="nv">REDIS_PASSWORD</span><span class="p">:</span><span class="nv">0</span><span class="p">:</span><span class="nv">8</span><span class="si">}</span><span class="s2">...&quot;</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  - JWT Secret: </span><span class="si">${</span><span class="nv">JWT_SECRET</span><span class="p">:</span><span class="nv">0</span><span class="p">:</span><span class="nv">8</span><span class="si">}</span><span class="s2">...&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"✅ .env file created successfully!"</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">""</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"⚠️  IMPORTANT: Keep this file secure!"</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"⚠️  Add to .gitignore to prevent committing"</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">""</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"Generated credentials:"</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"  - PostgreSQL Password: </span><span class="si">${</span><span class="nv">POSTGRES_PASSWORD</span><span class="p">:</span><span class="nv">0</span><span class="p">:</span><span class="nv">8</span><span class="si">}</span><span class="s2">..."</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"  - Redis Password: </span><span class="si">${</span><span class="nv">REDIS_PASSWORD</span><span class="p">:</span><span class="nv">0</span><span class="p">:</span><span class="nv">8</span><span class="si">}</span><span class="s2">..."</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"  - JWT Secret: </span><span class="si">${</span><span class="nv">JWT_SECRET</span><span class="p">:</span><span class="nv">0</span><span class="p">:</span><span class="nv">8</span><span class="si">}</span><span class="s2">..."</span>
 </code></pre></div>
 
 <p><strong>خطوات التنفيذ:</strong></p>
@@ -1319,7 +1319,7 @@ chmod<span class="w"> </span>+x<span class="w"> </span>scripts/security/generate
 ./scripts/security/generate-env.sh
 
 <span class="c1"># 3. التحقق من .gitignore</span>
-grep<span class="w"> </span>-q<span class="w"> </span><span class="s2">&quot;^.env</span>$<span class="s2">&quot;</span><span class="w"> </span>.gitignore<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;.env&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>.gitignore
+grep<span class="w"> </span>-q<span class="w"> </span><span class="s2">"^.env</span>$<span class="s2">"</span><span class="w"> </span>.gitignore<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">".env"</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>.gitignore
 
 <span class="c1"># 4. الاختبار</span>
 docker-compose<span class="w"> </span>config<span class="w">  </span><span class="c1"># يجب أن يفشل بدون .env</span>
@@ -1327,7 +1327,7 @@ docker-compose<span class="w"> </span>--env-file<span class="w"> </span>.env<spa
 
 <span class="c1"># 5. النشر</span>
 git<span class="w"> </span>add<span class="w"> </span>docker-compose.yml<span class="w"> </span>.env.template<span class="w"> </span>scripts/security/generate-env.sh
-git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Security: Remove default passwords, add secure env generation&quot;</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">"Security: Remove default passwords, add secure env generation"</span>
 </code></pre></div>
 
 <hr />
@@ -1348,19 +1348,19 @@ git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </sp
 
 <span class="k">class</span><span class="w"> </span><span class="nc">JWTSettings</span><span class="p">(</span><span class="n">BaseSettings</span><span class="p">):</span>
     <span class="n">jwt_secret</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">jwt_algorithm</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;HS256&quot;</span>
+    <span class="n">jwt_algorithm</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"HS256"</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Config</span><span class="p">:</span>
-        <span class="n">env_file</span> <span class="o">=</span> <span class="s2">&quot;.env&quot;</span>
+        <span class="n">env_file</span> <span class="o">=</span> <span class="s2">".env"</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">JWTValidator</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Centralized JWT validation for all services&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Centralized JWT validation for all services"""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">settings</span> <span class="o">=</span> <span class="n">JWTSettings</span><span class="p">()</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">validate_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Validate JWT token and return payload</span>
 
 <span class="sd">        Args:</span>
@@ -1371,7 +1371,7 @@ git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </sp
 
 <span class="sd">        Raises:</span>
 <span class="sd">            WebSocketDisconnect: If token is invalid</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="c1"># Decode and verify token</span>
             <span class="n">payload</span> <span class="o">=</span> <span class="n">jwt</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span>
@@ -1379,19 +1379,19 @@ git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </sp
                 <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">jwt_secret</span><span class="p">,</span>
                 <span class="n">algorithms</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">jwt_algorithm</span><span class="p">],</span>
                 <span class="n">options</span><span class="o">=</span><span class="p">{</span>
-                    <span class="s2">&quot;verify_signature&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-                    <span class="s2">&quot;verify_exp&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-                    <span class="s2">&quot;verify_iat&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                    <span class="s2">"verify_signature"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                    <span class="s2">"verify_exp"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                    <span class="s2">"verify_iat"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
                 <span class="p">}</span>
             <span class="p">)</span>
 
             <span class="c1"># Validate required fields</span>
-            <span class="n">required_fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">,</span> <span class="s2">&quot;role&quot;</span><span class="p">,</span> <span class="s2">&quot;tenant_id&quot;</span><span class="p">]</span>
+            <span class="n">required_fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"user_id"</span><span class="p">,</span> <span class="s2">"role"</span><span class="p">,</span> <span class="s2">"tenant_id"</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">required_fields</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">field</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">payload</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="n">WebSocketDisconnect</span><span class="p">(</span>
                         <span class="n">code</span><span class="o">=</span><span class="mi">4002</span><span class="p">,</span>
-                        <span class="n">reason</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Missing required field: </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="n">reason</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Missing required field: </span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">"</span>
                     <span class="p">)</span>
 
             <span class="k">return</span> <span class="n">payload</span>
@@ -1399,30 +1399,30 @@ git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </sp
         <span class="k">except</span> <span class="n">ExpiredSignatureError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">WebSocketDisconnect</span><span class="p">(</span>
                 <span class="n">code</span><span class="o">=</span><span class="mi">4001</span><span class="p">,</span>
-                <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;Token has expired&quot;</span>
+                <span class="n">reason</span><span class="o">=</span><span class="s2">"Token has expired"</span>
             <span class="p">)</span>
         <span class="k">except</span> <span class="n">InvalidTokenError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">WebSocketDisconnect</span><span class="p">(</span>
                 <span class="n">code</span><span class="o">=</span><span class="mi">4003</span><span class="p">,</span>
-                <span class="n">reason</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Invalid token: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">reason</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Invalid token: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">WebSocketDisconnect</span><span class="p">(</span>
                 <span class="n">code</span><span class="o">=</span><span class="mi">4000</span><span class="p">,</span>
-                <span class="n">reason</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Authentication error: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">reason</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Authentication error: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">extract_token_from_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query_params</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract token from WebSocket query parameters&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Extract token from WebSocket query parameters"""</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">urllib.parse</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_qs</span>
 
         <span class="n">params</span> <span class="o">=</span> <span class="n">parse_qs</span><span class="p">(</span><span class="n">query_params</span><span class="p">)</span>
-        <span class="n">token</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;token&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">token</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"token"</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">token</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">WebSocketDisconnect</span><span class="p">(</span>
                 <span class="n">code</span><span class="o">=</span><span class="mi">4004</span><span class="p">,</span>
-                <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;Missing authentication token&quot;</span>
+                <span class="n">reason</span><span class="o">=</span><span class="s2">"Missing authentication token"</span>
             <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">token</span>
@@ -1434,24 +1434,24 @@ git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </sp
 <span class="kn">from</span><span class="w"> </span><span class="nn">shared.auth.jwt_validator</span><span class="w"> </span><span class="kn">import</span> <span class="n">JWTValidator</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 
-<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;SAHOOL WebSocket Gateway&quot;</span><span class="p">)</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"SAHOOL WebSocket Gateway"</span><span class="p">)</span>
 <span class="n">jwt_validator</span> <span class="o">=</span> <span class="n">JWTValidator</span><span class="p">()</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <span class="c1"># Active connections with user context</span>
 <span class="n">connections</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
-<span class="nd">@app</span><span class="o">.</span><span class="n">websocket</span><span class="p">(</span><span class="s2">&quot;/ws&quot;</span><span class="p">)</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">websocket</span><span class="p">(</span><span class="s2">"/ws"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">websocket_endpoint</span><span class="p">(</span><span class="n">websocket</span><span class="p">:</span> <span class="n">WebSocket</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    WebSocket endpoint with JWT authentication</span>
 
 <span class="sd">    Usage: ws://localhost:8089/ws?token=&lt;jwt_token&gt;</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="c1"># 1. Extract token from query params</span>
         <span class="n">token</span> <span class="o">=</span> <span class="n">jwt_validator</span><span class="o">.</span><span class="n">extract_token_from_query</span><span class="p">(</span>
-            <span class="n">websocket</span><span class="o">.</span><span class="n">scope</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;query_string&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+            <span class="n">websocket</span><span class="o">.</span><span class="n">scope</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"query_string"</span><span class="p">,</span> <span class="sa">b</span><span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
         <span class="p">)</span>
 
         <span class="c1"># 2. Validate token before accepting connection</span>
@@ -1461,17 +1461,17 @@ git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </sp
         <span class="k">await</span> <span class="n">websocket</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
 
         <span class="c1"># 4. Store connection with user context</span>
-        <span class="n">connection_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">user_context</span><span class="p">[</span><span class="s1">&#39;user_id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">user_context</span><span class="p">[</span><span class="s1">&#39;tenant_id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">connection_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">user_context</span><span class="p">[</span><span class="s1">'user_id'</span><span class="p">]</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">user_context</span><span class="p">[</span><span class="s1">'tenant_id'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
         <span class="n">connections</span><span class="p">[</span><span class="n">connection_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;websocket&quot;</span><span class="p">:</span> <span class="n">websocket</span><span class="p">,</span>
-            <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="n">user_context</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="n">user_context</span><span class="p">[</span><span class="s2">&quot;role&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;tenant_id&quot;</span><span class="p">:</span> <span class="n">user_context</span><span class="p">[</span><span class="s2">&quot;tenant_id&quot;</span><span class="p">],</span>
+            <span class="s2">"websocket"</span><span class="p">:</span> <span class="n">websocket</span><span class="p">,</span>
+            <span class="s2">"user_id"</span><span class="p">:</span> <span class="n">user_context</span><span class="p">[</span><span class="s2">"user_id"</span><span class="p">],</span>
+            <span class="s2">"role"</span><span class="p">:</span> <span class="n">user_context</span><span class="p">[</span><span class="s2">"role"</span><span class="p">],</span>
+            <span class="s2">"tenant_id"</span><span class="p">:</span> <span class="n">user_context</span><span class="p">[</span><span class="s2">"tenant_id"</span><span class="p">],</span>
         <span class="p">}</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;WebSocket connected: </span><span class="si">{</span><span class="n">connection_id</span><span class="si">}</span><span class="s2"> &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;(role=</span><span class="si">{</span><span class="n">user_context</span><span class="p">[</span><span class="s1">&#39;role&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="sa">f</span><span class="s2">"WebSocket connected: </span><span class="si">{</span><span class="n">connection_id</span><span class="si">}</span><span class="s2"> "</span>
+            <span class="sa">f</span><span class="s2">"(role=</span><span class="si">{</span><span class="n">user_context</span><span class="p">[</span><span class="s1">'role'</span><span class="p">]</span><span class="si">}</span><span class="s2">)"</span>
         <span class="p">)</span>
 
         <span class="c1"># 5. Handle messages</span>
@@ -1480,10 +1480,10 @@ git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </sp
                 <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">websocket</span><span class="o">.</span><span class="n">receive_json</span><span class="p">()</span>
 
                 <span class="c1"># Validate tenant isolation</span>
-                <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tenant_id&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="n">user_context</span><span class="p">[</span><span class="s2">&quot;tenant_id&quot;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"tenant_id"</span><span class="p">)</span> <span class="o">!=</span> <span class="n">user_context</span><span class="p">[</span><span class="s2">"tenant_id"</span><span class="p">]:</span>
                     <span class="k">await</span> <span class="n">websocket</span><span class="o">.</span><span class="n">send_json</span><span class="p">({</span>
-                        <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Tenant mismatch&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="s2">&quot;TENANT_MISMATCH&quot;</span>
+                        <span class="s2">"error"</span><span class="p">:</span> <span class="s2">"Tenant mismatch"</span><span class="p">,</span>
+                        <span class="s2">"code"</span><span class="p">:</span> <span class="s2">"TENANT_MISMATCH"</span>
                     <span class="p">})</span>
                     <span class="k">continue</span>
 
@@ -1491,28 +1491,28 @@ git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </sp
                 <span class="k">await</span> <span class="n">process_message</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">user_context</span><span class="p">)</span>
 
         <span class="k">except</span> <span class="n">WebSocketDisconnect</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;WebSocket disconnected: </span><span class="si">{</span><span class="n">connection_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"WebSocket disconnected: </span><span class="si">{</span><span class="n">connection_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">finally</span><span class="p">:</span>
             <span class="c1"># Cleanup</span>
             <span class="k">if</span> <span class="n">connection_id</span> <span class="ow">in</span> <span class="n">connections</span><span class="p">:</span>
                 <span class="k">del</span> <span class="n">connections</span><span class="p">[</span><span class="n">connection_id</span><span class="p">]</span>
 
     <span class="k">except</span> <span class="n">WebSocketDisconnect</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;WebSocket authentication failed: </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">reason</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"WebSocket authentication failed: </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">reason</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">await</span> <span class="n">websocket</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="n">e</span><span class="o">.</span><span class="n">code</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="n">e</span><span class="o">.</span><span class="n">reason</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;WebSocket error: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">await</span> <span class="n">websocket</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">1011</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;Internal server error&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"WebSocket error: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">websocket</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">1011</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s2">"Internal server error"</span><span class="p">)</span>
 
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">process_message</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">user_context</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Process incoming WebSocket message&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Process incoming WebSocket message"""</span>
     <span class="c1"># Add user context to message</span>
-    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;_user_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_context</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span>
-    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;_tenant_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_context</span><span class="p">[</span><span class="s2">&quot;tenant_id&quot;</span><span class="p">]</span>
+    <span class="n">data</span><span class="p">[</span><span class="s2">"_user_id"</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_context</span><span class="p">[</span><span class="s2">"user_id"</span><span class="p">]</span>
+    <span class="n">data</span><span class="p">[</span><span class="s2">"_tenant_id"</span><span class="p">]</span> <span class="o">=</span> <span class="n">user_context</span><span class="p">[</span><span class="s2">"tenant_id"</span><span class="p">]</span>
 
     <span class="c1"># Publish to NATS for processing</span>
     <span class="k">await</span> <span class="n">nats_client</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span>
-        <span class="n">subject</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;ws.</span><span class="si">{</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">user_context</span><span class="p">[</span><span class="s1">&#39;tenant_id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">subject</span><span class="o">=</span><span class="sa">f</span><span class="s2">"ws.</span><span class="si">{</span><span class="n">data</span><span class="p">[</span><span class="s1">'type'</span><span class="p">]</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">user_context</span><span class="p">[</span><span class="s1">'tenant_id'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
         <span class="n">data</span><span class="o">=</span><span class="n">data</span>
     <span class="p">)</span>
 </code></pre></div>
@@ -1532,41 +1532,41 @@ git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </sp
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">valid_token</span><span class="p">():</span>
     <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="s2">&quot;user123&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;farmer&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;tenant_id&quot;</span><span class="p">:</span> <span class="s2">&quot;tenant456&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;exp&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
-        <span class="s2">&quot;iat&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">(),</span>
+        <span class="s2">"user_id"</span><span class="p">:</span> <span class="s2">"user123"</span><span class="p">,</span>
+        <span class="s2">"role"</span><span class="p">:</span> <span class="s2">"farmer"</span><span class="p">,</span>
+        <span class="s2">"tenant_id"</span><span class="p">:</span> <span class="s2">"tenant456"</span><span class="p">,</span>
+        <span class="s2">"exp"</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+        <span class="s2">"iat"</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">(),</span>
     <span class="p">}</span>
-    <span class="k">return</span> <span class="n">jwt</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="s2">&quot;test_secret&quot;</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;HS256&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">jwt</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="s2">"test_secret"</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s2">"HS256"</span><span class="p">)</span>
 
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_valid_token</span><span class="p">(</span><span class="n">jwt_validator</span><span class="p">,</span> <span class="n">valid_token</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test validation of valid token&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Test validation of valid token"""</span>
     <span class="n">payload</span> <span class="o">=</span> <span class="k">await</span> <span class="n">jwt_validator</span><span class="o">.</span><span class="n">validate_token</span><span class="p">(</span><span class="n">valid_token</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;user_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;user123&quot;</span>
-    <span class="k">assert</span> <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;role&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;farmer&quot;</span>
+    <span class="k">assert</span> <span class="n">payload</span><span class="p">[</span><span class="s2">"user_id"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"user123"</span>
+    <span class="k">assert</span> <span class="n">payload</span><span class="p">[</span><span class="s2">"role"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"farmer"</span>
 
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_expired_token</span><span class="p">(</span><span class="n">jwt_validator</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test validation of expired token&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Test validation of expired token"""</span>
     <span class="n">expired_payload</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="s2">&quot;user123&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;exp&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>  <span class="c1"># Expired</span>
+        <span class="s2">"user_id"</span><span class="p">:</span> <span class="s2">"user123"</span><span class="p">,</span>
+        <span class="s2">"exp"</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>  <span class="c1"># Expired</span>
     <span class="p">}</span>
-    <span class="n">expired_token</span> <span class="o">=</span> <span class="n">jwt</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">expired_payload</span><span class="p">,</span> <span class="s2">&quot;test_secret&quot;</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;HS256&quot;</span><span class="p">)</span>
+    <span class="n">expired_token</span> <span class="o">=</span> <span class="n">jwt</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">expired_payload</span><span class="p">,</span> <span class="s2">"test_secret"</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s2">"HS256"</span><span class="p">)</span>
 
     <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="n">WebSocketDisconnect</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc_info</span><span class="p">:</span>
         <span class="k">await</span> <span class="n">jwt_validator</span><span class="o">.</span><span class="n">validate_token</span><span class="p">(</span><span class="n">expired_token</span><span class="p">)</span>
 
     <span class="k">assert</span> <span class="n">exc_info</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">code</span> <span class="o">==</span> <span class="mi">4001</span>
-    <span class="k">assert</span> <span class="s2">&quot;expired&quot;</span> <span class="ow">in</span> <span class="n">exc_info</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">reason</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="s2">"expired"</span> <span class="ow">in</span> <span class="n">exc_info</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">reason</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
 
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_invalid_signature</span><span class="p">(</span><span class="n">jwt_validator</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test validation of token with invalid signature&quot;&quot;&quot;</span>
-    <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="s2">&quot;user123&quot;</span><span class="p">}</span>
-    <span class="n">invalid_token</span> <span class="o">=</span> <span class="n">jwt</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="s2">&quot;wrong_secret&quot;</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;HS256&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Test validation of token with invalid signature"""</span>
+    <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"user_id"</span><span class="p">:</span> <span class="s2">"user123"</span><span class="p">}</span>
+    <span class="n">invalid_token</span> <span class="o">=</span> <span class="n">jwt</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="s2">"wrong_secret"</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s2">"HS256"</span><span class="p">)</span>
 
     <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="n">WebSocketDisconnect</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc_info</span><span class="p">:</span>
         <span class="k">await</span> <span class="n">jwt_validator</span><span class="o">.</span><span class="n">validate_token</span><span class="p">(</span><span class="n">invalid_token</span><span class="p">)</span>
@@ -1590,7 +1590,7 @@ python<span class="w"> </span>scripts/test/test_ws_auth.py
 
 <span class="c1"># 5. النشر</span>
 git<span class="w"> </span>add<span class="w"> </span>.
-git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Security: Implement proper JWT validation for WebSocket&quot;</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">"Security: Implement proper JWT validation for WebSocket"</span>
 </code></pre></div>
 
 <hr />
@@ -1599,39 +1599,39 @@ git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </sp
 <div class="codehilite"><pre><span></span><code><span class="ch">#!/bin/bash</span>
 <span class="c1"># scripts/security/comprehensive-security-scan.sh</span>
 
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;═══════════════════════════════════════════════════════&quot;</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;SAHOOL Security Scan&quot;</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;═══════════════════════════════════════════════════════&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"═══════════════════════════════════════════════════════"</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"SAHOOL Security Scan"</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"═══════════════════════════════════════════════════════"</span>
 
 <span class="c1"># 1. Scan Python dependencies</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;📦 Scanning Python dependencies...&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"📦 Scanning Python dependencies..."</span>
 pip<span class="w"> </span>install<span class="w"> </span>safety
 safety<span class="w"> </span>check<span class="w"> </span>--json<span class="w"> </span>&gt;<span class="w"> </span>reports/security/python-deps.json
 
 <span class="c1"># 2. Scan Node.js dependencies</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;📦 Scanning Node.js dependencies...&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"📦 Scanning Node.js dependencies..."</span>
 <span class="nb">cd</span><span class="w"> </span>web_admin<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>npm<span class="w"> </span>audit<span class="w"> </span>--json<span class="w"> </span>&gt;<span class="w"> </span>../reports/security/npm-audit.json
 <span class="nb">cd</span><span class="w"> </span>../kernel/services/field_core<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>npm<span class="w"> </span>audit<span class="w"> </span>--json<span class="w"> </span>&gt;<span class="w"> </span>../../../reports/security/field-core-audit.json
 
 <span class="c1"># 3. Scan Docker images</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;🐳 Scanning Docker images...&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"🐳 Scanning Docker images..."</span>
 docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-v<span class="w"> </span>/var/run/docker.sock:/var/run/docker.sock<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>aquasec/trivy<span class="w"> </span>image<span class="w"> </span>sahool-field-ops:latest<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--format<span class="w"> </span>json<span class="w"> </span>&gt;<span class="w"> </span>reports/security/trivy-scan.json
 
 <span class="c1"># 4. Scan for secrets in code</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;🔐 Scanning for hardcoded secrets...&quot;</span>
-docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-v<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$PWD</span><span class="s2">:/path&quot;</span><span class="w"> </span>trufflesecurity/trufflehog:latest<span class="w"> </span><span class="se">\</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"🔐 Scanning for hardcoded secrets..."</span>
+docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-v<span class="w"> </span><span class="s2">"</span><span class="nv">$PWD</span><span class="s2">:/path"</span><span class="w"> </span>trufflesecurity/trufflehog:latest<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>filesystem<span class="w"> </span>/path<span class="w"> </span>--json<span class="w"> </span>&gt;<span class="w"> </span>reports/security/secrets-scan.json
 
 <span class="c1"># 5. OWASP ZAP scan (if services are running)</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;🛡️ Running OWASP ZAP scan...&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"🛡️ Running OWASP ZAP scan..."</span>
 docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-v<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/reports/security:/zap/wrk/:rw<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>-t<span class="w"> </span>owasp/zap2docker-stable<span class="w"> </span>zap-baseline.py<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>-t<span class="w"> </span>http://localhost:8000<span class="w"> </span>-J<span class="w"> </span>zap-report.json
 
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✅ Security scan complete!&quot;</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;📊 Reports available in reports/security/&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"✅ Security scan complete!"</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"📊 Reports available in reports/security/"</span>
 </code></pre></div>
 
 <hr />
@@ -1651,40 +1651,40 @@ mkdir<span class="w"> </span>-p<span class="w"> </span>tests/<span class="o">{</
 
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_create_field</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test field creation&quot;&quot;&quot;</span>
-    <span class="k">async</span> <span class="k">with</span> <span class="n">AsyncClient</span><span class="p">(</span><span class="n">app</span><span class="o">=</span><span class="n">app</span><span class="p">,</span> <span class="n">base_url</span><span class="o">=</span><span class="s2">&quot;http://test&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Test field creation"""</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">AsyncClient</span><span class="p">(</span><span class="n">app</span><span class="o">=</span><span class="n">app</span><span class="p">,</span> <span class="n">base_url</span><span class="o">=</span><span class="s2">"http://test"</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
         <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
-            <span class="s2">&quot;/api/v1/fields&quot;</span><span class="p">,</span>
+            <span class="s2">"/api/v1/fields"</span><span class="p">,</span>
             <span class="n">json</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Test Field&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;crop_type&quot;</span><span class="p">:</span> <span class="s2">&quot;wheat&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;area&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
-                <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Polygon&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;coordinates&quot;</span><span class="p">:</span> <span class="p">[[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]]</span>
+                <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Test Field"</span><span class="p">,</span>
+                <span class="s2">"crop_type"</span><span class="p">:</span> <span class="s2">"wheat"</span><span class="p">,</span>
+                <span class="s2">"area"</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+                <span class="s2">"geometry"</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"Polygon"</span><span class="p">,</span>
+                    <span class="s2">"coordinates"</span><span class="p">:</span> <span class="p">[[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]]</span>
                 <span class="p">}</span>
             <span class="p">}</span>
         <span class="p">)</span>
     <span class="k">assert</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">201</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-    <span class="k">assert</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Test Field&quot;</span>
+    <span class="k">assert</span> <span class="n">data</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"Test Field"</span>
 
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_get_field</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test field retrieval&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Test field retrieval"""</span>
     <span class="c1"># Test implementation</span>
 
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_update_field</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test field update&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Test field update"""</span>
     <span class="c1"># Test implementation</span>
 </code></pre></div>
 
 <p><strong>3. اختبارات Flutter (Mobile App):</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// mobile/sahool_field_app/test/features/field/field_repository_test.dart</span>
-<span class="k">import</span><span class="w"> </span><span class="s1">&#39;package:flutter_test/flutter_test.dart&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="s1">&#39;package:mockito/mockito.dart&#39;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="s1">&#39;package:sahool_field_app/features/field/data/repo/field_repository.dart&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="s1">'package:flutter_test/flutter_test.dart'</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="s1">'package:mockito/mockito.dart'</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="s1">'package:sahool_field_app/features/field/data/repo/field_repository.dart'</span><span class="p">;</span>
 
 <span class="kt">void</span><span class="w"> </span><span class="n">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">late</span><span class="w"> </span><span class="n">FieldRepository</span><span class="w"> </span><span class="n">repository</span><span class="p">;</span>
@@ -1695,12 +1695,12 @@ mkdir<span class="w"> </span>-p<span class="w"> </span>tests/<span class="o">{</
 <span class="w">    </span><span class="n">repository</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FieldRepository</span><span class="p">(</span><span class="nl">dio:</span><span class="w"> </span><span class="n">mockDio</span><span class="p">);</span>
 <span class="w">  </span><span class="p">});</span>
 
-<span class="w">  </span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;FieldRepository&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">test</span><span class="p">(</span><span class="s1">&#39;should fetch fields successfully&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">group</span><span class="p">(</span><span class="s1">'FieldRepository'</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">test</span><span class="p">(</span><span class="s1">'should fetch fields successfully'</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="c1">// Arrange</span>
-<span class="w">      </span><span class="n">when</span><span class="p">(</span><span class="n">mockDio</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="s1">&#39;/api/v1/fields&#39;</span><span class="p">))</span>
+<span class="w">      </span><span class="n">when</span><span class="p">(</span><span class="n">mockDio</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="s1">'/api/v1/fields'</span><span class="p">))</span>
 <span class="w">          </span><span class="p">.</span><span class="n">thenAnswer</span><span class="p">((</span><span class="n">_</span><span class="p">)</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Response</span><span class="p">(</span>
-<span class="w">                </span><span class="nl">data:</span><span class="w"> </span><span class="p">{</span><span class="s1">&#39;fields&#39;</span><span class="o">:</span><span class="w"> </span><span class="p">[]},</span>
+<span class="w">                </span><span class="nl">data:</span><span class="w"> </span><span class="p">{</span><span class="s1">'fields'</span><span class="o">:</span><span class="w"> </span><span class="p">[]},</span>
 <span class="w">                </span><span class="nl">statusCode:</span><span class="w"> </span><span class="m">200</span><span class="p">,</span>
 <span class="w">              </span><span class="p">));</span>
 
@@ -1709,10 +1709,10 @@ mkdir<span class="w"> </span>-p<span class="w"> </span>tests/<span class="o">{</
 
 <span class="w">      </span><span class="c1">// Assert</span>
 <span class="w">      </span><span class="n">expect</span><span class="p">(</span><span class="n">result</span><span class="p">.</span><span class="n">isSuccess</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">);</span>
-<span class="w">      </span><span class="n">verify</span><span class="p">(</span><span class="n">mockDio</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="s1">&#39;/api/v1/fields&#39;</span><span class="p">)).</span><span class="n">called</span><span class="p">(</span><span class="m">1</span><span class="p">);</span>
+<span class="w">      </span><span class="n">verify</span><span class="p">(</span><span class="n">mockDio</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="s1">'/api/v1/fields'</span><span class="p">)).</span><span class="n">called</span><span class="p">(</span><span class="m">1</span><span class="p">);</span>
 <span class="w">    </span><span class="p">});</span>
 
-<span class="w">    </span><span class="n">test</span><span class="p">(</span><span class="s1">&#39;should handle network errors&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">test</span><span class="p">(</span><span class="s1">'should handle network errors'</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="c1">// Test implementation</span>
 <span class="w">    </span><span class="p">});</span>
 <span class="w">  </span><span class="p">});</span>
@@ -1727,17 +1727,17 @@ npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </s
 </code></pre></div>
 
 <div class="codehilite"><pre><span></span><code><span class="c1">// web_admin/src/__tests__/components/Dashboard.test.tsx</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">render</span><span class="p">,</span><span class="w"> </span><span class="nx">screen</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@testing-library/react&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="nx">Dashboard</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@/components/Dashboard&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">render</span><span class="p">,</span><span class="w"> </span><span class="nx">screen</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@testing-library/react"</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">Dashboard</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@/components/Dashboard"</span><span class="p">;</span>
 
-<span class="nx">describe</span><span class="p">(</span><span class="s2">&quot;Dashboard&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s2">&quot;renders dashboard heading&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="nx">describe</span><span class="p">(</span><span class="s2">"Dashboard"</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s2">"renders dashboard heading"</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">render</span><span class="p">(</span><span class="o">&lt;</span><span class="nx">Dashboard</span><span class="w"> </span><span class="o">/&gt;</span><span class="p">);</span>
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">heading</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">screen</span><span class="p">.</span><span class="nx">getByRole</span><span class="p">(</span><span class="s2">&quot;heading&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="sr">/dashboard/i</span><span class="w"> </span><span class="p">});</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">heading</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">screen</span><span class="p">.</span><span class="nx">getByRole</span><span class="p">(</span><span class="s2">"heading"</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="sr">/dashboard/i</span><span class="w"> </span><span class="p">});</span>
 <span class="w">    </span><span class="nx">expect</span><span class="p">(</span><span class="nx">heading</span><span class="p">).</span><span class="nx">toBeInTheDocument</span><span class="p">();</span>
 <span class="w">  </span><span class="p">});</span>
 
-<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s2">&quot;displays field statistics&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s2">"displays field statistics"</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">render</span><span class="p">(</span><span class="o">&lt;</span><span class="nx">Dashboard</span><span class="w"> </span><span class="o">/&gt;</span><span class="p">);</span>
 <span class="w">    </span><span class="nx">expect</span><span class="p">(</span><span class="k">await</span><span class="w"> </span><span class="nx">screen</span><span class="p">.</span><span class="nx">findByText</span><span class="p">(</span><span class="sr">/total fields/i</span><span class="p">)).</span><span class="nx">toBeInTheDocument</span><span class="p">();</span>
 <span class="w">  </span><span class="p">});</span>
@@ -1757,7 +1757,7 @@ npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </s
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v3</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/setup-python@v4</span>
 <span class="w">        </span><span class="nt">with</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.11&quot;</span>
+<span class="w">          </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">"3.11"</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Install dependencies</span>
 <span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pip install -r requirements.txt pytest pytest-cov</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run tests with coverage</span>
@@ -1771,7 +1771,7 @@ npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </s
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v3</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">subosito/flutter-action@v2</span>
 <span class="w">        </span><span class="nt">with</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">flutter-version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.27.0&quot;</span>
+<span class="w">          </span><span class="nt">flutter-version</span><span class="p">:</span><span class="w"> </span><span class="s">"3.27.0"</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run tests</span>
 <span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cd mobile/sahool_field_app &amp;&amp; flutter test --coverage</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Upload coverage</span>
@@ -1783,7 +1783,7 @@ npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </s
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v3</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/setup-node@v3</span>
 <span class="w">        </span><span class="nt">with</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">node-version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;20&quot;</span>
+<span class="w">          </span><span class="nt">node-version</span><span class="p">:</span><span class="w"> </span><span class="s">"20"</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run tests</span>
 <span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cd web_admin &amp;&amp; npm ci &amp;&amp; npm test -- --coverage</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Upload coverage</span>
@@ -1795,7 +1795,7 @@ npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </s
 <h4 id="24-todo">قائمة المهام (24 TODO)<a class="headerlink" href="#24-todo" title="Permanent link">&para;</a></h4>
 <p><strong>1. Wallet Screen - حوارات السحب والقرض:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// mobile/sahool_field_app/lib/features/wallet/ui/dialogs/withdraw_dialog.dart</span>
-<span class="k">import</span><span class="w"> </span><span class="s1">&#39;package:flutter/material.dart&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="s1">'package:flutter/material.dart'</span><span class="p">;</span>
 
 <span class="kd">class</span><span class="w"> </span><span class="nc">WithdrawDialog</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="n">StatefulWidget</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">final</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">availableBalance</span><span class="p">;</span>
@@ -1812,39 +1812,39 @@ npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </s
 <span class="w">  </span><span class="kt">String</span><span class="o">?</span><span class="w"> </span><span class="n">_selectedMethod</span><span class="p">;</span>
 
 <span class="w">  </span><span class="kd">final</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">_withdrawMethods</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="s1">&#39;Bank Transfer&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="s1">&#39;Mobile Money&#39;</span><span class="p">,</span>
-<span class="w">    </span><span class="s1">&#39;Cash Pickup&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">'Bank Transfer'</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">'Mobile Money'</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">'Cash Pickup'</span><span class="p">,</span>
 <span class="w">  </span><span class="p">];</span>
 
 <span class="w">  </span><span class="nd">@override</span>
 <span class="w">  </span><span class="n">Widget</span><span class="w"> </span><span class="n">build</span><span class="p">(</span><span class="n">BuildContext</span><span class="w"> </span><span class="n">context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">AlertDialog</span><span class="p">(</span>
-<span class="w">      </span><span class="nl">title:</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Withdraw Funds&#39;</span><span class="p">),</span>
+<span class="w">      </span><span class="nl">title:</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Text</span><span class="p">(</span><span class="s1">'Withdraw Funds'</span><span class="p">),</span>
 <span class="w">      </span><span class="nl">content:</span><span class="w"> </span><span class="n">Form</span><span class="p">(</span>
 <span class="w">        </span><span class="nl">key:</span><span class="w"> </span><span class="n">_formKey</span><span class="p">,</span>
 <span class="w">        </span><span class="nl">child:</span><span class="w"> </span><span class="n">Column</span><span class="p">(</span>
 <span class="w">          </span><span class="nl">mainAxisSize:</span><span class="w"> </span><span class="n">MainAxisSize</span><span class="p">.</span><span class="n">min</span><span class="p">,</span>
 <span class="w">          </span><span class="nl">children:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">            </span><span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Available Balance: </span><span class="se">\$</span><span class="si">${</span><span class="n">widget</span><span class="p">.</span><span class="n">availableBalance</span><span class="p">.</span><span class="n">toStringAsFixed</span><span class="p">(</span><span class="m">2</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">),</span>
+<span class="w">            </span><span class="n">Text</span><span class="p">(</span><span class="s1">'Available Balance: </span><span class="se">\$</span><span class="si">${</span><span class="n">widget</span><span class="p">.</span><span class="n">availableBalance</span><span class="p">.</span><span class="n">toStringAsFixed</span><span class="p">(</span><span class="m">2</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span><span class="p">),</span>
 <span class="w">            </span><span class="k">const</span><span class="w"> </span><span class="n">SizedBox</span><span class="p">(</span><span class="nl">height:</span><span class="w"> </span><span class="m">16</span><span class="p">),</span>
 <span class="w">            </span><span class="n">TextFormField</span><span class="p">(</span>
 <span class="w">              </span><span class="nl">controller:</span><span class="w"> </span><span class="n">_amountController</span><span class="p">,</span>
 <span class="w">              </span><span class="nl">keyboardType:</span><span class="w"> </span><span class="n">TextInputType</span><span class="p">.</span><span class="n">number</span><span class="p">,</span>
 <span class="w">              </span><span class="nl">decoration:</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">InputDecoration</span><span class="p">(</span>
-<span class="w">                </span><span class="nl">labelText:</span><span class="w"> </span><span class="s1">&#39;Amount&#39;</span><span class="p">,</span>
-<span class="w">                </span><span class="nl">prefixText:</span><span class="w"> </span><span class="s1">&#39;</span><span class="se">\$</span><span class="s1">&#39;</span><span class="p">,</span>
+<span class="w">                </span><span class="nl">labelText:</span><span class="w"> </span><span class="s1">'Amount'</span><span class="p">,</span>
+<span class="w">                </span><span class="nl">prefixText:</span><span class="w"> </span><span class="s1">'</span><span class="se">\$</span><span class="s1">'</span><span class="p">,</span>
 <span class="w">              </span><span class="p">),</span>
 <span class="w">              </span><span class="nl">validator:</span><span class="w"> </span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">value</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">value</span><span class="p">.</span><span class="n">isEmpty</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                  </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;Please enter amount&#39;</span><span class="p">;</span>
+<span class="w">                  </span><span class="k">return</span><span class="w"> </span><span class="s1">'Please enter amount'</span><span class="p">;</span>
 <span class="w">                </span><span class="p">}</span>
 <span class="w">                </span><span class="kd">final</span><span class="w"> </span><span class="n">amount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">double</span><span class="p">.</span><span class="n">tryParse</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
 <span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">amount</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">amount</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="m">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                  </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;Invalid amount&#39;</span><span class="p">;</span>
+<span class="w">                  </span><span class="k">return</span><span class="w"> </span><span class="s1">'Invalid amount'</span><span class="p">;</span>
 <span class="w">                </span><span class="p">}</span>
 <span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">amount</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">widget</span><span class="p">.</span><span class="n">availableBalance</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                  </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;Insufficient balance&#39;</span><span class="p">;</span>
+<span class="w">                  </span><span class="k">return</span><span class="w"> </span><span class="s1">'Insufficient balance'</span><span class="p">;</span>
 <span class="w">                </span><span class="p">}</span>
 <span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
 <span class="w">              </span><span class="p">},</span>
@@ -1853,7 +1853,7 @@ npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </s
 <span class="w">            </span><span class="n">DropdownButtonFormField</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;</span><span class="p">(</span>
 <span class="w">              </span><span class="nl">value:</span><span class="w"> </span><span class="n">_selectedMethod</span><span class="p">,</span>
 <span class="w">              </span><span class="nl">decoration:</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">InputDecoration</span><span class="p">(</span>
-<span class="w">                </span><span class="nl">labelText:</span><span class="w"> </span><span class="s1">&#39;Withdrawal Method&#39;</span><span class="p">,</span>
+<span class="w">                </span><span class="nl">labelText:</span><span class="w"> </span><span class="s1">'Withdrawal Method'</span><span class="p">,</span>
 <span class="w">              </span><span class="p">),</span>
 <span class="w">              </span><span class="nl">items:</span><span class="w"> </span><span class="n">_withdrawMethods</span><span class="p">.</span><span class="n">map</span><span class="p">((</span><span class="n">method</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="n">DropdownMenuItem</span><span class="p">(</span>
@@ -1866,7 +1866,7 @@ npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </s
 <span class="w">              </span><span class="p">},</span>
 <span class="w">              </span><span class="nl">validator:</span><span class="w"> </span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">value</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                  </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;Please select withdrawal method&#39;</span><span class="p">;</span>
+<span class="w">                  </span><span class="k">return</span><span class="w"> </span><span class="s1">'Please select withdrawal method'</span><span class="p">;</span>
 <span class="w">                </span><span class="p">}</span>
 <span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
 <span class="w">              </span><span class="p">},</span>
@@ -1877,11 +1877,11 @@ npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </s
 <span class="w">      </span><span class="nl">actions:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">        </span><span class="n">TextButton</span><span class="p">(</span>
 <span class="w">          </span><span class="nl">onPressed:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Navigator</span><span class="p">.</span><span class="n">pop</span><span class="p">(</span><span class="n">context</span><span class="p">),</span>
-<span class="w">          </span><span class="nl">child:</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Cancel&#39;</span><span class="p">),</span>
+<span class="w">          </span><span class="nl">child:</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Text</span><span class="p">(</span><span class="s1">'Cancel'</span><span class="p">),</span>
 <span class="w">        </span><span class="p">),</span>
 <span class="w">        </span><span class="n">ElevatedButton</span><span class="p">(</span>
 <span class="w">          </span><span class="nl">onPressed:</span><span class="w"> </span><span class="n">_handleWithdraw</span><span class="p">,</span>
-<span class="w">          </span><span class="nl">child:</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Withdraw&#39;</span><span class="p">),</span>
+<span class="w">          </span><span class="nl">child:</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Text</span><span class="p">(</span><span class="s1">'Withdraw'</span><span class="p">),</span>
 <span class="w">        </span><span class="p">),</span>
 <span class="w">      </span><span class="p">],</span>
 <span class="w">    </span><span class="p">);</span>
@@ -1891,8 +1891,8 @@ npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </s
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">_formKey</span><span class="p">.</span><span class="n">currentState</span><span class="o">!</span><span class="p">.</span><span class="n">validate</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="kd">final</span><span class="w"> </span><span class="n">amount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">double</span><span class="p">.</span><span class="n">parse</span><span class="p">(</span><span class="n">_amountController</span><span class="p">.</span><span class="n">text</span><span class="p">);</span>
 <span class="w">      </span><span class="n">Navigator</span><span class="p">.</span><span class="n">pop</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="s1">&#39;amount&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">amount</span><span class="p">,</span>
-<span class="w">        </span><span class="s1">&#39;method&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">_selectedMethod</span><span class="p">,</span>
+<span class="w">        </span><span class="s1">'amount'</span><span class="o">:</span><span class="w"> </span><span class="n">amount</span><span class="p">,</span>
+<span class="w">        </span><span class="s1">'method'</span><span class="o">:</span><span class="w"> </span><span class="n">_selectedMethod</span><span class="p">,</span>
 <span class="w">      </span><span class="p">});</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">}</span>
@@ -1907,16 +1907,16 @@ npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </s
 <span class="w">  </span><span class="kd">final</span><span class="w"> </span><span class="n">confirmed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">await</span><span class="w"> </span><span class="n">showDialog</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span><span class="p">(</span>
 <span class="w">    </span><span class="nl">context:</span><span class="w"> </span><span class="n">context</span><span class="p">,</span>
 <span class="w">    </span><span class="nl">builder:</span><span class="w"> </span><span class="p">(</span><span class="n">context</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">AlertDialog</span><span class="p">(</span>
-<span class="w">      </span><span class="nl">title:</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Logout&#39;</span><span class="p">),</span>
-<span class="w">      </span><span class="nl">content:</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Are you sure you want to logout?&#39;</span><span class="p">),</span>
+<span class="w">      </span><span class="nl">title:</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Text</span><span class="p">(</span><span class="s1">'Logout'</span><span class="p">),</span>
+<span class="w">      </span><span class="nl">content:</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Text</span><span class="p">(</span><span class="s1">'Are you sure you want to logout?'</span><span class="p">),</span>
 <span class="w">      </span><span class="nl">actions:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">        </span><span class="n">TextButton</span><span class="p">(</span>
 <span class="w">          </span><span class="nl">onPressed:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Navigator</span><span class="p">.</span><span class="n">pop</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">),</span>
-<span class="w">          </span><span class="nl">child:</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Cancel&#39;</span><span class="p">),</span>
+<span class="w">          </span><span class="nl">child:</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Text</span><span class="p">(</span><span class="s1">'Cancel'</span><span class="p">),</span>
 <span class="w">        </span><span class="p">),</span>
 <span class="w">        </span><span class="n">ElevatedButton</span><span class="p">(</span>
 <span class="w">          </span><span class="nl">onPressed:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Navigator</span><span class="p">.</span><span class="n">pop</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">),</span>
-<span class="w">          </span><span class="nl">child:</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Logout&#39;</span><span class="p">),</span>
+<span class="w">          </span><span class="nl">child:</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Text</span><span class="p">(</span><span class="s1">'Logout'</span><span class="p">),</span>
 <span class="w">          </span><span class="nl">style:</span><span class="w"> </span><span class="n">ElevatedButton</span><span class="p">.</span><span class="n">styleFrom</span><span class="p">(</span>
 <span class="w">            </span><span class="nl">backgroundColor:</span><span class="w"> </span><span class="n">Colors</span><span class="p">.</span><span class="n">red</span><span class="p">,</span>
 <span class="w">          </span><span class="p">),</span>
@@ -1953,7 +1953,7 @@ npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </s
 <span class="w">        </span><span class="n">Navigator</span><span class="p">.</span><span class="n">pop</span><span class="p">(</span><span class="n">context</span><span class="p">);</span><span class="w"> </span><span class="c1">// Close loading</span>
 <span class="w">        </span><span class="n">Navigator</span><span class="p">.</span><span class="n">pushNamedAndRemoveUntil</span><span class="p">(</span>
 <span class="w">          </span><span class="n">context</span><span class="p">,</span>
-<span class="w">          </span><span class="s1">&#39;/login&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="s1">'/login'</span><span class="p">,</span>
 <span class="w">          </span><span class="p">(</span><span class="n">route</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
 <span class="w">        </span><span class="p">);</span>
 <span class="w">      </span><span class="p">}</span>
@@ -1962,7 +1962,7 @@ npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </s
 <span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">context</span><span class="p">.</span><span class="n">mounted</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="n">Navigator</span><span class="p">.</span><span class="n">pop</span><span class="p">(</span><span class="n">context</span><span class="p">);</span><span class="w"> </span><span class="c1">// Close loading</span>
 <span class="w">        </span><span class="n">ScaffoldMessenger</span><span class="p">.</span><span class="n">of</span><span class="p">(</span><span class="n">context</span><span class="p">).</span><span class="n">showSnackBar</span><span class="p">(</span>
-<span class="w">          </span><span class="n">SnackBar</span><span class="p">(</span><span class="nl">content:</span><span class="w"> </span><span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Logout failed: </span><span class="si">$</span><span class="n">e</span><span class="s1">&#39;</span><span class="p">)),</span>
+<span class="w">          </span><span class="n">SnackBar</span><span class="p">(</span><span class="nl">content:</span><span class="w"> </span><span class="n">Text</span><span class="p">(</span><span class="s1">'Logout failed: </span><span class="si">$</span><span class="n">e</span><span class="s1">'</span><span class="p">)),</span>
 <span class="w">        </span><span class="p">);</span>
 <span class="w">      </span><span class="p">}</span>
 <span class="w">    </span><span class="p">}</span>
@@ -1981,7 +1981,7 @@ npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </s
 <span class="w">  </span><span class="nt">evaluation_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">15s</span>
 
 <span class="nt">scrape_configs</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;sahool-services&quot;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="s">"sahool-services"</span>
 <span class="w">    </span><span class="nt">static_configs</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">targets</span><span class="p">:</span>
 <span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">field_ops:8080</span>
@@ -1989,42 +1989,42 @@ npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </s
 <span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">weather_core:8108</span>
 <span class="w">    </span><span class="nt">metrics_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/metrics</span>
 
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;postgres&quot;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="s">"postgres"</span>
 <span class="w">    </span><span class="nt">static_configs</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">targets</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;postgres-exporter:9187&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">targets</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"postgres-exporter:9187"</span><span class="p p-Indicator">]</span>
 
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;redis&quot;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">job_name</span><span class="p">:</span><span class="w"> </span><span class="s">"redis"</span>
 <span class="w">    </span><span class="nt">static_configs</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">targets</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;redis-exporter:9121&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">targets</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"redis-exporter:9121"</span><span class="p p-Indicator">]</span>
 </code></pre></div>
 
 <p><strong>2. Grafana Dashboards:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// observability/grafana/dashboards/sahool-overview.json</span>
 <span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;dashboard&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SAHOOL Platform Overview&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;panels&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="nt">"dashboard"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SAHOOL Platform Overview"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"panels"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">      </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;API Request Rate&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;targets&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"API Request Rate"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"targets"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">          </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;expr&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;rate(http_requests_total[5m])&quot;</span>
+<span class="w">            </span><span class="nt">"expr"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rate(http_requests_total[5m])"</span>
 <span class="w">          </span><span class="p">}</span>
 <span class="w">        </span><span class="p">]</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Error Rate&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;targets&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Error Rate"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"targets"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">          </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;expr&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;rate(http_requests_total{status=~\&quot;5..\&quot;}[5m])&quot;</span>
+<span class="w">            </span><span class="nt">"expr"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rate(http_requests_total{status=~\"5..\"}[5m])"</span>
 <span class="w">          </span><span class="p">}</span>
 <span class="w">        </span><span class="p">]</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Response Time P95&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;targets&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Response Time P95"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"targets"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">          </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;expr&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))&quot;</span>
+<span class="w">            </span><span class="nt">"expr"</span><span class="p">:</span><span class="w"> </span><span class="s2">"histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))"</span>
 <span class="w">          </span><span class="p">}</span>
 <span class="w">        </span><span class="p">]</span>
 <span class="w">      </span><span class="p">}</span>
@@ -2039,13 +2039,13 @@ npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </s
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool_alerts</span>
 <span class="w">    </span><span class="nt">rules</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">HighErrorRate</span>
-<span class="w">        </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rate(http_requests_total{status=~&quot;5..&quot;}[5m]) &gt; 0.01</span>
+<span class="w">        </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rate(http_requests_total{status=~"5.."}[5m]) &gt; 0.01</span>
 <span class="w">        </span><span class="nt">for</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5m</span>
 <span class="w">        </span><span class="nt">labels</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">critical</span>
 <span class="w">        </span><span class="nt">annotations</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;High</span><span class="nv"> </span><span class="s">error</span><span class="nv"> </span><span class="s">rate</span><span class="nv"> </span><span class="s">detected&quot;</span>
-<span class="w">          </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Error</span><span class="nv"> </span><span class="s">rate</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">{{</span><span class="nv"> </span><span class="s">$value</span><span class="nv"> </span><span class="s">}}</span><span class="nv"> </span><span class="s">requests/sec&quot;</span>
+<span class="w">          </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="s">"High</span><span class="nv"> </span><span class="s">error</span><span class="nv"> </span><span class="s">rate</span><span class="nv"> </span><span class="s">detected"</span>
+<span class="w">          </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">"Error</span><span class="nv"> </span><span class="s">rate</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">{{</span><span class="nv"> </span><span class="s">$value</span><span class="nv"> </span><span class="s">}}</span><span class="nv"> </span><span class="s">requests/sec"</span>
 
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SlowResponses</span>
 <span class="w">        </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) &gt; 1</span>
@@ -2053,8 +2053,8 @@ npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </s
 <span class="w">        </span><span class="nt">labels</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warning</span>
 <span class="w">        </span><span class="nt">annotations</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Slow</span><span class="nv"> </span><span class="s">API</span><span class="nv"> </span><span class="s">responses&quot;</span>
-<span class="w">          </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;P95</span><span class="nv"> </span><span class="s">response</span><span class="nv"> </span><span class="s">time</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">{{</span><span class="nv"> </span><span class="s">$value</span><span class="nv"> </span><span class="s">}}s&quot;</span>
+<span class="w">          </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="s">"Slow</span><span class="nv"> </span><span class="s">API</span><span class="nv"> </span><span class="s">responses"</span>
+<span class="w">          </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">"P95</span><span class="nv"> </span><span class="s">response</span><span class="nv"> </span><span class="s">time</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">{{</span><span class="nv"> </span><span class="s">$value</span><span class="nv"> </span><span class="s">}}s"</span>
 </code></pre></div>
 
 <hr />
@@ -2068,16 +2068,16 @@ npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </s
 <span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">CacheStrategy</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Unified caching strategy for all services&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Unified caching strategy for all services"""</span>
 
     <span class="c1"># TTL configurations (in seconds)</span>
     <span class="n">TTL_CONFIGS</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;weather_current&quot;</span><span class="p">:</span> <span class="mi">900</span><span class="p">,</span>      <span class="c1"># 15 minutes</span>
-        <span class="s2">&quot;weather_forecast&quot;</span><span class="p">:</span> <span class="mi">3600</span><span class="p">,</span>    <span class="c1"># 1 hour</span>
-        <span class="s2">&quot;ndvi_data&quot;</span><span class="p">:</span> <span class="mi">86400</span><span class="p">,</span>          <span class="c1"># 24 hours</span>
-        <span class="s2">&quot;field_data&quot;</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span>           <span class="c1"># 5 minutes</span>
-        <span class="s2">&quot;user_profile&quot;</span><span class="p">:</span> <span class="mi">3600</span><span class="p">,</span>        <span class="c1"># 1 hour</span>
-        <span class="s2">&quot;crop_recommendations&quot;</span><span class="p">:</span> <span class="mi">7200</span><span class="p">,</span> <span class="c1"># 2 hours</span>
+        <span class="s2">"weather_current"</span><span class="p">:</span> <span class="mi">900</span><span class="p">,</span>      <span class="c1"># 15 minutes</span>
+        <span class="s2">"weather_forecast"</span><span class="p">:</span> <span class="mi">3600</span><span class="p">,</span>    <span class="c1"># 1 hour</span>
+        <span class="s2">"ndvi_data"</span><span class="p">:</span> <span class="mi">86400</span><span class="p">,</span>          <span class="c1"># 24 hours</span>
+        <span class="s2">"field_data"</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span>           <span class="c1"># 5 minutes</span>
+        <span class="s2">"user_profile"</span><span class="p">:</span> <span class="mi">3600</span><span class="p">,</span>        <span class="c1"># 1 hour</span>
+        <span class="s2">"crop_recommendations"</span><span class="p">:</span> <span class="mi">7200</span><span class="p">,</span> <span class="c1"># 2 hours</span>
     <span class="p">}</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">redis_client</span><span class="p">:</span> <span class="n">Redis</span><span class="p">):</span>
@@ -2089,15 +2089,15 @@ npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </s
         <span class="n">ttl</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">invalidate_on</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Decorator for caching function results</span>
 
 <span class="sd">        Usage:</span>
-<span class="sd">            @cache_strategy.cache(key_prefix=&quot;weather&quot;, ttl=900)</span>
+<span class="sd">            @cache_strategy.cache(key_prefix="weather", ttl=900)</span>
 <span class="sd">            async def get_weather(lat: float, lon: float):</span>
 <span class="sd">                # expensive operation</span>
 <span class="sd">                return weather_data</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">def</span><span class="w"> </span><span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
             <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
             <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
@@ -2133,22 +2133,22 @@ npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </s
         <span class="n">args</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span>
         <span class="n">kwargs</span><span class="p">:</span> <span class="nb">dict</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate unique cache key&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Generate unique cache key"""</span>
         <span class="c1"># Create hash of arguments</span>
-        <span class="n">args_str</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="n">args</span><span class="p">,</span> <span class="s2">&quot;kwargs&quot;</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">},</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">args_str</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">"args"</span><span class="p">:</span> <span class="n">args</span><span class="p">,</span> <span class="s2">"kwargs"</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">},</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">args_hash</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">args_str</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()[:</span><span class="mi">8</span><span class="p">]</span>
 
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;sahool:</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">func_name</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">args_hash</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"sahool:</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">func_name</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">args_hash</span><span class="si">}</span><span class="s2">"</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get value from cache&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Get value from cache"""</span>
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">redis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">data</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">ttl</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set value in cache&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Set value in cache"""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">redis</span><span class="o">.</span><span class="n">setex</span><span class="p">(</span>
             <span class="n">key</span><span class="p">,</span>
             <span class="n">ttl</span><span class="p">,</span>
@@ -2156,15 +2156,15 @@ npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </s
         <span class="p">)</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">invalidate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Invalidate cache by pattern&quot;&quot;&quot;</span>
-        <span class="n">keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">redis</span><span class="o">.</span><span class="n">keys</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;sahool:</span><span class="si">{</span><span class="n">pattern</span><span class="si">}</span><span class="s2">:*&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="sd">"""Invalidate cache by pattern"""</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">redis</span><span class="o">.</span><span class="n">keys</span><span class="p">(</span><span class="sa">f</span><span class="s2">"sahool:</span><span class="si">{</span><span class="n">pattern</span><span class="si">}</span><span class="s2">:*"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">keys</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">redis</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="o">*</span><span class="n">keys</span><span class="p">)</span>
 
 <span class="c1"># Usage example:</span>
 <span class="n">cache_strategy</span> <span class="o">=</span> <span class="n">CacheStrategy</span><span class="p">(</span><span class="n">redis_client</span><span class="p">)</span>
 
-<span class="nd">@cache_strategy</span><span class="o">.</span><span class="n">cache</span><span class="p">(</span><span class="n">key_prefix</span><span class="o">=</span><span class="s2">&quot;weather_current&quot;</span><span class="p">,</span> <span class="n">ttl</span><span class="o">=</span><span class="mi">900</span><span class="p">)</span>
+<span class="nd">@cache_strategy</span><span class="o">.</span><span class="n">cache</span><span class="p">(</span><span class="n">key_prefix</span><span class="o">=</span><span class="s2">"weather_current"</span><span class="p">,</span> <span class="n">ttl</span><span class="o">=</span><span class="mi">900</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_current_weather</span><span class="p">(</span><span class="n">lat</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lon</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
     <span class="c1"># Expensive API call</span>
     <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">weather_api</span><span class="o">.</span><span class="n">get_current</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">)</span>
@@ -2216,7 +2216,7 @@ npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </s
 <span class="w">      </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SIMPLE</span>
 <span class="w">      </span><span class="nt">credentialName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-tls-cert</span>
 <span class="w">    </span><span class="nt">hosts</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;*.sahool.io&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"*.sahool.io"</span>
 <span class="l l-Scalar l-Scalar-Plain">EOF</span>
 </code></pre></div>
 
@@ -2404,10 +2404,10 @@ npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </s
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

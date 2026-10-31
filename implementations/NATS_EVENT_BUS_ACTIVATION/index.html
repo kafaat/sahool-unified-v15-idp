@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1246,7 +1246,7 @@
 <span class="w">    </span><span class="nx">price</span><span class="o">:</span><span class="w"> </span><span class="kt">item.unitPrice</span><span class="p">,</span>
 <span class="w">  </span><span class="p">})),</span>
 <span class="w">  </span><span class="nx">totalAmount</span><span class="o">:</span><span class="w"> </span><span class="kt">order.totalAmount</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">currency</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;YER&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">currency</span><span class="o">:</span><span class="w"> </span><span class="s2">"YER"</span><span class="p">,</span>
 <span class="p">});</span>
 </code></pre></div>
 
@@ -1264,7 +1264,7 @@
 <h2 id="5-event-logging-subscriber">5. Event Logging Subscriber<a class="headerlink" href="#5-event-logging-subscriber" title="Permanent link">&para;</a></h2>
 <p>The marketplace service automatically subscribes to all events in development mode for logging:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// In EventsService.connect()</span>
-<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NODE_ENV</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s2">&quot;production&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">NODE_ENV</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s2">"production"</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">setupEventLogging</span><span class="p">();</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1277,30 +1277,30 @@
 <span class="w">  </span><span class="nx">publishFieldCreated</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">publishOrderPlaced</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">publishSensorReading</span><span class="p">,</span>
-<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@sahool/shared-events&#39;</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@sahool/shared-events'</span><span class="p">;</span>
 
 <span class="c1">// Initialize connection</span>
 <span class="k">await</span><span class="w"> </span><span class="nx">initializeNatsClient</span><span class="p">({</span>
 <span class="w">  </span><span class="nx">servers</span><span class="o">:</span><span class="w"> </span><span class="kt">process.env.NATS_URL</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;my-service&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">'my-service'</span><span class="p">,</span>
 <span class="p">});</span>
 
 <span class="c1">// Publish events</span>
 <span class="k">await</span><span class="w"> </span><span class="nx">publishFieldCreated</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">fieldId</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;field-123&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">userId</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;user-456&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;North Field&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">fieldId</span><span class="o">:</span><span class="w"> </span><span class="s1">'field-123'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">userId</span><span class="o">:</span><span class="w"> </span><span class="s1">'user-456'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">'North Field'</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">area</span><span class="o">:</span><span class="w"> </span><span class="kt">1000</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">location</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Polygon&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">coordinates</span><span class="o">:</span><span class="w"> </span><span class="p">[...]</span><span class="w"> </span><span class="p">},</span>
-<span class="w">  </span><span class="nx">cropType</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;wheat&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">location</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'Polygon'</span><span class="p">,</span><span class="w"> </span><span class="nx">coordinates</span><span class="o">:</span><span class="w"> </span><span class="p">[...]</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">cropType</span><span class="o">:</span><span class="w"> </span><span class="s1">'wheat'</span><span class="p">,</span>
 <span class="p">});</span>
 
 <span class="k">await</span><span class="w"> </span><span class="nx">publishOrderPlaced</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">orderId</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;order-789&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">userId</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;user-456&#39;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">items</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nx">productId</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;p1&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">quantity</span><span class="o">:</span><span class="w"> </span><span class="kt">2</span><span class="p">,</span><span class="w"> </span><span class="nx">price</span><span class="o">:</span><span class="w"> </span><span class="kt">50</span><span class="w"> </span><span class="p">}],</span>
+<span class="w">  </span><span class="nx">orderId</span><span class="o">:</span><span class="w"> </span><span class="s1">'order-789'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">userId</span><span class="o">:</span><span class="w"> </span><span class="s1">'user-456'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">items</span><span class="o">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nx">productId</span><span class="o">:</span><span class="w"> </span><span class="s1">'p1'</span><span class="p">,</span><span class="w"> </span><span class="nx">quantity</span><span class="o">:</span><span class="w"> </span><span class="kt">2</span><span class="p">,</span><span class="w"> </span><span class="nx">price</span><span class="o">:</span><span class="w"> </span><span class="kt">50</span><span class="w"> </span><span class="p">}],</span>
 <span class="w">  </span><span class="nx">totalAmount</span><span class="o">:</span><span class="w"> </span><span class="kt">100</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">currency</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;YER&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">currency</span><span class="o">:</span><span class="w"> </span><span class="s1">'YER'</span><span class="p">,</span>
 <span class="p">});</span>
 </code></pre></div>
 
@@ -1309,17 +1309,17 @@
 <span class="w">  </span><span class="nx">subscribe</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">subscribeToOrderEvents</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">EventSubjects</span><span class="p">,</span>
-<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/shared-events&quot;</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@sahool/shared-events"</span><span class="p">;</span>
 
 <span class="c1">// Subscribe to specific event</span>
 <span class="k">await</span><span class="w"> </span><span class="nx">subscribe</span><span class="p">(</span><span class="nx">EventSubjects</span><span class="p">.</span><span class="nx">ORDER_PLACED</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">event</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Order placed:&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">event</span><span class="p">.</span><span class="nx">payload</span><span class="p">);</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">"Order placed:"</span><span class="p">,</span><span class="w"> </span><span class="nx">event</span><span class="p">.</span><span class="nx">payload</span><span class="p">);</span>
 <span class="w">  </span><span class="c1">// Process order...</span>
 <span class="p">});</span>
 
 <span class="c1">// Subscribe to all order events</span>
 <span class="k">await</span><span class="w"> </span><span class="nx">subscribeToOrderEvents</span><span class="p">(</span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">event</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Order event:&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">event</span><span class="p">.</span><span class="nx">eventType</span><span class="p">);</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">"Order event:"</span><span class="p">,</span><span class="w"> </span><span class="nx">event</span><span class="p">.</span><span class="nx">eventType</span><span class="p">);</span>
 <span class="p">});</span>
 
 <span class="c1">// Subscribe with queue group for load balancing</span>
@@ -1328,7 +1328,7 @@
 <span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">event</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="c1">// Process sensor data</span>
 <span class="w">  </span><span class="p">},</span>
-<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">queue</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;sensor-processors&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">queue</span><span class="o">:</span><span class="w"> </span><span class="s2">"sensor-processors"</span><span class="w"> </span><span class="p">},</span>
 <span class="p">);</span>
 </code></pre></div>
 
@@ -1488,10 +1488,10 @@ npm<span class="w"> </span>run<span class="w"> </span>start:dev
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1273,11 +1273,11 @@
 <li>Mounted test config: <code>./config/nats/nats-test.conf:/etc/nats/nats-test.conf:ro</code></li>
 </ul>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Before:</span>
-<span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;--jetstream&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;--store_dir=/data&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;-m&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;8222&quot;</span><span class="p p-Indicator">]</span>
+<span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"--jetstream"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"--store_dir=/data"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"-m"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"8222"</span><span class="p p-Indicator">]</span>
 <span class="l l-Scalar l-Scalar-Plain">NATS_URL=nats://nats_test:4222</span>
 
 <span class="c1"># After:</span>
-<span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;-c&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;/etc/nats/nats-test.conf&quot;</span><span class="p p-Indicator">]</span>
+<span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"-c"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"/etc/nats/nats-test.conf"</span><span class="p p-Indicator">]</span>
 <span class="l l-Scalar l-Scalar-Plain">NATS_URL=nats://test_user:test_password@nats_test:4222</span>
 </code></pre></div>
 
@@ -1415,7 +1415,7 @@ docker-compose<span class="w"> </span>restart<span class="w"> </span>field-manag
 curl<span class="w"> </span>http://localhost:8222/healthz
 
 <span class="c1"># Check service logs for NATS errors</span>
-docker-compose<span class="w"> </span>logs<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;nats\|authorization&quot;</span>
+docker-compose<span class="w"> </span>logs<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">"nats\|authorization"</span>
 
 <span class="c1"># Verify no authentication errors</span>
 docker-compose<span class="w"> </span>logs<span class="w"> </span>nats<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span>error
@@ -1424,14 +1424,14 @@ docker-compose<span class="w"> </span>logs<span class="w"> </span>nats<span clas
 <h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
 <h3 id="verify-authentication-is-working">Verify Authentication is Working<a class="headerlink" href="#verify-authentication-is-working" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Try to connect without credentials (should fail)</span>
-docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>--network<span class="w"> </span>sahool-network<span class="w"> </span>nats:2.10-alpine<span class="w"> </span>nats<span class="w"> </span>pub<span class="w"> </span><span class="nb">test</span><span class="w"> </span><span class="s2">&quot;hello&quot;</span>
+docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>--network<span class="w"> </span>sahool-network<span class="w"> </span>nats:2.10-alpine<span class="w"> </span>nats<span class="w"> </span>pub<span class="w"> </span><span class="nb">test</span><span class="w"> </span><span class="s2">"hello"</span>
 <span class="c1"># Expected: Error: Authorization Violation</span>
 
 <span class="c1"># Connect with valid credentials (should succeed)</span>
 docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>--network<span class="w"> </span>sahool-network<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-e<span class="w"> </span><span class="nv">NATS_URL</span><span class="o">=</span><span class="s2">&quot;nats://sahool_app:your_password@nats:4222&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>nats:2.10-alpine<span class="w"> </span>nats<span class="w"> </span>pub<span class="w"> </span>sahool.test<span class="w"> </span><span class="s2">&quot;hello&quot;</span>
-<span class="c1"># Expected: Published 5 bytes to &quot;sahool.test&quot;</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">NATS_URL</span><span class="o">=</span><span class="s2">"nats://sahool_app:your_password@nats:4222"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>nats:2.10-alpine<span class="w"> </span>nats<span class="w"> </span>pub<span class="w"> </span>sahool.test<span class="w"> </span><span class="s2">"hello"</span>
+<span class="c1"># Expected: Published 5 bytes to "sahool.test"</span>
 </code></pre></div>
 
 <h3 id="test-service-connectivity">Test Service Connectivity<a class="headerlink" href="#test-service-connectivity" title="Permanent link">&para;</a></h3>
@@ -1439,7 +1439,7 @@ docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </
 docker-compose<span class="w"> </span>logs<span class="w"> </span>field-management-service<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span>nats
 docker-compose<span class="w"> </span>logs<span class="w"> </span>marketplace-service<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span>nats
 
-<span class="c1"># Should see: &quot;Connected to NATS&quot; (no auth errors)</span>
+<span class="c1"># Should see: "Connected to NATS" (no auth errors)</span>
 </code></pre></div>
 
 <h2 id="monitoring">Monitoring<a class="headerlink" href="#monitoring" title="Permanent link">&para;</a></h2>
@@ -1662,10 +1662,10 @@ docker-compose<span class="w"> </span>logs<span class="w"> </span>marketplace-se
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

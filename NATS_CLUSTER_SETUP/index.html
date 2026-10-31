@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1341,7 +1341,7 @@ kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> <
 <span class="s">    kind: ClusterIssuer</span>
 <span class="s">  dnsNames:</span>
 <span class="s">    - nats.nats-system.svc.cluster.local</span>
-<span class="s">    - &quot;*.nats.nats-system.svc.cluster.local&quot;</span>
+<span class="s">    - "*.nats.nats-system.svc.cluster.local"</span>
 <span class="s">EOF</span>
 
 <span class="c1"># Or create from existing certificates</span>
@@ -1370,18 +1370,18 @@ kubectl<span class="w"> </span>create<span class="w"> </span>secret<span class="
 <span class="c1"># Create secret</span>
 kubectl<span class="w"> </span>create<span class="w"> </span>secret<span class="w"> </span>generic<span class="w"> </span>nats-credentials<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">NATS_ADMIN_USER</span><span class="o">=</span>admin<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">NATS_ADMIN_PASSWORD</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$ADMIN_PASS</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">NATS_ADMIN_PASSWORD</span><span class="o">=</span><span class="s2">"</span><span class="nv">$ADMIN_PASS</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">NATS_USER</span><span class="o">=</span>sahool<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">NATS_PASSWORD</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$USER_PASS</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">NATS_PASSWORD</span><span class="o">=</span><span class="s2">"</span><span class="nv">$USER_PASS</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">NATS_MONITOR_USER</span><span class="o">=</span>monitor<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">NATS_MONITOR_PASSWORD</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$MONITOR_PASS</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">NATS_MONITOR_PASSWORD</span><span class="o">=</span><span class="s2">"</span><span class="nv">$MONITOR_PASS</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">NATS_SYSTEM_USER</span><span class="o">=</span>system<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">NATS_SYSTEM_PASSWORD</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$SYSTEM_PASS</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">NATS_SYSTEM_PASSWORD</span><span class="o">=</span><span class="s2">"</span><span class="nv">$SYSTEM_PASS</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">NATS_CLUSTER_USER</span><span class="o">=</span>cluster_user<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">NATS_CLUSTER_PASSWORD</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$CLUSTER_PASS</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">NATS_CLUSTER_PASSWORD</span><span class="o">=</span><span class="s2">"</span><span class="nv">$CLUSTER_PASS</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">NATS_GATEWAY_USER</span><span class="o">=</span>gateway_user<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">NATS_GATEWAY_PASSWORD</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$GATEWAY_PASS</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">NATS_JETSTREAM_KEY</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$JS_KEY</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">NATS_GATEWAY_PASSWORD</span><span class="o">=</span><span class="s2">"</span><span class="nv">$GATEWAY_PASS</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">NATS_JETSTREAM_KEY</span><span class="o">=</span><span class="s2">"</span><span class="nv">$JS_KEY</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-n<span class="w"> </span>nats-system
 </code></pre></div>
 
@@ -1434,10 +1434,10 @@ curl<span class="w"> </span>http://localhost:8222/jsz
     max_memory_store: 2GB
     max_file_store: 20GB
     key: $NATS_JETSTREAM_KEY  # At-rest encryption
-    cipher: &quot;aes&quot;
+    cipher: "aes"
     domain: sahool
-    unique_tag: &quot;node-1&quot;
-    sync_interval: &quot;2m&quot;
+    unique_tag: "node-1"
+    sync_interval: "2m"
 }
 </code></pre></div>
 
@@ -1447,9 +1447,9 @@ curl<span class="w"> </span>http://localhost:8222/jsz
 <span class="w">    </span><span class="nl">listen</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0.0.0</span><span class="err">:</span><span class="mi">6222</span>
 
 <span class="w">    </span><span class="n">tls</span><span class="w"> </span><span class="err">{</span>
-<span class="w">        </span><span class="nl">cert_file</span><span class="p">:</span><span class="w"> </span><span class="ss">&quot;/etc/nats/certs/server.crt&quot;</span>
-<span class="w">        </span><span class="nl">key_file</span><span class="p">:</span><span class="w"> </span><span class="ss">&quot;/etc/nats/certs/server.key&quot;</span>
-<span class="w">        </span><span class="nl">ca_file</span><span class="p">:</span><span class="w"> </span><span class="ss">&quot;/etc/nats/certs/ca.crt&quot;</span>
+<span class="w">        </span><span class="nl">cert_file</span><span class="p">:</span><span class="w"> </span><span class="ss">"/etc/nats/certs/server.crt"</span>
+<span class="w">        </span><span class="nl">key_file</span><span class="p">:</span><span class="w"> </span><span class="ss">"/etc/nats/certs/server.key"</span>
+<span class="w">        </span><span class="nl">ca_file</span><span class="p">:</span><span class="w"> </span><span class="ss">"/etc/nats/certs/ca.crt"</span>
 <span class="w">        </span><span class="nl">verify</span><span class="p">:</span><span class="w"> </span><span class="k">true</span>
 <span class="w">    </span><span class="err">}</span>
 
@@ -1471,9 +1471,9 @@ curl<span class="w"> </span>http://localhost:8222/jsz
     listen: 0.0.0.0:7222
 
     tls {
-        cert_file: &quot;/etc/nats/certs/server.crt&quot;
-        key_file: &quot;/etc/nats/certs/server.key&quot;
-        ca_file: &quot;/etc/nats/certs/ca.crt&quot;
+        cert_file: "/etc/nats/certs/server.crt"
+        key_file: "/etc/nats/certs/server.key"
+        ca_file: "/etc/nats/certs/ca.crt"
         verify: true
     }
 
@@ -1496,7 +1496,7 @@ curl<span class="w"> </span>http://localhost:8222/jsz
 
 <span class="c1"># Create a stream with replication factor 3</span>
 nats<span class="w"> </span>stream<span class="w"> </span>add<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--subjects<span class="o">=</span><span class="s2">&quot;field.&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--subjects<span class="o">=</span><span class="s2">"field.&gt;"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--storage<span class="o">=</span>file<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--retention<span class="o">=</span>limits<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--max-age<span class="o">=</span>7d<span class="w"> </span><span class="se">\</span>
@@ -1512,7 +1512,7 @@ nats<span class="w"> </span>stream<span class="w"> </span>info<span class="w"> <
 <h3 id="example-streams-for-sahool-platform">Example Streams for SAHOOL Platform<a class="headerlink" href="#example-streams-for-sahool-platform" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Field Operations Stream</span>
 nats<span class="w"> </span>stream<span class="w"> </span>add<span class="w"> </span>field_events<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--subjects<span class="o">=</span><span class="s2">&quot;field.&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--subjects<span class="o">=</span><span class="s2">"field.&gt;"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--storage<span class="o">=</span>file<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--retention<span class="o">=</span>limits<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--max-age<span class="o">=</span>30d<span class="w"> </span><span class="se">\</span>
@@ -1521,7 +1521,7 @@ nats<span class="w"> </span>stream<span class="w"> </span>add<span class="w"> </
 
 <span class="c1"># IoT Sensor Data Stream</span>
 nats<span class="w"> </span>stream<span class="w"> </span>add<span class="w"> </span>iot_data<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--subjects<span class="o">=</span><span class="s2">&quot;iot.&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--subjects<span class="o">=</span><span class="s2">"iot.&gt;"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--storage<span class="o">=</span>file<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--retention<span class="o">=</span>limits<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--max-age<span class="o">=</span>7d<span class="w"> </span><span class="se">\</span>
@@ -1531,7 +1531,7 @@ nats<span class="w"> </span>stream<span class="w"> </span>add<span class="w"> </
 
 <span class="c1"># Notification Stream</span>
 nats<span class="w"> </span>stream<span class="w"> </span>add<span class="w"> </span>notifications<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--subjects<span class="o">=</span><span class="s2">&quot;notification.&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--subjects<span class="o">=</span><span class="s2">"notification.&gt;"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--storage<span class="o">=</span>file<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--retention<span class="o">=</span>work-queue<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--max-age<span class="o">=</span>24h<span class="w"> </span><span class="se">\</span>
@@ -1539,7 +1539,7 @@ nats<span class="w"> </span>stream<span class="w"> </span>add<span class="w"> </
 
 <span class="c1"># Billing Events Stream</span>
 nats<span class="w"> </span>stream<span class="w"> </span>add<span class="w"> </span>billing<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--subjects<span class="o">=</span><span class="s2">&quot;billing.&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--subjects<span class="o">=</span><span class="s2">"billing.&gt;"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--storage<span class="o">=</span>file<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--retention<span class="o">=</span>limits<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--max-age<span class="o">=</span>90d<span class="w"> </span><span class="se">\</span>
@@ -1547,7 +1547,7 @@ nats<span class="w"> </span>stream<span class="w"> </span>add<span class="w"> </
 
 <span class="c1"># Chat Messages Stream</span>
 nats<span class="w"> </span>stream<span class="w"> </span>add<span class="w"> </span>chat<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--subjects<span class="o">=</span><span class="s2">&quot;chat.&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--subjects<span class="o">=</span><span class="s2">"chat.&gt;"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--storage<span class="o">=</span>file<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--retention<span class="o">=</span>limits<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--max-age<span class="o">=</span>365d<span class="w"> </span><span class="se">\</span>
@@ -1558,7 +1558,7 @@ nats<span class="w"> </span>stream<span class="w"> </span>add<span class="w"> </
 <h3 id="creating-consumers">Creating Consumers<a class="headerlink" href="#creating-consumers" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Create a durable consumer</span>
 nats<span class="w"> </span>consumer<span class="w"> </span>add<span class="w"> </span>field_events<span class="w"> </span>field_processor<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--filter<span class="o">=</span><span class="s2">&quot;field.crop.&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--filter<span class="o">=</span><span class="s2">"field.crop.&gt;"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--ack<span class="o">=</span>explicit<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--pull<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--deliver<span class="o">=</span>all<span class="w"> </span><span class="se">\</span>
@@ -1568,9 +1568,9 @@ nats<span class="w"> </span>consumer<span class="w"> </span>add<span class="w"> 
 
 <span class="c1"># Create a push consumer</span>
 nats<span class="w"> </span>consumer<span class="w"> </span>add<span class="w"> </span>iot_data<span class="w"> </span>iot_processor<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--filter<span class="o">=</span><span class="s2">&quot;iot.sensor.temperature&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--filter<span class="o">=</span><span class="s2">"iot.sensor.temperature"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--ack<span class="o">=</span>explicit<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--target<span class="o">=</span><span class="s2">&quot;iot.process.temperature&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--target<span class="o">=</span><span class="s2">"iot.process.temperature"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--deliver<span class="o">=</span>new<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--max-deliver<span class="o">=</span><span class="m">5</span>
 </code></pre></div>
@@ -1601,28 +1601,28 @@ nats<span class="w"> </span>consumer<span class="w"> </span>add<span class="w"> 
 <div class="codehilite"><pre><span></span><code>permissions = {
     publish = {
         allow = [
-            &quot;sahool.&gt;&quot;,
-            &quot;field.&gt;&quot;,
-            &quot;weather.&gt;&quot;,
-            &quot;iot.&gt;&quot;,
-            &quot;notification.&gt;&quot;,
-            &quot;marketplace.&gt;&quot;,
-            &quot;billing.&gt;&quot;,
-            &quot;chat.&gt;&quot;,
-            &quot;alert.&gt;&quot;,
-            &quot;_INBOX.&gt;&quot;
+            "sahool.&gt;",
+            "field.&gt;",
+            "weather.&gt;",
+            "iot.&gt;",
+            "notification.&gt;",
+            "marketplace.&gt;",
+            "billing.&gt;",
+            "chat.&gt;",
+            "alert.&gt;",
+            "_INBOX.&gt;"
         ]
-        deny = [&quot;$SYS.&gt;&quot;, &quot;$JS.API.SYSTEM.&gt;&quot;]
+        deny = ["$SYS.&gt;", "$JS.API.SYSTEM.&gt;"]
     }
     subscribe = {
         allow = [
-            &quot;sahool.&gt;&quot;,
-            &quot;field.&gt;&quot;,
+            "sahool.&gt;",
+            "field.&gt;",
             # ... same as publish
-            &quot;$JS.API.CONSUMER.&gt;&quot;,
-            &quot;$JS.API.STREAM.&gt;&quot;
+            "$JS.API.CONSUMER.&gt;",
+            "$JS.API.STREAM.&gt;"
         ]
-        deny = [&quot;$SYS.&gt;&quot;]
+        deny = ["$SYS.&gt;"]
     }
 }
 </code></pre></div>
@@ -1742,8 +1742,8 @@ openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w
 <h4 id="application-examples">Application Examples<a class="headerlink" href="#application-examples" title="Permanent link">&para;</a></h4>
 <p><strong>Go:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="nx">nc</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">nats</span><span class="p">.</span><span class="nx">Connect</span><span class="p">(</span>
-<span class="w">    </span><span class="s">&quot;nats://nats-node1:4222,nats://nats-node2:4222,nats://nats-node3:4222&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nx">nats</span><span class="p">.</span><span class="nx">UserInfo</span><span class="p">(</span><span class="s">&quot;sahool&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;PASSWORD&quot;</span><span class="p">),</span>
+<span class="w">    </span><span class="s">"nats://nats-node1:4222,nats://nats-node2:4222,nats://nats-node3:4222"</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">nats</span><span class="p">.</span><span class="nx">UserInfo</span><span class="p">(</span><span class="s">"sahool"</span><span class="p">,</span><span class="w"> </span><span class="s">"PASSWORD"</span><span class="p">),</span>
 <span class="w">    </span><span class="nx">nats</span><span class="p">.</span><span class="nx">Secure</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">tls</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
 <span class="w">        </span><span class="nx">MinVersion</span><span class="p">:</span><span class="w"> </span><span class="nx">tls</span><span class="p">.</span><span class="nx">VersionTLS12</span><span class="p">,</span>
 <span class="w">    </span><span class="p">}),</span>
@@ -1760,12 +1760,12 @@ openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w
     <span class="n">nc</span> <span class="o">=</span> <span class="n">NATS</span><span class="p">()</span>
     <span class="k">await</span> <span class="n">nc</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
         <span class="n">servers</span><span class="o">=</span><span class="p">[</span>
-            <span class="s2">&quot;nats://nats-node1:4222&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nats://nats-node2:4222&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;nats://nats-node3:4222&quot;</span>
+            <span class="s2">"nats://nats-node1:4222"</span><span class="p">,</span>
+            <span class="s2">"nats://nats-node2:4222"</span><span class="p">,</span>
+            <span class="s2">"nats://nats-node3:4222"</span>
         <span class="p">],</span>
-        <span class="n">user</span><span class="o">=</span><span class="s2">&quot;sahool&quot;</span><span class="p">,</span>
-        <span class="n">password</span><span class="o">=</span><span class="s2">&quot;PASSWORD&quot;</span><span class="p">,</span>
+        <span class="n">user</span><span class="o">=</span><span class="s2">"sahool"</span><span class="p">,</span>
+        <span class="n">password</span><span class="o">=</span><span class="s2">"PASSWORD"</span><span class="p">,</span>
         <span class="n">tls_required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">max_reconnect_attempts</span><span class="o">=-</span><span class="mi">1</span>
     <span class="p">)</span>
@@ -1773,18 +1773,18 @@ openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w
 </code></pre></div>
 
 <p><strong>Node.js/TypeScript:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">connect</span><span class="p">,</span><span class="w"> </span><span class="nx">StringCodec</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;nats&quot;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">connect</span><span class="p">,</span><span class="w"> </span><span class="nx">StringCodec</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"nats"</span><span class="p">;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">nc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">connect</span><span class="p">({</span>
 <span class="w">  </span><span class="nx">servers</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="s2">&quot;nats://nats-node1:4222&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="s2">&quot;nats://nats-node2:4222&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="s2">&quot;nats://nats-node3:4222&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"nats://nats-node1:4222"</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"nats://nats-node2:4222"</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"nats://nats-node3:4222"</span><span class="p">,</span>
 <span class="w">  </span><span class="p">],</span>
-<span class="w">  </span><span class="nx">user</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;sahool&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">pass</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;PASSWORD&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">user</span><span class="o">:</span><span class="w"> </span><span class="s2">"sahool"</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">pass</span><span class="o">:</span><span class="w"> </span><span class="s2">"PASSWORD"</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">tls</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">minVersion</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;TLSv1.2&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">minVersion</span><span class="o">:</span><span class="w"> </span><span class="s2">"TLSv1.2"</span><span class="p">,</span>
 <span class="w">  </span><span class="p">},</span>
 <span class="w">  </span><span class="nx">maxReconnectAttempts</span><span class="o">:</span><span class="w"> </span><span class="o">-</span><span class="mf">1</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">reconnectTimeWait</span><span class="o">:</span><span class="w"> </span><span class="kt">2000</span><span class="p">,</span>
@@ -1856,7 +1856,7 @@ docker<span class="w"> </span>logs<span class="w"> </span>sahool-nats-node1<span
 nats<span class="w"> </span>stream<span class="w"> </span>info<span class="w"> </span>field_events
 
 <span class="c1"># Look for sync status</span>
-curl<span class="w"> </span>http://localhost:8222/jsz?streams<span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.streams[].cluster&#39;</span>
+curl<span class="w"> </span>http://localhost:8222/jsz?streams<span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">'.streams[].cluster'</span>
 </code></pre></div>
 
 <p><strong>Solution</strong>:</p>
@@ -1870,10 +1870,10 @@ curl<span class="w"> </span>http://localhost:8222/jsz?streams<span class="o">=</
 <p><strong>Symptoms</strong>: Memory consumption growing</p>
 <p><strong>Check</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Check memory stats</span>
-curl<span class="w"> </span>http://localhost:8222/varz<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.mem&#39;</span>
+curl<span class="w"> </span>http://localhost:8222/varz<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">'.mem'</span>
 
 <span class="c1"># Check JetStream usage</span>
-curl<span class="w"> </span>http://localhost:8222/jsz<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.memory, .store&#39;</span>
+curl<span class="w"> </span>http://localhost:8222/jsz<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">'.memory, .store'</span>
 </code></pre></div>
 
 <p><strong>Solution</strong>:</p>
@@ -1920,10 +1920,10 @@ trace: true
 <span class="w">    </span><span class="nt">deploy</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">resources</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">limits</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">cpus</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2.0&quot;</span>
+<span class="w">          </span><span class="nt">cpus</span><span class="p">:</span><span class="w"> </span><span class="s">"2.0"</span>
 <span class="w">          </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4G</span>
 <span class="w">        </span><span class="nt">reservations</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">cpus</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1.0&quot;</span>
+<span class="w">          </span><span class="nt">cpus</span><span class="p">:</span><span class="w"> </span><span class="s">"1.0"</span>
 <span class="w">          </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2G</span>
 </code></pre></div>
 
@@ -1955,7 +1955,7 @@ max_control_line: 4KB
 <div class="codehilite"><pre><span></span><code>jetstream {
     max_memory_store: 4GB
     max_file_store: 100GB
-    sync_interval: &quot;2m&quot;
+    sync_interval: "2m"
 }
 </code></pre></div>
 
@@ -1976,12 +1976,12 @@ max_control_line: 4KB
 
 <span class="w">    </span><span class="nl">gateways</span><span class="p">:</span><span class="w"> </span><span class="o">[</span>
 <span class="n">        {</span>
-<span class="n">            name: &quot;sahool-dc2&quot;</span>
-<span class="n">            url: &quot;nats://gateway_user:PASSWORD@dc2-gateway.example.com:7222&quot;</span>
+<span class="n">            name: "sahool-dc2"</span>
+<span class="n">            url: "nats://gateway_user:PASSWORD@dc2-gateway.example.com:7222"</span>
 <span class="n">        },</span>
 <span class="n">        {</span>
-<span class="n">            name: &quot;sahool-dc3&quot;</span>
-<span class="n">            url: &quot;nats://gateway_user:PASSWORD@dc3-gateway.example.com:7222&quot;</span>
+<span class="n">            name: "sahool-dc3"</span>
+<span class="n">            url: "nats://gateway_user:PASSWORD@dc3-gateway.example.com:7222"</span>
 <span class="n">        }</span>
 <span class="n">    </span><span class="o">]</span>
 <span class="err">}</span>
@@ -1994,8 +1994,8 @@ max_control_line: 4KB
 
 <span class="w">    </span><span class="nl">gateways</span><span class="p">:</span><span class="w"> </span><span class="o">[</span>
 <span class="n">        {</span>
-<span class="n">            name: &quot;sahool-dc1&quot;</span>
-<span class="n">            url: &quot;nats://gateway_user:PASSWORD@dc1-gateway.example.com:7222&quot;</span>
+<span class="n">            name: "sahool-dc1"</span>
+<span class="n">            url: "nats://gateway_user:PASSWORD@dc1-gateway.example.com:7222"</span>
 <span class="n">        }</span>
 <span class="n">    </span><span class="o">]</span>
 <span class="err">}</span>
@@ -2174,10 +2174,10 @@ nats<span class="w"> </span>stream<span class="w"> </span>restore<span class="w"
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

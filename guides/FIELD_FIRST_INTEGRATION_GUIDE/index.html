@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1145,7 +1145,7 @@
 <span class="c1"># shared/libs/events/ - NATS publisher</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;/path/to/sahool-unified-v15-idp&quot;</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"/path/to/sahool-unified-v15-idp"</span><span class="p">)</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">shared.contracts.actions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">ActionTemplate</span><span class="p">,</span>
@@ -1187,14 +1187,14 @@ SERVICE_PORT=8XXX
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">MyAnalysisRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;طلب التحليل&quot;&quot;&quot;</span>
-    <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;معرف الحقل&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""طلب التحليل"""</span>
+    <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"معرف الحقل"</span><span class="p">)</span>
     <span class="c1"># أضف الحقول الخاصة بتحليلك</span>
     <span class="n">parameter1</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">parameter2</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">MyAnalysisResponse</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;استجابة التحليل مع ActionTemplate&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""استجابة التحليل مع ActionTemplate"""</span>
     <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">analysis_result</span><span class="p">:</span> <span class="nb">dict</span>
     <span class="n">action_template</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1204,17 +1204,17 @@ SERVICE_PORT=8XXX
 <h3 id="2-endpoint">الخطوة 2: إنشاء Endpoint جديد<a class="headerlink" href="#2-endpoint" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastAPI</span><span class="p">,</span> <span class="n">BackgroundTasks</span>
 
-<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;My Service&quot;</span><span class="p">)</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"My Service"</span><span class="p">)</span>
 
-<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/v1/analyze-with-action&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">MyAnalysisResponse</span><span class="p">)</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">"/v1/analyze-with-action"</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">MyAnalysisResponse</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">analyze_with_action</span><span class="p">(</span>
     <span class="n">request</span><span class="p">:</span> <span class="n">MyAnalysisRequest</span><span class="p">,</span>
     <span class="n">background_tasks</span><span class="p">:</span> <span class="n">BackgroundTasks</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    تحليل مع إنتاج ActionTemplate</span>
 <span class="sd">    Field-First: ينتج إجراء قابل للتنفيذ</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># 1. تنفيذ التحليل الفعلي</span>
     <span class="n">analysis_result</span> <span class="o">=</span> <span class="n">perform_my_analysis</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
@@ -1226,10 +1226,10 @@ SERVICE_PORT=8XXX
     <span class="p">)</span>
 
     <span class="c1"># 3. نشر إلى NATS إذا كانت الأولوية عالية</span>
-    <span class="k">if</span> <span class="n">action_template</span> <span class="ow">and</span> <span class="n">action_template</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;priority&quot;</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;high&quot;</span><span class="p">,</span> <span class="s2">&quot;critical&quot;</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">action_template</span> <span class="ow">and</span> <span class="n">action_template</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"priority"</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"high"</span><span class="p">,</span> <span class="s2">"critical"</span><span class="p">]:</span>
         <span class="n">background_tasks</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span>
             <span class="n">publish_to_nats</span><span class="p">,</span>
-            <span class="n">analysis_type</span><span class="o">=</span><span class="s2">&quot;my_analysis&quot;</span><span class="p">,</span>
+            <span class="n">analysis_type</span><span class="o">=</span><span class="s2">"my_analysis"</span><span class="p">,</span>
             <span class="n">field_id</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">field_id</span><span class="p">,</span>
             <span class="n">action_template</span><span class="o">=</span><span class="n">action_template</span><span class="p">,</span>
         <span class="p">)</span>
@@ -1245,83 +1245,83 @@ SERVICE_PORT=8XXX
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">create_action_from_result</span><span class="p">(</span><span class="n">result</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    تحويل نتيجة التحليل إلى ActionTemplate</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># تحديد نوع الإجراء والأولوية</span>
-    <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;severity&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;critical&quot;</span><span class="p">:</span>
-        <span class="n">action_type</span> <span class="o">=</span> <span class="s2">&quot;urgent_intervention&quot;</span>
-        <span class="n">priority</span> <span class="o">=</span> <span class="s2">&quot;critical&quot;</span>
+    <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s2">"severity"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"critical"</span><span class="p">:</span>
+        <span class="n">action_type</span> <span class="o">=</span> <span class="s2">"urgent_intervention"</span>
+        <span class="n">priority</span> <span class="o">=</span> <span class="s2">"critical"</span>
         <span class="n">deadline</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;severity&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;warning&quot;</span><span class="p">:</span>
-        <span class="n">action_type</span> <span class="o">=</span> <span class="s2">&quot;scheduled_action&quot;</span>
-        <span class="n">priority</span> <span class="o">=</span> <span class="s2">&quot;high&quot;</span>
+    <span class="k">elif</span> <span class="n">result</span><span class="p">[</span><span class="s2">"severity"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"warning"</span><span class="p">:</span>
+        <span class="n">action_type</span> <span class="o">=</span> <span class="s2">"scheduled_action"</span>
+        <span class="n">priority</span> <span class="o">=</span> <span class="s2">"high"</span>
         <span class="n">deadline</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">24</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">action_type</span> <span class="o">=</span> <span class="s2">&quot;routine_check&quot;</span>
-        <span class="n">priority</span> <span class="o">=</span> <span class="s2">&quot;medium&quot;</span>
+        <span class="n">action_type</span> <span class="o">=</span> <span class="s2">"routine_check"</span>
+        <span class="n">priority</span> <span class="o">=</span> <span class="s2">"medium"</span>
         <span class="n">deadline</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 
     <span class="c1"># بناء ActionTemplate</span>
     <span class="n">action_template</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;action-</span><span class="si">{</span><span class="n">field_id</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">action_type</span><span class="p">,</span>
-        <span class="s2">&quot;priority&quot;</span><span class="p">:</span> <span class="n">priority</span><span class="p">,</span>
-        <span class="s2">&quot;field_id&quot;</span><span class="p">:</span> <span class="n">field_id</span><span class="p">,</span>
-        <span class="s2">&quot;source_analysis&quot;</span><span class="p">:</span> <span class="s2">&quot;my-service&quot;</span><span class="p">,</span>
+        <span class="s2">"id"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"action-</span><span class="si">{</span><span class="n">field_id</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span><span class="o">.</span><span class="n">timestamp</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+        <span class="s2">"type"</span><span class="p">:</span> <span class="n">action_type</span><span class="p">,</span>
+        <span class="s2">"priority"</span><span class="p">:</span> <span class="n">priority</span><span class="p">,</span>
+        <span class="s2">"field_id"</span><span class="p">:</span> <span class="n">field_id</span><span class="p">,</span>
+        <span class="s2">"source_analysis"</span><span class="p">:</span> <span class="s2">"my-service"</span><span class="p">,</span>
 
         <span class="c1"># المحتوى الأساسي</span>
-        <span class="s2">&quot;what&quot;</span><span class="p">:</span> <span class="n">determine_what</span><span class="p">(</span><span class="n">result</span><span class="p">),</span>
-        <span class="s2">&quot;why&quot;</span><span class="p">:</span> <span class="n">determine_why</span><span class="p">(</span><span class="n">result</span><span class="p">),</span>
-        <span class="s2">&quot;when&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;deadline&quot;</span><span class="p">:</span> <span class="n">deadline</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
-            <span class="s2">&quot;optimal_window&quot;</span><span class="p">:</span> <span class="n">determine_optimal_window</span><span class="p">(</span><span class="n">result</span><span class="p">),</span>
+        <span class="s2">"what"</span><span class="p">:</span> <span class="n">determine_what</span><span class="p">(</span><span class="n">result</span><span class="p">),</span>
+        <span class="s2">"why"</span><span class="p">:</span> <span class="n">determine_why</span><span class="p">(</span><span class="n">result</span><span class="p">),</span>
+        <span class="s2">"when"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"deadline"</span><span class="p">:</span> <span class="n">deadline</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+            <span class="s2">"optimal_window"</span><span class="p">:</span> <span class="n">determine_optimal_window</span><span class="p">(</span><span class="n">result</span><span class="p">),</span>
         <span class="p">},</span>
-        <span class="s2">&quot;how&quot;</span><span class="p">:</span> <span class="n">generate_steps</span><span class="p">(</span><span class="n">result</span><span class="p">),</span>
-        <span class="s2">&quot;fallback&quot;</span><span class="p">:</span> <span class="n">generate_fallback</span><span class="p">(</span><span class="n">result</span><span class="p">),</span>
+        <span class="s2">"how"</span><span class="p">:</span> <span class="n">generate_steps</span><span class="p">(</span><span class="n">result</span><span class="p">),</span>
+        <span class="s2">"fallback"</span><span class="p">:</span> <span class="n">generate_fallback</span><span class="p">(</span><span class="n">result</span><span class="p">),</span>
 
         <span class="c1"># البيانات الوصفية</span>
-        <span class="s2">&quot;confidence&quot;</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;confidence&quot;</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">),</span>
-        <span class="s2">&quot;created_at&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
-        <span class="s2">&quot;expires_at&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">deadline</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">6</span><span class="p">))</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+        <span class="s2">"confidence"</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"confidence"</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">),</span>
+        <span class="s2">"created_at"</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+        <span class="s2">"expires_at"</span><span class="p">:</span> <span class="p">(</span><span class="n">deadline</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">6</span><span class="p">))</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
     <span class="p">}</span>
 
     <span class="k">return</span> <span class="n">action_template</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">determine_what</span><span class="p">(</span><span class="n">result</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;تحديد ماذا يجب فعله&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""تحديد ماذا يجب فعله"""</span>
     <span class="c1"># منطق تحديد الإجراء</span>
-    <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;irrigation_needed&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;إجراء ري عاجل&quot;</span>
-    <span class="k">elif</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;pest_detected&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;معالجة آفات&quot;</span>
+    <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s2">"type"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"irrigation_needed"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"إجراء ري عاجل"</span>
+    <span class="k">elif</span> <span class="n">result</span><span class="p">[</span><span class="s2">"type"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"pest_detected"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"معالجة آفات"</span>
     <span class="c1"># ... المزيد من الحالات</span>
-    <span class="k">return</span> <span class="s2">&quot;فحص الحقل&quot;</span>
+    <span class="k">return</span> <span class="s2">"فحص الحقل"</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">determine_why</span><span class="p">(</span><span class="n">result</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;تحديد سبب الإجراء&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;بناءً على التحليل: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;summary&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="w">    </span><span class="sd">"""تحديد سبب الإجراء"""</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"بناءً على التحليل: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">'summary'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">determine_optimal_window</span><span class="p">(</span><span class="n">result</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;تحديد الوقت الأمثل&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;irrigation_needed&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;المساء بعد غروب الشمس&quot;</span>
-    <span class="k">elif</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;fertilization&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;صباحاً قبل الحرارة&quot;</span>
-    <span class="k">return</span> <span class="s2">&quot;في أقرب وقت ممكن&quot;</span>
+<span class="w">    </span><span class="sd">"""تحديد الوقت الأمثل"""</span>
+    <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s2">"type"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"irrigation_needed"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"المساء بعد غروب الشمس"</span>
+    <span class="k">elif</span> <span class="n">result</span><span class="p">[</span><span class="s2">"type"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"fertilization"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"صباحاً قبل الحرارة"</span>
+    <span class="k">return</span> <span class="s2">"في أقرب وقت ممكن"</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">generate_steps</span><span class="p">(</span><span class="n">result</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;توليد خطوات التنفيذ&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""توليد خطوات التنفيذ"""</span>
     <span class="k">return</span> <span class="p">[</span>
-        <span class="s2">&quot;الخطوة الأولى&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;الخطوة الثانية&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;الخطوة الثالثة&quot;</span><span class="p">,</span>
+        <span class="s2">"الخطوة الأولى"</span><span class="p">,</span>
+        <span class="s2">"الخطوة الثانية"</span><span class="p">,</span>
+        <span class="s2">"الخطوة الثالثة"</span><span class="p">,</span>
     <span class="p">]</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">generate_fallback</span><span class="p">(</span><span class="n">result</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;توليد البديل&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="s2">&quot;إذا لم تتوفر الموارد: [الإجراء البديل]&quot;</span>
+<span class="w">    </span><span class="sd">"""توليد البديل"""</span>
+    <span class="k">return</span> <span class="s2">"إذا لم تتوفر الموارد: [الإجراء البديل]"</span>
 </code></pre></div>
 
 <hr />
@@ -1340,7 +1340,7 @@ SERVICE_PORT=8XXX
     <span class="n">publish_analysis_completed_sync</span> <span class="o">=</span> <span class="kc">None</span>
 
 <span class="c1"># التحقق من تفعيل NATS</span>
-<span class="n">NATS_ENABLED</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;NATS_ENABLED&quot;</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span>
+<span class="n">NATS_ENABLED</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"NATS_ENABLED"</span><span class="p">,</span> <span class="s2">"false"</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"true"</span>
 </code></pre></div>
 
 <h3 id="2-background-task">الخطوة 2: النشر في Background Task<a class="headerlink" href="#2-background-task" title="Permanent link">&para;</a></h3>
@@ -1349,46 +1349,46 @@ SERVICE_PORT=8XXX
     <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">action_template</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;نشر إلى NATS بشكل غير متزامن&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""نشر إلى NATS بشكل غير متزامن"""</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">NATS_AVAILABLE</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">NATS_ENABLED</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;NATS not available, skipping publish&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"NATS not available, skipping publish"</span><span class="p">)</span>
         <span class="k">return</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">publish_analysis_completed_sync</span><span class="p">(</span>
             <span class="n">analysis_type</span><span class="o">=</span><span class="n">analysis_type</span><span class="p">,</span>
             <span class="n">field_id</span><span class="o">=</span><span class="n">field_id</span><span class="p">,</span>
-            <span class="n">priority</span><span class="o">=</span><span class="n">action_template</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;priority&quot;</span><span class="p">,</span> <span class="s2">&quot;medium&quot;</span><span class="p">),</span>
+            <span class="n">priority</span><span class="o">=</span><span class="n">action_template</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"priority"</span><span class="p">,</span> <span class="s2">"medium"</span><span class="p">),</span>
             <span class="n">action_template</span><span class="o">=</span><span class="n">action_template</span><span class="p">,</span>
             <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;my-service&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;15.5.0&quot;</span><span class="p">,</span>
+                <span class="s2">"source"</span><span class="p">:</span> <span class="s2">"my-service"</span><span class="p">,</span>
+                <span class="s2">"version"</span><span class="p">:</span> <span class="s2">"15.5.0"</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Published to NATS: </span><span class="si">{</span><span class="n">analysis_type</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">field_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Published to NATS: </span><span class="si">{</span><span class="n">analysis_type</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="n">field_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to publish to NATS: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to publish to NATS: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div>
 
 <h3 id="3_1">الخطوة 3: المواضيع المستخدمة<a class="headerlink" href="#3_1" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># المواضيع التي ينشر إليها التحليل</span>
 <span class="n">NATS_SUBJECTS</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;analysis_completed&quot;</span><span class="p">:</span> <span class="s2">&quot;sahool.analysis.completed&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;alert_created&quot;</span><span class="p">:</span> <span class="s2">&quot;sahool.alerts.created&quot;</span><span class="p">,</span>
+    <span class="s2">"analysis_completed"</span><span class="p">:</span> <span class="s2">"sahool.analysis.completed"</span><span class="p">,</span>
+    <span class="s2">"alert_created"</span><span class="p">:</span> <span class="s2">"sahool.alerts.created"</span><span class="p">,</span>
 <span class="p">}</span>
 
 <span class="c1"># بنية الرسالة</span>
 <span class="n">message_structure</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;event_id&quot;</span><span class="p">:</span> <span class="s2">&quot;uuid&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="s2">&quot;ISO datetime&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;analysis_type&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;field_id&quot;</span><span class="p">:</span> <span class="s2">&quot;field-001&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;priority&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;action_template&quot;</span><span class="p">:</span> <span class="p">{</span> <span class="o">...</span> <span class="p">},</span>
-    <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;service-name&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;15.5.0&quot;</span><span class="p">,</span>
+    <span class="s2">"event_id"</span><span class="p">:</span> <span class="s2">"uuid"</span><span class="p">,</span>
+    <span class="s2">"timestamp"</span><span class="p">:</span> <span class="s2">"ISO datetime"</span><span class="p">,</span>
+    <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"analysis_type"</span><span class="p">,</span>
+    <span class="s2">"field_id"</span><span class="p">:</span> <span class="s2">"field-001"</span><span class="p">,</span>
+    <span class="s2">"priority"</span><span class="p">:</span> <span class="s2">"high"</span><span class="p">,</span>
+    <span class="s2">"action_template"</span><span class="p">:</span> <span class="p">{</span> <span class="o">...</span> <span class="p">},</span>
+    <span class="s2">"metadata"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"source"</span><span class="p">:</span> <span class="s2">"service-name"</span><span class="p">,</span>
+        <span class="s2">"version"</span><span class="p">:</span> <span class="s2">"15.5.0"</span><span class="p">,</span>
     <span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1400,54 +1400,54 @@ SERVICE_PORT=8XXX
 
 <span class="k">class</span><span class="w"> </span><span class="nc">BadgeType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
     <span class="c1"># قراءات مباشرة</span>
-    <span class="n">IOT_READING</span> <span class="o">=</span> <span class="s2">&quot;iot_reading&quot;</span>           <span class="c1"># من أجهزة IoT</span>
-    <span class="n">SATELLITE_READING</span> <span class="o">=</span> <span class="s2">&quot;satellite_reading&quot;</span> <span class="c1"># من القمر الصناعي</span>
+    <span class="n">IOT_READING</span> <span class="o">=</span> <span class="s2">"iot_reading"</span>           <span class="c1"># من أجهزة IoT</span>
+    <span class="n">SATELLITE_READING</span> <span class="o">=</span> <span class="s2">"satellite_reading"</span> <span class="c1"># من القمر الصناعي</span>
 
     <span class="c1"># تقديرات</span>
-    <span class="n">VIRTUAL_ESTIMATE</span> <span class="o">=</span> <span class="s2">&quot;virtual_estimate&quot;</span>   <span class="c1"># حساب برمجي</span>
-    <span class="n">HISTORICAL_ESTIMATE</span> <span class="o">=</span> <span class="s2">&quot;historical_estimate&quot;</span> <span class="c1"># بيانات تاريخية</span>
-    <span class="n">MODEL_PREDICTION</span> <span class="o">=</span> <span class="s2">&quot;model_prediction&quot;</span>   <span class="c1"># نموذج تنبؤي</span>
+    <span class="n">VIRTUAL_ESTIMATE</span> <span class="o">=</span> <span class="s2">"virtual_estimate"</span>   <span class="c1"># حساب برمجي</span>
+    <span class="n">HISTORICAL_ESTIMATE</span> <span class="o">=</span> <span class="s2">"historical_estimate"</span> <span class="c1"># بيانات تاريخية</span>
+    <span class="n">MODEL_PREDICTION</span> <span class="o">=</span> <span class="s2">"model_prediction"</span>   <span class="c1"># نموذج تنبؤي</span>
 
     <span class="c1"># مركبة</span>
-    <span class="n">HYBRID</span> <span class="o">=</span> <span class="s2">&quot;hybrid&quot;</span>                       <span class="c1"># مزيج من المصادر</span>
+    <span class="n">HYBRID</span> <span class="o">=</span> <span class="s2">"hybrid"</span>                       <span class="c1"># مزيج من المصادر</span>
 
 <span class="c1"># الألوان المعتمدة</span>
 <span class="n">BADGE_COLORS</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;iot_reading&quot;</span><span class="p">:</span> <span class="s2">&quot;#3B82F6&quot;</span><span class="p">,</span>        <span class="c1"># Blue</span>
-    <span class="s2">&quot;satellite_reading&quot;</span><span class="p">:</span> <span class="s2">&quot;#10B981&quot;</span><span class="p">,</span>   <span class="c1"># Green</span>
-    <span class="s2">&quot;virtual_estimate&quot;</span><span class="p">:</span> <span class="s2">&quot;#6366F1&quot;</span><span class="p">,</span>    <span class="c1"># Indigo</span>
-    <span class="s2">&quot;historical_estimate&quot;</span><span class="p">:</span> <span class="s2">&quot;#F59E0B&quot;</span><span class="p">,</span> <span class="c1"># Amber</span>
-    <span class="s2">&quot;model_prediction&quot;</span><span class="p">:</span> <span class="s2">&quot;#8B5CF6&quot;</span><span class="p">,</span>    <span class="c1"># Purple</span>
-    <span class="s2">&quot;hybrid&quot;</span><span class="p">:</span> <span class="s2">&quot;#EC4899&quot;</span><span class="p">,</span>              <span class="c1"># Pink</span>
+    <span class="s2">"iot_reading"</span><span class="p">:</span> <span class="s2">"#3B82F6"</span><span class="p">,</span>        <span class="c1"># Blue</span>
+    <span class="s2">"satellite_reading"</span><span class="p">:</span> <span class="s2">"#10B981"</span><span class="p">,</span>   <span class="c1"># Green</span>
+    <span class="s2">"virtual_estimate"</span><span class="p">:</span> <span class="s2">"#6366F1"</span><span class="p">,</span>    <span class="c1"># Indigo</span>
+    <span class="s2">"historical_estimate"</span><span class="p">:</span> <span class="s2">"#F59E0B"</span><span class="p">,</span> <span class="c1"># Amber</span>
+    <span class="s2">"model_prediction"</span><span class="p">:</span> <span class="s2">"#8B5CF6"</span><span class="p">,</span>    <span class="c1"># Purple</span>
+    <span class="s2">"hybrid"</span><span class="p">:</span> <span class="s2">"#EC4899"</span><span class="p">,</span>              <span class="c1"># Pink</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <h3 id="badge-actiontemplate">إضافة Badge للـ ActionTemplate<a class="headerlink" href="#badge-actiontemplate" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_badge</span><span class="p">(</span><span class="n">badge_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">custom_label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;إنشاء شارة للـ ActionTemplate&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""إنشاء شارة للـ ActionTemplate"""</span>
 
     <span class="n">labels</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;iot_reading&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;قراءة حساس&quot;</span><span class="p">,</span> <span class="s2">&quot;IoT Reading&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;satellite_reading&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;قراءة قمر صناعي&quot;</span><span class="p">,</span> <span class="s2">&quot;Satellite Reading&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;virtual_estimate&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;تقدير افتراضي&quot;</span><span class="p">,</span> <span class="s2">&quot;Virtual Estimate&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;historical_estimate&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;تقدير تاريخي&quot;</span><span class="p">,</span> <span class="s2">&quot;Historical Estimate&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;model_prediction&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;تنبؤ نموذج&quot;</span><span class="p">,</span> <span class="s2">&quot;Model Prediction&quot;</span><span class="p">),</span>
+        <span class="s2">"iot_reading"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"قراءة حساس"</span><span class="p">,</span> <span class="s2">"IoT Reading"</span><span class="p">),</span>
+        <span class="s2">"satellite_reading"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"قراءة قمر صناعي"</span><span class="p">,</span> <span class="s2">"Satellite Reading"</span><span class="p">),</span>
+        <span class="s2">"virtual_estimate"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"تقدير افتراضي"</span><span class="p">,</span> <span class="s2">"Virtual Estimate"</span><span class="p">),</span>
+        <span class="s2">"historical_estimate"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"تقدير تاريخي"</span><span class="p">,</span> <span class="s2">"Historical Estimate"</span><span class="p">),</span>
+        <span class="s2">"model_prediction"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"تنبؤ نموذج"</span><span class="p">,</span> <span class="s2">"Model Prediction"</span><span class="p">),</span>
     <span class="p">}</span>
 
-    <span class="n">label_ar</span><span class="p">,</span> <span class="n">label_en</span> <span class="o">=</span> <span class="n">labels</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">badge_type</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;غير محدد&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown&quot;</span><span class="p">))</span>
+    <span class="n">label_ar</span><span class="p">,</span> <span class="n">label_en</span> <span class="o">=</span> <span class="n">labels</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">badge_type</span><span class="p">,</span> <span class="p">(</span><span class="s2">"غير محدد"</span><span class="p">,</span> <span class="s2">"Unknown"</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">badge_type</span><span class="p">,</span>
-        <span class="s2">&quot;label_ar&quot;</span><span class="p">:</span> <span class="n">custom_label</span> <span class="ow">or</span> <span class="n">label_ar</span><span class="p">,</span>
-        <span class="s2">&quot;label_en&quot;</span><span class="p">:</span> <span class="n">label_en</span><span class="p">,</span>
-        <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="n">BADGE_COLORS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">badge_type</span><span class="p">,</span> <span class="s2">&quot;#6B7280&quot;</span><span class="p">),</span>
+        <span class="s2">"type"</span><span class="p">:</span> <span class="n">badge_type</span><span class="p">,</span>
+        <span class="s2">"label_ar"</span><span class="p">:</span> <span class="n">custom_label</span> <span class="ow">or</span> <span class="n">label_ar</span><span class="p">,</span>
+        <span class="s2">"label_en"</span><span class="p">:</span> <span class="n">label_en</span><span class="p">,</span>
+        <span class="s2">"color"</span><span class="p">:</span> <span class="n">BADGE_COLORS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">badge_type</span><span class="p">,</span> <span class="s2">"#6B7280"</span><span class="p">),</span>
     <span class="p">}</span>
 
 <span class="c1"># استخدام في ActionTemplate</span>
 <span class="n">action_template</span> <span class="o">=</span> <span class="p">{</span>
     <span class="c1"># ... الحقول الأخرى</span>
-    <span class="s2">&quot;badge&quot;</span><span class="p">:</span> <span class="n">create_badge</span><span class="p">(</span><span class="s2">&quot;virtual_estimate&quot;</span><span class="p">),</span>
-    <span class="s2">&quot;confidence&quot;</span><span class="p">:</span> <span class="mf">0.75</span><span class="p">,</span>  <span class="c1"># أقل لأنه تقدير افتراضي</span>
+    <span class="s2">"badge"</span><span class="p">:</span> <span class="n">create_badge</span><span class="p">(</span><span class="s2">"virtual_estimate"</span><span class="p">),</span>
+    <span class="s2">"confidence"</span><span class="p">:</span> <span class="mf">0.75</span><span class="p">,</span>  <span class="c1"># أقل لأنه تقدير افتراضي</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1515,10 +1515,10 @@ SERVICE_PORT=8XXX
 </code></pre></div>
 
 <h3 id="mainpy">مثال: main.py للجسر<a class="headerlink" href="#mainpy" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="sd">&quot;&quot;&quot;</span>
+<div class="codehilite"><pre><span></span><code><span class="sd">"""</span>
 <span class="sd">Python Bridge for [Service Name]</span>
 <span class="sd">Field-First Architecture - يحول مخرجات الخدمة إلى ActionTemplates</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastAPI</span><span class="p">,</span> <span class="n">BackgroundTasks</span><span class="p">,</span> <span class="n">HTTPException</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
@@ -1526,12 +1526,12 @@ SERVICE_PORT=8XXX
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
 <span class="c1"># إعدادات</span>
-<span class="n">ORIGINAL_SERVICE_URL</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;ORIGINAL_SERVICE_URL&quot;</span><span class="p">,</span> <span class="s2">&quot;http://localhost:8097&quot;</span><span class="p">)</span>
-<span class="n">BRIDGE_PORT</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;BRIDGE_PORT&quot;</span><span class="p">,</span> <span class="s2">&quot;8098&quot;</span><span class="p">))</span>
+<span class="n">ORIGINAL_SERVICE_URL</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"ORIGINAL_SERVICE_URL"</span><span class="p">,</span> <span class="s2">"http://localhost:8097"</span><span class="p">)</span>
+<span class="n">BRIDGE_PORT</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"BRIDGE_PORT"</span><span class="p">,</span> <span class="s2">"8098"</span><span class="p">))</span>
 
 <span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span>
-    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;My Service - Python Bridge&quot;</span><span class="p">,</span>
-    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;15.5.0&quot;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">"My Service - Python Bridge"</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="s2">"15.5.0"</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="c1"># --- Models ---</span>
@@ -1546,22 +1546,22 @@ SERVICE_PORT=8XXX
 
 <span class="c1"># --- Endpoints ---</span>
 
-<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/v1/analyze-with-action&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">BridgeResponse</span><span class="p">)</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">"/v1/analyze-with-action"</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">BridgeResponse</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">analyze_with_action</span><span class="p">(</span>
     <span class="n">request</span><span class="p">:</span> <span class="n">BridgeRequest</span><span class="p">,</span>
     <span class="n">background_tasks</span><span class="p">:</span> <span class="n">BackgroundTasks</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    1. استدعاء الخدمة الأصلية</span>
 <span class="sd">    2. تحويل النتيجة إلى ActionTemplate</span>
 <span class="sd">    3. نشر إلى NATS</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># 1. استدعاء الخدمة الأصلية</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ORIGINAL_SERVICE_URL</span><span class="si">}</span><span class="s2">/original-endpoint&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ORIGINAL_SERVICE_URL</span><span class="si">}</span><span class="s2">/original-endpoint"</span><span class="p">,</span>
                 <span class="n">json</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(),</span>
                 <span class="n">timeout</span><span class="o">=</span><span class="mf">30.0</span><span class="p">,</span>
             <span class="p">)</span>
@@ -1570,7 +1570,7 @@ SERVICE_PORT=8XXX
         <span class="k">except</span> <span class="n">httpx</span><span class="o">.</span><span class="n">HTTPError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span>
                 <span class="n">status_code</span><span class="o">=</span><span class="mi">502</span><span class="p">,</span>
-                <span class="n">detail</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Original service error: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">detail</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Original service error: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
 
     <span class="c1"># 2. تحويل إلى ActionTemplate</span>
@@ -1580,7 +1580,7 @@ SERVICE_PORT=8XXX
     <span class="p">)</span>
 
     <span class="c1"># 3. نشر إلى NATS</span>
-    <span class="k">if</span> <span class="n">action_template</span><span class="p">[</span><span class="s2">&quot;priority&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;high&quot;</span><span class="p">,</span> <span class="s2">&quot;critical&quot;</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">action_template</span><span class="p">[</span><span class="s2">"priority"</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"high"</span><span class="p">,</span> <span class="s2">"critical"</span><span class="p">]:</span>
         <span class="n">background_tasks</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span>
             <span class="n">publish_to_nats</span><span class="p">,</span>
             <span class="n">action_template</span><span class="o">=</span><span class="n">action_template</span><span class="p">,</span>
@@ -1592,30 +1592,30 @@ SERVICE_PORT=8XXX
     <span class="p">)</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">convert_to_action_template</span><span class="p">(</span><span class="n">original_result</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;تحويل نتيجة الخدمة الأصلية إلى ActionTemplate&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""تحويل نتيجة الخدمة الأصلية إلى ActionTemplate"""</span>
     <span class="c1"># منطق التحويل</span>
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;action-</span><span class="si">{</span><span class="n">field_id</span><span class="si">}</span><span class="s2">-...&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;what&quot;</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span><span class="p">,</span>
+        <span class="s2">"id"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"action-</span><span class="si">{</span><span class="n">field_id</span><span class="si">}</span><span class="s2">-..."</span><span class="p">,</span>
+        <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"..."</span><span class="p">,</span>
+        <span class="s2">"what"</span><span class="p">:</span> <span class="s2">"..."</span><span class="p">,</span>
         <span class="c1"># ...</span>
     <span class="p">}</span>
 
 <span class="c1"># --- Health ---</span>
 
-<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/health&quot;</span><span class="p">)</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/health"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">health</span><span class="p">():</span>
-    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;healthy&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;python-bridge&quot;</span><span class="p">}</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">"status"</span><span class="p">:</span> <span class="s2">"healthy"</span><span class="p">,</span> <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"python-bridge"</span><span class="p">}</span>
 
 <span class="c1"># --- Main ---</span>
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">uvicorn</span>
-    <span class="n">uvicorn</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s2">&quot;0.0.0.0&quot;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">BRIDGE_PORT</span><span class="p">)</span>
+    <span class="n">uvicorn</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s2">"0.0.0.0"</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">BRIDGE_PORT</span><span class="p">)</span>
 </code></pre></div>
 
 <h3 id="docker-composeyml">docker-compose.yml<a class="headerlink" href="#docker-composeyml" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.8&quot;</span>
+<div class="codehilite"><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"3.8"</span>
 
 <span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">my-service-original</span><span class="p">:</span>
@@ -1623,7 +1623,7 @@ SERVICE_PORT=8XXX
 <span class="w">      </span><span class="nt">context</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.</span>
 <span class="w">      </span><span class="nt">dockerfile</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Dockerfile</span><span class="w"> </span><span class="c1"># للخدمة الأصلية</span>
 <span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;8097:8097&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"8097:8097"</span>
 <span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PORT=8097</span>
 
@@ -1631,7 +1631,7 @@ SERVICE_PORT=8XXX
 <span class="w">    </span><span class="nt">build</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">context</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./python-bridge</span>
 <span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;8098:8098&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"8098:8098"</span>
 <span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ORIGINAL_SERVICE_URL=http://my-service-original:8097</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">BRIDGE_PORT=8098</span>
@@ -1643,13 +1643,13 @@ SERVICE_PORT=8XXX
 <span class="w">  </span><span class="nt">nats</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nats:latest</span>
 <span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;4222:4222&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"4222:4222"</span>
 </code></pre></div>
 
 <hr />
 <h2 id="practical-examples"><a name="examples"></a>💡 أمثلة عملية | Practical Examples<a class="headerlink" href="#practical-examples" title="Permanent link">&para;</a></h2>
 <h3 id="1_2">مثال 1: خدمة توقع الطقس<a class="headerlink" href="#1_2" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/v1/forecast-with-action&quot;</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">"/v1/forecast-with-action"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">forecast_with_action</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">ForecastRequest</span><span class="p">):</span>
 
     <span class="c1"># الحصول على التوقع</span>
@@ -1661,64 +1661,64 @@ SERVICE_PORT=8XXX
     <span class="c1"># إنشاء ActionTemplate إذا وجدت مخاطر</span>
     <span class="k">if</span> <span class="n">risks</span><span class="p">:</span>
         <span class="n">action_template</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;weather_protection&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;priority&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span> <span class="k">if</span> <span class="n">risks</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;severity&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;severe&quot;</span> <span class="k">else</span> <span class="s2">&quot;medium&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;what&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;تحضير للـ</span><span class="si">{</span><span class="n">risks</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;why&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;توقع </span><span class="si">{</span><span class="n">risks</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> خلال </span><span class="si">{</span><span class="n">risks</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;hours_until&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> ساعة&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;when&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s2">&quot;deadline&quot;</span><span class="p">:</span> <span class="n">risks</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;expected_time&quot;</span><span class="p">],</span>
-                <span class="s2">&quot;optimal_window&quot;</span><span class="p">:</span> <span class="s2">&quot;قبل الحدث بـ 6 ساعات&quot;</span>
+            <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"weather_protection"</span><span class="p">,</span>
+            <span class="s2">"priority"</span><span class="p">:</span> <span class="s2">"high"</span> <span class="k">if</span> <span class="n">risks</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"severity"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"severe"</span> <span class="k">else</span> <span class="s2">"medium"</span><span class="p">,</span>
+            <span class="s2">"what"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"تحضير للـ</span><span class="si">{</span><span class="n">risks</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">'type'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+            <span class="s2">"why"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"توقع </span><span class="si">{</span><span class="n">risks</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">'type'</span><span class="p">]</span><span class="si">}</span><span class="s2"> خلال </span><span class="si">{</span><span class="n">risks</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">'hours_until'</span><span class="p">]</span><span class="si">}</span><span class="s2"> ساعة"</span><span class="p">,</span>
+            <span class="s2">"when"</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">"deadline"</span><span class="p">:</span> <span class="n">risks</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"expected_time"</span><span class="p">],</span>
+                <span class="s2">"optimal_window"</span><span class="p">:</span> <span class="s2">"قبل الحدث بـ 6 ساعات"</span>
             <span class="p">},</span>
-            <span class="s2">&quot;how&quot;</span><span class="p">:</span> <span class="n">risks</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;protection_steps&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;fallback&quot;</span><span class="p">:</span> <span class="n">risks</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;fallback_action&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;badge&quot;</span><span class="p">:</span> <span class="n">create_badge</span><span class="p">(</span><span class="s2">&quot;model_prediction&quot;</span><span class="p">),</span>
+            <span class="s2">"how"</span><span class="p">:</span> <span class="n">risks</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"protection_steps"</span><span class="p">],</span>
+            <span class="s2">"fallback"</span><span class="p">:</span> <span class="n">risks</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"fallback_action"</span><span class="p">],</span>
+            <span class="s2">"badge"</span><span class="p">:</span> <span class="n">create_badge</span><span class="p">(</span><span class="s2">"model_prediction"</span><span class="p">),</span>
         <span class="p">}</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">action_template</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;forecast&quot;</span><span class="p">:</span> <span class="n">forecast</span><span class="p">,</span>
-        <span class="s2">&quot;risks&quot;</span><span class="p">:</span> <span class="n">risks</span><span class="p">,</span>
-        <span class="s2">&quot;action_template&quot;</span><span class="p">:</span> <span class="n">action_template</span><span class="p">,</span>
+        <span class="s2">"forecast"</span><span class="p">:</span> <span class="n">forecast</span><span class="p">,</span>
+        <span class="s2">"risks"</span><span class="p">:</span> <span class="n">risks</span><span class="p">,</span>
+        <span class="s2">"action_template"</span><span class="p">:</span> <span class="n">action_template</span><span class="p">,</span>
     <span class="p">}</span>
 </code></pre></div>
 
 <h3 id="2">مثال 2: خدمة كشف الآفات<a class="headerlink" href="#2" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/v1/detect-pests-with-action&quot;</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">"/v1/detect-pests-with-action"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">detect_pests_with_action</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">PestDetectionRequest</span><span class="p">):</span>
 
     <span class="c1"># تحليل الصورة</span>
     <span class="n">detections</span> <span class="o">=</span> <span class="n">analyze_image_for_pests</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">image_url</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">detections</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;detections&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;action_template&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"detections"</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">"action_template"</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
 
     <span class="c1"># أعلى كشف</span>
-    <span class="n">top_detection</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">detections</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;confidence&quot;</span><span class="p">])</span>
+    <span class="n">top_detection</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">detections</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s2">"confidence"</span><span class="p">])</span>
 
     <span class="n">action_template</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;pest_alert&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;priority&quot;</span><span class="p">:</span> <span class="s2">&quot;critical&quot;</span> <span class="k">if</span> <span class="n">top_detection</span><span class="p">[</span><span class="s2">&quot;severity&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;high&quot;</span> <span class="k">else</span> <span class="s2">&quot;high&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;what&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;معالجة </span><span class="si">{</span><span class="n">top_detection</span><span class="p">[</span><span class="s1">&#39;pest_name_ar&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;why&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;تم الكشف عن </span><span class="si">{</span><span class="n">top_detection</span><span class="p">[</span><span class="s1">&#39;pest_name_ar&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> بثقة </span><span class="si">{</span><span class="n">top_detection</span><span class="p">[</span><span class="s1">&#39;confidence&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;when&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;deadline&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">24</span><span class="p">))</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
-            <span class="s2">&quot;optimal_window&quot;</span><span class="p">:</span> <span class="s2">&quot;صباحاً باكراً قبل الحرارة&quot;</span>
+        <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"pest_alert"</span><span class="p">,</span>
+        <span class="s2">"priority"</span><span class="p">:</span> <span class="s2">"critical"</span> <span class="k">if</span> <span class="n">top_detection</span><span class="p">[</span><span class="s2">"severity"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"high"</span> <span class="k">else</span> <span class="s2">"high"</span><span class="p">,</span>
+        <span class="s2">"what"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"معالجة </span><span class="si">{</span><span class="n">top_detection</span><span class="p">[</span><span class="s1">'pest_name_ar'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+        <span class="s2">"why"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"تم الكشف عن </span><span class="si">{</span><span class="n">top_detection</span><span class="p">[</span><span class="s1">'pest_name_ar'</span><span class="p">]</span><span class="si">}</span><span class="s2"> بثقة </span><span class="si">{</span><span class="n">top_detection</span><span class="p">[</span><span class="s1">'confidence'</span><span class="p">]</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">%"</span><span class="p">,</span>
+        <span class="s2">"when"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"deadline"</span><span class="p">:</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">24</span><span class="p">))</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+            <span class="s2">"optimal_window"</span><span class="p">:</span> <span class="s2">"صباحاً باكراً قبل الحرارة"</span>
         <span class="p">},</span>
-        <span class="s2">&quot;how&quot;</span><span class="p">:</span> <span class="p">[</span>
-            <span class="sa">f</span><span class="s2">&quot;استخدم مبيد </span><span class="si">{</span><span class="n">top_detection</span><span class="p">[</span><span class="s1">&#39;recommended_pesticide&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s2">&quot;الجرعة: </span><span class="si">{</span><span class="n">top_detection</span><span class="p">[</span><span class="s1">&#39;dosage&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;رش على الأوراق المصابة&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;كرر بعد 7 أيام إذا لزم الأمر&quot;</span><span class="p">,</span>
+        <span class="s2">"how"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="sa">f</span><span class="s2">"استخدم مبيد </span><span class="si">{</span><span class="n">top_detection</span><span class="p">[</span><span class="s1">'recommended_pesticide'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"الجرعة: </span><span class="si">{</span><span class="n">top_detection</span><span class="p">[</span><span class="s1">'dosage'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+            <span class="s2">"رش على الأوراق المصابة"</span><span class="p">,</span>
+            <span class="s2">"كرر بعد 7 أيام إذا لزم الأمر"</span><span class="p">,</span>
         <span class="p">],</span>
-        <span class="s2">&quot;fallback&quot;</span><span class="p">:</span> <span class="s2">&quot;إذا لم يتوفر المبيد: إزالة يدوية للأوراق المصابة&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;badge&quot;</span><span class="p">:</span> <span class="n">create_badge</span><span class="p">(</span><span class="s2">&quot;satellite_reading&quot;</span><span class="p">),</span>
-        <span class="s2">&quot;confidence&quot;</span><span class="p">:</span> <span class="n">top_detection</span><span class="p">[</span><span class="s2">&quot;confidence&quot;</span><span class="p">],</span>
+        <span class="s2">"fallback"</span><span class="p">:</span> <span class="s2">"إذا لم يتوفر المبيد: إزالة يدوية للأوراق المصابة"</span><span class="p">,</span>
+        <span class="s2">"badge"</span><span class="p">:</span> <span class="n">create_badge</span><span class="p">(</span><span class="s2">"satellite_reading"</span><span class="p">),</span>
+        <span class="s2">"confidence"</span><span class="p">:</span> <span class="n">top_detection</span><span class="p">[</span><span class="s2">"confidence"</span><span class="p">],</span>
     <span class="p">}</span>
 
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;detections&quot;</span><span class="p">:</span> <span class="n">detections</span><span class="p">,</span>
-        <span class="s2">&quot;action_template&quot;</span><span class="p">:</span> <span class="n">action_template</span><span class="p">,</span>
+        <span class="s2">"detections"</span><span class="p">:</span> <span class="n">detections</span><span class="p">,</span>
+        <span class="s2">"action_template"</span><span class="p">:</span> <span class="n">action_template</span><span class="p">,</span>
     <span class="p">}</span>
 </code></pre></div>
 
@@ -1730,11 +1730,11 @@ SERVICE_PORT=8XXX
 
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">check_nats</span><span class="p">():</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">nc</span> <span class="o">=</span> <span class="k">await</span> <span class="n">nats</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;nats://localhost:4222&quot;</span><span class="p">)</span>
+        <span class="n">nc</span> <span class="o">=</span> <span class="k">await</span> <span class="n">nats</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">"nats://localhost:4222"</span><span class="p">)</span>
         <span class="k">await</span> <span class="n">nc</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="k">return</span> <span class="kc">True</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;NATS connection failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"NATS connection failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">False</span>
 
 <span class="c1"># الحل</span>
@@ -1752,7 +1752,7 @@ SERVICE_PORT=8XXX
         <span class="n">ActionTemplate</span><span class="p">(</span><span class="o">**</span><span class="n">template</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">True</span>
     <span class="k">except</span> <span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid template: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid template: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">False</span>
 
 <span class="c1"># الحل</span>
@@ -1836,10 +1836,10 @@ SERVICE_PORT=8XXX
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

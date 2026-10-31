@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1193,19 +1193,19 @@
 - <code>tests/smoke/test_fixops_smoke.py</code></p>
 <p><strong>أفضل طريقة للإصلاح</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># بدلاً من:</span>
-<span class="n">cmd</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;npx eslint </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> --format json </span><span class="si">{</span><span class="n">fix_flag</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<span class="n">cmd</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"npx eslint </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> --format json </span><span class="si">{</span><span class="n">fix_flag</span><span class="si">}</span><span class="s2">"</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">split</span><span class="p">(),</span> <span class="o">...</span><span class="p">)</span>
 
 <span class="c1"># استخدم قائمة وسائط مباشرة:</span>
-<span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;npx&quot;</span><span class="p">,</span> <span class="s2">&quot;eslint&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="s2">&quot;--format&quot;</span><span class="p">,</span> <span class="s2">&quot;json&quot;</span><span class="p">]</span>
+<span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"npx"</span><span class="p">,</span> <span class="s2">"eslint"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="s2">"--format"</span><span class="p">,</span> <span class="s2">"json"</span><span class="p">]</span>
 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">auto_fix</span><span class="p">:</span>
-    <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--fix&quot;</span><span class="p">)</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"--fix"</span><span class="p">)</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
 
 <span class="c1"># نفس النمط لـ Biome:</span>
-<span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;npx&quot;</span><span class="p">,</span> <span class="s2">&quot;@biomejs/biome&quot;</span><span class="p">,</span> <span class="s2">&quot;check&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="s2">&quot;--reporter&quot;</span><span class="p">,</span> <span class="s2">&quot;json&quot;</span><span class="p">]</span>
+<span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"npx"</span><span class="p">,</span> <span class="s2">"@biomejs/biome"</span><span class="p">,</span> <span class="s2">"check"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="s2">"--reporter"</span><span class="p">,</span> <span class="s2">"json"</span><span class="p">]</span>
 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">auto_fix</span><span class="p">:</span>
-    <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;--write&quot;</span><span class="p">)</span>
+    <span class="n">cmd</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"--write"</span><span class="p">)</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
 </code></pre></div>
 
@@ -1219,17 +1219,17 @@
 
 <span class="k">class</span><span class="w"> </span><span class="nc">PriceStorage</span><span class="p">:</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">storage_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="n">_default</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">(),</span> <span class="s2">&quot;sahool_market_prices&quot;</span><span class="p">)</span>
-        <span class="n">resolved</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">storage_path</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;MARKET_PRICES_STORAGE_PATH&quot;</span><span class="p">,</span> <span class="n">_default</span><span class="p">))</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
-        <span class="n">_allowed</span> <span class="o">=</span> <span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">(),</span> <span class="s2">&quot;/var/lib/sahool&quot;</span><span class="p">)</span>
+        <span class="n">_default</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">(),</span> <span class="s2">"sahool_market_prices"</span><span class="p">)</span>
+        <span class="n">resolved</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">storage_path</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"MARKET_PRICES_STORAGE_PATH"</span><span class="p">,</span> <span class="n">_default</span><span class="p">))</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+        <span class="n">_allowed</span> <span class="o">=</span> <span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">(),</span> <span class="s2">"/var/lib/sahool"</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">resolved</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">_allowed</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;storage_path must be under </span><span class="si">{</span><span class="n">_allowed</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"storage_path must be under </span><span class="si">{</span><span class="n">_allowed</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">storage_path</span> <span class="o">=</span> <span class="n">resolved</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">save_price</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">price</span><span class="p">:</span> <span class="n">CropPrice</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># تعقيم market_id لمنع اجتياز المسار</span>
-        <span class="n">safe_id</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[^a-zA-Z0-9_-]&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">price</span><span class="o">.</span><span class="n">market_id</span><span class="p">)</span>
-        <span class="n">file_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">storage_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;prices_</span><span class="si">{</span><span class="n">safe_id</span><span class="si">}</span><span class="s2">.jsonl&quot;</span>
+        <span class="n">safe_id</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[^a-zA-Z0-9_-]"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="n">price</span><span class="o">.</span><span class="n">market_id</span><span class="p">)</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">storage_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"prices_</span><span class="si">{</span><span class="n">safe_id</span><span class="si">}</span><span class="s2">.jsonl"</span>
 </code></pre></div>
 
 <h3 id="13-c-08-enginepy">1.3 — C-08: قسمة على صفر في engine.py<a class="headerlink" href="#13-c-08-enginepy" title="Permanent link">&para;</a></h3>
@@ -1258,13 +1258,13 @@
 <div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">bcrypt</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">hash_backup_code</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Hash a backup code with bcrypt for secure storage.&quot;&quot;&quot;</span>
-    <span class="n">clean_code</span> <span class="o">=</span> <span class="n">code</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<span class="w">    </span><span class="sd">"""Hash a backup code with bcrypt for secure storage."""</span>
+    <span class="n">clean_code</span> <span class="o">=</span> <span class="n">code</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"-"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">bcrypt</span><span class="o">.</span><span class="n">hashpw</span><span class="p">(</span><span class="n">clean_code</span><span class="o">.</span><span class="n">encode</span><span class="p">(),</span> <span class="n">bcrypt</span><span class="o">.</span><span class="n">gensalt</span><span class="p">(</span><span class="n">rounds</span><span class="o">=</span><span class="mi">12</span><span class="p">))</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">verify_backup_code</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">stored_hash</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Verify a backup code against its bcrypt hash.&quot;&quot;&quot;</span>
-    <span class="n">clean_code</span> <span class="o">=</span> <span class="n">code</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<span class="w">    </span><span class="sd">"""Verify a backup code against its bcrypt hash."""</span>
+    <span class="n">clean_code</span> <span class="o">=</span> <span class="n">code</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"-"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
     <span class="c1"># دعم الترحيل: تحقق من النوع القديم (sha256 hex = 64 chars) والجديد (bcrypt)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">stored_hash</span><span class="p">)</span> <span class="o">==</span> <span class="mi">64</span><span class="p">:</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
@@ -1278,7 +1278,7 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
     <span class="c1"># استخدام قفل asyncio لمنع الاستخدام المتزامن</span>
     <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backup_code_lock</span><span class="p">:</span>
-        <span class="n">clean_code</span> <span class="o">=</span> <span class="n">code</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">clean_code</span> <span class="o">=</span> <span class="n">code</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"-"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">stored_hash</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">hashed_codes</span><span class="p">):</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verify_backup_code</span><span class="p">(</span><span class="n">clean_code</span><span class="p">,</span> <span class="n">stored_hash</span><span class="p">):</span>
                 <span class="n">remaining</span> <span class="o">=</span> <span class="n">hashed_codes</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">hashed_codes</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
@@ -1312,22 +1312,22 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">urllib.parse</span><span class="w"> </span><span class="kn">import</span> <span class="n">urlparse</span>
 
 <span class="n">_BLOCKED_CIDRS</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">&quot;10.0.0.0/8&quot;</span><span class="p">),</span>
-    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">&quot;172.16.0.0/12&quot;</span><span class="p">),</span>
-    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">&quot;192.168.0.0/16&quot;</span><span class="p">),</span>
-    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">&quot;127.0.0.0/8&quot;</span><span class="p">),</span>
-    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">&quot;169.254.0.0/16&quot;</span><span class="p">),</span>
-    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">&quot;::1/128&quot;</span><span class="p">),</span>
-    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">&quot;fc00::/7&quot;</span><span class="p">),</span>
+    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">"10.0.0.0/8"</span><span class="p">),</span>
+    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">"172.16.0.0/12"</span><span class="p">),</span>
+    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">"192.168.0.0/16"</span><span class="p">),</span>
+    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">"127.0.0.0/8"</span><span class="p">),</span>
+    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">"169.254.0.0/16"</span><span class="p">),</span>
+    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">"::1/128"</span><span class="p">),</span>
+    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">"fc00::/7"</span><span class="p">),</span>
 <span class="p">]</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_validate_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate URL to prevent SSRF attacks.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Validate URL to prevent SSRF attacks."""</span>
     <span class="n">parsed</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">parsed</span><span class="o">.</span><span class="n">scheme</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;http&quot;</span><span class="p">,</span> <span class="s2">&quot;https&quot;</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported URL scheme: </span><span class="si">{</span><span class="n">parsed</span><span class="o">.</span><span class="n">scheme</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">parsed</span><span class="o">.</span><span class="n">scheme</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"http"</span><span class="p">,</span> <span class="s2">"https"</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unsupported URL scheme: </span><span class="si">{</span><span class="n">parsed</span><span class="o">.</span><span class="n">scheme</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">parsed</span><span class="o">.</span><span class="n">hostname</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;URL must have a hostname&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"URL must have a hostname"</span><span class="p">)</span>
 
     <span class="c1"># Resolve hostname and check against blocked networks</span>
     <span class="k">try</span><span class="p">:</span>
@@ -1336,10 +1336,10 @@
             <span class="k">for</span> <span class="n">cidr</span> <span class="ow">in</span> <span class="n">_BLOCKED_CIDRS</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">addr</span> <span class="ow">in</span> <span class="n">cidr</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;URL resolves to blocked network: </span><span class="si">{</span><span class="n">cidr</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">"URL resolves to blocked network: </span><span class="si">{</span><span class="n">cidr</span><span class="si">}</span><span class="s2">"</span>
                     <span class="p">)</span>
     <span class="k">except</span> <span class="n">socket</span><span class="o">.</span><span class="n">gaierror</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot resolve hostname: </span><span class="si">{</span><span class="n">parsed</span><span class="o">.</span><span class="n">hostname</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Cannot resolve hostname: </span><span class="si">{</span><span class="n">parsed</span><span class="o">.</span><span class="n">hostname</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">navigate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_validate_url</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>  <span class="c1"># ← إضافة هذا السطر</span>
@@ -1353,11 +1353,11 @@
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">urllib.parse</span><span class="w"> </span><span class="kn">import</span> <span class="n">urlparse</span><span class="p">,</span> <span class="n">urlunparse</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_safe_url</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove credentials from Redis URL for logging.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Remove credentials from Redis URL for logging."""</span>
     <span class="n">parsed</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">parsed</span><span class="o">.</span><span class="n">password</span><span class="p">:</span>
         <span class="n">safe</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span>
-            <span class="n">netloc</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;***:***@</span><span class="si">{</span><span class="n">parsed</span><span class="o">.</span><span class="n">hostname</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">parsed</span><span class="o">.</span><span class="n">port</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="mi">6379</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">netloc</span><span class="o">=</span><span class="sa">f</span><span class="s2">"***:***@</span><span class="si">{</span><span class="n">parsed</span><span class="o">.</span><span class="n">hostname</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">parsed</span><span class="o">.</span><span class="n">port</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="mi">6379</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">urlunparse</span><span class="p">(</span><span class="n">safe</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">url</span>
@@ -1373,14 +1373,14 @@
 <p>جميع ملفات عزل المستأجرين تتبع نفس النمط:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># 1. التحقق من وجود tenant_id</span>
 <span class="k">if</span> <span class="ow">not</span> <span class="n">tenant_id</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;tenant_id is required&quot;</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"tenant_id is required"</span><span class="p">)</span>
 
 <span class="c1"># 2. تصفية جميع الاستعلامات بـ tenant_id</span>
 <span class="n">items</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">tenant_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">tenant_id</span><span class="p">]</span>
 
 <span class="c1"># 3. التحقق من الملكية قبل التعديل</span>
 <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">tenant_id</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tenant_id</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="n">ForbiddenException</span><span class="p">(</span><span class="s2">&quot;Cannot access resource from another tenant&quot;</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="n">ForbiddenException</span><span class="p">(</span><span class="s2">"Cannot access resource from another tenant"</span><span class="p">)</span>
 </code></pre></div>
 
 <h3 id="41-c-06-h-05">4.1 — مجموعة المزامنة (C-06 + H-05)<a class="headerlink" href="#41-c-06-h-05" title="Permanent link">&para;</a></h3>
@@ -1633,20 +1633,20 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">urllib.parse</span><span class="w"> </span><span class="kn">import</span> <span class="n">urlparse</span>
 
 <span class="n">_BLOCKED_CIDRS</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">&quot;10.0.0.0/8&quot;</span><span class="p">),</span>
-    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">&quot;172.16.0.0/12&quot;</span><span class="p">),</span>
-    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">&quot;192.168.0.0/16&quot;</span><span class="p">),</span>
-    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">&quot;127.0.0.0/8&quot;</span><span class="p">),</span>
-    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">&quot;169.254.0.0/16&quot;</span><span class="p">),</span>
-    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">&quot;::1/128&quot;</span><span class="p">),</span>
-    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">&quot;fc00::/7&quot;</span><span class="p">),</span>
+    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">"10.0.0.0/8"</span><span class="p">),</span>
+    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">"172.16.0.0/12"</span><span class="p">),</span>
+    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">"192.168.0.0/16"</span><span class="p">),</span>
+    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">"127.0.0.0/8"</span><span class="p">),</span>
+    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">"169.254.0.0/16"</span><span class="p">),</span>
+    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">"::1/128"</span><span class="p">),</span>
+    <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_network</span><span class="p">(</span><span class="s2">"fc00::/7"</span><span class="p">),</span>
 <span class="p">]</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_validate_base_url</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">url</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="n">parsed</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">parsed</span><span class="o">.</span><span class="n">scheme</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;http&quot;</span><span class="p">,</span> <span class="s2">&quot;https&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">parsed</span><span class="o">.</span><span class="n">scheme</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"http"</span><span class="p">,</span> <span class="s2">"https"</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">parsed</span><span class="o">.</span><span class="n">hostname</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
@@ -1656,7 +1656,7 @@
             <span class="n">addr</span> <span class="o">=</span> <span class="n">ipaddress</span><span class="o">.</span><span class="n">ip_address</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
             <span class="k">for</span> <span class="n">cidr</span> <span class="ow">in</span> <span class="n">_BLOCKED_CIDRS</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">addr</span> <span class="ow">in</span> <span class="n">cidr</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;LLM base_url resolves to blocked network: </span><span class="si">{</span><span class="n">cidr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"LLM base_url resolves to blocked network: </span><span class="si">{</span><span class="n">cidr</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">socket</span><span class="o">.</span><span class="n">gaierror</span><span class="p">:</span>
         <span class="k">pass</span>  <span class="c1"># Allow unresolvable hostnames (may resolve at runtime)</span>
     <span class="k">return</span> <span class="n">url</span>
@@ -1667,14 +1667,14 @@
 <strong>الأسطر</strong>: 244-252</p>
 <p><strong>أفضل طريقة للإصلاح</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handle_tools_call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-    <span class="n">tool_name</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-    <span class="n">arguments</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;arguments&quot;</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="n">tool_name</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"name"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">arguments</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"arguments"</span><span class="p">,</span> <span class="p">{})</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">tool_name</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Tool name is required&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Tool name is required"</span><span class="p">)</span>
     <span class="c1"># Validate against registered tools</span>
-    <span class="n">registered</span> <span class="o">=</span> <span class="p">{</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">get_tool_definitions</span><span class="p">()}</span>
+    <span class="n">registered</span> <span class="o">=</span> <span class="p">{</span><span class="n">t</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">get_tool_definitions</span><span class="p">()}</span>
     <span class="k">if</span> <span class="n">tool_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">registered</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown tool: </span><span class="si">{</span><span class="n">tool_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unknown tool: </span><span class="si">{</span><span class="n">tool_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">tools</span><span class="o">.</span><span class="n">invoke_tool</span><span class="p">(</span><span class="n">tool_name</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
 </code></pre></div>
 
@@ -1841,10 +1841,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1165,9 +1165,9 @@
 <hr />
 <h2 id="1-current-state-analysis">1. Current State Analysis | تحليل الوضع الحالي<a class="headerlink" href="#1-current-state-analysis" title="Permanent link">&para;</a></h2>
 <h3 id="11-subject-pattern-current-flat">1.1 Subject Pattern (Current - Flat)<a class="headerlink" href="#11-subject-pattern-current-flat" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code>sahool.field.created          ← ALL tenants&#39; field events on same channel
-sahool.task.updated           ← ALL tenants&#39; task events on same channel
-sahool.vision.pest_detected   ← ALL tenants&#39; vision events on same channel
+<div class="codehilite"><pre><span></span><code>sahool.field.created          ← ALL tenants' field events on same channel
+sahool.task.updated           ← ALL tenants' task events on same channel
+sahool.vision.pest_detected   ← ALL tenants' vision events on same channel
 </code></pre></div>
 
 <h3 id="12-target-pattern-tenant-scoped">1.2 Target Pattern (Tenant-Scoped)<a class="headerlink" href="#12-target-pattern-tenant-scoped" title="Permanent link">&para;</a></h3>
@@ -1394,10 +1394,10 @@ Phase 4: Cleanup           → Remove old flat subjects, enforce tenant-only
 <div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">BaseEvent</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
     <span class="n">event_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=...</span><span class="p">)</span>
     <span class="n">timestamp</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=...</span><span class="p">)</span>
-    <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span><span class="p">)</span>
+    <span class="n">version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">"1.0"</span><span class="p">)</span>
     <span class="n">source_service</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
     <span class="n">correlation_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
-    <span class="n">tenant_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Tenant identifier (required)&quot;</span><span class="p">)</span>  <span class="c1"># NEW</span>
+    <span class="n">tenant_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"Tenant identifier (required)"</span><span class="p">)</span>  <span class="c1"># NEW</span>
 </code></pre></div>
 
 <p><strong>Impact</strong>: All event contracts already have <code>tenant_id</code> in their domain-specific fields, but making it part of <code>BaseEvent</code> ensures it's always present.</p>
@@ -1412,11 +1412,11 @@ Phase 4: Cleanup           → Remove old flat subjects, enforce tenant-only
     <span class="n">tenant_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">dual_publish</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>  <span class="c1"># Transition flag</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Publish event with tenant-scoped subject.</span>
 <span class="sd">    During migration (dual_publish=True): publishes to BOTH subjects.</span>
 <span class="sd">    After migration (dual_publish=False): publishes only to tenant subject.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">tenant_id</span> <span class="o">=</span> <span class="n">tenant_id</span> <span class="ow">or</span> <span class="n">event</span><span class="o">.</span><span class="n">tenant_id</span>
 
     <span class="c1"># New tenant-scoped subject</span>
@@ -1425,7 +1425,7 @@ Phase 4: Cleanup           → Remove old flat subjects, enforce tenant-only
 
     <span class="c1"># Legacy flat subject (during migration)</span>
     <span class="k">if</span> <span class="n">dual_publish</span><span class="p">:</span>
-        <span class="n">legacy_subject</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;sahool.</span><span class="si">{</span><span class="n">domain</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">action</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">legacy_subject</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"sahool.</span><span class="si">{</span><span class="n">domain</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">action</span><span class="si">}</span><span class="s2">"</span>
         <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">publish_event</span><span class="p">(</span><span class="n">legacy_subject</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">result</span>
@@ -1438,14 +1438,14 @@ Phase 4: Cleanup           → Remove old flat subjects, enforce tenant-only
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">tenant_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># None = all tenants (admin services)</span>
     <span class="n">domain</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">action</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span>
+    <span class="n">action</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"*"</span><span class="p">,</span>
     <span class="n">handler</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Subscribe to tenant-scoped events.</span>
 <span class="sd">    If tenant_id is None, subscribes to all tenants (admin/system use).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">tenant_id</span><span class="p">:</span>
         <span class="n">subject</span> <span class="o">=</span> <span class="n">get_tenant_subject</span><span class="p">(</span><span class="n">tenant_id</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">action</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -1458,7 +1458,7 @@ Phase 4: Cleanup           → Remove old flat subjects, enforce tenant-only
 <p><strong>File</strong>: <code>config/nats/jetstream-tenant-streams.conf</code> (new)</p>
 <div class="codehilite"><pre><span></span><code><span class="gh">#</span> Tenant-scoped streams (one per domain)
 STREAM sahool-tenant-field {
-    subjects = [&quot;sahool.tenant.*.field.&gt;&quot;]
+    subjects = ["sahool.tenant.*.field.&gt;"]
     retention = limits
     max_age = 72h
     max_bytes = 1GB
@@ -1468,7 +1468,7 @@ STREAM sahool-tenant-field {
 }
 
 STREAM sahool-tenant-task {
-    subjects = [&quot;sahool.tenant.*.task.&gt;&quot;]
+    subjects = ["sahool.tenant.*.task.&gt;"]
     ...
 }
 
@@ -1478,12 +1478,12 @@ STREAM sahool-tenant-task {
 <h3 id="35-nats-authorization-optional-phase-1b">3.5 NATS Authorization (Optional - Phase 1b)<a class="headerlink" href="#35-nats-authorization-optional-phase-1b" title="Permanent link">&para;</a></h3>
 <p>If NATS auth is enabled, configure per-tenant publish/subscribe permissions:</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;tenant_user_org_123&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;publish&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;allow&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;sahool.tenant.org_123.&gt;&quot;</span><span class="p">]</span>
+<span class="w">  </span><span class="nt">"tenant_user_org_123"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"publish"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"allow"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"sahool.tenant.org_123.&gt;"</span><span class="p">]</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">&quot;subscribe&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;allow&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;sahool.tenant.org_123.&gt;&quot;</span><span class="p">]</span>
+<span class="w">    </span><span class="nt">"subscribe"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"allow"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"sahool.tenant.org_123.&gt;"</span><span class="p">]</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
@@ -1836,12 +1836,12 @@ STREAM sahool-tenant-task {
 <div class="codehilite"><pre><span></span><code><span class="c1"># When a user connects with JWT containing tenant_id</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">on_ws_connect</span><span class="p">(</span><span class="n">ws</span><span class="p">,</span> <span class="n">user</span><span class="p">):</span>
     <span class="n">tenant_id</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">tenant_id</span>
-    <span class="c1"># Subscribe only to this tenant&#39;s events</span>
+    <span class="c1"># Subscribe only to this tenant's events</span>
     <span class="k">await</span> <span class="n">subscriber</span><span class="o">.</span><span class="n">subscribe_tenant</span><span class="p">(</span>
-        <span class="n">tenant_id</span><span class="p">,</span> <span class="s2">&quot;field&quot;</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="n">ws</span><span class="o">.</span><span class="n">send_event</span>
+        <span class="n">tenant_id</span><span class="p">,</span> <span class="s2">"field"</span><span class="p">,</span> <span class="s2">"*"</span><span class="p">,</span> <span class="n">ws</span><span class="o">.</span><span class="n">send_event</span>
     <span class="p">)</span>
     <span class="k">await</span> <span class="n">subscriber</span><span class="o">.</span><span class="n">subscribe_tenant</span><span class="p">(</span>
-        <span class="n">tenant_id</span><span class="p">,</span> <span class="s2">&quot;task&quot;</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="n">ws</span><span class="o">.</span><span class="n">send_event</span>
+        <span class="n">tenant_id</span><span class="p">,</span> <span class="s2">"task"</span><span class="p">,</span> <span class="s2">"*"</span><span class="p">,</span> <span class="n">ws</span><span class="o">.</span><span class="n">send_event</span>
     <span class="p">)</span>
 </code></pre></div>
 
@@ -1851,9 +1851,9 @@ STREAM sahool-tenant-task {
 <h3 id="61-remove-dual-publishing">6.1 Remove Dual Publishing<a class="headerlink" href="#61-remove-dual-publishing" title="Permanent link">&para;</a></h3>
 <p>Update all publishers to <code>dual_publish=False</code>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Configuration flag (environment variable)</span>
-<span class="n">NATS_DUAL_PUBLISH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;NATS_DUAL_PUBLISH&quot;</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span>
+<span class="n">NATS_DUAL_PUBLISH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"NATS_DUAL_PUBLISH"</span><span class="p">,</span> <span class="s2">"false"</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"true"</span>
 
-<span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish_tenant_event</span><span class="p">(</span><span class="s2">&quot;field&quot;</span><span class="p">,</span> <span class="s2">&quot;created&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span>
+<span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish_tenant_event</span><span class="p">(</span><span class="s2">"field"</span><span class="p">,</span> <span class="s2">"created"</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span>
     <span class="n">dual_publish</span><span class="o">=</span><span class="n">NATS_DUAL_PUBLISH</span><span class="p">)</span>
 </code></pre></div>
 
@@ -1862,7 +1862,7 @@ STREAM sahool-tenant-task {
 <div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 
 <span class="c1"># DEPRECATED: Use get_tenant_subject() instead</span>
-<span class="n">SAHOOL_FIELD_CREATED</span> <span class="o">=</span> <span class="s2">&quot;sahool.field.created&quot;</span>  <span class="c1"># ⚠️ Deprecated v17.0.0</span>
+<span class="n">SAHOOL_FIELD_CREATED</span> <span class="o">=</span> <span class="s2">"sahool.field.created"</span>  <span class="c1"># ⚠️ Deprecated v17.0.0</span>
 </code></pre></div>
 
 <h3 id="63-delete-legacy-jetstream-streams">6.3 Delete Legacy JetStream Streams<a class="headerlink" href="#63-delete-legacy-jetstream-streams" title="Permanent link">&para;</a></h3>
@@ -1875,14 +1875,14 @@ nats<span class="w"> </span>stream<span class="w"> </span>delete<span class="w">
 <h3 id="64-enforce-tenant-only-publishing">6.4 Enforce Tenant-Only Publishing<a class="headerlink" href="#64-enforce-tenant-only-publishing" title="Permanent link">&para;</a></h3>
 <p>Add validation in <code>EventPublisher.publish_event()</code>:</p>
 <div class="codehilite"><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">publish_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subject</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">BaseEvent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">subject</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;sahool.tenant.&quot;</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;NATS_ENFORCE_TENANT_SUBJECTS&quot;</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">subject</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"sahool.tenant."</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"NATS_ENFORCE_TENANT_SUBJECTS"</span><span class="p">,</span> <span class="s2">"false"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"true"</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Flat subject &#39;</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">&#39; is not allowed. &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;Use publish_tenant_event() instead.&quot;</span>
+                <span class="sa">f</span><span class="s2">"Flat subject '</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">' is not allowed. "</span>
+                <span class="sa">f</span><span class="s2">"Use publish_tenant_event() instead."</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;DEPRECATED: Flat subject used: </span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"DEPRECATED: Flat subject used: </span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="o">...</span>
 </code></pre></div>
 
@@ -1895,44 +1895,44 @@ nats<span class="w"> </span>stream<span class="w"> </span>delete<span class="w">
     <span class="n">publisher</span> <span class="o">=</span> <span class="n">EventPublisher</span><span class="p">()</span>
     <span class="n">event</span> <span class="o">=</span> <span class="n">FieldCreatedEvent</span><span class="p">(</span>
         <span class="n">field_id</span><span class="o">=</span><span class="n">uuid4</span><span class="p">(),</span> <span class="n">farm_id</span><span class="o">=</span><span class="n">uuid4</span><span class="p">(),</span>
-        <span class="n">tenant_id</span><span class="o">=</span><span class="n">uuid4</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Test Field&quot;</span><span class="p">,</span>
-        <span class="n">geometry_wkt</span><span class="o">=</span><span class="s2">&quot;POLYGON(...)&quot;</span>
+        <span class="n">tenant_id</span><span class="o">=</span><span class="n">uuid4</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"Test Field"</span><span class="p">,</span>
+        <span class="n">geometry_wkt</span><span class="o">=</span><span class="s2">"POLYGON(...)"</span>
     <span class="p">)</span>
 
     <span class="c1"># Verify dual-publish</span>
-    <span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish_tenant_event</span><span class="p">(</span><span class="s2">&quot;field&quot;</span><span class="p">,</span> <span class="s2">&quot;created&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish_tenant_event</span><span class="p">(</span><span class="s2">"field"</span><span class="p">,</span> <span class="s2">"created"</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
 
     <span class="k">assert</span> <span class="n">publisher</span><span class="o">.</span><span class="n">_publish_count</span> <span class="o">==</span> <span class="mi">2</span>  <span class="c1"># Both subjects</span>
     <span class="c1"># Verify subjects</span>
-    <span class="k">assert</span> <span class="s2">&quot;sahool.tenant.&quot;</span> <span class="ow">in</span> <span class="n">published_subjects</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="k">assert</span> <span class="s2">&quot;sahool.field.created&quot;</span> <span class="o">==</span> <span class="n">published_subjects</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="s2">"sahool.tenant."</span> <span class="ow">in</span> <span class="n">published_subjects</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="s2">"sahool.field.created"</span> <span class="o">==</span> <span class="n">published_subjects</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 </code></pre></div>
 
 <h3 id="72-integration-tests">7.2 Integration Tests<a class="headerlink" href="#72-integration-tests" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">integration</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_tenant_isolation</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Verify tenant A cannot see tenant B&#39;s events.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Verify tenant A cannot see tenant B's events."""</span>
     <span class="n">tenant_a</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">())</span>
     <span class="n">tenant_b</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid4</span><span class="p">())</span>
 
     <span class="n">received_a</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">received_b</span> <span class="o">=</span> <span class="p">[]</span>
 
-    <span class="c1"># Subscribe to tenant A&#39;s events only</span>
-    <span class="k">await</span> <span class="n">subscriber</span><span class="o">.</span><span class="n">subscribe_tenant</span><span class="p">(</span><span class="n">tenant_a</span><span class="p">,</span> <span class="s2">&quot;field&quot;</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span>
+    <span class="c1"># Subscribe to tenant A's events only</span>
+    <span class="k">await</span> <span class="n">subscriber</span><span class="o">.</span><span class="n">subscribe_tenant</span><span class="p">(</span><span class="n">tenant_a</span><span class="p">,</span> <span class="s2">"field"</span><span class="p">,</span> <span class="s2">"*"</span><span class="p">,</span>
         <span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">received_a</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
 
     <span class="c1"># Publish events for both tenants</span>
-    <span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish_tenant_event</span><span class="p">(</span><span class="s2">&quot;field&quot;</span><span class="p">,</span> <span class="s2">&quot;created&quot;</span><span class="p">,</span>
+    <span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish_tenant_event</span><span class="p">(</span><span class="s2">"field"</span><span class="p">,</span> <span class="s2">"created"</span><span class="p">,</span>
         <span class="n">event_a</span><span class="p">,</span> <span class="n">tenant_id</span><span class="o">=</span><span class="n">tenant_a</span><span class="p">)</span>
-    <span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish_tenant_event</span><span class="p">(</span><span class="s2">&quot;field&quot;</span><span class="p">,</span> <span class="s2">&quot;created&quot;</span><span class="p">,</span>
+    <span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish_tenant_event</span><span class="p">(</span><span class="s2">"field"</span><span class="p">,</span> <span class="s2">"created"</span><span class="p">,</span>
         <span class="n">event_b</span><span class="p">,</span> <span class="n">tenant_id</span><span class="o">=</span><span class="n">tenant_b</span><span class="p">)</span>
 
     <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
 
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">received_a</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
     <span class="k">assert</span> <span class="n">received_a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tenant_id</span> <span class="o">==</span> <span class="n">tenant_a</span>
-    <span class="c1"># tenant B&#39;s event should NOT arrive</span>
+    <span class="c1"># tenant B's event should NOT arrive</span>
 </code></pre></div>
 
 <h3 id="73-load-test">7.3 Load Test<a class="headerlink" href="#73-load-test" title="Permanent link">&para;</a></h3>
@@ -1944,10 +1944,10 @@ nats<span class="w"> </span>stream<span class="w"> </span>delete<span class="w">
 <h3 id="74-smoke-test-for-each-batch">7.4 Smoke Test for Each Batch<a class="headerlink" href="#74-smoke-test-for-each-batch" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># After deploying batch N, verify:</span>
 <span class="c1"># 1. Events arrive on new subjects</span>
-nats<span class="w"> </span>sub<span class="w"> </span><span class="s2">&quot;sahool.tenant.&gt;&quot;</span><span class="w"> </span>--count<span class="o">=</span><span class="m">10</span>
+nats<span class="w"> </span>sub<span class="w"> </span><span class="s2">"sahool.tenant.&gt;"</span><span class="w"> </span>--count<span class="o">=</span><span class="m">10</span>
 
 <span class="c1"># 2. Events still arrive on old subjects (dual-publish)</span>
-nats<span class="w"> </span>sub<span class="w"> </span><span class="s2">&quot;sahool.field.&gt;&quot;</span><span class="w"> </span>--count<span class="o">=</span><span class="m">10</span>
+nats<span class="w"> </span>sub<span class="w"> </span><span class="s2">"sahool.field.&gt;"</span><span class="w"> </span>--count<span class="o">=</span><span class="m">10</span>
 
 <span class="c1"># 3. No event loss</span>
 python<span class="w"> </span>scripts/validate-nats-tenant-migration.py<span class="w"> </span>--domain<span class="o">=</span>field<span class="w"> </span>--duration<span class="o">=</span>60s
@@ -1958,21 +1958,21 @@ python<span class="w"> </span>scripts/validate-nats-tenant-migration.py<span cla
 <h3 id="81-prometheus-metrics">8.1 Prometheus Metrics<a class="headerlink" href="#81-prometheus-metrics" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># New metrics for migration tracking</span>
 <span class="n">nats_tenant_publish_total</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span>
-    <span class="s2">&quot;nats_tenant_publish_total&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Total tenant-scoped publishes&quot;</span><span class="p">,</span>
-    <span class="p">[</span><span class="s2">&quot;domain&quot;</span><span class="p">,</span> <span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="s2">&quot;mode&quot;</span><span class="p">]</span>  <span class="c1"># mode: tenant_only, dual, legacy</span>
+    <span class="s2">"nats_tenant_publish_total"</span><span class="p">,</span>
+    <span class="s2">"Total tenant-scoped publishes"</span><span class="p">,</span>
+    <span class="p">[</span><span class="s2">"domain"</span><span class="p">,</span> <span class="s2">"action"</span><span class="p">,</span> <span class="s2">"mode"</span><span class="p">]</span>  <span class="c1"># mode: tenant_only, dual, legacy</span>
 <span class="p">)</span>
 
 <span class="n">nats_tenant_subscribe_total</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span>
-    <span class="s2">&quot;nats_tenant_subscribe_total&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Total tenant-scoped subscriptions&quot;</span><span class="p">,</span>
-    <span class="p">[</span><span class="s2">&quot;domain&quot;</span><span class="p">,</span> <span class="s2">&quot;subscriber_service&quot;</span><span class="p">]</span>
+    <span class="s2">"nats_tenant_subscribe_total"</span><span class="p">,</span>
+    <span class="s2">"Total tenant-scoped subscriptions"</span><span class="p">,</span>
+    <span class="p">[</span><span class="s2">"domain"</span><span class="p">,</span> <span class="s2">"subscriber_service"</span><span class="p">]</span>
 <span class="p">)</span>
 
 <span class="n">nats_legacy_publish_total</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span>
-    <span class="s2">&quot;nats_legacy_publish_total&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Legacy flat-subject publishes (should decrease to 0)&quot;</span><span class="p">,</span>
-    <span class="p">[</span><span class="s2">&quot;domain&quot;</span><span class="p">,</span> <span class="s2">&quot;action&quot;</span><span class="p">]</span>
+    <span class="s2">"nats_legacy_publish_total"</span><span class="p">,</span>
+    <span class="s2">"Legacy flat-subject publishes (should decrease to 0)"</span><span class="p">,</span>
+    <span class="p">[</span><span class="s2">"domain"</span><span class="p">,</span> <span class="s2">"action"</span><span class="p">]</span>
 <span class="p">)</span>
 </code></pre></div>
 
@@ -1990,7 +1990,7 @@ python<span class="w"> </span>scripts/validate-nats-tenant-migration.py<span cla
 <span class="w">  </span><span class="nt">labels</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warning</span>
 <span class="w">  </span><span class="nt">annotations</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Legacy</span><span class="nv"> </span><span class="s">NATS</span><span class="nv"> </span><span class="s">subject</span><span class="nv"> </span><span class="s">still</span><span class="nv"> </span><span class="s">in</span><span class="nv"> </span><span class="s">use</span><span class="nv"> </span><span class="s">after</span><span class="nv"> </span><span class="s">migration</span><span class="nv"> </span><span class="s">deadline&quot;</span>
+<span class="w">    </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="s">"Legacy</span><span class="nv"> </span><span class="s">NATS</span><span class="nv"> </span><span class="s">subject</span><span class="nv"> </span><span class="s">still</span><span class="nv"> </span><span class="s">in</span><span class="nv"> </span><span class="s">use</span><span class="nv"> </span><span class="s">after</span><span class="nv"> </span><span class="s">migration</span><span class="nv"> </span><span class="s">deadline"</span>
 </code></pre></div>
 
 <hr />
@@ -2479,10 +2479,10 @@ Sprint 7-8 (Weeks 13-16): Phase 4 - Cleanup &amp; Enforcement
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

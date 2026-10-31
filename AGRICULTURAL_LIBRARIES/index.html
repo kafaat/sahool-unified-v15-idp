@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1361,27 +1361,27 @@
 
 <span class="c1"># Get current agricultural season</span>
 <span class="n">season</span> <span class="o">=</span> <span class="n">get_current_season</span><span class="p">(</span><span class="n">Region</span><span class="o">.</span><span class="n">RIYADH</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Current season: </span><span class="si">{</span><span class="n">season</span><span class="o">.</span><span class="n">name_ar</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">season</span><span class="o">.</span><span class="n">name_en</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Current season: </span><span class="si">{</span><span class="n">season</span><span class="o">.</span><span class="n">name_ar</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">season</span><span class="o">.</span><span class="n">name_en</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
 <span class="c1"># الموسم الحالي: الشتاء (Winter)</span>
 
-<span class="c1"># Get traditional Anwa&#39;a season</span>
+<span class="c1"># Get traditional Anwa'a season</span>
 <span class="n">trad_season</span> <span class="o">=</span> <span class="n">get_current_traditional_season</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Traditional: </span><span class="si">{</span><span class="n">trad_season</span><span class="o">.</span><span class="n">name_ar</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Proverb: </span><span class="si">{</span><span class="n">trad_season</span><span class="o">.</span><span class="n">proverb_ar</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Traditional: </span><span class="si">{</span><span class="n">trad_season</span><span class="o">.</span><span class="n">name_ar</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Proverb: </span><span class="si">{</span><span class="n">trad_season</span><span class="o">.</span><span class="n">proverb_ar</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># Convert to Hijri date</span>
 <span class="n">hijri</span> <span class="o">=</span> <span class="n">gregorian_to_hijri</span><span class="p">(</span><span class="n">date</span><span class="p">(</span><span class="mi">2026</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Hijri: </span><span class="si">{</span><span class="n">hijri</span><span class="o">.</span><span class="n">day</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">hijri</span><span class="o">.</span><span class="n">month_name_ar</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">hijri</span><span class="o">.</span><span class="n">year</span><span class="si">}</span><span class="s2"> هـ&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Hijri: </span><span class="si">{</span><span class="n">hijri</span><span class="o">.</span><span class="n">day</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">hijri</span><span class="o">.</span><span class="n">month_name_ar</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">hijri</span><span class="o">.</span><span class="n">year</span><span class="si">}</span><span class="s2"> هـ"</span><span class="p">)</span>
 
 <span class="c1"># Get planting recommendation</span>
 <span class="n">recommendation</span> <span class="o">=</span> <span class="n">get_planting_recommendation</span><span class="p">(</span><span class="n">CropType</span><span class="o">.</span><span class="n">WHEAT</span><span class="p">,</span> <span class="n">Region</span><span class="o">.</span><span class="n">HAIL</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Plant: </span><span class="si">{</span><span class="n">recommendation</span><span class="o">.</span><span class="n">recommended_planting_start</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Harvest: </span><span class="si">{</span><span class="n">recommendation</span><span class="o">.</span><span class="n">expected_harvest_start</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Plant: </span><span class="si">{</span><span class="n">recommendation</span><span class="o">.</span><span class="n">recommended_planting_start</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Harvest: </span><span class="si">{</span><span class="n">recommendation</span><span class="o">.</span><span class="n">expected_harvest_start</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># Get all crops to plant now</span>
 <span class="n">crops</span> <span class="o">=</span> <span class="n">get_crops_to_plant_now</span><span class="p">(</span><span class="n">Region</span><span class="o">.</span><span class="n">RIYADH</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">crop</span> <span class="ow">in</span> <span class="n">crops</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="n">crop</span><span class="p">[</span><span class="s1">&#39;crop_name_ar&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">crop</span><span class="p">[</span><span class="s1">&#39;urgency&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"- </span><span class="si">{</span><span class="n">crop</span><span class="p">[</span><span class="s1">'crop_name_ar'</span><span class="p">]</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">crop</span><span class="p">[</span><span class="s1">'urgency'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div>
 
 <h4 id="integration">Integration | التكامل<a class="headerlink" href="#integration" title="Permanent link">&para;</a></h4>
@@ -1509,34 +1509,34 @@
 <span class="c1"># Assess field risk</span>
 <span class="n">engine</span> <span class="o">=</span> <span class="n">get_risk_assessment_engine</span><span class="p">()</span>
 <span class="n">risk_profile</span> <span class="o">=</span> <span class="k">await</span> <span class="n">assess_field_risk</span><span class="p">(</span>
-    <span class="n">field_id</span><span class="o">=</span><span class="s2">&quot;FIELD-001&quot;</span><span class="p">,</span>
-    <span class="n">crop_type</span><span class="o">=</span><span class="s2">&quot;wheat&quot;</span><span class="p">,</span>
+    <span class="n">field_id</span><span class="o">=</span><span class="s2">"FIELD-001"</span><span class="p">,</span>
+    <span class="n">crop_type</span><span class="o">=</span><span class="s2">"wheat"</span><span class="p">,</span>
     <span class="n">coverage_amount</span><span class="o">=</span><span class="mi">50000</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Risk Level: </span><span class="si">{</span><span class="n">risk_profile</span><span class="o">.</span><span class="n">risk_level</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Risk Score: </span><span class="si">{</span><span class="n">risk_profile</span><span class="o">.</span><span class="n">overall_score</span><span class="si">}</span><span class="s2">/100&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Risk Level: </span><span class="si">{</span><span class="n">risk_profile</span><span class="o">.</span><span class="n">risk_level</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Risk Score: </span><span class="si">{</span><span class="n">risk_profile</span><span class="o">.</span><span class="n">overall_score</span><span class="si">}</span><span class="s2">/100"</span><span class="p">)</span>
 
 <span class="c1"># Calculate premium rate</span>
 <span class="n">premium</span> <span class="o">=</span> <span class="k">await</span> <span class="n">calculate_premium_rate</span><span class="p">(</span>
     <span class="n">risk_profile</span><span class="o">=</span><span class="n">risk_profile</span><span class="p">,</span>
-    <span class="n">coverage_type</span><span class="o">=</span><span class="s2">&quot;comprehensive&quot;</span><span class="p">,</span>
+    <span class="n">coverage_type</span><span class="o">=</span><span class="s2">"comprehensive"</span><span class="p">,</span>
     <span class="n">deductible_percent</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Annual Premium: </span><span class="si">{</span><span class="n">premium</span><span class="o">.</span><span class="n">annual_premium</span><span class="si">}</span><span class="s2"> SAR&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Annual Premium: </span><span class="si">{</span><span class="n">premium</span><span class="o">.</span><span class="n">annual_premium</span><span class="si">}</span><span class="s2"> SAR"</span><span class="p">)</span>
 
 <span class="c1"># Submit a claim</span>
 <span class="n">claim</span> <span class="o">=</span> <span class="k">await</span> <span class="n">submit_claim</span><span class="p">(</span>
-    <span class="n">policy_id</span><span class="o">=</span><span class="s2">&quot;POL-001&quot;</span><span class="p">,</span>
-    <span class="n">claim_type</span><span class="o">=</span><span class="s2">&quot;weather_damage&quot;</span><span class="p">,</span>
-    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Frost damage to wheat crop&quot;</span><span class="p">,</span>
+    <span class="n">policy_id</span><span class="o">=</span><span class="s2">"POL-001"</span><span class="p">,</span>
+    <span class="n">claim_type</span><span class="o">=</span><span class="s2">"weather_damage"</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">"Frost damage to wheat crop"</span><span class="p">,</span>
     <span class="n">estimated_loss</span><span class="o">=</span><span class="mi">15000</span><span class="p">,</span>
     <span class="n">evidence</span><span class="o">=</span><span class="p">[</span><span class="o">...</span><span class="p">],</span>  <span class="c1"># Photos, reports</span>
 <span class="p">)</span>
 
 <span class="c1"># Process parametric trigger (automatic for indexed insurance)</span>
 <span class="k">await</span> <span class="n">process_parametric_trigger</span><span class="p">(</span>
-    <span class="n">policy_id</span><span class="o">=</span><span class="s2">&quot;POL-002&quot;</span><span class="p">,</span>
-    <span class="n">trigger_type</span><span class="o">=</span><span class="s2">&quot;frost&quot;</span><span class="p">,</span>
+    <span class="n">policy_id</span><span class="o">=</span><span class="s2">"POL-002"</span><span class="p">,</span>
+    <span class="n">trigger_type</span><span class="o">=</span><span class="s2">"frost"</span><span class="p">,</span>
     <span class="n">observed_value</span><span class="o">=-</span><span class="mf">3.5</span><span class="p">,</span>  <span class="c1"># Temperature in Celsius</span>
 <span class="p">)</span>
 </code></pre></div>
@@ -1727,14 +1727,14 @@
 
 <span class="c1"># Get crop characteristics</span>
 <span class="n">wheat</span> <span class="o">=</span> <span class="n">get_crop_characteristics</span><span class="p">(</span><span class="n">CropType</span><span class="o">.</span><span class="n">WHEAT</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Wheat (</span><span class="si">{</span><span class="n">get_crop_arabic_name</span><span class="p">(</span><span class="n">CropType</span><span class="o">.</span><span class="n">WHEAT</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Family: </span><span class="si">{</span><span class="n">wheat</span><span class="o">.</span><span class="n">family</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Nitrogen fixer: </span><span class="si">{</span><span class="n">wheat</span><span class="o">.</span><span class="n">nitrogen_fixer</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Root depth: </span><span class="si">{</span><span class="n">wheat</span><span class="o">.</span><span class="n">root_depth_cm</span><span class="si">}</span><span class="s2"> cm&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Wheat (</span><span class="si">{</span><span class="n">get_crop_arabic_name</span><span class="p">(</span><span class="n">CropType</span><span class="o">.</span><span class="n">WHEAT</span><span class="p">)</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Family: </span><span class="si">{</span><span class="n">wheat</span><span class="o">.</span><span class="n">family</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Nitrogen fixer: </span><span class="si">{</span><span class="n">wheat</span><span class="o">.</span><span class="n">nitrogen_fixer</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Root depth: </span><span class="si">{</span><span class="n">wheat</span><span class="o">.</span><span class="n">root_depth_cm</span><span class="si">}</span><span class="s2"> cm"</span><span class="p">)</span>
 
 <span class="c1"># Create rotation planner</span>
 <span class="n">planner</span> <span class="o">=</span> <span class="n">CropRotationPlanner</span><span class="p">(</span>
-    <span class="n">field_id</span><span class="o">=</span><span class="s2">&quot;FIELD-001&quot;</span><span class="p">,</span>
+    <span class="n">field_id</span><span class="o">=</span><span class="s2">"FIELD-001"</span><span class="p">,</span>
     <span class="n">field_size_ha</span><span class="o">=</span><span class="mf">10.5</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -1742,18 +1742,18 @@
 <span class="n">plan</span> <span class="o">=</span> <span class="n">planner</span><span class="o">.</span><span class="n">generate_plan</span><span class="p">(</span>
     <span class="n">current_crop</span><span class="o">=</span><span class="n">CropType</span><span class="o">.</span><span class="n">WHEAT</span><span class="p">,</span>
     <span class="n">years</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
-    <span class="n">goals</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;soil_health&quot;</span><span class="p">,</span> <span class="s2">&quot;pest_break&quot;</span><span class="p">,</span> <span class="s2">&quot;profitability&quot;</span><span class="p">],</span>
+    <span class="n">goals</span><span class="o">=</span><span class="p">[</span><span class="s2">"soil_health"</span><span class="p">,</span> <span class="s2">"pest_break"</span><span class="p">,</span> <span class="s2">"profitability"</span><span class="p">],</span>
 <span class="p">)</span>
 
 <span class="k">for</span> <span class="n">year</span><span class="p">,</span> <span class="n">slot</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">plan</span><span class="o">.</span><span class="n">sequence</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Year </span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">slot</span><span class="o">.</span><span class="n">crop_name_ar</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">slot</span><span class="o">.</span><span class="n">crop_type</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Benefits: </span><span class="si">{</span><span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">value</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">slot</span><span class="o">.</span><span class="n">benefits</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Year </span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">slot</span><span class="o">.</span><span class="n">crop_name_ar</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">slot</span><span class="o">.</span><span class="n">crop_type</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Benefits: </span><span class="si">{</span><span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">value</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">slot</span><span class="o">.</span><span class="n">benefits</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># Track soil health</span>
-<span class="n">tracker</span> <span class="o">=</span> <span class="n">SoilHealthTracker</span><span class="p">(</span><span class="n">field_id</span><span class="o">=</span><span class="s2">&quot;FIELD-001&quot;</span><span class="p">)</span>
+<span class="n">tracker</span> <span class="o">=</span> <span class="n">SoilHealthTracker</span><span class="p">(</span><span class="n">field_id</span><span class="o">=</span><span class="s2">"FIELD-001"</span><span class="p">)</span>
 <span class="n">report</span> <span class="o">=</span> <span class="n">tracker</span><span class="o">.</span><span class="n">generate_report</span><span class="p">(</span><span class="n">measurements</span><span class="o">=</span><span class="p">[</span><span class="o">...</span><span class="p">])</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Soil Health Score: </span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">overall_score</span><span class="si">}</span><span class="s2">/100&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Trend: </span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">trend</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Soil Health Score: </span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">overall_score</span><span class="si">}</span><span class="s2">/100"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Trend: </span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">trend</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div>
 
 <h4 id="integration_2">Integration | التكامل<a class="headerlink" href="#integration_2" title="Permanent link">&para;</a></h4>
@@ -1875,36 +1875,36 @@
 <span class="p">)</span>
 
 <span class="c1"># Get crop nutrient requirements</span>
-<span class="n">wheat_req</span> <span class="o">=</span> <span class="n">get_crop_requirements</span><span class="p">(</span><span class="s2">&quot;wheat&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;N: </span><span class="si">{</span><span class="n">wheat_req</span><span class="o">.</span><span class="n">nitrogen_kg_ha</span><span class="si">}</span><span class="s2"> kg/ha&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;P: </span><span class="si">{</span><span class="n">wheat_req</span><span class="o">.</span><span class="n">phosphorus_kg_ha</span><span class="si">}</span><span class="s2"> kg/ha&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;K: </span><span class="si">{</span><span class="n">wheat_req</span><span class="o">.</span><span class="n">potassium_kg_ha</span><span class="si">}</span><span class="s2"> kg/ha&quot;</span><span class="p">)</span>
+<span class="n">wheat_req</span> <span class="o">=</span> <span class="n">get_crop_requirements</span><span class="p">(</span><span class="s2">"wheat"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"N: </span><span class="si">{</span><span class="n">wheat_req</span><span class="o">.</span><span class="n">nitrogen_kg_ha</span><span class="si">}</span><span class="s2"> kg/ha"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"P: </span><span class="si">{</span><span class="n">wheat_req</span><span class="o">.</span><span class="n">phosphorus_kg_ha</span><span class="si">}</span><span class="s2"> kg/ha"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"K: </span><span class="si">{</span><span class="n">wheat_req</span><span class="o">.</span><span class="n">potassium_kg_ha</span><span class="si">}</span><span class="s2"> kg/ha"</span><span class="p">)</span>
 
 <span class="c1"># Quick recommendation based on soil test</span>
 <span class="n">recommendation</span> <span class="o">=</span> <span class="n">calculate_quick_recommendation</span><span class="p">(</span>
-    <span class="n">crop</span><span class="o">=</span><span class="s2">&quot;wheat&quot;</span><span class="p">,</span>
+    <span class="n">crop</span><span class="o">=</span><span class="s2">"wheat"</span><span class="p">,</span>
     <span class="n">soil_n_ppm</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span>
     <span class="n">soil_p_ppm</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
     <span class="n">soil_k_ppm</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span>
     <span class="n">area_ha</span><span class="o">=</span><span class="mf">10.5</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Recommended: </span><span class="si">{</span><span class="n">recommendation</span><span class="o">.</span><span class="n">fertilizer_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Rate: </span><span class="si">{</span><span class="n">recommendation</span><span class="o">.</span><span class="n">rate_kg_ha</span><span class="si">}</span><span class="s2"> kg/ha&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total: </span><span class="si">{</span><span class="n">recommendation</span><span class="o">.</span><span class="n">total_kg</span><span class="si">}</span><span class="s2"> kg&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Recommended: </span><span class="si">{</span><span class="n">recommendation</span><span class="o">.</span><span class="n">fertilizer_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Rate: </span><span class="si">{</span><span class="n">recommendation</span><span class="o">.</span><span class="n">rate_kg_ha</span><span class="si">}</span><span class="s2"> kg/ha"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Total: </span><span class="si">{</span><span class="n">recommendation</span><span class="o">.</span><span class="n">total_kg</span><span class="si">}</span><span class="s2"> kg"</span><span class="p">)</span>
 
 <span class="c1"># Calculate application rate</span>
 <span class="n">rate</span> <span class="o">=</span> <span class="n">quick_rate_calculation</span><span class="p">(</span>
     <span class="n">target_n_kg_ha</span><span class="o">=</span><span class="mi">46</span><span class="p">,</span>
     <span class="n">fertilizer_n_percent</span><span class="o">=</span><span class="mi">46</span><span class="p">,</span>  <span class="c1"># Urea</span>
 <span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Apply </span><span class="si">{</span><span class="n">rate</span><span class="o">.</span><span class="n">rate_kg_ha</span><span class="si">}</span><span class="s2"> kg/ha of Urea&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Apply </span><span class="si">{</span><span class="n">rate</span><span class="o">.</span><span class="n">rate_kg_ha</span><span class="si">}</span><span class="s2"> kg/ha of Urea"</span><span class="p">)</span>
 
 <span class="c1"># Inventory management</span>
-<span class="n">inventory</span> <span class="o">=</span> <span class="n">FertilizerInventoryManager</span><span class="p">(</span><span class="n">farm_id</span><span class="o">=</span><span class="s2">&quot;FARM-001&quot;</span><span class="p">)</span>
-<span class="n">inventory</span><span class="o">.</span><span class="n">add_purchase</span><span class="p">(</span><span class="s2">&quot;urea&quot;</span><span class="p">,</span> <span class="n">quantity_kg</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">price_per_kg</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
+<span class="n">inventory</span> <span class="o">=</span> <span class="n">FertilizerInventoryManager</span><span class="p">(</span><span class="n">farm_id</span><span class="o">=</span><span class="s2">"FARM-001"</span><span class="p">)</span>
+<span class="n">inventory</span><span class="o">.</span><span class="n">add_purchase</span><span class="p">(</span><span class="s2">"urea"</span><span class="p">,</span> <span class="n">quantity_kg</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">price_per_kg</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
 <span class="n">summary</span> <span class="o">=</span> <span class="n">inventory</span><span class="o">.</span><span class="n">get_summary</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total stock: </span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">total_quantity_kg</span><span class="si">}</span><span class="s2"> kg&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total value: </span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">total_value</span><span class="si">}</span><span class="s2"> SAR&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Total stock: </span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">total_quantity_kg</span><span class="si">}</span><span class="s2"> kg"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Total value: </span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">total_value</span><span class="si">}</span><span class="s2"> SAR"</span><span class="p">)</span>
 </code></pre></div>
 
 <h4 id="integration_3">Integration | التكامل<a class="headerlink" href="#integration_3" title="Permanent link">&para;</a></h4>
@@ -2030,11 +2030,11 @@
 
 <span class="c1"># Create boundary from coordinates</span>
 <span class="n">boundary</span> <span class="o">=</span> <span class="n">FieldBoundary</span><span class="p">(</span>
-    <span class="n">field_id</span><span class="o">=</span><span class="s2">&quot;FIELD-001&quot;</span><span class="p">,</span>
-    <span class="n">tenant_id</span><span class="o">=</span><span class="s2">&quot;tenant-001&quot;</span><span class="p">,</span>
-    <span class="n">owner_id</span><span class="o">=</span><span class="s2">&quot;user-001&quot;</span><span class="p">,</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;North Field&quot;</span><span class="p">,</span>
-    <span class="n">name_ar</span><span class="o">=</span><span class="s2">&quot;الحقل الشمالي&quot;</span><span class="p">,</span>
+    <span class="n">field_id</span><span class="o">=</span><span class="s2">"FIELD-001"</span><span class="p">,</span>
+    <span class="n">tenant_id</span><span class="o">=</span><span class="s2">"tenant-001"</span><span class="p">,</span>
+    <span class="n">owner_id</span><span class="o">=</span><span class="s2">"user-001"</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"North Field"</span><span class="p">,</span>
+    <span class="n">name_ar</span><span class="o">=</span><span class="s2">"الحقل الشمالي"</span><span class="p">,</span>
     <span class="n">geometry</span><span class="o">=</span><span class="n">Polygon</span><span class="p">(</span><span class="n">coordinates</span><span class="o">=</span><span class="p">[[</span>
         <span class="p">(</span><span class="mf">46.7</span><span class="p">,</span> <span class="mf">24.7</span><span class="p">),</span>
         <span class="p">(</span><span class="mf">46.71</span><span class="p">,</span> <span class="mf">24.7</span><span class="p">),</span>
@@ -2046,16 +2046,16 @@
 
 <span class="c1"># Calculate metrics</span>
 <span class="n">metrics</span> <span class="o">=</span> <span class="n">calculate_geometry_metrics</span><span class="p">(</span><span class="n">boundary</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">exterior_ring</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Area: </span><span class="si">{</span><span class="n">metrics</span><span class="o">.</span><span class="n">area_hectares</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> hectares&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Area: </span><span class="si">{</span><span class="n">metrics</span><span class="o">.</span><span class="n">area_dunams</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> dunams&quot;</span><span class="p">)</span>  <span class="c1"># دونم</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Perimeter: </span><span class="si">{</span><span class="n">metrics</span><span class="o">.</span><span class="n">perimeter_meters</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> meters&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Centroid: </span><span class="si">{</span><span class="n">metrics</span><span class="o">.</span><span class="n">centroid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Area: </span><span class="si">{</span><span class="n">metrics</span><span class="o">.</span><span class="n">area_hectares</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> hectares"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Area: </span><span class="si">{</span><span class="n">metrics</span><span class="o">.</span><span class="n">area_dunams</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> dunams"</span><span class="p">)</span>  <span class="c1"># دونم</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Perimeter: </span><span class="si">{</span><span class="n">metrics</span><span class="o">.</span><span class="n">perimeter_meters</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> meters"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Centroid: </span><span class="si">{</span><span class="n">metrics</span><span class="o">.</span><span class="n">centroid</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># GPS mapping session</span>
 <span class="n">mapper</span> <span class="o">=</span> <span class="n">GPSMapper</span><span class="p">()</span>
 <span class="n">session</span> <span class="o">=</span> <span class="n">mapper</span><span class="o">.</span><span class="n">start_session</span><span class="p">(</span>
-    <span class="n">user_id</span><span class="o">=</span><span class="s2">&quot;user-001&quot;</span><span class="p">,</span>
-    <span class="n">field_id</span><span class="o">=</span><span class="s2">&quot;FIELD-002&quot;</span>
+    <span class="n">user_id</span><span class="o">=</span><span class="s2">"user-001"</span><span class="p">,</span>
+    <span class="n">field_id</span><span class="o">=</span><span class="s2">"FIELD-002"</span>
 <span class="p">)</span>
 
 <span class="c1"># Add GPS points while walking field</span>
@@ -2067,19 +2067,19 @@
 <span class="n">result</span> <span class="o">=</span> <span class="n">mapper</span><span class="o">.</span><span class="n">end_session</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
 <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
     <span class="n">new_boundary</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">boundary</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Created boundary: </span><span class="si">{</span><span class="n">new_boundary</span><span class="o">.</span><span class="n">field_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Created boundary: </span><span class="si">{</span><span class="n">new_boundary</span><span class="o">.</span><span class="n">field_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># Share boundary with neighbor</span>
 <span class="n">sharing</span> <span class="o">=</span> <span class="n">BoundarySharingManager</span><span class="p">()</span>
 <span class="n">request</span> <span class="o">=</span> <span class="n">sharing</span><span class="o">.</span><span class="n">create_share_request</span><span class="p">(</span>
     <span class="n">boundary</span><span class="o">=</span><span class="n">boundary</span><span class="p">,</span>
-    <span class="n">recipient_id</span><span class="o">=</span><span class="s2">&quot;neighbor-user&quot;</span><span class="p">,</span>
+    <span class="n">recipient_id</span><span class="o">=</span><span class="s2">"neighbor-user"</span><span class="p">,</span>
     <span class="n">permission_level</span><span class="o">=</span><span class="n">PermissionLevel</span><span class="o">.</span><span class="n">VIEW</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Share request: </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Share request: </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># Generate PostGIS queries</span>
-<span class="n">area_query</span> <span class="o">=</span> <span class="n">generate_postgis_area_query</span><span class="p">(</span><span class="s2">&quot;FIELD-001&quot;</span><span class="p">)</span>
+<span class="n">area_query</span> <span class="o">=</span> <span class="n">generate_postgis_area_query</span><span class="p">(</span><span class="s2">"FIELD-001"</span><span class="p">)</span>
 <span class="c1"># SELECT ST_Area(geometry::geography) / 10000 AS area_ha FROM fields ...</span>
 </code></pre></div>
 
@@ -2201,41 +2201,41 @@
 
 <span class="c1"># Grade a wheat sample</span>
 <span class="n">engine</span> <span class="o">=</span> <span class="n">QualityGradingEngine</span><span class="p">()</span>
-<span class="n">engine</span><span class="o">.</span><span class="n">set_standard</span><span class="p">(</span><span class="n">QUALITY_STANDARDS</span><span class="p">[</span><span class="s2">&quot;wheat&quot;</span><span class="p">])</span>
+<span class="n">engine</span><span class="o">.</span><span class="n">set_standard</span><span class="p">(</span><span class="n">QUALITY_STANDARDS</span><span class="p">[</span><span class="s2">"wheat"</span><span class="p">])</span>
 
 <span class="n">result</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">calculate_grade</span><span class="p">({</span>
-    <span class="s2">&quot;moisture&quot;</span><span class="p">:</span> <span class="mf">12.5</span><span class="p">,</span>        <span class="c1"># %</span>
-    <span class="s2">&quot;protein&quot;</span><span class="p">:</span> <span class="mf">13.0</span><span class="p">,</span>         <span class="c1"># %</span>
-    <span class="s2">&quot;test_weight&quot;</span><span class="p">:</span> <span class="mf">79.0</span><span class="p">,</span>     <span class="c1"># kg/hl</span>
-    <span class="s2">&quot;foreign_matter&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>   <span class="c1"># %</span>
-    <span class="s2">&quot;damaged_kernels&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>  <span class="c1"># %</span>
+    <span class="s2">"moisture"</span><span class="p">:</span> <span class="mf">12.5</span><span class="p">,</span>        <span class="c1"># %</span>
+    <span class="s2">"protein"</span><span class="p">:</span> <span class="mf">13.0</span><span class="p">,</span>         <span class="c1"># %</span>
+    <span class="s2">"test_weight"</span><span class="p">:</span> <span class="mf">79.0</span><span class="p">,</span>     <span class="c1"># kg/hl</span>
+    <span class="s2">"foreign_matter"</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>   <span class="c1"># %</span>
+    <span class="s2">"damaged_kernels"</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>  <span class="c1"># %</span>
 <span class="p">})</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Grade: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">overall_grade</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># A, B, C, D</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Score: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">grade_score</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">/100&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Summary: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">summary_ar</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Grade: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">overall_grade</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>  <span class="c1"># A, B, C, D</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Score: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">grade_score</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">/100"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Summary: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">summary_ar</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># Calculate price</span>
 <span class="n">pricing</span> <span class="o">=</span> <span class="n">QualityPricingEngine</span><span class="p">()</span>
 <span class="n">price_calc</span> <span class="o">=</span> <span class="n">pricing</span><span class="o">.</span><span class="n">calculate_price</span><span class="p">(</span>
     <span class="n">grade</span><span class="o">=</span><span class="n">result</span><span class="o">.</span><span class="n">overall_grade</span><span class="p">,</span>
     <span class="n">quantity</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>  <span class="c1"># kg</span>
-    <span class="n">test_values</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;moisture&quot;</span><span class="p">:</span> <span class="mf">12.5</span><span class="p">,</span> <span class="s2">&quot;protein&quot;</span><span class="p">:</span> <span class="mf">13.0</span><span class="p">},</span>
-    <span class="n">price_matrix</span><span class="o">=</span><span class="n">PRICE_MATRICES</span><span class="p">[</span><span class="s2">&quot;wheat&quot;</span><span class="p">],</span>
+    <span class="n">test_values</span><span class="o">=</span><span class="p">{</span><span class="s2">"moisture"</span><span class="p">:</span> <span class="mf">12.5</span><span class="p">,</span> <span class="s2">"protein"</span><span class="p">:</span> <span class="mf">13.0</span><span class="p">},</span>
+    <span class="n">price_matrix</span><span class="o">=</span><span class="n">PRICE_MATRICES</span><span class="p">[</span><span class="s2">"wheat"</span><span class="p">],</span>
 <span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Base price: </span><span class="si">{</span><span class="n">price_calc</span><span class="o">.</span><span class="n">base_price</span><span class="si">}</span><span class="s2"> SAR/kg&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Adjustments: </span><span class="si">{</span><span class="n">price_calc</span><span class="o">.</span><span class="n">adjustments</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Final price: </span><span class="si">{</span><span class="n">price_calc</span><span class="o">.</span><span class="n">final_price</span><span class="si">}</span><span class="s2"> SAR&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total value: </span><span class="si">{</span><span class="n">price_calc</span><span class="o">.</span><span class="n">total_value</span><span class="si">}</span><span class="s2"> SAR&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Base price: </span><span class="si">{</span><span class="n">price_calc</span><span class="o">.</span><span class="n">base_price</span><span class="si">}</span><span class="s2"> SAR/kg"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Adjustments: </span><span class="si">{</span><span class="n">price_calc</span><span class="o">.</span><span class="n">adjustments</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Final price: </span><span class="si">{</span><span class="n">price_calc</span><span class="o">.</span><span class="n">final_price</span><span class="si">}</span><span class="s2"> SAR"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Total value: </span><span class="si">{</span><span class="n">price_calc</span><span class="o">.</span><span class="n">total_value</span><span class="si">}</span><span class="s2"> SAR"</span><span class="p">)</span>
 
 <span class="c1"># Quick price calculation</span>
 <span class="n">quick</span> <span class="o">=</span> <span class="n">calculate_quick_price</span><span class="p">(</span>
-    <span class="n">crop</span><span class="o">=</span><span class="s2">&quot;wheat&quot;</span><span class="p">,</span>
-    <span class="n">grade</span><span class="o">=</span><span class="s2">&quot;A&quot;</span><span class="p">,</span>
+    <span class="n">crop</span><span class="o">=</span><span class="s2">"wheat"</span><span class="p">,</span>
+    <span class="n">grade</span><span class="o">=</span><span class="s2">"A"</span><span class="p">,</span>
     <span class="n">quantity_kg</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Quick estimate: </span><span class="si">{</span><span class="n">quick</span><span class="si">}</span><span class="s2"> SAR&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Quick estimate: </span><span class="si">{</span><span class="n">quick</span><span class="si">}</span><span class="s2"> SAR"</span><span class="p">)</span>
 </code></pre></div>
 
 <h4 id="integration_5">Integration | التكامل<a class="headerlink" href="#integration_5" title="Permanent link">&para;</a></h4>
@@ -2327,8 +2327,8 @@
 
 <span class="c1"># Quick start - creates engine with session</span>
 <span class="n">engine</span> <span class="o">=</span> <span class="n">quick_start</span><span class="p">(</span>
-    <span class="n">farm_id</span><span class="o">=</span><span class="s2">&quot;FARM-001&quot;</span><span class="p">,</span>
-    <span class="n">farmer_id</span><span class="o">=</span><span class="s2">&quot;farmer-123&quot;</span><span class="p">,</span>
+    <span class="n">farm_id</span><span class="o">=</span><span class="s2">"FARM-001"</span><span class="p">,</span>
+    <span class="n">farmer_id</span><span class="o">=</span><span class="s2">"farmer-123"</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="c1"># Phase 1: Human sets goals</span>
@@ -2352,10 +2352,10 @@
 <span class="c1"># Phase 2: AI generates irrigation program</span>
 <span class="n">program</span> <span class="o">=</span> <span class="k">await</span> <span class="n">engine</span><span class="o">.</span><span class="n">ai_generates_program</span><span class="p">(</span>
     <span class="n">context</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;crop_type&quot;</span><span class="p">:</span> <span class="s2">&quot;wheat&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;growth_stage&quot;</span><span class="p">:</span> <span class="s2">&quot;tillering&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;soil_moisture&quot;</span><span class="p">:</span> <span class="mi">35</span><span class="p">,</span>
-        <span class="s2">&quot;weather_forecast&quot;</span><span class="p">:</span> <span class="p">{</span><span class="o">...</span><span class="p">},</span>
+        <span class="s2">"crop_type"</span><span class="p">:</span> <span class="s2">"wheat"</span><span class="p">,</span>
+        <span class="s2">"growth_stage"</span><span class="p">:</span> <span class="s2">"tillering"</span><span class="p">,</span>
+        <span class="s2">"soil_moisture"</span><span class="p">:</span> <span class="mi">35</span><span class="p">,</span>
+        <span class="s2">"weather_forecast"</span><span class="p">:</span> <span class="p">{</span><span class="o">...</span><span class="p">},</span>
     <span class="p">}</span>
 <span class="p">)</span>
 
@@ -2363,17 +2363,17 @@
 <span class="n">engine</span><span class="o">.</span><span class="n">human_reviews_program</span><span class="p">(</span><span class="n">program</span><span class="p">)</span>
 <span class="n">engine</span><span class="o">.</span><span class="n">human_injects_experience</span><span class="p">([</span>
     <span class="n">ExperienceRule</span><span class="p">(</span>
-        <span class="n">condition</span><span class="o">=</span><span class="s2">&quot;cold_wave&quot;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;reduce_irrigation_20%&quot;</span><span class="p">,</span>
+        <span class="n">condition</span><span class="o">=</span><span class="s2">"cold_wave"</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">"reduce_irrigation_20%"</span><span class="p">,</span>
         <span class="n">source</span><span class="o">=</span><span class="n">ExperienceSource</span><span class="o">.</span><span class="n">FARMER</span><span class="p">,</span>
-        <span class="n">rationale</span><span class="o">=</span><span class="s2">&quot;Plants need less water in cold&quot;</span><span class="p">,</span>
-        <span class="n">rationale_ar</span><span class="o">=</span><span class="s2">&quot;النباتات تحتاج ماء أقل في البرد&quot;</span><span class="p">,</span>
+        <span class="n">rationale</span><span class="o">=</span><span class="s2">"Plants need less water in cold"</span><span class="p">,</span>
+        <span class="n">rationale_ar</span><span class="o">=</span><span class="s2">"النباتات تحتاج ماء أقل في البرد"</span><span class="p">,</span>
     <span class="p">),</span>
 <span class="p">])</span>
 
 <span class="c1"># Phase 4: Calibration</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">run_calibration_cycle</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Calibration passed: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">passed</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Calibration passed: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">passed</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># Phase 5: Approval and execution</span>
 <span class="k">if</span> <span class="n">engine</span><span class="o">.</span><span class="n">checklist</span><span class="o">.</span><span class="n">validate_all</span><span class="p">()</span><span class="o">.</span><span class="n">is_complete</span><span class="p">:</span>
@@ -2383,7 +2383,7 @@
 <span class="n">engine</span><span class="o">.</span><span class="n">record_outcome</span><span class="p">(</span>
     <span class="n">actual_yield</span><span class="o">=</span><span class="mf">4.5</span><span class="p">,</span>  <span class="c1"># tons/ha</span>
     <span class="n">water_used</span><span class="o">=</span><span class="mi">450</span><span class="p">,</span>    <span class="c1"># mm</span>
-    <span class="n">issues_encountered</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;minor_stress_day_45&quot;</span><span class="p">],</span>
+    <span class="n">issues_encountered</span><span class="o">=</span><span class="p">[</span><span class="s2">"minor_stress_day_45"</span><span class="p">],</span>
 <span class="p">)</span>
 </code></pre></div>
 
@@ -2514,8 +2514,8 @@
 <span class="p">)</span>
 
 <span class="n">crop</span> <span class="o">=</span> <span class="n">CropFeatures</span><span class="p">(</span>
-    <span class="n">crop_type</span><span class="o">=</span><span class="s2">&quot;wheat&quot;</span><span class="p">,</span>
-    <span class="n">crop_type_ar</span><span class="o">=</span><span class="s2">&quot;قمح&quot;</span><span class="p">,</span>
+    <span class="n">crop_type</span><span class="o">=</span><span class="s2">"wheat"</span><span class="p">,</span>
+    <span class="n">crop_type_ar</span><span class="o">=</span><span class="s2">"قمح"</span><span class="p">,</span>
     <span class="n">growth_stage</span><span class="o">=</span><span class="n">CropStage</span><span class="o">.</span><span class="n">TILLERING</span><span class="p">,</span>
     <span class="n">days_after_planting</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span>
     <span class="n">kc</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span>
@@ -2526,12 +2526,12 @@
 <span class="c1"># Predict irrigation needs</span>
 <span class="n">prediction</span> <span class="o">=</span> <span class="n">predict_irrigation</span><span class="p">(</span><span class="n">weather</span><span class="p">,</span> <span class="n">soil</span><span class="p">,</span> <span class="n">crop</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Irrigation needed: </span><span class="si">{</span><span class="n">prediction</span><span class="o">.</span><span class="n">irrigation_needed</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Amount: </span><span class="si">{</span><span class="n">prediction</span><span class="o">.</span><span class="n">recommended_amount_mm</span><span class="si">}</span><span class="s2"> mm&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Urgency: </span><span class="si">{</span><span class="n">prediction</span><span class="o">.</span><span class="n">urgency</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Confidence: </span><span class="si">{</span><span class="n">prediction</span><span class="o">.</span><span class="n">confidence</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Recommendation: </span><span class="si">{</span><span class="n">prediction</span><span class="o">.</span><span class="n">recommendation</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;التوصية: </span><span class="si">{</span><span class="n">prediction</span><span class="o">.</span><span class="n">recommendation_ar</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Irrigation needed: </span><span class="si">{</span><span class="n">prediction</span><span class="o">.</span><span class="n">irrigation_needed</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Amount: </span><span class="si">{</span><span class="n">prediction</span><span class="o">.</span><span class="n">recommended_amount_mm</span><span class="si">}</span><span class="s2"> mm"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Urgency: </span><span class="si">{</span><span class="n">prediction</span><span class="o">.</span><span class="n">urgency</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Confidence: </span><span class="si">{</span><span class="n">prediction</span><span class="o">.</span><span class="n">confidence</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Recommendation: </span><span class="si">{</span><span class="n">prediction</span><span class="o">.</span><span class="n">recommendation</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"التوصية: </span><span class="si">{</span><span class="n">prediction</span><span class="o">.</span><span class="n">recommendation_ar</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># Optimize water usage</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">shared.ml_irrigation</span><span class="w"> </span><span class="kn">import</span> <span class="n">IrrigationRecord</span>
@@ -2542,9 +2542,9 @@
     <span class="n">area_ha</span><span class="o">=</span><span class="mf">10.5</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Current efficiency: </span><span class="si">{</span><span class="n">optimization</span><span class="o">.</span><span class="n">current_efficiency</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Potential savings: </span><span class="si">{</span><span class="n">optimization</span><span class="o">.</span><span class="n">savings_percent</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Recommendations: </span><span class="si">{</span><span class="n">optimization</span><span class="o">.</span><span class="n">recommendations</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Current efficiency: </span><span class="si">{</span><span class="n">optimization</span><span class="o">.</span><span class="n">current_efficiency</span><span class="si">}</span><span class="s2">%"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Potential savings: </span><span class="si">{</span><span class="n">optimization</span><span class="o">.</span><span class="n">savings_percent</span><span class="si">}</span><span class="s2">%"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Recommendations: </span><span class="si">{</span><span class="n">optimization</span><span class="o">.</span><span class="n">recommendations</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># Detect anomalies</span>
 <span class="n">anomalies</span> <span class="o">=</span> <span class="n">detect_irrigation_anomalies</span><span class="p">(</span>
@@ -2553,8 +2553,8 @@
 <span class="p">)</span>
 
 <span class="k">for</span> <span class="n">anomaly</span> <span class="ow">in</span> <span class="n">anomalies</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">anomaly</span><span class="o">.</span><span class="n">anomaly_type</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">anomaly</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Severity: </span><span class="si">{</span><span class="n">anomaly</span><span class="o">.</span><span class="n">severity</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">anomaly</span><span class="o">.</span><span class="n">anomaly_type</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">anomaly</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Severity: </span><span class="si">{</span><span class="n">anomaly</span><span class="o">.</span><span class="n">severity</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div>
 
 <h4 id="integration_7">Integration | التكامل<a class="headerlink" href="#integration_7" title="Permanent link">&para;</a></h4>
@@ -2712,59 +2712,59 @@
 <span class="p">)</span>
 
 <span class="c1"># Get pest information</span>
-<span class="n">rpw</span> <span class="o">=</span> <span class="n">get_pest_by_id</span><span class="p">(</span><span class="s2">&quot;rpw&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">rpw</span><span class="o">.</span><span class="n">name_ar</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">rpw</span><span class="o">.</span><span class="n">name_en</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Scientific: </span><span class="si">{</span><span class="n">rpw</span><span class="o">.</span><span class="n">scientific_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Quarantine: </span><span class="si">{</span><span class="n">rpw</span><span class="o">.</span><span class="n">is_quarantine_pest</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Symptoms: </span><span class="si">{</span><span class="n">rpw</span><span class="o">.</span><span class="n">symptoms_ar</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">rpw</span> <span class="o">=</span> <span class="n">get_pest_by_id</span><span class="p">(</span><span class="s2">"rpw"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Name: </span><span class="si">{</span><span class="n">rpw</span><span class="o">.</span><span class="n">name_ar</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">rpw</span><span class="o">.</span><span class="n">name_en</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Scientific: </span><span class="si">{</span><span class="n">rpw</span><span class="o">.</span><span class="n">scientific_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Quarantine: </span><span class="si">{</span><span class="n">rpw</span><span class="o">.</span><span class="n">is_quarantine_pest</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Symptoms: </span><span class="si">{</span><span class="n">rpw</span><span class="o">.</span><span class="n">symptoms_ar</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># Get pests for a crop</span>
 <span class="n">wheat_pests</span> <span class="o">=</span> <span class="n">get_pests_by_crop</span><span class="p">(</span><span class="n">CropType</span><span class="o">.</span><span class="n">WHEAT</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">pest</span> <span class="ow">in</span> <span class="n">wheat_pests</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="n">pest</span><span class="o">.</span><span class="n">name_ar</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"- </span><span class="si">{</span><span class="n">pest</span><span class="o">.</span><span class="n">name_ar</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># Identify by symptoms</span>
 <span class="n">matches</span> <span class="o">=</span> <span class="n">identify_by_symptoms</span><span class="p">(</span>
-    <span class="n">symptoms</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;yellowing_leaves&quot;</span><span class="p">,</span> <span class="s2">&quot;honeydew&quot;</span><span class="p">,</span> <span class="s2">&quot;sooty_mold&quot;</span><span class="p">],</span>
+    <span class="n">symptoms</span><span class="o">=</span><span class="p">[</span><span class="s2">"yellowing_leaves"</span><span class="p">,</span> <span class="s2">"honeydew"</span><span class="p">,</span> <span class="s2">"sooty_mold"</span><span class="p">],</span>
     <span class="n">crop_type</span><span class="o">=</span><span class="n">CropType</span><span class="o">.</span><span class="n">TOMATO</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">match</span><span class="o">.</span><span class="n">pest</span><span class="o">.</span><span class="n">name_ar</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">match</span><span class="o">.</span><span class="n">confidence</span><span class="si">}</span><span class="s2">% match&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">match</span><span class="o">.</span><span class="n">pest</span><span class="o">.</span><span class="n">name_ar</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">match</span><span class="o">.</span><span class="n">confidence</span><span class="si">}</span><span class="s2">% match"</span><span class="p">)</span>
 
 <span class="c1"># Assess economic threshold</span>
 <span class="n">assessment</span> <span class="o">=</span> <span class="n">assess_threshold</span><span class="p">(</span>
-    <span class="n">pest_id</span><span class="o">=</span><span class="s2">&quot;aphid&quot;</span><span class="p">,</span>
+    <span class="n">pest_id</span><span class="o">=</span><span class="s2">"aphid"</span><span class="p">,</span>
     <span class="n">crop_type</span><span class="o">=</span><span class="n">CropType</span><span class="o">.</span><span class="n">WHEAT</span><span class="p">,</span>
     <span class="n">population_count</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span>  <span class="c1"># per plant</span>
-    <span class="n">crop_stage</span><span class="o">=</span><span class="s2">&quot;tillering&quot;</span><span class="p">,</span>
+    <span class="n">crop_stage</span><span class="o">=</span><span class="s2">"tillering"</span><span class="p">,</span>
     <span class="n">crop_value_per_ha</span><span class="o">=</span><span class="mi">8000</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Threshold exceeded: </span><span class="si">{</span><span class="n">assessment</span><span class="o">.</span><span class="n">exceeded</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Action needed: </span><span class="si">{</span><span class="n">assessment</span><span class="o">.</span><span class="n">action_needed</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Economic injury level: </span><span class="si">{</span><span class="n">assessment</span><span class="o">.</span><span class="n">eil</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Estimated yield loss: </span><span class="si">{</span><span class="n">assessment</span><span class="o">.</span><span class="n">yield_loss_percent</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Threshold exceeded: </span><span class="si">{</span><span class="n">assessment</span><span class="o">.</span><span class="n">exceeded</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Action needed: </span><span class="si">{</span><span class="n">assessment</span><span class="o">.</span><span class="n">action_needed</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Economic injury level: </span><span class="si">{</span><span class="n">assessment</span><span class="o">.</span><span class="n">eil</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Estimated yield loss: </span><span class="si">{</span><span class="n">assessment</span><span class="o">.</span><span class="n">yield_loss_percent</span><span class="si">}</span><span class="s2">%"</span><span class="p">)</span>
 
 <span class="c1"># Generate treatment recommendation</span>
 <span class="k">if</span> <span class="n">assessment</span><span class="o">.</span><span class="n">action_needed</span><span class="p">:</span>
     <span class="n">treatment</span> <span class="o">=</span> <span class="n">generate_treatment_recommendation</span><span class="p">(</span>
-        <span class="n">pest_id</span><span class="o">=</span><span class="s2">&quot;aphid&quot;</span><span class="p">,</span>
+        <span class="n">pest_id</span><span class="o">=</span><span class="s2">"aphid"</span><span class="p">,</span>
         <span class="n">crop_type</span><span class="o">=</span><span class="n">CropType</span><span class="o">.</span><span class="n">WHEAT</span><span class="p">,</span>
-        <span class="n">infestation_level</span><span class="o">=</span><span class="s2">&quot;moderate&quot;</span><span class="p">,</span>
+        <span class="n">infestation_level</span><span class="o">=</span><span class="s2">"moderate"</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Urgency: </span><span class="si">{</span><span class="n">treatment</span><span class="o">.</span><span class="n">urgency</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Chemical options:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Urgency: </span><span class="si">{</span><span class="n">treatment</span><span class="o">.</span><span class="n">urgency</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Chemical options:"</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">chem</span> <span class="ow">in</span> <span class="n">treatment</span><span class="o">.</span><span class="n">chemical_options</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - </span><span class="si">{</span><span class="n">chem</span><span class="o">.</span><span class="n">product_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">chem</span><span class="o">.</span><span class="n">rate</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Biological options:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  - </span><span class="si">{</span><span class="n">chem</span><span class="o">.</span><span class="n">product_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">chem</span><span class="o">.</span><span class="n">rate</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Biological options:"</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">bio</span> <span class="ow">in</span> <span class="n">treatment</span><span class="o">.</span><span class="n">biological_options</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - </span><span class="si">{</span><span class="n">bio</span><span class="o">.</span><span class="n">agent_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  - </span><span class="si">{</span><span class="n">bio</span><span class="o">.</span><span class="n">agent_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># Get IPM calendar</span>
 <span class="n">calendar</span> <span class="o">=</span> <span class="n">get_ipm_calendar</span><span class="p">(</span><span class="n">CropType</span><span class="o">.</span><span class="n">DATE_PALM</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">month</span><span class="p">,</span> <span class="n">activities</span> <span class="ow">in</span> <span class="n">calendar</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">month</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">activities</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">month</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">activities</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div>
 
 <h4 id="integration_8">Integration | التكامل<a class="headerlink" href="#integration_8" title="Permanent link">&para;</a></h4>
@@ -2860,47 +2860,47 @@
 
 <span class="c1"># Check PHI compliance</span>
 <span class="n">phi_check</span> <span class="o">=</span> <span class="n">check_phi_compliance</span><span class="p">(</span>
-    <span class="n">pesticide_id</span><span class="o">=</span><span class="s2">&quot;lambda_cyhalothrin&quot;</span><span class="p">,</span>
+    <span class="n">pesticide_id</span><span class="o">=</span><span class="s2">"lambda_cyhalothrin"</span><span class="p">,</span>
     <span class="n">application_date</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">5</span><span class="p">),</span>
     <span class="n">planned_harvest_date</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
-    <span class="n">crop_type</span><span class="o">=</span><span class="s2">&quot;tomato&quot;</span><span class="p">,</span>
+    <span class="n">crop_type</span><span class="o">=</span><span class="s2">"tomato"</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="k">if</span> <span class="n">phi_check</span><span class="o">.</span><span class="n">is_violation</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PHI VIOLATION: </span><span class="si">{</span><span class="n">phi_check</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Message (AR): </span><span class="si">{</span><span class="n">phi_check</span><span class="o">.</span><span class="n">message_ar</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Safe harvest date: </span><span class="si">{</span><span class="n">phi_check</span><span class="o">.</span><span class="n">safe_harvest_date</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"PHI VIOLATION: </span><span class="si">{</span><span class="n">phi_check</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Message (AR): </span><span class="si">{</span><span class="n">phi_check</span><span class="o">.</span><span class="n">message_ar</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Safe harvest date: </span><span class="si">{</span><span class="n">phi_check</span><span class="o">.</span><span class="n">safe_harvest_date</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 <span class="k">else</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;PHI compliance OK&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"PHI compliance OK"</span><span class="p">)</span>
 
 <span class="c1"># Check REI compliance</span>
 <span class="n">rei_check</span> <span class="o">=</span> <span class="n">check_rei_compliance</span><span class="p">(</span>
-    <span class="n">pesticide_id</span><span class="o">=</span><span class="s2">&quot;chlorpyrifos&quot;</span><span class="p">,</span>
+    <span class="n">pesticide_id</span><span class="o">=</span><span class="s2">"chlorpyrifos"</span><span class="p">,</span>
     <span class="n">application_datetime</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">6</span><span class="p">),</span>
 <span class="p">)</span>
 
 <span class="k">if</span> <span class="n">rei_check</span><span class="o">.</span><span class="n">is_violation</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;REI VIOLATION: Workers cannot enter!&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Safe re-entry time: </span><span class="si">{</span><span class="n">rei_check</span><span class="o">.</span><span class="n">safe_entry_time</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"REI VIOLATION: Workers cannot enter!"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Safe re-entry time: </span><span class="si">{</span><span class="n">rei_check</span><span class="o">.</span><span class="n">safe_entry_time</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># Check tank mix compatibility</span>
 <span class="n">compatibility</span> <span class="o">=</span> <span class="n">check_tank_mix_compatibility</span><span class="p">(</span>
-    <span class="n">pesticide_ids</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;lambda_cyhalothrin&quot;</span><span class="p">,</span> <span class="s2">&quot;mancozeb&quot;</span><span class="p">,</span> <span class="s2">&quot;urea_foliar&quot;</span><span class="p">],</span>
+    <span class="n">pesticide_ids</span><span class="o">=</span><span class="p">[</span><span class="s2">"lambda_cyhalothrin"</span><span class="p">,</span> <span class="s2">"mancozeb"</span><span class="p">,</span> <span class="s2">"urea_foliar"</span><span class="p">],</span>
 <span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Compatible: </span><span class="si">{</span><span class="n">compatibility</span><span class="o">.</span><span class="n">is_compatible</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Compatible: </span><span class="si">{</span><span class="n">compatibility</span><span class="o">.</span><span class="n">is_compatible</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 <span class="k">if</span> <span class="ow">not</span> <span class="n">compatibility</span><span class="o">.</span><span class="n">is_compatible</span><span class="p">:</span>
     <span class="k">for</span> <span class="n">issue</span> <span class="ow">in</span> <span class="n">compatibility</span><span class="o">.</span><span class="n">issues</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - </span><span class="si">{</span><span class="n">issue</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  - </span><span class="si">{</span><span class="n">issue</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># Get PPE requirements</span>
-<span class="n">ppe</span> <span class="o">=</span> <span class="n">get_ppe_requirements</span><span class="p">(</span><span class="n">pesticide_id</span><span class="o">=</span><span class="s2">&quot;paraquat&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Required PPE:&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Gloves: </span><span class="si">{</span><span class="n">ppe</span><span class="o">.</span><span class="n">gloves</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Respirator: </span><span class="si">{</span><span class="n">ppe</span><span class="o">.</span><span class="n">respirator</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Eye protection: </span><span class="si">{</span><span class="n">ppe</span><span class="o">.</span><span class="n">eye_protection</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Body protection: </span><span class="si">{</span><span class="n">ppe</span><span class="o">.</span><span class="n">body_protection</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Boots: </span><span class="si">{</span><span class="n">ppe</span><span class="o">.</span><span class="n">boots</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">ppe</span> <span class="o">=</span> <span class="n">get_ppe_requirements</span><span class="p">(</span><span class="n">pesticide_id</span><span class="o">=</span><span class="s2">"paraquat"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Required PPE:"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Gloves: </span><span class="si">{</span><span class="n">ppe</span><span class="o">.</span><span class="n">gloves</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Respirator: </span><span class="si">{</span><span class="n">ppe</span><span class="o">.</span><span class="n">respirator</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Eye protection: </span><span class="si">{</span><span class="n">ppe</span><span class="o">.</span><span class="n">eye_protection</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Body protection: </span><span class="si">{</span><span class="n">ppe</span><span class="o">.</span><span class="n">body_protection</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Boots: </span><span class="si">{</span><span class="n">ppe</span><span class="o">.</span><span class="n">boots</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># Assess spray drift risk</span>
 <span class="n">drift_risk</span> <span class="o">=</span> <span class="n">assess_spray_drift_risk</span><span class="p">(</span>
@@ -2910,9 +2910,9 @@
     <span class="n">distance_to_sensitive_area_m</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Drift risk: </span><span class="si">{</span><span class="n">drift_risk</span><span class="o">.</span><span class="n">risk_level</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Recommendation: </span><span class="si">{</span><span class="n">drift_risk</span><span class="o">.</span><span class="n">recommendation</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;التوصية: </span><span class="si">{</span><span class="n">drift_risk</span><span class="o">.</span><span class="n">recommendation_ar</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Drift risk: </span><span class="si">{</span><span class="n">drift_risk</span><span class="o">.</span><span class="n">risk_level</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Recommendation: </span><span class="si">{</span><span class="n">drift_risk</span><span class="o">.</span><span class="n">recommendation</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"التوصية: </span><span class="si">{</span><span class="n">drift_risk</span><span class="o">.</span><span class="n">recommendation_ar</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div>
 
 <h4 id="integration_9">Integration | التكامل<a class="headerlink" href="#integration_9" title="Permanent link">&para;</a></h4>
@@ -3022,12 +3022,12 @@
 <span class="c1"># Connect to sensor via MQTT</span>
 <span class="n">mqtt_adapter</span> <span class="o">=</span> <span class="n">get_adapter</span><span class="p">(</span><span class="n">SensorProtocol</span><span class="o">.</span><span class="n">MQTT</span><span class="p">)</span>
 <span class="k">await</span> <span class="n">mqtt_adapter</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
-    <span class="n">broker</span><span class="o">=</span><span class="s2">&quot;mqtt.farm.local&quot;</span><span class="p">,</span>
-    <span class="n">topic</span><span class="o">=</span><span class="s2">&quot;sensors/soil/+&quot;</span><span class="p">,</span>
+    <span class="n">broker</span><span class="o">=</span><span class="s2">"mqtt.farm.local"</span><span class="p">,</span>
+    <span class="n">topic</span><span class="o">=</span><span class="s2">"sensors/soil/+"</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="c1"># Process incoming readings</span>
-<span class="n">processor</span> <span class="o">=</span> <span class="n">SensorDataProcessor</span><span class="p">(</span><span class="n">field_id</span><span class="o">=</span><span class="s2">&quot;FIELD-001&quot;</span><span class="p">)</span>
+<span class="n">processor</span> <span class="o">=</span> <span class="n">SensorDataProcessor</span><span class="p">(</span><span class="n">field_id</span><span class="o">=</span><span class="s2">"FIELD-001"</span><span class="p">)</span>
 
 <span class="k">async</span> <span class="k">for</span> <span class="n">reading</span> <span class="ow">in</span> <span class="n">mqtt_adapter</span><span class="o">.</span><span class="n">stream_readings</span><span class="p">():</span>
     <span class="c1"># Normalize and validate</span>
@@ -3036,8 +3036,8 @@
     <span class="c1"># Check for alerts</span>
     <span class="n">alerts</span> <span class="o">=</span> <span class="n">processor</span><span class="o">.</span><span class="n">check_thresholds</span><span class="p">(</span><span class="n">normalized</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">alert</span> <span class="ow">in</span> <span class="n">alerts</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ALERT: </span><span class="si">{</span><span class="n">alert</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;تنبيه: </span><span class="si">{</span><span class="n">alert</span><span class="o">.</span><span class="n">message_ar</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ALERT: </span><span class="si">{</span><span class="n">alert</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"تنبيه: </span><span class="si">{</span><span class="n">alert</span><span class="o">.</span><span class="n">message_ar</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># Aggregate readings for period</span>
 <span class="n">readings</span> <span class="o">=</span> <span class="k">await</span> <span class="n">processor</span><span class="o">.</span><span class="n">get_readings</span><span class="p">(</span>
@@ -3047,14 +3047,14 @@
 
 <span class="n">aggregated</span> <span class="o">=</span> <span class="n">aggregate_readings</span><span class="p">(</span>
     <span class="n">readings</span><span class="o">=</span><span class="n">readings</span><span class="p">,</span>
-    <span class="n">interval</span><span class="o">=</span><span class="s2">&quot;hourly&quot;</span><span class="p">,</span>
-    <span class="n">aggregation</span><span class="o">=</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span>
+    <span class="n">interval</span><span class="o">=</span><span class="s2">"hourly"</span><span class="p">,</span>
+    <span class="n">aggregation</span><span class="o">=</span><span class="s2">"mean"</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="c1"># Detect anomalies</span>
 <span class="n">anomalies</span> <span class="o">=</span> <span class="n">detect_anomalies</span><span class="p">(</span><span class="n">readings</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">anomaly</span> <span class="ow">in</span> <span class="n">anomalies</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Anomaly at </span><span class="si">{</span><span class="n">anomaly</span><span class="o">.</span><span class="n">timestamp</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">anomaly</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Anomaly at </span><span class="si">{</span><span class="n">anomaly</span><span class="o">.</span><span class="n">timestamp</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">anomaly</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># Interpolate field moisture map</span>
 <span class="n">moisture_map</span> <span class="o">=</span> <span class="n">interpolate_field_moisture</span><span class="p">(</span>
@@ -3189,10 +3189,10 @@
 
 <span class="c1"># Create a soil test result</span>
 <span class="n">soil_test</span> <span class="o">=</span> <span class="n">SoilTestResult</span><span class="p">(</span>
-    <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;test_001&quot;</span><span class="p">,</span>
-    <span class="n">tenant_id</span><span class="o">=</span><span class="s2">&quot;tenant_001&quot;</span><span class="p">,</span>
-    <span class="n">field_id</span><span class="o">=</span><span class="s2">&quot;FIELD-001&quot;</span><span class="p">,</span>
-    <span class="n">sample_id</span><span class="o">=</span><span class="s2">&quot;sample_001&quot;</span><span class="p">,</span>
+    <span class="nb">id</span><span class="o">=</span><span class="s2">"test_001"</span><span class="p">,</span>
+    <span class="n">tenant_id</span><span class="o">=</span><span class="s2">"tenant_001"</span><span class="p">,</span>
+    <span class="n">field_id</span><span class="o">=</span><span class="s2">"FIELD-001"</span><span class="p">,</span>
+    <span class="n">sample_id</span><span class="o">=</span><span class="s2">"sample_001"</span><span class="p">,</span>
     <span class="n">sample_date</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(),</span>
     <span class="n">macronutrients</span><span class="o">=</span><span class="n">MacronutrientResults</span><span class="p">(</span>
         <span class="n">nitrogen_nitrate_ppm</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
@@ -3208,40 +3208,40 @@
 
 <span class="c1"># Interpret results</span>
 <span class="n">interpreter</span> <span class="o">=</span> <span class="n">SoilTestInterpreter</span><span class="p">()</span>
-<span class="n">report</span> <span class="o">=</span> <span class="n">interpreter</span><span class="o">.</span><span class="n">interpret</span><span class="p">(</span><span class="n">soil_test</span><span class="p">,</span> <span class="n">crop</span><span class="o">=</span><span class="s2">&quot;wheat&quot;</span><span class="p">)</span>
+<span class="n">report</span> <span class="o">=</span> <span class="n">interpreter</span><span class="o">.</span><span class="n">interpret</span><span class="p">(</span><span class="n">soil_test</span><span class="p">,</span> <span class="n">crop</span><span class="o">=</span><span class="s2">"wheat"</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Summary: </span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">summary</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;الملخص: </span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">summary_ar</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Summary: </span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">summary</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"الملخص: </span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">summary_ar</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="k">for</span> <span class="n">nutrient</span><span class="p">,</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">report</span><span class="o">.</span><span class="n">nutrient_status</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">nutrient</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">status</span><span class="o">.</span><span class="n">level</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">status</span><span class="o">.</span><span class="n">recommendation_ar</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">nutrient</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">status</span><span class="o">.</span><span class="n">level</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">status</span><span class="o">.</span><span class="n">recommendation_ar</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># Generate amendment plan</span>
 <span class="n">recommender</span> <span class="o">=</span> <span class="n">SoilAmendmentRecommender</span><span class="p">()</span>
 <span class="n">plan</span> <span class="o">=</span> <span class="n">recommender</span><span class="o">.</span><span class="n">generate_plan</span><span class="p">(</span>
     <span class="n">soil_test</span><span class="o">=</span><span class="n">soil_test</span><span class="p">,</span>
-    <span class="n">crop</span><span class="o">=</span><span class="s2">&quot;wheat&quot;</span><span class="p">,</span>
+    <span class="n">crop</span><span class="o">=</span><span class="s2">"wheat"</span><span class="p">,</span>
     <span class="n">target_yield</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>  <span class="c1"># tons/ha</span>
 <span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Amendment Plan for </span><span class="si">{</span><span class="n">plan</span><span class="o">.</span><span class="n">crop</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Amendment Plan for </span><span class="si">{</span><span class="n">plan</span><span class="o">.</span><span class="n">crop</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">amendment</span> <span class="ow">in</span> <span class="n">plan</span><span class="o">.</span><span class="n">amendments</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - </span><span class="si">{</span><span class="n">amendment</span><span class="o">.</span><span class="n">product_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">amendment</span><span class="o">.</span><span class="n">rate_kg_ha</span><span class="si">}</span><span class="s2"> kg/ha&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    Timing: </span><span class="si">{</span><span class="n">amendment</span><span class="o">.</span><span class="n">timing</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    Cost: </span><span class="si">{</span><span class="n">amendment</span><span class="o">.</span><span class="n">cost_per_ha</span><span class="si">}</span><span class="s2"> SAR/ha&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  - </span><span class="si">{</span><span class="n">amendment</span><span class="o">.</span><span class="n">product_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">amendment</span><span class="o">.</span><span class="n">rate_kg_ha</span><span class="si">}</span><span class="s2"> kg/ha"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    Timing: </span><span class="si">{</span><span class="n">amendment</span><span class="o">.</span><span class="n">timing</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    Cost: </span><span class="si">{</span><span class="n">amendment</span><span class="o">.</span><span class="n">cost_per_ha</span><span class="si">}</span><span class="s2"> SAR/ha"</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total cost: </span><span class="si">{</span><span class="n">plan</span><span class="o">.</span><span class="n">total_cost_per_ha</span><span class="si">}</span><span class="s2"> SAR/ha&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Total cost: </span><span class="si">{</span><span class="n">plan</span><span class="o">.</span><span class="n">total_cost_per_ha</span><span class="si">}</span><span class="s2"> SAR/ha"</span><span class="p">)</span>
 
 <span class="c1"># Analyze trends</span>
 <span class="n">analyzer</span> <span class="o">=</span> <span class="n">SoilTrendAnalyzer</span><span class="p">()</span>
 <span class="n">trend_report</span> <span class="o">=</span> <span class="n">analyzer</span><span class="o">.</span><span class="n">analyze_trends</span><span class="p">(</span>
-    <span class="n">field_id</span><span class="o">=</span><span class="s2">&quot;FIELD-001&quot;</span><span class="p">,</span>
+    <span class="n">field_id</span><span class="o">=</span><span class="s2">"FIELD-001"</span><span class="p">,</span>
     <span class="n">soil_tests</span><span class="o">=</span><span class="p">[</span><span class="n">soil_test</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>  <span class="c1"># Multiple tests over time</span>
 <span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Organic Matter Trend: </span><span class="si">{</span><span class="n">trend_report</span><span class="o">.</span><span class="n">om_trend</span><span class="o">.</span><span class="n">direction</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;pH Trend: </span><span class="si">{</span><span class="n">trend_report</span><span class="o">.</span><span class="n">ph_trend</span><span class="o">.</span><span class="n">direction</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Management Impact: </span><span class="si">{</span><span class="n">trend_report</span><span class="o">.</span><span class="n">management_assessment</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Organic Matter Trend: </span><span class="si">{</span><span class="n">trend_report</span><span class="o">.</span><span class="n">om_trend</span><span class="o">.</span><span class="n">direction</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"pH Trend: </span><span class="si">{</span><span class="n">trend_report</span><span class="o">.</span><span class="n">ph_trend</span><span class="o">.</span><span class="n">direction</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Management Impact: </span><span class="si">{</span><span class="n">trend_report</span><span class="o">.</span><span class="n">management_assessment</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div>
 
 <h4 id="integration_11">Integration | التكامل<a class="headerlink" href="#integration_11" title="Permanent link">&para;</a></h4>
@@ -3360,9 +3360,9 @@
 
 <span class="c1"># Define water source</span>
 <span class="n">well</span> <span class="o">=</span> <span class="n">WaterSource</span><span class="p">(</span>
-    <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;WELL-001&quot;</span><span class="p">,</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Main Farm Well&quot;</span><span class="p">,</span>
-    <span class="n">name_ar</span><span class="o">=</span><span class="s2">&quot;البئر الرئيسي للمزرعة&quot;</span><span class="p">,</span>
+    <span class="nb">id</span><span class="o">=</span><span class="s2">"WELL-001"</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"Main Farm Well"</span><span class="p">,</span>
+    <span class="n">name_ar</span><span class="o">=</span><span class="s2">"البئر الرئيسي للمزرعة"</span><span class="p">,</span>
     <span class="n">source_type</span><span class="o">=</span><span class="n">WaterSourceType</span><span class="o">.</span><span class="n">GROUNDWATER</span><span class="p">,</span>
     <span class="n">location</span><span class="o">=</span><span class="n">GeoLocation</span><span class="p">(</span><span class="n">latitude</span><span class="o">=</span><span class="mf">24.7</span><span class="p">,</span> <span class="n">longitude</span><span class="o">=</span><span class="mf">46.7</span><span class="p">),</span>
     <span class="n">max_extraction_m3_day</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
@@ -3373,16 +3373,16 @@
 <span class="n">monitor</span> <span class="o">=</span> <span class="n">WaterLevelMonitor</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="n">well</span><span class="p">)</span>
 <span class="n">trend</span> <span class="o">=</span> <span class="n">monitor</span><span class="o">.</span><span class="n">analyze_trend</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">90</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Current depth: </span><span class="si">{</span><span class="n">trend</span><span class="o">.</span><span class="n">current_level_m</span><span class="si">}</span><span class="s2">m&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Trend: </span><span class="si">{</span><span class="n">trend</span><span class="o">.</span><span class="n">trend_direction</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Depletion rate: </span><span class="si">{</span><span class="n">trend</span><span class="o">.</span><span class="n">depletion_rate_m_year</span><span class="si">}</span><span class="s2"> m/year&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Current depth: </span><span class="si">{</span><span class="n">trend</span><span class="o">.</span><span class="n">current_level_m</span><span class="si">}</span><span class="s2">m"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Trend: </span><span class="si">{</span><span class="n">trend</span><span class="o">.</span><span class="n">trend_direction</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Depletion rate: </span><span class="si">{</span><span class="n">trend</span><span class="o">.</span><span class="n">depletion_rate_m_year</span><span class="si">}</span><span class="s2"> m/year"</span><span class="p">)</span>
 
 <span class="k">if</span> <span class="n">trend</span><span class="o">.</span><span class="n">alert</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ALERT: </span><span class="si">{</span><span class="n">trend</span><span class="o">.</span><span class="n">alert</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;تنبيه: </span><span class="si">{</span><span class="n">trend</span><span class="o">.</span><span class="n">alert</span><span class="o">.</span><span class="n">message_ar</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ALERT: </span><span class="si">{</span><span class="n">trend</span><span class="o">.</span><span class="n">alert</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"تنبيه: </span><span class="si">{</span><span class="n">trend</span><span class="o">.</span><span class="n">alert</span><span class="o">.</span><span class="n">message_ar</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># Calculate irrigation efficiency</span>
-<span class="n">calculator</span> <span class="o">=</span> <span class="n">IrrigationEfficiencyCalculator</span><span class="p">(</span><span class="n">field_id</span><span class="o">=</span><span class="s2">&quot;FIELD-001&quot;</span><span class="p">)</span>
+<span class="n">calculator</span> <span class="o">=</span> <span class="n">IrrigationEfficiencyCalculator</span><span class="p">(</span><span class="n">field_id</span><span class="o">=</span><span class="s2">"FIELD-001"</span><span class="p">)</span>
 <span class="n">metrics</span> <span class="o">=</span> <span class="n">calculator</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span>
     <span class="n">water_applied_m3</span><span class="o">=</span><span class="mi">450</span><span class="p">,</span>
     <span class="n">area_ha</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
@@ -3390,30 +3390,30 @@
     <span class="n">rainfall_mm</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Application efficiency: </span><span class="si">{</span><span class="n">metrics</span><span class="o">.</span><span class="n">application_efficiency</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Distribution uniformity: </span><span class="si">{</span><span class="n">metrics</span><span class="o">.</span><span class="n">distribution_uniformity</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Water use efficiency: </span><span class="si">{</span><span class="n">metrics</span><span class="o">.</span><span class="n">wue_kg_m3</span><span class="si">}</span><span class="s2"> kg/m³&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Application efficiency: </span><span class="si">{</span><span class="n">metrics</span><span class="o">.</span><span class="n">application_efficiency</span><span class="si">}</span><span class="s2">%"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Distribution uniformity: </span><span class="si">{</span><span class="n">metrics</span><span class="o">.</span><span class="n">distribution_uniformity</span><span class="si">}</span><span class="s2">%"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Water use efficiency: </span><span class="si">{</span><span class="n">metrics</span><span class="o">.</span><span class="n">wue_kg_m3</span><span class="si">}</span><span class="s2"> kg/m³"</span><span class="p">)</span>
 
 <span class="c1"># Check against Saudi standards</span>
 <span class="n">standards</span> <span class="o">=</span> <span class="n">SaudiWaterStandards</span><span class="p">()</span>
 <span class="k">if</span> <span class="n">metrics</span><span class="o">.</span><span class="n">application_efficiency</span> <span class="o">&lt;</span> <span class="n">standards</span><span class="o">.</span><span class="n">min_efficiency</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Below MEWA recommended efficiency!&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Below MEWA recommended efficiency!"</span><span class="p">)</span>
 
 <span class="c1"># Generate MEWA compliance report</span>
-<span class="n">generator</span> <span class="o">=</span> <span class="n">WaterReportGenerator</span><span class="p">(</span><span class="n">farm_id</span><span class="o">=</span><span class="s2">&quot;FARM-001&quot;</span><span class="p">)</span>
+<span class="n">generator</span> <span class="o">=</span> <span class="n">WaterReportGenerator</span><span class="p">(</span><span class="n">farm_id</span><span class="o">=</span><span class="s2">"FARM-001"</span><span class="p">)</span>
 <span class="n">report</span> <span class="o">=</span> <span class="n">generator</span><span class="o">.</span><span class="n">generate_mewa_report</span><span class="p">(</span>
     <span class="n">period_start</span><span class="o">=</span><span class="n">date</span><span class="p">(</span><span class="mi">2026</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
     <span class="n">period_end</span><span class="o">=</span><span class="n">date</span><span class="p">(</span><span class="mi">2026</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">31</span><span class="p">),</span>
 <span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total extraction: </span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">total_extraction_m3</span><span class="si">}</span><span class="s2"> m³&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Quota used: </span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">quota_utilization_percent</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Compliance status: </span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">compliance_status</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Total extraction: </span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">total_extraction_m3</span><span class="si">}</span><span class="s2"> m³"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Quota used: </span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">quota_utilization_percent</span><span class="si">}</span><span class="s2">%"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Compliance status: </span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">compliance_status</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="k">if</span> <span class="n">report</span><span class="o">.</span><span class="n">issues</span><span class="p">:</span>
     <span class="k">for</span> <span class="n">issue</span> <span class="ow">in</span> <span class="n">report</span><span class="o">.</span><span class="n">issues</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Issue: </span><span class="si">{</span><span class="n">issue</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;المشكلة: </span><span class="si">{</span><span class="n">issue</span><span class="o">.</span><span class="n">description_ar</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Issue: </span><span class="si">{</span><span class="n">issue</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"المشكلة: </span><span class="si">{</span><span class="n">issue</span><span class="o">.</span><span class="n">description_ar</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div>
 
 <h4 id="integration_12">Integration | التكامل<a class="headerlink" href="#integration_12" title="Permanent link">&para;</a></h4>
@@ -3555,17 +3555,17 @@
 <span class="n">alerts</span> <span class="o">=</span> <span class="n">generate_weather_alerts</span><span class="p">(</span>
     <span class="n">forecasts</span><span class="o">=</span><span class="p">[</span><span class="n">forecast</span><span class="p">],</span>
     <span class="n">crop_type</span><span class="o">=</span><span class="n">CropType</span><span class="o">.</span><span class="n">WHEAT</span><span class="p">,</span>
-    <span class="n">field_id</span><span class="o">=</span><span class="s2">&quot;FIELD-001&quot;</span><span class="p">,</span>
+    <span class="n">field_id</span><span class="o">=</span><span class="s2">"FIELD-001"</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="k">for</span> <span class="n">alert</span> <span class="ow">in</span> <span class="n">alerts</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">alert</span><span class="o">.</span><span class="n">get_priority_icon</span><span class="p">()</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">alert</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   </span><span class="si">{</span><span class="n">alert</span><span class="o">.</span><span class="n">title_ar</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Severity: </span><span class="si">{</span><span class="n">alert</span><span class="o">.</span><span class="n">severity</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">alert</span><span class="o">.</span><span class="n">get_priority_icon</span><span class="p">()</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">alert</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"   </span><span class="si">{</span><span class="n">alert</span><span class="o">.</span><span class="n">title_ar</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"   Severity: </span><span class="si">{</span><span class="n">alert</span><span class="o">.</span><span class="n">severity</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">alert</span><span class="o">.</span><span class="n">recommended_actions</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   - </span><span class="si">{</span><span class="n">action</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"   - </span><span class="si">{</span><span class="n">action</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">action_ar</span> <span class="ow">in</span> <span class="n">alert</span><span class="o">.</span><span class="n">recommended_actions_ar</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   - </span><span class="si">{</span><span class="n">action_ar</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"   - </span><span class="si">{</span><span class="n">action_ar</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># Find spray windows</span>
 <span class="n">hourly_forecasts</span> <span class="o">=</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span>  <span class="c1"># List of hourly forecasts</span>
@@ -3575,45 +3575,45 @@
 <span class="p">)</span>
 
 <span class="k">for</span> <span class="n">window</span> <span class="ow">in</span> <span class="n">windows</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Window: </span><span class="si">{</span><span class="n">window</span><span class="o">.</span><span class="n">start_time</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">window</span><span class="o">.</span><span class="n">end_time</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Duration: </span><span class="si">{</span><span class="n">window</span><span class="o">.</span><span class="n">duration_hours</span><span class="si">}</span><span class="s2"> hours&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Score: </span><span class="si">{</span><span class="n">window</span><span class="o">.</span><span class="n">score</span><span class="si">}</span><span class="s2">/100&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Condition: </span><span class="si">{</span><span class="n">window</span><span class="o">.</span><span class="n">overall_condition</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Drift Risk: </span><span class="si">{</span><span class="n">window</span><span class="o">.</span><span class="n">drift_risk</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;خطر الانجراف: </span><span class="si">{</span><span class="n">window</span><span class="o">.</span><span class="n">drift_risk_ar</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Window: </span><span class="si">{</span><span class="n">window</span><span class="o">.</span><span class="n">start_time</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">window</span><span class="o">.</span><span class="n">end_time</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Duration: </span><span class="si">{</span><span class="n">window</span><span class="o">.</span><span class="n">duration_hours</span><span class="si">}</span><span class="s2"> hours"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Score: </span><span class="si">{</span><span class="n">window</span><span class="o">.</span><span class="n">score</span><span class="si">}</span><span class="s2">/100"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Condition: </span><span class="si">{</span><span class="n">window</span><span class="o">.</span><span class="n">overall_condition</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Drift Risk: </span><span class="si">{</span><span class="n">window</span><span class="o">.</span><span class="n">drift_risk</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"خطر الانجراف: </span><span class="si">{</span><span class="n">window</span><span class="o">.</span><span class="n">drift_risk_ar</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># Detect temperature inversions (dangerous for spraying)</span>
 <span class="n">inversions</span> <span class="o">=</span> <span class="n">detect_inversions</span><span class="p">(</span><span class="n">hourly_forecasts</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="n">inversions</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;INVERSION: </span><span class="si">{</span><span class="n">start</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">end</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  DO NOT spray during this period!&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  لا ترش خلال هذه الفترة!&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"INVERSION: </span><span class="si">{</span><span class="n">start</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">end</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"  DO NOT spray during this period!"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"  لا ترش خلال هذه الفترة!"</span><span class="p">)</span>
 
 <span class="c1"># Generate irrigation schedule</span>
 <span class="n">generator</span> <span class="o">=</span> <span class="n">WeatherAlertGenerator</span><span class="p">()</span>
 <span class="n">schedule</span> <span class="o">=</span> <span class="n">generator</span><span class="o">.</span><span class="n">generate_irrigation_schedule</span><span class="p">(</span>
     <span class="n">forecasts</span><span class="o">=</span><span class="n">forecasts</span><span class="p">,</span>
-    <span class="n">field_id</span><span class="o">=</span><span class="s2">&quot;FIELD-001&quot;</span><span class="p">,</span>
+    <span class="n">field_id</span><span class="o">=</span><span class="s2">"FIELD-001"</span><span class="p">,</span>
     <span class="n">crop_type</span><span class="o">=</span><span class="n">CropType</span><span class="o">.</span><span class="n">WHEAT</span><span class="p">,</span>
     <span class="n">soil_moisture_current</span><span class="o">=</span><span class="mf">35.0</span><span class="p">,</span>
     <span class="n">planned_irrigation_mm</span><span class="o">=</span><span class="mf">25.0</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Recommendation: </span><span class="si">{</span><span class="n">schedule</span><span class="o">.</span><span class="n">recommendation</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reason: </span><span class="si">{</span><span class="n">schedule</span><span class="o">.</span><span class="n">reason</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;السبب: </span><span class="si">{</span><span class="n">schedule</span><span class="o">.</span><span class="n">reason_ar</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Recommendation: </span><span class="si">{</span><span class="n">schedule</span><span class="o">.</span><span class="n">recommendation</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Reason: </span><span class="si">{</span><span class="n">schedule</span><span class="o">.</span><span class="n">reason</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"السبب: </span><span class="si">{</span><span class="n">schedule</span><span class="o">.</span><span class="n">reason_ar</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># Get harvest window</span>
 <span class="n">harvest</span> <span class="o">=</span> <span class="n">generator</span><span class="o">.</span><span class="n">generate_harvest_window</span><span class="p">(</span>
     <span class="n">forecasts</span><span class="o">=</span><span class="n">forecasts</span><span class="p">,</span>
-    <span class="n">field_id</span><span class="o">=</span><span class="s2">&quot;FIELD-001&quot;</span><span class="p">,</span>
+    <span class="n">field_id</span><span class="o">=</span><span class="s2">"FIELD-001"</span><span class="p">,</span>
     <span class="n">crop_type</span><span class="o">=</span><span class="n">CropType</span><span class="o">.</span><span class="n">WHEAT</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Harvest condition: </span><span class="si">{</span><span class="n">harvest</span><span class="o">.</span><span class="n">overall_condition</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Optimal date: </span><span class="si">{</span><span class="n">harvest</span><span class="o">.</span><span class="n">optimal_date</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Recommendation: </span><span class="si">{</span><span class="n">harvest</span><span class="o">.</span><span class="n">recommendation</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;التوصية: </span><span class="si">{</span><span class="n">harvest</span><span class="o">.</span><span class="n">recommendation_ar</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Harvest condition: </span><span class="si">{</span><span class="n">harvest</span><span class="o">.</span><span class="n">overall_condition</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Optimal date: </span><span class="si">{</span><span class="n">harvest</span><span class="o">.</span><span class="n">optimal_date</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Recommendation: </span><span class="si">{</span><span class="n">harvest</span><span class="o">.</span><span class="n">recommendation</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"التوصية: </span><span class="si">{</span><span class="n">harvest</span><span class="o">.</span><span class="n">recommendation_ar</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div>
 
 <h4 id="integration_13">Integration | التكامل<a class="headerlink" href="#integration_13" title="Permanent link">&para;</a></h4>
@@ -3704,8 +3704,8 @@
 <span class="k">try</span><span class="p">:</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
 <span class="k">except</span> <span class="n">InsuranceException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;خطأ: </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">message_ar</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error: </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"خطأ: </span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">message_ar</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div>
 
 <h3 id="configuration-pattern">Configuration Pattern | نمط التكوين<a class="headerlink" href="#configuration-pattern" title="Permanent link">&para;</a></h3>
@@ -3715,7 +3715,7 @@
 <span class="n">config</span> <span class="o">=</span> <span class="n">PredictorConfig</span><span class="p">(</span>
     <span class="n">confidence_threshold</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
     <span class="n">enable_caching</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">model_version</span><span class="o">=</span><span class="s2">&quot;v2.0&quot;</span><span class="p">,</span>
+    <span class="n">model_version</span><span class="o">=</span><span class="s2">"v2.0"</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="n">predictor</span> <span class="o">=</span> <span class="n">IrrigationPredictor</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
@@ -3832,10 +3832,10 @@ pytest<span class="w"> </span>shared/<span class="w"> </span>--cov<span class="o
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

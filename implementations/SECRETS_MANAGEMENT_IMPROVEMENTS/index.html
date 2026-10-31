@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1183,23 +1183,23 @@
 </ul>
 <p><strong>Features:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># High Availability with Raft</span>
-<span class="err">storage</span><span class="w"> </span><span class="s2">&quot;raft&quot;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;/vault/data&quot;</span>
-<span class="w">  </span><span class="na">node_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;vault-node-1&quot;</span>
+<span class="err">storage</span><span class="w"> </span><span class="s2">"raft"</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="na">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"/vault/data"</span>
+<span class="w">  </span><span class="na">node_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"vault-node-1"</span>
 <span class="w">  </span><span class="nb">retry_join</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
 <span class="p">}</span>
 
 <span class="c1"># TLS Encryption</span>
-<span class="err">listener</span><span class="w"> </span><span class="s2">&quot;tcp&quot;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="na">tls_cert_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;/vault/certs/vault.crt&quot;</span>
-<span class="w">  </span><span class="na">tls_key_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;/vault/certs/vault.key&quot;</span>
-<span class="w">  </span><span class="na">tls_min_version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;tls12&quot;</span>
+<span class="err">listener</span><span class="w"> </span><span class="s2">"tcp"</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="na">tls_cert_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"/vault/certs/vault.crt"</span>
+<span class="w">  </span><span class="na">tls_key_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"/vault/certs/vault.key"</span>
+<span class="w">  </span><span class="na">tls_min_version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"tls12"</span>
 <span class="p">}</span>
 
 <span class="c1"># Auto-Unseal (AWS KMS example)</span>
-<span class="err">seal</span><span class="w"> </span><span class="s2">&quot;awskms&quot;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="na">region</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;us-east-1&quot;</span>
-<span class="w">  </span><span class="na">kms_key_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;alias/sahool-vault-unseal&quot;</span>
+<span class="err">seal</span><span class="w"> </span><span class="s2">"awskms"</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="na">region</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"us-east-1"</span>
+<span class="w">  </span><span class="na">kms_key_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"alias/sahool-vault-unseal"</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1237,7 +1237,7 @@
 <span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-postgresql-secret</span>
 <span class="w">    </span><span class="nt">template</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">data</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">DATABASE_URL</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;postgresql://{{.username}}:{{.password}}@postgres:5432/sahool&quot;</span>
+<span class="w">        </span><span class="nt">DATABASE_URL</span><span class="p">:</span><span class="w"> </span><span class="s">"postgresql://{{.username}}:{{.password}}@postgres:5432/sahool"</span>
 <span class="w">  </span><span class="nt">data</span><span class="p">:</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">secretKey</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">password</span>
 <span class="w">      </span><span class="nt">remoteRef</span><span class="p">:</span>
@@ -1296,11 +1296,11 @@
 </ol>
 <div class="codehilite"><pre><span></span><code><span class="n">event</span> <span class="o">=</span> <span class="n">SecretAccessEvent</span><span class="p">(</span>
     <span class="n">access_type</span><span class="o">=</span><span class="n">SecretAccessType</span><span class="o">.</span><span class="n">READ</span><span class="p">,</span>
-    <span class="n">secret_path</span><span class="o">=</span><span class="s2">&quot;database/password&quot;</span><span class="p">,</span>
-    <span class="n">backend</span><span class="o">=</span><span class="s2">&quot;vault&quot;</span><span class="p">,</span>
+    <span class="n">secret_path</span><span class="o">=</span><span class="s2">"database/password"</span><span class="p">,</span>
+    <span class="n">backend</span><span class="o">=</span><span class="s2">"vault"</span><span class="p">,</span>
     <span class="n">result</span><span class="o">=</span><span class="n">AccessResult</span><span class="o">.</span><span class="n">SUCCESS</span><span class="p">,</span>
-    <span class="n">user</span><span class="o">=</span><span class="s2">&quot;field-ops-service&quot;</span><span class="p">,</span>
-    <span class="n">source_ip</span><span class="o">=</span><span class="s2">&quot;10.0.1.15&quot;</span><span class="p">,</span>
+    <span class="n">user</span><span class="o">=</span><span class="s2">"field-ops-service"</span><span class="p">,</span>
+    <span class="n">source_ip</span><span class="o">=</span><span class="s2">"10.0.1.15"</span><span class="p">,</span>
     <span class="n">duration_ms</span><span class="o">=</span><span class="mf">45.2</span>
 <span class="p">)</span>
 <span class="k">await</span> <span class="n">audit_secret_access</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
@@ -1328,12 +1328,12 @@
 </ol>
 <div class="codehilite"><pre><span></span><code><span class="n">stats</span> <span class="o">=</span> <span class="n">logger</span><span class="o">.</span><span class="n">get_access_stats</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">24</span><span class="p">)</span>
 <span class="c1"># {</span>
-<span class="c1">#   &quot;total_accesses&quot;: 1250,</span>
-<span class="c1">#   &quot;successful&quot;: 1248,</span>
-<span class="c1">#   &quot;failed&quot;: 2,</span>
-<span class="c1">#   &quot;unique_users&quot;: 15,</span>
-<span class="c1">#   &quot;unique_paths&quot;: 42,</span>
-<span class="c1">#   &quot;by_backend&quot;: {&quot;vault&quot;: 1200, &quot;environment&quot;: 50}</span>
+<span class="c1">#   "total_accesses": 1250,</span>
+<span class="c1">#   "successful": 1248,</span>
+<span class="c1">#   "failed": 2,</span>
+<span class="c1">#   "unique_users": 15,</span>
+<span class="c1">#   "unique_paths": 42,</span>
+<span class="c1">#   "by_backend": {"vault": 1200, "environment": 50}</span>
 <span class="c1"># }</span>
 </code></pre></div>
 
@@ -1373,7 +1373,7 @@
 </ul>
 <p><strong>Before:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="nt">data</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">postgres-password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Y2hhbmdlbWU=</span><span class="w"> </span><span class="c1"># &quot;changeme&quot; in base64</span>
+<span class="w">  </span><span class="nt">postgres-password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Y2hhbmdlbWU=</span><span class="w"> </span><span class="c1"># "changeme" in base64</span>
 <span class="w">  </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Y2hhbmdlbWU=</span>
 </code></pre></div>
 
@@ -1381,8 +1381,8 @@
 <div class="codehilite"><pre><span></span><code><span class="p p-Indicator">{{</span><span class="nv">- if not .Values.externalSecrets.enabled</span><span class="w"> </span><span class="p p-Indicator">}}</span>
 <span class="nt">stringData</span><span class="p">:</span>
 <span class="w">  </span><span class="c1"># WARNING: These are DEVELOPMENT PLACEHOLDERS ONLY!</span>
-<span class="w">  </span><span class="nt">postgres-password</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;REPLACE_WITH_SECURE_PASSWORD_MIN_32_CHARS&quot;</span>
-<span class="w">  </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;REPLACE_WITH_SECURE_PASSWORD_MIN_32_CHARS&quot;</span>
+<span class="w">  </span><span class="nt">postgres-password</span><span class="p">:</span><span class="w"> </span><span class="s">"REPLACE_WITH_SECURE_PASSWORD_MIN_32_CHARS"</span>
+<span class="w">  </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="s">"REPLACE_WITH_SECURE_PASSWORD_MIN_32_CHARS"</span>
 <span class="p p-Indicator">{{</span><span class="nv">- else</span><span class="w"> </span><span class="p p-Indicator">}}</span>
 <span class="c1"># External Secrets are enabled - secrets managed by External Secrets Operator</span>
 <span class="p p-Indicator">{{</span><span class="nv">- end</span><span class="w"> </span><span class="p p-Indicator">}}</span>
@@ -1657,7 +1657,7 @@ helm<span class="w"> </span>install<span class="w"> </span>sahool<span class="w"
 <div class="codehilite"><pre><span></span><code><span class="c1"># 1. Configure AWS Secrets Manager</span>
 aws<span class="w"> </span>secretsmanager<span class="w"> </span>create-secret<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--name<span class="w"> </span>sahool/prod/database/postgres<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--secret-string<span class="w"> </span><span class="s1">&#39;{&quot;username&quot;:&quot;sahool&quot;,&quot;password&quot;:&quot;&lt;secure-password&gt;&quot;}&#39;</span>
+<span class="w">  </span>--secret-string<span class="w"> </span><span class="s1">'{"username":"sahool","password":"&lt;secure-password&gt;"}'</span>
 
 <span class="c1"># 2. Update .env</span>
 <span class="nv">SECRET_BACKEND</span><span class="o">=</span>aws_secrets_manager
@@ -1673,7 +1673,7 @@ az<span class="w"> </span>keyvault<span class="w"> </span>create<span class="w">
 
 <span class="c1"># 2. Add secrets</span>
 az<span class="w"> </span>keyvault<span class="w"> </span>secret<span class="w"> </span><span class="nb">set</span><span class="w"> </span>--vault-name<span class="w"> </span>sahool-vault<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--name<span class="w"> </span>database-password<span class="w"> </span>--value<span class="w"> </span><span class="s2">&quot;&lt;secure-password&gt;&quot;</span>
+<span class="w">  </span>--name<span class="w"> </span>database-password<span class="w"> </span>--value<span class="w"> </span><span class="s2">"&lt;secure-password&gt;"</span>
 
 <span class="c1"># 3. Update .env</span>
 <span class="nv">SECRET_BACKEND</span><span class="o">=</span>azure_key_vault
@@ -1702,7 +1702,7 @@ az<span class="w"> </span>keyvault<span class="w"> </span>secret<span class="w">
 <span class="w">        </span><span class="nt">labels</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warning</span>
 <span class="w">        </span><span class="nt">annotations</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Secret</span><span class="nv"> </span><span class="s">{{</span><span class="nv"> </span><span class="s">$labels.secret_type</span><span class="nv"> </span><span class="s">}}</span><span class="nv"> </span><span class="s">expires</span><span class="nv"> </span><span class="s">in</span><span class="nv"> </span><span class="s">{{</span><span class="nv"> </span><span class="s">$value</span><span class="nv"> </span><span class="s">}}</span><span class="nv"> </span><span class="s">days&quot;</span>
+<span class="w">          </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="s">"Secret</span><span class="nv"> </span><span class="s">{{</span><span class="nv"> </span><span class="s">$labels.secret_type</span><span class="nv"> </span><span class="s">}}</span><span class="nv"> </span><span class="s">expires</span><span class="nv"> </span><span class="s">in</span><span class="nv"> </span><span class="s">{{</span><span class="nv"> </span><span class="s">$value</span><span class="nv"> </span><span class="s">}}</span><span class="nv"> </span><span class="s">days"</span>
 
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SecretRotationFailed</span>
 <span class="w">        </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool_secret_rotation_failures_total &gt; 0</span>
@@ -1710,7 +1710,7 @@ az<span class="w"> </span>keyvault<span class="w"> </span>secret<span class="w">
 <span class="w">        </span><span class="nt">labels</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">critical</span>
 <span class="w">        </span><span class="nt">annotations</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Secret</span><span class="nv"> </span><span class="s">rotation</span><span class="nv"> </span><span class="s">failed</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">{{</span><span class="nv"> </span><span class="s">$labels.secret_type</span><span class="nv"> </span><span class="s">}}&quot;</span>
+<span class="w">          </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="s">"Secret</span><span class="nv"> </span><span class="s">rotation</span><span class="nv"> </span><span class="s">failed</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">{{</span><span class="nv"> </span><span class="s">$labels.secret_type</span><span class="nv"> </span><span class="s">}}"</span>
 
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">HighFailedAccessRate</span>
 <span class="w">        </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rate(sahool_secret_access_failures_total[5m]) &gt; 0.1</span>
@@ -1718,7 +1718,7 @@ az<span class="w"> </span>keyvault<span class="w"> </span>secret<span class="w">
 <span class="w">        </span><span class="nt">labels</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warning</span>
 <span class="w">        </span><span class="nt">annotations</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;High</span><span class="nv"> </span><span class="s">rate</span><span class="nv"> </span><span class="s">of</span><span class="nv"> </span><span class="s">failed</span><span class="nv"> </span><span class="s">secret</span><span class="nv"> </span><span class="s">access</span><span class="nv"> </span><span class="s">from</span><span class="nv"> </span><span class="s">{{</span><span class="nv"> </span><span class="s">$labels.user</span><span class="nv"> </span><span class="s">}}&quot;</span>
+<span class="w">          </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="s">"High</span><span class="nv"> </span><span class="s">rate</span><span class="nv"> </span><span class="s">of</span><span class="nv"> </span><span class="s">failed</span><span class="nv"> </span><span class="s">secret</span><span class="nv"> </span><span class="s">access</span><span class="nv"> </span><span class="s">from</span><span class="nv"> </span><span class="s">{{</span><span class="nv"> </span><span class="s">$labels.user</span><span class="nv"> </span><span class="s">}}"</span>
 </code></pre></div>
 
 <hr />
@@ -1735,15 +1735,15 @@ python3<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
 
 <span class="s">    # Test database password</span>
 <span class="s">    db_pass = await secrets.get_secret(SecretKey.DATABASE_PASSWORD)</span>
-<span class="s">    print(f&quot;✅ Database password retrieved: {db_pass[:4]}...&quot;)</span>
+<span class="s">    print(f"✅ Database password retrieved: {db_pass[:4]}...")</span>
 
 <span class="s">    # Test JWT secret</span>
 <span class="s">    jwt_secret = await secrets.get_secret(SecretKey.JWT_SECRET)</span>
-<span class="s">    print(f&quot;✅ JWT secret retrieved: {jwt_secret[:4]}...&quot;)</span>
+<span class="s">    print(f"✅ JWT secret retrieved: {jwt_secret[:4]}...")</span>
 
 <span class="s">    # Test health check</span>
 <span class="s">    health = await secrets.health_check()</span>
-<span class="s">    print(f&quot;✅ Health check: {health}&quot;)</span>
+<span class="s">    print(f"✅ Health check: {health}")</span>
 
 <span class="s">asyncio.run(test())</span>
 <span class="s">EOF</span>
@@ -1983,10 +1983,10 @@ kubectl<span class="w"> </span>create<span class="w"> </span>secret<span class="
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

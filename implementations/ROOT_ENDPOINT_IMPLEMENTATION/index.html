@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1134,15 +1134,15 @@
 <span class="w">  </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://kong:8000</span>
 <span class="w">  </span><span class="nt">routes</span><span class="p">:</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">root-route</span>
-<span class="w">      </span><span class="nt">paths</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;/&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">paths</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"/"</span><span class="p p-Indicator">]</span>
 <span class="w">      </span><span class="nt">strip_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
-<span class="w">      </span><span class="nt">protocols</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;http&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;https&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">protocols</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"http"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"https"</span><span class="p p-Indicator">]</span>
 <span class="w">  </span><span class="nt">plugins</span><span class="p">:</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">request-termination</span>
 <span class="w">      </span><span class="nt">config</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">status_code</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">200</span>
-<span class="w">        </span><span class="nt">content_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;application/json&quot;</span>
-<span class="w">        </span><span class="nt">body</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{&quot;platform&quot;:&quot;SAHOOL&quot;,&quot;version&quot;:&quot;16.0.0&quot;,&quot;description&quot;:&quot;National</span><span class="nv"> </span><span class="s">Agricultural</span><span class="nv"> </span><span class="s">Intelligence</span><span class="nv"> </span><span class="s">Platform&quot;,&quot;status&quot;:&quot;operational&quot;,&quot;endpoints&quot;:{&quot;/health&quot;:&quot;Health</span><span class="nv"> </span><span class="s">check&quot;,&quot;/ping&quot;:&quot;Ping</span><span class="nv"> </span><span class="s">check&quot;,&quot;/api/v1&quot;:&quot;API</span><span class="nv"> </span><span class="s">Gateway&quot;},&quot;documentation&quot;:&quot;https://github.com/kafaat/sahool-unified-v15-idp&quot;}&#39;</span>
+<span class="w">        </span><span class="nt">content_type</span><span class="p">:</span><span class="w"> </span><span class="s">"application/json"</span>
+<span class="w">        </span><span class="nt">body</span><span class="p">:</span><span class="w"> </span><span class="s">'{"platform":"SAHOOL","version":"16.0.0","description":"National</span><span class="nv"> </span><span class="s">Agricultural</span><span class="nv"> </span><span class="s">Intelligence</span><span class="nv"> </span><span class="s">Platform","status":"operational","endpoints":{"/health":"Health</span><span class="nv"> </span><span class="s">check","/ping":"Ping</span><span class="nv"> </span><span class="s">check","/api/v1":"API</span><span class="nv"> </span><span class="s">Gateway"},"documentation":"https://github.com/kafaat/sahool-unified-v15-idp"}'</span>
 </code></pre></div>
 
 <h5 id="health-check-service">Health Check Service<a class="headerlink" href="#health-check-service" title="Permanent link">&para;</a></h5>
@@ -1150,14 +1150,14 @@
 <span class="w">  </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://kong:8000</span>
 <span class="w">  </span><span class="nt">routes</span><span class="p">:</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">health-route</span>
-<span class="w">      </span><span class="nt">paths</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;/health&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;/ping&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">paths</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"/health"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"/ping"</span><span class="p p-Indicator">]</span>
 <span class="w">      </span><span class="nt">strip_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
-<span class="w">      </span><span class="nt">protocols</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;http&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;https&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">protocols</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"http"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"https"</span><span class="p p-Indicator">]</span>
 <span class="w">  </span><span class="nt">plugins</span><span class="p">:</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">request-termination</span>
 <span class="w">      </span><span class="nt">config</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">status_code</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">200</span>
-<span class="w">        </span><span class="nt">message</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;SAHOOL</span><span class="nv"> </span><span class="s">Platform</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">healthy&quot;</span>
+<span class="w">        </span><span class="nt">message</span><span class="p">:</span><span class="w"> </span><span class="s">"SAHOOL</span><span class="nv"> </span><span class="s">Platform</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">healthy"</span>
 </code></pre></div>
 
 <h4 id="file-infrakongkongyml-mirror">File: <code>infra/kong/kong.yml</code> (Mirror)<a class="headerlink" href="#file-infrakongkongyml-mirror" title="Permanent link">&para;</a></h4>
@@ -1193,16 +1193,16 @@
 <p><strong>Purpose</strong>: Provide platform information and available endpoints</p>
 <p><strong>Response</strong> (200 OK):</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;platform&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SAHOOL&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;16.0.0&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;National Agricultural Intelligence Platform&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;operational&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;endpoints&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;/health&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Health check&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;/ping&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Ping check&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;/api/v1&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;API Gateway&quot;</span>
+<span class="w">  </span><span class="nt">"platform"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SAHOOL"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"16.0.0"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"National Agricultural Intelligence Platform"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"operational"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"endpoints"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"/health"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Health check"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"/ping"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Ping check"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"/api/v1"</span><span class="p">:</span><span class="w"> </span><span class="s2">"API Gateway"</span>
 <span class="w">  </span><span class="p">},</span>
-<span class="w">  </span><span class="nt">&quot;documentation&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://github.com/kafaat/sahool-unified-v15-idp&quot;</span>
+<span class="w">  </span><span class="nt">"documentation"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://github.com/kafaat/sahool-unified-v15-idp"</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1358,10 +1358,10 @@ curl<span class="w"> </span>http://localhost:8000/ping
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

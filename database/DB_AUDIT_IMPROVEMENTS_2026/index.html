@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1132,7 +1132,7 @@
 <p><strong>المشكلة</strong>: كانت رموز إعادة تعيين كلمة المرور مفهرسة في مخطط خدمة المستخدم، مما يخلق ثغرة أمنية يمكن أن تسمح بهجمات تعداد الرموز.</p>
 <p><strong>File</strong>: <code>apps/services/user-service/prisma/schema.prisma</code></p>
 <p><strong>Change</strong>:</p>
-<div class="codehilite"><pre><span></span><code><span class="gd">- @@index([passwordResetToken], name: &quot;idx_user_password_reset_token&quot;)</span>
+<div class="codehilite"><pre><span></span><code><span class="gd">- @@index([passwordResetToken], name: "idx_user_password_reset_token")</span>
 <span class="gi">+ // SECURITY: Do not index passwordResetToken to prevent token enumeration attacks</span>
 <span class="gi">+ // Use hash lookups in application code instead</span>
 </code></pre></div>
@@ -1150,8 +1150,8 @@
 <div class="codehilite"><pre><span></span><code><span class="w"> </span> // معلومات الدفع
 <span class="gi">+ // SECURITY: Sensitive bank account data - should be encrypted at application layer</span>
 <span class="gi">+ // Use packages/shared-crypto for field-level encryption before storing</span>
-<span class="gd">- bankAccount Json?    @map(&quot;bank_account&quot;) // معلومات الحساب البنكي</span>
-<span class="gi">+ bankAccount Json?    @map(&quot;bank_account&quot;) // معلومات الحساب البنكي (مشفرة)</span>
+<span class="gd">- bankAccount Json?    @map("bank_account") // معلومات الحساب البنكي</span>
+<span class="gi">+ bankAccount Json?    @map("bank_account") // معلومات الحساب البنكي (مشفرة)</span>
 </code></pre></div>
 
 <p><strong>Action Required</strong>:
@@ -1159,11 +1159,11 @@
 - [ ] Migrate existing plain-text bank account data to encrypted format
 - [ ] Add encryption middleware to SellerProfile model</p>
 <p><strong>Example Implementation</strong>:</p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createPrismaEncryptionMiddleware</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@sahool/shared-crypto&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createPrismaEncryptionMiddleware</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@sahool/shared-crypto'</span><span class="p">;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">encryptionConfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="nx">SellerProfile</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">bankAccount</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;standard&#39;</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="c1">// Full encryption, not searchable</span>
+<span class="w">    </span><span class="nx">bankAccount</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'standard'</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="c1">// Full encryption, not searchable</span>
 <span class="w">  </span><span class="p">},</span>
 <span class="p">};</span>
 
@@ -1184,10 +1184,10 @@
 
 <p><strong>Query Improvement</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1">-- Before: Full table scan</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">payment_status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;UNPAID&#39;</span><span class="p">;</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">payment_status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'UNPAID'</span><span class="p">;</span>
 
 <span class="c1">-- After: Index scan (100x faster for large tables)</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">payment_status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;UNPAID&#39;</span><span class="p">;</span><span class="w"> </span><span class="c1">-- Uses idx_order_payment_status</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">payment_status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'UNPAID'</span><span class="p">;</span><span class="w"> </span><span class="c1">-- Uses idx_order_payment_status</span>
 </code></pre></div>
 
 <hr />
@@ -1204,9 +1204,9 @@
 <p><strong>Query Improvement</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1">-- Common historical query pattern</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">sensor_readings</span><span class="w"> </span>
-<span class="k">WHERE</span><span class="w"> </span><span class="n">device_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;dev-123&#39;</span><span class="w"> </span>
-<span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">sensor_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;sensor-456&#39;</span><span class="w"> </span>
-<span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="k">timestamp</span><span class="w"> </span><span class="k">BETWEEN</span><span class="w"> </span><span class="s1">&#39;2026-01-01&#39;</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="s1">&#39;2026-02-01&#39;</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">device_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'dev-123'</span><span class="w"> </span>
+<span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">sensor_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'sensor-456'</span><span class="w"> </span>
+<span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="k">timestamp</span><span class="w"> </span><span class="k">BETWEEN</span><span class="w"> </span><span class="s1">'2026-01-01'</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="s1">'2026-02-01'</span>
 <span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">timestamp</span><span class="w"> </span><span class="k">DESC</span><span class="p">;</span>
 
 <span class="c1">-- Now uses composite index (50-100x faster)</span>
@@ -1236,7 +1236,7 @@
 <p><strong>الحل</strong>: إنشاء <code>shared/db/db-utils.ts</code> موحد مع جميع الأدوات الشائعة.</p>
 <p><strong>New Shared Utilities</strong>:</p>
 <h4 id="pagination-offset-cursor-based">Pagination (Offset &amp; Cursor-based)<a class="headerlink" href="#pagination-offset-cursor-based" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">calculatePagination</span><span class="p">,</span><span class="w"> </span><span class="nx">createPaginatedResponse</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@sahool/shared-db&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">calculatePagination</span><span class="p">,</span><span class="w"> </span><span class="nx">createPaginatedResponse</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@sahool/shared-db'</span><span class="p">;</span>
 
 <span class="c1">// Offset pagination</span>
 <span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">skip</span><span class="p">,</span><span class="w"> </span><span class="nx">take</span><span class="p">,</span><span class="w"> </span><span class="nx">page</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">calculatePagination</span><span class="p">({</span><span class="w"> </span><span class="nx">page</span><span class="o">:</span><span class="w"> </span><span class="kt">2</span><span class="p">,</span><span class="w"> </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">50</span><span class="w"> </span><span class="p">});</span>
@@ -1255,7 +1255,7 @@
 </code></pre></div>
 
 <h4 id="transaction-configurations">Transaction Configurations<a class="headerlink" href="#transaction-configurations" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">TRANSACTION_CONFIGS</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@sahool/shared-db&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">TRANSACTION_CONFIGS</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@sahool/shared-db'</span><span class="p">;</span>
 
 <span class="c1">// Financial transactions (Serializable isolation)</span>
 <span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">$transaction</span><span class="p">(</span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">tx</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
@@ -1269,28 +1269,28 @@
 </code></pre></div>
 
 <h4 id="query-logging-performance-monitoring">Query Logging &amp; Performance Monitoring<a class="headerlink" href="#query-logging-performance-monitoring" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createQueryLogger</span><span class="p">,</span><span class="w"> </span><span class="nx">measureQueryTime</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@sahool/shared-db&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createQueryLogger</span><span class="p">,</span><span class="w"> </span><span class="nx">measureQueryTime</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@sahool/shared-db'</span><span class="p">;</span>
 
 <span class="c1">// Auto-log slow queries</span>
-<span class="nx">prisma</span><span class="p">.</span><span class="nx">$on</span><span class="p">(</span><span class="s1">&#39;query&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">createQueryLogger</span><span class="p">(</span><span class="nx">logger</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;marketplace-service&#39;</span><span class="p">));</span>
+<span class="nx">prisma</span><span class="p">.</span><span class="nx">$on</span><span class="p">(</span><span class="s1">'query'</span><span class="p">,</span><span class="w"> </span><span class="nx">createQueryLogger</span><span class="p">(</span><span class="nx">logger</span><span class="p">,</span><span class="w"> </span><span class="s1">'marketplace-service'</span><span class="p">));</span>
 
 <span class="c1">// Measure specific query performance</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">products</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">measureQueryTime</span><span class="p">(</span>
 <span class="w">  </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">product</span><span class="p">.</span><span class="nx">findMany</span><span class="p">({</span><span class="w"> </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">category</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}),</span>
 <span class="w">  </span><span class="nx">logger</span><span class="p">,</span>
-<span class="w">  </span><span class="s1">&#39;product-search-by-category&#39;</span>
+<span class="w">  </span><span class="s1">'product-search-by-category'</span>
 <span class="p">);</span>
 </code></pre></div>
 
 <h4 id="security-utilities">Security Utilities<a class="headerlink" href="#security-utilities" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">sanitizeSearchInput</span><span class="p">,</span><span class="w"> </span><span class="nx">buildSafeSearchFilter</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@sahool/shared-db&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">sanitizeSearchInput</span><span class="p">,</span><span class="w"> </span><span class="nx">buildSafeSearchFilter</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@sahool/shared-db'</span><span class="p">;</span>
 
 <span class="c1">// Sanitize user input</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">safeTerm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">sanitizeSearchInput</span><span class="p">(</span><span class="nx">userInput</span><span class="p">);</span><span class="w"> </span><span class="c1">// Removes SQL injection patterns</span>
 
 <span class="c1">// Build safe search filter</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">filter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">buildSafeSearchFilter</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">userInput</span><span class="p">);</span>
-<span class="c1">// { name: { contains: &#39;safe input&#39;, mode: &#39;insensitive&#39; } }</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">filter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">buildSafeSearchFilter</span><span class="p">(</span><span class="s1">'name'</span><span class="p">,</span><span class="w"> </span><span class="nx">userInput</span><span class="p">);</span>
+<span class="c1">// { name: { contains: 'safe input', mode: 'insensitive' } }</span>
 </code></pre></div>
 
 <h4 id="error-handling">Error Handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h4>
@@ -1298,24 +1298,24 @@
 <span class="w">  </span><span class="nx">isUniqueConstraintError</span><span class="p">,</span><span class="w"> </span>
 <span class="w">  </span><span class="nx">isForeignKeyConstraintError</span><span class="p">,</span><span class="w"> </span>
 <span class="w">  </span><span class="nx">extractConstraintField</span><span class="w"> </span>
-<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@sahool/shared-db&#39;</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@sahool/shared-db'</span><span class="p">;</span>
 
 <span class="k">try</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="p">});</span>
 <span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">isUniqueConstraintError</span><span class="p">(</span><span class="nx">error</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">extractConstraintField</span><span class="p">(</span><span class="nx">error</span><span class="p">);</span><span class="w"> </span><span class="c1">// &#39;email&#39;</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">extractConstraintField</span><span class="p">(</span><span class="nx">error</span><span class="p">);</span><span class="w"> </span><span class="c1">// 'email'</span>
 <span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">ConflictException</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">field</span><span class="si">}</span><span class="sb"> already exists`</span><span class="p">);</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <h4 id="soft-delete-helpers">Soft Delete Helpers<a class="headerlink" href="#soft-delete-helpers" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">NOT_DELETED</span><span class="p">,</span><span class="w"> </span><span class="nx">INCLUDE_DELETED</span><span class="p">,</span><span class="w"> </span><span class="nx">ONLY_DELETED</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@sahool/shared-db&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">NOT_DELETED</span><span class="p">,</span><span class="w"> </span><span class="nx">INCLUDE_DELETED</span><span class="p">,</span><span class="w"> </span><span class="nx">ONLY_DELETED</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@sahool/shared-db'</span><span class="p">;</span>
 
 <span class="c1">// Exclude soft-deleted (default behavior)</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">activeProducts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">prisma</span><span class="p">.</span><span class="nx">product</span><span class="p">.</span><span class="nx">findMany</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="nx">NOT_DELETED</span><span class="p">,</span><span class="w"> </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;AVAILABLE&#39;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">where</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="nx">NOT_DELETED</span><span class="p">,</span><span class="w"> </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="s1">'AVAILABLE'</span><span class="w"> </span><span class="p">}</span>
 <span class="p">});</span>
 
 <span class="c1">// Include soft-deleted (admin view)</span>
@@ -1452,8 +1452,8 @@
 <hr />
 <h2 id="best-practices-established">📝 Best Practices Established | أفضل الممارسات المعتمدة<a class="headerlink" href="#best-practices-established" title="Permanent link">&para;</a></h2>
 <h3 id="1-index-naming-convention">1. Index Naming Convention<a class="headerlink" href="#1-index-naming-convention" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">field</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="nl">name</span><span class="p">:</span><span class="w"> </span><span class="ss">&quot;idx_{table}_{field}&quot;</span><span class="p">)</span>
-<span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">field1, field2</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="nl">name</span><span class="p">:</span><span class="w"> </span><span class="ss">&quot;idx_{table}_{field1}_{field2}&quot;</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><code><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">field</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="nl">name</span><span class="p">:</span><span class="w"> </span><span class="ss">"idx_{table}_{field}"</span><span class="p">)</span>
+<span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">field1, field2</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="nl">name</span><span class="p">:</span><span class="w"> </span><span class="ss">"idx_{table}_{field1}_{field2}"</span><span class="p">)</span>
 </code></pre></div>
 
 <p><strong>Examples</strong>:
@@ -1484,8 +1484,8 @@
 <h3 id="4-soft-delete-pattern">4. Soft Delete Pattern<a class="headerlink" href="#4-soft-delete-pattern" title="Permanent link">&para;</a></h3>
 <p><strong>Required fields for all soft-deletable models</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="n">model</span><span class="w"> </span><span class="n">SoftDeletable</span><span class="w"> </span><span class="err">{</span>
-<span class="w">  </span><span class="n">deletedAt</span><span class="w"> </span><span class="nc">DateTime</span><span class="vm">?</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;deleted_at&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="n">deletedBy</span><span class="w"> </span><span class="n">String</span><span class="vm">?</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">&quot;deleted_by&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="n">deletedAt</span><span class="w"> </span><span class="nc">DateTime</span><span class="vm">?</span><span class="w"> </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"deleted_at"</span><span class="p">)</span>
+<span class="w">  </span><span class="n">deletedBy</span><span class="w"> </span><span class="n">String</span><span class="vm">?</span><span class="w">   </span><span class="nv">@map</span><span class="p">(</span><span class="ss">"deleted_by"</span><span class="p">)</span>
 
 <span class="w">  </span><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">deletedAt</span><span class="o">]</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">Always</span><span class="w"> </span><span class="k">index</span><span class="w"> </span><span class="n">deletedAt</span>
 <span class="err">}</span>
@@ -1506,7 +1506,7 @@
 <span class="w">  </span><span class="nx">createPaginatedResponse</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">TRANSACTION_CONFIGS</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">createQueryLogger</span>
-<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@sahool/shared-db&#39;</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@sahool/shared-db'</span><span class="p">;</span>
 </code></pre></div>
 
 <p><strong>Benefits</strong>:
@@ -1517,7 +1517,7 @@
 <hr />
 <h3 id="setting-up-query-logging">Setting Up Query Logging<a class="headerlink" href="#setting-up-query-logging" title="Permanent link">&para;</a></h3>
 <p><strong>In <code>prisma.service.ts</code></strong>:</p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createQueryLogger</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@sahool/shared-db&#39;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createQueryLogger</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'@sahool/shared-db'</span><span class="p">;</span>
 
 <span class="kd">@Injectable</span><span class="p">()</span>
 <span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">PrismaService</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">PrismaClient</span><span class="w"> </span><span class="p">{</span>
@@ -1525,7 +1525,7 @@
 <span class="w">    </span><span class="k">super</span><span class="p">();</span>
 
 <span class="w">    </span><span class="c1">// Enable query logging</span>
-<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">$on</span><span class="p">(</span><span class="s1">&#39;query&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">createQueryLogger</span><span class="p">(</span><span class="nx">logger</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;marketplace-service&#39;</span><span class="p">));</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">$on</span><span class="p">(</span><span class="s1">'query'</span><span class="p">,</span><span class="w"> </span><span class="nx">createQueryLogger</span><span class="p">(</span><span class="nx">logger</span><span class="p">,</span><span class="w"> </span><span class="s1">'marketplace-service'</span><span class="p">));</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -1636,10 +1636,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

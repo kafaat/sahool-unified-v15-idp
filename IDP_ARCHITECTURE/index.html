@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1190,14 +1190,14 @@
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">clusters</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">selector</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">matchLabels</span><span class="p">:</span>
-<span class="w">            </span><span class="nt">sahool/enabled</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;true&quot;</span>
+<span class="w">            </span><span class="nt">sahool/enabled</span><span class="p">:</span><span class="w"> </span><span class="s">"true"</span>
 <span class="w">  </span><span class="nt">template</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">spec</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">source</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">repoURL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${REPO_URL}</span>
 <span class="w">        </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">k8s/helm/sahool-kernel</span>
 <span class="w">      </span><span class="nt">destination</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">server</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{server}}&#39;</span>
+<span class="w">        </span><span class="nt">server</span><span class="p">:</span><span class="w"> </span><span class="s">'{{server}}'</span>
 <span class="w">        </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool</span>
 </code></pre></div>
 
@@ -1270,8 +1270,8 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">prometheus_client</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span><span class="p">,</span> <span class="n">Histogram</span>
 
 <span class="c1"># مقاييس أساسية</span>
-<span class="n">http_requests_total</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="s1">&#39;http_requests_total&#39;</span><span class="p">,</span> <span class="s1">&#39;Total HTTP requests&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">,</span> <span class="s1">&#39;endpoint&#39;</span><span class="p">,</span> <span class="s1">&#39;status&#39;</span><span class="p">])</span>
-<span class="n">http_request_duration_seconds</span> <span class="o">=</span> <span class="n">Histogram</span><span class="p">(</span><span class="s1">&#39;http_request_duration_seconds&#39;</span><span class="p">,</span> <span class="s1">&#39;HTTP request duration&#39;</span><span class="p">)</span>
+<span class="n">http_requests_total</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="s1">'http_requests_total'</span><span class="p">,</span> <span class="s1">'Total HTTP requests'</span><span class="p">,</span> <span class="p">[</span><span class="s1">'method'</span><span class="p">,</span> <span class="s1">'endpoint'</span><span class="p">,</span> <span class="s1">'status'</span><span class="p">])</span>
+<span class="n">http_request_duration_seconds</span> <span class="o">=</span> <span class="n">Histogram</span><span class="p">(</span><span class="s1">'http_request_duration_seconds'</span><span class="p">,</span> <span class="s1">'HTTP request duration'</span><span class="p">)</span>
 </code></pre></div>
 
 <hr />
@@ -1394,7 +1394,7 @@ python3<span class="w"> </span>sahoolctl.py<span class="w"> </span>templates
 <h3 id="_2">مثال على الاستخدام<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code>python3<span class="w"> </span>sahoolctl.py<span class="w"> </span>create<span class="w"> </span>ndvi-preprocessor<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--template<span class="w"> </span>python-fastapi<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--owner<span class="w"> </span><span class="s2">&quot;data-team@sahool.io&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--owner<span class="w"> </span><span class="s2">"data-team@sahool.io"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--team<span class="w"> </span>data<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--lifecycle<span class="w"> </span>production<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--tier<span class="w"> </span>tier-2<span class="w"> </span><span class="se">\</span>
@@ -1410,7 +1410,7 @@ python3<span class="w"> </span>sahoolctl.py<span class="w"> </span>templates
 <span class="w">   </span>📁<span class="w"> </span><span class="nv">GitOps</span><span class="w"> </span><span class="nv">app</span>:<span class="w"> </span><span class="nv">gitops</span><span class="o">/</span><span class="nv">argocd</span><span class="o">/</span><span class="nv">applications</span><span class="o">/</span><span class="nv">ndvi</span><span class="o">-</span><span class="nv">preprocessor</span>.<span class="nv">yaml</span>
 
 📋<span class="w"> </span><span class="k">Next</span><span class="w"> </span><span class="nv">steps</span>:
-<span class="w">   </span><span class="mi">1</span>.<span class="w"> </span><span class="nv">git</span><span class="w"> </span><span class="nv">add</span><span class="w"> </span><span class="o">-</span><span class="nv">A</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nv">git</span><span class="w"> </span><span class="nv">commit</span><span class="w"> </span><span class="o">-</span><span class="nv">m</span><span class="w"> </span><span class="s1">&#39;Add ndvi-preprocessor service&#39;</span>
+<span class="w">   </span><span class="mi">1</span>.<span class="w"> </span><span class="nv">git</span><span class="w"> </span><span class="nv">add</span><span class="w"> </span><span class="o">-</span><span class="nv">A</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nv">git</span><span class="w"> </span><span class="nv">commit</span><span class="w"> </span><span class="o">-</span><span class="nv">m</span><span class="w"> </span><span class="s1">'Add ndvi-preprocessor service'</span>
 <span class="w">   </span><span class="mi">2</span>.<span class="w"> </span><span class="nv">git</span><span class="w"> </span><span class="nv">push</span>
 <span class="w">   </span><span class="mi">3</span>.<span class="w"> </span><span class="nv">ArgoCD</span><span class="w"> </span><span class="nv">will</span><span class="w"> </span><span class="nv">auto</span><span class="o">-</span><span class="nv">deploy</span>
 </code></pre></div>
@@ -1442,16 +1442,16 @@ python3<span class="w"> </span>sahoolctl.py<span class="w"> </span>templates
 <span class="w">        </span><span class="nt">requeueAfterSeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">180</span>
 <span class="w">  </span><span class="nt">template</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">metadata</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;sahool-pr-{{number}}&#39;</span>
+<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">'sahool-pr-{{number}}'</span>
 <span class="w">    </span><span class="nt">spec</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">source</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gitops/environments/preview</span>
 <span class="w">        </span><span class="nt">helm</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">parameters</span><span class="p">:</span>
 <span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">global.environment</span>
-<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;pr-{{number}}&#39;</span>
+<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">'pr-{{number}}'</span>
 <span class="w">      </span><span class="nt">destination</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;pr-{{number}}-sahool&#39;</span>
+<span class="w">        </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="s">'pr-{{number}}-sahool'</span>
 </code></pre></div>
 
 <p><strong>URL المعاينة</strong>: <code>https://pr-{number}.preview.sahool.io</code></p>
@@ -1687,10 +1687,10 @@ kubectl<span class="w"> </span>argo<span class="w"> </span>rollouts<span class="
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

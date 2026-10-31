@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1140,17 +1140,17 @@
 <p><strong>Configuration:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="nx">ThrottlerModule</span><span class="p">.</span><span class="nx">forRoot</span><span class="p">([</span>
 <span class="w">  </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;short&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">"short"</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">ttl</span><span class="o">:</span><span class="w"> </span><span class="kt">1000</span><span class="p">,</span><span class="w"> </span><span class="c1">// 1 second</span>
 <span class="w">    </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">10</span><span class="p">,</span><span class="w"> </span><span class="c1">// 10 requests per second</span>
 <span class="w">  </span><span class="p">},</span>
 <span class="w">  </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;medium&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">"medium"</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">ttl</span><span class="o">:</span><span class="w"> </span><span class="kt">60000</span><span class="p">,</span><span class="w"> </span><span class="c1">// 1 minute</span>
 <span class="w">    </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">100</span><span class="p">,</span><span class="w"> </span><span class="c1">// 100 requests per minute</span>
 <span class="w">  </span><span class="p">},</span>
 <span class="w">  </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;long&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">"long"</span><span class="p">,</span>
 <span class="w">    </span><span class="nx">ttl</span><span class="o">:</span><span class="w"> </span><span class="kt">3600000</span><span class="p">,</span><span class="w"> </span><span class="c1">// 1 hour</span>
 <span class="w">    </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">1000</span><span class="p">,</span><span class="w"> </span><span class="c1">// 1000 requests per hour</span>
 <span class="w">  </span><span class="p">},</span>
@@ -1371,11 +1371,11 @@ npm<span class="w"> </span>install<span class="w"> </span>@sahool/nestjs-auth<sp
 
 <h3 id="step-2-configure-module">Step 2: Configure Module<a class="headerlink" href="#step-2-configure-module" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1">// app.module.ts</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Module</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/common&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">APP_GUARD</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/core&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ThrottlerModule</span><span class="p">,</span><span class="w"> </span><span class="nx">ThrottlerGuard</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/throttler&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">JwtModule</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/jwt&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PassportModule</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/passport&quot;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Module</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@nestjs/common"</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">APP_GUARD</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@nestjs/core"</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ThrottlerModule</span><span class="p">,</span><span class="w"> </span><span class="nx">ThrottlerGuard</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@nestjs/throttler"</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">JwtModule</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@nestjs/jwt"</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">PassportModule</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@nestjs/passport"</span><span class="p">;</span>
 
 <span class="c1">// Import from shared package</span>
 <span class="k">import</span><span class="w"> </span><span class="p">{</span>
@@ -1384,12 +1384,12 @@ npm<span class="w"> </span>install<span class="w"> </span>@sahool/nestjs-auth<sp
 <span class="w">  </span><span class="nx">PermissionsGuard</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">TokenRevocationGuard</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">JWTConfig</span><span class="p">,</span>
-<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/nestjs-auth&quot;</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@sahool/nestjs-auth"</span><span class="p">;</span>
 
 <span class="kd">@Module</span><span class="p">({</span>
 <span class="w">  </span><span class="nx">imports</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="c1">// Passport configuration</span>
-<span class="w">    </span><span class="nx">PassportModule</span><span class="p">.</span><span class="nx">register</span><span class="p">({</span><span class="w"> </span><span class="nx">defaultStrategy</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;jwt&quot;</span><span class="w"> </span><span class="p">}),</span>
+<span class="w">    </span><span class="nx">PassportModule</span><span class="p">.</span><span class="nx">register</span><span class="p">({</span><span class="w"> </span><span class="nx">defaultStrategy</span><span class="o">:</span><span class="w"> </span><span class="s2">"jwt"</span><span class="w"> </span><span class="p">}),</span>
 
 <span class="w">    </span><span class="c1">// JWT configuration</span>
 <span class="w">    </span><span class="nx">JwtModule</span><span class="p">.</span><span class="nx">register</span><span class="p">({</span>
@@ -1402,17 +1402,17 @@ npm<span class="w"> </span>install<span class="w"> </span>@sahool/nestjs-auth<sp
 <span class="w">    </span><span class="c1">// Rate limiting</span>
 <span class="w">    </span><span class="nx">ThrottlerModule</span><span class="p">.</span><span class="nx">forRoot</span><span class="p">([</span>
 <span class="w">      </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;short&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">"short"</span><span class="p">,</span>
 <span class="w">        </span><span class="nx">ttl</span><span class="o">:</span><span class="w"> </span><span class="kt">1000</span><span class="p">,</span>
 <span class="w">        </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">10</span><span class="p">,</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;medium&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">"medium"</span><span class="p">,</span>
 <span class="w">        </span><span class="nx">ttl</span><span class="o">:</span><span class="w"> </span><span class="kt">60000</span><span class="p">,</span>
 <span class="w">        </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">100</span><span class="p">,</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="p">{</span>
-<span class="w">        </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;long&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s2">"long"</span><span class="p">,</span>
 <span class="w">        </span><span class="nx">ttl</span><span class="o">:</span><span class="w"> </span><span class="kt">3600000</span><span class="p">,</span>
 <span class="w">        </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">1000</span><span class="p">,</span>
 <span class="w">      </span><span class="p">},</span>
@@ -1429,7 +1429,7 @@ npm<span class="w"> </span>install<span class="w"> </span>@sahool/nestjs-auth<sp
 <span class="w">      </span><span class="nx">provide</span><span class="o">:</span><span class="w"> </span><span class="kt">APP_GUARD</span><span class="p">,</span>
 <span class="w">      </span><span class="nx">useClass</span><span class="o">:</span><span class="w"> </span><span class="kt">TokenRevocationGuard</span><span class="p">,</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="c1">// Note: DON&#39;T add JwtAuthGuard, RolesGuard, or PermissionsGuard globally</span>
+<span class="w">    </span><span class="c1">// Note: DON'T add JwtAuthGuard, RolesGuard, or PermissionsGuard globally</span>
 <span class="w">    </span><span class="c1">// Use them per-route instead</span>
 <span class="w">  </span><span class="p">],</span>
 <span class="p">})</span>
@@ -1437,7 +1437,7 @@ npm<span class="w"> </span>install<span class="w"> </span>@sahool/nestjs-auth<sp
 </code></pre></div>
 
 <h3 id="step-3-apply-guards-to-controllers">Step 3: Apply Guards to Controllers<a class="headerlink" href="#step-3-apply-guards-to-controllers" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Controller</span><span class="p">,</span><span class="w"> </span><span class="nx">Get</span><span class="p">,</span><span class="w"> </span><span class="nx">Post</span><span class="p">,</span><span class="w"> </span><span class="nx">UseGuards</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/common&quot;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Controller</span><span class="p">,</span><span class="w"> </span><span class="nx">Get</span><span class="p">,</span><span class="w"> </span><span class="nx">Post</span><span class="p">,</span><span class="w"> </span><span class="nx">UseGuards</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@nestjs/common"</span><span class="p">;</span>
 <span class="k">import</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="nx">JwtAuthGuard</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">RolesGuard</span><span class="p">,</span>
@@ -1447,14 +1447,14 @@ npm<span class="w"> </span>install<span class="w"> </span>@sahool/nestjs-auth<sp
 <span class="w">  </span><span class="nx">Public</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">CurrentUser</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">UserId</span><span class="p">,</span>
-<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/nestjs-auth&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Throttle</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/throttler&quot;</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@sahool/nestjs-auth"</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Throttle</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@nestjs/throttler"</span><span class="p">;</span>
 
-<span class="kd">@Controller</span><span class="p">(</span><span class="s2">&quot;farms&quot;</span><span class="p">)</span>
+<span class="kd">@Controller</span><span class="p">(</span><span class="s2">"farms"</span><span class="p">)</span>
 <span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">FarmsController</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="c1">// Public route - no authentication required</span>
 <span class="w">  </span><span class="kd">@Public</span><span class="p">()</span>
-<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s2">&quot;public&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s2">"public"</span><span class="p">)</span>
 <span class="w">  </span><span class="nx">getPublicFarms</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">farmsService</span><span class="p">.</span><span class="nx">getPublicFarms</span><span class="p">();</span>
 <span class="w">  </span><span class="p">}</span>
@@ -1467,32 +1467,32 @@ npm<span class="w"> </span>install<span class="w"> </span>@sahool/nestjs-auth<sp
 <span class="w">  </span><span class="p">}</span>
 
 <span class="w">  </span><span class="c1">// Role-based access</span>
-<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s2">"all"</span><span class="p">)</span>
 <span class="w">  </span><span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">,</span><span class="w"> </span><span class="nx">RolesGuard</span><span class="p">)</span>
-<span class="w">  </span><span class="kd">@Roles</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;manager&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Roles</span><span class="p">(</span><span class="s2">"admin"</span><span class="p">,</span><span class="w"> </span><span class="s2">"manager"</span><span class="p">)</span>
 <span class="w">  </span><span class="nx">getAllFarms</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">farmsService</span><span class="p">.</span><span class="nx">findAll</span><span class="p">();</span>
 <span class="w">  </span><span class="p">}</span>
 
 <span class="w">  </span><span class="c1">// Permission-based access</span>
-<span class="w">  </span><span class="kd">@Delete</span><span class="p">(</span><span class="s2">&quot;:id&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Delete</span><span class="p">(</span><span class="s2">":id"</span><span class="p">)</span>
 <span class="w">  </span><span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">,</span><span class="w"> </span><span class="nx">PermissionsGuard</span><span class="p">)</span>
-<span class="w">  </span><span class="kd">@RequirePermissions</span><span class="p">(</span><span class="s2">&quot;farm:delete&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="nx">deleteFarm</span><span class="p">(</span><span class="kd">@Param</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">@RequirePermissions</span><span class="p">(</span><span class="s2">"farm:delete"</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">deleteFarm</span><span class="p">(</span><span class="kd">@Param</span><span class="p">(</span><span class="s2">"id"</span><span class="p">)</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">farmsService</span><span class="p">.</span><span class="ow">delete</span><span class="p">(</span><span class="nx">id</span><span class="p">);</span>
 <span class="w">  </span><span class="p">}</span>
 
 <span class="w">  </span><span class="c1">// Custom rate limiting</span>
-<span class="w">  </span><span class="kd">@Post</span><span class="p">(</span><span class="s2">&quot;bulk-import&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Post</span><span class="p">(</span><span class="s2">"bulk-import"</span><span class="p">)</span>
 <span class="w">  </span><span class="kd">@Throttle</span><span class="p">({</span><span class="w"> </span><span class="k">default</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">3</span><span class="p">,</span><span class="w"> </span><span class="nx">ttl</span><span class="o">:</span><span class="w"> </span><span class="kt">60000</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="c1">// 3 per minute</span>
 <span class="w">  </span><span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">,</span><span class="w"> </span><span class="nx">RolesGuard</span><span class="p">)</span>
-<span class="w">  </span><span class="kd">@Roles</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Roles</span><span class="p">(</span><span class="s2">"admin"</span><span class="p">)</span>
 <span class="w">  </span><span class="nx">bulkImport</span><span class="p">(</span><span class="kd">@Body</span><span class="p">()</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">farmsService</span><span class="p">.</span><span class="nx">bulkImport</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
 <span class="w">  </span><span class="p">}</span>
 
 <span class="w">  </span><span class="c1">// Get current user info</span>
-<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s2">&quot;profile&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s2">"profile"</span><span class="p">)</span>
 <span class="w">  </span><span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">)</span>
 <span class="w">  </span><span class="nx">getProfile</span><span class="p">(</span><span class="kd">@CurrentUser</span><span class="p">()</span><span class="w"> </span><span class="nx">user</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
@@ -1507,15 +1507,15 @@ npm<span class="w"> </span>install<span class="w"> </span>@sahool/nestjs-auth<sp
 <hr />
 <h2 id="usage-examples">Usage Examples<a class="headerlink" href="#usage-examples" title="Permanent link">&para;</a></h2>
 <h3 id="example-1-authentication-controller">Example 1: Authentication Controller<a class="headerlink" href="#example-1-authentication-controller" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Controller</span><span class="p">,</span><span class="w"> </span><span class="nx">Post</span><span class="p">,</span><span class="w"> </span><span class="nx">Body</span><span class="p">,</span><span class="w"> </span><span class="nx">UseGuards</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/common&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">JwtAuthGuard</span><span class="p">,</span><span class="w"> </span><span class="nx">Public</span><span class="p">,</span><span class="w"> </span><span class="nx">CurrentUser</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/nestjs-auth&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Throttle</span><span class="p">,</span><span class="w"> </span><span class="nx">SkipThrottle</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/throttler&quot;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Controller</span><span class="p">,</span><span class="w"> </span><span class="nx">Post</span><span class="p">,</span><span class="w"> </span><span class="nx">Body</span><span class="p">,</span><span class="w"> </span><span class="nx">UseGuards</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@nestjs/common"</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">JwtAuthGuard</span><span class="p">,</span><span class="w"> </span><span class="nx">Public</span><span class="p">,</span><span class="w"> </span><span class="nx">CurrentUser</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@sahool/nestjs-auth"</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Throttle</span><span class="p">,</span><span class="w"> </span><span class="nx">SkipThrottle</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@nestjs/throttler"</span><span class="p">;</span>
 
-<span class="kd">@Controller</span><span class="p">(</span><span class="s2">&quot;auth&quot;</span><span class="p">)</span>
+<span class="kd">@Controller</span><span class="p">(</span><span class="s2">"auth"</span><span class="p">)</span>
 <span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">AuthController</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="c1">// Public login endpoint with strict rate limiting</span>
 <span class="w">  </span><span class="kd">@Public</span><span class="p">()</span>
-<span class="w">  </span><span class="kd">@Post</span><span class="p">(</span><span class="s2">&quot;login&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Post</span><span class="p">(</span><span class="s2">"login"</span><span class="p">)</span>
 <span class="w">  </span><span class="kd">@Throttle</span><span class="p">({</span><span class="w"> </span><span class="k">default</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">5</span><span class="p">,</span><span class="w"> </span><span class="nx">ttl</span><span class="o">:</span><span class="w"> </span><span class="kt">60000</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="c1">// 5 per minute</span>
 <span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">login</span><span class="p">(</span><span class="kd">@Body</span><span class="p">()</span><span class="w"> </span><span class="nx">credentials</span><span class="o">:</span><span class="w"> </span><span class="kt">LoginDto</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">authService</span><span class="p">.</span><span class="nx">login</span><span class="p">(</span><span class="nx">credentials</span><span class="p">);</span>
@@ -1523,14 +1523,14 @@ npm<span class="w"> </span>install<span class="w"> </span>@sahool/nestjs-auth<sp
 
 <span class="w">  </span><span class="c1">// Public registration with moderate rate limiting</span>
 <span class="w">  </span><span class="kd">@Public</span><span class="p">()</span>
-<span class="w">  </span><span class="kd">@Post</span><span class="p">(</span><span class="s2">&quot;register&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Post</span><span class="p">(</span><span class="s2">"register"</span><span class="p">)</span>
 <span class="w">  </span><span class="kd">@Throttle</span><span class="p">({</span><span class="w"> </span><span class="k">default</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">10</span><span class="p">,</span><span class="w"> </span><span class="nx">ttl</span><span class="o">:</span><span class="w"> </span><span class="kt">60000</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="c1">// 10 per minute</span>
 <span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">register</span><span class="p">(</span><span class="kd">@Body</span><span class="p">()</span><span class="w"> </span><span class="nx">userData</span><span class="o">:</span><span class="w"> </span><span class="kt">RegisterDto</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">authService</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="nx">userData</span><span class="p">);</span>
 <span class="w">  </span><span class="p">}</span>
 
 <span class="w">  </span><span class="c1">// Logout - no rate limiting needed</span>
-<span class="w">  </span><span class="kd">@Post</span><span class="p">(</span><span class="s2">&quot;logout&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Post</span><span class="p">(</span><span class="s2">"logout"</span><span class="p">)</span>
 <span class="w">  </span><span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">)</span>
 <span class="w">  </span><span class="kd">@SkipThrottle</span><span class="p">()</span>
 <span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">logout</span><span class="p">(</span><span class="kd">@CurrentUser</span><span class="p">()</span><span class="w"> </span><span class="nx">user</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -1538,7 +1538,7 @@ npm<span class="w"> </span>install<span class="w"> </span>@sahool/nestjs-auth<sp
 <span class="w">  </span><span class="p">}</span>
 
 <span class="w">  </span><span class="c1">// Protected endpoint to get current user</span>
-<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s2">&quot;me&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s2">"me"</span><span class="p">)</span>
 <span class="w">  </span><span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">)</span>
 <span class="w">  </span><span class="nx">getCurrentUser</span><span class="p">(</span><span class="kd">@CurrentUser</span><span class="p">()</span><span class="w"> </span><span class="nx">user</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">user</span><span class="p">;</span>
@@ -1547,7 +1547,7 @@ npm<span class="w"> </span>install<span class="w"> </span>@sahool/nestjs-auth<sp
 </code></pre></div>
 
 <h3 id="example-2-admin-controller">Example 2: Admin Controller<a class="headerlink" href="#example-2-admin-controller" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Controller</span><span class="p">,</span><span class="w"> </span><span class="nx">Get</span><span class="p">,</span><span class="w"> </span><span class="nx">Post</span><span class="p">,</span><span class="w"> </span><span class="nx">Put</span><span class="p">,</span><span class="w"> </span><span class="nx">Delete</span><span class="p">,</span><span class="w"> </span><span class="nx">UseGuards</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/common&quot;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Controller</span><span class="p">,</span><span class="w"> </span><span class="nx">Get</span><span class="p">,</span><span class="w"> </span><span class="nx">Post</span><span class="p">,</span><span class="w"> </span><span class="nx">Put</span><span class="p">,</span><span class="w"> </span><span class="nx">Delete</span><span class="p">,</span><span class="w"> </span><span class="nx">UseGuards</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@nestjs/common"</span><span class="p">;</span>
 <span class="k">import</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="nx">JwtAuthGuard</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">RolesGuard</span><span class="p">,</span>
@@ -1556,35 +1556,35 @@ npm<span class="w"> </span>install<span class="w"> </span>@sahool/nestjs-auth<sp
 <span class="w">  </span><span class="nx">RequirePermissions</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">CurrentUser</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">UserRoles</span><span class="p">,</span>
-<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/nestjs-auth&quot;</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@sahool/nestjs-auth"</span><span class="p">;</span>
 
-<span class="kd">@Controller</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">)</span>
+<span class="kd">@Controller</span><span class="p">(</span><span class="s2">"admin"</span><span class="p">)</span>
 <span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">,</span><span class="w"> </span><span class="nx">RolesGuard</span><span class="p">)</span>
-<span class="kd">@Roles</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">)</span><span class="w"> </span><span class="c1">// All routes require admin role</span>
+<span class="kd">@Roles</span><span class="p">(</span><span class="s2">"admin"</span><span class="p">)</span><span class="w"> </span><span class="c1">// All routes require admin role</span>
 <span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">AdminController</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="c1">// Admin dashboard</span>
-<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s2">&quot;dashboard&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s2">"dashboard"</span><span class="p">)</span>
 <span class="w">  </span><span class="nx">getDashboard</span><span class="p">(</span><span class="kd">@UserRoles</span><span class="p">()</span><span class="w"> </span><span class="nx">roles</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">[])</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">adminService</span><span class="p">.</span><span class="nx">getDashboard</span><span class="p">(</span><span class="nx">roles</span><span class="p">);</span>
 <span class="w">  </span><span class="p">}</span>
 
 <span class="w">  </span><span class="c1">// View all users (admin only)</span>
-<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s2">&quot;users&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s2">"users"</span><span class="p">)</span>
 <span class="w">  </span><span class="nx">getAllUsers</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">adminService</span><span class="p">.</span><span class="nx">getAllUsers</span><span class="p">();</span>
 <span class="w">  </span><span class="p">}</span>
 
 <span class="w">  </span><span class="c1">// Delete user (requires specific permission)</span>
-<span class="w">  </span><span class="kd">@Delete</span><span class="p">(</span><span class="s2">&quot;users/:id&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Delete</span><span class="p">(</span><span class="s2">"users/:id"</span><span class="p">)</span>
 <span class="w">  </span><span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">PermissionsGuard</span><span class="p">)</span>
-<span class="w">  </span><span class="kd">@RequirePermissions</span><span class="p">(</span><span class="s2">&quot;user:delete&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="nx">deleteUser</span><span class="p">(</span><span class="kd">@Param</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">@RequirePermissions</span><span class="p">(</span><span class="s2">"user:delete"</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">deleteUser</span><span class="p">(</span><span class="kd">@Param</span><span class="p">(</span><span class="s2">"id"</span><span class="p">)</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">adminService</span><span class="p">.</span><span class="nx">deleteUser</span><span class="p">(</span><span class="nx">id</span><span class="p">);</span>
 <span class="w">  </span><span class="p">}</span>
 
 <span class="w">  </span><span class="c1">// System settings (super admin only)</span>
-<span class="w">  </span><span class="kd">@Put</span><span class="p">(</span><span class="s2">&quot;settings&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="kd">@Roles</span><span class="p">(</span><span class="s2">&quot;super_admin&quot;</span><span class="p">)</span><span class="w"> </span><span class="c1">// Override to require super_admin</span>
+<span class="w">  </span><span class="kd">@Put</span><span class="p">(</span><span class="s2">"settings"</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Roles</span><span class="p">(</span><span class="s2">"super_admin"</span><span class="p">)</span><span class="w"> </span><span class="c1">// Override to require super_admin</span>
 <span class="w">  </span><span class="nx">updateSettings</span><span class="p">(</span><span class="kd">@Body</span><span class="p">()</span><span class="w"> </span><span class="nx">settings</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">adminService</span><span class="p">.</span><span class="nx">updateSettings</span><span class="p">(</span><span class="nx">settings</span><span class="p">);</span>
 <span class="w">  </span><span class="p">}</span>
@@ -1592,7 +1592,7 @@ npm<span class="w"> </span>install<span class="w"> </span>@sahool/nestjs-auth<sp
 </code></pre></div>
 
 <h3 id="example-3-marketplace-controller-with-fine-grained-permissions">Example 3: Marketplace Controller with Fine-Grained Permissions<a class="headerlink" href="#example-3-marketplace-controller-with-fine-grained-permissions" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Controller</span><span class="p">,</span><span class="w"> </span><span class="nx">Get</span><span class="p">,</span><span class="w"> </span><span class="nx">Post</span><span class="p">,</span><span class="w"> </span><span class="nx">Put</span><span class="p">,</span><span class="w"> </span><span class="nx">Delete</span><span class="p">,</span><span class="w"> </span><span class="nx">UseGuards</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/common&quot;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Controller</span><span class="p">,</span><span class="w"> </span><span class="nx">Get</span><span class="p">,</span><span class="w"> </span><span class="nx">Post</span><span class="p">,</span><span class="w"> </span><span class="nx">Put</span><span class="p">,</span><span class="w"> </span><span class="nx">Delete</span><span class="p">,</span><span class="w"> </span><span class="nx">UseGuards</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@nestjs/common"</span><span class="p">;</span>
 <span class="k">import</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="nx">JwtAuthGuard</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">RolesGuard</span><span class="p">,</span>
@@ -1602,31 +1602,31 @@ npm<span class="w"> </span>install<span class="w"> </span>@sahool/nestjs-auth<sp
 <span class="w">  </span><span class="nx">RequirePermissions</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">CurrentUser</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">Public</span><span class="p">,</span>
-<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/nestjs-auth&quot;</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@sahool/nestjs-auth"</span><span class="p">;</span>
 
-<span class="kd">@Controller</span><span class="p">(</span><span class="s2">&quot;market&quot;</span><span class="p">)</span>
+<span class="kd">@Controller</span><span class="p">(</span><span class="s2">"market"</span><span class="p">)</span>
 <span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">MarketController</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="c1">// Public product listing</span>
-<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s2">&quot;products&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s2">"products"</span><span class="p">)</span>
 <span class="w">  </span><span class="kd">@Public</span><span class="p">()</span>
 <span class="w">  </span><span class="nx">getProducts</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">marketService</span><span class="p">.</span><span class="nx">getProducts</span><span class="p">();</span>
 <span class="w">  </span><span class="p">}</span>
 
 <span class="w">  </span><span class="c1">// Create product (sellers only)</span>
-<span class="w">  </span><span class="kd">@Post</span><span class="p">(</span><span class="s2">&quot;products&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Post</span><span class="p">(</span><span class="s2">"products"</span><span class="p">)</span>
 <span class="w">  </span><span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">,</span><span class="w"> </span><span class="nx">RolesGuard</span><span class="p">)</span>
-<span class="w">  </span><span class="kd">@Roles</span><span class="p">(</span><span class="s2">&quot;seller&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;admin&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Roles</span><span class="p">(</span><span class="s2">"seller"</span><span class="p">,</span><span class="w"> </span><span class="s2">"admin"</span><span class="p">)</span>
 <span class="w">  </span><span class="nx">createProduct</span><span class="p">(</span><span class="kd">@Body</span><span class="p">()</span><span class="w"> </span><span class="nx">product</span><span class="o">:</span><span class="w"> </span><span class="kt">CreateProductDto</span><span class="p">,</span><span class="w"> </span><span class="kd">@CurrentUser</span><span class="p">()</span><span class="w"> </span><span class="nx">user</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">marketService</span><span class="p">.</span><span class="nx">createProduct</span><span class="p">(</span><span class="nx">product</span><span class="p">,</span><span class="w"> </span><span class="nx">user</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
 <span class="w">  </span><span class="p">}</span>
 
 <span class="w">  </span><span class="c1">// Update product (owner or admin)</span>
-<span class="w">  </span><span class="kd">@Put</span><span class="p">(</span><span class="s2">&quot;products/:id&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Put</span><span class="p">(</span><span class="s2">"products/:id"</span><span class="p">)</span>
 <span class="w">  </span><span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">,</span><span class="w"> </span><span class="nx">PermissionsGuard</span><span class="p">)</span>
-<span class="w">  </span><span class="kd">@RequirePermissions</span><span class="p">(</span><span class="s2">&quot;product:write&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@RequirePermissions</span><span class="p">(</span><span class="s2">"product:write"</span><span class="p">)</span>
 <span class="w">  </span><span class="nx">updateProduct</span><span class="p">(</span>
-<span class="w">    </span><span class="kd">@Param</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">@Param</span><span class="p">(</span><span class="s2">"id"</span><span class="p">)</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span>
 <span class="w">    </span><span class="kd">@Body</span><span class="p">()</span><span class="w"> </span><span class="nx">product</span><span class="o">:</span><span class="w"> </span><span class="kt">UpdateProductDto</span><span class="p">,</span>
 <span class="w">    </span><span class="kd">@CurrentUser</span><span class="p">()</span><span class="w"> </span><span class="nx">user</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">,</span>
 <span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -1634,15 +1634,15 @@ npm<span class="w"> </span>install<span class="w"> </span>@sahool/nestjs-auth<sp
 <span class="w">  </span><span class="p">}</span>
 
 <span class="w">  </span><span class="c1">// Delete product (admin only)</span>
-<span class="w">  </span><span class="kd">@Delete</span><span class="p">(</span><span class="s2">&quot;products/:id&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Delete</span><span class="p">(</span><span class="s2">"products/:id"</span><span class="p">)</span>
 <span class="w">  </span><span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">,</span><span class="w"> </span><span class="nx">RolesGuard</span><span class="p">)</span>
-<span class="w">  </span><span class="kd">@Roles</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="nx">deleteProduct</span><span class="p">(</span><span class="kd">@Param</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">@Roles</span><span class="p">(</span><span class="s2">"admin"</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">deleteProduct</span><span class="p">(</span><span class="kd">@Param</span><span class="p">(</span><span class="s2">"id"</span><span class="p">)</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">marketService</span><span class="p">.</span><span class="nx">deleteProduct</span><span class="p">(</span><span class="nx">id</span><span class="p">);</span>
 <span class="w">  </span><span class="p">}</span>
 
 <span class="w">  </span><span class="c1">// View orders (authenticated or not, different data)</span>
-<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s2">&quot;orders&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s2">"orders"</span><span class="p">)</span>
 <span class="w">  </span><span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">OptionalAuthGuard</span><span class="p">)</span>
 <span class="w">  </span><span class="nx">getOrders</span><span class="p">(</span><span class="kd">@CurrentUser</span><span class="p">()</span><span class="w"> </span><span class="nx">user?</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">user</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -1652,38 +1652,38 @@ npm<span class="w"> </span>install<span class="w"> </span>@sahool/nestjs-auth<sp
 <span class="w">  </span><span class="p">}</span>
 
 <span class="w">  </span><span class="c1">// Verify seller (admin only with specific permission)</span>
-<span class="w">  </span><span class="kd">@Post</span><span class="p">(</span><span class="s2">&quot;sellers/:id/verify&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Post</span><span class="p">(</span><span class="s2">"sellers/:id/verify"</span><span class="p">)</span>
 <span class="w">  </span><span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">,</span><span class="w"> </span><span class="nx">RolesGuard</span><span class="p">,</span><span class="w"> </span><span class="nx">PermissionsGuard</span><span class="p">)</span>
-<span class="w">  </span><span class="kd">@Roles</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="kd">@RequirePermissions</span><span class="p">(</span><span class="s2">&quot;seller:verify&quot;</span><span class="p">)</span>
-<span class="w">  </span><span class="nx">verifySeller</span><span class="p">(</span><span class="kd">@Param</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">@Roles</span><span class="p">(</span><span class="s2">"admin"</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@RequirePermissions</span><span class="p">(</span><span class="s2">"seller:verify"</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">verifySeller</span><span class="p">(</span><span class="kd">@Param</span><span class="p">(</span><span class="s2">"id"</span><span class="p">)</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">marketService</span><span class="p">.</span><span class="nx">verifySeller</span><span class="p">(</span><span class="nx">id</span><span class="p">);</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
 
 <h3 id="example-4-iot-service-with-service-to-service-auth">Example 4: IoT Service with Service-to-Service Auth<a class="headerlink" href="#example-4-iot-service-with-service-to-service-auth" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Controller</span><span class="p">,</span><span class="w"> </span><span class="nx">Get</span><span class="p">,</span><span class="w"> </span><span class="nx">Post</span><span class="p">,</span><span class="w"> </span><span class="nx">UseGuards</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/common&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">JwtAuthGuard</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/nestjs-auth&quot;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Controller</span><span class="p">,</span><span class="w"> </span><span class="nx">Get</span><span class="p">,</span><span class="w"> </span><span class="nx">Post</span><span class="p">,</span><span class="w"> </span><span class="nx">UseGuards</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@nestjs/common"</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">JwtAuthGuard</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@sahool/nestjs-auth"</span><span class="p">;</span>
 <span class="k">import</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="nx">ServiceAuthGuard</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">AllowedServices</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">CallingService</span><span class="p">,</span>
-<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;../../../shared/auth/service-auth.guard&quot;</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"../../../shared/auth/service-auth.guard"</span><span class="p">;</span>
 
-<span class="kd">@Controller</span><span class="p">(</span><span class="s2">&quot;iot&quot;</span><span class="p">)</span>
+<span class="kd">@Controller</span><span class="p">(</span><span class="s2">"iot"</span><span class="p">)</span>
 <span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">IotController</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="c1">// User-facing endpoint</span>
-<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s2">&quot;devices&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Get</span><span class="p">(</span><span class="s2">"devices"</span><span class="p">)</span>
 <span class="w">  </span><span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">)</span>
 <span class="w">  </span><span class="nx">getUserDevices</span><span class="p">(</span><span class="kd">@CurrentUser</span><span class="p">()</span><span class="w"> </span><span class="nx">user</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">iotService</span><span class="p">.</span><span class="nx">getDevicesByUser</span><span class="p">(</span><span class="nx">user</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
 <span class="w">  </span><span class="p">}</span>
 
 <span class="w">  </span><span class="c1">// Internal endpoint - only accessible by specific services</span>
-<span class="w">  </span><span class="kd">@Post</span><span class="p">(</span><span class="s2">&quot;internal/readings&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Post</span><span class="p">(</span><span class="s2">"internal/readings"</span><span class="p">)</span>
 <span class="w">  </span><span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">ServiceAuthGuard</span><span class="p">)</span>
-<span class="w">  </span><span class="kd">@AllowedServices</span><span class="p">(</span><span class="s2">&quot;field-service&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;crop-service&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@AllowedServices</span><span class="p">(</span><span class="s2">"field-service"</span><span class="p">,</span><span class="w"> </span><span class="s2">"crop-service"</span><span class="p">)</span>
 <span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">submitReadings</span><span class="p">(</span>
 <span class="w">    </span><span class="kd">@Body</span><span class="p">()</span><span class="w"> </span><span class="nx">readings</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">,</span>
 <span class="w">    </span><span class="kd">@CallingService</span><span class="p">()</span><span class="w"> </span><span class="nx">serviceName</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span>
@@ -1705,7 +1705,7 @@ npm<span class="w"> </span>install<span class="w"> </span>@sahool/nestjs-auth<sp
 <li><strong>Custom Guards</strong> - Business logic guards</li>
 </ol>
 <div class="codehilite"><pre><span></span><code><span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">,</span><span class="w"> </span><span class="nx">RolesGuard</span><span class="p">,</span><span class="w"> </span><span class="nx">CustomGuard</span><span class="p">)</span>
-<span class="kd">@Roles</span><span class="p">(</span><span class="s1">&#39;admin&#39;</span><span class="p">)</span>
+<span class="kd">@Roles</span><span class="p">(</span><span class="s1">'admin'</span><span class="p">)</span>
 </code></pre></div>
 
 <h3 id="2-use-global-guards-wisely">2. Use Global Guards Wisely<a class="headerlink" href="#2-use-global-guards-wisely" title="Permanent link">&para;</a></h3>
@@ -1744,19 +1744,19 @@ npm<span class="w"> </span>install<span class="w"> </span>@sahool/nestjs-auth<sp
 
 <h3 id="4-rate-limiting-best-practices">4. Rate Limiting Best Practices<a class="headerlink" href="#4-rate-limiting-best-practices" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Strict limits for authentication</span>
-<span class="kd">@Post</span><span class="p">(</span><span class="s1">&#39;login&#39;</span><span class="p">)</span>
+<span class="kd">@Post</span><span class="p">(</span><span class="s1">'login'</span><span class="p">)</span>
 <span class="kd">@Throttle</span><span class="p">({</span><span class="w"> </span><span class="k">default</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">5</span><span class="p">,</span><span class="w"> </span><span class="nx">ttl</span><span class="o">:</span><span class="w"> </span><span class="kt">60000</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">})</span><span class="w">  </span><span class="c1">// 5/min</span>
 
 <span class="c1">// Moderate limits for registration</span>
-<span class="kd">@Post</span><span class="p">(</span><span class="s1">&#39;register&#39;</span><span class="p">)</span>
+<span class="kd">@Post</span><span class="p">(</span><span class="s1">'register'</span><span class="p">)</span>
 <span class="kd">@Throttle</span><span class="p">({</span><span class="w"> </span><span class="k">default</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">10</span><span class="p">,</span><span class="w"> </span><span class="nx">ttl</span><span class="o">:</span><span class="w"> </span><span class="kt">60000</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">})</span><span class="w">  </span><span class="c1">// 10/min</span>
 
 <span class="c1">// Relaxed limits for data fetching</span>
-<span class="kd">@Get</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">)</span>
+<span class="kd">@Get</span><span class="p">(</span><span class="s1">'data'</span><span class="p">)</span>
 <span class="kd">@Throttle</span><span class="p">({</span><span class="w"> </span><span class="k">default</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">limit</span><span class="o">:</span><span class="w"> </span><span class="kt">100</span><span class="p">,</span><span class="w"> </span><span class="nx">ttl</span><span class="o">:</span><span class="w"> </span><span class="kt">60000</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">})</span><span class="w">  </span><span class="c1">// 100/min</span>
 
 <span class="c1">// No limits for logout</span>
-<span class="kd">@Post</span><span class="p">(</span><span class="s1">&#39;logout&#39;</span><span class="p">)</span>
+<span class="kd">@Post</span><span class="p">(</span><span class="s1">'logout'</span><span class="p">)</span>
 <span class="kd">@SkipThrottle</span><span class="p">()</span>
 </code></pre></div>
 
@@ -1777,7 +1777,7 @@ npm<span class="w"> </span>install<span class="w"> </span>@sahool/nestjs-auth<sp
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">request</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ctx</span><span class="p">.</span><span class="nx">getRequest</span><span class="p">();</span>
 
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">exception</span><span class="p">.</span><span class="nx">getStatus</span><span class="o">?</span><span class="p">.()</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="mf">500</span><span class="p">;</span>
-<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">exception</span><span class="p">.</span><span class="nx">message</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">&quot;Internal server error&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">exception</span><span class="p">.</span><span class="nx">message</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s2">"Internal server error"</span><span class="p">;</span>
 
 <span class="w">    </span><span class="nx">response</span><span class="p">.</span><span class="nx">status</span><span class="p">(</span><span class="nx">status</span><span class="p">).</span><span class="nx">json</span><span class="p">({</span>
 <span class="w">      </span><span class="nx">statusCode</span><span class="o">:</span><span class="w"> </span><span class="kt">status</span><span class="p">,</span>
@@ -1790,11 +1790,11 @@ npm<span class="w"> </span>install<span class="w"> </span>@sahool/nestjs-auth<sp
 </code></pre></div>
 
 <h3 id="6-testing-guards">6. Testing Guards<a class="headerlink" href="#6-testing-guards" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Test</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/testing&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">JwtAuthGuard</span><span class="p">,</span><span class="w"> </span><span class="nx">RolesGuard</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/nestjs-auth&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ExecutionContext</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/common&quot;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Test</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@nestjs/testing"</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">JwtAuthGuard</span><span class="p">,</span><span class="w"> </span><span class="nx">RolesGuard</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@sahool/nestjs-auth"</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ExecutionContext</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@nestjs/common"</span><span class="p">;</span>
 
-<span class="nx">describe</span><span class="p">(</span><span class="s2">&quot;FarmsController&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="nx">describe</span><span class="p">(</span><span class="s2">"FarmsController"</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">let</span><span class="w"> </span><span class="nx">controller</span><span class="o">:</span><span class="w"> </span><span class="kt">FarmsController</span><span class="p">;</span>
 
 <span class="w">  </span><span class="nx">beforeEach</span><span class="p">(</span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
@@ -1806,16 +1806,16 @@ npm<span class="w"> </span>install<span class="w"> </span>@sahool/nestjs-auth<sp
 <span class="w">      </span><span class="p">.</span><span class="nx">useValue</span><span class="p">({</span>
 <span class="w">        </span><span class="nx">canActivate</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">context</span><span class="o">:</span><span class="w"> </span><span class="kt">ExecutionContext</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">          </span><span class="kd">const</span><span class="w"> </span><span class="nx">request</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">switchToHttp</span><span class="p">().</span><span class="nx">getRequest</span><span class="p">();</span>
-<span class="w">          </span><span class="nx">request</span><span class="p">.</span><span class="nx">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;test-user&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">roles</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;admin&quot;</span><span class="p">]</span><span class="w"> </span><span class="p">};</span>
+<span class="w">          </span><span class="nx">request</span><span class="p">.</span><span class="nx">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s2">"test-user"</span><span class="p">,</span><span class="w"> </span><span class="nx">roles</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"admin"</span><span class="p">]</span><span class="w"> </span><span class="p">};</span>
 <span class="w">          </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
 <span class="w">        </span><span class="p">},</span>
 <span class="w">      </span><span class="p">})</span>
 <span class="w">      </span><span class="p">.</span><span class="nx">compile</span><span class="p">();</span>
 
-<span class="w">    </span><span class="nx">controller</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">module</span><span class="nx">.get</span><span class="o">&lt;</span><span class="nx">FarmsController</span><span class="o">&gt;</span><span class="p">(</span><span class="nx">FarmsController</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">controller</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">module</span><span class="p">.</span><span class="nx">get</span><span class="o">&lt;</span><span class="nx">FarmsController</span><span class="o">&gt;</span><span class="p">(</span><span class="nx">FarmsController</span><span class="p">);</span>
 <span class="w">  </span><span class="p">});</span>
 
-<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s2">&quot;should allow admin to access all farms&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s2">"should allow admin to access all farms"</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">controller</span><span class="p">.</span><span class="nx">getAllFarms</span><span class="p">();</span>
 <span class="w">    </span><span class="nx">expect</span><span class="p">(</span><span class="nx">result</span><span class="p">).</span><span class="nx">toBeDefined</span><span class="p">();</span>
 <span class="w">  </span><span class="p">});</span>
@@ -1922,7 +1922,7 @@ npm<span class="w"> </span>install<span class="w"> </span>@sahool/nestjs-auth<sp
 <div class="codehilite"><pre><span></span><code><span class="c1">// Ensure JwtModule is configured</span>
 <span class="nx">JwtModule</span><span class="p">.</span><span class="nx">register</span><span class="p">({</span>
 <span class="w">  </span><span class="nx">secret</span><span class="o">:</span><span class="w"> </span><span class="kt">process.env.JWT_SECRET</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">signOptions</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">expiresIn</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1h&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">signOptions</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">expiresIn</span><span class="o">:</span><span class="w"> </span><span class="s1">'1h'</span><span class="w"> </span><span class="p">},</span>
 <span class="p">})</span>
 
 <span class="c1">// Ensure JWT strategy is provided</span>
@@ -1958,7 +1958,7 @@ npm<span class="w"> </span>install<span class="w"> </span>@sahool/nestjs-auth<sp
 </ol>
 <h3 id="example-migration">Example Migration:<a class="headerlink" href="#example-migration" title="Permanent link">&para;</a></h3>
 <p><strong>Before:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="kd">@Controller</span><span class="p">(</span><span class="s2">&quot;farms&quot;</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><code><span class="kd">@Controller</span><span class="p">(</span><span class="s2">"farms"</span><span class="p">)</span>
 <span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">FarmsController</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">@Get</span><span class="p">()</span>
 <span class="w">  </span><span class="nx">getFarms</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
@@ -1968,11 +1968,11 @@ npm<span class="w"> </span>install<span class="w"> </span>@sahool/nestjs-auth<sp
 </code></pre></div>
 
 <p><strong>After:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="kd">@Controller</span><span class="p">(</span><span class="s2">&quot;farms&quot;</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><code><span class="kd">@Controller</span><span class="p">(</span><span class="s2">"farms"</span><span class="p">)</span>
 <span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">FarmsController</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">@Get</span><span class="p">()</span>
 <span class="w">  </span><span class="kd">@UseGuards</span><span class="p">(</span><span class="nx">JwtAuthGuard</span><span class="p">,</span><span class="w"> </span><span class="nx">RolesGuard</span><span class="p">)</span>
-<span class="w">  </span><span class="kd">@Roles</span><span class="p">(</span><span class="s2">&quot;admin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;manager&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">@Roles</span><span class="p">(</span><span class="s2">"admin"</span><span class="p">,</span><span class="w"> </span><span class="s2">"manager"</span><span class="p">)</span>
 <span class="w">  </span><span class="nx">getFarms</span><span class="p">(</span><span class="kd">@CurrentUser</span><span class="p">()</span><span class="w"> </span><span class="nx">user</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">farmsService</span><span class="p">.</span><span class="nx">findAll</span><span class="p">();</span>
 <span class="w">  </span><span class="p">}</span>
@@ -2055,10 +2055,10 @@ npm<span class="w"> </span>install<span class="w"> </span>@sahool/nestjs-auth<sp
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

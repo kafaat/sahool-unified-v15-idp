@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1203,22 +1203,22 @@ Line 274 <code>raise OllamaError("Max retries exceeded")</code> was unreachable 
 <p><strong>Fix | الإصلاح:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Before | قبل</span>
 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="n">OllamaError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generation failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
-<span class="k">raise</span> <span class="n">OllamaError</span><span class="p">(</span><span class="s2">&quot;Max retries exceeded&quot;</span><span class="p">)</span>  <span class="c1"># Unreachable</span>
+    <span class="k">raise</span> <span class="n">OllamaError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Generation failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+<span class="k">raise</span> <span class="n">OllamaError</span><span class="p">(</span><span class="s2">"Max retries exceeded"</span><span class="p">)</span>  <span class="c1"># Unreachable</span>
 
 <span class="c1"># After | بعد</span>
 <span class="k">except</span> <span class="n">httpx</span><span class="o">.</span><span class="n">TimeoutException</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">attempt</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">max_retries</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">retry_delay</span> <span class="o">*</span> <span class="p">(</span><span class="n">attempt</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
         <span class="k">continue</span>  <span class="c1"># Added continue statement</span>
-    <span class="k">raise</span> <span class="n">OllamaError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Timeout after </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">max_retries</span><span class="si">}</span><span class="s2"> attempts&quot;</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="n">OllamaError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Timeout after </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">max_retries</span><span class="si">}</span><span class="s2"> attempts"</span><span class="p">)</span>
 <span class="k">except</span> <span class="n">httpx</span><span class="o">.</span><span class="n">HTTPStatusError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="n">OllamaError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;HTTP error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+    <span class="k">raise</span> <span class="n">OllamaError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"HTTP error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="n">OllamaError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generation failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+    <span class="k">raise</span> <span class="n">OllamaError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Generation failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 
 <span class="c1"># Safety measure at end of loop</span>
-<span class="k">raise</span> <span class="n">OllamaError</span><span class="p">(</span><span class="s2">&quot;Max retries exceeded&quot;</span><span class="p">)</span>
+<span class="k">raise</span> <span class="n">OllamaError</span><span class="p">(</span><span class="s2">"Max retries exceeded"</span><span class="p">)</span>
 </code></pre></div>
 
 <hr />
@@ -1300,7 +1300,7 @@ Configurations referenced deprecated services that have been moved to archive.</
 <h3 id="mypy">إضافة تكوين MyPy<a class="headerlink" href="#mypy" title="Permanent link">&para;</a></h3>
 <p><strong>File | الملف:</strong> <code>pyproject.toml</code></p>
 <div class="codehilite"><pre><span></span><code><span class="k">[tool.mypy]</span>
-<span class="n">python_version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;3.11&quot;</span>
+<span class="n">python_version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"3.11"</span>
 <span class="n">strict</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span>
 <span class="n">warn_return_any</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
 <span class="n">warn_unused_configs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
@@ -1308,9 +1308,9 @@ Configurations referenced deprecated services that have been moved to archive.</
 <span class="n">no_implicit_optional</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
 <span class="n">warn_redundant_casts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
 <span class="n">exclude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="s2">&quot;archive/&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="s2">&quot;tests/&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="s2">&quot;.venv/&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"archive/"</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"tests/"</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">".venv/"</span><span class="p">,</span>
 <span class="p">]</span>
 </code></pre></div>
 
@@ -1664,10 +1664,10 @@ pyproject.toml                           # MyPy configuration
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

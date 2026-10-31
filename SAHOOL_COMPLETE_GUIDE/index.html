@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1238,7 +1238,7 @@
 <span class="w">    </span><span class="err">↓</span>
 <span class="n">Service</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="p">(</span><span class="n">ContextMiddleware</span><span class="w"> </span><span class="n">extracts</span><span class="w"> </span><span class="n">tenant</span><span class="p">)</span>
 <span class="w">    </span><span class="err">↓</span>
-<span class="n">Database</span><span class="w"> </span><span class="n">Query</span><span class="w"> </span><span class="p">(</span><span class="n">RLS</span><span class="p">:</span><span class="w"> </span><span class="n">SET</span><span class="w"> </span><span class="n">app</span><span class="o">.</span><span class="n">current_tenant</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;t-123&#39;</span><span class="p">)</span>
+<span class="n">Database</span><span class="w"> </span><span class="n">Query</span><span class="w"> </span><span class="p">(</span><span class="n">RLS</span><span class="p">:</span><span class="w"> </span><span class="n">SET</span><span class="w"> </span><span class="n">app</span><span class="o">.</span><span class="n">current_tenant</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'t-123'</span><span class="p">)</span>
 <span class="w">    </span><span class="err">↓</span>
 <span class="n">Redis</span><span class="w"> </span><span class="n">Cache</span><span class="w"> </span><span class="p">(</span><span class="n">Key</span><span class="p">:</span><span class="w"> </span><span class="n">t</span><span class="o">-</span><span class="mi">123</span><span class="p">:</span><span class="n">service</span><span class="p">:</span><span class="n">resource</span><span class="p">:</span><span class="n">key</span><span class="p">)</span>
 <span class="w">    </span><span class="err">↓</span>
@@ -1281,37 +1281,37 @@ python<span class="w"> </span>scripts/verify-installation.py
 <span class="p">)</span>
 
 <span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">()</span>
-<span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span><span class="n">ContextMiddleware</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="s1">&#39;my-service&#39;</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span><span class="n">ContextMiddleware</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="s1">'my-service'</span><span class="p">)</span>
 
 <span class="c1"># Initialize services</span>
-<span class="n">redis</span> <span class="o">=</span> <span class="n">TenantRedis</span><span class="p">(</span><span class="n">redis_client</span><span class="p">,</span> <span class="s1">&#39;my-service&#39;</span><span class="p">)</span>
+<span class="n">redis</span> <span class="o">=</span> <span class="n">TenantRedis</span><span class="p">(</span><span class="n">redis_client</span><span class="p">,</span> <span class="s1">'my-service'</span><span class="p">)</span>
 <span class="n">cache</span> <span class="o">=</span> <span class="n">TenantCache</span><span class="p">(</span><span class="n">redis</span><span class="p">)</span>
-<span class="n">metrics</span> <span class="o">=</span> <span class="n">TenantMetrics</span><span class="p">(</span><span class="s1">&#39;my-service&#39;</span><span class="p">)</span>
+<span class="n">metrics</span> <span class="o">=</span> <span class="n">TenantMetrics</span><span class="p">(</span><span class="s1">'my-service'</span><span class="p">)</span>
 
 <span class="c1"># Define repository</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">MyModelRepository</span><span class="p">(</span><span class="n">TenantRepository</span><span class="p">):</span>
-    <span class="n">_table</span> <span class="o">=</span> <span class="s1">&#39;my_models&#39;</span>
+    <span class="n">_table</span> <span class="o">=</span> <span class="s1">'my_models'</span>
     <span class="n">_model_class</span> <span class="o">=</span> <span class="n">MyModel</span>
 
-<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/items&quot;</span><span class="p">)</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/items"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">list_items</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Automatic tenant isolation — no manual tenant_id handling&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Automatic tenant isolation — no manual tenant_id handling"""</span>
     <span class="k">return</span> <span class="k">await</span> <span class="n">cache</span><span class="o">.</span><span class="n">get_or_set</span><span class="p">(</span>
-        <span class="s1">&#39;items&#39;</span><span class="p">,</span>
+        <span class="s1">'items'</span><span class="p">,</span>
         <span class="k">lambda</span><span class="p">:</span> <span class="n">MyModelRepository</span><span class="p">()</span><span class="o">.</span><span class="n">find_many</span><span class="p">(),</span>
         <span class="n">ttl</span><span class="o">=</span><span class="mi">300</span>
     <span class="p">)</span>
 
-<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/items&quot;</span><span class="p">)</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">"/items"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create_item</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">ItemCreate</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Automatic tenant_id injection&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Automatic tenant_id injection"""</span>
     <span class="n">item</span> <span class="o">=</span> <span class="k">await</span> <span class="n">MyModelRepository</span><span class="p">()</span><span class="o">.</span><span class="n">create</span><span class="p">({</span>
-        <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-        <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">value</span>
+        <span class="s1">'name'</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="s1">'value'</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">value</span>
         <span class="c1"># tenant_id auto-injected by repository</span>
     <span class="p">})</span>
 
-    <span class="k">await</span> <span class="n">cache</span><span class="o">.</span><span class="n">invalidate</span><span class="p">(</span><span class="s1">&#39;items&#39;</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">cache</span><span class="o">.</span><span class="n">invalidate</span><span class="p">(</span><span class="s1">'items'</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">item</span>
 </code></pre></div>
 
@@ -1334,10 +1334,10 @@ sahool-cli<span class="w"> </span>verify<span class="w"> </span><span class="se"
 <h3 id="core-principle-never-handle-tenant_id-manually">Core Principle: Never Handle <code>tenant_id</code> Manually<a class="headerlink" href="#core-principle-never-handle-tenant_id-manually" title="Permanent link">&para;</a></h3>
 <p><strong>❌ WRONG — Manual tenant handling:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># NEVER DO THIS</span>
-<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/fields&quot;</span><span class="p">)</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/fields"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">list_fields</span><span class="p">(</span><span class="n">tenant_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>  <span class="c1"># ❌ Manual parameter</span>
     <span class="n">rows</span> <span class="o">=</span> <span class="k">await</span> <span class="n">conn</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span>
-        <span class="s2">&quot;SELECT * FROM fields WHERE tenant_id = $1&quot;</span><span class="p">,</span>  <span class="c1"># ❌ Manual filter</span>
+        <span class="s2">"SELECT * FROM fields WHERE tenant_id = $1"</span><span class="p">,</span>  <span class="c1"># ❌ Manual filter</span>
         <span class="n">tenant_id</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">rows</span>
@@ -1345,10 +1345,10 @@ sahool-cli<span class="w"> </span>verify<span class="w"> </span><span class="se"
 
 <p><strong>✅ CORRECT — Automatic tenant isolation:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># CORRECT WAY</span>
-<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/fields&quot;</span><span class="p">)</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/fields"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">list_fields</span><span class="p">():</span>  <span class="c1"># ✅ No tenant parameter</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">tenant_db</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>  <span class="c1"># ✅ Context sets tenant</span>
-        <span class="n">rows</span> <span class="o">=</span> <span class="k">await</span> <span class="n">conn</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="s2">&quot;SELECT * FROM fields&quot;</span><span class="p">)</span>  <span class="c1"># ✅ RLS filters</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="k">await</span> <span class="n">conn</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="s2">"SELECT * FROM fields"</span><span class="p">)</span>  <span class="c1"># ✅ RLS filters</span>
         <span class="k">return</span> <span class="n">rows</span>
 </code></pre></div>
 
@@ -1379,7 +1379,7 @@ sahool-cli<span class="w"> </span>verify<span class="w"> </span><span class="se"
 <span class="kn">from</span><span class="w"> </span><span class="nn">shared.platform</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_system_context</span><span class="p">,</span> <span class="n">ContextManager</span>
 
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">background_job</span><span class="p">():</span>
-    <span class="n">system_ctx</span> <span class="o">=</span> <span class="n">create_system_context</span><span class="p">(</span><span class="s1">&#39;background-service&#39;</span><span class="p">)</span>
+    <span class="n">system_ctx</span> <span class="o">=</span> <span class="n">create_system_context</span><span class="p">(</span><span class="s1">'background-service'</span><span class="p">)</span>
     <span class="k">with</span> <span class="n">ContextManager</span><span class="p">(</span><span class="n">system_ctx</span><span class="p">):</span>
         <span class="c1"># Can access database as system</span>
         <span class="k">async</span> <span class="k">with</span> <span class="n">tenant_db</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
@@ -1391,94 +1391,94 @@ sahool-cli<span class="w"> </span>verify<span class="w"> </span><span class="se"
 
 <span class="c1"># Basic CRUD</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">FieldRepository</span><span class="p">(</span><span class="n">TenantRepository</span><span class="p">):</span>
-    <span class="n">_table</span> <span class="o">=</span> <span class="s1">&#39;fields&#39;</span>
+    <span class="n">_table</span> <span class="o">=</span> <span class="s1">'fields'</span>
     <span class="n">_model_class</span> <span class="o">=</span> <span class="n">Field</span>
 
 <span class="n">repo</span> <span class="o">=</span> <span class="n">FieldRepository</span><span class="p">()</span>
 
 <span class="c1"># Create — tenant_id auto-injected</span>
 <span class="n">field</span> <span class="o">=</span> <span class="k">await</span> <span class="n">repo</span><span class="o">.</span><span class="n">create</span><span class="p">({</span>
-    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;North Field&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;area&#39;</span><span class="p">:</span> <span class="mf">150.5</span>
+    <span class="s1">'name'</span><span class="p">:</span> <span class="s1">'North Field'</span><span class="p">,</span>
+    <span class="s1">'area'</span><span class="p">:</span> <span class="mf">150.5</span>
 <span class="p">})</span>
 
 <span class="c1"># Read — RLS filters automatically</span>
 <span class="n">fields</span> <span class="o">=</span> <span class="k">await</span> <span class="n">repo</span><span class="o">.</span><span class="n">find_many</span><span class="p">(</span><span class="n">area__gt</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
-<span class="n">single</span> <span class="o">=</span> <span class="k">await</span> <span class="n">repo</span><span class="o">.</span><span class="n">find_one</span><span class="p">(</span><span class="s1">&#39;field-uuid&#39;</span><span class="p">)</span>
+<span class="n">single</span> <span class="o">=</span> <span class="k">await</span> <span class="n">repo</span><span class="o">.</span><span class="n">find_one</span><span class="p">(</span><span class="s1">'field-uuid'</span><span class="p">)</span>
 
 <span class="c1"># Update — RLS ensures tenant can only update own data</span>
-<span class="n">updated</span> <span class="o">=</span> <span class="k">await</span> <span class="n">repo</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s1">&#39;field-uuid&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;Updated Name&#39;</span><span class="p">})</span>
+<span class="n">updated</span> <span class="o">=</span> <span class="k">await</span> <span class="n">repo</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s1">'field-uuid'</span><span class="p">,</span> <span class="p">{</span><span class="s1">'name'</span><span class="p">:</span> <span class="s1">'Updated Name'</span><span class="p">})</span>
 
 <span class="c1"># Delete — RLS ensures tenant can only delete own data</span>
-<span class="n">deleted</span> <span class="o">=</span> <span class="k">await</span> <span class="n">repo</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="s1">&#39;field-uuid&#39;</span><span class="p">)</span>
+<span class="n">deleted</span> <span class="o">=</span> <span class="k">await</span> <span class="n">repo</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="s1">'field-uuid'</span><span class="p">)</span>
 </code></pre></div>
 
 <h3 id="cache-patterns">Cache Patterns<a class="headerlink" href="#cache-patterns" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.platform</span><span class="w"> </span><span class="kn">import</span> <span class="n">TenantRedis</span><span class="p">,</span> <span class="n">TenantCache</span>
 
-<span class="n">redis</span> <span class="o">=</span> <span class="n">TenantRedis</span><span class="p">(</span><span class="n">redis_client</span><span class="p">,</span> <span class="s1">&#39;my-service&#39;</span><span class="p">)</span>
+<span class="n">redis</span> <span class="o">=</span> <span class="n">TenantRedis</span><span class="p">(</span><span class="n">redis_client</span><span class="p">,</span> <span class="s1">'my-service'</span><span class="p">)</span>
 <span class="n">cache</span> <span class="o">=</span> <span class="n">TenantCache</span><span class="p">(</span><span class="n">redis</span><span class="p">)</span>
 
 <span class="c1"># Pattern 1: Cache-aside</span>
 <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">cache</span><span class="o">.</span><span class="n">get_or_set</span><span class="p">(</span>
-    <span class="s1">&#39;expensive-query&#39;</span><span class="p">,</span>
+    <span class="s1">'expensive-query'</span><span class="p">,</span>
     <span class="k">lambda</span><span class="p">:</span> <span class="n">expensive_database_query</span><span class="p">(),</span>
     <span class="n">ttl</span><span class="o">=</span><span class="mi">300</span>
 <span class="p">)</span>
 
 <span class="c1"># Pattern 2: Explicit cache operations</span>
-<span class="k">await</span> <span class="n">redis</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;session&#39;</span><span class="p">,</span> <span class="s1">&#39;user-123&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;logged_in&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span> <span class="n">ttl</span><span class="o">=</span><span class="mi">3600</span><span class="p">)</span>
-<span class="n">session</span> <span class="o">=</span> <span class="k">await</span> <span class="n">redis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;session&#39;</span><span class="p">,</span> <span class="s1">&#39;user-123&#39;</span><span class="p">)</span>
+<span class="k">await</span> <span class="n">redis</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'session'</span><span class="p">,</span> <span class="s1">'user-123'</span><span class="p">,</span> <span class="p">{</span><span class="s1">'logged_in'</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span> <span class="n">ttl</span><span class="o">=</span><span class="mi">3600</span><span class="p">)</span>
+<span class="n">session</span> <span class="o">=</span> <span class="k">await</span> <span class="n">redis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'session'</span><span class="p">,</span> <span class="s1">'user-123'</span><span class="p">)</span>
 
 <span class="c1"># Pattern 3: Cache invalidation</span>
-<span class="k">await</span> <span class="n">redis</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="s1">&#39;cache&#39;</span><span class="p">,</span> <span class="s1">&#39;expensive-query&#39;</span><span class="p">)</span>
+<span class="k">await</span> <span class="n">redis</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="s1">'cache'</span><span class="p">,</span> <span class="s1">'expensive-query'</span><span class="p">)</span>
 </code></pre></div>
 
 <h3 id="event-publishing-patterns">Event Publishing Patterns<a class="headerlink" href="#event-publishing-patterns" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.platform</span><span class="w"> </span><span class="kn">import</span> <span class="n">TenantNATSPublisher</span><span class="p">,</span> <span class="n">SubjectBuilder</span>
 
-<span class="n">publisher</span> <span class="o">=</span> <span class="n">TenantNATSPublisher</span><span class="p">(</span><span class="n">nats_client</span><span class="p">,</span> <span class="s1">&#39;my-service&#39;</span><span class="p">)</span>
+<span class="n">publisher</span> <span class="o">=</span> <span class="n">TenantNATSPublisher</span><span class="p">(</span><span class="n">nats_client</span><span class="p">,</span> <span class="s1">'my-service'</span><span class="p">)</span>
 
 <span class="c1"># Pattern 1: Simple event</span>
 <span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span>
-    <span class="s1">&#39;field.created&#39;</span><span class="p">,</span>
-    <span class="p">{</span><span class="s1">&#39;field_id&#39;</span><span class="p">:</span> <span class="s1">&#39;123&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;North Field&#39;</span><span class="p">}</span>
+    <span class="s1">'field.created'</span><span class="p">,</span>
+    <span class="p">{</span><span class="s1">'field_id'</span><span class="p">:</span> <span class="s1">'123'</span><span class="p">,</span> <span class="s1">'name'</span><span class="p">:</span> <span class="s1">'North Field'</span><span class="p">}</span>
 <span class="p">)</span>
 <span class="c1"># Headers automatically include tenant context</span>
 
 <span class="c1"># Pattern 2: Structured subject</span>
 <span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span>
-    <span class="n">SubjectBuilder</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="s1">&#39;agriculture&#39;</span><span class="p">,</span> <span class="s1">&#39;field&#39;</span><span class="p">,</span> <span class="s1">&#39;created&#39;</span><span class="p">),</span>
-    <span class="p">{</span><span class="s1">&#39;field_id&#39;</span><span class="p">:</span> <span class="s1">&#39;123&#39;</span><span class="p">}</span>
+    <span class="n">SubjectBuilder</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="s1">'agriculture'</span><span class="p">,</span> <span class="s1">'field'</span><span class="p">,</span> <span class="s1">'created'</span><span class="p">),</span>
+    <span class="p">{</span><span class="s1">'field_id'</span><span class="p">:</span> <span class="s1">'123'</span><span class="p">}</span>
 <span class="p">)</span>
 <span class="c1"># Subject: sahool.agriculture.t_123abc.field.created</span>
 
 <span class="c1"># Pattern 3: Cross-service communication</span>
 <span class="k">await</span> <span class="n">publisher</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span>
-    <span class="s1">&#39;billing.invoice.generate&#39;</span><span class="p">,</span>
-    <span class="p">{</span><span class="s1">&#39;field_id&#39;</span><span class="p">:</span> <span class="s1">&#39;123&#39;</span><span class="p">,</span> <span class="s1">&#39;usage&#39;</span><span class="p">:</span> <span class="mf">150.5</span><span class="p">},</span>
-    <span class="n">event_type</span><span class="o">=</span><span class="s1">&#39;invoice.generate&#39;</span>
+    <span class="s1">'billing.invoice.generate'</span><span class="p">,</span>
+    <span class="p">{</span><span class="s1">'field_id'</span><span class="p">:</span> <span class="s1">'123'</span><span class="p">,</span> <span class="s1">'usage'</span><span class="p">:</span> <span class="mf">150.5</span><span class="p">},</span>
+    <span class="n">event_type</span><span class="o">=</span><span class="s1">'invoice.generate'</span>
 <span class="p">)</span>
 </code></pre></div>
 
 <h3 id="storage-patterns">Storage Patterns<a class="headerlink" href="#storage-patterns" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.platform</span><span class="w"> </span><span class="kn">import</span> <span class="n">TenantStorage</span>
 
-<span class="n">storage</span> <span class="o">=</span> <span class="n">TenantStorage</span><span class="p">(</span><span class="s1">&#39;http://minio:9000&#39;</span><span class="p">,</span> <span class="s1">&#39;key&#39;</span><span class="p">,</span> <span class="s1">&#39;secret&#39;</span><span class="p">)</span>
+<span class="n">storage</span> <span class="o">=</span> <span class="n">TenantStorage</span><span class="p">(</span><span class="s1">'http://minio:9000'</span><span class="p">,</span> <span class="s1">'key'</span><span class="p">,</span> <span class="s1">'secret'</span><span class="p">)</span>
 
 <span class="c1"># Upload with automatic tenant isolation</span>
 <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">storage</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span>
-    <span class="n">path</span><span class="o">=</span><span class="s1">&#39;fields/123/photo.jpg&#39;</span><span class="p">,</span>
+    <span class="n">path</span><span class="o">=</span><span class="s1">'fields/123/photo.jpg'</span><span class="p">,</span>
     <span class="n">data</span><span class="o">=</span><span class="n">file_bytes</span><span class="p">,</span>
-    <span class="n">content_type</span><span class="o">=</span><span class="s1">&#39;image/jpeg&#39;</span><span class="p">,</span>
-    <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;field_id&#39;</span><span class="p">:</span> <span class="s1">&#39;123&#39;</span><span class="p">}</span>
+    <span class="n">content_type</span><span class="o">=</span><span class="s1">'image/jpeg'</span><span class="p">,</span>
+    <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s1">'field_id'</span><span class="p">:</span> <span class="s1">'123'</span><span class="p">}</span>
 <span class="p">)</span>
 
 <span class="c1"># Generate presigned URL</span>
-<span class="n">url</span> <span class="o">=</span> <span class="k">await</span> <span class="n">storage</span><span class="o">.</span><span class="n">get_url</span><span class="p">(</span><span class="s1">&#39;fields/123/photo.jpg&#39;</span><span class="p">,</span> <span class="n">expires</span><span class="o">=</span><span class="mi">3600</span><span class="p">)</span>
+<span class="n">url</span> <span class="o">=</span> <span class="k">await</span> <span class="n">storage</span><span class="o">.</span><span class="n">get_url</span><span class="p">(</span><span class="s1">'fields/123/photo.jpg'</span><span class="p">,</span> <span class="n">expires</span><span class="o">=</span><span class="mi">3600</span><span class="p">)</span>
 
 <span class="c1"># Download with tenant verification</span>
-<span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">storage</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s1">&#39;fields/123/photo.jpg&#39;</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">storage</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s1">'fields/123/photo.jpg'</span><span class="p">)</span>
 <span class="c1"># Raises TenantIsolationError if object belongs to different tenant</span>
 </code></pre></div>
 
@@ -1534,36 +1534,36 @@ sahool-cli<span class="w"> </span>rollback<span class="w"> </span><span class="s
 <span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/v1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Deployment</span>
 <span class="nt">metadata</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{SERVICE_NAME}}&quot;</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">"{{SERVICE_NAME}}"</span>
 <span class="w">  </span><span class="nt">labels</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{SERVICE_NAME}}&quot;</span>
-<span class="w">    </span><span class="nt">tenant-isolation</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;enabled&quot;</span>
-<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{VERSION}}&quot;</span>
+<span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="s">"{{SERVICE_NAME}}"</span>
+<span class="w">    </span><span class="nt">tenant-isolation</span><span class="p">:</span><span class="w"> </span><span class="s">"enabled"</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"{{VERSION}}"</span>
 <span class="nt">spec</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">replicas</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{REPLICAS}}&quot;</span>
+<span class="w">  </span><span class="nt">replicas</span><span class="p">:</span><span class="w"> </span><span class="s">"{{REPLICAS}}"</span>
 <span class="w">  </span><span class="nt">selector</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">matchLabels</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{SERVICE_NAME}}&quot;</span>
+<span class="w">      </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="s">"{{SERVICE_NAME}}"</span>
 <span class="w">  </span><span class="nt">template</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">metadata</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">labels</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{SERVICE_NAME}}&quot;</span>
-<span class="w">        </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{VERSION}}&quot;</span>
+<span class="w">        </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="s">"{{SERVICE_NAME}}"</span>
+<span class="w">        </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"{{VERSION}}"</span>
 <span class="w">    </span><span class="nt">spec</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">securityContext</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">runAsNonRoot</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">        </span><span class="nt">seccompProfile</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">RuntimeDefault</span>
 <span class="w">      </span><span class="nt">containers</span><span class="p">:</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{SERVICE_NAME}}&quot;</span>
-<span class="w">          </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;sahool/{{SERVICE_NAME}}:{{VERSION}}&quot;</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">"{{SERVICE_NAME}}"</span>
+<span class="w">          </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="s">"sahool/{{SERVICE_NAME}}:{{VERSION}}"</span>
 <span class="w">          </span><span class="nt">env</span><span class="p">:</span>
 <span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SAHOOL_TENANT_ISOLATION</span>
-<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;enabled&quot;</span>
+<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">"enabled"</span>
 <span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SAHOOL_RLS_ENFORCED</span>
-<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;true&quot;</span>
+<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">"true"</span>
 <span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SAHOOL_SERVICE_NAME</span>
-<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{SERVICE_NAME}}&quot;</span>
+<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">"{{SERVICE_NAME}}"</span>
 <span class="w">          </span><span class="nt">resources</span><span class="p">:</span>
 <span class="w">            </span><span class="nt">requests</span><span class="p">:</span>
 <span class="w">              </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100m</span>
@@ -1593,13 +1593,13 @@ sahool-cli<span class="w"> </span>rollback<span class="w"> </span><span class="s
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TenantIsolationBreach</span>
 <span class="w">        </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
 <span class="w">          </span><span class="no">sum by (tenant_id) (</span>
-<span class="w">            </span><span class="no">sahool_requests_total{status=~&quot;403|500&quot;}</span>
+<span class="w">            </span><span class="no">sahool_requests_total{status=~"403|500"}</span>
 <span class="w">          </span><span class="no">) &gt; 100</span>
 <span class="w">        </span><span class="nt">for</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5m</span>
 <span class="w">        </span><span class="nt">labels</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">critical</span>
 <span class="w">        </span><span class="nt">annotations</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Potential</span><span class="nv"> </span><span class="s">tenant</span><span class="nv"> </span><span class="s">isolation</span><span class="nv"> </span><span class="s">breach&quot;</span>
+<span class="w">          </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="s">"Potential</span><span class="nv"> </span><span class="s">tenant</span><span class="nv"> </span><span class="s">isolation</span><span class="nv"> </span><span class="s">breach"</span>
 
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">HighTenantLatency</span>
 <span class="w">        </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
@@ -1610,7 +1610,7 @@ sahool-cli<span class="w"> </span>rollback<span class="w"> </span><span class="s
 <span class="w">        </span><span class="nt">labels</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warning</span>
 <span class="w">        </span><span class="nt">annotations</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;High</span><span class="nv"> </span><span class="s">latency</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">tenant</span><span class="nv"> </span><span class="s">{{</span><span class="nv"> </span><span class="s">$labels.tenant</span><span class="nv"> </span><span class="s">}}&quot;</span>
+<span class="w">          </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="s">"High</span><span class="nv"> </span><span class="s">latency</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">tenant</span><span class="nv"> </span><span class="s">{{</span><span class="nv"> </span><span class="s">$labels.tenant</span><span class="nv"> </span><span class="s">}}"</span>
 </code></pre></div>
 
 <hr />
@@ -1620,32 +1620,32 @@ sahool-cli<span class="w"> </span>rollback<span class="w"> </span><span class="s
 <span class="kn">from</span><span class="w"> </span><span class="nn">shared.platform</span><span class="w"> </span><span class="kn">import</span> <span class="n">tenant_db</span><span class="p">,</span> <span class="n">TenantRedis</span><span class="p">,</span> <span class="n">TenantStorage</span>
 
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">verify_complete_isolation</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Verify all layers have tenant isolation&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Verify all layers have tenant isolation"""</span>
 
     <span class="c1"># 1. Database RLS</span>
     <span class="k">async</span> <span class="k">with</span> <span class="n">tenant_db</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">await</span> <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;RESET app.current_tenant&quot;</span><span class="p">)</span>
-            <span class="k">await</span> <span class="n">conn</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="s2">&quot;SELECT * FROM fields&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;❌ DATABASE: RLS bypass possible!&quot;</span><span class="p">)</span>
+            <span class="k">await</span> <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">"RESET app.current_tenant"</span><span class="p">)</span>
+            <span class="k">await</span> <span class="n">conn</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="s2">"SELECT * FROM fields"</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"❌ DATABASE: RLS bypass possible!"</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;✅ DATABASE: RLS enforced&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"✅ DATABASE: RLS enforced"</span><span class="p">)</span>
 
     <span class="c1"># 2. Redis isolation</span>
-    <span class="n">redis</span> <span class="o">=</span> <span class="n">TenantRedis</span><span class="p">(</span><span class="n">redis_client</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">)</span>
+    <span class="n">redis</span> <span class="o">=</span> <span class="n">TenantRedis</span><span class="p">(</span><span class="n">redis_client</span><span class="p">,</span> <span class="s1">'test'</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">await</span> <span class="n">redis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="s1">&#39;key&#39;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;❌ REDIS: No context required!&quot;</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">redis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'test'</span><span class="p">,</span> <span class="s1">'key'</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"❌ REDIS: No context required!"</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">ContextRequiredError</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;✅ REDIS: Context required&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"✅ REDIS: Context required"</span><span class="p">)</span>
 
     <span class="c1"># 3. Storage isolation</span>
-    <span class="n">storage</span> <span class="o">=</span> <span class="n">TenantStorage</span><span class="p">(</span><span class="s1">&#39;...&#39;</span><span class="p">,</span> <span class="s1">&#39;key&#39;</span><span class="p">,</span> <span class="s1">&#39;secret&#39;</span><span class="p">)</span>
+    <span class="n">storage</span> <span class="o">=</span> <span class="n">TenantStorage</span><span class="p">(</span><span class="s1">'...'</span><span class="p">,</span> <span class="s1">'key'</span><span class="p">,</span> <span class="s1">'secret'</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">await</span> <span class="n">storage</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s1">&#39;test.txt&#39;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;❌ STORAGE: No context required!&quot;</span><span class="p">)</span>
+        <span class="k">await</span> <span class="n">storage</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s1">'test.txt'</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"❌ STORAGE: No context required!"</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">ContextRequiredError</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;✅ STORAGE: Context required&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"✅ STORAGE: Context required"</span><span class="p">)</span>
 </code></pre></div>
 
 <h3 id="security-checklist">Security Checklist<a class="headerlink" href="#security-checklist" title="Permanent link">&para;</a></h3>
@@ -1671,11 +1671,11 @@ sahool-cli<span class="w"> </span>rollback<span class="w"> </span><span class="s
 <p><strong>Solution:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Ensure middleware is first</span>
 <span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">()</span>
-<span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span><span class="n">ContextMiddleware</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="s1">&#39;my-service&#39;</span><span class="p">)</span>  <span class="c1"># MUST be first</span>
+<span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span><span class="n">ContextMiddleware</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="s1">'my-service'</span><span class="p">)</span>  <span class="c1"># MUST be first</span>
 
 <span class="c1"># Or use ContextManager for background tasks</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">background_job</span><span class="p">():</span>
-    <span class="n">system_ctx</span> <span class="o">=</span> <span class="n">create_system_context</span><span class="p">(</span><span class="s1">&#39;my-service&#39;</span><span class="p">)</span>
+    <span class="n">system_ctx</span> <span class="o">=</span> <span class="n">create_system_context</span><span class="p">(</span><span class="s1">'my-service'</span><span class="p">)</span>
     <span class="k">with</span> <span class="n">ContextManager</span><span class="p">(</span><span class="n">system_ctx</span><span class="p">):</span>
         <span class="c1"># Your code here</span>
         <span class="k">pass</span>
@@ -1686,10 +1686,10 @@ sahool-cli<span class="w"> </span>rollback<span class="w"> </span><span class="s
 <p><strong>Diagnosis:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1">-- Check RLS is enabled</span>
 <span class="k">SELECT</span><span class="w"> </span><span class="n">tablename</span><span class="p">,</span><span class="w"> </span><span class="n">rowsecurity</span><span class="p">,</span><span class="w"> </span><span class="n">forcerowsecurity</span>
-<span class="k">FROM</span><span class="w"> </span><span class="n">pg_tables</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">schemaname</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;public&#39;</span><span class="p">;</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">pg_tables</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">schemaname</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'public'</span><span class="p">;</span>
 
 <span class="c1">-- Check policy exists</span>
-<span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">pg_policies</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">tablename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;fields&#39;</span><span class="p">;</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">pg_policies</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">tablename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'fields'</span><span class="p">;</span>
 </code></pre></div>
 
 <p><strong>Solution:</strong></p>
@@ -1700,8 +1700,8 @@ sahool-cli<span class="w"> </span>rollback<span class="w"> </span><span class="s
 <span class="c1">-- Recreate policy</span>
 <span class="k">DROP</span><span class="w"> </span><span class="n">POLICY</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">tenant_isolation_fields</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">fields</span><span class="p">;</span>
 <span class="k">CREATE</span><span class="w"> </span><span class="n">POLICY</span><span class="w"> </span><span class="n">tenant_isolation_fields</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">fields</span>
-<span class="k">USING</span><span class="w"> </span><span class="p">(</span><span class="n">tenant_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_setting</span><span class="p">(</span><span class="s1">&#39;app.current_tenant&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">true</span><span class="p">)</span>
-<span class="w">       </span><span class="k">OR</span><span class="w"> </span><span class="n">current_setting</span><span class="p">(</span><span class="s1">&#39;app.is_super_admin&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">true</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;true&#39;</span><span class="p">);</span>
+<span class="k">USING</span><span class="w"> </span><span class="p">(</span><span class="n">tenant_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_setting</span><span class="p">(</span><span class="s1">'app.current_tenant'</span><span class="p">,</span><span class="w"> </span><span class="k">true</span><span class="p">)</span>
+<span class="w">       </span><span class="k">OR</span><span class="w"> </span><span class="n">current_setting</span><span class="p">(</span><span class="s1">'app.is_super_admin'</span><span class="p">,</span><span class="w"> </span><span class="k">true</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'true'</span><span class="p">);</span>
 </code></pre></div>
 
 <h3 id="issue-cache-returns-wrong-tenant-data">Issue: Cache returns wrong tenant data<a class="headerlink" href="#issue-cache-returns-wrong-tenant-data" title="Permanent link">&para;</a></h3>
@@ -1709,8 +1709,8 @@ sahool-cli<span class="w"> </span>rollback<span class="w"> </span><span class="s
 <p><strong>Diagnosis:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Check key generation</span>
 <span class="n">ctx</span> <span class="o">=</span> <span class="n">get_current_context</span><span class="p">()</span>
-<span class="n">expected_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ctx</span><span class="o">.</span><span class="n">tenant_id</span><span class="si">}</span><span class="s2">:my-service:cache:my-key&quot;</span>
-<span class="n">actual_key</span> <span class="o">=</span> <span class="n">redis</span><span class="o">.</span><span class="n">_get_key</span><span class="p">(</span><span class="s2">&quot;cache&quot;</span><span class="p">,</span> <span class="s2">&quot;my-key&quot;</span><span class="p">)</span>
+<span class="n">expected_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ctx</span><span class="o">.</span><span class="n">tenant_id</span><span class="si">}</span><span class="s2">:my-service:cache:my-key"</span>
+<span class="n">actual_key</span> <span class="o">=</span> <span class="n">redis</span><span class="o">.</span><span class="n">_get_key</span><span class="p">(</span><span class="s2">"cache"</span><span class="p">,</span> <span class="s2">"my-key"</span><span class="p">)</span>
 <span class="k">assert</span> <span class="n">expected_key</span> <span class="o">==</span> <span class="n">actual_key</span>
 </code></pre></div>
 
@@ -1871,10 +1871,10 @@ sahool-cli<span class="w"> </span>rollback<span class="w"> </span><span class="s
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

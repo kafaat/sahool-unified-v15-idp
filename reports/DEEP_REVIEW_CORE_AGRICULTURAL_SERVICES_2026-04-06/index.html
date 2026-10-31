@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1192,7 +1192,7 @@
 </table>
 <p>في Docker، الخدمات تنسخ <code>apps/services/shared/</code> إلى <code>/app/shared/</code> (يتضح من Dockerfiles: <code>COPY apps/services/shared/ ./shared/</code>). لذلك <code>from shared.auth.config import get_auth_config</code> يحلّ إلى الملف الذي يقرأ <code>AUTH_SECRET_KEY</code>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># apps/services/shared/auth/config.py:16</span>
-<span class="n">secret_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;AUTH_SECRET_KEY&quot;</span><span class="p">,</span> <span class="n">secrets</span><span class="o">.</span><span class="n">token_urlsafe</span><span class="p">(</span><span class="mi">32</span><span class="p">)))</span>
+<span class="n">secret_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"AUTH_SECRET_KEY"</span><span class="p">,</span> <span class="n">secrets</span><span class="o">.</span><span class="n">token_urlsafe</span><span class="p">(</span><span class="mi">32</span><span class="p">)))</span>
 </code></pre></div>
 
 <p>إذا لم يُضبط <code>AUTH_SECRET_KEY</code>، يُنتج كل حاوية سرًّا عشوائيًّا مختلفًا → JWT tokens موقّعة من user-service لا تتطابق → <strong>401 Unauthorized دائماً</strong>.</p>
@@ -1281,20 +1281,20 @@
 <p><strong>الحالة</strong>: مؤكّد ومُصلح في فرع الإصلاح</p>
 <p>فرع الإصلاح غيّر من <code>nats.conf</code> (بكلمات مرور bcrypt ثابتة) إلى <code>nats-secure.conf</code> (يقرأ من متغيرات البيئة):</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># قبل الإصلاح</span>
-<span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="s">&quot;-c&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;/etc/nats/nats.conf&quot;</span><span class="w"> </span><span class="p p-Indicator">]</span>
+<span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="s">"-c"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"/etc/nats/nats.conf"</span><span class="w"> </span><span class="p p-Indicator">]</span>
 
 <span class="c1"># بعد الإصلاح</span>
-<span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="s">&quot;-c&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;/etc/nats/nats-secure.conf&quot;</span><span class="w"> </span><span class="p p-Indicator">]</span>
+<span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="s">"-c"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"/etc/nats/nats-secure.conf"</span><span class="w"> </span><span class="p p-Indicator">]</span>
 </code></pre></div>
 
 <hr />
 <h3 id="p0-3-vault-bind-address">P0-3: Vault Bind Address خاطئ — مؤكّد<a class="headerlink" href="#p0-3-vault-bind-address" title="Permanent link">&para;</a></h3>
 <p><strong>الحالة</strong>: مؤكّد ومُصلح</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># قبل — Vault لا يمكن الوصول إليه من حاويات أخرى</span>
-<span class="nt">VAULT_DEV_LISTEN_ADDRESS</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;127.0.0.1:8200&quot;</span>
+<span class="nt">VAULT_DEV_LISTEN_ADDRESS</span><span class="p">:</span><span class="w"> </span><span class="s">"127.0.0.1:8200"</span>
 
 <span class="c1"># بعد — يمكن الوصول عبر شبكة Docker</span>
-<span class="nt">VAULT_DEV_LISTEN_ADDRESS</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.0.0.0:8200&quot;</span>
+<span class="nt">VAULT_DEV_LISTEN_ADDRESS</span><span class="p">:</span><span class="w"> </span><span class="s">"0.0.0.0:8200"</span>
 </code></pre></div>
 
 <hr />
@@ -1341,12 +1341,12 @@
 <p><strong>الحالة</strong>: غير صحيح — لا يوجد تناقض</p>
 <p><strong>التحقق</strong>: ملف <code>apps/services/notification-service/src/database.py:40-63</code> يستخدم DSN فقط بدون parameter <code>ssl</code> منفصل:</p>
 <div class="codehilite"><pre><span></span><code><span class="n">TORTOISE_ORM</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;connections&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;engine&quot;</span><span class="p">:</span> <span class="s2">&quot;tortoise.backends.asyncpg&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;credentials&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s2">&quot;dsn&quot;</span><span class="p">:</span> <span class="n">DATABASE_URL</span><span class="p">,</span>
-                <span class="s2">&quot;statement_cache_size&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>  <span class="c1"># PgBouncer transaction mode</span>
+    <span class="s2">"connections"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"default"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"engine"</span><span class="p">:</span> <span class="s2">"tortoise.backends.asyncpg"</span><span class="p">,</span>
+            <span class="s2">"credentials"</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">"dsn"</span><span class="p">:</span> <span class="n">DATABASE_URL</span><span class="p">,</span>
+                <span class="s2">"statement_cache_size"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>  <span class="c1"># PgBouncer transaction mode</span>
                 <span class="c1"># ssl handled by sslmode in DATABASE_URL</span>
             <span class="p">},</span>
         <span class="p">},</span>
@@ -1615,10 +1615,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

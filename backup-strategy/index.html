@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1244,9 +1244,9 @@ pg_basebackup<span class="w"> </span>-h<span class="w"> </span>postgres<span cla
 </ul>
 <h3 id="2-postgresql">2. تكوين PostgreSQL للنسخ الاحتياطي<a class="headerlink" href="#2-postgresql" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1">-- تفعيل WAL archiving</span>
-<span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">wal_level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;replica&#39;</span><span class="p">;</span>
-<span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">archive_mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;on&#39;</span><span class="p">;</span>
-<span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">archive_command</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;cp %p /var/lib/postgresql/wal_archive/%f&#39;</span><span class="p">;</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">wal_level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'replica'</span><span class="p">;</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">archive_mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'on'</span><span class="p">;</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">archive_command</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'cp %p /var/lib/postgresql/wal_archive/%f'</span><span class="p">;</span>
 <span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">max_wal_senders</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
 
 <span class="c1">-- إعادة تحميل الإعدادات</span>
@@ -1348,7 +1348,7 @@ docker<span class="w"> </span>cp<span class="w"> </span>sahool-redis:/data/dump.
 <p><strong>التكوين</strong>:</p>
 <div class="codehilite"><pre><span></span><code># تفعيل AOF
 appendonly yes
-appendfilename &quot;appendonly.aof&quot;
+appendfilename "appendonly.aof"
 
 # استراتيجية المزامنة
 appendfsync everysec  # توازن بين الأداء والأمان
@@ -1408,7 +1408,7 @@ redis-check-aof<span class="w"> </span>/backups/redis/appendonly.aof
 
 <span class="c1"># فحص بالاستعادة في بيئة منفصلة</span>
 docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-v<span class="w"> </span>/backups/redis:/data<span class="w"> </span>redis:7-alpine<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>redis-server<span class="w"> </span>--appendonly<span class="w"> </span>no<span class="w"> </span>--save<span class="w"> </span><span class="s2">&quot;&quot;</span>
+<span class="w">  </span>redis-server<span class="w"> </span>--appendonly<span class="w"> </span>no<span class="w"> </span>--save<span class="w"> </span><span class="s2">""</span>
 </code></pre></div>
 
 <hr />
@@ -1460,20 +1460,20 @@ mc<span class="w"> </span>cp<span class="w"> </span>--version-id<span class="w">
 <div class="codehilite"><pre><span></span><code><span class="c1"># إنشاء سياسة دورة الحياة</span>
 cat<span class="w"> </span>&gt;<span class="w"> </span>lifecycle.json<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
 <span class="s">{</span>
-<span class="s">  &quot;Rules&quot;: [</span>
+<span class="s">  "Rules": [</span>
 <span class="s">    {</span>
-<span class="s">      &quot;ID&quot;: &quot;DeleteOldVersions&quot;,</span>
-<span class="s">      &quot;Status&quot;: &quot;Enabled&quot;,</span>
-<span class="s">      &quot;NoncurrentVersionExpiration&quot;: {</span>
-<span class="s">        &quot;NoncurrentDays&quot;: 90</span>
+<span class="s">      "ID": "DeleteOldVersions",</span>
+<span class="s">      "Status": "Enabled",</span>
+<span class="s">      "NoncurrentVersionExpiration": {</span>
+<span class="s">        "NoncurrentDays": 90</span>
 <span class="s">      }</span>
 <span class="s">    },</span>
 <span class="s">    {</span>
-<span class="s">      &quot;ID&quot;: &quot;MoveToGlacier&quot;,</span>
-<span class="s">      &quot;Status&quot;: &quot;Enabled&quot;,</span>
-<span class="s">      &quot;Transition&quot;: {</span>
-<span class="s">        &quot;Days&quot;: 30,</span>
-<span class="s">        &quot;StorageClass&quot;: &quot;GLACIER&quot;</span>
+<span class="s">      "ID": "MoveToGlacier",</span>
+<span class="s">      "Status": "Enabled",</span>
+<span class="s">      "Transition": {</span>
+<span class="s">        "Days": 30,</span>
+<span class="s">        "StorageClass": "GLACIER"</span>
 <span class="s">      }</span>
 <span class="s">    }</span>
 <span class="s">  ]</span>
@@ -1625,16 +1625,16 @@ mc<span class="w"> </span>du<span class="w"> </span>s3-backup/uploads
 <div class="codehilite"><pre><span></span><code><span class="ch">#!/bin/bash</span>
 <span class="c1"># استعادة قاعدة بيانات PostgreSQL</span>
 
-<span class="nv">BACKUP_FILE</span><span class="o">=</span><span class="s2">&quot;/backups/postgres/sahool_20250127_020000.dump&quot;</span>
+<span class="nv">BACKUP_FILE</span><span class="o">=</span><span class="s2">"/backups/postgres/sahool_20250127_020000.dump"</span>
 
 <span class="c1"># 1. إيقاف الخدمات المعتمدة</span>
 docker<span class="w"> </span>compose<span class="w"> </span>stop<span class="w"> </span>api-gateway<span class="w"> </span>auth-service
 
 <span class="c1"># 2. إسقاط قاعدة البيانات الحالية (حذر!)</span>
-docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;DROP DATABASE IF EXISTS sahool;&quot;</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">"DROP DATABASE IF EXISTS sahool;"</span>
 
 <span class="c1"># 3. إنشاء قاعدة بيانات جديدة</span>
-docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;CREATE DATABASE sahool;&quot;</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">"CREATE DATABASE sahool;"</span>
 
 <span class="c1"># 4. استعادة البيانات</span>
 docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-i<span class="w"> </span>sahool-postgres<span class="w"> </span>pg_restore<span class="w"> </span><span class="se">\</span>
@@ -1643,18 +1643,18 @@ docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </spa
 <span class="w">  </span>-v<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--no-owner<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--no-privileges<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>&lt;<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">BACKUP_FILE</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="w">  </span>&lt;<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">BACKUP_FILE</span><span class="si">}</span><span class="s2">"</span>
 
 <span class="c1"># 5. إعادة بناء الفهارس</span>
-docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;REINDEX DATABASE sahool;&quot;</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">"REINDEX DATABASE sahool;"</span>
 
 <span class="c1"># 6. تحديث الإحصائيات</span>
-docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;ANALYZE;&quot;</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">"ANALYZE;"</span>
 
 <span class="c1"># 7. إعادة تشغيل الخدمات</span>
 docker<span class="w"> </span>compose<span class="w"> </span>start<span class="w"> </span>api-gateway<span class="w"> </span>auth-service
 
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✓ تمت استعادة قاعدة البيانات بنجاح&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"✓ تمت استعادة قاعدة البيانات بنجاح"</span>
 </code></pre></div>
 
 <h4 id="_9">ب. استعادة جزئية (جدول واحد)<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h4>
@@ -1671,9 +1671,9 @@ tar<span class="w"> </span>-xzf<span class="w"> </span>base_backup.tar.gz<span c
 
 <span class="c1"># 2. إنشاء ملف recovery.conf</span>
 cat<span class="w"> </span>&gt;<span class="w"> </span>/var/lib/postgresql/data/recovery.conf<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
-<span class="s">restore_command = &#39;cp /var/lib/postgresql/wal_archive/%f %p&#39;</span>
-<span class="s">recovery_target_time = &#39;2025-01-27 14:30:00&#39;</span>
-<span class="s">recovery_target_action = &#39;promote&#39;</span>
+<span class="s">restore_command = 'cp /var/lib/postgresql/wal_archive/%f %p'</span>
+<span class="s">recovery_target_time = '2025-01-27 14:30:00'</span>
+<span class="s">recovery_target_action = 'promote'</span>
 <span class="s">EOF</span>
 
 <span class="c1"># 3. إعادة تشغيل PostgreSQL</span>
@@ -1685,13 +1685,13 @@ docker<span class="w"> </span>compose<span class="w"> </span>restart<span class=
 <div class="codehilite"><pre><span></span><code><span class="ch">#!/bin/bash</span>
 <span class="c1"># استعادة Redis من RDB</span>
 
-<span class="nv">BACKUP_FILE</span><span class="o">=</span><span class="s2">&quot;/backups/redis/dump_20250127.rdb&quot;</span>
+<span class="nv">BACKUP_FILE</span><span class="o">=</span><span class="s2">"/backups/redis/dump_20250127.rdb"</span>
 
 <span class="c1"># 1. إيقاف Redis</span>
 docker<span class="w"> </span>compose<span class="w"> </span>stop<span class="w"> </span>redis
 
 <span class="c1"># 2. نسخ ملف RDB</span>
-docker<span class="w"> </span>cp<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">BACKUP_FILE</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>sahool-redis:/data/dump.rdb
+docker<span class="w"> </span>cp<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">BACKUP_FILE</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span>sahool-redis:/data/dump.rdb
 
 <span class="c1"># 3. تعيين الصلاحيات</span>
 docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-redis<span class="w"> </span>chown<span class="w"> </span>redis:redis<span class="w"> </span>/data/dump.rdb
@@ -1703,7 +1703,7 @@ docker<span class="w"> </span>compose<span class="w"> </span>start<span class="w
 sleep<span class="w"> </span><span class="m">5</span>
 docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-redis<span class="w"> </span>redis-cli<span class="w"> </span>-a<span class="w"> </span><span class="nv">$REDIS_PASSWORD</span><span class="w"> </span>DBSIZE
 
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✓ تمت استعادة Redis بنجاح&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"✓ تمت استعادة Redis بنجاح"</span>
 </code></pre></div>
 
 <h4 id="aof">ب. استعادة من AOF<a class="headerlink" href="#aof" title="Permanent link">&para;</a></h4>
@@ -1725,9 +1725,9 @@ docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </spa
 <div class="codehilite"><pre><span></span><code><span class="ch">#!/bin/bash</span>
 <span class="c1"># استعادة MinIO من نسخة احتياطية</span>
 
-<span class="nv">SOURCE_ALIAS</span><span class="o">=</span><span class="s2">&quot;backup&quot;</span>
-<span class="nv">TARGET_ALIAS</span><span class="o">=</span><span class="s2">&quot;sahool&quot;</span>
-<span class="nv">BUCKET</span><span class="o">=</span><span class="s2">&quot;uploads&quot;</span>
+<span class="nv">SOURCE_ALIAS</span><span class="o">=</span><span class="s2">"backup"</span>
+<span class="nv">TARGET_ALIAS</span><span class="o">=</span><span class="s2">"sahool"</span>
+<span class="nv">BUCKET</span><span class="o">=</span><span class="s2">"uploads"</span>
 
 <span class="c1"># 1. حذف البيانات الحالية (اختياري)</span>
 mc<span class="w"> </span>rm<span class="w"> </span>--recursive<span class="w"> </span>--force<span class="w"> </span><span class="si">${</span><span class="nv">TARGET_ALIAS</span><span class="si">}</span>/<span class="si">${</span><span class="nv">BUCKET</span><span class="si">}</span>/
@@ -1738,7 +1738,7 @@ mc<span class="w"> </span>mirror<span class="w"> </span>--overwrite<span class="
 <span class="c1"># 3. التحقق</span>
 mc<span class="w"> </span>ls<span class="w"> </span><span class="si">${</span><span class="nv">TARGET_ALIAS</span><span class="si">}</span>/<span class="si">${</span><span class="nv">BUCKET</span><span class="si">}</span>
 
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✓ تمت استعادة MinIO بنجاح&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"✓ تمت استعادة MinIO بنجاح"</span>
 </code></pre></div>
 
 <h4 id="_11">ب. استعادة ملف محدد<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h4>
@@ -1754,7 +1754,7 @@ mc<span class="w"> </span>mirror<span class="w"> </span>backup/uploads/documents
 mc<span class="w"> </span>ls<span class="w"> </span>--versions<span class="w"> </span>sahool/uploads/document.pdf
 
 <span class="c1"># استعادة إصدار محدد</span>
-<span class="nv">VERSION_ID</span><span class="o">=</span><span class="s2">&quot;xxxxx-xxxxx-xxxxx&quot;</span>
+<span class="nv">VERSION_ID</span><span class="o">=</span><span class="s2">"xxxxx-xxxxx-xxxxx"</span>
 mc<span class="w"> </span>cp<span class="w"> </span>--version-id<span class="w"> </span><span class="si">${</span><span class="nv">VERSION_ID</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>sahool/uploads/document.pdf<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>sahool/uploads/document_restored.pdf
@@ -1826,7 +1826,7 @@ docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> 
 <h4 id="1_3">سيناريو 1: حذف بيانات عن طريق الخطأ<a class="headerlink" href="#1_3" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1"># استعادة من آخر نسخة يومية (عادة &lt; 24 ساعة)</span>
 <span class="nv">LATEST_BACKUP</span><span class="o">=</span><span class="k">$(</span>ls<span class="w"> </span>-t<span class="w"> </span>/backups/daily/postgres/*.dump<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-1<span class="k">)</span>
-/scripts/backup/restore_postgres.sh<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">LATEST_BACKUP</span><span class="si">}</span><span class="s2">&quot;</span>
+/scripts/backup/restore_postgres.sh<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">LATEST_BACKUP</span><span class="si">}</span><span class="s2">"</span>
 </code></pre></div>
 
 <h4 id="2_2">سيناريو 2: فشل في الأجهزة<a class="headerlink" href="#2_2" title="Permanent link">&para;</a></h4>
@@ -1839,7 +1839,7 @@ docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> 
 <h4 id="3_2">سيناريو 3: هجوم برمجيات خبيثة<a class="headerlink" href="#3_2" title="Permanent link">&para;</a></h4>
 <div class="codehilite"><pre><span></span><code><span class="c1"># استعادة من نسخة قبل الهجوم</span>
 ./scripts/disaster-recovery/restore-clean-state.sh<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--date<span class="w"> </span><span class="s2">&quot;2025-01-25 10:00:00&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--date<span class="w"> </span><span class="s2">"2025-01-25 10:00:00"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--verify-integrity
 </code></pre></div>
 
@@ -1851,8 +1851,8 @@ docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> 
 du<span class="w"> </span>-sh<span class="w"> </span>/backups/*
 
 <span class="c1"># عدد النسخ الناجحة/الفاشلة</span>
-grep<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SUCCESS&quot;</span><span class="w"> </span>/var/log/backup/*.log
-grep<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;ERROR&quot;</span><span class="w"> </span>/var/log/backup/*.log
+grep<span class="w"> </span>-c<span class="w"> </span><span class="s2">"SUCCESS"</span><span class="w"> </span>/var/log/backup/*.log
+grep<span class="w"> </span>-c<span class="w"> </span><span class="s2">"ERROR"</span><span class="w"> </span>/var/log/backup/*.log
 
 <span class="c1"># وقت آخر نسخة احتياطية</span>
 stat<span class="w"> </span>-c<span class="w"> </span>%y<span class="w"> </span>/backups/latest/postgres.dump
@@ -1922,29 +1922,29 @@ sendmail<span class="w"> </span>-t<span class="w"> </span>&lt;<span class="w"> <
 <div class="codehilite"><pre><span></span><code><span class="ch">#!/bin/bash</span>
 <span class="c1"># إرسال إشعار إلى Slack</span>
 
-<span class="nv">WEBHOOK_URL</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">SLACK_WEBHOOK_URL</span><span class="si">}</span><span class="s2">&quot;</span>
-<span class="nv">STATUS</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span><span class="w">  </span><span class="c1"># success or failure</span>
-<span class="nv">MESSAGE</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$2</span><span class="s2">&quot;</span>
+<span class="nv">WEBHOOK_URL</span><span class="o">=</span><span class="s2">"</span><span class="si">${</span><span class="nv">SLACK_WEBHOOK_URL</span><span class="si">}</span><span class="s2">"</span>
+<span class="nv">STATUS</span><span class="o">=</span><span class="s2">"</span><span class="nv">$1</span><span class="s2">"</span><span class="w">  </span><span class="c1"># success or failure</span>
+<span class="nv">MESSAGE</span><span class="o">=</span><span class="s2">"</span><span class="nv">$2</span><span class="s2">"</span>
 
-<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$STATUS</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;success&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
-<span class="w">  </span><span class="nv">COLOR</span><span class="o">=</span><span class="s2">&quot;good&quot;</span>
-<span class="w">  </span><span class="nv">EMOJI</span><span class="o">=</span><span class="s2">&quot;:white_check_mark:&quot;</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">"</span><span class="nv">$STATUS</span><span class="s2">"</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"success"</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="nv">COLOR</span><span class="o">=</span><span class="s2">"good"</span>
+<span class="w">  </span><span class="nv">EMOJI</span><span class="o">=</span><span class="s2">":white_check_mark:"</span>
 <span class="k">else</span>
-<span class="w">  </span><span class="nv">COLOR</span><span class="o">=</span><span class="s2">&quot;danger&quot;</span>
-<span class="w">  </span><span class="nv">EMOJI</span><span class="o">=</span><span class="s2">&quot;:x:&quot;</span>
+<span class="w">  </span><span class="nv">COLOR</span><span class="o">=</span><span class="s2">"danger"</span>
+<span class="w">  </span><span class="nv">EMOJI</span><span class="o">=</span><span class="s2">":x:"</span>
 <span class="k">fi</span>
 
-curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">WEBHOOK_URL</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">WEBHOOK_URL</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">'Content-Type: application/json'</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-d<span class="w"> </span>@-<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
 <span class="s">{</span>
-<span class="s">  &quot;attachments&quot;: [</span>
+<span class="s">  "attachments": [</span>
 <span class="s">    {</span>
-<span class="s">      &quot;color&quot;: &quot;${COLOR}&quot;,</span>
-<span class="s">      &quot;title&quot;: &quot;${EMOJI} SAHOOL Platform Backup&quot;,</span>
-<span class="s">      &quot;text&quot;: &quot;${MESSAGE}&quot;,</span>
-<span class="s">      &quot;footer&quot;: &quot;Backup System&quot;,</span>
-<span class="s">      &quot;ts&quot;: $(date +%s)</span>
+<span class="s">      "color": "${COLOR}",</span>
+<span class="s">      "title": "${EMOJI} SAHOOL Platform Backup",</span>
+<span class="s">      "text": "${MESSAGE}",</span>
+<span class="s">      "footer": "Backup System",</span>
+<span class="s">      "ts": $(date +%s)</span>
 <span class="s">    }</span>
 <span class="s">  ]</span>
 <span class="s">}</span>
@@ -1956,21 +1956,21 @@ curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </spa
 <span class="c1"># إنشاء حادثة في PagerDuty</span>
 
 curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>https://api.pagerduty.com/incidents<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Authorization: Token token=YOUR_API_TOKEN&#39;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">'Authorization: Token token=YOUR_API_TOKEN'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">'Content-Type: application/json'</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-d<span class="w"> </span>@-<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
 <span class="s">{</span>
-<span class="s">  &quot;incident&quot;: {</span>
-<span class="s">    &quot;type&quot;: &quot;incident&quot;,</span>
-<span class="s">    &quot;title&quot;: &quot;فشل النسخ الاحتياطي الحرج - SAHOOL Platform&quot;,</span>
-<span class="s">    &quot;service&quot;: {</span>
-<span class="s">      &quot;id&quot;: &quot;SERVICE_ID&quot;,</span>
-<span class="s">      &quot;type&quot;: &quot;service_reference&quot;</span>
+<span class="s">  "incident": {</span>
+<span class="s">    "type": "incident",</span>
+<span class="s">    "title": "فشل النسخ الاحتياطي الحرج - SAHOOL Platform",</span>
+<span class="s">    "service": {</span>
+<span class="s">      "id": "SERVICE_ID",</span>
+<span class="s">      "type": "service_reference"</span>
 <span class="s">    },</span>
-<span class="s">    &quot;urgency&quot;: &quot;high&quot;,</span>
-<span class="s">    &quot;body&quot;: {</span>
-<span class="s">      &quot;type&quot;: &quot;incident_body&quot;,</span>
-<span class="s">      &quot;details&quot;: &quot;فشلت جميع محاولات النسخ الاحتياطي لـ PostgreSQL&quot;</span>
+<span class="s">    "urgency": "high",</span>
+<span class="s">    "body": {</span>
+<span class="s">      "type": "incident_body",</span>
+<span class="s">      "details": "فشلت جميع محاولات النسخ الاحتياطي لـ PostgreSQL"</span>
 <span class="s">    }</span>
 <span class="s">  }</span>
 <span class="s">}</span>
@@ -2033,14 +2033,14 @@ sendmail<span class="w"> </span>admin@sahool.com<span class="w"> </span>&lt;<spa
 <div class="codehilite"><pre><span></span><code><span class="ch">#!/bin/bash</span>
 <span class="c1"># تشفير النسخة الاحتياطية باستخدام GPG</span>
 
-<span class="nv">BACKUP_FILE</span><span class="o">=</span><span class="s2">&quot;sahool_backup.sql&quot;</span>
-<span class="nv">GPG_KEY</span><span class="o">=</span><span class="s2">&quot;admin@sahool.com&quot;</span>
+<span class="nv">BACKUP_FILE</span><span class="o">=</span><span class="s2">"sahool_backup.sql"</span>
+<span class="nv">GPG_KEY</span><span class="o">=</span><span class="s2">"admin@sahool.com"</span>
 
 <span class="c1"># تشفير</span>
-gpg<span class="w"> </span>--encrypt<span class="w"> </span>--recipient<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">GPG_KEY</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">BACKUP_FILE</span><span class="si">}</span><span class="s2">&quot;</span>
+gpg<span class="w"> </span>--encrypt<span class="w"> </span>--recipient<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">GPG_KEY</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">BACKUP_FILE</span><span class="si">}</span><span class="s2">"</span>
 
 <span class="c1"># فك التشفير</span>
-gpg<span class="w"> </span>--decrypt<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">BACKUP_FILE</span><span class="si">}</span><span class="s2">.gpg&quot;</span><span class="w"> </span>&gt;<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">BACKUP_FILE</span><span class="si">}</span><span class="s2">&quot;</span>
+gpg<span class="w"> </span>--decrypt<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">BACKUP_FILE</span><span class="si">}</span><span class="s2">.gpg"</span><span class="w"> </span>&gt;<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">BACKUP_FILE</span><span class="si">}</span><span class="s2">"</span>
 </code></pre></div>
 
 <h4 id="_18">ب. تشفير النقل<a class="headerlink" href="#_18" title="Permanent link">&para;</a></h4>
@@ -2089,22 +2089,22 @@ cat<span class="w"> </span>&gt;&gt;<span class="w"> </span>/var/log/backup/audit
 <span class="c1"># اختبار الاستعادة في بيئة منفصلة</span>
 
 <span class="nv">TEST_DATE</span><span class="o">=</span><span class="k">$(</span>date<span class="w"> </span>+%Y%m%d<span class="k">)</span>
-<span class="nv">TEST_DB</span><span class="o">=</span><span class="s2">&quot;sahool_test_</span><span class="si">${</span><span class="nv">TEST_DATE</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="nv">TEST_DB</span><span class="o">=</span><span class="s2">"sahool_test_</span><span class="si">${</span><span class="nv">TEST_DATE</span><span class="si">}</span><span class="s2">"</span>
 
 <span class="c1"># 1. إنشاء قاعدة بيانات اختبار</span>
-createdb<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">TEST_DB</span><span class="si">}</span><span class="s2">&quot;</span>
+createdb<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">TEST_DB</span><span class="si">}</span><span class="s2">"</span>
 
 <span class="c1"># 2. استعادة من آخر نسخة احتياطية</span>
-pg_restore<span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">TEST_DB</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>/backups/latest/postgres.dump
+pg_restore<span class="w"> </span>-d<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">TEST_DB</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span>/backups/latest/postgres.dump
 
 <span class="c1"># 3. التحقق من البيانات</span>
-psql<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">TEST_DB</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SELECT COUNT(*) FROM users;&quot;</span>
-psql<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">TEST_DB</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SELECT COUNT(*) FROM farms;&quot;</span>
+psql<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">TEST_DB</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span>-c<span class="w"> </span><span class="s2">"SELECT COUNT(*) FROM users;"</span>
+psql<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">TEST_DB</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span>-c<span class="w"> </span><span class="s2">"SELECT COUNT(*) FROM farms;"</span>
 
 <span class="c1"># 4. تنظيف</span>
-dropdb<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">TEST_DB</span><span class="si">}</span><span class="s2">&quot;</span>
+dropdb<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">TEST_DB</span><span class="si">}</span><span class="s2">"</span>
 
-<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✓ اختبار الاستعادة نجح&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"✓ اختبار الاستعادة نجح"</span>
 </code></pre></div>
 
 <h3 id="5_4">5. التوثيق والتدريب<a class="headerlink" href="#5_4" title="Permanent link">&para;</a></h3>
@@ -2181,7 +2181,7 @@ tail<span class="w"> </span>-f<span class="w"> </span>/var/log/backup/*.log
 /scripts/support/create-ticket.sh<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--category<span class="w"> </span>backup<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--priority<span class="w"> </span>high<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--description<span class="w"> </span><span class="s2">&quot;فشل النسخ الاحتياطي&quot;</span>
+<span class="w">  </span>--description<span class="w"> </span><span class="s2">"فشل النسخ الاحتياطي"</span>
 </code></pre></div>
 
 <hr />
@@ -2237,10 +2237,10 @@ tail<span class="w"> </span>-f<span class="w"> </span>/var/log/backup/*.log
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

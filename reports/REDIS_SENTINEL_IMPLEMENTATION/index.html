@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1180,8 +1180,8 @@
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.cache</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_redis_client</span>
 
 <span class="n">redis</span> <span class="o">=</span> <span class="n">get_redis_client</span><span class="p">()</span>
-<span class="n">redis</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;key&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="n">ex</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
-<span class="n">value</span> <span class="o">=</span> <span class="n">redis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;key&#39;</span><span class="p">,</span> <span class="n">use_slave</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">redis</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'key'</span><span class="p">,</span> <span class="s1">'value'</span><span class="p">,</span> <span class="n">ex</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+<span class="n">value</span> <span class="o">=</span> <span class="n">redis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'key'</span><span class="p">,</span> <span class="n">use_slave</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
 
 <hr />
@@ -1205,11 +1205,11 @@
 <li>✅ Promise-based API</li>
 </ul>
 <p><strong>Example:</strong></p>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">getRedisSentinelClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/cache&quot;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">getRedisSentinelClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@sahool/cache"</span><span class="p">;</span>
 
 <span class="kd">const</span><span class="w"> </span><span class="nx">redis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getRedisSentinelClient</span><span class="p">();</span>
-<span class="k">await</span><span class="w"> </span><span class="nx">redis</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s2">&quot;key&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;value&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ex</span><span class="o">:</span><span class="w"> </span><span class="kt">60</span><span class="w"> </span><span class="p">});</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">redis</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;key&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">);</span>
+<span class="k">await</span><span class="w"> </span><span class="nx">redis</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s2">"key"</span><span class="p">,</span><span class="w"> </span><span class="s2">"value"</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ex</span><span class="o">:</span><span class="w"> </span><span class="kt">60</span><span class="w"> </span><span class="p">});</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">redis</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">"key"</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">);</span>
 </code></pre></div>
 
 <hr />
@@ -1466,31 +1466,31 @@ make<span class="w"> </span>test-failover
 <span class="n">redis</span> <span class="o">=</span> <span class="n">get_redis_client</span><span class="p">()</span>
 
 <span class="c1"># Basic operations</span>
-<span class="n">redis</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;user:1000&#39;</span><span class="p">,</span> <span class="s1">&#39;Ahmed&#39;</span><span class="p">,</span> <span class="n">ex</span><span class="o">=</span><span class="mi">3600</span><span class="p">)</span>
-<span class="n">user</span> <span class="o">=</span> <span class="n">redis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;user:1000&#39;</span><span class="p">,</span> <span class="n">use_slave</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">redis</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">'user:1000'</span><span class="p">,</span> <span class="s1">'Ahmed'</span><span class="p">,</span> <span class="n">ex</span><span class="o">=</span><span class="mi">3600</span><span class="p">)</span>
+<span class="n">user</span> <span class="o">=</span> <span class="n">redis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'user:1000'</span><span class="p">,</span> <span class="n">use_slave</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="c1"># Hash operations</span>
-<span class="n">redis</span><span class="o">.</span><span class="n">hset</span><span class="p">(</span><span class="s1">&#39;user:1000:profile&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;Ahmed&#39;</span><span class="p">)</span>
-<span class="n">profile</span> <span class="o">=</span> <span class="n">redis</span><span class="o">.</span><span class="n">hgetall</span><span class="p">(</span><span class="s1">&#39;user:1000:profile&#39;</span><span class="p">)</span>
+<span class="n">redis</span><span class="o">.</span><span class="n">hset</span><span class="p">(</span><span class="s1">'user:1000:profile'</span><span class="p">,</span> <span class="s1">'name'</span><span class="p">,</span> <span class="s1">'Ahmed'</span><span class="p">)</span>
+<span class="n">profile</span> <span class="o">=</span> <span class="n">redis</span><span class="o">.</span><span class="n">hgetall</span><span class="p">(</span><span class="s1">'user:1000:profile'</span><span class="p">)</span>
 
 <span class="c1"># Health check</span>
 <span class="n">health</span> <span class="o">=</span> <span class="n">redis</span><span class="o">.</span><span class="n">health_check</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Status: </span><span class="si">{</span><span class="n">health</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Status: </span><span class="si">{</span><span class="n">health</span><span class="p">[</span><span class="s1">'status'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div>
 
 <h3 id="typescript-usage">TypeScript Usage<a class="headerlink" href="#typescript-usage" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">getRedisSentinelClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@sahool/cache&quot;</span><span class="p">;</span>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">getRedisSentinelClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@sahool/cache"</span><span class="p">;</span>
 
 <span class="c1">// Initialize client</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">redis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getRedisSentinelClient</span><span class="p">();</span>
 
 <span class="c1">// Basic operations</span>
-<span class="k">await</span><span class="w"> </span><span class="nx">redis</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s2">&quot;user:1000&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Ahmed&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ex</span><span class="o">:</span><span class="w"> </span><span class="kt">3600</span><span class="w"> </span><span class="p">});</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">redis</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;user:1000&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">);</span>
+<span class="k">await</span><span class="w"> </span><span class="nx">redis</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s2">"user:1000"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Ahmed"</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ex</span><span class="o">:</span><span class="w"> </span><span class="kt">3600</span><span class="w"> </span><span class="p">});</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">redis</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">"user:1000"</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">);</span>
 
 <span class="c1">// Hash operations</span>
-<span class="k">await</span><span class="w"> </span><span class="nx">redis</span><span class="p">.</span><span class="nx">hset</span><span class="p">(</span><span class="s2">&quot;user:1000:profile&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;name&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Ahmed&quot;</span><span class="p">);</span>
-<span class="kd">const</span><span class="w"> </span><span class="nx">profile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">redis</span><span class="p">.</span><span class="nx">hgetall</span><span class="p">(</span><span class="s2">&quot;user:1000:profile&quot;</span><span class="p">);</span>
+<span class="k">await</span><span class="w"> </span><span class="nx">redis</span><span class="p">.</span><span class="nx">hset</span><span class="p">(</span><span class="s2">"user:1000:profile"</span><span class="p">,</span><span class="w"> </span><span class="s2">"name"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Ahmed"</span><span class="p">);</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">profile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">redis</span><span class="p">.</span><span class="nx">hgetall</span><span class="p">(</span><span class="s2">"user:1000:profile"</span><span class="p">);</span>
 
 <span class="c1">// Health check</span>
 <span class="kd">const</span><span class="w"> </span><span class="nx">health</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">redis</span><span class="p">.</span><span class="nx">healthCheck</span><span class="p">();</span>
@@ -1786,10 +1786,10 @@ Date: December 2024</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

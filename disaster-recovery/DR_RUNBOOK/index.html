@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1357,7 +1357,7 @@ Level 4: CTO / Platform Architect (60+ min)
 <strong>Expected RPO:</strong> &lt;5 seconds (synchronous replication)</p>
 <p><strong>Monitoring:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Watch cluster status during failover</span>
-watch<span class="w"> </span>-n<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="s1">&#39;/home/user/sahool-unified-v15-idp/scripts/disaster-recovery/failover-postgres.sh status&#39;</span>
+watch<span class="w"> </span>-n<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="s1">'/home/user/sahool-unified-v15-idp/scripts/disaster-recovery/failover-postgres.sh status'</span>
 
 <span class="c1"># Check HAProxy stats</span>
 curl<span class="w"> </span>http://localhost:7000/stats
@@ -1427,7 +1427,7 @@ If issues occur, switch back to original primary:</p>
 
 <span class="c1"># Step 5: Test database connectivity</span>
 docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-postgres-haproxy<span class="w"> </span>nc<span class="w"> </span>-z<span class="w"> </span>localhost<span class="w"> </span><span class="m">5432</span>
-docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-postgres-primary<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>postgres<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SELECT version();&quot;</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-postgres-primary<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>postgres<span class="w"> </span>-c<span class="w"> </span><span class="s2">"SELECT version();"</span>
 </code></pre></div>
 
 <p><strong>Post-Failover Actions:</strong></p>
@@ -1454,9 +1454,9 @@ docker-compose<span class="w"> </span>-f<span class="w"> </span>docker-compose.y
 
 <span class="c1"># Step 2: Identify true primary (most recent LSN)</span>
 docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>postgres-primary<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>postgres<span class="w"> </span>-c<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span><span class="s2">&quot;SELECT pg_current_wal_lsn();&quot;</span>
+<span class="w">  </span><span class="s2">"SELECT pg_current_wal_lsn();"</span>
 docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>postgres-replica1<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>postgres<span class="w"> </span>-c<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span><span class="s2">&quot;SELECT pg_last_wal_receive_lsn();&quot;</span>
+<span class="w">  </span><span class="s2">"SELECT pg_last_wal_receive_lsn();"</span>
 
 <span class="c1"># Step 3: Demote false primary via Patroni</span>
 curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://postgres-replica1:8008/reinitialize
@@ -1503,7 +1503,7 @@ aws<span class="w"> </span>eks<span class="w"> </span>describe-cluster<span clas
 
 <span class="c1"># Check RDS replica lag</span>
 aws<span class="w"> </span>rds<span class="w"> </span>describe-db-instances<span class="w"> </span>--db-instance-identifier<span class="w"> </span>sahool-db-replica<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--region<span class="w"> </span>me-central-1<span class="w"> </span>--query<span class="w"> </span><span class="s1">&#39;DBInstances[0].ReplicaLag&#39;</span>
+<span class="w">  </span>--region<span class="w"> </span>me-central-1<span class="w"> </span>--query<span class="w"> </span><span class="s1">'DBInstances[0].ReplicaLag'</span>
 
 <span class="c1"># Verify S3 replication</span>
 aws<span class="w"> </span>s3api<span class="w"> </span>get-bucket-replication<span class="w"> </span>--bucket<span class="w"> </span>sahool-backups-primary<span class="w"> </span><span class="se">\</span>
@@ -1542,7 +1542,7 @@ curl<span class="w"> </span>-I<span class="w"> </span>https://api.sahool.sa/v1/s
 
 <span class="c1"># Verify database connectivity</span>
 kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deploy/api-gateway<span class="w"> </span>--<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>psql<span class="w"> </span>-h<span class="w"> </span><span class="nv">$DB_HOST</span><span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SELECT version();&quot;</span>
+<span class="w">  </span>psql<span class="w"> </span>-h<span class="w"> </span><span class="nv">$DB_HOST</span><span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">"SELECT version();"</span>
 
 <span class="c1"># Check application logs</span>
 kubectl<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>deploy/api-gateway<span class="w"> </span>--tail<span class="o">=</span><span class="m">100</span>
@@ -1659,15 +1659,15 @@ aws<span class="w"> </span>s3<span class="w"> </span>sync<span class="w"> </span
 
 <span class="c1"># 2. Apply WAL files for PITR</span>
 <span class="c1"># Restore to specific point in time</span>
-<span class="nv">RECOVERY_TARGET</span><span class="o">=</span><span class="s2">&quot;2026-01-06 01:55:00&quot;</span>
-docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>postgres-primary<span class="w"> </span>sh<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
-<span class="s2">  echo \&quot;recovery_target_time = &#39;</span><span class="si">${</span><span class="nv">RECOVERY_TARGET</span><span class="si">}</span><span class="s2">&#39;\&quot; &gt;&gt; /var/lib/postgresql/data/recovery.conf</span>
+<span class="nv">RECOVERY_TARGET</span><span class="o">=</span><span class="s2">"2026-01-06 01:55:00"</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>postgres-primary<span class="w"> </span>sh<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
+<span class="s2">  echo \"recovery_target_time = '</span><span class="si">${</span><span class="nv">RECOVERY_TARGET</span><span class="si">}</span><span class="s2">'\" &gt;&gt; /var/lib/postgresql/data/recovery.conf</span>
 <span class="s2">  pg_ctl restart</span>
-<span class="s2">&quot;</span>
+<span class="s2">"</span>
 
 <span class="c1"># 3. Verify database</span>
-docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>postgres-primary<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>postgres<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SELECT COUNT(*) FROM farms;&quot;</span>
-docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>postgres-primary<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>postgres<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SELECT pg_last_wal_replay_lsn();&quot;</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>postgres-primary<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>postgres<span class="w"> </span>-c<span class="w"> </span><span class="s2">"SELECT COUNT(*) FROM farms;"</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>postgres-primary<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>postgres<span class="w"> </span>-c<span class="w"> </span><span class="s2">"SELECT pg_last_wal_replay_lsn();"</span>
 </code></pre></div>
 
 <h3 id="phase-4-application-deployment-30-45-minutes">Phase 4: Application Deployment (30-45 minutes)<a class="headerlink" href="#phase-4-application-deployment-30-45-minutes" title="Permanent link">&para;</a></h3>
@@ -1695,10 +1695,10 @@ curl<span class="w"> </span>https://api.sahool.sa/v1/farms?limit<span class="o">
 
 <span class="c1"># 3. Database integrity checks</span>
 docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>postgres-primary<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>postgres<span class="w"> </span>-d<span class="w"> </span>sahool<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
-<span class="s">SELECT schemaname, tablename, pg_size_pretty(pg_total_relation_size(schemaname||&#39;.&#39;||tablename))</span>
+<span class="s">SELECT schemaname, tablename, pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename))</span>
 <span class="s">FROM pg_tables</span>
-<span class="s">WHERE schemaname = &#39;public&#39;</span>
-<span class="s">ORDER BY pg_total_relation_size(schemaname||&#39;.&#39;||tablename) DESC</span>
+<span class="s">WHERE schemaname = 'public'</span>
+<span class="s">ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC</span>
 <span class="s">LIMIT 10;</span>
 <span class="s">EOF</span>
 </code></pre></div>
@@ -1711,7 +1711,7 @@ aws<span class="w"> </span>route53<span class="w"> </span>change-resource-record
 
 <span class="c1"># Verify DNS propagation</span>
 dig<span class="w"> </span>api.sahool.sa<span class="w"> </span>+short
-curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Host: api.sahool.sa&quot;</span><span class="w"> </span>http://<span class="k">$(</span>kubectl<span class="w"> </span>get<span class="w"> </span>svc<span class="w"> </span>api-gateway<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.status.loadBalancer.ingress[0].hostname}&#39;</span><span class="k">)</span>
+curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">"Host: api.sahool.sa"</span><span class="w"> </span>http://<span class="k">$(</span>kubectl<span class="w"> </span>get<span class="w"> </span>svc<span class="w"> </span>api-gateway<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">'{.status.loadBalancer.ingress[0].hostname}'</span><span class="k">)</span>
 </code></pre></div>
 
 <p><strong>Total Recovery Time:</strong> 3.5 - 6.5 hours
@@ -1821,13 +1821,13 @@ kubectl<span class="w"> </span>scale<span class="w"> </span>deployment<span clas
 curl<span class="w"> </span>http://localhost:7000/stats
 
 <span class="c1"># Database connection</span>
-docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>postgres-primary<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>postgres<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SELECT version();&quot;</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>postgres-primary<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>postgres<span class="w"> </span>-c<span class="w"> </span><span class="s2">"SELECT version();"</span>
 
 <span class="c1"># Replication lag</span>
 docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>postgres-primary<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>postgres<span class="w"> </span>-c<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span><span class="s2">&quot;SELECT client_addr, state, sent_lsn, write_lsn, flush_lsn, replay_lsn,</span>
+<span class="w">  </span><span class="s2">"SELECT client_addr, state, sent_lsn, write_lsn, flush_lsn, replay_lsn,</span>
 <span class="s2">   pg_wal_lsn_diff(sent_lsn, replay_lsn) AS lag_bytes</span>
-<span class="s2">   FROM pg_stat_replication;&quot;</span>
+<span class="s2">   FROM pg_stat_replication;"</span>
 
 <span class="c1"># Redis Sentinel status</span>
 docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-redis-sentinel<span class="w"> </span>redis-cli<span class="w"> </span>-p<span class="w"> </span><span class="m">26379</span><span class="w"> </span>SENTINEL<span class="w"> </span>masters
@@ -1847,7 +1847,7 @@ docker-compose<span class="w"> </span>-f<span class="w"> </span>docker-compose.y
 
 <span class="c1"># Force promote specific replica</span>
 curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://postgres-replica1:8008/failover<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;candidate&quot;:&quot;postgres-replica1&quot;}&#39;</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"candidate":"postgres-replica1"}'</span>
 
 <span class="c1"># Emergency database backup</span>
 ./scripts/backup/backup_postgres.sh<span class="w"> </span>manual
@@ -1934,10 +1934,10 @@ curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </spa
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

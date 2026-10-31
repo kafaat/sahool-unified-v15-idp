@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1320,14 +1320,14 @@
 
 <span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">()</span>
 
-<span class="nd">@app</span><span class="o">.</span><span class="n">on_event</span><span class="p">(</span><span class="s2">&quot;startup&quot;</span><span class="p">)</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">on_event</span><span class="p">(</span><span class="s2">"startup"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">startup_event</span><span class="p">():</span>
     <span class="c1"># Initialize virus scanner</span>
-    <span class="n">virus_scanner_type</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;VIRUS_SCANNER&quot;</span><span class="p">,</span> <span class="s2">&quot;noop&quot;</span><span class="p">)</span>
+    <span class="n">virus_scanner_type</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"VIRUS_SCANNER"</span><span class="p">,</span> <span class="s2">"noop"</span><span class="p">)</span>
     <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">virus_scanner</span> <span class="o">=</span> <span class="n">get_virus_scanner</span><span class="p">(</span>
         <span class="n">virus_scanner_type</span><span class="p">,</span>
-        <span class="n">host</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;CLAMAV_HOST&quot;</span><span class="p">,</span> <span class="s2">&quot;localhost&quot;</span><span class="p">),</span>
-        <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;CLAMAV_PORT&quot;</span><span class="p">,</span> <span class="s2">&quot;3310&quot;</span><span class="p">))</span>
+        <span class="n">host</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"CLAMAV_HOST"</span><span class="p">,</span> <span class="s2">"localhost"</span><span class="p">),</span>
+        <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"CLAMAV_PORT"</span><span class="p">,</span> <span class="s2">"3310"</span><span class="p">))</span>
     <span class="p">)</span>
 
     <span class="c1"># Initialize file validator</span>
@@ -1337,14 +1337,14 @@
             <span class="n">allowed_mime_types</span><span class="o">=</span><span class="n">ALLOWED_IMAGE_TYPES</span><span class="p">,</span>
             <span class="n">check_magic_bytes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">strict_mime_check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">scan_for_viruses</span><span class="o">=</span><span class="n">virus_scanner_type</span> <span class="o">!=</span> <span class="s2">&quot;noop&quot;</span><span class="p">,</span>
+            <span class="n">scan_for_viruses</span><span class="o">=</span><span class="n">virus_scanner_type</span> <span class="o">!=</span> <span class="s2">"noop"</span><span class="p">,</span>
             <span class="n">allow_executable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">sanitize_filename</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="n">virus_scanner</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">virus_scanner</span>
     <span class="p">)</span>
 
-<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/upload&quot;</span><span class="p">)</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">"/upload"</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">upload_file</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="n">UploadFile</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="o">...</span><span class="p">)):</span>
     <span class="c1"># Read file content</span>
     <span class="n">file_content</span> <span class="o">=</span> <span class="k">await</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
@@ -1357,7 +1357,7 @@
             <span class="n">declared_mime_type</span><span class="o">=</span><span class="n">file</span><span class="o">.</span><span class="n">content_type</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="c1"># Process validated file</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;safe_filename&quot;</span><span class="p">]}</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"success"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">"filename"</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="s2">"safe_filename"</span><span class="p">]}</span>
     <span class="k">except</span> <span class="n">FileValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
 </code></pre></div>
@@ -1369,29 +1369,29 @@
 <span class="w">  </span><span class="nx">UseInterceptors</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">UploadedFile</span><span class="p">,</span>
 <span class="w">  </span><span class="nx">BadRequestException</span><span class="p">,</span>
-<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/common&quot;</span><span class="p">;</span>
-<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">FileInterceptor</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;@nestjs/platform-express&quot;</span><span class="p">;</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@nestjs/common"</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">FileInterceptor</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"@nestjs/platform-express"</span><span class="p">;</span>
 
-<span class="kd">@Controller</span><span class="p">(</span><span class="s2">&quot;upload&quot;</span><span class="p">)</span>
+<span class="kd">@Controller</span><span class="p">(</span><span class="s2">"upload"</span><span class="p">)</span>
 <span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">UploadController</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="kd">@Post</span><span class="p">()</span>
 <span class="w">  </span><span class="kd">@UseInterceptors</span><span class="p">(</span>
-<span class="w">    </span><span class="nx">FileInterceptor</span><span class="p">(</span><span class="s2">&quot;file&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">FileInterceptor</span><span class="p">(</span><span class="s2">"file"</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="nx">limits</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="nx">fileSize</span><span class="o">:</span><span class="w"> </span><span class="kt">10</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1024</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1024</span><span class="p">,</span><span class="w"> </span><span class="c1">// 10MB</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">      </span><span class="nx">fileFilter</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">file</span><span class="p">,</span><span class="w"> </span><span class="nx">cb</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">allowedMimes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
-<span class="w">          </span><span class="s2">&quot;image/jpeg&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="s2">&quot;image/png&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="s2">&quot;image/gif&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="s2">&quot;image/webp&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">"image/jpeg"</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">"image/png"</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">"image/gif"</span><span class="p">,</span>
+<span class="w">          </span><span class="s2">"image/webp"</span><span class="p">,</span>
 <span class="w">        </span><span class="p">];</span>
 
 <span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">allowedMimes</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="nx">file</span><span class="p">.</span><span class="nx">mimetype</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
 <span class="w">          </span><span class="nx">cb</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">);</span>
 <span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="nx">cb</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">BadRequestException</span><span class="p">(</span><span class="s2">&quot;Invalid file type&quot;</span><span class="p">),</span><span class="w"> </span><span class="kc">false</span><span class="p">);</span>
+<span class="w">          </span><span class="nx">cb</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">BadRequestException</span><span class="p">(</span><span class="s2">"Invalid file type"</span><span class="p">),</span><span class="w"> </span><span class="kc">false</span><span class="p">);</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">      </span><span class="p">},</span>
 <span class="w">    </span><span class="p">}),</span>
@@ -1402,9 +1402,9 @@
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">isPNG</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">buffer</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mh">0x89</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">buffer</span><span class="p">[</span><span class="mf">1</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mh">0x50</span><span class="p">;</span>
 <span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">isJPEG</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">buffer</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mh">0xff</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">buffer</span><span class="p">[</span><span class="mf">1</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mh">0xd8</span><span class="p">;</span>
 
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">isPNG</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="nx">isJPEG</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">file</span><span class="p">.</span><span class="nx">mimetype</span><span class="p">.</span><span class="nx">startsWith</span><span class="p">(</span><span class="s2">&quot;image/&quot;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">isPNG</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="nx">isJPEG</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">file</span><span class="p">.</span><span class="nx">mimetype</span><span class="p">.</span><span class="nx">startsWith</span><span class="p">(</span><span class="s2">"image/"</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">BadRequestException</span><span class="p">(</span>
-<span class="w">        </span><span class="s2">&quot;File content does not match declared type&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">"File content does not match declared type"</span><span class="p">,</span>
 <span class="w">      </span><span class="p">);</span>
 <span class="w">    </span><span class="p">}</span>
 
@@ -1436,11 +1436,11 @@
 <span class="w">  </span><span class="nt">clamav</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">clamav/clamav:latest</span>
 <span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;3310:3310&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"3310:3310"</span>
 <span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">clamav-data:/var/lib/clamav</span>
 <span class="w">    </span><span class="nt">healthcheck</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CMD&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;clamdscan&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;--ping&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;1&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"CMD"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"clamdscan"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"--ping"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"1"</span><span class="p p-Indicator">]</span>
 <span class="w">      </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span>
 
 <span class="w">  </span><span class="nt">crop-health-ai</span><span class="p">:</span>
@@ -1460,7 +1460,7 @@
 <h2 id="error-responses">Error Responses<a class="headerlink" href="#error-responses" title="Permanent link">&para;</a></h2>
 <p>All validation errors return HTTP 400 with bilingual error messages:</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;detail&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;حجم الصورة كبير جداً (الحد الأقصى 10 ميجابايت) / File too large. Maximum 10MB&quot;</span>
+<span class="w">  </span><span class="nt">"detail"</span><span class="p">:</span><span class="w"> </span><span class="s2">"حجم الصورة كبير جداً (الحد الأقصى 10 ميجابايت) / File too large. Maximum 10MB"</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1486,18 +1486,18 @@
 <h3 id="manual-testing">Manual Testing<a class="headerlink" href="#manual-testing" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Test valid image upload</span>
 curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8095/v1/diagnose<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-F<span class="w"> </span><span class="s2">&quot;image=@test_image.jpg&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-F<span class="w"> </span><span class="s2">&quot;field_id=FIELD-001&quot;</span>
+<span class="w">  </span>-F<span class="w"> </span><span class="s2">"image=@test_image.jpg"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-F<span class="w"> </span><span class="s2">"field_id=FIELD-001"</span>
 
 <span class="c1"># Test invalid file type</span>
 curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8095/v1/diagnose<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-F<span class="w"> </span><span class="s2">&quot;image=@malicious.exe&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-F<span class="w"> </span><span class="s2">&quot;field_id=FIELD-001&quot;</span>
+<span class="w">  </span>-F<span class="w"> </span><span class="s2">"image=@malicious.exe"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-F<span class="w"> </span><span class="s2">"field_id=FIELD-001"</span>
 
 <span class="c1"># Test oversized file (&gt;10MB)</span>
 curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8095/v1/diagnose<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-F<span class="w"> </span><span class="s2">&quot;image=@large_file.jpg&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-F<span class="w"> </span><span class="s2">&quot;field_id=FIELD-001&quot;</span>
+<span class="w">  </span>-F<span class="w"> </span><span class="s2">"image=@large_file.jpg"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-F<span class="w"> </span><span class="s2">"field_id=FIELD-001"</span>
 </code></pre></div>
 
 <h3 id="unit-testing">Unit Testing<a class="headerlink" href="#unit-testing" title="Permanent link">&para;</a></h3>
@@ -1619,10 +1619,10 @@ curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </spa
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -27,10 +27,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -1357,9 +1357,9 @@
 <span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
 
 <span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;rate_limit_exceeded&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Too many requests. Please slow down.&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;retry_after&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">45</span>
+<span class="w">  </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rate_limit_exceeded"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Too many requests. Please slow down."</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"retry_after"</span><span class="p">:</span><span class="w"> </span><span class="mi">45</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -1404,27 +1404,27 @@
 <div class="codehilite"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">HighRateLimitHitRate</span>
 <span class="w">  </span><span class="nt">condition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rate_limit_exceeded_total &gt; 100/min</span>
 <span class="w">  </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warning</span>
-<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;High</span><span class="nv"> </span><span class="s">rate</span><span class="nv"> </span><span class="s">of</span><span class="nv"> </span><span class="s">requests</span><span class="nv"> </span><span class="s">hitting</span><span class="nv"> </span><span class="s">rate</span><span class="nv"> </span><span class="s">limits&quot;</span>
+<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">"High</span><span class="nv"> </span><span class="s">rate</span><span class="nv"> </span><span class="s">of</span><span class="nv"> </span><span class="s">requests</span><span class="nv"> </span><span class="s">hitting</span><span class="nv"> </span><span class="s">rate</span><span class="nv"> </span><span class="s">limits"</span>
 
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">RedisRateLimiterDown</span>
 <span class="w">  </span><span class="nt">condition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis_rate_limiter_available == 0</span>
 <span class="w">  </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">critical</span>
-<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Redis</span><span class="nv"> </span><span class="s">rate</span><span class="nv"> </span><span class="s">limiter</span><span class="nv"> </span><span class="s">unavailable,</span><span class="nv"> </span><span class="s">using</span><span class="nv"> </span><span class="s">in-memory</span><span class="nv"> </span><span class="s">fallback&quot;</span>
+<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">"Redis</span><span class="nv"> </span><span class="s">rate</span><span class="nv"> </span><span class="s">limiter</span><span class="nv"> </span><span class="s">unavailable,</span><span class="nv"> </span><span class="s">using</span><span class="nv"> </span><span class="s">in-memory</span><span class="nv"> </span><span class="s">fallback"</span>
 
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SuspiciousRateLimitPattern</span>
 <span class="w">  </span><span class="nt">condition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rate_limit_exceeded_per_ip &gt; 1000/hour</span>
 <span class="w">  </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warning</span>
-<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Possible</span><span class="nv"> </span><span class="s">DDoS</span><span class="nv"> </span><span class="s">or</span><span class="nv"> </span><span class="s">scraping</span><span class="nv"> </span><span class="s">attack</span><span class="nv"> </span><span class="s">detected&quot;</span>
+<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">"Possible</span><span class="nv"> </span><span class="s">DDoS</span><span class="nv"> </span><span class="s">or</span><span class="nv"> </span><span class="s">scraping</span><span class="nv"> </span><span class="s">attack</span><span class="nv"> </span><span class="s">detected"</span>
 </code></pre></div>
 
 <h2 id="testing-rate-limits">Testing Rate Limits<a class="headerlink" href="#testing-rate-limits" title="Permanent link">&para;</a></h2>
 <h3 id="test-with-curl">Test with curl<a class="headerlink" href="#test-with-curl" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Test standard endpoint</span>
 <span class="k">for</span><span class="w"> </span>i<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="o">{</span><span class="m">1</span>..70<span class="o">}</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
-<span class="w">  </span>curl<span class="w"> </span>-s<span class="w"> </span>-o<span class="w"> </span>/dev/null<span class="w"> </span>-w<span class="w"> </span><span class="s2">&quot;%{http_code}\n&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>curl<span class="w"> </span>-s<span class="w"> </span>-o<span class="w"> </span>/dev/null<span class="w"> </span>-w<span class="w"> </span><span class="s2">"%{http_code}\n"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>http://localhost:8120/api/v1/analyze<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;field_id&quot;:&quot;test&quot;,&quot;crop_type&quot;:&quot;wheat&quot;}&#39;</span>
+<span class="w">    </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-d<span class="w"> </span><span class="s1">'{"field_id":"test","crop_type":"wheat"}'</span>
 <span class="k">done</span>
 
 <span class="c1"># First 60 should return 200, next 10 should return 429</span>
@@ -1434,17 +1434,17 @@
 <div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 
-<span class="n">endpoint</span> <span class="o">=</span> <span class="s2">&quot;http://localhost:8120/api/v1/analyze&quot;</span>
-<span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">}</span>
-<span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;field_id&quot;</span><span class="p">:</span> <span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="s2">&quot;crop_type&quot;</span><span class="p">:</span> <span class="s2">&quot;wheat&quot;</span><span class="p">}</span>
+<span class="n">endpoint</span> <span class="o">=</span> <span class="s2">"http://localhost:8120/api/v1/analyze"</span>
+<span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"Content-Type"</span><span class="p">:</span> <span class="s2">"application/json"</span><span class="p">}</span>
+<span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"field_id"</span><span class="p">:</span> <span class="s2">"test"</span><span class="p">,</span> <span class="s2">"crop_type"</span><span class="p">:</span> <span class="s2">"wheat"</span><span class="p">}</span>
 
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">70</span><span class="p">):</span>
     <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Request </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Request </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">429</span><span class="p">:</span>
-        <span class="n">retry_after</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;X-RateLimit-Reset&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Rate limited! Retry after </span><span class="si">{</span><span class="n">retry_after</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span>
+        <span class="n">retry_after</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"X-RateLimit-Reset"</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Rate limited! Retry after </span><span class="si">{</span><span class="n">retry_after</span><span class="si">}</span><span class="s2"> seconds"</span><span class="p">)</span>
         <span class="k">break</span>
 
     <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
@@ -1559,10 +1559,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

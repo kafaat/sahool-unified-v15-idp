@@ -10,6 +10,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 try:
+    from src import forecast_integration as forecast_module
     from src.forecast_integration import (
         AlertCategory,
         AlertSeverity,
@@ -713,7 +714,7 @@ class TestWeatherForecastService:
 
     def test_service_initialization(self):
         """Test service initializes with providers"""
-        with patch("src.forecast_integration.get_config") as mock_config:
+        with patch.object(forecast_module, "get_config") as mock_config:
             # Mock configuration
             mock_cfg = MagicMock()
             mock_cfg.providers = {
@@ -729,7 +730,7 @@ class TestWeatherForecastService:
 
     def test_fetch_forecast_success(self):
         """Test successful forecast fetching"""
-        with patch("src.forecast_integration.get_config") as mock_config:
+        with patch.object(forecast_module, "get_config") as mock_config:
             mock_cfg = MagicMock()
             mock_cfg.providers = {
                 "open_meteo": MagicMock(enabled=True, priority=MagicMock(value=1)),
@@ -769,7 +770,7 @@ class TestWeatherForecastService:
 
     def test_fetch_forecast_provider_fallback(self):
         """Test provider fallback on failure"""
-        with patch("src.forecast_integration.get_config") as mock_config:
+        with patch.object(forecast_module, "get_config") as mock_config:
             mock_cfg = MagicMock()
             mock_cfg.providers = {}
             mock_cfg.forecast_max_days = 16

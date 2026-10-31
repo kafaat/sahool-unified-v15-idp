@@ -9,14 +9,13 @@ from __future__ import annotations
 import asyncio
 
 import pytest
-
 from shared.ai.knowledge.ingestion.async_pipeline import AsyncKnowledgeIngestionPipeline
 from shared.ai.knowledge.ingestion.pipeline import BatchIngestionReport, IngestionResult
 
 
 def _run(coro):
     """Helper to run async coroutines in sync tests."""
-    return asyncio.get_event_loop().run_until_complete(coro)
+    return asyncio.run(coro)
 
 
 class TestAsyncKnowledgeIngestionPipeline:

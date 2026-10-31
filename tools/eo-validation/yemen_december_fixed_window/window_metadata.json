@@ -1,0 +1,154 @@
+{
+  "old_red": {
+    "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/38/P/MC/2022/12/S2A_38PMC_20221206_0_L2A/B04.tif",
+    "crs": "EPSG:32638",
+    "transform": [
+      10.0,
+      0.0,
+      477940.0,
+      0.0,
+      -10.0,
+      1787200.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "window": [
+      7798,
+      1280,
+      256,
+      256
+    ],
+    "valid": 65536
+  },
+  "old_nir": {
+    "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/38/P/MC/2022/12/S2A_38PMC_20221206_0_L2A/B08.tif",
+    "crs": "EPSG:32638",
+    "transform": [
+      10.0,
+      0.0,
+      477940.0,
+      0.0,
+      -10.0,
+      1787200.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "window": [
+      7798,
+      1280,
+      256,
+      256
+    ],
+    "valid": 65536
+  },
+  "c1_red": {
+    "url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/38/P/MC/2022/12/S2A_T38PMC_20221206T073305_L2A/B04.tif",
+    "crs": "EPSG:32638",
+    "transform": [
+      10.0,
+      0.0,
+      477940.0,
+      0.0,
+      -10.0,
+      1787200.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "window": [
+      7798,
+      1280,
+      256,
+      256
+    ],
+    "valid": 65536
+  },
+  "c1_nir": {
+    "url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/38/P/MC/2022/12/S2A_T38PMC_20221206T073305_L2A/B08.tif",
+    "crs": "EPSG:32638",
+    "transform": [
+      10.0,
+      0.0,
+      477940.0,
+      0.0,
+      -10.0,
+      1787200.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "window": [
+      7798,
+      1280,
+      256,
+      256
+    ],
+    "valid": 65536
+  },
+  "old_scl": {
+    "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/38/P/MC/2022/12/S2A_38PMC_20221206_0_L2A/SCL.tif",
+    "source_transform": [
+      20.0,
+      0.0,
+      477940.0,
+      0.0,
+      -20.0,
+      1787200.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "source_window": [
+      3899,
+      640,
+      128,
+      128
+    ],
+    "target_transform": [
+      10.0,
+      0.0,
+      477940.0,
+      0.0,
+      -10.0,
+      1787200.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "resampling": "nearest"
+  },
+  "c1_scl": {
+    "url": "https://e84-earth-search-sentinel-data.s3.us-west-2.amazonaws.com/sentinel-2-c1-l2a/38/P/MC/2022/12/S2A_T38PMC_20221206T073305_L2A/SCL.tif",
+    "source_transform": [
+      20.0,
+      0.0,
+      477940.0,
+      0.0,
+      -20.0,
+      1787200.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "source_window": [
+      3899,
+      640,
+      128,
+      128
+    ],
+    "target_transform": [
+      10.0,
+      0.0,
+      477940.0,
+      0.0,
+      -10.0,
+      1787200.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "resampling": "nearest"
+  }
+}

@@ -11,14 +11,18 @@ Provides lazy-loaded singletons for:
 from __future__ import annotations
 
 import logging
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ..models.agricultural_models import AgriGuardScorer, HFAdvisorModel, NLLBTranslator
 
 logger = logging.getLogger(__name__)
 
 # ── Singletons (initialised once on first use) ─────────────────────────────────
 
-_agri_scorer: "AgriGuardScorer | None" = None  # type: ignore[name-defined]
-_hf_advisor: "HFAdvisorModel | None" = None  # type: ignore[name-defined]
-_nllb_translator: "NLLBTranslator | None" = None  # type: ignore[name-defined]
+_agri_scorer: AgriGuardScorer | None = None
+_hf_advisor: HFAdvisorModel | None = None
+_nllb_translator: NLLBTranslator | None = None
 
 
 def get_agri_scorer():
@@ -26,6 +30,7 @@ def get_agri_scorer():
     global _agri_scorer
     if _agri_scorer is None:
         from ..models.agricultural_models import AgriGuardScorer
+
         _agri_scorer = AgriGuardScorer()
         logger.info("AgriGuardScorer initialised")
     return _agri_scorer
@@ -36,6 +41,7 @@ def get_hf_advisor():
     global _hf_advisor
     if _hf_advisor is None:
         from ..models.agricultural_models import HFAdvisorModel
+
         _hf_advisor = HFAdvisorModel()
         if _hf_advisor.load():
             logger.info("HFAdvisorModel ready")
@@ -49,6 +55,7 @@ def get_nllb_translator():
     global _nllb_translator
     if _nllb_translator is None:
         from ..models.agricultural_models import NLLBTranslator
+
         _nllb_translator = NLLBTranslator()
         if _nllb_translator.load():
             logger.info("NLLBTranslator ready")

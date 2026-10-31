@@ -11,14 +11,16 @@ Updated: January 2026
 """
 
 import asyncio
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum, StrEnum
-from typing import Any, Callable
+from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import pytest
+import pytest_asyncio
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Swarm Data Models (Module Under Test)
@@ -616,11 +618,11 @@ def swarm_task() -> SwarmTask:
     )
 
 
-@pytest.fixture
-def star_coordinator(agent_configs: list[dict[str, Any]]) -> SwarmCoordinator:
+@pytest_asyncio.fixture
+async def star_coordinator(agent_configs: list[dict[str, Any]]) -> SwarmCoordinator:
     """Create a star topology coordinator with agents."""
     coordinator = SwarmCoordinator(topology=SwarmTopology.STAR)
-    asyncio.get_event_loop().run_until_complete(coordinator.spawn_swarm(agent_configs))
+    await coordinator.spawn_swarm(agent_configs)
     return coordinator
 
 

@@ -165,7 +165,8 @@ class TestMCPClientExecutableValidation:
 class TestDriftDetectionCommandAllowlist:
     """Test command allowlist in drift detection remediation."""
 
-    def test_rejects_unauthorized_command(self):
+    @pytest.mark.asyncio
+    async def test_rejects_unauthorized_command(self):
         """Verify unapproved commands are blocked."""
         from shared.drift_detection.models import RemediationAction
         from shared.drift_detection.remediation import AutoRemediationEngine
@@ -180,9 +181,7 @@ class TestDriftDetectionCommandAllowlist:
 
         import asyncio
 
-        result = asyncio.get_event_loop().run_until_complete(
-            engine._execute_auto_fix(action)
-        )
+        result = await engine._execute_auto_fix(action)
 
         assert not result.success
         assert "not in allowed commands" in result.error

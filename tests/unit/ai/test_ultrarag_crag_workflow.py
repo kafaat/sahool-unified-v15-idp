@@ -17,7 +17,6 @@ import asyncio
 from pathlib import Path
 
 import pytest
-
 from shared.ai.knowledge.corrective_retrieval import (
     CorrectiveRetrievalEngine,
     RetrievalAction,
@@ -159,7 +158,8 @@ class TestCRAGStepExecution:
         return WorkflowEngine()
 
     @pytest.mark.unit
-    def test_crag_correct_action(self, engine: WorkflowEngine):
+    @pytest.mark.asyncio
+    async def test_crag_correct_action(self, engine: WorkflowEngine):
         """Test CRAG returns CORRECT for high-quality chunks."""
         ctx = WorkflowExecutionContext(workflow_id="test")
         ctx.variables["query"] = "wheat rust disease treatment"
@@ -189,7 +189,7 @@ class TestCRAGStepExecution:
             },
         )
 
-        _, __ = asyncio.get_event_loop().run_until_complete(engine._handle_crag(step, ctx))
+        _, __ = await engine._handle_crag(step, ctx)
 
         assert ctx.variables["crag_action"] in ("correct", "ambiguous", "incorrect")
         assert "crag_overall_score" in ctx.variables
@@ -198,7 +198,8 @@ class TestCRAGStepExecution:
         assert ctx.variables["crag_chunks_in"] == 2
 
     @pytest.mark.unit
-    def test_crag_incorrect_with_empty_results(self, engine: WorkflowEngine):
+    @pytest.mark.asyncio
+    async def test_crag_incorrect_with_empty_results(self, engine: WorkflowEngine):
         """Test CRAG returns INCORRECT for empty retrieval."""
         ctx = WorkflowExecutionContext(workflow_id="test")
         ctx.variables["query"] = "random unrelated query"
@@ -211,14 +212,15 @@ class TestCRAGStepExecution:
             config={"domain": "crops"},
         )
 
-        _, __ = asyncio.get_event_loop().run_until_complete(engine._handle_crag(step, ctx))
+        _, __ = await engine._handle_crag(step, ctx)
 
         assert ctx.variables["crag_action"] == "incorrect"
         assert ctx.variables["crag_fallback_used"] is True
         assert ctx.variables["crag_overall_score"] == 0.0
 
     @pytest.mark.unit
-    def test_crag_branching_on_correct(self, engine: WorkflowEngine):
+    @pytest.mark.asyncio
+    async def test_crag_branching_on_correct(self, engine: WorkflowEngine):
         """Test CRAG routes to on_correct step."""
         ctx = WorkflowExecutionContext(workflow_id="test")
         ctx.variables["query"] = "wheat irrigation schedule"
@@ -241,13 +243,14 @@ class TestCRAGStepExecution:
             },
         )
 
-        _, next_step = asyncio.get_event_loop().run_until_complete(engine._handle_crag(step, ctx))
+        _, next_step = await engine._handle_crag(step, ctx)
 
         if ctx.variables["crag_action"] == "correct":
             assert next_step == "generate_advisory"
 
     @pytest.mark.unit
-    def test_crag_branching_on_incorrect(self, engine: WorkflowEngine):
+    @pytest.mark.asyncio
+    async def test_crag_branching_on_incorrect(self, engine: WorkflowEngine):
         """Test CRAG routes to on_incorrect step for empty results."""
         ctx = WorkflowExecutionContext(workflow_id="test")
         ctx.variables["query"] = "something"
@@ -264,11 +267,12 @@ class TestCRAGStepExecution:
             },
         )
 
-        _, next_step = asyncio.get_event_loop().run_until_complete(engine._handle_crag(step, ctx))
+        _, next_step = await engine._handle_crag(step, ctx)
         assert next_step == "fallback_search"
 
     @pytest.mark.unit
-    def test_crag_populates_all_context_variables(self, engine: WorkflowEngine):
+    @pytest.mark.asyncio
+    async def test_crag_populates_all_context_variables(self, engine: WorkflowEngine):
         """Test CRAG step populates all expected context variables."""
         ctx = WorkflowExecutionContext(workflow_id="test")
         ctx.variables["query"] = "nitrogen deficiency wheat"
@@ -286,7 +290,7 @@ class TestCRAGStepExecution:
             config={"domain": "fertilizer"},
         )
 
-        asyncio.get_event_loop().run_until_complete(engine._handle_crag(step, ctx))
+        await engine._handle_crag(step, ctx)
 
         expected_vars = [
             "crag_result",
@@ -303,7 +307,8 @@ class TestCRAGStepExecution:
             assert var in ctx.variables, f"Missing context variable: {var}"
 
     @pytest.mark.unit
-    def test_crag_fallback_collections_suggested(self, engine: WorkflowEngine):
+    @pytest.mark.asyncio
+    async def test_crag_fallback_collections_suggested(self, engine: WorkflowEngine):
         """Test CRAG suggests fallback collections on INCORRECT."""
         ctx = WorkflowExecutionContext(workflow_id="test")
         ctx.variables["query"] = "query"
@@ -317,7 +322,7 @@ class TestCRAGStepExecution:
             config={"domain": "crops"},
         )
 
-        asyncio.get_event_loop().run_until_complete(engine._handle_crag(step, ctx))
+        await engine._handle_crag(step, ctx)
 
         assert ctx.variables["crag_fallback_used"] is True
         assert "crag_fallback_collections" in ctx.variables

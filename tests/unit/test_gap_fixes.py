@@ -262,11 +262,12 @@ class TestCalibrationWorker:
         worker = CalibrationWorker(db_pool=None, nats_client=None, n_trials=30)
         assert worker._n_trials == 30
 
-    def test_process_pending_no_pool(self):
+    @pytest.mark.asyncio
+    async def test_process_pending_no_pool(self):
         from shared.calibration.worker import CalibrationWorker
 
         worker = CalibrationWorker(db_pool=None)
-        result = asyncio.get_event_loop().run_until_complete(worker.process_pending())
+        result = await worker.process_pending()
         assert result == []
 
     def test_default_param_bounds(self):
@@ -305,7 +306,8 @@ class TestDecisionEngineCalibrated:
         assert engine._eff == 0.90
         assert engine._p_offset == -0.05
 
-    def test_p_offset_triggers_irrigation(self):
+    @pytest.mark.asyncio
+    async def test_p_offset_triggers_irrigation(self):
         from uuid import uuid4
 
         from shared.digital_twin.decisions import DecisionEngine
@@ -337,18 +339,14 @@ class TestDecisionEngineCalibrated:
             assimilation_flags=[AssimilationFlag.MODEL_ONLY],
         )
 
-        loop = asyncio.get_event_loop()
-
         # Default p for heading=0.45, RAW=81, depletion=60<81 → NO irrigation
-        rec_default = loop.run_until_complete(DecisionEngine(repo=repo).recommend_irrigation(state, taw_mm=180.0))
+        rec_default = await DecisionEngine(repo=repo).recommend_irrigation(state, taw_mm=180.0)
         assert rec_default.recommended_mm == 0.0
 
         # Strict: p_offset=-0.30 → p=0.15, RAW=27, depletion=60>27 → YES
-        rec_strict = loop.run_until_complete(
-            DecisionEngine(repo=repo, calibrated_thresholds={"p_fraction_offset": -0.30}).recommend_irrigation(
-                state, taw_mm=180.0
-            )
-        )
+        rec_strict = await DecisionEngine(
+            repo=repo, calibrated_thresholds={"p_fraction_offset": -0.30}
+        ).recommend_irrigation(state, taw_mm=180.0)
         assert rec_strict.recommended_mm > 0.0
 
 
@@ -916,7 +914,6 @@ class TestNumericalEdgeCases:
         from uuid import uuid4
 
         from pydantic import ValidationError
-
         from shared.digital_twin.models import FieldDailyState
 
         # Valid
@@ -1001,7 +998,8 @@ class TestDecisionEngineEdgeCases:
     """Tests for irrigation decision edge cases."""
 
     @_SKIP_PYDANTIC
-    def test_zero_depletion_no_irrigation(self):
+    @pytest.mark.asyncio
+    async def test_zero_depletion_no_irrigation(self):
         """When depletion is 0, no irrigation should be recommended."""
         from uuid import uuid4
 
@@ -1019,13 +1017,13 @@ class TestDecisionEngineEdgeCases:
             water_stress=1.0,
             phenology_stage="heading",
         )
-        loop = asyncio.get_event_loop()
-        rec = loop.run_until_complete(engine.recommend_irrigation(state, taw_mm=180.0))
+        rec = await engine.recommend_irrigation(state, taw_mm=180.0)
         assert rec.recommended_mm == 0.0
         assert "NO_IRRIGATION_NEEDED" in rec.reason_codes
 
     @_SKIP_PYDANTIC
-    def test_high_depletion_triggers_irrigation(self):
+    @pytest.mark.asyncio
+    async def test_high_depletion_triggers_irrigation(self):
         """Depletion exceeding RAW should trigger irrigation."""
         from uuid import uuid4
 
@@ -1043,13 +1041,13 @@ class TestDecisionEngineEdgeCases:
             water_stress=0.4,
             phenology_stage="heading",
         )
-        loop = asyncio.get_event_loop()
-        rec = loop.run_until_complete(engine.recommend_irrigation(state, taw_mm=180.0))
+        rec = await engine.recommend_irrigation(state, taw_mm=180.0)
         assert rec.recommended_mm > 0.0
         assert "DEPLETION_EXCEEDS_RAW" in rec.reason_codes
 
     @_SKIP_PYDANTIC
-    def test_none_depletion_uses_zero_fallback(self):
+    @pytest.mark.asyncio
+    async def test_none_depletion_uses_zero_fallback(self):
         """Missing depletion_mm should default to 0, not crash."""
         from uuid import uuid4
 
@@ -1066,13 +1064,13 @@ class TestDecisionEngineEdgeCases:
             depletion_mm=None,
             water_stress=None,
         )
-        loop = asyncio.get_event_loop()
-        rec = loop.run_until_complete(engine.recommend_irrigation(state, taw_mm=180.0))
+        rec = await engine.recommend_irrigation(state, taw_mm=180.0)
         assert rec.recommended_mm >= 0.0
         assert math.isfinite(rec.recommended_mm)
 
     @_SKIP_PYDANTIC
-    def test_taw_clamped_to_valid_range(self):
+    @pytest.mark.asyncio
+    async def test_taw_clamped_to_valid_range(self):
         """Extreme taw_mm values should be clamped, not crash."""
         from uuid import uuid4
 
@@ -1089,16 +1087,16 @@ class TestDecisionEngineEdgeCases:
             depletion_mm=50.0,
             water_stress=0.8,
         )
-        loop = asyncio.get_event_loop()
         # taw_mm = 0 → clamped to 1.0
-        rec = loop.run_until_complete(engine.recommend_irrigation(state, taw_mm=0.0))
+        rec = await engine.recommend_irrigation(state, taw_mm=0.0)
         assert math.isfinite(rec.recommended_mm)
         # taw_mm = 999 → clamped to 500
-        rec2 = loop.run_until_complete(engine.recommend_irrigation(state, taw_mm=999.0))
+        rec2 = await engine.recommend_irrigation(state, taw_mm=999.0)
         assert math.isfinite(rec2.recommended_mm)
 
     @_SKIP_PYDANTIC
-    def test_calibrated_p_fraction_offset(self):
+    @pytest.mark.asyncio
+    async def test_calibrated_p_fraction_offset(self):
         """p_fraction_offset from calibration should shift the threshold."""
         from uuid import uuid4
 
@@ -1121,8 +1119,7 @@ class TestDecisionEngineEdgeCases:
             water_stress=0.7,
             phenology_stage="heading",
         )
-        loop = asyncio.get_event_loop()
-        rec_offset = loop.run_until_complete(engine_offset.recommend_irrigation(state))
-        rec_default = loop.run_until_complete(engine_default.recommend_irrigation(state))
+        rec_offset = await engine_offset.recommend_irrigation(state)
+        rec_default = await engine_default.recommend_irrigation(state)
         # Higher p → higher RAW → needs more depletion to trigger → less irrigation
         assert rec_offset.recommended_mm <= rec_default.recommended_mm

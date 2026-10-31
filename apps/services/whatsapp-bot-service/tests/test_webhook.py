@@ -36,7 +36,7 @@ class TestWebhookVerification:
     def setup_method(self):
         """Set up test client."""
         # Import app after environment is set
-        from src.main import app
+        from _whatsapp_bot_test_src.main import app
 
         self.client = TestClient(app)
 
@@ -96,7 +96,7 @@ class TestWebhookMessageReceive:
         import os
 
         os.environ.setdefault("WHATSAPP_HMAC_REQUIRED", "false")
-        from src.main import app
+        from _whatsapp_bot_test_src.main import app
 
         self.client = TestClient(app)
         self.app = app
@@ -129,7 +129,7 @@ class TestWebhookMessageReceive:
         import os
 
         secret = "test-app-secret-12345"
-        from src.api.endpoints import webhook as _wh
+        from _whatsapp_bot_test_src.api.endpoints import webhook as _wh
 
         original_secret = _wh.settings.whatsapp_app_secret
         # Re-enable HMAC for this specific test
@@ -156,7 +156,7 @@ class TestWebhookMessageReceive:
         """Test that a wrong HMAC signature is rejected with 401."""
         import os
 
-        from src.api.endpoints import webhook as _wh
+        from _whatsapp_bot_test_src.api.endpoints import webhook as _wh
 
         original_secret = _wh.settings.whatsapp_app_secret
         os.environ.pop("WHATSAPP_HMAC_REQUIRED", None)
@@ -178,7 +178,7 @@ class TestWebhookMessageReceive:
         """Test that a missing signature is rejected when app secret is configured."""
         import os
 
-        from src.api.endpoints import webhook as _wh
+        from _whatsapp_bot_test_src.api.endpoints import webhook as _wh
 
         original_secret = _wh.settings.whatsapp_app_secret
         os.environ.pop("WHATSAPP_HMAC_REQUIRED", None)
@@ -242,8 +242,8 @@ class TestSendMessageAPI:
     def setup_method(self):
         """Set up test client with auth bypassed for unit testing."""
         # Override auth dependency so send endpoints are testable without JWT
-        from src.api.endpoints.webhook import get_current_user
-        from src.main import app
+        from _whatsapp_bot_test_src.api.endpoints.webhook import get_current_user
+        from _whatsapp_bot_test_src.main import app
 
         app.dependency_overrides[get_current_user] = lambda: {"id": "test-user", "tid": "test-tenant"}
         self.client = TestClient(app)
@@ -299,8 +299,8 @@ class TestSendTemplateAPI:
 
     def setup_method(self):
         """Set up test client with auth bypassed for unit testing."""
-        from src.api.endpoints.webhook import get_current_user
-        from src.main import app
+        from _whatsapp_bot_test_src.api.endpoints.webhook import get_current_user
+        from _whatsapp_bot_test_src.main import app
 
         app.dependency_overrides[get_current_user] = lambda: {"id": "test-user", "tid": "test-tenant"}
         self.client = TestClient(app)
@@ -333,7 +333,7 @@ class TestHealthEndpoints:
 
     def setup_method(self):
         """Set up test client."""
-        from src.main import app
+        from _whatsapp_bot_test_src.main import app
 
         self.client = TestClient(app)
 
@@ -368,7 +368,7 @@ class TestSchemas:
 
     def test_whatsapp_message_parsing(self):
         """Test WhatsApp message schema parsing."""
-        from src.api.schemas import MessageType, WhatsAppMessage
+        from _whatsapp_bot_test_src.api.schemas import MessageType, WhatsAppMessage
 
         message_data = {
             "from": "967123456789",
@@ -384,7 +384,7 @@ class TestSchemas:
 
     def test_webhook_payload_parsing(self):
         """Test webhook payload schema parsing."""
-        from src.api.schemas import WhatsAppWebhookPayload
+        from _whatsapp_bot_test_src.api.schemas import WhatsAppWebhookPayload
 
         payload_data = {
             "object": "whatsapp_business_account",
@@ -412,7 +412,7 @@ class TestSchemas:
 
     def test_conversation_state(self):
         """Test conversation state schema."""
-        from src.api.schemas import (
+        from _whatsapp_bot_test_src.api.schemas import (
             ConversationIntent,
             ConversationState,
             FarmerProfile,
@@ -461,8 +461,8 @@ class TestResponseBuilder:
 
     def test_greeting_arabic(self):
         """Test Arabic greeting."""
-        from src.api.schemas import Language
-        from src.handlers.response_builder import ResponseBuilder
+        from _whatsapp_bot_test_src.api.schemas import Language
+        from _whatsapp_bot_test_src.handlers.response_builder import ResponseBuilder
 
         builder = ResponseBuilder()
         greeting = builder.build_greeting(Language.ARABIC, name="أحمد")
@@ -471,8 +471,8 @@ class TestResponseBuilder:
 
     def test_greeting_english(self):
         """Test English greeting."""
-        from src.api.schemas import Language
-        from src.handlers.response_builder import ResponseBuilder
+        from _whatsapp_bot_test_src.api.schemas import Language
+        from _whatsapp_bot_test_src.handlers.response_builder import ResponseBuilder
 
         builder = ResponseBuilder()
         greeting = builder.build_greeting(Language.ENGLISH, name="Ahmed")
@@ -481,8 +481,8 @@ class TestResponseBuilder:
 
     def test_help_message_arabic(self):
         """Test Arabic help message."""
-        from src.api.schemas import Language
-        from src.handlers.response_builder import ResponseBuilder
+        from _whatsapp_bot_test_src.api.schemas import Language
+        from _whatsapp_bot_test_src.handlers.response_builder import ResponseBuilder
 
         builder = ResponseBuilder()
         help_text = builder.build_help_message(Language.ARABIC)
@@ -490,8 +490,8 @@ class TestResponseBuilder:
 
     def test_menu_buttons_arabic(self):
         """Test Arabic menu buttons."""
-        from src.api.schemas import Language
-        from src.handlers.response_builder import ResponseBuilder
+        from _whatsapp_bot_test_src.api.schemas import Language
+        from _whatsapp_bot_test_src.handlers.response_builder import ResponseBuilder
 
         builder = ResponseBuilder()
         buttons = builder.get_main_menu_buttons(Language.ARABIC)
@@ -500,8 +500,8 @@ class TestResponseBuilder:
 
     def test_vision_response_with_detections(self):
         """Test vision response with detections."""
-        from src.api.schemas import Language
-        from src.handlers.response_builder import ResponseBuilder
+        from _whatsapp_bot_test_src.api.schemas import Language
+        from _whatsapp_bot_test_src.handlers.response_builder import ResponseBuilder
 
         builder = ResponseBuilder()
         vision_result = {
@@ -530,8 +530,8 @@ class TestResponseBuilder:
 
     def test_vision_response_no_detections(self):
         """Test vision response with no detections."""
-        from src.api.schemas import Language
-        from src.handlers.response_builder import ResponseBuilder
+        from _whatsapp_bot_test_src.api.schemas import Language
+        from _whatsapp_bot_test_src.handlers.response_builder import ResponseBuilder
 
         builder = ResponseBuilder()
         vision_result = {"detections": []}
@@ -546,8 +546,8 @@ class TestSessionManager:
     @pytest.mark.asyncio
     async def test_create_session(self):
         """Test session creation."""
-        from src.api.schemas import Language
-        from src.utils.session_manager import SessionManager
+        from _whatsapp_bot_test_src.api.schemas import Language
+        from _whatsapp_bot_test_src.utils.session_manager import SessionManager
 
         manager = SessionManager(redis_client=None, session_ttl=3600)
 
@@ -564,8 +564,8 @@ class TestSessionManager:
     @pytest.mark.asyncio
     async def test_get_session(self):
         """Test session retrieval."""
-        from src.api.schemas import Language
-        from src.utils.session_manager import SessionManager
+        from _whatsapp_bot_test_src.api.schemas import Language
+        from _whatsapp_bot_test_src.utils.session_manager import SessionManager
 
         manager = SessionManager(redis_client=None, session_ttl=3600)
 
@@ -583,8 +583,8 @@ class TestSessionManager:
     @pytest.mark.asyncio
     async def test_delete_session(self):
         """Test session deletion."""
-        from src.api.schemas import Language
-        from src.utils.session_manager import SessionManager
+        from _whatsapp_bot_test_src.api.schemas import Language
+        from _whatsapp_bot_test_src.utils.session_manager import SessionManager
 
         manager = SessionManager(redis_client=None, session_ttl=3600)
 
@@ -605,8 +605,8 @@ class TestSessionManager:
     @pytest.mark.asyncio
     async def test_set_language(self):
         """Test setting language preference."""
-        from src.api.schemas import Language
-        from src.utils.session_manager import SessionManager
+        from _whatsapp_bot_test_src.api.schemas import Language
+        from _whatsapp_bot_test_src.utils.session_manager import SessionManager
 
         manager = SessionManager(redis_client=None, session_ttl=3600)
 
@@ -625,8 +625,8 @@ class TestSessionManager:
     @pytest.mark.asyncio
     async def test_set_location(self):
         """Test setting location."""
-        from src.api.schemas import Language
-        from src.utils.session_manager import SessionManager
+        from _whatsapp_bot_test_src.api.schemas import Language
+        from _whatsapp_bot_test_src.utils.session_manager import SessionManager
 
         manager = SessionManager(redis_client=None, session_ttl=3600)
 

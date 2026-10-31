@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -164,7 +165,8 @@ class HFAdvisorModel:
     """
     Wrapper for a local 7B agricultural LLM (CropSeek-LLM or aksara_v1).
     Only instantiated when CROP_ADVISOR_MODEL env var is set and
-    transformers + torch are installed.
+    transformers + torch are installed. CROP_ADVISOR_REVISION must contain
+    the reviewed Hugging Face commit SHA; missing/mutable revisions fail closed.
 
     Falls back gracefully — callers must check .is_available() before use.
     """
@@ -173,6 +175,7 @@ class HFAdvisorModel:
         self._pipe: Any = None
         self._loaded = False
         self._model_name = os.environ.get("CROP_ADVISOR_MODEL", "")
+        self._revision = os.environ.get("CROP_ADVISOR_REVISION", "")
 
     def is_available(self) -> bool:
         return bool(self._model_name) and self._loaded
@@ -182,6 +185,9 @@ class HFAdvisorModel:
             return False
         if self._loaded:
             return True
+        if not re.fullmatch(r"[0-9a-fA-F]{40}", self._revision):
+            logger.warning("CROP_ADVISOR_REVISION must be an immutable 40-character commit SHA")
+            return False
         try:
             import torch
             from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
@@ -190,9 +196,13 @@ class HFAdvisorModel:
             device = "cuda" if torch.cuda.is_available() else "cpu"
             logger.info("Loading agricultural LLM: %s on %s", self._model_name, device)
 
-            tokenizer = AutoTokenizer.from_pretrained(self._model_name, cache_dir=hf_home)
+            tokenizer = AutoTokenizer.from_pretrained(
+                self._model_name, cache_dir=hf_home, revision=self._revision, trust_remote_code=False
+            )
             model = AutoModelForCausalLM.from_pretrained(
                 self._model_name,
+                revision=self._revision,
+                trust_remote_code=False,
                 cache_dir=hf_home,
                 torch_dtype=torch.float16 if device == "cuda" else torch.float32,
                 device_map="auto",
@@ -217,7 +227,7 @@ class HFAdvisorModel:
             return None
         try:
             output = self._pipe(prompt)
-            return output[0]["generated_text"][len(prompt):].strip()
+            return output[0]["generated_text"][len(prompt) :].strip()
         except Exception as exc:
             logger.warning("HF model inference failed: %s", exc)
             return None

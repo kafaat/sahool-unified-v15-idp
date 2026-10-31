@@ -5,8 +5,10 @@ Test fixtures for WhatsApp Bot Service.
 fixtures اختبار لخدمة روبوت واتساب.
 """
 
+import importlib.util
 import os
 import sys
+from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
@@ -45,6 +47,16 @@ for _mod in list(sys.modules):
         del sys.modules[_mod]
 
 
+# A private package name survives collection of other services named `src`.
+_source = Path(__file__).resolve().parents[1] / "src"
+_spec = importlib.util.spec_from_file_location(
+    "_whatsapp_bot_test_src", _source / "__init__.py", submodule_search_locations=[str(_source)]
+)
+_package = importlib.util.module_from_spec(_spec)
+sys.modules[_spec.name] = _package
+_spec.loader.exec_module(_package)
+
+
 @pytest.fixture
 def anyio_backend():
     """Use asyncio for async tests."""
@@ -70,7 +82,7 @@ def mock_whatsapp_client():
 @pytest.fixture
 def mock_session_manager():
     """Mock session manager."""
-    from src.api.schemas import ConversationIntent, ConversationState, FarmerProfile, Language
+    from _whatsapp_bot_test_src.api.schemas import ConversationIntent, ConversationState, FarmerProfile, Language
 
     manager = MagicMock()
 
@@ -99,7 +111,7 @@ def mock_session_manager():
 @pytest.fixture
 def mock_message_handler(mock_whatsapp_client, mock_session_manager):
     """Mock message handler."""
-    from src.handlers.message_handler import MessageHandler
+    from _whatsapp_bot_test_src.handlers.message_handler import MessageHandler
 
     handler = MessageHandler(
         whatsapp_client=mock_whatsapp_client,

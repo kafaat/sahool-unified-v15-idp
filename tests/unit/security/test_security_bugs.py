@@ -11,17 +11,16 @@ Run with:
 
 from __future__ import annotations
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Setup: Configure environment before importing SAHOOL modules
+# ─────────────────────────────────────────────────────────────────────────────
+import os
 import time
 import uuid
 from datetime import UTC, datetime, timedelta
 
 import jwt
 import pytest
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Setup: Configure environment before importing SAHOOL modules
-# ─────────────────────────────────────────────────────────────────────────────
-import os
 
 os.environ.setdefault("ENVIRONMENT", "test")
 os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key-for-unit-tests-only-32chars")
@@ -117,7 +116,7 @@ class TestAlgorithmConfusion:
             "aud": config.JWT_AUDIENCE,
         }
         # Create token with 'none' algorithm
-        token = jwt.encode(payload, "", algorithm="HS256")
+        token = jwt.encode(payload, "attacker-controlled-test-key-32-bytes", algorithm="HS256")
         # Manually tamper header to 'none'
         parts = token.split(".")
         import base64
@@ -467,7 +466,7 @@ class TestRateLimiter:
         # First 5 requests should pass
         for i in range(5):
             allowed, remaining = limiter.is_allowed(key)
-            assert allowed, f"Request {i+1} should be allowed"
+            assert allowed, f"Request {i + 1} should be allowed"
 
         # 6th request should be blocked
         allowed, remaining = limiter.is_allowed(key)

@@ -1,0 +1,1467 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>Shared PyJWT security repair — 2026-10-31 - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#shared-pyjwt-security-repair-2026-10-31" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Shared PyJWT security repair — 2026-10-31
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="shared-pyjwt-security-repair-2026-10-31">Shared PyJWT security repair — 2026-10-31<a class="headerlink" href="#shared-pyjwt-security-repair-2026-10-31" title="Permanent link">&para;</a></h1>
+<h2 id="result-and-scope">Result and scope<a class="headerlink" href="#result-and-scope" title="Permanent link">&para;</a></h2>
+<p>Both independent shared-library installation entry points now pin
+<code>PyJWT==2.15.1</code>:</p>
+<ul>
+<li><code>apps/services/shared/requirements.txt</code> (previously 2.11.0)</li>
+<li><code>apps/services/shared/auth/requirements.txt</code> (previously 2.10.1)</li>
+</ul>
+<p>The candidate was prepared from <code>main</code> at
+<code>c796f25eb86c6cadb2adb365c3ba439fa17b8acc</code>. Product authentication code is
+unchanged. The new tests exercise <code>apps.services.shared.auth</code> directly, as
+well as existing tests of the separate root <code>shared.auth</code> implementation.
+The affected source is loaded under a private test-package name to avoid an
+existing service-test namespace collision; its source path is checked, relative
+imports are preserved, and the private namespace is removed after the tests.</p>
+<p>Issue <a href="https://github.com/kafaat/sahool-unified-v15-idp/issues/1562">#1562</a>
+was closed by the stale bot on 2026-07-13 with <code>state_reason=not_planned</code>;
+that closure was not evidence of remediation.</p>
+<h2 id="why-2151">Why 2.15.1<a class="headerlink" href="#why-2151" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://github.com/advisories/GHSA-752w-5fwx-jx9f">GHSA-752w-5fwx-jx9f / CVE-2026-32597</a>
+  lists versions through 2.11.0 as affected and 2.12.0 as the first fix.
+  The defect accepts correctly signed JWTs carrying unsupported critical
+  header extensions.</li>
+<li>Later advisories
+  <a href="https://github.com/jpadilla/pyjwt/security/advisories/GHSA-42vr-xj54-vc7v">GHSA-42vr-xj54-vc7v</a>
+  and <a href="https://github.com/jpadilla/pyjwt/security/advisories/GHSA-x33g-cr3x-6449">GHSA-x33g-cr3x-6449</a>
+  require at least 2.15.0.</li>
+<li><a href="https://pypi.org/project/PyJWT/2.15.1/">PyPI 2.15.1</a> is the latest stable
+  release checked on 2026-10-31. It was released on 2026-09-28 and requires
+  Python &gt;=3.9. Its <a href="https://pyjwt.readthedocs.io/en/stable/changelog.html">changelog</a>
+  restores valid Base64URL padding compatibility while retaining stricter
+  token validation.</li>
+</ul>
+<h2 id="executed-validation">Executed validation<a class="headerlink" href="#executed-validation" title="Permanent link">&para;</a></h2>
+<p>Local execution used Python 3.12.14, PyJWT 2.15.1, pytest 9.0.3, and the
+actual two requirement files resolved together with existing <code>constraints.txt</code>.
+<code>pip check</code> passed. All test counts below exclude the intentional negative
+controls against vulnerable versions.</p>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>New affected-module and pin-guard tests</td>
+<td>39 passed, 0 failed, 0 skipped</td>
+</tr>
+<tr>
+<td>Extended authentication regression selection, including those 39 tests</td>
+<td>341 passed, 0 failed, 0 skipped</td>
+</tr>
+<tr>
+<td>Existing <code>copilot-api</code> authentication dependency tests</td>
+<td>11 passed, 0 failed, 0 skipped</td>
+</tr>
+<tr>
+<td>New tests collected/executed alongside the service namespace fixture</td>
+<td>39 passed, 0 failed, 0 skipped</td>
+</tr>
+<tr>
+<td>Ruff check and format check of the new tests</td>
+<td>Passed</td>
+</tr>
+<tr>
+<td>Workflow YAML parsing and <code>git diff --check</code></td>
+<td>Passed</td>
+</tr>
+<tr>
+<td>Constrained consumer dependency resolutions</td>
+<td>8 passed</td>
+</tr>
+</tbody>
+</table>
+<p>The new tests cover real access/refresh issuance, refresh exchange, configured
+algorithm enforcement, issuer/audience checks, missing required claims, future
+time claims, invalid NumericDate types, expired/tampered/malformed tokens,
+unsupported critical headers, noncritical-header compatibility, and valid
+signature padding. A real FastAPI test route uses <code>get_current_user</code>; valid
+tokens yield HTTP 200 and invalid tokens yield HTTP 401 with the Bearer challenge.</p>
+<p>The pin guard requires exactly one unconditional, exact stable pin in each
+manifest; both must agree and be within the reviewed range &gt;=2.15.1,&lt;3. Eight
+negative declarations prove detection of drift, downgrade, range, wildcard,
+prerelease, conditional, duplicate, and missing pins. It also rejects the actual
+original manifests obtained with <code>git show</code> from the base commit.</p>
+<h3 id="differential-proof-of-cve-2026-32597">Differential proof of CVE-2026-32597<a class="headerlink" href="#differential-proof-of-cve-2026-32597" title="Permanent link">&para;</a></h3>
+<p>The same signed fixture bytes were decoded by the real affected module in
+separate Python processes. Only the PyJWT version changed.</p>
+<table>
+<thead>
+<tr>
+<th>PyJWT</th>
+<th>Valid control</th>
+<th>Unsupported <code>crit</code></th>
+<th>New regression test</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2.10.1</td>
+<td>Accepted</td>
+<td>Incorrectly accepted</td>
+<td>Fails: did not raise <code>ValueError</code></td>
+</tr>
+<tr>
+<td>2.11.0</td>
+<td>Accepted</td>
+<td>Incorrectly accepted</td>
+<td>Fails: did not raise <code>ValueError</code></td>
+</tr>
+<tr>
+<td>2.15.1</td>
+<td>Accepted</td>
+<td>Rejected; <code>verify_token=False</code></td>
+<td>Passes</td>
+</tr>
+</tbody>
+</table>
+<p>The candidate raises <code>ValueError</code> containing <code>Unsupported critical extension</code>,
+which the actual FastAPI dependency translates into HTTP 401. No JWT decoder was
+mocked. Fixture hashes, exception results, and negative-control JUnit counts are
+included in <a href="verification.json">verification.json</a>.</p>
+<h3 id="consumer-compatibility">Consumer compatibility<a class="headerlink" href="#consumer-compatibility" title="Permanent link">&para;</a></h3>
+<p>All resolutions used actual manifests, the unchanged root constraints, an
+explicit 2.15.1 candidate constraint, Linux x86-64, and <code>uv pip compile
+--no-build</code>. These are dependency-resolution checks, not running service images.</p>
+<table>
+<thead>
+<tr>
+<th>Requirements</th>
+<th>Python target</th>
+<th>Packages</th>
+<th>PyJWT</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Shared</td>
+<td>3.11</td>
+<td>36</td>
+<td>2.15.1</td>
+</tr>
+<tr>
+<td>Shared</td>
+<td>3.12</td>
+<td>35</td>
+<td>2.15.1</td>
+</tr>
+<tr>
+<td>Shared auth</td>
+<td>3.11</td>
+<td>20</td>
+<td>2.15.1</td>
+</tr>
+<tr>
+<td>Shared auth</td>
+<td>3.12</td>
+<td>19</td>
+<td>2.15.1</td>
+</tr>
+<tr>
+<td>irrigation-smart</td>
+<td>3.11</td>
+<td>30</td>
+<td>2.15.1</td>
+</tr>
+<tr>
+<td>advisory-service</td>
+<td>3.11</td>
+<td>45</td>
+<td>2.15.1</td>
+</tr>
+<tr>
+<td>weather-service</td>
+<td>3.11</td>
+<td>33</td>
+<td>2.15.1</td>
+</tr>
+<tr>
+<td>community-service</td>
+<td>3.11</td>
+<td>37</td>
+<td>2.15.1</td>
+</tr>
+</tbody>
+</table>
+<p>The shared Dockerfile installs this manifest with <code>-c constraints.txt</code> and
+copies <code>apps/services/shared/</code> to runtime <code>shared/</code>. The listed service Dockerfiles
+also consume this code or compatible PyJWT requirements. The separate
+<code>copilot-api</code> JWT consumer passed its 11 existing tests; its complete ML image
+was not built.</p>
+<h2 id="security-scan-exact-scope-and-remaining-findings">Security scan: exact scope and remaining findings<a class="headerlink" href="#security-scan-exact-scope-and-remaining-findings" title="Permanent link">&para;</a></h2>
+<p>Scans used pip-audit 2.10.1 and the PyPI advisory service on 2026-10-31, without
+ignored advisories or automatic fixes. Dependency versions, advisory IDs,
+aliases, and fix versions are embedded in <a href="verification.json">verification.json</a>;
+long advisory descriptions are omitted and original report hashes are retained.</p>
+<table>
+<thead>
+<tr>
+<th>Scan</th>
+<th>Exit</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PyJWT 2.10.1 alone</td>
+<td>1</td>
+<td>22 raw advisory records, including CVE-2026-32597</td>
+</tr>
+<tr>
+<td>PyJWT 2.11.0 alone</td>
+<td>1</td>
+<td>22 raw advisory records, including CVE-2026-32597</td>
+</tr>
+<tr>
+<td>PyJWT 2.15.1 alone</td>
+<td>0</td>
+<td>No known vulnerabilities</td>
+</tr>
+<tr>
+<td>Complete constrained shared-auth requirements</td>
+<td>0</td>
+<td>19 dependencies, no known vulnerabilities</td>
+</tr>
+<tr>
+<td>Complete constrained shared requirements</td>
+<td>1</td>
+<td>35 dependencies; pre-existing python-multipart findings</td>
+</tr>
+</tbody>
+</table>
+<p>The shared scan returned eight raw records representing <strong>four distinct CVEs</strong>
+for unchanged <code>python-multipart==0.0.26</code>: CVE-2026-42561, CVE-2026-53538,
+CVE-2026-53539, and CVE-2026-53540. PyJWT 2.15.1 has no findings in that scan.
+This PR does not claim the complete shared dependency set is clean. The existing
+python-multipart pin is unchanged to keep this repair limited to PyJWT.</p>
+<h3 id="constraints-and-the-separate-root-lock">Constraints and the separate root lock<a class="headerlink" href="#constraints-and-the-separate-root-lock" title="Permanent link">&para;</a></h3>
+<p>The existing root, AI, and field-management constraints, infrastructure
+requirements, and root project PyJWT range already admit 2.15.1. There is no
+scoped lock for either changed manifest, and their Docker/pip installation paths
+do not consume the root <code>uv.lock</code>. No constraint or lock rewrite is needed for
+these two installation paths.</p>
+<p><strong>The root <code>uv.lock</code> remains vulnerable and unresolved:</strong> it still locks PyJWT
+2.11.0 and already contains metadata inconsistent with the root project. Its
+TensorFlow/NumPy/Python resolver conflict belongs to the separate
+<code>wip/python-security-lock-review-20261031</code> effort. Frozen root-lock installations
+are not repaired by this PR. <code>pyproject.toml</code>, Python policy, all constraints,
+and <code>uv.lock</code> remain byte-identical to the base; no manual lock editing or
+resolver bypass was performed.</p>
+<h2 id="reproduction-and-ci">Reproduction and CI<a class="headerlink" href="#reproduction-and-ci" title="Permanent link">&para;</a></h2>
+<p>The new <code>Shared PyJWT Security</code> workflow installs both actual requirement files
+with existing constraints, runs the affected-module/root-auth and Copilot
+consumer tests on Python 3.11 and 3.12, checks the exact installed package,
+audits <strong>PyJWT only</strong>, and uploads JUnit/environment/audit artifacts. It is a
+scoped regression gate; the existing repository-wide security gates remain in
+place. Python versions in this test matrix do not change project support policy.</p>
+<p>Core local commands (after installing the two manifests and test dependencies):</p>
+<div class="codehilite"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>check
+python<span class="w"> </span>-m<span class="w"> </span>pytest<span class="w"> </span>tests/unit/auth/<span class="w"> </span>tests/unit/test_shared_auth.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>tests/unit/test_jwt_handler_comprehensive.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>tests/unit/shared/test_auth_jwt_handler.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>tests/unit/shared/test_auth_jwt_handler_extended.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>tests/unit/shared/auth/test_jwt_handler.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>tests/unit/shared/test_auth_dependencies.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>tests/unit/shared/test_auth_dependencies_extended.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>tests/unit/shared/test_jwt.py<span class="w"> </span>-q<span class="w"> </span>--tb<span class="o">=</span>short<span class="w"> </span>--timeout<span class="o">=</span><span class="m">30</span>
+python<span class="w"> </span>-m<span class="w"> </span>pytest<span class="w"> </span>apps/services/copilot-api/tests/test_deps.py<span class="w"> </span>-q<span class="w"> </span>--tb<span class="o">=</span>short
+ruff<span class="w"> </span>check<span class="w"> </span>tests/unit/auth/test_shared_pyjwt_security.py
+ruff<span class="w"> </span>format<span class="w"> </span>--check<span class="w"> </span>tests/unit/auth/test_shared_pyjwt_security.py
+</code></pre></div>
+
+<p>For the differential test, install an old PyJWT into an isolated target directory
+and prepend that directory to <code>PYTHONPATH</code>, then execute
+<code>test_shared_pyjwt_security.py::test_unknown_critical_extension_is_rejected</code>.
+Both old versions must fail, while the candidate passes. Do not downgrade the
+candidate environment itself.</p>
+<p>For a full constrained requirements audit, create a temporary input file with
+<code>-c /absolute/repo/constraints.txt</code> and <code>-r /absolute/repo/&lt;requirements path&gt;</code>;
+run <code>python -m pip_audit -r &lt;input&gt; --strict --progress-spinner off --format json</code>.
+For the package-only comparison use exact <code>PyJWT==&lt;version&gt;</code> inputs with
+<code>--no-deps --disable-pip</code>; PyJWT has no mandatory dependencies on these Python
+versions.</p>
+<p>Local TestClient runs required an execution environment permitting its event-loop
+socket pair. The restricted sandbox hung for both existing and new tests; the
+unchanged suites completed outside that restriction. Existing tests also emit
+short synthetic-key warnings and a Starlette TestClient deprecation. No live
+deployment, database-backed login, image rebuild, or production rollout is
+claimed here.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+    
+  </body>
+</html>

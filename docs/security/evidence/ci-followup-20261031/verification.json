@@ -1,0 +1,444 @@
+{
+  "recorded_at_utc": "2026-10-31T18:41:34.862270+00:00",
+  "base_commit": "52041a321868c4c71633a149f596f91bd569307c",
+  "source_sha256": {
+    ".gitignore": "a8a7d293a1e256dd81533d70c9aa933b98c0a625828c0783b43cfbe2af256a92",
+    ".github/workflows/governance-structure.yml": "b330bbc08ed19184b90539b8f396cf04d9fc1ed7597c19de2f54259584489211",
+    ".github/workflows/pr-status-monitor.yml": "2508ca8575955c5540f04c7ce4505989e77bfd34f3b47777f1b41003d2a56021",
+    ".github/workflows/quality-gate.yml": "97c878c02a0b53cf7edebe39f92a59fa1f55ecb36523e0671d6490f0ffe16d90",
+    "scripts/ci/check_repository_worktrees.py": "4c742fd049b228df144c100044fae8301530bb1e51c7c85baa3a621a6a5b039e",
+    "scripts/ci/fetch_pr_status.py": "c3c7408953316b61659e746f9d1343a1882c780883898e74090679e2a065db3c",
+    "tests/smoke/test_branch_imports.py": "b0890ab207a2c0bdbd810f284935a7b045c00fb74f621eb3a1f3e07a5decdafe",
+    "tests/unit/test_repository_worktree_hygiene.py": "bdcd2448fa4ea93588bea9d1aea00332113081a363f89f3d4211f63bea71a23e",
+    "tests/unit/test_pr_status_fetch.py": "eca362e7b16090bcbd8406128ef2f135fdeb6a4e28ea7fffb7d04df3a7846b2e",
+    "tests/unit/test_ci_smoke_import_isolation.py": "77537e36a25092e236b3a8471d2ff944d3ad8865e6fc382c9bc7674de36b042f",
+    "tests/unit/test_quality_gate_failure_propagation.py": "7200bf67516440784db03d8f30c8cc3f6113c490b4169972d8cefc154e77a097"
+  },
+  "unchanged_from_base_sha256": {
+    "pyproject.toml": "81ca6c155447f3aed1c6126af022bba2c0c4cbc171114c727ff569d0d8bf36db",
+    "constraints.txt": "d36b2eaec110b4002e0d41ddfcde5156c1a48670ee2f6600d47944386bce2b0f",
+    "uv.lock": "b4c2e05e9f5bea54d9467accb4499dfe77371a570f061a77f85fc6f1bc8fafa8",
+    "apps/services/shared/requirements.txt": "68110db42a2a88d33f8f0daebcf559c7afbc023e9dfa04bb1edce42e6f36dabf",
+    "apps/services/shared/auth/requirements.txt": "05f61da354c87f1ca580216801253303468f8ff07f284f75769af177468735f5",
+    "requirements/testing.txt": "cdbab7ccfa8261eaaefbb7328fa542960a9ce35c722a04fff5571a98b08927d2",
+    "shared/ai/llm_provider.py": "7f9777c907072252e8f77524fcd2d13d99236016eded651b4abc5c7c97e3b514",
+    "tests/unit/ai/test_llm_provider.py": "170dbc8b64a6ea19abd392bd192cbee7a3c5b90d9edad63d4a09d2e0788258ed",
+    ".github/workflows/scorecard.yml": "62f97e22dd82cd4ee3062a5adb13352434991ba45d0f559621870e185688d44d"
+  },
+  "environment": {
+    "python": "3.12.14",
+    "packages": {
+      "pytest": "9.0.3",
+      "pytest-asyncio": "1.3.0",
+      "pytest-cov": "7.1.0",
+      "pytest-timeout": "2.4.0",
+      "PyYAML": "6.0.3",
+      "PyJWT": "2.15.1",
+      "ruff": "0.15.11",
+      "jsonschema": "4.26.0",
+      "tenacity": "8.5.0"
+    }
+  },
+  "combined_regressions": {
+    "base_commit": "52041a321868c4c71633a149f596f91bd569307c",
+    "command": [
+      "/workspace/scratch/882204c263d7/pyjwt-venv/bin/python",
+      "-m",
+      "pytest",
+      "tests/unit/test_repository_worktree_hygiene.py",
+      "tests/unit/test_pr_status_fetch.py",
+      "tests/unit/test_ci_smoke_import_isolation.py",
+      "tests/unit/test_quality_gate_failure_propagation.py",
+      "tests/smoke/test_branch_imports.py::TestBranchModuleImports::test_module_imports_without_error[shared.ai.llm_provider]",
+      "tests/unit/ai/test_llm_provider.py",
+      "tests/unit/auth/test_shared_pyjwt_security.py",
+      "-q",
+      "-o",
+      "addopts=",
+      "--tb=short",
+      "--timeout=40",
+      "--junitxml",
+      "/workspace/scratch/882204c263d7/ci-followup-evidence/combined-regressions.xml"
+    ],
+    "exit_code": 0,
+    "seconds": 5.437,
+    "junit": {
+      "total": 149,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "by_class": {
+        "tests.unit.test_repository_worktree_hygiene": 5,
+        "tests.unit.test_pr_status_fetch": 50,
+        "tests.unit.test_ci_smoke_import_isolation": 12,
+        "tests.unit.test_quality_gate_failure_propagation": 24,
+        "tests.smoke.test_branch_imports.TestBranchModuleImports": 1,
+        "tests.unit.ai.test_llm_provider.TestLLMProvider": 2,
+        "tests.unit.ai.test_llm_provider.TestLLMConfig": 3,
+        "tests.unit.ai.test_llm_provider.TestLLMResponse": 2,
+        "tests.unit.ai.test_llm_provider.TestLLMProviderError": 2,
+        "tests.unit.ai.test_llm_provider.TestAllProvidersFailedError": 1,
+        "tests.unit.ai.test_llm_provider.TestLLMProviderManager": 3,
+        "tests.unit.ai.test_llm_provider.TestModuleFunctions": 3,
+        "tests.unit.ai.test_llm_provider.TestEdgeCases": 2,
+        "tests.unit.auth.test_shared_pyjwt_security": 39
+      },
+      "passed": 149
+    },
+    "stdout": "........................................................................ [ 48%]\n........................................................................ [ 96%]\n.....                                                                    [100%]\n=============================== warnings summary ===============================\n../pyjwt-venv/lib/python3.12/site-packages/fastapi/testclient.py:1\n  /workspace/scratch/882204c263d7/pyjwt-venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.\n    from starlette.testclient import TestClient as TestClient  # noqa\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n149 passed, 1 warning in 4.67s\n",
+    "junit_sha256": "12450172b29d1c4dfc7fc997934f2046caafd020463c24782d24adf92997c8fa"
+  },
+  "smoke_and_gate": {
+    "checked_at_utc": "2026-10-31T18:39:21.179387+00:00",
+    "base_commit": "52041a321868c4c71633a149f596f91bd569307c",
+    "owned_file_sha256": {
+      "tests/smoke/test_branch_imports.py": "b0890ab207a2c0bdbd810f284935a7b045c00fb74f621eb3a1f3e07a5decdafe",
+      ".github/workflows/quality-gate.yml": "97c878c02a0b53cf7edebe39f92a59fa1f55ecb36523e0671d6490f0ffe16d90",
+      "tests/unit/test_ci_smoke_import_isolation.py": "77537e36a25092e236b3a8471d2ff944d3ad8865e6fc382c9bc7674de36b042f",
+      "tests/unit/test_quality_gate_failure_propagation.py": "7200bf67516440784db03d8f30c8cc3f6113c490b4169972d8cefc154e77a097"
+    },
+    "tests": {
+      "baseline-smoke-before-unit": {
+        "total": 3,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 1
+      },
+      "baseline-new-import-guard": {
+        "total": 3,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 0
+      },
+      "candidate-ci-regressions": {
+        "total": 39,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 39
+      },
+      "candidate-full-smoke-llm-with-prereqs": {
+        "total": 450,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 7,
+        "passed": 443
+      }
+    },
+    "full_smoke_skips": [
+      {
+        "class": "tests.smoke.test_api_imports_comprehensive.TestSharedObservabilityImports",
+        "test": "test_shared_telemetry_imports",
+        "reason": "opentelemetry not installed"
+      },
+      {
+        "class": "tests.smoke.test_api_imports_comprehensive.TestAPIContractsIntegrity",
+        "test": "test_contracts_events_schemas_directory_exists",
+        "reason": "Schema directory not found"
+      },
+      {
+        "class": "tests.smoke.test_fixops_smoke.TestCopilotApiImports",
+        "test": "test_import_main",
+        "reason": "Requires pydantic_settings"
+      },
+      {
+        "class": "tests.smoke.test_fixops_smoke.TestCopilotApiImports",
+        "test": "test_import_config",
+        "reason": "Requires pydantic_settings"
+      },
+      {
+        "class": "tests.smoke.test_imports_comprehensive.TestServiceMainImports",
+        "test": "test_service_main_importable[demo-data]",
+        "reason": "Service directory not found: apps/services/demo-data/src"
+      },
+      {
+        "class": "tests.smoke.test_startup.TestServiceImports",
+        "test": "test_field_ops_imports",
+        "reason": "Field ops service not found at expected path"
+      },
+      {
+        "class": "tests.smoke.test_startup.TestServiceImports",
+        "test": "test_field_ops_models_exist",
+        "reason": "Field ops service not found at expected path"
+      }
+    ],
+    "workflow_failure_simulation": [
+      {
+        "snapshot": "baseline",
+        "source": "/workspace/scratch/882204c263d7/pyjwt-fix/.github/workflows/quality-gate.yml",
+        "pytest_stub_exit": 1,
+        "capture_shell": [
+          "bash",
+          "-e"
+        ],
+        "capture_exit": 0,
+        "outputs": {
+          "coverage": "100",
+          "pass": "false"
+        },
+        "has_post_upload_enforcer": false,
+        "final_test_stage_exit": 0,
+        "scope": "Offline execution of exact workflow shell blocks with a controlled failing pytest; no GitHub action or external comment executed."
+      },
+      {
+        "snapshot": "candidate",
+        "source": "/workspace/scratch/882204c263d7/ci-postmerge-fix/.github/workflows/quality-gate.yml",
+        "pytest_stub_exit": 1,
+        "capture_shell": [
+          "bash",
+          "--noprofile",
+          "--norc",
+          "-e",
+          "-o",
+          "pipefail"
+        ],
+        "capture_exit": 0,
+        "outputs": {
+          "pytest_exit_code": "1",
+          "log_exit_code": "0",
+          "coverage": "100",
+          "pass": "false"
+        },
+        "has_post_upload_enforcer": true,
+        "final_test_stage_exit": 1,
+        "scope": "Offline execution of exact workflow shell blocks with a controlled failing pytest; no GitHub action or external comment executed."
+      }
+    ],
+    "notes": [
+      "Focused new regression tests: 12 smoke-isolation cases + 24 shell/workflow cases; the 39-test run also includes the original three-case smoke-before-unit sequence.",
+      "Initial full-smoke execution had 12 environment failures for missing jsonschema/tenacity; only scratch test prerequisites were installed under existing constraints and the exact selection then passed.",
+      "No repository dependency, Python policy, root lock, source LLM provider, or LLM unit-test changes were made by this agent."
+    ]
+  },
+  "repository_hygiene": {
+    "changes": {
+      "indexed_gitlink_deletions": [
+        ".claude/worktrees/agent-a0f5713c",
+        ".claude/worktrees/agent-a1012dcd",
+        ".claude/worktrees/agent-a17300a8",
+        ".claude/worktrees/agent-a1dae445",
+        ".claude/worktrees/agent-a20836a6",
+        ".claude/worktrees/agent-a229b06c",
+        ".claude/worktrees/agent-a2846e07",
+        ".claude/worktrees/agent-a2a14da6",
+        ".claude/worktrees/agent-a31f7a29",
+        ".claude/worktrees/agent-a3a04f8f",
+        ".claude/worktrees/agent-a3ac5993",
+        ".claude/worktrees/agent-a4cf0da6",
+        ".claude/worktrees/agent-a5e894ac",
+        ".claude/worktrees/agent-a7528c97",
+        ".claude/worktrees/agent-a75b180c",
+        ".claude/worktrees/agent-a7bf4118",
+        ".claude/worktrees/agent-a80d76f2",
+        ".claude/worktrees/agent-a8be6a43",
+        ".claude/worktrees/agent-a8f0fdf2",
+        ".claude/worktrees/agent-a91e1845",
+        ".claude/worktrees/agent-a92e545d",
+        ".claude/worktrees/agent-a98c3df8",
+        ".claude/worktrees/agent-aaa582dc",
+        ".claude/worktrees/agent-aadf9791",
+        ".claude/worktrees/agent-aaedfc06",
+        ".claude/worktrees/agent-ac2ce087",
+        ".claude/worktrees/agent-ac58e5b7",
+        ".claude/worktrees/agent-ad30fb24",
+        ".claude/worktrees/agent-ade55939",
+        ".claude/worktrees/agent-ae89610c",
+        ".claude/worktrees/agent-ae91d476",
+        ".claude/worktrees/agent-aef11e05",
+        ".claude/worktrees/agent-aef1f338",
+        ".claude/worktrees/agent-af076e65",
+        ".claude/worktrees/agent-af109184",
+        ".claude/worktrees/agent-af2e7396",
+        ".claude/worktrees/agent-af3fdb70",
+        ".claude/worktrees/agent-afb7da66"
+      ],
+      "edited_files": [
+        ".gitignore",
+        ".github/workflows/governance-structure.yml"
+      ],
+      "new_files": [
+        "scripts/ci/check_repository_worktrees.py",
+        "tests/unit/test_repository_worktree_hygiene.py"
+      ],
+      "scorecard_workflow_unchanged": true,
+      "normal_claude_config_files_unchanged": true,
+      "on_disk_worktree_paths_preserved": 38,
+      "new_ignore_rule": "/.claude/worktrees/"
+    },
+    "provenance_commit_shas": [
+      "43e5c0fc618d3514de5e98bdbb9f6eca6ebae5b3",
+      "cf50257c699b03b6c13703344c30e84678bd7ef1",
+      "ba616dc37e6dd34d8bb1efbd7634395f388570f1",
+      "0c9b1ec34859a0cbfccfd602735c7814f1945c1d",
+      "448cdd8bbc11538d1bb7a75925b731a77ab25a97",
+      "48d75b5a237367b5e539ca3a2e1e76e1cf12f3ce",
+      "5f15c107a1e80987ddcf1162437f8ed8dfed1465"
+    ],
+    "before": {
+      "exit": 128,
+      "stdout": "",
+      "stderr": "fatal: No url found for submodule path '.claude/worktrees/agent-a0f5713c' in .gitmodules\n"
+    },
+    "after": {
+      "foreach_exit": 0,
+      "submodule_status_exit": 0,
+      "guard_exit": 0,
+      "remaining_tracked_gitlinks": 0,
+      "ignore_probe_exit": 0
+    },
+    "acceptance": {
+      "local": "Original checkout cleanup failure reproduced on main; equivalent recursive traversal passes in corrected index. Guard real-Git tests reject forced files/gitlinks and allow legitimate declared submodules elsewhere.",
+      "not_yet_run": "Actual OSSF Scorecard security analysis, publication, and SARIF upload after repair",
+      "reason": "Existing workflow triggers main push, schedule, or dispatch. Publisher source requires default branch for published results; do not use branch dispatch with publish_results:true as a substitute.",
+      "upstream_publisher": "https://github.com/ossf/scorecard-webapp/blob/9c2f66d5f6ff56ca4a4ac2fba6ec8dcc5379d31c/app/server/post_results.go",
+      "upstream_checkout": "https://github.com/actions/checkout/blob/v6/src/git-auth-helper.ts",
+      "upstream_restrictions": "https://github.com/ossf/scorecard-action/blob/v2.4.3/README.md#workflow-restrictions"
+    }
+  },
+  "jq_differential": [
+    {
+      "snapshot": "baseline",
+      "expression": "[.[] | select(any(.statusCheckRollup // []; .conclusion == \"FAILURE\"))] | length",
+      "exit_code": 5,
+      "stdout": "",
+      "stderr": "jq: error (at <stdin>:0): Cannot index array with string \"conclusion\"\n"
+    },
+    {
+      "snapshot": "candidate",
+      "expression": "[.[] | select(any((.statusCheckRollup // [])[]; .conclusion == \"FAILURE\" or .state == \"FAILURE\" or .state == \"ERROR\"))] | length",
+      "exit_code": 0,
+      "stdout": "1\n",
+      "stderr": ""
+    }
+  ],
+  "validation_commands": [
+    {
+      "command": [
+        "/workspace/scratch/882204c263d7/pyjwt-venv/bin/python",
+        "-m",
+        "pip",
+        "check"
+      ],
+      "exit_code": 0,
+      "stdout": "No broken requirements found.\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/workspace/scratch/882204c263d7/ci-followup-evidence/actionlint",
+        "-no-color",
+        ".github/workflows/governance-structure.yml",
+        ".github/workflows/pr-status-monitor.yml",
+        ".github/workflows/quality-gate.yml"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/workspace/scratch/882204c263d7/pyjwt-venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "scripts/ci/check_repository_worktrees.py",
+        "scripts/ci/fetch_pr_status.py",
+        "tests/smoke/test_branch_imports.py",
+        "tests/unit/test_repository_worktree_hygiene.py",
+        "tests/unit/test_pr_status_fetch.py",
+        "tests/unit/test_ci_smoke_import_isolation.py",
+        "tests/unit/test_quality_gate_failure_propagation.py"
+      ],
+      "exit_code": 0,
+      "stdout": "All checks passed!\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/workspace/scratch/882204c263d7/pyjwt-venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "scripts/ci/check_repository_worktrees.py",
+        "scripts/ci/fetch_pr_status.py",
+        "tests/smoke/test_branch_imports.py",
+        "tests/unit/test_repository_worktree_hygiene.py",
+        "tests/unit/test_pr_status_fetch.py",
+        "tests/unit/test_ci_smoke_import_isolation.py",
+        "tests/unit/test_quality_gate_failure_propagation.py"
+      ],
+      "exit_code": 0,
+      "stdout": "7 files already formatted\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--cached",
+        "--check"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "submodule",
+        "foreach",
+        "--recursive",
+        "true"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "submodule",
+        "status",
+        "--recursive"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/workspace/scratch/882204c263d7/pyjwt-venv/bin/python",
+        "scripts/ci/check_repository_worktrees.py"
+      ],
+      "exit_code": 0,
+      "stdout": "No local agent worktrees are tracked.\n",
+      "stderr": ""
+    }
+  ],
+  "actionlint": {
+    "tool": "actionlint",
+    "version": "1.7.12",
+    "url": "https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz",
+    "archive_sha256": "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8",
+    "binary_sha256": "c872d6db8c6bf83a8eaa704fc93999f027d55dffbc63b8a6abdccb47df5f4cd4"
+  },
+  "limitations": [
+    "Scorecard main-branch analysis/publication and live PR-monitor retrieval await remote acceptance.",
+    "Full smoke skips include optional modules and absent historical schema/service paths; all40 fresh import probes passed.",
+    "Existing Flutter3.27.1/intl conflict, unrelated multipart findings, and root uv.lock conflict are unchanged.",
+    "Existing non-test quality-stage policies and masked service sweeps are not certified as clean."
+  ]
+}

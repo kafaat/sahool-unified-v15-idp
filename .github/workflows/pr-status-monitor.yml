@@ -75,8 +75,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          # Fetch all open PRs
-          PR_DATA=$(gh pr list --state open --json number,title,headRefName,baseRefName,mergeable,statusCheckRollup,updatedAt,createdAt)
+          # Retry read-only API failures and validate the snapshot before publishing outputs.
+          python3 scripts/ci/fetch_pr_status.py \
+            --repository "$GITHUB_REPOSITORY" --output pr-data.json
+          PR_DATA=$(cat pr-data.json)
           
           TOTAL_PRS=$(echo "$PR_DATA" | jq 'length')
           echo "total_prs=$TOTAL_PRS" >> $GITHUB_OUTPUT
@@ -86,7 +88,7 @@ jobs:
           echo "conflicted_prs=$CONFLICTED" >> $GITHUB_OUTPUT
           
           # Count PRs with failing CI (handle null statusCheckRollup)
-          FAILING_CI=$(echo "$PR_DATA" | jq '[.[] | select(any(.statusCheckRollup // []; .conclusion == "FAILURE"))] | length')
+          FAILING_CI=$(echo "$PR_DATA" | jq '[.[] | select(any((.statusCheckRollup // [])[]; .conclusion == "FAILURE" or .state == "FAILURE" or .state == "ERROR"))] | length')
           echo "failing_ci_prs=$FAILING_CI" >> $GITHUB_OUTPUT
           
           # Count stale PRs (not updated in 7+ days)
@@ -99,8 +101,7 @@ jobs:
           echo "  Failing CI: $FAILING_CI"
           echo "  Stale: $STALE"
           
-          # Save full PR data for next jobs
-          echo "$PR_DATA" > pr-data.json
+          # The helper has atomically saved validated PR data for the next jobs.
 
       - name: Upload PR data
         uses: actions/upload-artifact@v7
@@ -203,7 +204,7 @@ jobs:
           PR_DATA=$(cat pr-data.json)
           REPORT_FILE="pr-health-report-$(date +%Y%m%d).md"
           
-          cat > "$REPORT_FILE" << 'EOF'
+          cat > "$REPORT_FILE" << EOF
           # Pull Request Health Report
           
           **Generated**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
@@ -214,7 +215,6 @@ jobs:
           - 🔴 **Conflicted PRs**: ${{ needs.monitor-prs.outputs.conflicted_prs }}
           - 🟠 **Failing CI**: ${{ needs.monitor-prs.outputs.failing_ci_prs }}
           - 🟡 **Stale PRs**: ${{ needs.monitor-prs.outputs.stale_prs }}
-          - 🟢 **Ready to Merge**: $(( ${{ needs.monitor-prs.outputs.total_prs }} - ${{ needs.monitor-prs.outputs.conflicted_prs }} - ${{ needs.monitor-prs.outputs.failing_ci_prs }} ))
           
           ## Detailed Status
           
@@ -232,7 +232,7 @@ jobs:
             if [[ "$MERGEABLE" == "CONFLICTING" ]]; then
               STATUS="🔴 Conflicts"
             elif [[ "$MERGEABLE" == "MERGEABLE" ]]; then
-              STATUS="🟢 Ready"
+              STATUS="🟢 Mergeable"
             else
               STATUS="🟡 Unknown"
             fi

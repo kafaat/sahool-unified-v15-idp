@@ -6,7 +6,10 @@ Verifies that every module imports without circular dependencies or missing symb
 from __future__ import annotations
 
 import importlib
+import json
+import subprocess
 import sys
+from pathlib import Path
 
 import pytest
 
@@ -66,6 +69,66 @@ BRANCH_MODULES = [
     "shared.ai.vector_store",
 ]
 
+_PROBE_PREFIX = "SAHOOL_IMPORT_PROBE_RESULT="
+_IMPORT_PROBE = """
+import importlib
+import json
+import sys
+
+try:
+    module = importlib.import_module(sys.argv[1])
+    assert module is not None, f"{sys.argv[1]} imported as None"
+except ImportError as exc:
+    result = {"status": "import_error", "message": str(exc)}
+except Exception as exc:
+    result = {"status": "error", "message": f"{type(exc).__name__}: {exc}"}
+else:
+    result = {"status": "ok"}
+print("SAHOOL_IMPORT_PROBE_RESULT=" + json.dumps(result), flush=True)
+"""
+
+
+def _assert_fresh_import(module_name: str) -> None:
+    """Probe a fresh interpreter without replacing modules held by other tests."""
+    try:
+        result = subprocess.run(
+            [sys.executable, "-c", _IMPORT_PROBE, module_name],
+            cwd=Path(__file__).resolve().parents[2],
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=False,
+        )
+    except subprocess.TimeoutExpired:
+        pytest.fail(f"Import probe timed out after 30 seconds: {module_name}")
+
+    if result.returncode != 0:
+        pytest.fail(
+            f"Import probe for {module_name} exited with {result.returncode}:\n{result.stdout}\n{result.stderr}"
+        )
+
+    reports = [
+        line.removeprefix(_PROBE_PREFIX) for line in result.stdout.splitlines() if line.startswith(_PROBE_PREFIX)
+    ]
+    if len(reports) != 1:
+        pytest.fail(
+            f"Import probe for {module_name} did not return one completion report:\n{result.stdout}\n{result.stderr}"
+        )
+    try:
+        report = json.loads(reports[0])
+    except json.JSONDecodeError as exc:
+        pytest.fail(f"Invalid import probe report for {module_name}: {exc}")
+
+    if report.get("status") == "ok":
+        return
+    message = report.get("message", "missing error details")
+    if report.get("status") == "import_error":
+        if "circular" in message.lower():
+            pytest.fail(f"Circular import in {module_name}: {message}")
+        # Preserve the existing optional-dependency policy for import failures.
+        pytest.skip(f"{module_name} skipped – missing dependency: {message}")
+    pytest.fail(f"Unexpected error importing {module_name}: {message}")
+
 
 @pytest.mark.smoke
 class TestBranchModuleImports:
@@ -74,22 +137,7 @@ class TestBranchModuleImports:
     @pytest.mark.parametrize("module_name", BRANCH_MODULES)
     def test_module_imports_without_error(self, module_name: str):
         """Module imports without circular dependency or missing attribute errors."""
-        # Flush from cache so we get a real import
-        to_remove = [k for k in sys.modules if k == module_name or k.startswith(f"{module_name}.")]
-        for mod in to_remove:
-            sys.modules.pop(mod, None)
-
-        try:
-            module = importlib.import_module(module_name)
-            assert module is not None, f"{module_name} imported as None"
-        except ImportError as exc:
-            msg = str(exc).lower()
-            if "circular" in msg:
-                pytest.fail(f"Circular import in {module_name}: {exc}")
-            # Missing optional dependency (torch, ultralytics, etc.) is OK
-            pytest.skip(f"{module_name} skipped – missing dependency: {exc}")
-        except Exception as exc:
-            pytest.fail(f"Unexpected error importing {module_name}: {type(exc).__name__}: {exc}")
+        _assert_fresh_import(module_name)
 
 
 @pytest.mark.smoke

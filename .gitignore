@@ -261,6 +261,7 @@ CLAUDE_LOCAL.md
 .claude/settings.local.json
 .claude/.cache/
 .claude/logs/
+/.claude/worktrees/
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Generated OpenAPI specs (produced by scripts/export-openapi.py in CI).

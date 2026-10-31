@@ -195,6 +195,9 @@ flutter_native_splash:
   web: false
 
 flutter:
+  # Keep CocoaPods until flutter_native_splash is upgraded and validated with SwiftPM.
+  config:
+    enable-swift-package-manager: false
   uses-material-design: true
 
   # Localization - Generate l10n code from ARB files

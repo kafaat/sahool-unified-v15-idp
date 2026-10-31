@@ -1,7 +1,7 @@
 """Prevent Flutter SDK and localization drift across apps and their CI consumers.
 
-Pub remains the compatibility solver. These tests check the policy declarations
-that caused the old SDK/new intl failure, including release and preview jobs.
+Pub remains the compatibility solver. These tests check SDK/localization policy
+and the existing CocoaPods integration, including release and preview jobs.
 The primary app's explicit Flutter minimum is the canonical CI SDK version.
 """
 
@@ -25,6 +25,7 @@ MANIFESTS = (
     "apps/mobile/sahool_app/pubspec.yaml",
     "packages/sahool-mobile-core/pubspec.yaml",
 )
+COCOAPODS_MANIFESTS = MANIFESTS[:2]
 WORKFLOW_DIRS = (
     ".github/workflows",
     "apps/mobile/.github/workflows",
@@ -60,6 +61,11 @@ def _check_manifests(manifests: dict[str, dict]) -> None:
         assert not {"intl", "flutter_localizations"}.intersection(overrides), (
             f"Do not override Flutter's localization dependency resolution: {path}"
         )
+        if path in COCOAPODS_MANIFESTS:
+            config = manifest.get("flutter", {}).get("config", {})
+            assert config.get("enable-swift-package-manager") is False, (
+                f"Preserve CocoaPods until the flutter_native_splash SwiftPM migration is validated: {path}"
+            )
 
 
 def _resolve_workflow_value(value: str, workflow: dict, job: dict, step: dict) -> str:
@@ -160,6 +166,19 @@ def test_guard_rejects_broadening_all_apps_to_the_known_broken_dart_version() ->
     for manifest in manifests.values():
         manifest["environment"]["sdk"] = ">=3.10.0 <4.0.0"
     with pytest.raises(AssertionError, match="separately validated generator migration"):
+        _check_manifests(manifests)
+
+
+@pytest.mark.parametrize("path", COCOAPODS_MANIFESTS)
+@pytest.mark.parametrize("value", [None, True, "false"], ids=["missing", "enabled", "string-false"])
+def test_guard_rejects_implicit_or_enabled_swiftpm_for_cocoapods_apps(path: str, value: object) -> None:
+    manifests = {manifest_path: _yaml(manifest_path) for manifest_path in MANIFESTS}
+    config = manifests[path]["flutter"]["config"]
+    if value is None:
+        config.pop("enable-swift-package-manager")
+    else:
+        config["enable-swift-package-manager"] = value
+    with pytest.raises(AssertionError, match="Preserve CocoaPods"):
         _check_manifests(manifests)
 
 

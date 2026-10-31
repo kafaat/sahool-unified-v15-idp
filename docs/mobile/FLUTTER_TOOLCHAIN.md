@@ -111,6 +111,62 @@ which require `dart:ffi`. That native-storage chain is unavailable on web.
 their SDK pin does not repair this separate platform limitation. No storage
 fallback, encryption change, deployment, or masked successful build is added.
 
+## First GitHub CI results and R8 configuration correction
+
+The first PR run tested head
+`c40ebd50c809652b5e04541fb6b04aa9057b9958` through merge
+`be8071b360971666c18a0b9ba8a7e7779dda336f`. The
+[Test Suite mobile job](https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41238802657/job/124648282519)
+passed **564 unit, 41 widget and 61 integration tests (666 total)** after code
+generation and successful lock resolution. These CI counts are separate from
+the earlier local runs above.
+
+The [primary Android build](https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41238802797/job/124648999694)
+failed before APK compilation while applying `com.android.application`:
+AGP rejected `android.enableR8`, which was removed in AGP 7.0, and
+`assembleDebug` exited **1**. The obsolete `android.enableR8=true` option is
+removed from both applications' `gradle.properties`. R8 has been the
+[default shrinker since AGP 3.4](https://developer.android.com/build/releases/agp-3-4-0-release-notes?hl=en),
+so no replacement opt-in is needed. Both `android.enableR8.fullMode=true`
+settings and the existing shrinking/ProGuard configuration are preserved.
+An APK build after this correction remains unverified until GitHub CI completes.
+
+The [field-app Android build](https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41238802809/job/124650681151)
+also failed with **exit 1** on the same removed `android.enableR8` option.
+Its failure is covered by removing that property from the field application's
+configuration alongside the primary application.
+
+The [iOS build](https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41238802797/job/124648999729)
+also exited **1**. While adding Swift Package Manager integration, Xcode rejected
+the `flutter_native_splash` public headers (`include`) directory as invalid or
+outside the target. The existing `continue-on-error: true` setting on the build
+step makes the job appear successful; it does not demonstrate a successful iOS
+build.
+
+Flutter 3.44 enables SwiftPM by default. Both existing iOS applications lock
+`flutter_native_splash 2.4.4`, whose Swift package lacks the public-header layout
+required by that build path. To preserve their customized Podfiles, both apps
+now explicitly set `flutter.config.enable-swift-package-manager: false`, the
+[documented per-project CocoaPods option](https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers#turn-off-swiftpm-for-a-single-project).
+This is a compatibility setting for Flutter 3.44.9 until the splash plugin and
+the full native dependency graph are validated with SwiftPM. The package
+[changelog records SwiftPM fixes in 2.4.5](https://pub.dev/packages/flutter_native_splash/changelog).
+Podfiles, Xcode projects and package versions are unchanged. The drift guard
+rejects a missing, enabled or string-valued SwiftPM override in either app.
+The earlier iOS failure remains the actual CI result until a new build proves
+this correction; local manifest acceptance is not an iOS build.
+The extended guard passed **23 cases**. Flutter 3.44.9 accepted both project
+manifests with `flutter pub get --offline --enforce-lockfile`; all three app
+lockfile hashes remained unchanged. This used the project setting without
+changing the user's global Flutter configuration.
+
+The [wider primary test job](https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41238802797/job/124648999718)
+recorded **2,703 passes and 6 failures**. The
+[full field-app test job](https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41238802809/job/124649223327)
+recorded **4,729 passes and 15 failures**, although its existing `tee` pipeline
+reported job success. These failures remain recorded; the R8 correction does
+not alter tests or their execution policy.
+
 ## Primary references
 
 - [Flutter SDK archive](https://docs.flutter.dev/install/archive) and

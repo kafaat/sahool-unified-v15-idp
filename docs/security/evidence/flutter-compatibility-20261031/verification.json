@@ -561,5 +561,229 @@
       "exit_code": 1,
       "reason": "The parent default Python executable has no pytest. The guard did not run in that attempt; the agent successful17-case receipt is retained. No packages or test policy were changed to hide the setup failure."
     }
+  },
+  "first_pr_ci_and_r8_correction": {
+    "observed_head_sha": "c40ebd50c809652b5e04541fb6b04aa9057b9958",
+    "observed_base_sha": "ab53c98596daca1740d2ac5a5dbd48db7b24e34f",
+    "tested_merge_sha": "be8071b360971666c18a0b9ba8a7e7779dda336f",
+    "local_head_before_correction": "a50c55d47595232cfb7699d3ddb80188fb8e5c0e",
+    "local_tree_matches_published_tree": "c0e8764541f4f1d23752bcb0f60193e59ae6c534",
+    "android_build": {
+      "run_id": 41238802797,
+      "job_id": 124648999694,
+      "url": "https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41238802797/job/124648999694",
+      "conclusion": "failure",
+      "failed_step": "Build Android APK",
+      "command": "flutter build apk --debug",
+      "exit_code": 1,
+      "failure": "Applying com.android.application failed because android.enableR8 was removed in Android Gradle Plugin 7.0; Gradle explicitly requested its removal from gradle.properties.",
+      "failed_at": "2026-10-31T20:36:13.2776756Z",
+      "correction": "Remove only the obsolete android.enableR8=true property from both applications; retain android.enableR8.fullMode and all other R8/build settings.",
+      "changed_properties_files": [
+        "apps/mobile/android/gradle.properties",
+        "apps/mobile/sahool_field_app/android/gradle.properties"
+      ],
+      "default_shrinker_reference": "https://developer.android.com/build/releases/agp-3-4-0-release-notes?hl=en",
+      "post_correction_apk_result": "Not yet verified; requires the next ordinary GitHub CI run."
+    },
+    "test_results": [
+      {
+        "run_id": 41238802657,
+        "job_id": 124648282519,
+        "url": "https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41238802657/job/124648282519",
+        "selection": "Primary unit/widget/integration",
+        "unit_passed": 564,
+        "widget_passed": 41,
+        "integration_passed": 61,
+        "total_passed": 666,
+        "failed": 0,
+        "job_conclusion": "success",
+        "analysis_note": "The separate analysis step reported 1,276 errors, starting with missing field-app generated symbols; its existing warning fallback masks the analyzer exit. This is not a clean analysis claim."
+      },
+      {
+        "run_id": 41238802797,
+        "job_id": 124648999718,
+        "url": "https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41238802797/job/124648999718",
+        "selection": "Wider primary app test directory",
+        "passed": 2703,
+        "failed": 6,
+        "job_conclusion": "failure",
+        "failed_step": "Run Unit Tests"
+      },
+      {
+        "run_id": 41238802809,
+        "job_id": 124649223327,
+        "url": "https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41238802809/job/124649223327",
+        "selection": "Full field-app test directory",
+        "passed": 4729,
+        "failed": 15,
+        "job_conclusion": "success",
+        "conclusion_note": "The actual Flutter test summary failed; the existing tee pipeline masks its exit status."
+      }
+    ],
+    "prior_local_results_preserved": true,
+    "field_android_build": {
+      "run_id": 41238802809,
+      "job_id": 124650681151,
+      "url": "https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41238802809/job/124650681151",
+      "conclusion": "failure",
+      "failed_step": "Build Debug APK",
+      "exit_code": 1,
+      "failure": "Applying com.android.application failed because android.enableR8 was removed in Android Gradle Plugin 7.0, matching the primary Android build failure.",
+      "failed_at": "2026-10-31T20:40:50.9554979Z",
+      "covered_by_same_two_file_r8_correction": true,
+      "post_correction_apk_result": "Not yet verified; requires the next ordinary GitHub CI run."
+    },
+    "ios_build": {
+      "run_id": 41238802797,
+      "job_id": 124648999729,
+      "url": "https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41238802797/job/124648999729",
+      "job_conclusion": "success",
+      "actual_build_exit_code": 1,
+      "failed_step": "Build iOS (No Codesign)",
+      "command": "flutter build ios --debug --no-codesign",
+      "failure": "While adding Swift Package Manager integration, xcodebuild could not resolve package dependencies because the public headers include directory for flutter_native_splash is invalid or not contained in the target.",
+      "failed_at": "2026-10-31T20:35:39.8010920Z",
+      "masked_by_existing_continue_on_error": true,
+      "successful_ios_build_proven": false,
+      "addressed_by_r8_correction": false
+    },
+    "cocoapods_compatibility": {
+      "reason": "Flutter 3.44 enables SwiftPM by default, exposing the missing public-header directory in the locked flutter_native_splash 2.4.4 Swift package. Preserve the two applications existing CocoaPods integration until the plugin/native graph migration is validated.",
+      "setting": "flutter.config.enable-swift-package-manager",
+      "value": false,
+      "applications": [
+        "apps/mobile/pubspec.yaml",
+        "apps/mobile/sahool_field_app/pubspec.yaml"
+      ],
+      "official_flutter_reference": "https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers#turn-off-swiftpm-for-a-single-project",
+      "upstream_plugin_reference": "https://pub.dev/packages/flutter_native_splash/changelog",
+      "locked_plugin_version": "2.4.4",
+      "plugin_package_swift_sha256": "2d3eea4dcc857518374a81cf3c8869777b0188cbe811985bba0c0fe5dd440c2d",
+      "plugin_default_include_directory_exists": false,
+      "plugin_package_swift_sets_publicHeadersPath": false,
+      "guard": {
+        "command": "/workspace/scratch/882204c263d7/pyjwt-venv/bin/python -m pytest -q tests/unit/test_flutter_toolchain_consistency.py --timeout=30",
+        "passed": 23,
+        "exit_code": 0,
+        "duration_seconds": 1.65,
+        "new_negative_cases": "Missing flag, boolean true, and string false in each of the two CocoaPods applications.",
+        "ruff_check_exit_code": 0,
+        "ruff_format_check_exit_code": 0
+      },
+      "flutter_manifest_validation": {
+        "commands": [
+          {
+            "label": "sdk",
+            "command": [
+              "/tmp/sahool-flutter-882204c263d7/3.44.9/flutter/bin/flutter",
+              "--version",
+              "--machine"
+            ],
+            "cwd": "/workspace/scratch/882204c263d7/flutter-compat-fix/apps/mobile",
+            "started_at": "2026-10-31T20:47:54.673225+00:00",
+            "duration_seconds": 0.231,
+            "exit_code": 0,
+            "log": "/workspace/scratch/882204c263d7/flutter-compat-evidence/pr1999-ci/swiftpm-compat-sdk.log"
+          },
+          {
+            "label": "primary-config",
+            "command": [
+              "/tmp/sahool-flutter-882204c263d7/3.44.9/flutter/bin/flutter",
+              "--no-version-check",
+              "config",
+              "--list"
+            ],
+            "cwd": "/workspace/scratch/882204c263d7/flutter-compat-fix/apps/mobile",
+            "started_at": "2026-10-31T20:47:54.904692+00:00",
+            "duration_seconds": 0.103,
+            "exit_code": 0,
+            "log": "/workspace/scratch/882204c263d7/flutter-compat-evidence/pr1999-ci/swiftpm-compat-primary-config.log"
+          },
+          {
+            "label": "primary-pub",
+            "command": [
+              "/tmp/sahool-flutter-882204c263d7/3.44.9/flutter/bin/flutter",
+              "--no-version-check",
+              "pub",
+              "get",
+              "--offline",
+              "--enforce-lockfile"
+            ],
+            "cwd": "/workspace/scratch/882204c263d7/flutter-compat-fix/apps/mobile",
+            "started_at": "2026-10-31T20:47:55.007629+00:00",
+            "duration_seconds": 2.93,
+            "exit_code": 0,
+            "log": "/workspace/scratch/882204c263d7/flutter-compat-evidence/pr1999-ci/swiftpm-compat-primary-pub.log"
+          },
+          {
+            "label": "field-config",
+            "command": [
+              "/tmp/sahool-flutter-882204c263d7/3.44.9/flutter/bin/flutter",
+              "--no-version-check",
+              "config",
+              "--list"
+            ],
+            "cwd": "/workspace/scratch/882204c263d7/flutter-compat-fix/apps/mobile/sahool_field_app",
+            "started_at": "2026-10-31T20:47:57.937936+00:00",
+            "duration_seconds": 0.111,
+            "exit_code": 0,
+            "log": "/workspace/scratch/882204c263d7/flutter-compat-evidence/pr1999-ci/swiftpm-compat-field-config.log"
+          },
+          {
+            "label": "field-pub",
+            "command": [
+              "/tmp/sahool-flutter-882204c263d7/3.44.9/flutter/bin/flutter",
+              "--no-version-check",
+              "pub",
+              "get",
+              "--offline",
+              "--enforce-lockfile"
+            ],
+            "cwd": "/workspace/scratch/882204c263d7/flutter-compat-fix/apps/mobile/sahool_field_app",
+            "started_at": "2026-10-31T20:47:58.048939+00:00",
+            "duration_seconds": 3.017,
+            "exit_code": 0,
+            "log": "/workspace/scratch/882204c263d7/flutter-compat-evidence/pr1999-ci/swiftpm-compat-field-pub.log"
+          }
+        ],
+        "lock_sha256_before": {
+          "apps/mobile/pubspec.lock": "60d69322a6d6336030f41deac669090954997ddd0e947977da39b288e22ac45b",
+          "apps/mobile/sahool_field_app/pubspec.lock": "c118b25e53b4d2d630c3f5393580f1f737b0af4094a46421e026888d2e752115",
+          "apps/mobile/sahool_app/pubspec.lock": "1a52149413ced1961e1b8a79cb6c238296e1496e7e6f9f7844d6dcb357f75d40"
+        },
+        "lock_sha256_after": {
+          "apps/mobile/pubspec.lock": "60d69322a6d6336030f41deac669090954997ddd0e947977da39b288e22ac45b",
+          "apps/mobile/sahool_field_app/pubspec.lock": "c118b25e53b4d2d630c3f5393580f1f737b0af4094a46421e026888d2e752115",
+          "apps/mobile/sahool_app/pubspec.lock": "1a52149413ced1961e1b8a79cb6c238296e1496e7e6f9f7844d6dcb357f75d40"
+        },
+        "locks_unchanged": true
+      },
+      "global_configuration": "No global Flutter configuration was written. The read-only flutter config --list command reports the global SwiftPM setting as Not set; project acceptance was checked by Flutter pub get.",
+      "automatic_localization_outputs_restored": [
+        {
+          "path": "apps/mobile/lib/generated/l10n/app_localizations.dart",
+          "automatic_generation_sha256": "9803df66cc3e10c81759998a69d5266016f5ee601eb2e452af032897ef9ffb56",
+          "restored_head_sha256": "40b6899868263f865cd667d4697fbd50a55b8a6b62dd6640d49b69f1b945d849"
+        },
+        {
+          "path": "apps/mobile/sahool_field_app/lib/generated/l10n/app_localizations.dart",
+          "automatic_generation_sha256": "e3caf44e85775537864890883fbc5e271192c0dbc7cc4adbce5cf2be2b06faca",
+          "restored_head_sha256": "0a8a76a0d7f183f8238cc1502b4aeca4731f16475ffa21037203898686084430"
+        },
+        {
+          "path": "apps/mobile/sahool_field_app/lib/generated/l10n/app_localizations_ar.dart",
+          "automatic_generation_sha256": "7fef1b5af3f0f08aed00cce237f594d2d2dc4cdfadbcb77fc365e915c4758c57",
+          "restored_head_sha256": "ce57075849cad4fd29b7652d52f3580268754f0b2b6b0dc16effd8322fc47130"
+        },
+        {
+          "path": "apps/mobile/sahool_field_app/lib/generated/l10n/app_localizations_en.dart",
+          "automatic_generation_sha256": "f76a9f5cd24c8b99e8db87083e0fc47f37c351b89b338a50b09f3a3ae89d9be1",
+          "restored_head_sha256": "694af8792dd20e106485d4378cf6a61253d0b69b895d3eb6a79ec3a8d031190c"
+        }
+      ],
+      "podfiles_xcode_projects_and_package_versions_changed": false,
+      "post_correction_ios_build_result": "Not yet verified; the previous CI build exited 1 and was masked by continue-on-error. A new real macOS build is required."
+    }
   }
 }

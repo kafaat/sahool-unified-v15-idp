@@ -186,6 +186,9 @@ dependency_overrides:
   record_platform_interface: 1.2.0
 
 flutter:
+  # Keep CocoaPods until flutter_native_splash is upgraded and validated with SwiftPM.
+  config:
+    enable-swift-package-manager: false
   uses-material-design: true
   generate: true  # Enable code generation for l10n
 

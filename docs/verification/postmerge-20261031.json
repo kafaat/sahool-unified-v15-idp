@@ -1,0 +1,263 @@
+{
+  "baseline_commit": "c796f25eb86c6cadb2adb365c3ba439fa17b8acc",
+  "date": "2026-10-31",
+  "scope": "Post-merge validation and bounded CI repairs; not a production certification",
+  "ai_platform": {
+    "commit": "8bfde37eded9d8d0f7662c24fb28196019f284d5",
+    "postmerge_workflows_success": 39,
+    "check_runs_accepted": 72
+  },
+  "sahool_local_validation": {
+    "web_test_files": 54,
+    "web_tests_passed": 1348,
+    "auth_regressions_on_original": {
+      "failed": 15,
+      "passed": 20
+    },
+    "ci_regression_tests_passed": 26,
+    "dockerfiles_hadolint_passed": 91,
+    "compose_config": {
+      "tool_version": "2.38.2",
+      "before_exit": 1,
+      "after_exit": 0
+    },
+    "live_containers": "NOT_RUN: no Docker daemon",
+    "browser_e2e": "NOT_RUN: Chromium download corrupted",
+    "csp_policy": "unchanged: inline compatibility; nonce hardening not implemented"
+  },
+  "staging": {
+    "deployment": "SKIPPED",
+    "reason": "KUBE_CONFIG_STAGING missing in observed workflow",
+    "remaining_limits": [
+      "Agent evaluation commands are commented out in existing workflow",
+      "Some post-deployment health failures are warning-only"
+    ]
+  },
+  "security": {
+    "scanner": "Trivy 0.69.3",
+    "critical_count": 28,
+    "findings": [
+      {
+        "path": "apps/services/ai-advisor/requirements.txt",
+        "package": "sentence-transformers",
+        "installed": "5.4.1",
+        "fixed_versions_reported_by_scanner": "5.6.0",
+        "advisory": "CVE-2026-68770"
+      },
+      {
+        "path": "apps/services/chat-service/package-lock.json",
+        "package": "proxy-addr",
+        "installed": "2.0.7",
+        "fixed_versions_reported_by_scanner": "2.0.8",
+        "advisory": "CVE-2026-90711"
+      },
+      {
+        "path": "apps/services/crop-growth-model/package-lock.json",
+        "package": "proxy-addr",
+        "installed": "2.0.7",
+        "fixed_versions_reported_by_scanner": "2.0.8",
+        "advisory": "CVE-2026-90711"
+      },
+      {
+        "path": "apps/services/disaster-assessment/package-lock.json",
+        "package": "proxy-addr",
+        "installed": "2.0.7",
+        "fixed_versions_reported_by_scanner": "2.0.8",
+        "advisory": "CVE-2026-90711"
+      },
+      {
+        "path": "apps/services/field-management-service/package-lock.json",
+        "package": "proxy-addr",
+        "installed": "2.0.7",
+        "fixed_versions_reported_by_scanner": "2.0.8",
+        "advisory": "CVE-2026-90711"
+      },
+      {
+        "path": "apps/services/lai-estimation/package-lock.json",
+        "package": "proxy-addr",
+        "installed": "2.0.7",
+        "fixed_versions_reported_by_scanner": "2.0.8",
+        "advisory": "CVE-2026-90711"
+      },
+      {
+        "path": "apps/services/leveling-optimizer-service/requirements.txt",
+        "package": "anyio",
+        "installed": "4.7.0",
+        "fixed_versions_reported_by_scanner": "4.14.2",
+        "advisory": "CVE-2026-63374"
+      },
+      {
+        "path": "apps/services/marketplace-service/package-lock.json",
+        "package": "proxy-addr",
+        "installed": "2.0.7",
+        "fixed_versions_reported_by_scanner": "2.0.8",
+        "advisory": "CVE-2026-90711"
+      },
+      {
+        "path": "apps/services/shared/auth/requirements.txt",
+        "package": "PyJWT",
+        "installed": "2.10.1",
+        "fixed_versions_reported_by_scanner": "2.14.0",
+        "advisory": "CVE-2026-102268"
+      },
+      {
+        "path": "apps/services/shared/requirements.txt",
+        "package": "PyJWT",
+        "installed": "2.11.0",
+        "fixed_versions_reported_by_scanner": "2.14.0",
+        "advisory": "CVE-2026-102268"
+      },
+      {
+        "path": "apps/services/yield-prediction/package-lock.json",
+        "package": "proxy-addr",
+        "installed": "2.0.7",
+        "fixed_versions_reported_by_scanner": "2.0.8",
+        "advisory": "CVE-2026-90711"
+      },
+      {
+        "path": "archive/deprecated-services/community-chat/package-lock.json",
+        "package": "proxy-addr",
+        "installed": "2.0.7",
+        "fixed_versions_reported_by_scanner": "2.0.8",
+        "advisory": "CVE-2026-90711"
+      },
+      {
+        "path": "archive/kernel-legacy/kernel/services/field_core/package-lock.json",
+        "package": "proxy-addr",
+        "installed": "2.0.7",
+        "fixed_versions_reported_by_scanner": "2.0.8",
+        "advisory": "CVE-2026-90711"
+      },
+      {
+        "path": "package-lock.json",
+        "package": "@sentry/nextjs",
+        "installed": "9.47.1",
+        "fixed_versions_reported_by_scanner": "9.47.2, 10.75.2, 11.0.0-rc.1",
+        "advisory": "CVE-2026-114139"
+      },
+      {
+        "path": "package-lock.json",
+        "package": "maplibre-gl",
+        "installed": "4.7.1",
+        "fixed_versions_reported_by_scanner": "6.4.1",
+        "advisory": "CVE-2026-85061"
+      },
+      {
+        "path": "package-lock.json",
+        "package": "next",
+        "installed": "15.5.14",
+        "fixed_versions_reported_by_scanner": "15.5.24, 16.3.3",
+        "advisory": "CVE-2026-75604"
+      },
+      {
+        "path": "package-lock.json",
+        "package": "next",
+        "installed": "15.5.14",
+        "fixed_versions_reported_by_scanner": "15.5.28, 16.4.1",
+        "advisory": "GHSA-2464-fhr4-w9xw"
+      },
+      {
+        "path": "package-lock.json",
+        "package": "next",
+        "installed": "15.5.14",
+        "fixed_versions_reported_by_scanner": "15.5.24, 16.3.3",
+        "advisory": "GHSA-2xp9-vwfh-vxw4"
+      },
+      {
+        "path": "package-lock.json",
+        "package": "proxy-addr",
+        "installed": "2.0.7",
+        "fixed_versions_reported_by_scanner": "2.0.8",
+        "advisory": "CVE-2026-90711"
+      },
+      {
+        "path": "packages/shared-audit/package-lock.json",
+        "package": "proxy-addr",
+        "installed": "2.0.7",
+        "fixed_versions_reported_by_scanner": "2.0.8",
+        "advisory": "CVE-2026-90711"
+      },
+      {
+        "path": "uv.lock",
+        "package": "anyio",
+        "installed": "4.12.1",
+        "fixed_versions_reported_by_scanner": "4.14.2",
+        "advisory": "CVE-2026-63374"
+      },
+      {
+        "path": "uv.lock",
+        "package": "certifi",
+        "installed": "2026.2.25",
+        "fixed_versions_reported_by_scanner": "2026.10.18",
+        "advisory": "GHSA-6q48-6c7w-9gw2"
+      },
+      {
+        "path": "uv.lock",
+        "package": "pillow",
+        "installed": "11.3.0",
+        "fixed_versions_reported_by_scanner": "13.0.0",
+        "advisory": "CVE-2026-112393"
+      },
+      {
+        "path": "uv.lock",
+        "package": "pillow",
+        "installed": "11.3.0",
+        "fixed_versions_reported_by_scanner": "13.0.0",
+        "advisory": "CVE-2026-112398"
+      },
+      {
+        "path": "uv.lock",
+        "package": "pillow",
+        "installed": "11.3.0",
+        "fixed_versions_reported_by_scanner": "13.0.0",
+        "advisory": "CVE-2026-112403"
+      },
+      {
+        "path": "uv.lock",
+        "package": "pillow",
+        "installed": "11.3.0",
+        "fixed_versions_reported_by_scanner": "13.0.0",
+        "advisory": "CVE-2026-112900"
+      },
+      {
+        "path": "uv.lock",
+        "package": "pillow",
+        "installed": "11.3.0",
+        "fixed_versions_reported_by_scanner": "13.0.0",
+        "advisory": "CVE-2026-96639"
+      },
+      {
+        "path": "uv.lock",
+        "package": "pyjwt",
+        "installed": "2.11.0",
+        "fixed_versions_reported_by_scanner": "2.14.0",
+        "advisory": "CVE-2026-102268"
+      }
+    ],
+    "warning": "These are baseline dependency scan findings, not exploitability proofs. The npm image bundle fix does not close application or Python findings. Major upgrades require compatible regenerated locks and service tests.",
+    "separate_candidate": {
+      "branch": "wip/python-security-lock-review-20261031",
+      "commit": "dfe38784bd46c39f961e03c0fb9f1c538da7353f",
+      "status": "NOT_MERGE_READY",
+      "behavioral_tests_passed": 7,
+      "jwt_suite_passed": 109,
+      "twofa_extended_jwt_passed": 92,
+      "overlap_note": "The JWT suites overlap; do not sum their counts.",
+      "vegetation_cloud_tests_passed": 258,
+      "python_3_11_image_requirements_resolution": "4 passed",
+      "lock_blocker": "Existing Python >=3.14 resolution combines TensorFlow 2.21 / ml-dtypes requiring NumPy >=2.1 with project NumPy <2. uv.lock remains unchanged; project Python support policy unchanged.",
+      "container_acceptance": "NOT_RUN"
+    }
+  },
+  "sahool_github_web_validation": {
+    "commit": "779b927b0e8d8b00d03e07b7b34deace359f53d2",
+    "run_id": 41198706942,
+    "web_build": "success",
+    "unit_tests": "success",
+    "typecheck": "success",
+    "lint": "success",
+    "browser_e2e_job_id": 124532319565,
+    "browser_e2e_tests_passed": 6,
+    "browser_e2e_seconds": 4.5
+  }
+}

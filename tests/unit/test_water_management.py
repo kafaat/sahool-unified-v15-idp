@@ -1086,6 +1086,31 @@ class TestFarmSummaryReporting:
 class TestReportScheduling:
     """Test water report scheduling"""
 
+    @pytest.mark.parametrize("use_last_report", [False, True])
+    @pytest.mark.parametrize(
+        "base,expected",
+        [
+            (date(2026, 10, 31), date(2027, 4, 30)),
+            (date(2026, 8, 31), date(2027, 2, 28)),
+            (date(2023, 8, 31), date(2024, 2, 29)),
+            (date(2026, 12, 31), date(2027, 6, 30)),
+            (date(2026, 1, 31), date(2026, 7, 31)),
+            (date(2024, 2, 29), date(2024, 8, 29)),
+        ],
+    )
+    def test_water_quality_due_date_clamps_month_end(self, monkeypatch, use_last_report, base, expected):
+        from shared.water_management import reporting
+
+        class FixedDate(date):
+            @classmethod
+            def today(cls):
+                return base + timedelta(days=1) if use_last_report else base
+
+        monkeypatch.setattr(reporting, "date", FixedDate)
+        scheduler = WaterReportScheduler("tenant-001")
+        last_report = base if use_last_report else None
+        assert scheduler.get_next_report_due_date("water_quality", last_report) == expected
+
     def test_report_scheduler_creation(self):
         """Test creating a report scheduler"""
         scheduler = WaterReportScheduler("tenant-001")

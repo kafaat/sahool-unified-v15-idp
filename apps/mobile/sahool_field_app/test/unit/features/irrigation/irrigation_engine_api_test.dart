@@ -28,8 +28,8 @@ void main() {
               queryParams: any(named: 'queryParams'),
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async {
-          final fromJson = _.namedArguments[const Symbol('fromJson')]
+            )).thenAnswer((invocation) async {
+          final fromJson = invocation.namedArguments[const Symbol('fromJson')]
               as Map<String, dynamic> Function(dynamic);
           return ApiResponse.success(fromJson(samplePivotConfigJson()));
         });
@@ -71,8 +71,8 @@ void main() {
               queryParams: any(named: 'queryParams'),
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async {
-          final fromJson = _.namedArguments[const Symbol('fromJson')]
+            )).thenAnswer((invocation) async {
+          final fromJson = invocation.namedArguments[const Symbol('fromJson')]
               as Map<String, dynamic> Function(dynamic);
           return ApiResponse.success(fromJson(statusData));
         });
@@ -98,8 +98,8 @@ void main() {
               queryParams: any(named: 'queryParams'),
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async {
-          final fromJson = _.namedArguments[const Symbol('fromJson')]
+            )).thenAnswer((invocation) async {
+          final fromJson = invocation.namedArguments[const Symbol('fromJson')]
               as Map<String, dynamic> Function(dynamic);
           return ApiResponse.success(fromJson({
             'status': 'accepted',
@@ -141,8 +141,8 @@ void main() {
               queryParams: any(named: 'queryParams'),
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async {
-          final fromJson = _.namedArguments[const Symbol('fromJson')]
+            )).thenAnswer((invocation) async {
+          final fromJson = invocation.namedArguments[const Symbol('fromJson')]
               as Map<String, dynamic> Function(dynamic);
           return ApiResponse.success(fromJson({'status': 'accepted'}));
         });
@@ -194,8 +194,8 @@ void main() {
               queryParams: any(named: 'queryParams'),
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async {
-          final fromJson = _.namedArguments[const Symbol('fromJson')]
+            )).thenAnswer((invocation) async {
+          final fromJson = invocation.namedArguments[const Symbol('fromJson')]
               as Map<String, dynamic> Function(dynamic);
           return ApiResponse.success(fromJson({
             'total_water_m3': 2500,
@@ -230,8 +230,8 @@ void main() {
               queryParams: any(named: 'queryParams'),
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async {
-          final fromJson = _.namedArguments[const Symbol('fromJson')]
+            )).thenAnswer((invocation) async {
+          final fromJson = invocation.namedArguments[const Symbol('fromJson')]
               as Map<String, dynamic> Function(dynamic);
           return ApiResponse.success(fromJson({'total_water_m3': 10000}));
         });
@@ -259,8 +259,8 @@ void main() {
               queryParams: any(named: 'queryParams'),
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async {
-          final fromJson = _.namedArguments[const Symbol('fromJson')]
+            )).thenAnswer((invocation) async {
+          final fromJson = invocation.namedArguments[const Symbol('fromJson')]
               as Map<String, dynamic> Function(dynamic);
           return ApiResponse.success(fromJson({
             'pivot_id': 'pivot-001',
@@ -297,8 +297,8 @@ void main() {
               queryParams: any(named: 'queryParams'),
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async {
-          final fromJson = _.namedArguments[const Symbol('fromJson')]
+            )).thenAnswer((invocation) async {
+          final fromJson = invocation.namedArguments[const Symbol('fromJson')]
               as Map<String, dynamic> Function(dynamic);
           return ApiResponse.success(fromJson({'status': 'updated'}));
         });
@@ -331,8 +331,8 @@ void main() {
               queryParams: any(named: 'queryParams'),
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async {
-          final fromJson = _.namedArguments[const Symbol('fromJson')]
+            )).thenAnswer((invocation) async {
+          final fromJson = invocation.namedArguments[const Symbol('fromJson')]
               as List<dynamic> Function(dynamic);
           return ApiResponse.success(fromJson([
             {
@@ -381,8 +381,8 @@ void main() {
               queryParams: any(named: 'queryParams'),
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async {
-          final fromJson = _.namedArguments[const Symbol('fromJson')]
+            )).thenAnswer((invocation) async {
+          final fromJson = invocation.namedArguments[const Symbol('fromJson')]
               as Map<String, dynamic> Function(dynamic);
           return ApiResponse.success(fromJson({'status': 'updated'}));
         });

@@ -21,7 +21,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "io.sahool.field"
-    compileSdk = 35  // Android 15 - stable SDK for Flutter 3.27.x
+    compileSdk = 36  // Matches the root app and current Android plugin requirements
     ndkVersion = "28.2.13676358"
 
     compileOptions {

@@ -38,8 +38,8 @@ void main() {
               queryParams: any(named: 'queryParams'),
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async {
-          final fromJson = _.namedArguments[const Symbol('fromJson')]
+            )).thenAnswer((invocation) async {
+          final fromJson = invocation.namedArguments[const Symbol('fromJson')]
               as AlertsPageResponse Function(dynamic);
           return ApiResponse.success(fromJson(responseData));
         });
@@ -72,8 +72,8 @@ void main() {
               queryParams: any(named: 'queryParams'),
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async {
-          final fromJson = _.namedArguments[const Symbol('fromJson')]
+            )).thenAnswer((invocation) async {
+          final fromJson = invocation.namedArguments[const Symbol('fromJson')]
               as AlertsPageResponse Function(dynamic);
           return ApiResponse.success(fromJson({
             'alerts': [],
@@ -139,8 +139,8 @@ void main() {
               queryParams: any(named: 'queryParams'),
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async {
-          final fromJson = _.namedArguments[const Symbol('fromJson')]
+            )).thenAnswer((invocation) async {
+          final fromJson = invocation.namedArguments[const Symbol('fromJson')]
               as AlertModel Function(dynamic);
           return ApiResponse.success(fromJson(sampleAlertJson()));
         });
@@ -165,8 +165,8 @@ void main() {
               queryParams: any(named: 'queryParams'),
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async {
-          final fromJson = _.namedArguments[const Symbol('fromJson')]
+            )).thenAnswer((invocation) async {
+          final fromJson = invocation.namedArguments[const Symbol('fromJson')]
               as AlertModel Function(dynamic);
           return ApiResponse.success(
               fromJson(sampleAlertJson(id: 'new-alert')));
@@ -213,8 +213,8 @@ void main() {
               queryParams: any(named: 'queryParams'),
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async {
-          final fromJson = _.namedArguments[const Symbol('fromJson')]
+            )).thenAnswer((invocation) async {
+          final fromJson = invocation.namedArguments[const Symbol('fromJson')]
               as AlertModel Function(dynamic);
           return ApiResponse.success(
               fromJson(sampleAlertJson(status: 'acknowledged')));
@@ -243,8 +243,8 @@ void main() {
               queryParams: any(named: 'queryParams'),
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async {
-          final fromJson = _.namedArguments[const Symbol('fromJson')]
+            )).thenAnswer((invocation) async {
+          final fromJson = invocation.namedArguments[const Symbol('fromJson')]
               as AlertModel Function(dynamic);
           return ApiResponse.success(
               fromJson(sampleAlertJson(status: 'resolved')));
@@ -284,8 +284,8 @@ void main() {
               queryParams: any(named: 'queryParams'),
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async {
-          final fromJson = _.namedArguments[const Symbol('fromJson')]
+            )).thenAnswer((invocation) async {
+          final fromJson = invocation.namedArguments[const Symbol('fromJson')]
               as AlertModel Function(dynamic);
           return ApiResponse.success(
               fromJson(sampleAlertJson(status: 'dismissed')));
@@ -349,8 +349,8 @@ void main() {
               queryParams: any(named: 'queryParams'),
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async {
-          final fromJson = _.namedArguments[const Symbol('fromJson')]
+            )).thenAnswer((invocation) async {
+          final fromJson = invocation.namedArguments[const Symbol('fromJson')]
               as AlertStats Function(dynamic);
           return ApiResponse.success(fromJson(statsData));
         });
@@ -392,8 +392,8 @@ void main() {
               queryParams: any(named: 'queryParams'),
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async {
-          final fromJson = _.namedArguments[const Symbol('fromJson')]
+            )).thenAnswer((invocation) async {
+          final fromJson = invocation.namedArguments[const Symbol('fromJson')]
               as List<AlertRule> Function(dynamic);
           return ApiResponse.success(fromJson(rulesData));
         });

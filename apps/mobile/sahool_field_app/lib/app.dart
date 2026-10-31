@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:sahool_field_app/generated/l10n/app_localizations.dart';
 import 'core/config/theme.dart';
 import 'core/routes/app_router.dart';
 import 'core/deeplink/deeplink_handler.dart';

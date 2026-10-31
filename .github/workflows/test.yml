@@ -66,6 +66,8 @@ jobs:
               - 'governance/**'
             mobile:
               - 'apps/mobile/**'
+              - 'packages/sahool-mobile-core/**'
+              - '.github/workflows/test.yml'
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Frontend Tests
@@ -271,12 +273,24 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.1'
+          flutter-version: '3.44.9'
           channel: 'stable'
           cache: true
 
       - name: Get Flutter dependencies
+        run: flutter pub get --enforce-lockfile
+
+      - name: Resolve secondary field app dependencies
+        working-directory: apps/mobile/sahool_field_app
+        run: flutter pub get --enforce-lockfile
+
+      - name: Resolve shared mobile core dependencies
+        working-directory: packages/sahool-mobile-core
         run: flutter pub get
+
+      - name: Resolve unified mobile app dependencies
+        working-directory: apps/mobile/sahool_app
+        run: flutter pub get --enforce-lockfile
 
       - name: Install native dependencies
         run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev

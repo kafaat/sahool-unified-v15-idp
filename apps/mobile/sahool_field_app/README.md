@@ -10,17 +10,19 @@
 
 ### بيئة التطوير
 
-- Flutter SDK: `>=3.2.0 <4.0.0`
-- Dart SDK: `>=3.2.0`
+- Flutter SDK: `3.44.9`
+- Dart SDK: `3.12.2` (constraint: `>=3.10.0 <3.13.0`)
 - Android SDK: API 23+ (Android 6.0+)
 - iOS: 12.0+
 
 ### الأدوات المطلوبة
 
 ```bash
-flutter --version  # Flutter 3.19+
-dart --version     # Dart 3.6+
+flutter --version  # Flutter 3.44.9
+dart --version     # Dart 3.12.2
 ```
+
+راجع [إصدار الأدوات المعتمد وحدود التوافق](../../../docs/mobile/FLUTTER_TOOLCHAIN.md) قبل تحديث Flutter.
 
 ## التثبيت
 

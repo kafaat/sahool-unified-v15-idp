@@ -236,7 +236,7 @@ flutter test
 
 ## Tech Stack
 
-- **Framework**: Flutter 3.27.x (Dart SDK >=3.2.0)
+- **Framework**: Flutter 3.44.9 / Dart 3.12.2 (`>=3.10.0 <3.13.0`); see the [validated toolchain](../../docs/mobile/FLUTTER_TOOLCHAIN.md)
 - **State Management**: Riverpod 2.6.x
 - **Local Database**: Drift 2.24+ with SQLCipher (256-bit AES)
 - **Networking**: Dio 5.x with certificate pinning

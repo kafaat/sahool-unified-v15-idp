@@ -1050,6 +1050,10 @@ jobs:
           # in the file. Must be ≥32 chars to match the service's
           # runtime validation.
           echo "PARTNER_AUTH_CSRF_SECRET=test_partner_auth_csrf_secret_for_ci_only_32chars" >> .env
+          # Compose interpolates disabled application services as well. This
+          # invalid placeholder is only for postgres/nats/redis CI startup;
+          # code-review-agent is never started by this job.
+          echo "ANTHROPIC_API_KEY=ci_interpolation_placeholder_not_a_provider_credential" >> .env
           cat .env
           echo "✅ Created .env file"
 

@@ -271,3 +271,6 @@ CLAUDE_LOCAL.md
 apps/services/*/openapi.yaml
 !apps/services/crop-intelligence-service/openapi.yaml
 build/openapi-summary.json
+
+# Local agent worktrees must never become repository submodules.
+/.claude/worktrees/

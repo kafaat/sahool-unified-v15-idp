@@ -94,11 +94,13 @@ vi.mock('next-intl', () => ({
 }));
 
 // Mock lucide-react icons
-vi.mock('lucide-react', () => {
+vi.mock('lucide-react', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('lucide-react')>();
   const IconMock = ({ className, ...props }: { className?: string }) => (
     <svg className={className} {...props} data-testid="icon" />
   );
   return {
+    ...actual,
     LayoutDashboard: IconMock,
     Sprout: IconMock,
     FileText: IconMock,

@@ -93,11 +93,10 @@ jobs:
             echo "deploy_enterprise=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Check Docker images exist
+      - name: Report image verification scope
         run: |
-          echo "Verifying Docker images are available..."
-          # This would check if images with the current SHA exist in the registry
-          echo "Images verified for SHA: ${{ github.sha }}"
+          echo "::notice::Registry image availability is not checked by this preflight."
+          echo "Image availability: NOT CHECKED for SHA ${{ github.sha }}" >> "$GITHUB_STEP_SUMMARY"
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Agent Evaluation Gate (Pre-deployment)
@@ -648,39 +647,20 @@ jobs:
     name: Deployment Summary
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    needs: [pre-deploy-checks]
+    needs: [pre-deploy-checks, agent-evaluation-gate, deploy-starter, test-starter, deploy-professional, test-professional, deploy-enterprise, test-enterprise, smoke-tests, post-deploy-validation]
     if: always()
     steps:
-      - name: Generate deployment summary
-        run: |
-          echo "## 🚀 Staging Deployment Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Environment:** Staging" >> $GITHUB_STEP_SUMMARY
-          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Time:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
+      - name: Checkout summary reporter
+        uses: actions/checkout@v6
 
-          if [ "${{ needs.pre-deploy-checks.outputs.kubeconfig_available }}" != "true" ]; then
-            echo "### ⚠️ Deployment Skipped" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "Kubernetes deployment was skipped because \`KUBE_CONFIG_STAGING\` secret is not configured." >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "To enable deployments, configure the following secrets in repository settings:" >> $GITHUB_STEP_SUMMARY
-            echo "- \`KUBE_CONFIG_STAGING\`: Kubernetes configuration for staging cluster" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "### Services Deployed" >> $GITHUB_STEP_SUMMARY
-            echo "- ✅ Starter Package" >> $GITHUB_STEP_SUMMARY
-            echo "- ✅ Professional Package" >> $GITHUB_STEP_SUMMARY
-            echo "- ✅ Enterprise Package" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "### Access" >> $GITHUB_STEP_SUMMARY
-            echo "- **URL:** https://staging.sahool.io" >> $GITHUB_STEP_SUMMARY
-            echo "- **API Docs:** https://staging.sahool.io/api/docs" >> $GITHUB_STEP_SUMMARY
-          fi
+      - name: Generate deployment summary
+        id: summary
+        env:
+          STAGING_JOB_RESULTS: ${{ toJSON(needs) }}
+        run: python3 scripts/ci/staging_deployment_status.py
 
       - name: Notify deployment success
-        if: success() && env.SLACK_WEBHOOK_URL != ''
+        if: steps.summary.outputs.deployment_status == 'success' && env.SLACK_WEBHOOK_URL != ''
         uses: 8398a7/action-slack@v3
         with:
           status: custom
@@ -702,7 +682,7 @@ jobs:
         continue-on-error: true
 
       - name: Notify deployment failure
-        if: failure() && env.SLACK_WEBHOOK_URL != ''
+        if: steps.summary.outputs.deployment_status == 'failed' && env.SLACK_WEBHOOK_URL != ''
         uses: 8398a7/action-slack@v3
         with:
           status: custom

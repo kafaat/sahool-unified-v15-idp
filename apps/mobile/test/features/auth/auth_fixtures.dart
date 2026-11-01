@@ -5,6 +5,8 @@
 /// يوفر بيانات اختبار ثابتة لاختبارات وحدة المصادقة
 library;
 
+import 'dart:convert';
+
 /// Sample user data for tests
 class AuthFixtures {
   /// Valid test user data
@@ -36,7 +38,24 @@ class AuthFixtures {
   static const invalidPassword = 'wrong';
 
   /// Token fixtures
-  static const validAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyXzAwMSJ9.mock_token';
+  // A valid fixture must exercise the valid-JWT path, not the refresh fallback.
+  static final validAccessToken = createAccessToken();
+
+  static String createAccessToken({DateTime? expiresAt, bool includeExpiry = true}) {
+    final now = DateTime.now();
+    final claims = <String, dynamic>{
+      'sub': 'user_001',
+      'iss': 'sahool-platform',
+      'type': 'access',
+      'iat': now.millisecondsSinceEpoch ~/ 1000,
+      if (includeExpiry)
+        'exp': (expiresAt ?? now.add(const Duration(hours: 1)))
+            .millisecondsSinceEpoch ~/ 1000,
+    };
+    final header = base64Url.encode(utf8.encode(jsonEncode({'alg': 'HS256', 'typ': 'JWT'})));
+    final payload = base64Url.encode(utf8.encode(jsonEncode(claims)));
+    return '$header.$payload.test_signature';
+  }
   static const validRefreshToken = 'refresh_token_mock_12345';
   static const expiredAccessToken = 'expired_token_12345';
   static const invalidToken = 'invalid_token';

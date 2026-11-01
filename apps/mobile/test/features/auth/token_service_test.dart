@@ -13,6 +13,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:sahool_field_app/core/auth/auth_service.dart';
 import 'package:sahool_field_app/core/auth/token_manager.dart';
+import 'package:sahool_field_app/core/auth/jwt_validator.dart';
 
 import 'auth_fixtures.dart';
 import 'auth_mocks.dart';
@@ -170,12 +171,16 @@ void main() {
         // Act - login delegates token storage to tokenManager.storeTokens()
         await authService.login(AuthFixtures.validEmail, AuthFixtures.validPassword);
 
-        // Assert - verify tokenManager.storeTokens was called with mock tokens
-        verify(() => mockTokenManager.storeTokens(
-          accessToken: any(named: 'accessToken', that: contains('mock_access_token')),
+        // Assert the mock login supplies a valid access JWT, not an opaque label.
+        final storedToken = verify(() => mockTokenManager.storeTokens(
+          accessToken: captureAny(named: 'accessToken'),
           refreshToken: any(named: 'refreshToken'),
           expiresIn: any(named: 'expiresIn'),
-        )).called(1);
+        )).captured.single as String;
+        final validation = JwtValidator.validate(storedToken);
+        expect(validation.isValid, isTrue);
+        expect(validation.claims!.subject, 'mock-user-001');
+        expect(validation.claims!.tokenType, 'access');
       });
 
       test('should store refresh token securely', () async {
@@ -291,6 +296,7 @@ void main() {
 
       // Assert
       expect(isLoggedIn, isTrue);
+      verifyNever(() => mockTokenManager.refreshToken());
     });
 
     test('should handle token expiring soon', () async {
@@ -322,7 +328,31 @@ void main() {
       expect(isLoggedIn, isTrue);
     });
 
-    test('should handle null token expiry', () async {
+    for (final missingExpiry in [true, false]) {
+      test('rejects ${missingExpiry ? 'missing' : 'expired'} JWT exp when refresh fails, even with a future cache', () async {
+        authService = AuthService(
+          secureStorage: mockSecureStorage,
+          biometricService: mockBiometricService,
+          tokenManager: mockTokenManager,
+        );
+        final invalidToken = AuthFixtures.createAccessToken(
+          includeExpiry: !missingExpiry,
+          expiresAt: DateTime.now().subtract(const Duration(hours: 1)),
+        );
+        when(() => mockSecureStorage.getAccessToken())
+            .thenAnswer((_) async => invalidToken);
+        when(() => mockSecureStorage.getTokenExpiry())
+            .thenAnswer((_) async => AuthFixtures.validTokenExpiry);
+        when(() => mockTokenManager.refreshToken()).thenThrow(
+          TokenRefreshException('Session expired', code: 'SESSION_EXPIRED'),
+        );
+
+        expect(await authService.isLoggedIn(), isFalse);
+        verify(() => mockTokenManager.refreshToken()).called(1);
+      });
+    }
+
+    test('valid JWT expiry remains authoritative when cached expiry is absent', () async {
       // Arrange
       authService = AuthService(
         secureStorage: mockSecureStorage,
@@ -338,8 +368,9 @@ void main() {
       // Act
       final isLoggedIn = await authService.isLoggedIn();
 
-      // Assert - no expiry means we can't validate, so not logged in
-      expect(isLoggedIn, isFalse);
+      // A missing cache does not remove the JWT's validated exp claim.
+      expect(isLoggedIn, isTrue);
+      verifyNever(() => mockTokenManager.refreshToken());
     });
   });
 

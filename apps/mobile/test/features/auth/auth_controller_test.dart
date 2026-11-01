@@ -471,7 +471,7 @@ void main() {
 
     test('should clear token when clearToken is true', () {
       // Arrange
-      const state = AuthState(
+      final state = AuthState(
         status: AuthStatus.authenticated,
         accessToken: AuthFixtures.validAccessToken,
       );

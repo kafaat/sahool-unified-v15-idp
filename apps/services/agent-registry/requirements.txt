@@ -13,15 +13,15 @@ httpx==0.28.1
 redis>=7.1.0,<8.0.0
 
 # Validation
-pydantic==2.13.1
-pydantic-settings==2.14.2
+pydantic==2.14.0
+pydantic-settings==2.15.0
 
 # Environment
-python-dotenv==1.2.2
+python-dotenv==1.2.4
 
 # Logging
 structlog>=24.1.0,<26.0.0
 
 # Testing
-pytest==9.0.3
+pytest==9.1.1
 pytest-asyncio==1.3.0

@@ -6,13 +6,13 @@
 fastapi>=0.115.0,<1.0.0
 starlette>=0.49.1
 uvicorn[standard]>=0.34.0,<1.0.0
-pydantic==2.13.1
+pydantic==2.14.0
 email-validator==2.3.0
 
 # Database (async SQLAlchemy - uses asyncpg)
-sqlalchemy==2.0.49
+sqlalchemy==2.1.4
 asyncpg>=0.30.0,<1.0.0
-alembic==1.18.4
+alembic==1.20.0
 
 # Payment Processing
 stripe==11.3.0
@@ -27,10 +27,10 @@ httpx==0.28.1
 nats-py>=2.6.0,<3.0.0
 
 # Utilities
-python-dotenv==1.2.2
+python-dotenv==1.2.4
 
 # Scheduling (for recurring billing)
-apscheduler==3.11.2
+apscheduler==3.11.3
 
 # Authentication
 PyJWT>=2.10.1,<3.0.0  # CVE-2024-53861
@@ -40,6 +40,6 @@ cryptography>=50.0.2,<51.0.0  # Current security fixes; aligned with central con
 redis>=7.1.0,<8.0.0
 
 # Monitoring
-prometheus-client==0.25.0
+prometheus-client==0.26.0
 
 structlog>=24.1.0

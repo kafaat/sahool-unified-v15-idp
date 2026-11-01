@@ -9,7 +9,7 @@ python-multipart>=0.0.22
 
 # Database
 asyncpg>=0.30.0
-sqlalchemy==2.0.49
+sqlalchemy==2.1.4
 geoalchemy2>=0.15.0
 
 # Messaging
@@ -28,7 +28,7 @@ pillow>=11.0.0
 
 # Geospatial (pinned to constraints.txt)
 rasterio==1.4.4
-shapely==2.1.2
+shapely==2.2.0
 pyproj==3.7.2
 
 # LLM Integration

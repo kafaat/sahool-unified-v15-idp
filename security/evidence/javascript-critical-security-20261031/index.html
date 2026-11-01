@@ -1,0 +1,1484 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>JavaScript critical dependency security — 2026-10-31 - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#javascript-critical-dependency-security-2026-10-31" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              JavaScript critical dependency security — 2026-10-31
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="javascript-critical-dependency-security-2026-10-31">JavaScript critical dependency security — 2026-10-31<a class="headerlink" href="#javascript-critical-dependency-security-2026-10-31" title="Permanent link">&para;</a></h1>
+<p>This evidence records the JavaScript dependency repair based on commit
+<code>ab53c98596daca1740d2ac5a5dbd48db7b24e34f</code>. The repair removes the 16 JavaScript
+CRITICAL findings in the reproduced Trivy baseline and the remaining CRITICAL
+entries found by the final npm audit. It does <strong>not</strong> make the whole dependency
+tree or every application test suite clean.</p>
+<p>The complete results and provenance are in <a href="verification.json">verification.json</a>.
+<a href="source-manifest.json">source-manifest.json</a> identifies the reviewed source bytes,
+including manifests, locks, consumers, tests, and workflow. Documentation and
+generated build output are excluded from that source snapshot. This evidence was
+prepared before the publishing commit; the source hashes, rather than an invented
+final commit ID, identify the candidate.</p>
+<h2 id="changes-and-compatibility-decisions">Changes and compatibility decisions<a class="headerlink" href="#changes-and-compatibility-decisions" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Dependency or consumer</th>
+<th>Candidate</th>
+<th>Reason and validation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Next.js and matching ESLint configuration</td>
+<td>15.5.28</td>
+<td>Patched release within Next 15; exact override and both app declarations agree. Real web production build and native image conversion passed.</td>
+</tr>
+<tr>
+<td>Sentry Next.js integration</td>
+<td>9.47.2</td>
+<td>Retains the existing major version. Tests exercise the actual wrapper with both valid telemetry envelopes and hostile requests.</td>
+</tr>
+<tr>
+<td>MapLibre GL</td>
+<td>6.4.1</td>
+<td>Required patched release. Both direct imports use the supported namespace form; two browser tests exercise the actual map component, rendering, layers, popup text, and attribution sanitization.</td>
+</tr>
+<tr>
+<td>proxy-addr</td>
+<td>2.0.8</td>
+<td>Regenerated affected active and archived lockfiles. Real trust-chain tests cover the vulnerable forwarded-address behavior.</td>
+</tr>
+<tr>
+<td>Storybook packages</td>
+<td>8.6.19</td>
+<td>Keeps Storybook 8. A real Storybook build also verifies the small compiler-selection compatibility fix.</td>
+</tr>
+<tr>
+<td>Handlebars</td>
+<td>At least 4.7.10, below 5</td>
+<td>Root security floor and affected standalone lockfiles; real template/property-access regressions.</td>
+</tr>
+<tr>
+<td>Vitest and coverage packages</td>
+<td>3.2.7</td>
+<td>Matching versions across consumers, retaining Vitest 3.</td>
+</tr>
+<tr>
+<td>Vitest's Tinypool dependency</td>
+<td>2.1.2</td>
+<td>Explicit override scoped to Vitest in the root and standalone code-review-agent manifests. Tests resolve the worker pool from Vitest's own package and run real workers.</td>
+</tr>
+</tbody>
+</table>
+<p>Tinypool 2 is outside Vitest 3's declared <code>^1.1.1</code> dependency range. This is a
+deliberate compatibility decision, not an unnoticed resolver change: the upstream
+2.0 release drops Node 18, while this repository uses Node 20. The repaired worker
+behavior, Vitest execution, and coverage were tested on <strong>Node 20.20.2</strong> with
+<strong>npm 10.9.0</strong>. This does not establish compatibility with every Node 20 patch.
+Published package metadata and upstream advisory responses are retained under
+<a href="metadata/">metadata</a>, including the
+<a href="https://github.com/tinylibs/tinypool/releases/tag/v2.0.0">Tinypool release</a>,
+<a href="https://github.com/advisories/GHSA-85c8-ppgw-ccpr">Tinypool advisory</a>,
+<a href="https://github.com/advisories/GHSA-f2ph-cmg5-wxc8">Storybook advisory</a>, and
+<a href="https://github.com/advisories/GHSA-p8wg-vrv2-v86f">Handlebars advisory</a>.</p>
+<p>The existing local <code>shared-events</code> consumers in chat-service and
+field-management-service use the workspace package path. Their Dockerfiles already
+translate that path for their build contexts. Lock regeneration also reconciles
+pre-existing manifest/lock drift; <a href="receipts/final-lock-semantic-diff.json">the semantic lock diff</a>
+records those additional resolver changes rather than describing every lock edit
+as a security-version substitution.</p>
+<h2 id="security-results-and-their-boundaries">Security results and their boundaries<a class="headerlink" href="#security-results-and-their-boundaries" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Scan</th>
+<th>Actual result</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Final complete root npm audit</td>
+<td><strong>0 critical, 34 high, 88 moderate, 11 low; 133 total</strong></td>
+<td><code>npm audit --audit-level=critical --json</code> exits 0 because the threshold is critical. The other 133 findings remain visible in the complete report.</td>
+</tr>
+<tr>
+<td>Trivy baseline</td>
+<td><strong>26 CRITICAL results</strong></td>
+<td>16 JavaScript findings and 10 Python findings. These are scanner result entries, not a claim of 26 unique CVEs.</td>
+</tr>
+<tr>
+<td>JavaScript branch, same Trivy database</td>
+<td><strong>10 CRITICAL results</strong>, exit 1</td>
+<td>All 16 targeted JavaScript entries are absent. The remaining 10 exactly match the baseline Python findings.</td>
+</tr>
+<tr>
+<td>Python plus JavaScript manifest composition, same database</td>
+<td><strong>0 CRITICAL results</strong>, exit 0</td>
+<td>The composed dependency inputs resolve all 26 original entries. This is a manifest-only projection, not a Git merge, application build, container image, or deployed runtime.</td>
+</tr>
+</tbody>
+</table>
+<p>The final npm report is preserved byte-for-byte in
+<a href="reports/npm-audit-final.json">npm-audit-final.json</a> (150,574 bytes). It includes
+the residual high and moderate findings, including the remaining Vitest advisory;
+there is no whole-tree zero-vulnerability claim.</p>
+<p>The fixed Trivy scan uses <strong>Trivy 0.69.3</strong>, vulnerability scanning only, severity
+<code>CRITICAL</code>, <code>--exit-code 1</code>, and both database/check-update skips. Database SHA-256:</p>
+<div class="codehilite"><pre><span></span><code>d81ea576fbcd02c304b980d8eec4dd1a372648b648bfb876f48790d63ee58f93
+</code></pre></div>
+
+<p>Its recorded <code>UpdatedAt</code> is <code>2026-10-31T13:09:00.83322165Z</code>. The comparison therefore
+controls database drift; it does not predict findings in a future database.
+The original JavaScript scan preserved all 206 dependency input hashes. The
+baseline and combined projections contain those inputs plus 12 supplementary
+dependency metadata files, <strong>218 files total</strong>, and both enumerate 110 language
+inputs. The Python overlay uses commit
+<code>a5372955f0becf5810c46e3159bbaabe741fc8e1</code>, tree
+<code>cd60192df2a3bf39b1fdf0d1f5d17d112fd6349d</code>, with 48 overlay files. Neither worktree
+was modified to create the projection.</p>
+<p>The preserved <a href="trivy/javascript-sixteen-findings-comparison.json">16-finding comparison</a>,
+<a href="trivy/python-js-composite-comparison.json">26-finding comparison</a>,
+<a href="trivy/composite-source-manifest.json">composite source manifest</a>, command receipts,
+and all three SARIF reports provide the exact inputs and outcomes. The combined
+SARIF's empty results array is output from the successful real scan, not a fabricated
+replacement for a failed scanner.</p>
+<h2 id="runtime-and-regression-acceptance">Runtime and regression acceptance<a class="headerlink" href="#runtime-and-regression-acceptance" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Clean root <code>npm ci --ignore-scripts --no-audit --no-fund</code></td>
+<td>Exit 0; 54.651 seconds. This is the actual workspace installation used for final Node 20 checks.</td>
+</tr>
+<tr>
+<td>Security regression module</td>
+<td><strong>31 passed, 0 failed, 0 skipped</strong>; final JUnit retained.</td>
+</tr>
+<tr>
+<td>Chromium browser security/consumer tests</td>
+<td><strong>2 passed</strong>; native WebGL2 and actual MapView/MapLibre, with fixture API and raster tiles.</td>
+</tr>
+<tr>
+<td>shared-hooks with coverage</td>
+<td><strong>60 passed</strong>; coverage report generated.</td>
+</tr>
+<tr>
+<td>shared-ui with coverage</td>
+<td><strong>23 passed</strong>; coverage report generated.</td>
+</tr>
+<tr>
+<td>Final shared package build</td>
+<td>Exit 0; 15.694 seconds.</td>
+</tr>
+<tr>
+<td>Web and Admin TypeScript checks</td>
+<td>Both exit 0.</td>
+</tr>
+<tr>
+<td>Web Next.js production build</td>
+<td>Exit 0; <strong>146.17 seconds</strong>.</td>
+</tr>
+<tr>
+<td>Storybook config-only build</td>
+<td>Exit 0; <strong>17.874 seconds</strong>, with the flag absent from the launch environment and no diagnostic preload.</td>
+</tr>
+<tr>
+<td>Standalone lock consistency</td>
+<td><strong>11/11 frozen npm ci dry-runs passed</strong>, offline, with unchanged lock hashes. These are not eleven independent installations or service deployments.</td>
+</tr>
+<tr>
+<td>Old-package negative control</td>
+<td>Selected behavior cases: <strong>9 failed, 3 passed</strong>, exit 1. The test-name filter intentionally excluded 19 other cases.</td>
+</tr>
+</tbody>
+</table>
+<p>The negative control uses baseline <code>ab53c985</code> and the preserved older packages.
+It covers proxy-addr, Handlebars, the actual Vitest worker pool, and Sentry.
+<code>NODE_PATH</code> supplies the already-installed Next 15.5.14 peer required by the old
+Sentry package; it does not replace the assertions or install candidate packages.
+The receipt and complete selected-run log are retained. This is not a claim that
+every patched package has its own differential exploit test.</p>
+<p>Browser coverage demonstrates the real component under the test Vite server; it
+does not substitute for a full production Next.js browser session. The native
+image regression uses the Sharp instance resolved by Next and performs real image
+conversion rather than merely inspecting its version string.</p>
+<h3 id="storybook-compiler-selection">Storybook compiler selection<a class="headerlink" href="#storybook-compiler-selection" title="Permanent link">&para;</a></h3>
+<p>Both the preserved baseline (Next 15.5.14 / Storybook 8.6.18) and the candidate
+(Next 15.5.28 / Storybook 8.6.19) initially failed. The first cause was external
+Webpack 5.105.4's DefinePlugin requesting
+<code>collectDestructuringAssignmentProperties</code> from Next's bundled Webpack 5.98.0
+parser, which lacks that hook. The later shutdown <code>tap</code> stack was not the cause.</p>
+<p><code>apps/admin/.storybook/main.ts</code> sets <code>NEXT_PRIVATE_LOCAL_WEBPACK=true</code> while loading
+Storybook configuration so its compiler and plugins use the same installed Webpack.
+No global environment, production Next.js script, or dependency policy was changed.
+The final build launched with no inherited flag, used no diagnostic preload, and
+produced 16 stories plus 3 documentation entries. Baseline diagnosis reused the
+preserved old installation, so it is not presented as a fresh baseline npm ci.
+Asset-size and react-leaflet metadata warnings remain in the successful build.</p>
+<h3 id="reports-survive-playwright">Reports survive Playwright<a class="headerlink" href="#reports-survive-playwright" title="Permanent link">&para;</a></h3>
+<p>The browser configuration writes temporary browser output into its own artifact
+directory and places JUnit at the explicit repository report path. The actual
+rerun recorded identical before/after hashes for the npm audit, Node JUnit,
+shared-hooks JUnit, and shared-ui JUnit. The new browser JUnit also exists and
+matches its recorded hash. See
+<a href="receipts/browser-evidence-preservation.json">browser-evidence-preservation.json</a>.
+This verifies that Playwright no longer removes the preceding security evidence.</p>
+<h2 id="application-suites-that-remain-non-clean-on-this-branch">Application suites that remain non-clean on this branch<a class="headerlink" href="#application-suites-that-remain-non-clean-on-this-branch" title="Permanent link">&para;</a></h2>
+<p>These are the results on the JavaScript branch, which does not contain the separate
+frontend contract repair in <a href="https://github.com/kafaat/sahool-unified-v15-idp/pull/1998">PR #1998</a>.
+Do not replace them with the results of that PR.</p>
+<table>
+<thead>
+<tr>
+<th>Consumer</th>
+<th>Final result</th>
+<th>First cause or limitation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Web app</td>
+<td><strong>1293 passed / 19 failed</strong>, plus Sidebar collection error</td>
+<td>Eight existing CSP nonce assertions; tenant/auth/refresh contract drift; missing DatabaseZap mock.</td>
+</tr>
+<tr>
+<td>Admin app</td>
+<td><strong>2513 passed / 2 failed</strong></td>
+<td>Existing dynamic-rendering expectation and FieldCreateDialog endpoint contract.</td>
+</tr>
+<tr>
+<td>chat-service</td>
+<td><strong>278 test cases passed</strong>, process terminated with exit -15</td>
+<td>Jest reported outstanding asynchronous handles after completing the cases. This is not a successful process exit.</td>
+</tr>
+<tr>
+<td>crop-growth-model</td>
+<td><strong>5 passed</strong>, one suite could not compile, exit 1</td>
+<td>Existing health test calls <code>readinessCheck()</code> without its required response argument.</td>
+</tr>
+<tr>
+<td>disaster-assessment</td>
+<td><strong>45 passed</strong>, exit 0</td>
+<td>Actual Jest execution.</td>
+</tr>
+<tr>
+<td>field-management-service</td>
+<td><strong>177 passed / 1 failed</strong>, one further suite compile error, exit 1</td>
+<td>Existing stats expectation and missing required userId arguments in task tests.</td>
+</tr>
+<tr>
+<td>lai-estimation</td>
+<td><strong>8 passed</strong>, exit 0</td>
+<td>Actual Jest execution.</td>
+</tr>
+<tr>
+<td>marketplace-service</td>
+<td><strong>354 passed / 1 failed</strong>, exit 1</td>
+<td>Readiness test expects NATS connected; the test environment reports not_configured.</td>
+</tr>
+<tr>
+<td>yield-prediction</td>
+<td><strong>5 passed</strong>, exit 0</td>
+<td>Actual Jest execution.</td>
+</tr>
+</tbody>
+</table>
+<p>Exact counts, failed case names, error messages, command receipts, and original
+report hashes are in <a href="consumer-test-results.json">consumer-test-results.json</a>.
+Baseline comparisons established the frontend contract drift independently;
+not every service defect received a fresh old-dependency differential run here.
+The CSP helper's deliberate nonce omission is a genuine policy gap retained for
+separate work; this dependency repair neither skips those tests nor weakens them.</p>
+<h2 id="reproduction-and-evidence-integrity">Reproduction and evidence integrity<a class="headerlink" href="#reproduction-and-evidence-integrity" title="Permanent link">&para;</a></h2>
+<p>Use the checked-in JavaScript security workflow for a fresh installation, the
+31-case security module, browser cases, shared coverage, Storybook build, complete
+npm audit output, and evidence upload. The gate fails critical npm findings; it
+does not reinterpret the remaining 133 findings as absent. Existing broader test
+and security policies are not changed by this evidence bundle.</p>
+<p><a href="artifact-manifest.json">artifact-manifest.json</a> maps each retained artifact to its
+original local source, byte count, and SHA-256. The original Trivy receipts also
+record scanner commands, database identity, input hashes, and output hashes.
+The large database itself and generated build directories are not committed.
+Raw <code>.log</code> files are retained byte-for-byte, including their original trailing
+whitespace and blank final lines; their recorded hashes must not be normalized.
+The earlier unstaged <code>git diff --check</code> did not inspect these then-untracked
+artifacts. The staged source/documentation whitespace check passes when the raw
+logs under this evidence directory are explicitly excluded; an unrestricted
+staged check reports the preserved log whitespace.
+Validate the source manifest against the candidate before applying these results
+to a later source revision. No Python policy, uv.lock, Flutter configuration,
+deployment, or frontend test-contract implementation is changed by this JavaScript
+repair.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+    
+  </body>
+</html>

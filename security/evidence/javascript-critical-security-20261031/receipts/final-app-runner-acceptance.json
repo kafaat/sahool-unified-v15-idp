@@ -1,0 +1,64 @@
+[
+  {
+    "label": "final-node20-shared-build",
+    "command": [
+      "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+      "/workspace/scratch/882204c263d7/js-security-tools/node_modules/npm/bin/npm-cli.js",
+      "run",
+      "build:packages"
+    ],
+    "exit_code": 0,
+    "seconds": 15.694,
+    "log_sha256": "21d88051335c1675401718918708dc001cc3db45f26a70fa7e3cd0434738e21b"
+  },
+  {
+    "label": "final-vitest-web",
+    "command": [
+      "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+      "/workspace/scratch/882204c263d7/js-security-tools/node_modules/npm/bin/npm-cli.js",
+      "run",
+      "test",
+      "--workspace=apps/web",
+      "--",
+      "--maxWorkers=2",
+      "--reporter=json",
+      "--outputFile=/workspace/scratch/882204c263d7/js-security-evidence/final-vitest-web.json"
+    ],
+    "exit_code": 1,
+    "seconds": 28.353,
+    "log_sha256": "f5ce62afda94553e5668b22c8176dab38c3c86ea02acb89239cdb83c9a9aba53",
+    "counts": {
+      "numTotalTests": 1312,
+      "numPassedTests": 1293,
+      "numFailedTests": 19,
+      "numPendingTests": 0,
+      "numTotalTestSuites": 440,
+      "numFailedTestSuites": 16
+    }
+  },
+  {
+    "label": "final-vitest-admin",
+    "command": [
+      "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+      "/workspace/scratch/882204c263d7/js-security-tools/node_modules/npm/bin/npm-cli.js",
+      "run",
+      "test",
+      "--workspace=apps/admin",
+      "--",
+      "--maxWorkers=2",
+      "--reporter=json",
+      "--outputFile=/workspace/scratch/882204c263d7/js-security-evidence/final-vitest-admin.json"
+    ],
+    "exit_code": 1,
+    "seconds": 35.654,
+    "log_sha256": "30c11f6f6db90694d4c1cbdd601fafaa9fd16ee1eba5f922367e2e577f8f737c",
+    "counts": {
+      "numTotalTests": 2515,
+      "numPassedTests": 2513,
+      "numFailedTests": 2,
+      "numPendingTests": 0,
+      "numTotalTestSuites": 545,
+      "numFailedTestSuites": 5
+    }
+  }
+]

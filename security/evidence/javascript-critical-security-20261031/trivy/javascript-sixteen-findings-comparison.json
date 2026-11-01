@@ -1,0 +1,389 @@
+{
+  "baseline_total_critical": 26,
+  "baseline_js_critical": 16,
+  "current_total_critical": 10,
+  "current_js_critical": 0,
+  "targeted_findings_resolved": 16,
+  "remaining_exactly_match_baseline_python": true,
+  "scan_exit_code": 1,
+  "database_sha256": "d81ea576fbcd02c304b980d8eec4dd1a372648b648bfb876f48790d63ee58f93",
+  "comparison": [
+    {
+      "id": "CVE-2026-90711",
+      "package": "proxy-addr",
+      "installed_version": "2.0.7",
+      "fixed_versions": "2.0.8",
+      "severity": "CRITICAL",
+      "paths": [
+        "apps/services/chat-service/package-lock.json"
+      ],
+      "current_lock_versions": {
+        "apps/services/chat-service/package-lock.json": [
+          "2.0.8"
+        ]
+      },
+      "still_reported": false,
+      "status": "resolved_in_fixed_db_scan"
+    },
+    {
+      "id": "CVE-2026-90711",
+      "package": "proxy-addr",
+      "installed_version": "2.0.7",
+      "fixed_versions": "2.0.8",
+      "severity": "CRITICAL",
+      "paths": [
+        "apps/services/crop-growth-model/package-lock.json"
+      ],
+      "current_lock_versions": {
+        "apps/services/crop-growth-model/package-lock.json": [
+          "2.0.8"
+        ]
+      },
+      "still_reported": false,
+      "status": "resolved_in_fixed_db_scan"
+    },
+    {
+      "id": "CVE-2026-90711",
+      "package": "proxy-addr",
+      "installed_version": "2.0.7",
+      "fixed_versions": "2.0.8",
+      "severity": "CRITICAL",
+      "paths": [
+        "apps/services/disaster-assessment/package-lock.json"
+      ],
+      "current_lock_versions": {
+        "apps/services/disaster-assessment/package-lock.json": [
+          "2.0.8"
+        ]
+      },
+      "still_reported": false,
+      "status": "resolved_in_fixed_db_scan"
+    },
+    {
+      "id": "CVE-2026-90711",
+      "package": "proxy-addr",
+      "installed_version": "2.0.7",
+      "fixed_versions": "2.0.8",
+      "severity": "CRITICAL",
+      "paths": [
+        "apps/services/field-management-service/package-lock.json"
+      ],
+      "current_lock_versions": {
+        "apps/services/field-management-service/package-lock.json": [
+          "2.0.8"
+        ]
+      },
+      "still_reported": false,
+      "status": "resolved_in_fixed_db_scan"
+    },
+    {
+      "id": "CVE-2026-90711",
+      "package": "proxy-addr",
+      "installed_version": "2.0.7",
+      "fixed_versions": "2.0.8",
+      "severity": "CRITICAL",
+      "paths": [
+        "apps/services/lai-estimation/package-lock.json"
+      ],
+      "current_lock_versions": {
+        "apps/services/lai-estimation/package-lock.json": [
+          "2.0.8"
+        ]
+      },
+      "still_reported": false,
+      "status": "resolved_in_fixed_db_scan"
+    },
+    {
+      "id": "CVE-2026-90711",
+      "package": "proxy-addr",
+      "installed_version": "2.0.7",
+      "fixed_versions": "2.0.8",
+      "severity": "CRITICAL",
+      "paths": [
+        "apps/services/marketplace-service/package-lock.json"
+      ],
+      "current_lock_versions": {
+        "apps/services/marketplace-service/package-lock.json": [
+          "2.0.8"
+        ]
+      },
+      "still_reported": false,
+      "status": "resolved_in_fixed_db_scan"
+    },
+    {
+      "id": "CVE-2026-90711",
+      "package": "proxy-addr",
+      "installed_version": "2.0.7",
+      "fixed_versions": "2.0.8",
+      "severity": "CRITICAL",
+      "paths": [
+        "apps/services/yield-prediction/package-lock.json"
+      ],
+      "current_lock_versions": {
+        "apps/services/yield-prediction/package-lock.json": [
+          "2.0.8"
+        ]
+      },
+      "still_reported": false,
+      "status": "resolved_in_fixed_db_scan"
+    },
+    {
+      "id": "CVE-2026-90711",
+      "package": "proxy-addr",
+      "installed_version": "2.0.7",
+      "fixed_versions": "2.0.8",
+      "severity": "CRITICAL",
+      "paths": [
+        "archive/deprecated-services/community-chat/package-lock.json"
+      ],
+      "current_lock_versions": {
+        "archive/deprecated-services/community-chat/package-lock.json": [
+          "2.0.8"
+        ]
+      },
+      "still_reported": false,
+      "status": "resolved_in_fixed_db_scan"
+    },
+    {
+      "id": "CVE-2026-90711",
+      "package": "proxy-addr",
+      "installed_version": "2.0.7",
+      "fixed_versions": "2.0.8",
+      "severity": "CRITICAL",
+      "paths": [
+        "archive/kernel-legacy/kernel/services/field_core/package-lock.json"
+      ],
+      "current_lock_versions": {
+        "archive/kernel-legacy/kernel/services/field_core/package-lock.json": [
+          "2.0.8"
+        ]
+      },
+      "still_reported": false,
+      "status": "resolved_in_fixed_db_scan"
+    },
+    {
+      "id": "CVE-2026-114139",
+      "package": "@sentry/nextjs",
+      "installed_version": "9.47.1",
+      "fixed_versions": "9.47.2, 10.75.2, 11.0.0-rc.1",
+      "severity": "CRITICAL",
+      "paths": [
+        "package-lock.json"
+      ],
+      "current_lock_versions": {
+        "package-lock.json": [
+          "9.47.2"
+        ]
+      },
+      "still_reported": false,
+      "status": "resolved_in_fixed_db_scan"
+    },
+    {
+      "id": "CVE-2026-85061",
+      "package": "maplibre-gl",
+      "installed_version": "4.7.1",
+      "fixed_versions": "6.4.1",
+      "severity": "CRITICAL",
+      "paths": [
+        "package-lock.json"
+      ],
+      "current_lock_versions": {
+        "package-lock.json": [
+          "6.4.1"
+        ]
+      },
+      "still_reported": false,
+      "status": "resolved_in_fixed_db_scan"
+    },
+    {
+      "id": "CVE-2026-75604",
+      "package": "next",
+      "installed_version": "15.5.14",
+      "fixed_versions": "15.5.24, 16.3.3",
+      "severity": "CRITICAL",
+      "paths": [
+        "package-lock.json",
+        "package-lock.json"
+      ],
+      "current_lock_versions": {
+        "package-lock.json": [
+          "15.5.28"
+        ]
+      },
+      "still_reported": false,
+      "status": "resolved_in_fixed_db_scan"
+    },
+    {
+      "id": "GHSA-2464-fhr4-w9xw",
+      "package": "next",
+      "installed_version": "15.5.14",
+      "fixed_versions": "15.5.28, 16.4.1",
+      "severity": "CRITICAL",
+      "paths": [
+        "package-lock.json",
+        "package-lock.json"
+      ],
+      "current_lock_versions": {
+        "package-lock.json": [
+          "15.5.28"
+        ]
+      },
+      "still_reported": false,
+      "status": "resolved_in_fixed_db_scan"
+    },
+    {
+      "id": "GHSA-2xp9-vwfh-vxw4",
+      "package": "next",
+      "installed_version": "15.5.14",
+      "fixed_versions": "15.5.24, 16.3.3",
+      "severity": "CRITICAL",
+      "paths": [
+        "package-lock.json",
+        "package-lock.json"
+      ],
+      "current_lock_versions": {
+        "package-lock.json": [
+          "15.5.28"
+        ]
+      },
+      "still_reported": false,
+      "status": "resolved_in_fixed_db_scan"
+    },
+    {
+      "id": "CVE-2026-90711",
+      "package": "proxy-addr",
+      "installed_version": "2.0.7",
+      "fixed_versions": "2.0.8",
+      "severity": "CRITICAL",
+      "paths": [
+        "package-lock.json"
+      ],
+      "current_lock_versions": {
+        "package-lock.json": [
+          "2.0.8"
+        ]
+      },
+      "still_reported": false,
+      "status": "resolved_in_fixed_db_scan"
+    },
+    {
+      "id": "CVE-2026-90711",
+      "package": "proxy-addr",
+      "installed_version": "2.0.7",
+      "fixed_versions": "2.0.8",
+      "severity": "CRITICAL",
+      "paths": [
+        "packages/shared-audit/package-lock.json"
+      ],
+      "current_lock_versions": {
+        "packages/shared-audit/package-lock.json": [
+          "2.0.8"
+        ]
+      },
+      "still_reported": false,
+      "status": "resolved_in_fixed_db_scan"
+    }
+  ],
+  "remaining_findings": [
+    {
+      "id": "CVE-2026-68770",
+      "package": "sentence-transformers",
+      "installed_version": "5.4.1",
+      "fixed_versions": "5.6.0",
+      "severity": "CRITICAL",
+      "paths": [
+        "apps/services/ai-advisor/requirements.txt"
+      ]
+    },
+    {
+      "id": "CVE-2026-63374",
+      "package": "anyio",
+      "installed_version": "4.7.0",
+      "fixed_versions": "4.14.2",
+      "severity": "CRITICAL",
+      "paths": [
+        "apps/services/leveling-optimizer-service/requirements.txt"
+      ]
+    },
+    {
+      "id": "CVE-2026-63374",
+      "package": "anyio",
+      "installed_version": "4.12.1",
+      "fixed_versions": "4.14.2",
+      "severity": "CRITICAL",
+      "paths": [
+        "uv.lock"
+      ]
+    },
+    {
+      "id": "GHSA-6q48-6c7w-9gw2",
+      "package": "certifi",
+      "installed_version": "2026.2.25",
+      "fixed_versions": "2026.10.18",
+      "severity": "CRITICAL",
+      "paths": [
+        "uv.lock"
+      ]
+    },
+    {
+      "id": "CVE-2026-112393",
+      "package": "pillow",
+      "installed_version": "11.3.0",
+      "fixed_versions": "13.0.0",
+      "severity": "CRITICAL",
+      "paths": [
+        "uv.lock"
+      ]
+    },
+    {
+      "id": "CVE-2026-112398",
+      "package": "pillow",
+      "installed_version": "11.3.0",
+      "fixed_versions": "13.0.0",
+      "severity": "CRITICAL",
+      "paths": [
+        "uv.lock"
+      ]
+    },
+    {
+      "id": "CVE-2026-112403",
+      "package": "pillow",
+      "installed_version": "11.3.0",
+      "fixed_versions": "13.0.0",
+      "severity": "CRITICAL",
+      "paths": [
+        "uv.lock"
+      ]
+    },
+    {
+      "id": "CVE-2026-112900",
+      "package": "pillow",
+      "installed_version": "11.3.0",
+      "fixed_versions": "13.0.0",
+      "severity": "CRITICAL",
+      "paths": [
+        "uv.lock"
+      ]
+    },
+    {
+      "id": "CVE-2026-96639",
+      "package": "pillow",
+      "installed_version": "11.3.0",
+      "fixed_versions": "13.0.0",
+      "severity": "CRITICAL",
+      "paths": [
+        "uv.lock"
+      ]
+    },
+    {
+      "id": "CVE-2026-102268",
+      "package": "pyjwt",
+      "installed_version": "2.11.0",
+      "fixed_versions": "2.14.0",
+      "severity": "CRITICAL",
+      "paths": [
+        "uv.lock"
+      ]
+    }
+  ]
+}

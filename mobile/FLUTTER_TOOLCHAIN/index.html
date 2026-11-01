@@ -1,0 +1,1328 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>Flutter toolchain compatibility - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#flutter-toolchain-compatibility" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Flutter toolchain compatibility
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="flutter-toolchain-compatibility">Flutter toolchain compatibility<a class="headerlink" href="#flutter-toolchain-compatibility" title="Permanent link">&para;</a></h1>
+<p>Use <strong>Flutter 3.44.9, stable archive, with Dart 3.12.2</strong> for the existing mobile
+applications and shared core. All four actual pubspecs declare Dart
+<code>&gt;=3.10.0 &lt;3.13.0</code> and Flutter <code>&gt;=3.44.9</code>; CI, release, and preview workflows pin
+the exact validated Flutter version. The primary <code>apps/mobile/pubspec.yaml</code>
+Flutter minimum is the source checked by the workflow drift tests.</p>
+<h2 id="why-this-version">Why this version<a class="headerlink" href="#why-this-version" title="Permanent link">&para;</a></h2>
+<p>The old Flutter 3.27.1 / Dart 3.6.0 workflow cannot resolve the primary app:
+its SDK localization package pins <code>intl 0.19.0</code>, while the app requires
+<code>intl ^0.20.2</code>. The original primary lock also already requires Dart 3.10.
+Downgrading only intl would leave these toolchain requirements inconsistent.</p>
+<p>Flutter 3.44.9 supplies <code>intl 0.20.2</code> and matches the original primary lock's
+SDK-pinned test dependencies. Resolving that app changes only the lock's SDK
+constraints; it does not upgrade its package versions. The secondary field app
+and shared core now use the same <code>intl ^0.20.2</code> constraint. The field-app lock
+updates the SDK-selected packages and the compatible calendar version.</p>
+<p>This is an <strong>archived compatibility baseline</strong>, not a claim that 3.44.9 is the
+latest Flutter release or receives the newest hotfixes. Flutter 3.47.9 /
+Dart 3.13.7 was also tested. Pub resolution succeeded, but actual code generation
+failed in analyzer 7.6.0 on <code>DotShorthandPropertyAccessImpl</code> while reading the
+Dart 3.13 SDK, then stalled with pending actions. That process was stopped after
+309 seconds. A targeted analyzer/Riverpod patch resolution did not remove the
+existing generator constraints. The explicit Dart upper bound rejects that
+known incompatible combination early.</p>
+<p>Freezed 2.x, Riverpod 2.x, Drift, SQLite 2.x and SQLCipher remain in their
+existing dependency families. A newer SDK migration must validate those
+generators and the encrypted database integration together; this repair does
+not change storage behavior or Python requirements.</p>
+<h2 id="android-and-source-compatibility">Android and source compatibility<a class="headerlink" href="#android-and-source-compatibility" title="Permanent link">&para;</a></h2>
+<p>Both Android applications use AGP 8.12.2, Kotlin 2.2.20, Gradle 8.14,
+Java 17 and compile SDK 36. These satisfy the already-declared
+<code>sensors_plus 7.0.0</code> minimums (AGP 8.12.1, Kotlin 2.2.0 and Gradle 8.13).
+The NDK and signing/deployment configuration are unchanged. The Android build
+must still pass in the existing GitHub runner; local validation does not claim
+an APK was built.</p>
+<p>Source migrations use <code>CardThemeData</code>, <code>DialogThemeData</code> and <code>TabBarThemeData</code>
+with the same property values, generate field-app localizations into
+<code>lib/generated/l10n</code>, and import that source instead of the removed synthetic
+<code>package:flutter_gen</code>. Existing API tests name callbacks whose invocation is
+used, because <code>_</code> is now a non-binding Dart wildcard. Small invalid export and
+logger-call defects found by real compilation are corrected without changing
+their runtime policy.</p>
+<h2 id="reproduce-the-checks">Reproduce the checks<a class="headerlink" href="#reproduce-the-checks" title="Permanent link">&para;</a></h2>
+<p>From the repository root, install Flutter 3.44.9 and use its bundled Dart.
+CI installs <code>libsqlite3-dev</code> before native SQLite tests.</p>
+<div class="codehilite"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>pytest<span class="w"> </span>-q<span class="w"> </span>tests/unit/test_flutter_toolchain_consistency.py
+<span class="nb">cd</span><span class="w"> </span>apps/mobile
+flutter<span class="w"> </span>pub<span class="w"> </span>get<span class="w"> </span>--enforce-lockfile
+dart<span class="w"> </span>run<span class="w"> </span>build_runner<span class="w"> </span>build<span class="w"> </span>--delete-conflicting-outputs
+flutter<span class="w"> </span><span class="nb">test</span><span class="w"> </span>test/unit/<span class="w"> </span>test/widget/<span class="w"> </span>test/integration/
+flutter<span class="w"> </span>analyze<span class="w"> </span>--no-fatal-infos
+</code></pre></div>
+
+<p>Resolve the committed application locks in <code>apps/mobile/sahool_field_app</code> and
+<code>apps/mobile/sahool_app</code> with <code>flutter pub get --enforce-lockfile</code> too. Resolve
+the shared library in <code>packages/sahool-mobile-core</code> with <code>flutter pub get</code>.
+The Test Suite workflow checks all four resolutions. Run code generation in
+the field app and core before their analysis or tests. Generated fixture and
+localization output is reproduced by these tools; unrelated generated-file
+formatting changes are not part of this repair.</p>
+<p>The Python guard checks all four SDK/intl declarations, all three application
+locks, every Flutter setup action in the root and standalone app workflows,
+reusable-workflow defaults and overrides, and the Dart 3.13 exclusion. Negative
+cases prove that stale, floating, shadowed and inconsistent pins are rejected.
+The native Dart compatibility test imports the real application route graph
+and core exports and checks that migrated theme styles are preserved.</p>
+<h2 id="validation-limits">Validation limits<a class="headerlink" href="#validation-limits" title="Permanent link">&para;</a></h2>
+<p>The primary unit/widget/integration selection passed <strong>664 tests</strong> on Flutter
+3.44.9. A separate focused run including the new native compile/theme checks
+and existing logger/config tests passed <strong>69 tests</strong> (overlapping the previous
+selection). The four migrated API-test files passed <strong>45 tests</strong>. Root, field
+and shared-core code generation succeeded. All three application lockfiles
+passed enforced resolution without changing their bytes. The SDK drift guard
+passed <strong>17 cases</strong>.</p>
+<p>Final root/field analysis has <strong>zero errors</strong>, with 1,651 warnings and 1,600
+informational findings; the unmasked command still exits 1 because of warnings.
+The unified app has zero errors, four warnings and 13 informational findings.
+Standalone shared-core analysis still has 219 errors (178 in library sources),
+including conflicting exports, missing helpers and copied integration-test
+imports. Those broader library defects are outside this toolchain repair.</p>
+<p>The full field-app run, before renaming the four API-test callbacks, recorded
+4,683 passes and 20 failures. Four failures were compilation of those test files
+and are covered by the passing 45-test rerun. The other 16 concern the tenant
+default assertion, asynchronous notifier disposal and a network-dependent HTTP
+expectation. They are retained as explicit follow-up findings, not skipped or
+reported as passing. Root workflow validation passes; the two standalone nested
+workflows retain existing deprecated-action findings.</p>
+<p>An actual <code>flutter build web --release --no-pub</code> failed because the existing
+application route graph imports <code>drift/native.dart</code>, <code>sqlite3</code> and SQLCipher,
+which require <code>dart:ffi</code>. That native-storage chain is unavailable on web.
+<code>deploy-preview.yml</code> and <code>lighthouse-ci.yml</code> contain web consumers; aligning
+their SDK pin does not repair this separate platform limitation. No storage
+fallback, encryption change, deployment, or masked successful build is added.</p>
+<h2 id="first-github-ci-results-and-r8-configuration-correction">First GitHub CI results and R8 configuration correction<a class="headerlink" href="#first-github-ci-results-and-r8-configuration-correction" title="Permanent link">&para;</a></h2>
+<p>The first PR run tested head
+<code>c40ebd50c809652b5e04541fb6b04aa9057b9958</code> through merge
+<code>be8071b360971666c18a0b9ba8a7e7779dda336f</code>. The
+<a href="https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41238802657/job/124648282519">Test Suite mobile job</a>
+passed <strong>564 unit, 41 widget and 61 integration tests (666 total)</strong> after code
+generation and successful lock resolution. These CI counts are separate from
+the earlier local runs above.</p>
+<p>The <a href="https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41238802797/job/124648999694">primary Android build</a>
+failed before APK compilation while applying <code>com.android.application</code>:
+AGP rejected <code>android.enableR8</code>, which was removed in AGP 7.0, and
+<code>assembleDebug</code> exited <strong>1</strong>. The obsolete <code>android.enableR8=true</code> option is
+removed from both applications' <code>gradle.properties</code>. R8 has been the
+<a href="https://developer.android.com/build/releases/agp-3-4-0-release-notes?hl=en">default shrinker since AGP 3.4</a>,
+so no replacement opt-in is needed. Both <code>android.enableR8.fullMode=true</code>
+settings and the existing shrinking/ProGuard configuration are preserved.
+An APK build after this correction remains unverified until GitHub CI completes.</p>
+<p>The <a href="https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41238802809/job/124650681151">field-app Android build</a>
+also failed with <strong>exit 1</strong> on the same removed <code>android.enableR8</code> option.
+Its failure is covered by removing that property from the field application's
+configuration alongside the primary application.</p>
+<p>The <a href="https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41238802797/job/124648999729">iOS build</a>
+also exited <strong>1</strong>. While adding Swift Package Manager integration, Xcode rejected
+the <code>flutter_native_splash</code> public headers (<code>include</code>) directory as invalid or
+outside the target. The existing <code>continue-on-error: true</code> setting on the build
+step makes the job appear successful; it does not demonstrate a successful iOS
+build.</p>
+<p>Flutter 3.44 enables SwiftPM by default. Both existing iOS applications lock
+<code>flutter_native_splash 2.4.4</code>, whose Swift package lacks the public-header layout
+required by that build path. To preserve their customized Podfiles, both apps
+now explicitly set <code>flutter.config.enable-swift-package-manager: false</code>, the
+<a href="https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers#turn-off-swiftpm-for-a-single-project">documented per-project CocoaPods option</a>.
+This is a compatibility setting for Flutter 3.44.9 until the splash plugin and
+the full native dependency graph are validated with SwiftPM. The package
+<a href="https://pub.dev/packages/flutter_native_splash/changelog">changelog records SwiftPM fixes in 2.4.5</a>.
+Podfiles, Xcode projects and package versions are unchanged. The drift guard
+rejects a missing, enabled or string-valued SwiftPM override in either app.
+The earlier iOS failure remains the actual CI result until a new build proves
+this correction; local manifest acceptance is not an iOS build.
+The extended guard passed <strong>23 cases</strong>. Flutter 3.44.9 accepted both project
+manifests with <code>flutter pub get --offline --enforce-lockfile</code>; all three app
+lockfile hashes remained unchanged. This used the project setting without
+changing the user's global Flutter configuration.</p>
+<p>The <a href="https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41238802797/job/124648999718">wider primary test job</a>
+recorded <strong>2,703 passes and 6 failures</strong>. The
+<a href="https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41238802809/job/124649223327">full field-app test job</a>
+recorded <strong>4,729 passes and 15 failures</strong>, although its existing <code>tee</code> pipeline
+reported job success. These failures remain recorded; the R8 correction does
+not alter tests or their execution policy.</p>
+<h2 id="primary-references">Primary references<a class="headerlink" href="#primary-references" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://docs.flutter.dev/install/archive">Flutter SDK archive</a> and
+  <a href="https://storage.googleapis.com/flutter_infra_release/releases/releases_linux.json">official Linux release metadata</a></li>
+<li><a href="https://github.com/flutter/flutter/blob/3.44.9/packages/flutter_localizations/pubspec.yaml">Flutter 3.44.9 localization dependencies</a></li>
+<li><a href="https://github.com/flutter/flutter/blob/3.44.9/packages/flutter_test/pubspec.yaml">Flutter 3.44.9 test dependencies</a></li>
+<li><a href="https://docs.flutter.dev/release/breaking-changes/component-theme-normalization">Flutter component theme migration</a></li>
+<li><a href="https://docs.flutter.dev/release/breaking-changes/flutter-generate-i10n-source">Flutter localization source migration</a></li>
+<li><a href="https://pub.dev/packages/sensors_plus/versions/7.0.0">sensors_plus 7.0.0 requirements</a></li>
+<li><a href="https://developer.android.com/build/releases/agp-8-12-0-release-notes">Android Gradle Plugin 8.12 compatibility</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+    
+  </body>
+</html>

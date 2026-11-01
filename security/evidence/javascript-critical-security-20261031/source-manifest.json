@@ -1,0 +1,209 @@
+{
+  "schema_version": 1,
+  "captured_at_utc": "2026-10-31T20:41:51.796753+00:00",
+  "repository": "kafaat/sahool-unified-v15-idp",
+  "base_commit": "ab53c98596daca1740d2ac5a5dbd48db7b24e34f",
+  "worktree_head": "ab53c98596daca1740d2ac5a5dbd48db7b24e34f",
+  "source_kind": "pre-publish working-tree snapshot",
+  "scope": "All tracked changes against base and new JavaScript security workflow/tests/browser fixtures; excludes every docs/ path and generated build/dependency/report directories.",
+  "files": [
+    {
+      "path": ".github/workflows/javascript-critical-security.yml",
+      "sha256": "da159744a76c6e727aefca858d7c212be8f946da4497c85a3d108153e2491789",
+      "bytes": 4379,
+      "base_sha256": null
+    },
+    {
+      "path": "apps/admin/.storybook/main.ts",
+      "sha256": "bcc4e73c11808aff41e6550e955f533536775a5a0599d90c61f04e88637d1325",
+      "bytes": 871,
+      "base_sha256": "5df466139abfcf38285889a24cc165baeadf99adaf2a1e0c68b9543c179ba919"
+    },
+    {
+      "path": "apps/admin/package.json",
+      "sha256": "7ea5cef662ff21e1d67c6f47d4a1c6538be0be9ff12919a22f8dd4978199ddb0",
+      "bytes": 2666,
+      "base_sha256": "f662a42e7e44f807a995f6d97fedbb8380d3015a0596b26fb5d30b7e578c8739"
+    },
+    {
+      "path": "apps/services/chat-service/package-lock.json",
+      "sha256": "3d61021393e9ad8dedbbece38f5e5174fe9921693b1379431d524facc6eb06d2",
+      "bytes": 418411,
+      "base_sha256": "8a900121535f28740cbdbb228bd9cfc3cfa9c26fd7a20a05c8a116247ac9a58c"
+    },
+    {
+      "path": "apps/services/chat-service/package.json",
+      "sha256": "c19750ec865258bb3a0a770d466163d5d8ac4573aacd71b4119afd4e6c523441",
+      "bytes": 1783,
+      "base_sha256": "67e44d41aa0b8688fd74db5cd7794ff6a37c6d2f98b74bcb7d7eef5e3c47c351"
+    },
+    {
+      "path": "apps/services/code-review-agent/package-lock.json",
+      "sha256": "15bbc8cbffbac39fd4cf3fc51f7bcaec5e29471d60cbe5a119c7cf60942c6314",
+      "bytes": 154504,
+      "base_sha256": "5155fd618c016c783f9ed4cf9d408135d21204c1f3bfaba752bc27268bf73d07"
+    },
+    {
+      "path": "apps/services/code-review-agent/package.json",
+      "sha256": "ec4908ad83035e765c34077d26386e01262e5d6182d4327da001daabd7d543fe",
+      "bytes": 1327,
+      "base_sha256": "bdf4fbd370258fb9c23db9508e9b1ae983fa2710c9e06a9dc0d12f452c6b90b9"
+    },
+    {
+      "path": "apps/services/crop-growth-model/package-lock.json",
+      "sha256": "f7763c88c615aa3c2f3f16a7a08ef900621a81d05cf059e14696e48ad57dc8d6",
+      "bytes": 316681,
+      "base_sha256": "e131d9c00d5d56f061104f1feaf947b7e68d5a94bc1197589c947695a4bfd68e"
+    },
+    {
+      "path": "apps/services/disaster-assessment/package-lock.json",
+      "sha256": "4fc44d7842f3280fb52e745536e2c927e673d8698fd11f772f59d35be142fd3d",
+      "bytes": 309832,
+      "base_sha256": "afdcc6ace4d4c562b8eeef30faa347da8473bf4b010226dbcbb48b6a1f508854"
+    },
+    {
+      "path": "apps/services/field-management-service/package-lock.json",
+      "sha256": "95f1d3313907a49daf5510ced4efc67ec141de3a6fb74a8528cb378f2b355b36",
+      "bytes": 317529,
+      "base_sha256": "2b2b768a4b72005cf98503dce16351c773ae57ad3fcda6aca1acd674cf328b32"
+    },
+    {
+      "path": "apps/services/field-management-service/package.json",
+      "sha256": "dacb657d017f05068c8fe20cd7be1f2a46bbfd6f92aefff98632130046efe375",
+      "bytes": 1897,
+      "base_sha256": "f868bd74fc8af8d5d59e5386906b874442a2a1c43d6ebd6c9a215af15f9f252b"
+    },
+    {
+      "path": "apps/services/lai-estimation/package-lock.json",
+      "sha256": "0472d44bc60446b13355cc66f1ef33242c2c94b87e77bc8a525abf1f0cb7b4ae",
+      "bytes": 316471,
+      "base_sha256": "296ab911e08106a9f2c4196626e0a7842e4fd3775c6ba4c279db06d7c7dd5062"
+    },
+    {
+      "path": "apps/services/marketplace-service/package-lock.json",
+      "sha256": "3fe723e61d373039b52532c2b046690e83dc1696a617f53ef78222f370334996",
+      "bytes": 307487,
+      "base_sha256": "b957661b218f35ab44c197f07bcb4efdc17183b7032a3780c2483605709a2b7f"
+    },
+    {
+      "path": "apps/services/yield-prediction/package-lock.json",
+      "sha256": "985462d6cd077f4b599d904ec9308cb5da9e731f13b81819ea0b7caaf30d6572",
+      "bytes": 301230,
+      "base_sha256": "ea8a14b88347d7f7bea496570c6ad1ee31dac7da082d2663aa597cff51e39107"
+    },
+    {
+      "path": "apps/web/package.json",
+      "sha256": "2bddd6cb098759ffc5bca5f37c0e6906eeb0f077cb9d2f70b385fc47315b8082",
+      "bytes": 3203,
+      "base_sha256": "573240312d0d2038ceadf1b4fcdd5055dba4f97bcc844f283ab0cf0d0bde2d7a"
+    },
+    {
+      "path": "apps/web/src/components/dashboard/MapView.tsx",
+      "sha256": "c467ab7fb1e5e7e293b6fd9d9b02b9b0db508644d235712579cf80689a44c13d",
+      "bytes": 17008,
+      "base_sha256": "261f26b6225bbb127fca2b72605898a861a334baa5ba018a26a85b4347e9c32c"
+    },
+    {
+      "path": "apps/web/src/features/fields/examples/NdviTileLayerExample.tsx",
+      "sha256": "b9b0d49cb9eb3e6440c49aadf00d93f8af7b28495285353c0d1c5cf215ec9a2e",
+      "bytes": 14170,
+      "base_sha256": "49455f3d8dcdc154664e350a6f394a49c78b654d4e8c5583d5fec3f87df936f0"
+    },
+    {
+      "path": "archive/deprecated-services/community-chat/package-lock.json",
+      "sha256": "5304d7daf354792eca1dc2674a3b27abe800487b145d549cf0178abc7ecb986b",
+      "bytes": 207573,
+      "base_sha256": "e77b7e074e73f93aed3f1e9d380c8dd83b2937b740a6cd783629d3fa6a44ce27"
+    },
+    {
+      "path": "archive/kernel-legacy/kernel/services/field_core/package-lock.json",
+      "sha256": "3120016fae697f7b923585730b289b43b85f41e6401ea50985ac98fb63c7873a",
+      "bytes": 110366,
+      "base_sha256": "4c8b58a9f13f2e4a605d0a950f3128ea4c95f912a72096358267ea5e7812287a"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "4efcc25c1d00362b6ffcb042d8bba7176a85aa99edc178fe59ba9187a92bc86a",
+      "bytes": 986007,
+      "base_sha256": "9b0c80a351358bafc145ec73b11c768f3c370fe04bb0cb4b7169f1081ba96b5e"
+    },
+    {
+      "path": "package.json",
+      "sha256": "236069ccdb797ef6df7df635fc3e7bc7e59a86507013a46b284df061d648fb84",
+      "bytes": 5107,
+      "base_sha256": "a9a1a2ff19dc7bcfc65b4c5719b8be7e250f068d636bf4e472ea83e769000fdb"
+    },
+    {
+      "path": "packages/shared-audit/package-lock.json",
+      "sha256": "ace8ccaf61d2ab865c662140df333252bb0d5469a4ac133b613b9ced322d93e3",
+      "bytes": 57801,
+      "base_sha256": "edb1bb2eff079ae9e5e80291fbd8c6661cc02f45884de768aa42e9e7d9ecbb8e"
+    },
+    {
+      "path": "packages/shared-hooks/package.json",
+      "sha256": "1538ae4a1b45b94dd0797bca2d0c808fd4e095dc512ab3b4b5cb82c257805cf0",
+      "bytes": 1461,
+      "base_sha256": "b8c0368c2ee26a0b4286061df6ae0e13f7c954e8ee5cf70bb6991f597d4e8214"
+    },
+    {
+      "path": "packages/shared-ui/package.json",
+      "sha256": "f4496d702b2ec5662556382c71c7a365f51e5ff78ec09988c1e5b3832082c3bb",
+      "bytes": 1368,
+      "base_sha256": "c482e74fe37a157282ef8a26d36463f015a517d0f4190a4a6501a44778ad2100"
+    },
+    {
+      "path": "packages/shared-utils/package.json",
+      "sha256": "a03170fe5d3f26fe59a4b9ca7e3b553e2a36c293410df926d2a55bfbac93761d",
+      "bytes": 1130,
+      "base_sha256": "b9366c63c53e6bd3a54b1ac52eafed259e0c119fed116de7cc6060ad87682ebc"
+    },
+    {
+      "path": "tests/security/browser/api.ts",
+      "sha256": "556ea5fb4c3974143bce0fd0c2aad73fb9328f6fdafa9f357e2e1d7879745e6d",
+      "bytes": 196,
+      "base_sha256": null
+    },
+    {
+      "path": "tests/security/browser/fixture.tsx",
+      "sha256": "eaf448721fb4c68fbe591609b719b683b7e3c1862c68781972b9a353b907aa1f",
+      "bytes": 2745,
+      "base_sha256": null
+    },
+    {
+      "path": "tests/security/browser/index.html",
+      "sha256": "c0c5de613ac22c94a369118088963ada198ec73f900f23785b8d817a65c919e9",
+      "bytes": 211,
+      "base_sha256": null
+    },
+    {
+      "path": "tests/security/browser/maplibre.spec.ts",
+      "sha256": "27214b86e795f8a70cc54c8194300e583e30ee5ad95c205337b4aceb8121e3dd",
+      "bytes": 3764,
+      "base_sha256": null
+    },
+    {
+      "path": "tests/security/browser/style.css",
+      "sha256": "8ceba7875393793fb8cabefcea7d9622861816f217f962af3b2bd9e780c3dfa8",
+      "bytes": 310,
+      "base_sha256": null
+    },
+    {
+      "path": "tests/security/browser/vite.config.mts",
+      "sha256": "a5c020f643de66cfafb20c884400c3735dece15221819be1623d98f84124a794",
+      "bytes": 1224,
+      "base_sha256": null
+    },
+    {
+      "path": "tests/security/javascript-browser.playwright.config.ts",
+      "sha256": "f4ec824ad565bca3a6045f808a06e3e5a312583551002b0277d13a6b469c66a0",
+      "bytes": 1105,
+      "base_sha256": null
+    },
+    {
+      "path": "tests/security/javascript-dependencies.test.cjs",
+      "sha256": "2b1c5caf7fa31c1ee2054c0e969772c0bd69723a05136fa41e644738bcb1fdb1",
+      "bytes": 9090,
+      "base_sha256": null
+    }
+  ]
+}

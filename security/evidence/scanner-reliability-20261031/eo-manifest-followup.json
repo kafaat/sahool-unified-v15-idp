@@ -1,0 +1,495 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-10-31T20:51:01.236861+00:00",
+  "pull_request": 2000,
+  "reviewed_head": "f99f4efa54dae4e444d8d503c74611a0db07cb06",
+  "diagnosis": {
+    "run_url": "https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41240402099",
+    "job_url": "https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41240402099/job/124652919355",
+    "failure": {
+      "status": "BLOCKED",
+      "reason": "Input hash mismatch: requirements.txt",
+      "exit_code": 2
+    },
+    "cause": "Two explanatory comments were added to requirements.txt; numpy==2.5.4 and the independent Python3.12 tool policy were unchanged, but its pinned content hash was not refreshed."
+  },
+  "manifest_rule": {
+    "source": "tools/eo-validation/README_AR.md and run_checks.py:verify_manifest",
+    "contract": "Compute and verify every registered input/code SHA256 before and after execution; exact unit IDs, independent-case IDs and run identity are mandatory. The manifest is an integrity record, not an external signature.",
+    "authorization": "Reviewed requirement-comment change; no secret, signed value or external approval token is required by this manifest format."
+  },
+  "change": {
+    "only_source_file": "tools/eo-validation/manifest.json",
+    "only_json_field": "files.requirements.txt",
+    "old_requirement_sha256": "738071c1d9633f276433ad6738de256d2bf0d22f66dc4bd3179012bebb63bdd1",
+    "new_requirement_sha256": "0fd94e6eeb2a0c707d7bffc43ce7226de120dc8b093463852f41cc3d8454a245",
+    "old_manifest_sha256": "9c57624f1f3afd518f917b47fb88bbc5bec731f0835a6571cf0447cf3ddb7f59",
+    "new_manifest_sha256": "32b3bd64e4be3a678fca54c693214695f3d3f965dc92fc12a595f7146886baea",
+    "manifest_revision_unchanged": 5,
+    "all_other_registered_input_hashes_unchanged": true,
+    "registered_inputs": 40,
+    "guard_data_dependencies_and_expected_tests_unchanged": true
+  },
+  "procedure": [
+    "Reproduced the repository failure with the unchanged official runner in an isolated Python3.12 environment.",
+    "Copied the exact current package into a temporary validation directory and changed only that copy of the requirements hash.",
+    "Ran the official gate successfully on that isolated candidate before changing the repository manifest.",
+    "Updated the repository manifest requirements hash only, then reran the unchanged official gate in the real worktree with a new external output directory."
+  ],
+  "environment": {
+    "python": "3.12.14",
+    "numpy": "2.5.4",
+    "ruff": "0.15.11",
+    "separate_environment": "/workspace/scratch/882204c263d7/eo-manifest-followup/venv",
+    "setup_receipts": [
+      {
+        "label": "create-venv",
+        "command": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+          "venv",
+          "--python",
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+          "/workspace/scratch/882204c263d7/eo-manifest-followup/venv"
+        ],
+        "exit_code": 0,
+        "seconds": 0.01217724299931433
+      },
+      {
+        "label": "install-exact-dependencies",
+        "command": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+          "pip",
+          "install",
+          "--python",
+          "/workspace/scratch/882204c263d7/eo-manifest-followup/venv/bin/python",
+          "-r",
+          "/workspace/scratch/882204c263d7/security-scan-fix/tools/eo-validation/requirements.txt",
+          "ruff==0.15.11"
+        ],
+        "exit_code": 0,
+        "seconds": 0.7702222139996593
+      }
+    ]
+  },
+  "before": {
+    "label": "before",
+    "command": [
+      "/workspace/scratch/882204c263d7/eo-manifest-followup/venv/bin/python",
+      "-B",
+      "/workspace/scratch/882204c263d7/security-scan-fix/tools/eo-validation/run_checks.py",
+      "--output-dir",
+      "/workspace/scratch/882204c263d7/eo-manifest-followup/before-output"
+    ],
+    "exit_code": 2,
+    "seconds": 0.04530686599900946,
+    "log_sha256": "6ba459edd8b7f02be98c1237c49fb82f649f2a5d6ac656cf615bd81a7ea36c5c",
+    "manifest_sha256": "9c57624f1f3afd518f917b47fb88bbc5bec731f0835a6571cf0447cf3ddb7f59"
+  },
+  "isolated_candidate": {
+    "label": "isolated-candidate",
+    "command": [
+      "/workspace/scratch/882204c263d7/eo-manifest-followup/venv/bin/python",
+      "-B",
+      "/workspace/scratch/882204c263d7/eo-manifest-followup/reviewed-candidate-package/run_checks.py",
+      "--output-dir",
+      "/workspace/scratch/882204c263d7/eo-manifest-followup/isolated-candidate-output"
+    ],
+    "exit_code": 0,
+    "seconds": 1.9640705839992734,
+    "log_sha256": "01f5169c25fdbf0cf7a376f8ad77413569ae7f0a9cffc8ba575e17e460d31709",
+    "manifest_sha256": "32b3bd64e4be3a678fca54c693214695f3d3f965dc92fc12a595f7146886baea"
+  },
+  "after": {
+    "label": "repository-after",
+    "command": [
+      "/workspace/scratch/882204c263d7/eo-manifest-followup/venv/bin/python",
+      "-B",
+      "/workspace/scratch/882204c263d7/security-scan-fix/tools/eo-validation/run_checks.py",
+      "--output-dir",
+      "/workspace/scratch/882204c263d7/eo-manifest-followup/repository-after-output"
+    ],
+    "exit_code": 0,
+    "seconds": 1.60924212300597,
+    "log_sha256": "353f50744c73c4f737ed8c61dd88487e8295734c513587477fe4d8d53f0c2720",
+    "manifest_sha256": "32b3bd64e4be3a678fca54c693214695f3d3f965dc92fc12a595f7146886baea"
+  },
+  "result": {
+    "status": "PASSED_OFFLINE_RESEARCH_ONLY",
+    "production_approved": false,
+    "run_id": "73cc3810466d4125ba1cfe4d3862c25e",
+    "stages": [
+      {
+        "stage": "unit",
+        "exit_code": 0,
+        "receipt_valid": true
+      },
+      {
+        "stage": "independent",
+        "exit_code": 0,
+        "receipt_valid": true
+      }
+    ],
+    "python": "3.12.14",
+    "numpy": "2.5.4",
+    "input_sha256": {
+      ".gitignore": "22bc478fc0eb97818e8c2efd9a6c8f9dce55490bdd8074a3f2b6b8653c5c12d5",
+      "README_AR.md": "ed3f470fa8c6c2f092a1fc9791a4e30ad4383903196dad9e15aefbe3aad035e5",
+      "encoding_guard/guard.py": "765dda6019efa00e6f60f69fd8f452ae7e79c99cf5e3bfba74fe2d2b05d00e07",
+      "encoding_guard/test_guard.py": "583fe6449c83aead2a6e629ca9901abb087fec9c826a9ac28385cda1b42f3515",
+      "encoding_guard_review/review.py": "5eed60e223f53297c62716963c2bca30b6be52e5a6546ac03fd68d7e68e42a4c",
+      "expected_tests.json": "21eeb675fe4d5f745413a4430759f5848638bc9a4e3c768e3542210eaecf457e",
+      "requirements.txt": "0fd94e6eeb2a0c707d7bffc43ce7226de120dc8b093463852f41cc3d8454a245",
+      "run_checks.py": "fc3d3cd62eb12912b7ef0a698dbe59790a6503aef0fb868e2cc9d837f4d95a03",
+      "test_runner.py": "23a4828c4d0d1ea7ab69b17e237af9f86ef8baf8522a93c2b7fadbf57cf185f8",
+      "unit_harness.py": "df10a01052a342f08171f936192189f767c6b21f349e6ed6a7a44c0a6878daa8",
+      "yemen/c1_item.json": "cc72bac2c4ece47dcfd45d8b0c3a5e86aa3d3347664156729605d3f0f972f03d",
+      "yemen/c1_nir.npz": "376952b3ff57ec55aee1b9e1d0ecdbab88a0d06a7ab3a1a440bccb9e6e74e76f",
+      "yemen/c1_red.npz": "d9e144b5fcb1dd639fd0945b7e691fbfc3a29c75ecc991715c078d9196ffe81a",
+      "yemen/c1_scl.npz": "f320270dba0610800517f22f21ef8eba13948779b74d6e04a400f244f1d61b12",
+      "yemen/old_item.json": "201b3e79a732034dadfaffbbce51bde492bb743e5d035386f39ebe9aec03e8af",
+      "yemen/old_nir.npz": "32c9a9a6740bbc0be540101338b75a6e3378ed3c90dab52d2d38f2b23a4e4ca4",
+      "yemen/old_red.npz": "c65775907c44e2ea4c34e01b406fd815bdf24ab18ad649664906f9b3f913eef1",
+      "yemen/old_scl.npz": "f320270dba0610800517f22f21ef8eba13948779b74d6e04a400f244f1d61b12",
+      "yemen/window_metadata.json": "1bcaf8939afb6fc0a7723aaa0417c49db8f880f83ac8363ca9c5b7d0b780a712",
+      "yemen/yemen_comparison.json": "924f3e48793a9524bbcc13d26077a599a124e3e8b4363c3557a3f4608ddf6d78",
+      "yemen_december_fixed_window/c1_item.json": "d63e89ae69c8e1ae0a78ff8795b42b8799fa76db75a08deca05325631a45c677",
+      "yemen_december_fixed_window/c1_nir.npz": "c8a1945009524990b5b5396e72494efba00a6d6438270492c29018af6b23f8ce",
+      "yemen_december_fixed_window/c1_red.npz": "3ba6780253061c3a20c35ef7c73017e6fd3fb90a5ad8fb8fdd361a0043428b05",
+      "yemen_december_fixed_window/c1_scl.npz": "430cf95c01da6a65cb7ba86447a2ae16cdc8347716eec4b655496f2d26106660",
+      "yemen_december_fixed_window/old_item.json": "418ed53c5e7007720347c1aed20d470c9e8dd594fe14e00da01d01fd02b49f99",
+      "yemen_december_fixed_window/old_nir.npz": "5f0781af6cc1a071b6c018c25305cad65951d7862e1fded537ed2f0405f5339f",
+      "yemen_december_fixed_window/old_red.npz": "a5ca3637eeaa782fda94fedd5e63c16ba0e9ffe7ad1d6d2000e0107a1e9fc98e",
+      "yemen_december_fixed_window/old_scl.npz": "430cf95c01da6a65cb7ba86447a2ae16cdc8347716eec4b655496f2d26106660",
+      "yemen_december_fixed_window/window_metadata.json": "0388df2d6d51dccecefe371a6018512421b7d832f4d718b51c3ba706f13c0c29",
+      "yemen_december_fixed_window/yemen_comparison.json": "39a3bf8ce45dd9f353edba8e626cb7b58e496fdc3a2e6ba94c8c1db3dc4ca5c4",
+      "yemen_march_selected/c1_item.json": "cc72bac2c4ece47dcfd45d8b0c3a5e86aa3d3347664156729605d3f0f972f03d",
+      "yemen_march_selected/c1_nir.npz": "24c663846b609d709cbb9d89de287c36ad75e69bad8a07b5896c7d0a34e136a6",
+      "yemen_march_selected/c1_red.npz": "e4410249de69fb9e079e9c097739389f6bf7c9836353e039763d43e8f86bb909",
+      "yemen_march_selected/c1_scl.npz": "1d824ec57ed6ad1228b5e6c34b6eabb1f1ea2b264518fa7d1b2ec59a29784399",
+      "yemen_march_selected/old_item.json": "201b3e79a732034dadfaffbbce51bde492bb743e5d035386f39ebe9aec03e8af",
+      "yemen_march_selected/old_nir.npz": "52fa652849037f204f10e301da981a4ea11cbe433d5b460f32f11f151d01c0ce",
+      "yemen_march_selected/old_red.npz": "0dfe79f79d17ce8a6482c8686bf15179acb8f8d2d190676a0e70356e475824fc",
+      "yemen_march_selected/old_scl.npz": "1d824ec57ed6ad1228b5e6c34b6eabb1f1ea2b264518fa7d1b2ec59a29784399",
+      "yemen_march_selected/window_metadata.json": "58a7b87c6d97f8900a07f912e4072a2c9d8e05d0f5607fea9a1323d8b7acd890",
+      "yemen_march_selected/yemen_comparison.json": "5fabf683d2a453f8363c98626941258f3a2c01783dd04526f2550ff041d3bc1b"
+    },
+    "manifest_sha256": "32b3bd64e4be3a678fca54c693214695f3d3f965dc92fc12a595f7146886baea",
+    "expected_unit_tests": 39,
+    "expected_independent_checks": 18,
+    "final_integrity_error": null,
+    "scope": "Offline research checks; three windows, two dates; no network/API/PostGIS benchmark"
+  },
+  "unit_receipt": {
+    "schema": "eo-unit-v1",
+    "run_id": "73cc3810466d4125ba1cfe4d3862c25e",
+    "tests_run": 39,
+    "successful": true,
+    "executed_ids": [
+      "test_guard.GuardTests.test_all_nodata_has_null_statistics",
+      "test_guard.GuardTests.test_asset_crs_codes_rejected",
+      "test_guard.GuardTests.test_asset_epsg_conflicts_rejected",
+      "test_guard.GuardTests.test_empty_identity",
+      "test_guard.GuardTests.test_finite_radiometric_overflow_rejected",
+      "test_guard.GuardTests.test_full_grid_mismatch",
+      "test_guard.GuardTests.test_huge_metadata_integer_rejected",
+      "test_guard.GuardTests.test_identity_mismatch",
+      "test_guard.GuardTests.test_input_changed_during_run_rejected",
+      "test_guard.GuardTests.test_invalid_epsilon_rejected",
+      "test_guard.GuardTests.test_joint_window_metadata_lie",
+      "test_guard.GuardTests.test_missing_or_invalid_item_epsg_rejected",
+      "test_guard.GuardTests.test_missing_scale_rejected",
+      "test_guard.GuardTests.test_nan_and_nodata_excluded_independently",
+      "test_guard.GuardTests.test_ndvi_overflow_rejected",
+      "test_guard.GuardTests.test_negative_and_zero_denominator_not_clamped",
+      "test_guard.GuardTests.test_nonfinite_offset_rejected",
+      "test_guard.GuardTests.test_nonfinite_raw_and_masked_overflow_are_not_valid",
+      "test_guard.GuardTests.test_real_three_samples",
+      "test_guard.GuardTests.test_scl_alignment_rejected",
+      "test_guard.GuardTests.test_scl_full_transform_mismatch",
+      "test_guard.GuardTests.test_scl_source_window_mismatch",
+      "test_guard.GuardTests.test_shape_mismatch",
+      "test_guard.GuardTests.test_stable_large_difference_statistics",
+      "test_guard.GuardTests.test_unknown_flag_is_not_default_false",
+      "test_guard.GuardTests.test_unsupported_crs_representation_rejected",
+      "test_guard.GuardTests.test_window_grid_mismatch",
+      "test_runner.RunnerGateTests.test_child_output_paths_are_private_and_receipts_are_exported",
+      "test_runner.RunnerGateTests.test_independent_count_mismatch",
+      "test_runner.RunnerGateTests.test_independent_duplicates_and_wrong_case",
+      "test_runner.RunnerGateTests.test_independent_hashes_and_run_identity",
+      "test_runner.RunnerGateTests.test_independent_hidden_false_and_nonboolean",
+      "test_runner.RunnerGateTests.test_malformed_receipts_fail_closed",
+      "test_runner.RunnerGateTests.test_unit_count_or_identity_forgery",
+      "test_runner.RunnerGateTests.test_unit_hashes_and_run_identity",
+      "test_runner.RunnerGateTests.test_unit_missing_outcome_fields_rejected",
+      "test_runner.RunnerGateTests.test_unit_nonpass_outcomes_rejected",
+      "test_runner.RunnerGateTests.test_valid_receipts",
+      "test_runner.RunnerGateTests.test_zero_unit_tests_not_success"
+    ],
+    "failures": [],
+    "errors": [],
+    "skipped": [],
+    "expected_failures": [],
+    "unexpected_successes": [],
+    "input_sha256": {
+      ".gitignore": "22bc478fc0eb97818e8c2efd9a6c8f9dce55490bdd8074a3f2b6b8653c5c12d5",
+      "README_AR.md": "ed3f470fa8c6c2f092a1fc9791a4e30ad4383903196dad9e15aefbe3aad035e5",
+      "encoding_guard/guard.py": "765dda6019efa00e6f60f69fd8f452ae7e79c99cf5e3bfba74fe2d2b05d00e07",
+      "encoding_guard/test_guard.py": "583fe6449c83aead2a6e629ca9901abb087fec9c826a9ac28385cda1b42f3515",
+      "encoding_guard_review/review.py": "5eed60e223f53297c62716963c2bca30b6be52e5a6546ac03fd68d7e68e42a4c",
+      "expected_tests.json": "21eeb675fe4d5f745413a4430759f5848638bc9a4e3c768e3542210eaecf457e",
+      "requirements.txt": "0fd94e6eeb2a0c707d7bffc43ce7226de120dc8b093463852f41cc3d8454a245",
+      "run_checks.py": "fc3d3cd62eb12912b7ef0a698dbe59790a6503aef0fb868e2cc9d837f4d95a03",
+      "test_runner.py": "23a4828c4d0d1ea7ab69b17e237af9f86ef8baf8522a93c2b7fadbf57cf185f8",
+      "unit_harness.py": "df10a01052a342f08171f936192189f767c6b21f349e6ed6a7a44c0a6878daa8",
+      "yemen/c1_item.json": "cc72bac2c4ece47dcfd45d8b0c3a5e86aa3d3347664156729605d3f0f972f03d",
+      "yemen/c1_nir.npz": "376952b3ff57ec55aee1b9e1d0ecdbab88a0d06a7ab3a1a440bccb9e6e74e76f",
+      "yemen/c1_red.npz": "d9e144b5fcb1dd639fd0945b7e691fbfc3a29c75ecc991715c078d9196ffe81a",
+      "yemen/c1_scl.npz": "f320270dba0610800517f22f21ef8eba13948779b74d6e04a400f244f1d61b12",
+      "yemen/old_item.json": "201b3e79a732034dadfaffbbce51bde492bb743e5d035386f39ebe9aec03e8af",
+      "yemen/old_nir.npz": "32c9a9a6740bbc0be540101338b75a6e3378ed3c90dab52d2d38f2b23a4e4ca4",
+      "yemen/old_red.npz": "c65775907c44e2ea4c34e01b406fd815bdf24ab18ad649664906f9b3f913eef1",
+      "yemen/old_scl.npz": "f320270dba0610800517f22f21ef8eba13948779b74d6e04a400f244f1d61b12",
+      "yemen/window_metadata.json": "1bcaf8939afb6fc0a7723aaa0417c49db8f880f83ac8363ca9c5b7d0b780a712",
+      "yemen/yemen_comparison.json": "924f3e48793a9524bbcc13d26077a599a124e3e8b4363c3557a3f4608ddf6d78",
+      "yemen_december_fixed_window/c1_item.json": "d63e89ae69c8e1ae0a78ff8795b42b8799fa76db75a08deca05325631a45c677",
+      "yemen_december_fixed_window/c1_nir.npz": "c8a1945009524990b5b5396e72494efba00a6d6438270492c29018af6b23f8ce",
+      "yemen_december_fixed_window/c1_red.npz": "3ba6780253061c3a20c35ef7c73017e6fd3fb90a5ad8fb8fdd361a0043428b05",
+      "yemen_december_fixed_window/c1_scl.npz": "430cf95c01da6a65cb7ba86447a2ae16cdc8347716eec4b655496f2d26106660",
+      "yemen_december_fixed_window/old_item.json": "418ed53c5e7007720347c1aed20d470c9e8dd594fe14e00da01d01fd02b49f99",
+      "yemen_december_fixed_window/old_nir.npz": "5f0781af6cc1a071b6c018c25305cad65951d7862e1fded537ed2f0405f5339f",
+      "yemen_december_fixed_window/old_red.npz": "a5ca3637eeaa782fda94fedd5e63c16ba0e9ffe7ad1d6d2000e0107a1e9fc98e",
+      "yemen_december_fixed_window/old_scl.npz": "430cf95c01da6a65cb7ba86447a2ae16cdc8347716eec4b655496f2d26106660",
+      "yemen_december_fixed_window/window_metadata.json": "0388df2d6d51dccecefe371a6018512421b7d832f4d718b51c3ba706f13c0c29",
+      "yemen_december_fixed_window/yemen_comparison.json": "39a3bf8ce45dd9f353edba8e626cb7b58e496fdc3a2e6ba94c8c1db3dc4ca5c4",
+      "yemen_march_selected/c1_item.json": "cc72bac2c4ece47dcfd45d8b0c3a5e86aa3d3347664156729605d3f0f972f03d",
+      "yemen_march_selected/c1_nir.npz": "24c663846b609d709cbb9d89de287c36ad75e69bad8a07b5896c7d0a34e136a6",
+      "yemen_march_selected/c1_red.npz": "e4410249de69fb9e079e9c097739389f6bf7c9836353e039763d43e8f86bb909",
+      "yemen_march_selected/c1_scl.npz": "1d824ec57ed6ad1228b5e6c34b6eabb1f1ea2b264518fa7d1b2ec59a29784399",
+      "yemen_march_selected/old_item.json": "201b3e79a732034dadfaffbbce51bde492bb743e5d035386f39ebe9aec03e8af",
+      "yemen_march_selected/old_nir.npz": "52fa652849037f204f10e301da981a4ea11cbe433d5b460f32f11f151d01c0ce",
+      "yemen_march_selected/old_red.npz": "0dfe79f79d17ce8a6482c8686bf15179acb8f8d2d190676a0e70356e475824fc",
+      "yemen_march_selected/old_scl.npz": "1d824ec57ed6ad1228b5e6c34b6eabb1f1ea2b264518fa7d1b2ec59a29784399",
+      "yemen_march_selected/window_metadata.json": "58a7b87c6d97f8900a07f912e4072a2c9d8e05d0f5607fea9a1323d8b7acd890",
+      "yemen_march_selected/yemen_comparison.json": "5fabf683d2a453f8363c98626941258f3a2c01783dd04526f2550ff041d3bc1b"
+    },
+    "manifest_sha256": "32b3bd64e4be3a678fca54c693214695f3d3f965dc92fc12a595f7146886baea",
+    "inputs_unchanged": true
+  },
+  "independent_receipt": {
+    "schema": "eo-independent-v1",
+    "run_id": "73cc3810466d4125ba1cfe4d3862c25e",
+    "input_sha256": {
+      "yemen/old_item.json": "201b3e79a732034dadfaffbbce51bde492bb743e5d035386f39ebe9aec03e8af",
+      "yemen/c1_red.npz": "d9e144b5fcb1dd639fd0945b7e691fbfc3a29c75ecc991715c078d9196ffe81a",
+      "yemen/old_scl.npz": "f320270dba0610800517f22f21ef8eba13948779b74d6e04a400f244f1d61b12",
+      "yemen/c1_nir.npz": "376952b3ff57ec55aee1b9e1d0ecdbab88a0d06a7ab3a1a440bccb9e6e74e76f",
+      "yemen/c1_item.json": "cc72bac2c4ece47dcfd45d8b0c3a5e86aa3d3347664156729605d3f0f972f03d",
+      "yemen/old_nir.npz": "32c9a9a6740bbc0be540101338b75a6e3378ed3c90dab52d2d38f2b23a4e4ca4",
+      "yemen/old_red.npz": "c65775907c44e2ea4c34e01b406fd815bdf24ab18ad649664906f9b3f913eef1",
+      "yemen/c1_scl.npz": "f320270dba0610800517f22f21ef8eba13948779b74d6e04a400f244f1d61b12",
+      "yemen/window_metadata.json": "1bcaf8939afb6fc0a7723aaa0417c49db8f880f83ac8363ca9c5b7d0b780a712",
+      "yemen/yemen_comparison.json": "924f3e48793a9524bbcc13d26077a599a124e3e8b4363c3557a3f4608ddf6d78",
+      "yemen_march_selected/old_item.json": "201b3e79a732034dadfaffbbce51bde492bb743e5d035386f39ebe9aec03e8af",
+      "yemen_march_selected/c1_red.npz": "e4410249de69fb9e079e9c097739389f6bf7c9836353e039763d43e8f86bb909",
+      "yemen_march_selected/old_scl.npz": "1d824ec57ed6ad1228b5e6c34b6eabb1f1ea2b264518fa7d1b2ec59a29784399",
+      "yemen_march_selected/c1_nir.npz": "24c663846b609d709cbb9d89de287c36ad75e69bad8a07b5896c7d0a34e136a6",
+      "yemen_march_selected/c1_item.json": "cc72bac2c4ece47dcfd45d8b0c3a5e86aa3d3347664156729605d3f0f972f03d",
+      "yemen_march_selected/old_nir.npz": "52fa652849037f204f10e301da981a4ea11cbe433d5b460f32f11f151d01c0ce",
+      "yemen_march_selected/old_red.npz": "0dfe79f79d17ce8a6482c8686bf15179acb8f8d2d190676a0e70356e475824fc",
+      "yemen_march_selected/c1_scl.npz": "1d824ec57ed6ad1228b5e6c34b6eabb1f1ea2b264518fa7d1b2ec59a29784399",
+      "yemen_march_selected/window_metadata.json": "58a7b87c6d97f8900a07f912e4072a2c9d8e05d0f5607fea9a1323d8b7acd890",
+      "yemen_march_selected/yemen_comparison.json": "5fabf683d2a453f8363c98626941258f3a2c01783dd04526f2550ff041d3bc1b",
+      "yemen_december_fixed_window/old_item.json": "418ed53c5e7007720347c1aed20d470c9e8dd594fe14e00da01d01fd02b49f99",
+      "yemen_december_fixed_window/c1_red.npz": "3ba6780253061c3a20c35ef7c73017e6fd3fb90a5ad8fb8fdd361a0043428b05",
+      "yemen_december_fixed_window/old_scl.npz": "430cf95c01da6a65cb7ba86447a2ae16cdc8347716eec4b655496f2d26106660",
+      "yemen_december_fixed_window/c1_nir.npz": "c8a1945009524990b5b5396e72494efba00a6d6438270492c29018af6b23f8ce",
+      "yemen_december_fixed_window/c1_item.json": "d63e89ae69c8e1ae0a78ff8795b42b8799fa76db75a08deca05325631a45c677",
+      "yemen_december_fixed_window/old_nir.npz": "5f0781af6cc1a071b6c018c25305cad65951d7862e1fded537ed2f0405f5339f",
+      "yemen_december_fixed_window/old_red.npz": "a5ca3637eeaa782fda94fedd5e63c16ba0e9ffe7ad1d6d2000e0107a1e9fc98e",
+      "yemen_december_fixed_window/c1_scl.npz": "430cf95c01da6a65cb7ba86447a2ae16cdc8347716eec4b655496f2d26106660",
+      "yemen_december_fixed_window/window_metadata.json": "0388df2d6d51dccecefe371a6018512421b7d832f4d718b51c3ba706f13c0c29",
+      "yemen_december_fixed_window/yemen_comparison.json": "39a3bf8ce45dd9f353edba8e626cb7b58e496fdc3a2e6ba94c8c1db3dc4ca5c4"
+    },
+    "source_inputs_unchanged": true,
+    "guard_sha256": "765dda6019efa00e6f60f69fd8f452ae7e79c99cf5e3bfba74fe2d2b05d00e07",
+    "cases": [
+      {
+        "case": "scl_asset_transform_mismatch",
+        "passed": true,
+        "outcome": "Rejected",
+        "detail": "c1: SCL window/full transform conflict"
+      },
+      {
+        "case": "scl_source_window_mismatch",
+        "passed": true,
+        "outcome": "Rejected",
+        "detail": "c1: SCL window/full transform conflict"
+      },
+      {
+        "case": "nonfinite_raw",
+        "passed": true,
+        "outcome": "returned",
+        "detail": null
+      },
+      {
+        "case": "zero_denominator",
+        "passed": true,
+        "outcome": "returned",
+        "detail": null
+      },
+      {
+        "case": "product_mismatch",
+        "passed": true,
+        "outcome": "Rejected",
+        "detail": "identity mismatch: s2:product_uri"
+      },
+      {
+        "case": "grid_mismatch",
+        "passed": true,
+        "outcome": "Rejected",
+        "detail": "c1_nir: window grid mismatch"
+      },
+      {
+        "case": "missing_offset",
+        "passed": true,
+        "outcome": "Rejected",
+        "detail": "old_red: missing/nonfinite offset"
+      },
+      {
+        "case": "shape_mismatch",
+        "passed": true,
+        "outcome": "Rejected",
+        "detail": "old_nir: array shape mismatch"
+      },
+      {
+        "case": "unknown_flag",
+        "passed": true,
+        "outcome": "returned",
+        "detail": null
+      },
+      {
+        "case": "all_invalid",
+        "passed": true,
+        "outcome": "returned",
+        "detail": null
+      },
+      {
+        "case": "nodata_zero_without_mask",
+        "passed": true,
+        "outcome": "returned",
+        "detail": null
+      },
+      {
+        "case": "scl_shift",
+        "passed": true,
+        "outcome": "Rejected",
+        "detail": "c1: aligned SCL differs from source nearest cells"
+      },
+      {
+        "case": "scl_url_mismatch",
+        "passed": true,
+        "outcome": "Rejected",
+        "detail": "old: SCL source URL mismatch"
+      },
+      {
+        "case": "quality_flags_no_clamp",
+        "passed": true
+      },
+      {
+        "case": "real_yemen",
+        "passed": true
+      },
+      {
+        "case": "real_yemen_march_selected",
+        "passed": true
+      },
+      {
+        "case": "real_yemen_december_fixed_window",
+        "passed": true
+      },
+      {
+        "case": "source_and_inputs_unchanged",
+        "passed": true
+      }
+    ],
+    "all_passed": true
+  },
+  "lint": {
+    "ruff_check_exit_code": 0,
+    "ruff_format_check_exit_code": 0,
+    "files_already_formatted": 6
+  },
+  "original_artifacts": [
+    {
+      "path": "/workspace/scratch/882204c263d7/eo-manifest-followup/setup-receipts.json",
+      "sha256": "999f0673884c055bb1a59e767dc772c64d89ae399413f33463f8f6f73bc55198",
+      "bytes": 845
+    },
+    {
+      "path": "/workspace/scratch/882204c263d7/eo-manifest-followup/validation-receipts.json",
+      "sha256": "e980ac9caafa7074d62c96cdb3c852192009a75e401ede694a1a3f290f97dd39",
+      "bytes": 14814
+    },
+    {
+      "path": "/workspace/scratch/882204c263d7/eo-manifest-followup/repository-after-receipt.json",
+      "sha256": "eab83403bbc06e1eae4f1d6d38f7c0b5fc4a0a2e3e2c22fe4428ce03b771670f",
+      "bytes": 5534
+    },
+    {
+      "path": "/workspace/scratch/882204c263d7/eo-manifest-followup/before.log",
+      "sha256": "6ba459edd8b7f02be98c1237c49fb82f649f2a5d6ac656cf615bd81a7ea36c5c",
+      "bytes": 73
+    },
+    {
+      "path": "/workspace/scratch/882204c263d7/eo-manifest-followup/isolated-candidate.log",
+      "sha256": "01f5169c25fdbf0cf7a376f8ad77413569ae7f0a9cffc8ba575e17e460d31709",
+      "bytes": 139
+    },
+    {
+      "path": "/workspace/scratch/882204c263d7/eo-manifest-followup/repository-after.log",
+      "sha256": "353f50744c73c4f737ed8c61dd88487e8295734c513587477fe4d8d53f0c2720",
+      "bytes": 137
+    },
+    {
+      "path": "/workspace/scratch/882204c263d7/eo-manifest-followup/ruff-check.log",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19
+    },
+    {
+      "path": "/workspace/scratch/882204c263d7/eo-manifest-followup/ruff-format.log",
+      "sha256": "ef7d13d02214e98ca902b05257cdbe6a8e84f3b4714508efdc19766460b54209",
+      "bytes": 26
+    },
+    {
+      "path": "/workspace/scratch/882204c263d7/eo-manifest-followup/repository-after-output/result.json",
+      "sha256": "00e29e0e1bbfb8b85f5558adeddb9d18f047c70a8e3672927a9670c4015c1a3b",
+      "bytes": 4834
+    },
+    {
+      "path": "/workspace/scratch/882204c263d7/eo-manifest-followup/repository-after-output/independent.log",
+      "sha256": "48b1ce24e2d54e174ad943159e2adf44667521eb1e3a16d16cd455f057ae0655",
+      "bytes": 1683
+    },
+    {
+      "path": "/workspace/scratch/882204c263d7/eo-manifest-followup/repository-after-output/unit.json",
+      "sha256": "c147c9f8455b6b3c999f993b32c12a7e2a589cca90e3e4b6f84a796762d2ed0a",
+      "bytes": 7117
+    },
+    {
+      "path": "/workspace/scratch/882204c263d7/eo-manifest-followup/repository-after-output/unit.log",
+      "sha256": "db0c57d2297c43cdad5f9688ea04a42397e05ceec78f61f45e5c6f5921e65213",
+      "bytes": 4229
+    },
+    {
+      "path": "/workspace/scratch/882204c263d7/eo-manifest-followup/repository-after-output/independent.json",
+      "sha256": "0cb659ce972471f687a557a91df24abbc3e0d8ce82b44b6879ac78bf1e702744",
+      "bytes": 5671
+    }
+  ],
+  "limitations": [
+    "This accepts the pinned offline EO research checks only; production_approved remains false.",
+    "The previously failing GitHub run has not been rerun or approved by this agent. A new published commit still requires its own CI result.",
+    "No scanner sweep or security finding was bypassed by this manifest correction."
+  ],
+  "no_stage_commit_push": true
+}

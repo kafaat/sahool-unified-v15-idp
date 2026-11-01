@@ -1,0 +1,1539 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>Root Python lock and security verification — 2026-10-31 - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#root-python-lock-and-security-verification-2026-10-31" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Root Python lock and security verification — 2026-10-31
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="root-python-lock-and-security-verification-2026-10-31">Root Python lock and security verification — 2026-10-31<a class="headerlink" href="#root-python-lock-and-security-verification-2026-10-31" title="Permanent link">&para;</a></h1>
+<p>The root lock was regenerated with <strong>uv 0.13.4</strong>, using the normal resolver and
+the declared project dependencies. The final frozen environments pass <strong>102
+tests with no skips on each of Python 3.11, 3.12 and 3.13</strong>. A complete audit of
+the <strong>110 installed packages in each environment reports no known
+vulnerabilities</strong>. These results apply to the root extras; independently packaged
+services have separate dependency closures.</p>
+<p>Base: <code>ab53c98596daca1740d2ac5a5dbd48db7b24e34f</code>.</p>
+<p>Final <code>uv.lock</code> SHA256:
+<code>831299956612d4366b8806387f8d23df2ac61d7f5b2aee1b234e9064d97e39ef</code>.</p>
+<p>The adjacent <a href="verification.json">verification.json</a> binds the source files,
+runtime results, installed manifests, JUnit reports and audit reports to hashes.</p>
+<h2 id="resolver-repair-and-preserved-behavior">Resolver repair and preserved behavior<a class="headerlink" href="#resolver-repair-and-preserved-behavior" title="Permanent link">&para;</a></h2>
+<p>The original <code>uv lock --check</code> failed. TensorFlow 2.21.0 requires <code>ml-dtypes</code>,
+whose Python 3.13+ dependency requires NumPy &gt;=2.1. The project's unconditional
+NumPy &lt;2 constraint therefore made its universal lock unsatisfiable.</p>
+<p>The repaired NumPy declarations are:</p>
+<div class="codehilite"><pre><span></span><code>numpy&gt;=1.26.0,&lt;2.0.0; python_version &lt; '3.13'
+numpy&gt;=2.1.0,&lt;2.5.0; python_version &gt;= '3.13'
+</code></pre></div>
+
+<p>This preserves the existing NumPy 1.x ABI on Python 3.11/3.12 and permits the
+upstream requirement on Python 3.13+. The generated lock selects NumPy 1.26.4 and
+2.4.2 respectively. <code>requires-python</code> remains <strong><code>&gt;=3.11</code></strong> and
+<code>tensorflow-cpu==2.21.0</code> remains an unconditional dependency of the ML extra.
+There are no resolver overrides, dependency exclusions or manual lock edits.</p>
+<p>The old lock also lagged existing project declarations for FastAPI, TensorFlow,
+OpenTelemetry and several testing tools. Regeneration reconciles those existing
+specifications. Pydantic 2.13.1, Tenacity 8.5.0, SQLAlchemy 2.0.49 and
+<code>bcrypt&gt;=4.2,&lt;5</code> were aligned with their <strong>existing central constraints</strong>; in
+particular, the bcrypt bound preserves the declared Passlib integration.</p>
+<p>The central <code>pydantic-settings</code> constraint was subsequently raised from 2.13.1 to
+2.14.2 for <a href="https://github.com/advisories/GHSA-4xgf-cpjx-pc3j">GHSA-4xgf-cpjx-pc3j</a>.
+That package is consumed by service manifests and is absent from the root lock,
+so this adjustment does not change the frozen runtime closure. The 36 root
+consistency tests passed again after the constraint change. The JSON records
+both the matrix's original input hashes and this later constraint verification.</p>
+<h2 id="security-closure">Security closure<a class="headerlink" href="#security-closure" title="Permanent link">&para;</a></h2>
+<p>The original root lock contributed eight CRITICAL results to the reproduced
+Trivy scan: AnyIO, certifi, PyJWT and five Pillow findings. The final lock has
+<strong>zero CRITICAL results</strong> under the same Trivy 0.69.3 database, updated
+<code>2026-10-31T13:09:00.83322165Z</code>.</p>
+<p>A full audit of the first limited repair exposed additional affected packages.
+Those findings were retained and the root closure was repaired before acceptance.
+The final full audit is mandatory in the dedicated workflow; findings are not
+ignored or converted to success.</p>
+<table>
+<thead>
+<tr>
+<th>Dependency</th>
+<th>Original lock</th>
+<th>Final lock</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PyJWT</td>
+<td>2.11.0</td>
+<td>2.15.1</td>
+</tr>
+<tr>
+<td>cryptography</td>
+<td>46.0.5</td>
+<td>50.0.2</td>
+</tr>
+<tr>
+<td>Pillow</td>
+<td>11.3.0</td>
+<td>13.0.0</td>
+</tr>
+<tr>
+<td>AnyIO</td>
+<td>4.12.1</td>
+<td>4.15.1</td>
+</tr>
+<tr>
+<td>certifi</td>
+<td>2026.2.25</td>
+<td>2026.10.23</td>
+</tr>
+<tr>
+<td>aiohttp</td>
+<td>3.13.3</td>
+<td>3.14.4</td>
+</tr>
+<tr>
+<td>Starlette</td>
+<td>0.52.1</td>
+<td>1.3.1</td>
+</tr>
+<tr>
+<td>OpenTelemetry API/SDK</td>
+<td>1.39.1</td>
+<td>1.45.1</td>
+</tr>
+<tr>
+<td>OpenTelemetry FastAPI instrumentation</td>
+<td>0.60b1</td>
+<td>0.66b1</td>
+</tr>
+<tr>
+<td>Keras</td>
+<td>3.13.2</td>
+<td>3.15.0</td>
+</tr>
+<tr>
+<td>requests</td>
+<td>2.32.5</td>
+<td>2.33.0</td>
+</tr>
+<tr>
+<td>urllib3</td>
+<td>2.6.3</td>
+<td>2.8.0</td>
+</tr>
+<tr>
+<td>idna</td>
+<td>3.11</td>
+<td>3.15</td>
+</tr>
+<tr>
+<td>multidict</td>
+<td>6.7.1</td>
+<td>6.9.1</td>
+</tr>
+<tr>
+<td>Pygments</td>
+<td>2.19.2</td>
+<td>2.20.0</td>
+</tr>
+<tr>
+<td>setuptools</td>
+<td>82.0.0</td>
+<td>84.1.0</td>
+</tr>
+<tr>
+<td>Black</td>
+<td>24.10.0</td>
+<td>26.10.1</td>
+</tr>
+<tr>
+<td>filelock</td>
+<td>3.25.0</td>
+<td>4.2.1</td>
+</tr>
+<tr>
+<td>virtualenv</td>
+<td>21.1.0</td>
+<td>21.14.10</td>
+</tr>
+</tbody>
+</table>
+<p>Appropriate lower bounds prevent these known vulnerable versions from returning.
+FastAPI remains at the already declared <strong>0.135.1</strong>: its published dependency
+metadata permits the patched Starlette release. The OpenTelemetry API, SDK and
+instrumentation were updated together.</p>
+<p>The root <code>python-jose</code> dependency was obsolete: no active Python source under
+<code>apps/services/</code> or <code>shared/</code> imports it, and <code>apps/services/shared/versions.py</code>
+already documents the PyJWT migration. Removing this unused root dependency also
+removes its <code>ecdsa</code>, <code>rsa</code> and <code>pyasn1</code> closure. The separately packaged
+<code>sahool-platform/apps/auth</code> application still imports <code>jose</code> and installs its own
+requirements in its Dockerfile. This change does not silently remove or migrate
+that legacy application's dependency.</p>
+<h3 id="primary-package-metadata-used">Primary package metadata used<a class="headerlink" href="#primary-package-metadata-used" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="https://pypi.org/pypi/tensorflow-cpu/2.21.0/json">TensorFlow CPU 2.21.0</a> and
+  <a href="https://pypi.org/pypi/ml-dtypes/0.5.4/json">ml-dtypes 0.5.4</a>: the actual NumPy
+  requirements and published runtime distributions.</li>
+<li><a href="https://pypi.org/pypi/fastapi/0.135.1/json">FastAPI 0.135.1</a> and
+  <a href="https://pypi.org/pypi/starlette/1.3.1/json">Starlette 1.3.1</a>: compatible dependency
+  specifications without raising the FastAPI version.</li>
+<li><a href="https://pypi.org/pypi/cryptography/50.0.2/json">cryptography 50.0.2</a>,
+  <a href="https://pypi.org/pypi/Pillow/13.0.0/json">Pillow 13.0.0</a> and
+  <a href="https://pypi.org/pypi/PyJWT/2.15.1/json">PyJWT 2.15.1</a>.</li>
+<li><a href="https://pypi.org/pypi/opentelemetry-sdk/1.45.1/json">OpenTelemetry SDK 1.45.1</a>
+  and <a href="https://pypi.org/pypi/opentelemetry-instrumentation-fastapi/0.66b1/json">FastAPI instrumentation 0.66b1</a>:
+  matching API and semantic-convention requirements.</li>
+<li><a href="https://pypi.org/pypi/virtualenv/21.14.10/json">virtualenv 21.14.10</a>: the additional
+  patch required after checking the initially considered 21.14.9 release.</li>
+</ul>
+<h2 id="actual-verification">Actual verification<a class="headerlink" href="#actual-verification" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Runtime</th>
+<th>NumPy</th>
+<th>Tests</th>
+<th>Skips</th>
+<th><code>uv pip check</code></th>
+<th>Full package audit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CPython 3.11.17, Linux x86_64</td>
+<td>1.26.4</td>
+<td>102 passed</td>
+<td>0</td>
+<td>PASS</td>
+<td>110 packages, 0 findings</td>
+</tr>
+<tr>
+<td>CPython 3.12.14, Linux x86_64</td>
+<td>1.26.4</td>
+<td>102 passed</td>
+<td>0</td>
+<td>PASS</td>
+<td>110 packages, 0 findings</td>
+</tr>
+<tr>
+<td>CPython 3.13.16, Linux x86_64</td>
+<td>2.4.2</td>
+<td>102 passed</td>
+<td>0</td>
+<td>PASS</td>
+<td>110 packages, 0 findings</td>
+</tr>
+</tbody>
+</table>
+<p>The selected cases exercise:</p>
+<ul>
+<li>Root lock metadata against the current project extras, patched version floors,
+  canonical constraints and Python markers, including negative controls for a
+  stale PyJWT specification, missing TensorFlow and a stale extra.</li>
+<li>The existing 38 NDVI calculation tests and five dependency-constraint tests.</li>
+<li>RSA and ECDSA JWT signing, verification, wrong keys, modified payloads, expired
+  tokens and rejection of asymmetric public keys as HMAC secrets.</li>
+<li>Passlib/bcrypt password hashing and rejection of a wrong password.</li>
+<li>PNG/JPEG decoding, truncated and invalid images, the Pillow pixel limit, and
+  the actual disease-detection image-color consumer.</li>
+<li>Real TensorFlow matrix operations, <code>ml-dtypes</code> conversion, Keras CPU inference,
+  and model save/load through the installed numerical stack.</li>
+<li>FastAPI request/response validation and HTTP errors with the patched Starlette.</li>
+<li>OpenTelemetry HTTP spans and propagated trace context with an owned in-memory
+  exporter and deterministic sampling.</li>
+</ul>
+<p>The same 17 cryptography/image/password cases also passed against cryptography
+46.0.5 and Pillow 12.2.0 in a separate baseline environment. The real runtime
+suite passes those cases with the new versions; this is a behavior comparison,
+not a claim that the older versions are secure.</p>
+<p>An attempted reuse of an earlier Python 3.13 environment failed <code>uv pip check</code>
+because it contained duplicate old and new bcrypt/Pydantic distribution metadata.
+That failure was preserved. A fresh environment, installed normally from the
+same frozen lock, passed all checks. No duplicate metadata was manually removed
+to manufacture acceptance.</p>
+<h3 id="reproduction">Reproduction<a class="headerlink" href="#reproduction" title="Permanent link">&para;</a></h3>
+<p>Use a fresh environment for each target Python version. The workflow pins uv to
+0.13.4 and records the exact environment before running:</p>
+<div class="codehilite"><pre><span></span><code>uv<span class="w"> </span>lock<span class="w"> </span>--check<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.11
+uv<span class="w"> </span>sync<span class="w"> </span>--all-extras<span class="w"> </span>--frozen<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.11
+uv<span class="w"> </span>pip<span class="w"> </span>check<span class="w"> </span>--python<span class="w"> </span>.venv/bin/python
+uv<span class="w"> </span>pip<span class="w"> </span>freeze<span class="w"> </span>--python<span class="w"> </span>.venv/bin/python<span class="w"> </span>&gt;<span class="w"> </span>environment.txt
+.venv/bin/python<span class="w"> </span>-B<span class="w"> </span>-m<span class="w"> </span>pytest<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>tests/unit/test_python_lock_consistency.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>tests/unit/test_infrastructure_fixes.py::TestDependencyConstraints<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>tests/unit/test_ndvi_calculation.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>scripts/ci/check_python_lock_runtime.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-p<span class="w"> </span>no:cacheprovider<span class="w"> </span>-q<span class="w"> </span>--tb<span class="o">=</span>short<span class="w"> </span>--junitxml<span class="o">=</span>runtime.xml
+uv<span class="w"> </span>tool<span class="w"> </span>run<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.11<span class="w"> </span>--from<span class="w"> </span>pip-audit<span class="o">==</span><span class="m">2</span>.10.1<span class="w"> </span>pip-audit<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-r<span class="w"> </span>environment.txt<span class="w"> </span>--no-deps<span class="w"> </span>--disable-pip<span class="w"> </span>--strict<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--progress-spinner<span class="w"> </span>off<span class="w"> </span>--format<span class="w"> </span>json<span class="w"> </span>--desc<span class="w"> </span>off<span class="w"> </span>-o<span class="w"> </span>full-lock-audit.json
+</code></pre></div>
+
+<p>The audit's <code>--no-deps</code> option avoids a second resolution: every package in the
+actual installed closure is already listed in <code>environment.txt</code> and audited.
+The normal resolver, frozen installation and <code>uv pip check</code> run beforehand.</p>
+<h2 id="coordinated-service-and-embedding-verification">Coordinated service and embedding verification<a class="headerlink" href="#coordinated-service-and-embedding-verification" title="Permanent link">&para;</a></h2>
+<p>The service dependency changes are included in the same branch so that higher
+central security floors do not leave consumer manifests unsatisfiable. All
+<strong>44 actual consumer requirement resolutions passed</strong>, using their adjacent
+Dockerfile constraints or the applicable standalone contract. The accompanying
+<a href="consumer-verification.json">consumer-verification.json</a> records the exact
+source hashes and results.</p>
+<p>The 19 parser, TLS, shared-encryption and settings cases passed. These cover
+multipart field smuggling and header/length limits, IDNA certificate validation,
+the real AES-GCM/HMAC consumer, and rejection of a secrets-directory symlink that
+escapes its configured directory. The corresponding older dependency versions
+fail the relevant negative controls. The existing Shared PyJWT Security workflow
+now runs these cases alongside the JWT callers.</p>
+<p>For the two actual embedding consumers, a fresh CPU environment with
+SentenceTransformers 6.0.0 and Torch 2.13.0+cpu passed all five offline tests and
+<code>uv pip check</code>. Its <strong>complete 52-package audit has zero findings</strong>. The same test
+module against the 5.6.0 loader has exactly one expected security failure and
+four passing cases: the older loader executes custom local Python despite
+<code>trust_remote_code=False</code>. The negative control uses a harmless marker file in
+the test's temporary directory. The mandatory CPU job records both results and
+checks the older loader's dependency compatibility rather than silently
+substituting an incompatible environment.</p>
+<p>PyPI does not publish the official Torch <code>+cpu</code> distribution suffix. The audit
+therefore records the actual installed <code>2.13.0+cpu</code> build, normalizes that one
+entry to upstream <code>2.13.0</code> for advisory lookup, and preserves the mapping and
+original environment hash. No package or advisory is excluded.</p>
+<h2 id="ci-test-environment-completeness-follow-up">CI test environment completeness follow-up<a class="headerlink" href="#ci-test-environment-completeness-follow-up" title="Permanent link">&para;</a></h2>
+<p>On PR #1997 head <code>c147df6530ea6e1823061c192619f7bf3eb95263</code>, the dedicated
+frozen-runtime and shared-auth jobs passed. The broader
+<a href="https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41237801285/job/124645312670">Quality Gate</a>
+and <a href="https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41237801309/job/124647078117">CI Pipeline</a>
+each exposed one missing test-environment dependency. The real shared-crypto
+consumer imports <code>bcrypt</code>, but those jobs' installation lists did not include it.
+The unchanged encryption roundtrip/tamper regression failed at that import,
+before executing its AES-GCM/HMAC assertions.</p>
+<p>The follow-up declares <code>bcrypt&gt;=4.2.0,&lt;5.0.0</code> in <code>requirements/testing.txt</code>,
+the CI Pipeline's direct dependency list and the Quality Gate's fallback list.
+This matches the existing root constraint and frozen dependency. The lock,
+Python support policy, production code and regression assertions are unchanged.</p>
+<table>
+<thead>
+<tr>
+<th>Focused reproduction on fresh Python 3.11.17</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Original testing requirements plus current constraints</td>
+<td>Normal installation succeeds; <code>bcrypt</code> is absent</td>
+</tr>
+<tr>
+<td>Original environment, exact failing regression</td>
+<td>1 expected failure: <code>ModuleNotFoundError: No module named 'bcrypt'</code></td>
+</tr>
+<tr>
+<td>Updated testing requirements, same regression</td>
+<td>1 passed</td>
+</tr>
+<tr>
+<td>Updated environment, complete dependency-security regression module</td>
+<td>19 passed, 0 skipped</td>
+</tr>
+<tr>
+<td><code>uv pip check</code>, Actionlint and diff whitespace check</td>
+<td>Passed</td>
+</tr>
+</tbody>
+</table>
+<p>The single regression is included in the 19-case module; these counts are not
+additive. <a href="bcrypt-ci-repair.json">bcrypt-ci-repair.json</a> records the commands,
+versions, exit codes, JUnit counts, source hashes and preserved negative control.
+These focused local results do not substitute for the next remote CI run.</p>
+<p>To reproduce the fixed test environment from the repository root:</p>
+<div class="codehilite"><pre><span></span><code>uv<span class="w"> </span>venv<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.11<span class="w"> </span>/tmp/sahool-bcrypt-ci
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--python<span class="w"> </span>/tmp/sahool-bcrypt-ci/bin/python<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-c<span class="w"> </span>constraints.txt<span class="w"> </span>-r<span class="w"> </span>requirements/testing.txt
+<span class="nv">PYTHONPATH</span><span class="o">=</span>.<span class="w"> </span>/tmp/sahool-bcrypt-ci/bin/python<span class="w"> </span>-B<span class="w"> </span>-m<span class="w"> </span>pytest<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>tests/unit/security/test_dependency_security_regressions.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-q<span class="w"> </span>-o<span class="w"> </span><span class="nv">addopts</span><span class="o">=</span><span class="s1">''</span><span class="w"> </span>-p<span class="w"> </span>no:cacheprovider<span class="w"> </span>--junitxml<span class="o">=</span>/tmp/bcrypt-ci-tests.xml
+uv<span class="w"> </span>pip<span class="w"> </span>check<span class="w"> </span>--python<span class="w"> </span>/tmp/sahool-bcrypt-ci/bin/python
+</code></pre></div>
+
+<p>The separate frontend failures observed on that head remain outside this
+test-environment fix: Flutter's SDK <code>intl</code> pin conflicts with the app's range,
+web tests expose existing CSP/authentication contract and mock issues, and the
+E2E readiness check probes port 3000 while the web server listens on 3040.
+The Python PR does not change those frontend sources or their workflow.</p>
+<h2 id="remaining-boundaries">Remaining boundaries<a class="headerlink" href="#remaining-boundaries" title="Permanent link">&para;</a></h2>
+<p>TensorFlow 2.21.0 has no published CPython 3.14 wheel. The universal metadata lock
+can be valid while an installation target lacks an upstream distribution.
+Neither the project's Python policy nor the TensorFlow feature was narrowed to
+hide that limitation. The recorded runtime acceptance covers Linux CPU on
+Python 3.11–3.13, not GPU execution or every advertised platform. The legacy
+authentication application's separate closure is also outside this root audit.
+YOLO's separate Torch &gt;=2.6,&lt;2.7 compatibility cap is retained; the clean CPU
+embedding audit does not cover that service. Raising the shared Docker AI floor
+without a YOLO migration would make that consumer unresolvable.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+    
+  </body>
+</html>

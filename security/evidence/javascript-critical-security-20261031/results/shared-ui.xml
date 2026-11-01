@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="23" failures="0" errors="0" time="0.154453969">
+    <testsuite name="src/components/ErrorBoundary.test.tsx" timestamp="2026-10-31T20:16:04.671Z" hostname="e21b596917c8" tests="10" failures="0" errors="0" skipped="0" time="0.101988026">
+        <testcase classname="src/components/ErrorBoundary.test.tsx" name="ErrorBoundary &gt; renders children when there is no error" time="0.043691049">
+        </testcase>
+        <testcase classname="src/components/ErrorBoundary.test.tsx" name="ErrorBoundary &gt; renders fallback UI when an error occurs" time="0.014357602">
+        </testcase>
+        <testcase classname="src/components/ErrorBoundary.test.tsx" name="ErrorBoundary &gt; renders custom fallback when provided" time="0.001841932">
+        </testcase>
+        <testcase classname="src/components/ErrorBoundary.test.tsx" name="ErrorBoundary &gt; renders fallback function when provided" time="0.003388576">
+        </testcase>
+        <testcase classname="src/components/ErrorBoundary.test.tsx" name="ErrorBoundary &gt; calls onError callback when an error occurs" time="0.003769068">
+        </testcase>
+        <testcase classname="src/components/ErrorBoundary.test.tsx" name="ErrorBoundary &gt; allows retry after error" time="0.008218783">
+        </testcase>
+        <testcase classname="src/components/ErrorBoundary.test.tsx" name="ErrorBoundary &gt; hides retry button when showRetry is false" time="0.003621621">
+        </testcase>
+        <testcase classname="src/components/ErrorBoundary.test.tsx" name="withErrorBoundary HOC &gt; wraps component with error boundary" time="0.007106429">
+        </testcase>
+        <testcase classname="src/components/ErrorBoundary.test.tsx" name="withErrorBoundary HOC &gt; catches errors in wrapped component" time="0.010698385">
+        </testcase>
+        <testcase classname="src/components/ErrorBoundary.test.tsx" name="withErrorBoundary HOC &gt; uses custom fallback from HOC options" time="0.00314715">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/auth/PermissionGate.test.tsx" timestamp="2026-10-31T20:16:04.674Z" hostname="e21b596917c8" tests="13" failures="0" errors="0" skipped="0" time="0.052465943">
+        <testcase classname="src/components/auth/PermissionGate.test.tsx" name="PermissionGate &gt; when user has required permission &gt; should render children" time="0.029265927">
+        </testcase>
+        <testcase classname="src/components/auth/PermissionGate.test.tsx" name="PermissionGate &gt; when user has required permission &gt; should not render fallback" time="0.002093352">
+        </testcase>
+        <testcase classname="src/components/auth/PermissionGate.test.tsx" name="PermissionGate &gt; when user lacks required permission &gt; should not render children" time="0.001090311">
+        </testcase>
+        <testcase classname="src/components/auth/PermissionGate.test.tsx" name="PermissionGate &gt; when user lacks required permission &gt; should render fallback when provided" time="0.001404495">
+        </testcase>
+        <testcase classname="src/components/auth/PermissionGate.test.tsx" name="PermissionGate &gt; with no permission or role specified &gt; should render children (allow by default)" time="0.001144401">
+        </testcase>
+        <testcase classname="src/components/auth/PermissionGate.test.tsx" name="PermissionGate &gt; with multiple permissions (requireAll=false) &gt; should render when user has any of the permissions" time="0.001176438">
+        </testcase>
+        <testcase classname="src/components/auth/PermissionGate.test.tsx" name="PermissionGate &gt; with multiple permissions (requireAll=true) &gt; should not render when user lacks any permission" time="0.000991916">
+        </testcase>
+        <testcase classname="src/components/auth/PermissionGate.test.tsx" name="RoleGate &gt; should render children when user has required role" time="0.001412457">
+        </testcase>
+        <testcase classname="src/components/auth/PermissionGate.test.tsx" name="RoleGate &gt; should not render when user lacks role" time="0.000970975">
+        </testcase>
+        <testcase classname="src/components/auth/PermissionGate.test.tsx" name="RoleGate &gt; should render when user has any of multiple roles" time="0.001173884">
+        </testcase>
+        <testcase classname="src/components/auth/PermissionGate.test.tsx" name="AdminGate &gt; should render for admin user" time="0.001631851">
+        </testcase>
+        <testcase classname="src/components/auth/PermissionGate.test.tsx" name="AdminGate &gt; should render for super_admin user" time="0.001356424">
+        </testcase>
+        <testcase classname="src/components/auth/PermissionGate.test.tsx" name="AdminGate &gt; should not render for non-admin user" time="0.006947033">
+        </testcase>
+    </testsuite>
+</testsuites>

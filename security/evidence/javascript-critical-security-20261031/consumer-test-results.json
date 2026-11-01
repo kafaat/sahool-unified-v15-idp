@@ -1,0 +1,473 @@
+{
+  "schema_version": 1,
+  "source": "Derived without changing counts or failure messages from the named original JSON reports. Full reports remain at source paths; hashes identify them.",
+  "receipts": [
+    "receipts/final-app-runner-acceptance.json",
+    "receipts/final-node20-consumer-checks.json"
+  ],
+  "results": [
+    {
+      "consumer": "web",
+      "report_source": "/workspace/scratch/882204c263d7/js-security-evidence/final-vitest-web.json",
+      "report_sha256": "cdc1314577d0ccde7a946b5a780ac26e1051838bfb934322e1fdaac4fd30dd5c",
+      "report_bytes": 384865,
+      "process_exit_code": 1,
+      "duration_seconds": 28.353,
+      "command": [
+        "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+        "/workspace/scratch/882204c263d7/js-security-tools/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "test",
+        "--workspace=apps/web",
+        "--",
+        "--maxWorkers=2",
+        "--reporter=json",
+        "--outputFile=/workspace/scratch/882204c263d7/js-security-evidence/final-vitest-web.json"
+      ],
+      "counts": {
+        "numTotalTests": 1312,
+        "numPassedTests": 1293,
+        "numFailedTests": 19,
+        "numPendingTests": 0,
+        "numTotalTestSuites": 440,
+        "numFailedTestSuites": 16,
+        "numRuntimeErrorTestSuites": null
+      },
+      "reported_test_result_files": 54,
+      "failed_files": [
+        {
+          "path": "apps/web/src/lib/security/csp-config.test.ts",
+          "message": "",
+          "failed_cases": [
+            {
+              "name": "CSP Directives should include nonce in script-src when provided",
+              "messages": [
+                "AssertionError: expected [ '\\'self\\'', …(2) ] to include '\\'nonce-test-nonce-123\\''\n    at Proxy.<anonymous> (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/expect/dist/index.js:1191:15)\n    at Proxy.<anonymous> (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/chai/index.js:1686:25)\n    at /workspace/scratch/882204c263d7/javascript-security-fix/apps/web/src/lib/security/csp-config.test.ts:50:38\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
+              ]
+            },
+            {
+              "name": "CSP Directives should include nonce in style-src when provided",
+              "messages": [
+                "AssertionError: expected [ '\\'self\\'', …(4) ] to include '\\'nonce-test-nonce-123\\''\n    at Proxy.<anonymous> (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/expect/dist/index.js:1191:15)\n    at Proxy.<anonymous> (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/chai/index.js:1686:25)\n    at /workspace/scratch/882204c263d7/javascript-security-fix/apps/web/src/lib/security/csp-config.test.ts:55:37\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
+              ]
+            },
+            {
+              "name": "CSP Directives should include strict-dynamic in script-src with nonce (non-dev)",
+              "messages": [
+                "AssertionError: expected [ '\\'self\\'', …(2) ] to include '\\'nonce-test-nonce\\''\n    at Proxy.<anonymous> (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/expect/dist/index.js:1191:15)\n    at Proxy.<anonymous> (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/chai/index.js:1686:25)\n    at /workspace/scratch/882204c263d7/javascript-security-fix/apps/web/src/lib/security/csp-config.test.ts:76:38\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
+              ]
+            },
+            {
+              "name": "CSP Header Building should include nonce in header",
+              "messages": [
+                "AssertionError: expected 'default-src \\'self\\'; script-src \\'se…' to contain '\\'nonce-abc123\\''\n    at /workspace/scratch/882204c263d7/javascript-security-fix/apps/web/src/lib/security/csp-config.test.ts:141:20\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at runSuite (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)\n    at runSuite (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "apps/web/src/components/layouts/__tests__/sidebar.test.tsx",
+          "message": "[vitest] No \"DatabaseZap\" export is defined on the \"lucide-react\" mock. Did you forget to return it from \"vi.mock\"?\nIf you need to partially mock a module, you can use \"importOriginal\" helper inside:\n",
+          "failed_cases": []
+        },
+        {
+          "path": "apps/web/src/features/fields/__tests__/tenant-guard.test.ts",
+          "message": "",
+          "failed_cases": [
+            {
+              "name": "Fields API — tenant guard (P0 fix) createField rejects when tenantId is undefined (no silent default-tenant)",
+              "messages": [
+                "AssertionError: expected [Function] to throw error matching /tenantId is required/i but got 'يجب تسجيل الدخول أولاً | Authenticati…'\n    at _Assertion.<anonymous> (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at _Assertion.<anonymous> (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at _Assertion.methodWrapper (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/chai/index.js:1686:25)\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/expect/dist/index.js:1639:20\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at /workspace/scratch/882204c263d7/javascript-security-fix/apps/web/src/features/fields/__tests__/tenant-guard.test.ts:41:5\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:752:20"
+              ]
+            },
+            {
+              "name": "Fields API — tenant guard (P0 fix) createField rejects when tenantId is empty string",
+              "messages": [
+                "AssertionError: expected [Function] to throw error matching /tenantId is required/i but got 'يجب تسجيل الدخول أولاً | Authenticati…'\n    at _Assertion.<anonymous> (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at _Assertion.<anonymous> (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at _Assertion.methodWrapper (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/chai/index.js:1686:25)\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/expect/dist/index.js:1639:20\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at /workspace/scratch/882204c263d7/javascript-security-fix/apps/web/src/features/fields/__tests__/tenant-guard.test.ts:47:5\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:752:20"
+              ]
+            },
+            {
+              "name": "Fields API — tenant guard (P0 fix) updateField rejects when tenantId is undefined",
+              "messages": [
+                "AssertionError: expected [Function] to throw error matching /tenantId is required/i but got 'يجب تسجيل الدخول أولاً | Authenticati…'\n    at _Assertion.<anonymous> (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/expect/dist/index.js:1420:16)\n    at _Assertion.<anonymous> (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at _Assertion.methodWrapper (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/chai/index.js:1686:25)\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/expect/dist/index.js:1639:20\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at /workspace/scratch/882204c263d7/javascript-security-fix/apps/web/src/features/fields/__tests__/tenant-guard.test.ts:53:5\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:752:20"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "apps/web/src/lib/api/__tests__/auth-client.test.ts",
+          "message": "",
+          "failed_cases": [
+            {
+              "name": "AuthApiClient login should trim and lowercase email before sending",
+              "messages": [
+                "AssertionError: expected \"spy\" to be called with arguments: [ StringContaining{…}, …(1) ]\n\nReceived: \n\n  1st spy call:\n\n  [\n-   StringContaining \"/api/v1/auth/login\",\n-   ObjectContaining {\n-     \"body\": StringContaining \"\\\"email\\\":\\\"test@sahool.com\\\"\",\n+   \"/api/auth/login\",\n+   {\n+     \"body\": \"{\\\"email\\\":\\\"test@sahool.com\\\",\\\"password\\\":\\\"password123\\\"}\",\n+     \"credentials\": \"include\",\n+     \"headers\": {\n+       \"Content-Type\": \"application/json\",\n+     },\n      \"method\": \"POST\",\n+     \"signal\": AbortSignal {},\n    },\n  ]\n\n\nNumber of calls: 1\n\n    at Proxy.<anonymous> (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/expect/dist/index.js:1355:10)\n    at Proxy.<anonymous> (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/chai/index.js:1686:25)\n    at /workspace/scratch/882204c263d7/javascript-security-fix/apps/web/src/lib/api/__tests__/auth-client.test.ts:97:28\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:752:20"
+              ]
+            },
+            {
+              "name": "AuthApiClient login should handle non-JSON responses",
+              "messages": [
+                "AssertionError: expected false to be true // Object.is equality\n    at /workspace/scratch/882204c263d7/javascript-security-fix/apps/web/src/lib/api/__tests__/auth-client.test.ts:189:30\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:752:20"
+              ]
+            },
+            {
+              "name": "AuthApiClient login should handle invalid JSON response",
+              "messages": [
+                "AssertionError: expected true to be false // Object.is equality\n    at /workspace/scratch/882204c263d7/javascript-security-fix/apps/web/src/lib/api/__tests__/auth-client.test.ts:203:30\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:752:20"
+              ]
+            },
+            {
+              "name": "AuthApiClient login should handle error response without message or error field",
+              "messages": [
+                "AssertionError: expected 'Login failed' to be 'Request failed with status 500' // Object.is equality\n    at /workspace/scratch/882204c263d7/javascript-security-fix/apps/web/src/lib/api/__tests__/auth-client.test.ts:236:28\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:752:20"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "apps/web/src/lib/security/__tests__/csp-config.test.ts",
+          "message": "",
+          "failed_cases": [
+            {
+              "name": "CSP Configuration getCSPDirectives should include nonce in script-src when provided",
+              "messages": [
+                "AssertionError: expected [ '\\'self\\'', …(2) ] to include '\\'nonce-test-nonce-123\\''\n    at Proxy.<anonymous> (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/expect/dist/index.js:1191:15)\n    at Proxy.<anonymous> (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/chai/index.js:1686:25)\n    at /workspace/scratch/882204c263d7/javascript-security-fix/apps/web/src/lib/security/__tests__/csp-config.test.ts:55:40\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
+              ]
+            },
+            {
+              "name": "CSP Configuration getCSPDirectives should include nonce in style-src when provided",
+              "messages": [
+                "AssertionError: expected [ '\\'self\\'', …(4) ] to include '\\'nonce-test-nonce-123\\''\n    at Proxy.<anonymous> (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/expect/dist/index.js:1191:15)\n    at Proxy.<anonymous> (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/chai/index.js:1686:25)\n    at /workspace/scratch/882204c263d7/javascript-security-fix/apps/web/src/lib/security/__tests__/csp-config.test.ts:61:39\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
+              ]
+            },
+            {
+              "name": "CSP Configuration getCSPConfig should pass nonce to directives",
+              "messages": [
+                "AssertionError: expected [ '\\'self\\'', …(2) ] to include '\\'nonce-my-nonce\\''\n    at Proxy.<anonymous> (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/expect/dist/index.js:1191:15)\n    at Proxy.<anonymous> (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/chai/index.js:1686:25)\n    at /workspace/scratch/882204c263d7/javascript-security-fix/apps/web/src/lib/security/__tests__/csp-config.test.ts:160:47\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)"
+              ]
+            },
+            {
+              "name": "CSP Configuration getCSPHeader should include nonce when provided",
+              "messages": [
+                "AssertionError: expected 'default-src \\'self\\'; script-src \\'se…' to contain 'nonce-test-nonce'\n    at /workspace/scratch/882204c263d7/javascript-security-fix/apps/web/src/lib/security/__tests__/csp-config.test.ts:173:22\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at runSuite (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)\n    at runSuite (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "apps/web/src/app/api/auth/__tests__/refresh-route.test.ts",
+          "message": "",
+          "failed_cases": [
+            {
+              "name": "Token Refresh Proxy Route should return 401 and clear cookies when backend refresh fails",
+              "messages": [
+                "AssertionError: expected \"spy\" to be called with arguments: [ 'access_token' ]\n\nNumber of calls: 0\n\n    at Proxy.<anonymous> (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/expect/dist/index.js:1355:10)\n    at Proxy.<anonymous> (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/chai/index.js:1686:25)\n    at /workspace/scratch/882204c263d7/javascript-security-fix/apps/web/src/app/api/auth/__tests__/refresh-route.test.ts:107:36\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:752:20"
+              ]
+            },
+            {
+              "name": "Token Refresh Proxy Route should set httpOnly cookie and return token on success",
+              "messages": [
+                "AssertionError: expected \"spy\" to be called with arguments: [ 'access_token', …(2) ]\n\nNumber of calls: 0\n\n    at Proxy.<anonymous> (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/expect/dist/index.js:1355:10)\n    at Proxy.<anonymous> (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/chai/index.js:1686:25)\n    at /workspace/scratch/882204c263d7/javascript-security-fix/apps/web/src/app/api/auth/__tests__/refresh-route.test.ts:142:33\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:752:20"
+              ]
+            },
+            {
+              "name": "Token Refresh Proxy Route should use default maxAge of 1800 when env var is not set",
+              "messages": [
+                "AssertionError: expected \"spy\" to be called with arguments: [ 'access_token', 'token', …(1) ]\n\nNumber of calls: 0\n\n    at Proxy.<anonymous> (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/expect/dist/index.js:1355:10)\n    at Proxy.<anonymous> (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/chai/index.js:1686:25)\n    at /workspace/scratch/882204c263d7/javascript-security-fix/apps/web/src/app/api/auth/__tests__/refresh-route.test.ts:181:33\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:752:20"
+              ]
+            },
+            {
+              "name": "Token Refresh Proxy Route should forward refresh_token to correct backend endpoint",
+              "messages": [
+                "AssertionError: expected \"spy\" to be called with arguments: [ …(2) ]\n\nReceived: \n\n  1st spy call:\n\n  [\n    \"http://localhost:8000/api/v1/auth/refresh\",\n-   ObjectContaining {\n-     \"body\": \"{\\\"refresh_token\\\":\\\"my-refresh-token\\\"}\",\n+   {\n+     \"body\": \"{\\\"refreshToken\\\":\\\"my-refresh-token\\\"}\",\n+     \"headers\": {\n+       \"Content-Type\": \"application/json\",\n+     },\n      \"method\": \"POST\",\n    },\n  ]\n\n\nNumber of calls: 1\n\n    at Proxy.<anonymous> (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/expect/dist/index.js:1355:10)\n    at Proxy.<anonymous> (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/expect/dist/index.js:1029:14)\n    at Proxy.methodWrapper (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/chai/index.js:1686:25)\n    at /workspace/scratch/882204c263d7/javascript-security-fix/apps/web/src/app/api/auth/__tests__/refresh-route.test.ts:212:23\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:752:20"
+              ]
+            }
+          ]
+        }
+      ],
+      "limit": "Candidate branch results; separate frontend PR1998 fixes are not overlaid."
+    },
+    {
+      "consumer": "admin",
+      "report_source": "/workspace/scratch/882204c263d7/js-security-evidence/final-vitest-admin.json",
+      "report_sha256": "cf463a22d87672d60fd44ba02bde6936454c38cbce5dde4a64456187672ea5bd",
+      "report_bytes": 636681,
+      "process_exit_code": 1,
+      "duration_seconds": 35.654,
+      "command": [
+        "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+        "/workspace/scratch/882204c263d7/js-security-tools/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "test",
+        "--workspace=apps/admin",
+        "--",
+        "--maxWorkers=2",
+        "--reporter=json",
+        "--outputFile=/workspace/scratch/882204c263d7/js-security-evidence/final-vitest-admin.json"
+      ],
+      "counts": {
+        "numTotalTests": 2515,
+        "numPassedTests": 2513,
+        "numFailedTests": 2,
+        "numPendingTests": 0,
+        "numTotalTestSuites": 545,
+        "numFailedTestSuites": 5,
+        "numRuntimeErrorTestSuites": null
+      },
+      "reported_test_result_files": 74,
+      "failed_files": [
+        {
+          "path": "apps/admin/src/app/__tests__/seo-metadata.test.tsx",
+          "message": "",
+          "failed_cases": [
+            {
+              "name": "Root Layout SEO does NOT force dynamic rendering at the root layout",
+              "messages": [
+                "AssertionError: expected 'import type { Metadata } from \\'next\\…' not to match /export const dynamic = ['\"]force-dyna…/\n    at /workspace/scratch/882204c263d7/javascript-security-fix/apps/admin/src/app/__tests__/seo-metadata.test.tsx:125:31\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at runSuite (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)\n    at runSuite (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "apps/admin/src/components/fields/__tests__/FieldCreateDialog.test.tsx",
+          "message": "",
+          "failed_cases": [
+            {
+              "name": "FieldCreateDialog source verification posts to /api/v1/fields endpoint",
+              "messages": [
+                "AssertionError: expected '\\'use client\\';\\n\\n/**\\n * Field Crea…' to contain 'apiClient.post(\\'/api/v1/fields\\''\n    at /workspace/scratch/882204c263d7/javascript-security-fix/apps/admin/src/components/fields/__tests__/FieldCreateDialog.test.tsx:547:23\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26\n    at file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)\n    at runTest (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)\n    at runSuite (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)\n    at runSuite (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)\n    at runSuite (file:///workspace/scratch/882204c263d7/javascript-security-fix/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)"
+              ]
+            }
+          ]
+        }
+      ],
+      "limit": "Candidate branch results; separate frontend PR1998 fixes are not overlaid."
+    },
+    {
+      "consumer": "chat-service",
+      "report_source": "/workspace/scratch/882204c263d7/js-security-evidence/chat-service-final-tests.json",
+      "report_sha256": "451e934f82818516011dbdea9a4791df08a53841a19222fedb7fe9118b63fcaa",
+      "report_bytes": 110619,
+      "process_exit_code": -15,
+      "duration_seconds": 374.315,
+      "command": [
+        "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+        "/workspace/scratch/882204c263d7/javascript-security-fix/node_modules/jest/bin/jest.js",
+        "--runInBand",
+        "--json",
+        "--outputFile=/workspace/scratch/882204c263d7/js-security-evidence/chat-service-final-tests.json"
+      ],
+      "counts": {
+        "numTotalTests": 278,
+        "numPassedTests": 278,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTotalTestSuites": 6,
+        "numFailedTestSuites": 0,
+        "numRuntimeErrorTestSuites": 0
+      },
+      "reported_test_result_files": 6,
+      "failed_files": [],
+      "limit": "Jest cases completed but owned process was terminated after open-handle hang; not a successful command."
+    },
+    {
+      "consumer": "crop-growth-model",
+      "report_source": "/workspace/scratch/882204c263d7/js-security-evidence/crop-growth-model-final-tests.json",
+      "report_sha256": "c44801807128e38842a2d559de27551946f32580651226d47929a75bebbdd29f",
+      "report_bytes": 3580,
+      "process_exit_code": 1,
+      "duration_seconds": 6.964,
+      "command": [
+        "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+        "/workspace/scratch/882204c263d7/javascript-security-fix/node_modules/jest/bin/jest.js",
+        "--runInBand",
+        "--json",
+        "--outputFile=/workspace/scratch/882204c263d7/js-security-evidence/crop-growth-model-final-tests.json"
+      ],
+      "counts": {
+        "numTotalTests": 5,
+        "numPassedTests": 5,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTotalTestSuites": 3,
+        "numFailedTestSuites": 1,
+        "numRuntimeErrorTestSuites": 1
+      },
+      "reported_test_result_files": 3,
+      "failed_files": [
+        {
+          "path": "apps/services/crop-growth-model/src/__tests__/health.spec.ts",
+          "message": "  ● Test suite failed to run\n\n    src/__tests__/health.spec.ts:28:31 - error TS2554: Expected 1 arguments, but got 0.\n\n    28     const result = controller.readinessCheck();\n                                     ~~~~~~~~~~~~~~\n\n      src/health/health.controller.ts:34:18\n        34   readinessCheck(@Res() res: Response) {\n                            ~~~~~~~~~~~~~~~~~~~~\n        An argument for 'res' was not provided.\n",
+          "failed_cases": []
+        }
+      ],
+      "limit": "Candidate branch results; separate frontend PR1998 fixes are not overlaid."
+    },
+    {
+      "consumer": "disaster-assessment",
+      "report_source": "/workspace/scratch/882204c263d7/js-security-evidence/disaster-assessment-final-tests.json",
+      "report_sha256": "38d1e60021998e7654a8091394f2b502b54debcad9a742d658e246bea714cc2b",
+      "report_bytes": 15788,
+      "process_exit_code": 0,
+      "duration_seconds": 4.165,
+      "command": [
+        "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+        "/workspace/scratch/882204c263d7/javascript-security-fix/node_modules/jest/bin/jest.js",
+        "--runInBand",
+        "--json",
+        "--outputFile=/workspace/scratch/882204c263d7/js-security-evidence/disaster-assessment-final-tests.json"
+      ],
+      "counts": {
+        "numTotalTests": 45,
+        "numPassedTests": 45,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTotalTestSuites": 2,
+        "numFailedTestSuites": 0,
+        "numRuntimeErrorTestSuites": 0
+      },
+      "reported_test_result_files": 2,
+      "failed_files": [],
+      "limit": "Candidate branch results; separate frontend PR1998 fixes are not overlaid."
+    },
+    {
+      "consumer": "field-management-service",
+      "report_source": "/workspace/scratch/882204c263d7/js-security-evidence/field-management-service-final-tests.json",
+      "report_sha256": "6bdf7a51ade1832b8ba8c848a0023dd88f8715bf1d58e64d04f94ef127bdaf8e",
+      "report_bytes": 73000,
+      "process_exit_code": 1,
+      "duration_seconds": 10.179,
+      "command": [
+        "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+        "/workspace/scratch/882204c263d7/javascript-security-fix/node_modules/jest/bin/jest.js",
+        "--runInBand",
+        "--json",
+        "--outputFile=/workspace/scratch/882204c263d7/js-security-evidence/field-management-service-final-tests.json"
+      ],
+      "counts": {
+        "numTotalTests": 178,
+        "numPassedTests": 177,
+        "numFailedTests": 1,
+        "numPendingTests": 0,
+        "numTotalTestSuites": 12,
+        "numFailedTestSuites": 2,
+        "numRuntimeErrorTestSuites": 1
+      },
+      "reported_test_result_files": 12,
+      "failed_files": [
+        {
+          "path": "apps/services/field-management-service/src/tasks/__tests__/tasks.service.spec.ts",
+          "message": "  ● Test suite failed to run\n\n    src/tasks/__tests__/tasks.service.spec.ts:227:36 - error TS2554: Expected 2 arguments, but got 1.\n\n    227       const result = await service.createTask(input);\n                                           ~~~~~~~~~~\n\n      src/tasks/tasks.service.ts:91:5\n        91     userId: string,\n               ~~~~~~~~~~~~~~\n        An argument for 'userId' was not provided.\n    src/tasks/__tests__/tasks.service.spec.ts:249:21 - error TS2554: Expected 2 arguments, but got 1.\n\n    249       await service.createTask(input);\n                            ~~~~~~~~~~\n\n      src/tasks/tasks.service.ts:91:5\n        91     userId: string,\n               ~~~~~~~~~~~~~~\n        An argument for 'userId' was not provided.\n    src/tasks/__tests__/tasks.service.spec.ts:261:21 - error TS2554: Expected 2 arguments, but got 1.\n\n    261       await service.createTask({\n                            ~~~~~~~~~~\n\n      src/tasks/tasks.service.ts:91:5\n        91     userId: string,\n               ~~~~~~~~~~~~~~\n        An argument for 'userId' was not provided.\n    src/tasks/__tests__/tasks.service.spec.ts:275:21 - error TS2554: Expected 2 arguments, but got 1.\n\n    275       await service.createTask({\n                            ~~~~~~~~~~\n\n      src/tasks/tasks.service.ts:91:5\n        91     userId: string,\n               ~~~~~~~~~~~~~~\n        An argument for 'userId' was not provided.\n",
+          "failed_cases": []
+        },
+        {
+          "path": "apps/services/field-management-service/src/fields/__tests__/fields.service.spec.ts",
+          "message": "  ● FieldsService › getStats() › should return empty object when raw query returns empty array\n\n    expect(received).toEqual(expected) // deep equality\n\n    - Expected  -  1\n    + Received  + 10\n\n    - Object {}\n    + Object {\n    +   \"active_fields\": 0,\n    +   \"average_health\": undefined,\n    +   \"average_ndvi\": undefined,\n    +   \"crop_types\": 0,\n    +   \"fallow_fields\": 0,\n    +   \"harvested_fields\": 0,\n    +   \"total_area\": 0,\n    +   \"total_fields\": 0,\n    + }\n\n      905 |       const result = await service.getStats(TENANT_A);\n      906 |\n    > 907 |       expect(result).toEqual({});\n          |                      ^\n      908 |     });\n      909 |   });\n      910 |\n\n      at Object.<anonymous> (src/fields/__tests__/fields.service.spec.ts:907:22)\n",
+          "failed_cases": [
+            {
+              "name": "FieldsService getStats() should return empty object when raw query returns empty array",
+              "messages": [
+                "Error: expect(received).toEqual(expected) // deep equality\n\n- Expected  -  1\n+ Received  + 10\n\n- Object {}\n+ Object {\n+   \"active_fields\": 0,\n+   \"average_health\": undefined,\n+   \"average_ndvi\": undefined,\n+   \"crop_types\": 0,\n+   \"fallow_fields\": 0,\n+   \"harvested_fields\": 0,\n+   \"total_area\": 0,\n+   \"total_fields\": 0,\n+ }\n    at Object.<anonymous> (/workspace/scratch/882204c263d7/javascript-security-fix/apps/services/field-management-service/src/fields/__tests__/fields.service.spec.ts:907:22)"
+              ]
+            }
+          ]
+        }
+      ],
+      "limit": "Candidate branch results; separate frontend PR1998 fixes are not overlaid."
+    },
+    {
+      "consumer": "lai-estimation",
+      "report_source": "/workspace/scratch/882204c263d7/js-security-evidence/lai-estimation-final-tests.json",
+      "report_sha256": "89300bf05c9f74bbbb8b92699502a3264758380fd339abcc3d6d2a41472c54e9",
+      "report_bytes": 3617,
+      "process_exit_code": 0,
+      "duration_seconds": 4.817,
+      "command": [
+        "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+        "/workspace/scratch/882204c263d7/javascript-security-fix/node_modules/jest/bin/jest.js",
+        "--runInBand",
+        "--json",
+        "--outputFile=/workspace/scratch/882204c263d7/js-security-evidence/lai-estimation-final-tests.json"
+      ],
+      "counts": {
+        "numTotalTests": 8,
+        "numPassedTests": 8,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTotalTestSuites": 3,
+        "numFailedTestSuites": 0,
+        "numRuntimeErrorTestSuites": 0
+      },
+      "reported_test_result_files": 3,
+      "failed_files": [],
+      "limit": "Candidate branch results; separate frontend PR1998 fixes are not overlaid."
+    },
+    {
+      "consumer": "marketplace-service",
+      "report_source": "/workspace/scratch/882204c263d7/js-security-evidence/marketplace-service-final-tests.json",
+      "report_sha256": "ebb69813f5723dfe715965aabc4124f377ec466e8897bcbec1d6d1b30a4cadd5",
+      "report_bytes": 140477,
+      "process_exit_code": 1,
+      "duration_seconds": 13.119,
+      "command": [
+        "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+        "/workspace/scratch/882204c263d7/javascript-security-fix/node_modules/jest/bin/jest.js",
+        "--runInBand",
+        "--json",
+        "--outputFile=/workspace/scratch/882204c263d7/js-security-evidence/marketplace-service-final-tests.json"
+      ],
+      "counts": {
+        "numTotalTests": 355,
+        "numPassedTests": 354,
+        "numFailedTests": 1,
+        "numPendingTests": 0,
+        "numTotalTestSuites": 14,
+        "numFailedTestSuites": 1,
+        "numRuntimeErrorTestSuites": 0
+      },
+      "reported_test_result_files": 14,
+      "failed_files": [
+        {
+          "path": "apps/services/marketplace-service/src/__tests__/marketplace.service.spec.ts",
+          "message": "  ● Health Endpoints › GET /readyz › should return readiness status with dependency checks\n\n    expect(received).toHaveProperty(path, value)\n\n    Expected path: \"nats\"\n\n    Expected value: \"connected\"\n    Received value: \"not_configured\"\n\n      235 |       expect(result).toHaveProperty(\"checks\");\n      236 |       expect(result.checks).toHaveProperty(\"database\", \"connected\");\n    > 237 |       expect(result.checks).toHaveProperty(\"nats\", \"connected\");\n          |                             ^\n      238 |     });\n      239 |\n      240 |     it(\"should include a valid ISO timestamp\", async () => {\n\n      at Object.<anonymous> (src/__tests__/marketplace.service.spec.ts:237:29)\n",
+          "failed_cases": [
+            {
+              "name": "Health Endpoints GET /readyz should return readiness status with dependency checks",
+              "messages": [
+                "Error: expect(received).toHaveProperty(path, value)\n\nExpected path: \"nats\"\n\nExpected value: \"connected\"\nReceived value: \"not_configured\"\n    at Object.<anonymous> (/workspace/scratch/882204c263d7/javascript-security-fix/apps/services/marketplace-service/src/__tests__/marketplace.service.spec.ts:237:29)"
+              ]
+            }
+          ]
+        }
+      ],
+      "limit": "Candidate branch results; separate frontend PR1998 fixes are not overlaid."
+    },
+    {
+      "consumer": "yield-prediction",
+      "report_source": "/workspace/scratch/882204c263d7/js-security-evidence/yield-prediction-final-tests.json",
+      "report_sha256": "f479720d55911e72f8db2d0fd3e03d3e3ae6be439f7726daa4319a99ee1ef40c",
+      "report_bytes": 2415,
+      "process_exit_code": 0,
+      "duration_seconds": 2.693,
+      "command": [
+        "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+        "/workspace/scratch/882204c263d7/javascript-security-fix/node_modules/jest/bin/jest.js",
+        "--runInBand",
+        "--json",
+        "--outputFile=/workspace/scratch/882204c263d7/js-security-evidence/yield-prediction-final-tests.json"
+      ],
+      "counts": {
+        "numTotalTests": 5,
+        "numPassedTests": 5,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTotalTestSuites": 1,
+        "numFailedTestSuites": 0,
+        "numRuntimeErrorTestSuites": 0
+      },
+      "reported_test_result_files": 1,
+      "failed_files": [],
+      "limit": "Candidate branch results; separate frontend PR1998 fixes are not overlaid."
+    }
+  ]
+}

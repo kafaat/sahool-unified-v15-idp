@@ -1,0 +1,31 @@
+{
+  "command": [
+    "/workspace/scratch/882204c263d7/pyjwt-evidence/dependency-followup/trivy-0.69.3",
+    "--cache-dir",
+    "/tmp/sahool-trivy-js-rescan-882204c263d7",
+    "fs",
+    "--skip-check-update",
+    "--skip-db-update",
+    "--scanners",
+    "vuln",
+    "--severity",
+    "CRITICAL",
+    "--exit-code",
+    "1",
+    "--format",
+    "sarif",
+    "--output",
+    "/workspace/scratch/882204c263d7/javascript-security-evidence/trivy-fixed-db/javascript-final-trivy-critical.sarif",
+    "."
+  ],
+  "cwd": "/workspace/scratch/882204c263d7/javascript-security-fix",
+  "base_commit": "ab53c98596daca1740d2ac5a5dbd48db7b24e34f",
+  "started_at": "2026-10-31T20:21:42.026739+00:00",
+  "duration_seconds": 4.265,
+  "exit_code": 1,
+  "dependency_inputs": 206,
+  "dependency_inputs_unchanged": true,
+  "db_sha256_after": "d81ea576fbcd02c304b980d8eec4dd1a372648b648bfb876f48790d63ee58f93",
+  "db_unchanged": true,
+  "sarif_sha256": "995d6fe5593f9aa8283fc4b0cf5d0ccdb601aa78e434ba0f9cc4f5486729deab"
+}

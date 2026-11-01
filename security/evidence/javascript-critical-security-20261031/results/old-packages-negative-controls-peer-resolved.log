@@ -1,0 +1,348 @@
+TAP version 13
+# Subtest: patched dependencies in apps/services/chat-service/package-lock.json
+ok 1 - patched dependencies in apps/services/chat-service/package-lock.json # SKIP test name does not match pattern
+  ---
+  duration_ms: 1.595368
+  ...
+# Subtest: patched dependencies in apps/services/code-review-agent/package-lock.json
+ok 2 - patched dependencies in apps/services/code-review-agent/package-lock.json # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.238122
+  ...
+# Subtest: patched dependencies in apps/services/crop-growth-model/package-lock.json
+ok 3 - patched dependencies in apps/services/crop-growth-model/package-lock.json # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.373663
+  ...
+# Subtest: patched dependencies in apps/services/disaster-assessment/package-lock.json
+ok 4 - patched dependencies in apps/services/disaster-assessment/package-lock.json # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.145935
+  ...
+# Subtest: patched dependencies in apps/services/field-management-service/package-lock.json
+ok 5 - patched dependencies in apps/services/field-management-service/package-lock.json # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.153928
+  ...
+# Subtest: patched dependencies in apps/services/lai-estimation/package-lock.json
+ok 6 - patched dependencies in apps/services/lai-estimation/package-lock.json # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.131084
+  ...
+# Subtest: patched dependencies in apps/services/marketplace-service/package-lock.json
+ok 7 - patched dependencies in apps/services/marketplace-service/package-lock.json # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.150683
+  ...
+# Subtest: patched dependencies in apps/services/yield-prediction/package-lock.json
+ok 8 - patched dependencies in apps/services/yield-prediction/package-lock.json # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.197031
+  ...
+# Subtest: patched dependencies in archive/deprecated-services/community-chat/package-lock.json
+ok 9 - patched dependencies in archive/deprecated-services/community-chat/package-lock.json # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.191212
+  ...
+# Subtest: patched dependencies in archive/kernel-legacy/kernel/services/field_core/package-lock.json
+ok 10 - patched dependencies in archive/kernel-legacy/kernel/services/field_core/package-lock.json # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.211122
+  ...
+# Subtest: patched dependencies in package-lock.json
+ok 11 - patched dependencies in package-lock.json # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.125686
+  ...
+# Subtest: patched dependencies in packages/shared-audit/package-lock.json
+ok 12 - patched dependencies in packages/shared-audit/package-lock.json # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.174808
+  ...
+# Subtest: patched dependencies in packages/shared-crypto/package-lock.json
+ok 13 - patched dependencies in packages/shared-crypto/package-lock.json # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.19625
+  ...
+# Subtest: patched dependencies in packages/shared-db/package-lock.json
+ok 14 - patched dependencies in packages/shared-db/package-lock.json # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.180838
+  ...
+# Subtest: patched dependencies in packages/shared-events/package-lock.json
+ok 15 - patched dependencies in packages/shared-events/package-lock.json # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.131514
+  ...
+# Subtest: proxy-addr rejects a spoofed forwarded client through ::ffff:10.0.0.0/8 from 198.51.100.23
+not ok 16 - proxy-addr rejects a spoofed forwarded client through ::ffff:10.0.0.0/8 from 198.51.100.23
+  ---
+  duration_ms: 3.492421
+  location: '/workspace/scratch/882204c263d7/javascript-main-baseline/tests/security/javascript-dependencies-negative.test.cjs:67:5'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + '192.0.2.123'
+    - '198.51.100.23'
+         ^
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: '198.51.100.23'
+  actual: '192.0.2.123'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/workspace/scratch/882204c263d7/javascript-main-baseline/tests/security/javascript-dependencies-negative.test.cjs:72:14)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: proxy-addr rejects a spoofed forwarded client through ::ffff:10.0.0.0/8 from ::ffff:198.51.100.23
+not ok 17 - proxy-addr rejects a spoofed forwarded client through ::ffff:10.0.0.0/8 from ::ffff:198.51.100.23
+  ---
+  duration_ms: 0.441152
+  location: '/workspace/scratch/882204c263d7/javascript-main-baseline/tests/security/javascript-dependencies-negative.test.cjs:67:5'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + '192.0.2.123'
+    - '::ffff:198.51.100.23'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: '::ffff:198.51.100.23'
+  actual: '192.0.2.123'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/workspace/scratch/882204c263d7/javascript-main-baseline/tests/security/javascript-dependencies-negative.test.cjs:72:14)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: proxy-addr rejects a spoofed forwarded client through ::/1 from 198.51.100.23
+not ok 18 - proxy-addr rejects a spoofed forwarded client through ::/1 from 198.51.100.23
+  ---
+  duration_ms: 0.625294
+  location: '/workspace/scratch/882204c263d7/javascript-main-baseline/tests/security/javascript-dependencies-negative.test.cjs:67:5'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + '192.0.2.123'
+    - '198.51.100.23'
+         ^
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: '198.51.100.23'
+  actual: '192.0.2.123'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/workspace/scratch/882204c263d7/javascript-main-baseline/tests/security/javascript-dependencies-negative.test.cjs:72:14)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: proxy-addr rejects a spoofed forwarded client through ::/1 from ::ffff:198.51.100.23
+not ok 19 - proxy-addr rejects a spoofed forwarded client through ::/1 from ::ffff:198.51.100.23
+  ---
+  duration_ms: 0.258692
+  location: '/workspace/scratch/882204c263d7/javascript-main-baseline/tests/security/javascript-dependencies-negative.test.cjs:67:5'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + '192.0.2.123'
+    - '::ffff:198.51.100.23'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: '::ffff:198.51.100.23'
+  actual: '192.0.2.123'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/workspace/scratch/882204c263d7/javascript-main-baseline/tests/security/javascript-dependencies-negative.test.cjs:72:14)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: proxy-addr preserves legitimate proxy forwarding through 10.0.0.0/8
+ok 20 - proxy-addr preserves legitimate proxy forwarding through 10.0.0.0/8
+  ---
+  duration_ms: 0.371108
+  ...
+# Subtest: proxy-addr preserves legitimate proxy forwarding through ::ffff:10.0.0.0/104
+ok 21 - proxy-addr preserves legitimate proxy forwarding through ::ffff:10.0.0.0/104
+  ---
+  duration_ms: 0.183311
+  ...
+# Subtest: Handlebars still renders valid parsed templates and escapes user content
+ok 22 - Handlebars still renders valid parsed templates and escapes user content
+  ---
+  duration_ms: 13.592457
+  ...
+# Subtest: Handlebars denies the Function constructor even when it is an own prototype property
+not ok 23 - Handlebars denies the Function constructor even when it is an own prototype property
+  ---
+  duration_ms: 1.38047
+  location: '/workspace/scratch/882204c263d7/javascript-main-baseline/tests/security/javascript-dependencies-negative.test.cjs:93:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + 'function Function() { [native code] }'
+    - ''
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: ''
+  actual: 'function Function() { [native code] }'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/workspace/scratch/882204c263d7/javascript-main-baseline/tests/security/javascript-dependencies-negative.test.cjs:95:10)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: Handlebars rejects an executable blockParams length in an untrusted AST
+not ok 24 - Handlebars rejects an executable blockParams length in an untrusted AST
+  ---
+  duration_ms: 10.652622
+  location: '/workspace/scratch/882204c263d7/javascript-main-baseline/tests/security/javascript-dependencies-negative.test.cjs:98:1'
+  failureType: 'testCodeFailure'
+  error: 'Missing expected exception.'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  operator: 'throws'
+  stack: |-
+    TestContext.<anonymous> (/workspace/scratch/882204c263d7/javascript-main-baseline/tests/security/javascript-dependencies-negative.test.cjs:104:12)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: the actual Vitest worker pool ignores an inherited worker filename
+not ok 25 - the actual Vitest worker pool ignores an inherited worker filename
+  ---
+  duration_ms: 155.711289
+  location: '/workspace/scratch/882204c263d7/javascript-main-baseline/tests/security/javascript-dependencies-negative.test.cjs:113:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+      {
+        task: {
+          value: 7
+        },
+    +   worker: 'alternate'
+    -   worker: 'expected'
+      }
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    worker: 'expected'
+    task:
+      value: 7
+  actual:
+    worker: 'alternate'
+    task:
+      value: 7
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (/workspace/scratch/882204c263d7/javascript-main-baseline/tests/security/javascript-dependencies-negative.test.cjs:126:12)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: web: installed Next.js matches the declared patched version
+ok 26 - web: installed Next.js matches the declared patched version # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.248978
+  ...
+# Subtest: web: Sentry cannot bypass authorization outside its exact envelope route
+not ok 27 - web: Sentry cannot bypass authorization outside its exact envelope route
+  ---
+  duration_ms: 297.526222
+  location: '/workspace/scratch/882204c263d7/javascript-main-baseline/tests/security/javascript-dependencies-negative.test.cjs:146:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    GET /monitoring?o=1&p=2 must reach authorization
+    
+    200 !== 401
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 401
+  actual: 200
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/workspace/scratch/882204c263d7/javascript-main-baseline/tests/security/javascript-dependencies-negative.test.cjs:169:16)
+    process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: web: Next.js image optimizer uses patched Sharp and performs native image conversion
+ok 28 - web: Next.js image optimizer uses patched Sharp and performs native image conversion # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.083544
+  ...
+# Subtest: admin: installed Next.js matches the declared patched version
+ok 29 - admin: installed Next.js matches the declared patched version # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.044626
+  ...
+# Subtest: admin: Sentry cannot bypass authorization outside its exact envelope route
+not ok 30 - admin: Sentry cannot bypass authorization outside its exact envelope route
+  ---
+  duration_ms: 0.69653
+  location: '/workspace/scratch/882204c263d7/javascript-main-baseline/tests/security/javascript-dependencies-negative.test.cjs:146:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    GET /monitoring?o=1&p=2 must reach authorization
+    
+    200 !== 401
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 401
+  actual: 200
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (/workspace/scratch/882204c263d7/javascript-main-baseline/tests/security/javascript-dependencies-negative.test.cjs:169:16)
+    process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    async Test.run (node:internal/test_runner/test:797:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: admin: Next.js image optimizer uses patched Sharp and performs native image conversion
+ok 31 - admin: Next.js image optimizer uses patched Sharp and performs native image conversion # SKIP test name does not match pattern
+  ---
+  duration_ms: 0.058657
+  ...
+1..31
+# tests 31
+# suites 0
+# pass 3
+# fail 9
+# cancelled 0
+# skipped 19
+# todo 0
+# duration_ms 652.482775

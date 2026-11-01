@@ -1,0 +1,1216 @@
+{
+  "version": "2.1.0",
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/main/sarif-2.1/schema/sarif-schema-2.1.0.json",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "fullName": "Trivy Vulnerability Scanner",
+          "informationUri": "https://github.com/aquasecurity/trivy",
+          "name": "Trivy",
+          "rules": [
+            {
+              "id": "CVE-2026-68770",
+              "name": "LanguageSpecificPackageVulnerability",
+              "shortDescription": {
+                "text": "sentence-transformers: sentence-transformers: Remote Code Execution via Security Control Bypass"
+              },
+              "fullDescription": {
+                "text": "sentence-transformers contains a security control bypass vulnerability that allows attackers to achieve arbitrary code execution by exploiting a logic flaw in the import_module_class helper within sentence_transformers/util/misc.py, where the guard condition includes an 'or os.path.exists(model_name_or_path)' clause that satisfies the trust gate whenever the supplied path exists on the local filesystem, regardless of the trust_remote_code=False argument. Attackers who can control or influence the contents of a model directory on disk can place malicious Python files such as modeling_*.py referenced via modules.json, causing the code to execute at import time when an application loads the model with SentenceTransformer(path, trust_remote_code=False), bypassing the documented security contract and achieving code execution within the loading process."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "helpUri": "https://avd.aquasec.com/nvd/cve-2026-68770",
+              "help": {
+                "text": "Vulnerability CVE-2026-68770\nSeverity: CRITICAL\nPackage: sentence-transformers\nFixed Version: 5.6.0\nLink: [CVE-2026-68770](https://avd.aquasec.com/nvd/cve-2026-68770)\nsentence-transformers contains a security control bypass vulnerability that allows attackers to achieve arbitrary code execution by exploiting a logic flaw in the import_module_class helper within sentence_transformers/util/misc.py, where the guard condition includes an 'or os.path.exists(model_name_or_path)' clause that satisfies the trust gate whenever the supplied path exists on the local filesystem, regardless of the trust_remote_code=False argument. Attackers who can control or influence the contents of a model directory on disk can place malicious Python files such as modeling_*.py referenced via modules.json, causing the code to execute at import time when an application loads the model with SentenceTransformer(path, trust_remote_code=False), bypassing the documented security contract and achieving code execution within the loading process.",
+                "markdown": "**Vulnerability CVE-2026-68770**\n| Severity | Package | Fixed Version | Link |\n| --- | --- | --- | --- |\n|CRITICAL|sentence-transformers|5.6.0|[CVE-2026-68770](https://avd.aquasec.com/nvd/cve-2026-68770)|\n\nsentence-transformers contains a security control bypass vulnerability that allows attackers to achieve arbitrary code execution by exploiting a logic flaw in the import_module_class helper within sentence_transformers/util/misc.py, where the guard condition includes an 'or os.path.exists(model_name_or_path)' clause that satisfies the trust gate whenever the supplied path exists on the local filesystem, regardless of the trust_remote_code=False argument. Attackers who can control or influence the contents of a model directory on disk can place malicious Python files such as modeling_*.py referenced via modules.json, causing the code to execute at import time when an application loads the model with SentenceTransformer(path, trust_remote_code=False), bypassing the documented security contract and achieving code execution within the loading process."
+              },
+              "properties": {
+                "cvssv3_baseScore": 9.8,
+                "cvssv3_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+                "cvssv40_baseScore": 9.3,
+                "cvssv40_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+                "precision": "very-high",
+                "security-severity": "9.8",
+                "tags": [
+                  "vulnerability",
+                  "security",
+                  "CRITICAL"
+                ]
+              }
+            },
+            {
+              "id": "CVE-2026-90711",
+              "name": "LanguageSpecificPackageVulnerability",
+              "shortDescription": {
+                "text": "proxy-addr: proxy-addr vulnerable to IP spoofing via IPv4-mapped IPv6 trust subnet"
+              },
+              "fullDescription": {
+                "text": "proxy-addr is a Node.js module that determines a request's client address behind trusted reverse proxies, and it backs Express req.ip and req.ips. In versions 1.1.0 through 2.0.7, a trust subnet written in IPv4-mapped IPv6 notation with an IPv4-sized prefix, such as ::ffff:10.0.0.0/8 instead of the correct ::ffff:10.0.0.0/104, is accepted without error but trusts every IPv4 address on the internet rather than the block it names. Because the socket peer then becomes trusted at hop 0, any unauthenticated client can supply an arbitrary X-Forwarded-For header and control the address the application reads, which defeats IP-based access control, rate limiting, geolocation, and audit logging. This is a fail-open regression introduced in version 1.1.0. The issue is fixed in proxy-addr 2.0.8, and users should upgrade to 2.0.8 or later. As a workaround, ensure any IPv4-mapped IPv6 trust subnet uses a prefix length of at least 97, or express the range in plain IPv4 notation."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "helpUri": "https://avd.aquasec.com/nvd/cve-2026-90711",
+              "help": {
+                "text": "Vulnerability CVE-2026-90711\nSeverity: CRITICAL\nPackage: proxy-addr\nFixed Version: 2.0.8\nLink: [CVE-2026-90711](https://avd.aquasec.com/nvd/cve-2026-90711)\nproxy-addr is a Node.js module that determines a request's client address behind trusted reverse proxies, and it backs Express req.ip and req.ips. In versions 1.1.0 through 2.0.7, a trust subnet written in IPv4-mapped IPv6 notation with an IPv4-sized prefix, such as ::ffff:10.0.0.0/8 instead of the correct ::ffff:10.0.0.0/104, is accepted without error but trusts every IPv4 address on the internet rather than the block it names. Because the socket peer then becomes trusted at hop 0, any unauthenticated client can supply an arbitrary X-Forwarded-For header and control the address the application reads, which defeats IP-based access control, rate limiting, geolocation, and audit logging. This is a fail-open regression introduced in version 1.1.0. The issue is fixed in proxy-addr 2.0.8, and users should upgrade to 2.0.8 or later. As a workaround, ensure any IPv4-mapped IPv6 trust subnet uses a prefix length of at least 97, or express the range in plain IPv4 notation.",
+                "markdown": "**Vulnerability CVE-2026-90711**\n| Severity | Package | Fixed Version | Link |\n| --- | --- | --- | --- |\n|CRITICAL|proxy-addr|2.0.8|[CVE-2026-90711](https://avd.aquasec.com/nvd/cve-2026-90711)|\n\nproxy-addr is a Node.js module that determines a request's client address behind trusted reverse proxies, and it backs Express req.ip and req.ips. In versions 1.1.0 through 2.0.7, a trust subnet written in IPv4-mapped IPv6 notation with an IPv4-sized prefix, such as ::ffff:10.0.0.0/8 instead of the correct ::ffff:10.0.0.0/104, is accepted without error but trusts every IPv4 address on the internet rather than the block it names. Because the socket peer then becomes trusted at hop 0, any unauthenticated client can supply an arbitrary X-Forwarded-For header and control the address the application reads, which defeats IP-based access control, rate limiting, geolocation, and audit logging. This is a fail-open regression introduced in version 1.1.0. The issue is fixed in proxy-addr 2.0.8, and users should upgrade to 2.0.8 or later. As a workaround, ensure any IPv4-mapped IPv6 trust subnet uses a prefix length of at least 97, or express the range in plain IPv4 notation."
+              },
+              "properties": {
+                "cvssv3_baseScore": 9.1,
+                "cvssv3_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N",
+                "precision": "very-high",
+                "security-severity": "9.1",
+                "tags": [
+                  "vulnerability",
+                  "security",
+                  "CRITICAL"
+                ]
+              }
+            },
+            {
+              "id": "CVE-2026-63374",
+              "name": "LanguageSpecificPackageVulnerability",
+              "shortDescription": {
+                "text": "anyio: AnyIO: TLS certificate spoofing via improper internationalized domain name encoding"
+              },
+              "fullDescription": {
+                "text": "AnyIO is a high level asynchronous concurrency and networking framework that works on top of either Trio or asyncio. Prior to 4.14.2, connect_tcp() and TLSStream.wrap() can validate internationalized host names after the standard library converts them with IDNA 2003 instead of IDNA 2008. When a connection to a non-ASCII domain is hijacked or redirected, an attacker can obtain a legitimate certificate for the different ASCII hostname produced by IDNA 2003 and present it to the client, causing the malicious endpoint's certificate to validate. This issue is fixed in version 4.14.2."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "helpUri": "https://avd.aquasec.com/nvd/cve-2026-63374",
+              "help": {
+                "text": "Vulnerability CVE-2026-63374\nSeverity: CRITICAL\nPackage: anyio\nFixed Version: 4.14.2\nLink: [CVE-2026-63374](https://avd.aquasec.com/nvd/cve-2026-63374)\nAnyIO is a high level asynchronous concurrency and networking framework that works on top of either Trio or asyncio. Prior to 4.14.2, connect_tcp() and TLSStream.wrap() can validate internationalized host names after the standard library converts them with IDNA 2003 instead of IDNA 2008. When a connection to a non-ASCII domain is hijacked or redirected, an attacker can obtain a legitimate certificate for the different ASCII hostname produced by IDNA 2003 and present it to the client, causing the malicious endpoint's certificate to validate. This issue is fixed in version 4.14.2.",
+                "markdown": "**Vulnerability CVE-2026-63374**\n| Severity | Package | Fixed Version | Link |\n| --- | --- | --- | --- |\n|CRITICAL|anyio|4.14.2|[CVE-2026-63374](https://avd.aquasec.com/nvd/cve-2026-63374)|\n\nAnyIO is a high level asynchronous concurrency and networking framework that works on top of either Trio or asyncio. Prior to 4.14.2, connect_tcp() and TLSStream.wrap() can validate internationalized host names after the standard library converts them with IDNA 2003 instead of IDNA 2008. When a connection to a non-ASCII domain is hijacked or redirected, an attacker can obtain a legitimate certificate for the different ASCII hostname produced by IDNA 2003 and present it to the client, causing the malicious endpoint's certificate to validate. This issue is fixed in version 4.14.2."
+              },
+              "properties": {
+                "cvssv40_baseScore": 9.3,
+                "cvssv40_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N",
+                "precision": "very-high",
+                "security-severity": "9.5",
+                "tags": [
+                  "vulnerability",
+                  "security",
+                  "CRITICAL"
+                ]
+              }
+            },
+            {
+              "id": "CVE-2026-114139",
+              "name": "LanguageSpecificPackageVulnerability",
+              "shortDescription": {
+                "text": "Sentry-Javascript: Middleware Bypass when using Tunnel route"
+              },
+              "fullDescription": {
+                "text": "Sentry-Javascript is an official Sentry SDKs for JavaScript. From 9.36.0 until 9.47.2, 10.75.2, and 11.0.0-rc.1, the webpack integration for @sentry/nextjs skips application middleware for every request path under a configured tunnelRoute, while the tunnel rewrite serves only the exact tunnel path with valid o and p query parameters. When an application route directly collides with the tunnel path or a root dynamic segment resolves under it, an unauthenticated request can reach that route without middleware authorization. Exploitation requires tunnelRoute, a webpack build, a colliding route, and middleware being the only authorization control. This issue is fixed in versions 9.47.2, 10.75.2, and 11.0.0-rc.1."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "helpUri": "https://avd.aquasec.com/nvd/cve-2026-114139",
+              "help": {
+                "text": "Vulnerability CVE-2026-114139\nSeverity: CRITICAL\nPackage: @sentry/nextjs\nFixed Version: 9.47.2, 10.75.2, 11.0.0-rc.1\nLink: [CVE-2026-114139](https://avd.aquasec.com/nvd/cve-2026-114139)\nSentry-Javascript is an official Sentry SDKs for JavaScript. From 9.36.0 until 9.47.2, 10.75.2, and 11.0.0-rc.1, the webpack integration for @sentry/nextjs skips application middleware for every request path under a configured tunnelRoute, while the tunnel rewrite serves only the exact tunnel path with valid o and p query parameters. When an application route directly collides with the tunnel path or a root dynamic segment resolves under it, an unauthenticated request can reach that route without middleware authorization. Exploitation requires tunnelRoute, a webpack build, a colliding route, and middleware being the only authorization control. This issue is fixed in versions 9.47.2, 10.75.2, and 11.0.0-rc.1.",
+                "markdown": "**Vulnerability CVE-2026-114139**\n| Severity | Package | Fixed Version | Link |\n| --- | --- | --- | --- |\n|CRITICAL|@sentry/nextjs|9.47.2, 10.75.2, 11.0.0-rc.1|[CVE-2026-114139](https://avd.aquasec.com/nvd/cve-2026-114139)|\n\nSentry-Javascript is an official Sentry SDKs for JavaScript. From 9.36.0 until 9.47.2, 10.75.2, and 11.0.0-rc.1, the webpack integration for @sentry/nextjs skips application middleware for every request path under a configured tunnelRoute, while the tunnel rewrite serves only the exact tunnel path with valid o and p query parameters. When an application route directly collides with the tunnel path or a root dynamic segment resolves under it, an unauthenticated request can reach that route without middleware authorization. Exploitation requires tunnelRoute, a webpack build, a colliding route, and middleware being the only authorization control. This issue is fixed in versions 9.47.2, 10.75.2, and 11.0.0-rc.1."
+              },
+              "properties": {
+                "cvssv40_baseScore": 9.1,
+                "cvssv40_vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N",
+                "precision": "very-high",
+                "security-severity": "9.5",
+                "tags": [
+                  "vulnerability",
+                  "security",
+                  "CRITICAL"
+                ]
+              }
+            },
+            {
+              "id": "CVE-2026-85061",
+              "name": "LanguageSpecificPackageVulnerability",
+              "shortDescription": {
+                "text": "MapLibre GL JS: XSS Sanitizer Bypass in DOM.sanitize() via Live NamedNodeMap Removal Skip"
+              },
+              "fullDescription": {
+                "text": "MapLibre GL JS is an interactive vector tile map library for web browsers. Prior to 6.4.1, DOM.sanitize() in src/util/dom.ts iterates elem.attributes as a live NamedNodeMap while removeAttributes() removes attributes from the same collection, shifting indexes and skipping an adjacent dangerous attribute. An attacker who controls untrusted third-party style attribution strings or user-supplied custom attributions can supply consecutive dangerous attributes, causing an attribute such as onload or ontoggle to survive sanitization and execute when the attribution control inserts the content into innerHTML. A victim must render the affected map content for the script to execute. This issue is fixed in version 6.4.1."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "helpUri": "https://avd.aquasec.com/nvd/cve-2026-85061",
+              "help": {
+                "text": "Vulnerability CVE-2026-85061\nSeverity: CRITICAL\nPackage: maplibre-gl\nFixed Version: 6.4.1\nLink: [CVE-2026-85061](https://avd.aquasec.com/nvd/cve-2026-85061)\nMapLibre GL JS is an interactive vector tile map library for web browsers. Prior to 6.4.1, DOM.sanitize() in src/util/dom.ts iterates elem.attributes as a live NamedNodeMap while removeAttributes() removes attributes from the same collection, shifting indexes and skipping an adjacent dangerous attribute. An attacker who controls untrusted third-party style attribution strings or user-supplied custom attributions can supply consecutive dangerous attributes, causing an attribute such as onload or ontoggle to survive sanitization and execute when the attribution control inserts the content into innerHTML. A victim must render the affected map content for the script to execute. This issue is fixed in version 6.4.1.",
+                "markdown": "**Vulnerability CVE-2026-85061**\n| Severity | Package | Fixed Version | Link |\n| --- | --- | --- | --- |\n|CRITICAL|maplibre-gl|6.4.1|[CVE-2026-85061](https://avd.aquasec.com/nvd/cve-2026-85061)|\n\nMapLibre GL JS is an interactive vector tile map library for web browsers. Prior to 6.4.1, DOM.sanitize() in src/util/dom.ts iterates elem.attributes as a live NamedNodeMap while removeAttributes() removes attributes from the same collection, shifting indexes and skipping an adjacent dangerous attribute. An attacker who controls untrusted third-party style attribution strings or user-supplied custom attributions can supply consecutive dangerous attributes, causing an attribute such as onload or ontoggle to survive sanitization and execute when the attribution control inserts the content into innerHTML. A victim must render the affected map content for the script to execute. This issue is fixed in version 6.4.1."
+              },
+              "properties": {
+                "cvssv3_baseScore": 10,
+                "cvssv3_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:N",
+                "precision": "very-high",
+                "security-severity": "10.0",
+                "tags": [
+                  "vulnerability",
+                  "security",
+                  "CRITICAL"
+                ]
+              }
+            },
+            {
+              "id": "CVE-2026-75604",
+              "name": "LanguageSpecificPackageVulnerability",
+              "shortDescription": {
+                "text": "next: Next.js: Unauthenticated Remote Code Execution on windows-hosted servers"
+              },
+              "fullDescription": {
+                "text": "Next.js is a React framework for building full-stack web applications. From 13.4.0 until 15.5.24 and 16.3.3, Next.js applications using Pages Router or App Router without Cache Components on Windows-hosted servers do not consistently escape backslashes in route segments before constructing incremental-cache paths. In packages/next/src/shared/lib/router/utils/escape-path-delimiters.ts and packages/next/src/server/lib/incremental-cache/file-system-cache.ts, a remote request can supply encoded Windows path separators that traverse outside the intended cache root and expose private build data, including the server-reference-manifest encryption key. Disclosure of that key can enable remote code execution in the affected application. This issue is fixed in versions 15.5.24 and 16.3.3."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "helpUri": "https://avd.aquasec.com/nvd/cve-2026-75604",
+              "help": {
+                "text": "Vulnerability CVE-2026-75604\nSeverity: CRITICAL\nPackage: next\nFixed Version: 15.5.24, 16.3.3\nLink: [CVE-2026-75604](https://avd.aquasec.com/nvd/cve-2026-75604)\nNext.js is a React framework for building full-stack web applications. From 13.4.0 until 15.5.24 and 16.3.3, Next.js applications using Pages Router or App Router without Cache Components on Windows-hosted servers do not consistently escape backslashes in route segments before constructing incremental-cache paths. In packages/next/src/shared/lib/router/utils/escape-path-delimiters.ts and packages/next/src/server/lib/incremental-cache/file-system-cache.ts, a remote request can supply encoded Windows path separators that traverse outside the intended cache root and expose private build data, including the server-reference-manifest encryption key. Disclosure of that key can enable remote code execution in the affected application. This issue is fixed in versions 15.5.24 and 16.3.3.",
+                "markdown": "**Vulnerability CVE-2026-75604**\n| Severity | Package | Fixed Version | Link |\n| --- | --- | --- | --- |\n|CRITICAL|next|15.5.24, 16.3.3|[CVE-2026-75604](https://avd.aquasec.com/nvd/cve-2026-75604)|\n\nNext.js is a React framework for building full-stack web applications. From 13.4.0 until 15.5.24 and 16.3.3, Next.js applications using Pages Router or App Router without Cache Components on Windows-hosted servers do not consistently escape backslashes in route segments before constructing incremental-cache paths. In packages/next/src/shared/lib/router/utils/escape-path-delimiters.ts and packages/next/src/server/lib/incremental-cache/file-system-cache.ts, a remote request can supply encoded Windows path separators that traverse outside the intended cache root and expose private build data, including the server-reference-manifest encryption key. Disclosure of that key can enable remote code execution in the affected application. This issue is fixed in versions 15.5.24 and 16.3.3."
+              },
+              "properties": {
+                "cvssv3_baseScore": 9.1,
+                "cvssv3_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:C/C:H/I:H/A:H",
+                "precision": "very-high",
+                "security-severity": "9.1",
+                "tags": [
+                  "vulnerability",
+                  "security",
+                  "CRITICAL"
+                ]
+              }
+            },
+            {
+              "id": "GHSA-2464-fhr4-w9xw",
+              "name": "LanguageSpecificPackageVulnerability",
+              "shortDescription": {
+                "text": "Next.js: Unauthenticated Remote Code Execution in Image Optimization API when SVG files are used"
+              },
+              "fullDescription": {
+                "text": "## Impact\n\nA memory-related vulnerability has been discovered in an upstream library used for Image Optimization can lead to possible remote code execution (RCE) when Next.js runs on glibc-based Linux.\n\n## Workaround\n\nEnsure the version of `sharp` used by Next.js is greater than or equal to `0.35.5`. Fresh installs automatically get a fixed version of `sharp`.\nUpgrading Next.js to the patched versions will ensure package managers automatically provide a fixed version of `sharp` to Next.js."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "helpUri": "https://github.com/advisories/GHSA-2464-fhr4-w9xw",
+              "help": {
+                "text": "Vulnerability GHSA-2464-fhr4-w9xw\nSeverity: CRITICAL\nPackage: next\nFixed Version: 15.5.28, 16.4.1\nLink: [GHSA-2464-fhr4-w9xw](https://github.com/advisories/GHSA-2464-fhr4-w9xw)\n## Impact\n\nA memory-related vulnerability has been discovered in an upstream library used for Image Optimization can lead to possible remote code execution (RCE) when Next.js runs on glibc-based Linux.\n\n## Workaround\n\nEnsure the version of `sharp` used by Next.js is greater than or equal to `0.35.5`. Fresh installs automatically get a fixed version of `sharp`.\nUpgrading Next.js to the patched versions will ensure package managers automatically provide a fixed version of `sharp` to Next.js.",
+                "markdown": "**Vulnerability GHSA-2464-fhr4-w9xw**\n| Severity | Package | Fixed Version | Link |\n| --- | --- | --- | --- |\n|CRITICAL|next|15.5.28, 16.4.1|[GHSA-2464-fhr4-w9xw](https://github.com/advisories/GHSA-2464-fhr4-w9xw)|\n\n## Impact\n\nA memory-related vulnerability has been discovered in an upstream library used for Image Optimization can lead to possible remote code execution (RCE) when Next.js runs on glibc-based Linux.\n\n## Workaround\n\nEnsure the version of `sharp` used by Next.js is greater than or equal to `0.35.5`. Fresh installs automatically get a fixed version of `sharp`.\nUpgrading Next.js to the patched versions will ensure package managers automatically provide a fixed version of `sharp` to Next.js."
+              },
+              "properties": {
+                "cvssv40_baseScore": 9.5,
+                "cvssv40_vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H",
+                "precision": "very-high",
+                "security-severity": "9.5",
+                "tags": [
+                  "vulnerability",
+                  "security",
+                  "CRITICAL"
+                ]
+              }
+            },
+            {
+              "id": "GHSA-2xp9-vwfh-vxw4",
+              "name": "LanguageSpecificPackageVulnerability",
+              "shortDescription": {
+                "text": "Next.js: Unauthenticated Remote Code Execution in Image Optimization API when AVIF files are used"
+              },
+              "fullDescription": {
+                "text": "A vulnerability in the underlying `libheif` library used by `sharp` which Next.js uses for image optimization can lead to remote code execution when AVIF files are optimized.\n\nUntil a fix has propagated, optimization of AVIF files is disabled."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "helpUri": "https://github.com/advisories/GHSA-2xp9-vwfh-vxw4",
+              "help": {
+                "text": "Vulnerability GHSA-2xp9-vwfh-vxw4\nSeverity: CRITICAL\nPackage: next\nFixed Version: 15.5.24, 16.3.3\nLink: [GHSA-2xp9-vwfh-vxw4](https://github.com/advisories/GHSA-2xp9-vwfh-vxw4)\nA vulnerability in the underlying `libheif` library used by `sharp` which Next.js uses for image optimization can lead to remote code execution when AVIF files are optimized.\n\nUntil a fix has propagated, optimization of AVIF files is disabled.",
+                "markdown": "**Vulnerability GHSA-2xp9-vwfh-vxw4**\n| Severity | Package | Fixed Version | Link |\n| --- | --- | --- | --- |\n|CRITICAL|next|15.5.24, 16.3.3|[GHSA-2xp9-vwfh-vxw4](https://github.com/advisories/GHSA-2xp9-vwfh-vxw4)|\n\nA vulnerability in the underlying `libheif` library used by `sharp` which Next.js uses for image optimization can lead to remote code execution when AVIF files are optimized.\n\nUntil a fix has propagated, optimization of AVIF files is disabled."
+              },
+              "properties": {
+                "cvssv40_baseScore": 9.5,
+                "cvssv40_vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H",
+                "precision": "very-high",
+                "security-severity": "9.5",
+                "tags": [
+                  "vulnerability",
+                  "security",
+                  "CRITICAL"
+                ]
+              }
+            },
+            {
+              "id": "GHSA-6q48-6c7w-9gw2",
+              "name": "LanguageSpecificPackageVulnerability",
+              "shortDescription": {
+                "text": "certifi bundles emSign root CAs with compromised intermediate CA keys"
+              },
+              "fullDescription": {
+                "text": "Certifi versions before 2026.10.18 include the `emSign ECC Root CA - G3` root certificate in their bundled CA store. Eight eMudhra intermediate CA certificates that chain to this root have compromised private keys and the CA has revoked them. \n\nAn attacker with one of the compromised keys can issue valid-looking certificates for any hostname. If the attacker is also on-path, they can intercept or modify TLS traffic from clients that trust the certifi bundle. Examples include `requests`, `urllib3` and `pip`, and the Python.org macOS installer.\n\nCertifi 2026.10.18 removed all emSign roots from the bundle. Certifi 2026.10.19 restored the emSign roots that are not affected. Upgrade to 2026.10.19 or later, and rebuild container images that vendor certifi."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "helpUri": "https://github.com/advisories/GHSA-6q48-6c7w-9gw2",
+              "help": {
+                "text": "Vulnerability GHSA-6q48-6c7w-9gw2\nSeverity: CRITICAL\nPackage: certifi\nFixed Version: 2026.10.18\nLink: [GHSA-6q48-6c7w-9gw2](https://github.com/advisories/GHSA-6q48-6c7w-9gw2)\nCertifi versions before 2026.10.18 include the `emSign ECC Root CA - G3` root certificate in their bundled CA store. Eight eMudhra intermediate CA certificates that chain to this root have compromised private keys and the CA has revoked them. \n\nAn attacker with one of the compromised keys can issue valid-looking certificates for any hostname. If the attacker is also on-path, they can intercept or modify TLS traffic from clients that trust the certifi bundle. Examples include `requests`, `urllib3` and `pip`, and the Python.org macOS installer.\n\nCertifi 2026.10.18 removed all emSign roots from the bundle. Certifi 2026.10.19 restored the emSign roots that are not affected. Upgrade to 2026.10.19 or later, and rebuild container images that vendor certifi.",
+                "markdown": "**Vulnerability GHSA-6q48-6c7w-9gw2**\n| Severity | Package | Fixed Version | Link |\n| --- | --- | --- | --- |\n|CRITICAL|certifi|2026.10.18|[GHSA-6q48-6c7w-9gw2](https://github.com/advisories/GHSA-6q48-6c7w-9gw2)|\n\nCertifi versions before 2026.10.18 include the `emSign ECC Root CA - G3` root certificate in their bundled CA store. Eight eMudhra intermediate CA certificates that chain to this root have compromised private keys and the CA has revoked them. \n\nAn attacker with one of the compromised keys can issue valid-looking certificates for any hostname. If the attacker is also on-path, they can intercept or modify TLS traffic from clients that trust the certifi bundle. Examples include `requests`, `urllib3` and `pip`, and the Python.org macOS installer.\n\nCertifi 2026.10.18 removed all emSign roots from the bundle. Certifi 2026.10.19 restored the emSign roots that are not affected. Upgrade to 2026.10.19 or later, and rebuild container images that vendor certifi."
+              },
+              "properties": {
+                "cvssv40_baseScore": 9.1,
+                "cvssv40_vector": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N",
+                "precision": "very-high",
+                "security-severity": "9.5",
+                "tags": [
+                  "vulnerability",
+                  "security",
+                  "CRITICAL"
+                ]
+              }
+            },
+            {
+              "id": "CVE-2026-112393",
+              "name": "LanguageSpecificPackageVulnerability",
+              "shortDescription": {
+                "text": "pillow: Pillow: Heap buffer overflow in _tiffWriteProc when saving TIFF to BytesIO"
+              },
+              "fullDescription": {
+                "text": "Pillow is a Python imaging library. From 2.0.0 until 13.0.0, Pillow has a heap buffer overflow and stale-heap disclosure in _tiffWriteProc when saving compressed TIFF data through libtiff to a target without a usable fileno(), such as BytesIO. The callback sizes its allocation from the prior buffer size instead of the current write position, allowing an attacker-controlled out-of-line TIFF tag or retained ICC profile to be copied beyond the allocation after libtiff seeks forward. This overflow can crash the process and may allow code execution. Independently, unwritten alignment gaps in compressed TIFF output larger than 64 KiB can disclose stale heap bytes without a crafted tag. File paths and targets with real file descriptors are unaffected. This issue is fixed in version 13.0.0."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "helpUri": "https://avd.aquasec.com/nvd/cve-2026-112393",
+              "help": {
+                "text": "Vulnerability CVE-2026-112393\nSeverity: CRITICAL\nPackage: pillow\nFixed Version: 13.0.0\nLink: [CVE-2026-112393](https://avd.aquasec.com/nvd/cve-2026-112393)\nPillow is a Python imaging library. From 2.0.0 until 13.0.0, Pillow has a heap buffer overflow and stale-heap disclosure in _tiffWriteProc when saving compressed TIFF data through libtiff to a target without a usable fileno(), such as BytesIO. The callback sizes its allocation from the prior buffer size instead of the current write position, allowing an attacker-controlled out-of-line TIFF tag or retained ICC profile to be copied beyond the allocation after libtiff seeks forward. This overflow can crash the process and may allow code execution. Independently, unwritten alignment gaps in compressed TIFF output larger than 64 KiB can disclose stale heap bytes without a crafted tag. File paths and targets with real file descriptors are unaffected. This issue is fixed in version 13.0.0.",
+                "markdown": "**Vulnerability CVE-2026-112393**\n| Severity | Package | Fixed Version | Link |\n| --- | --- | --- | --- |\n|CRITICAL|pillow|13.0.0|[CVE-2026-112393](https://avd.aquasec.com/nvd/cve-2026-112393)|\n\nPillow is a Python imaging library. From 2.0.0 until 13.0.0, Pillow has a heap buffer overflow and stale-heap disclosure in _tiffWriteProc when saving compressed TIFF data through libtiff to a target without a usable fileno(), such as BytesIO. The callback sizes its allocation from the prior buffer size instead of the current write position, allowing an attacker-controlled out-of-line TIFF tag or retained ICC profile to be copied beyond the allocation after libtiff seeks forward. This overflow can crash the process and may allow code execution. Independently, unwritten alignment gaps in compressed TIFF output larger than 64 KiB can disclose stale heap bytes without a crafted tag. File paths and targets with real file descriptors are unaffected. This issue is fixed in version 13.0.0."
+              },
+              "properties": {
+                "cvssv40_baseScore": 9.2,
+                "cvssv40_vector": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+                "precision": "very-high",
+                "security-severity": "9.5",
+                "tags": [
+                  "vulnerability",
+                  "security",
+                  "CRITICAL"
+                ]
+              }
+            },
+            {
+              "id": "CVE-2026-112398",
+              "name": "LanguageSpecificPackageVulnerability",
+              "shortDescription": {
+                "text": "pillow: Pillow: Heap buffer overflow in FlashPix (FPX) JPEG decoding leads to code execution"
+              },
+              "fullDescription": {
+                "text": "Pillow is a Python imaging library. Prior to 13.0.0, Pillow's FlashPix JPEG-tile decoder can write decoded scanlines beyond the allocated tile buffer. FlashPix (FPX) JPEG decoding selects raw mode LA with two bytes per pixel, while an unrecognized JPEG mode can be decoded as JCS_UNKNOWN with four components, causing ImagingJpegDecode to write four-component scanlines into the two-byte tile buffer. An attacker can supply a crafted OLE2 FlashPix file to an application with the optional olefile dependency installed that opens or thumbnails untrusted input. This can corrupt heap memory and may allow arbitrary code execution. This issue is fixed in version 13.0.0."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "helpUri": "https://avd.aquasec.com/nvd/cve-2026-112398",
+              "help": {
+                "text": "Vulnerability CVE-2026-112398\nSeverity: CRITICAL\nPackage: pillow\nFixed Version: 13.0.0\nLink: [CVE-2026-112398](https://avd.aquasec.com/nvd/cve-2026-112398)\nPillow is a Python imaging library. Prior to 13.0.0, Pillow's FlashPix JPEG-tile decoder can write decoded scanlines beyond the allocated tile buffer. FlashPix (FPX) JPEG decoding selects raw mode LA with two bytes per pixel, while an unrecognized JPEG mode can be decoded as JCS_UNKNOWN with four components, causing ImagingJpegDecode to write four-component scanlines into the two-byte tile buffer. An attacker can supply a crafted OLE2 FlashPix file to an application with the optional olefile dependency installed that opens or thumbnails untrusted input. This can corrupt heap memory and may allow arbitrary code execution. This issue is fixed in version 13.0.0.",
+                "markdown": "**Vulnerability CVE-2026-112398**\n| Severity | Package | Fixed Version | Link |\n| --- | --- | --- | --- |\n|CRITICAL|pillow|13.0.0|[CVE-2026-112398](https://avd.aquasec.com/nvd/cve-2026-112398)|\n\nPillow is a Python imaging library. Prior to 13.0.0, Pillow's FlashPix JPEG-tile decoder can write decoded scanlines beyond the allocated tile buffer. FlashPix (FPX) JPEG decoding selects raw mode LA with two bytes per pixel, while an unrecognized JPEG mode can be decoded as JCS_UNKNOWN with four components, causing ImagingJpegDecode to write four-component scanlines into the two-byte tile buffer. An attacker can supply a crafted OLE2 FlashPix file to an application with the optional olefile dependency installed that opens or thumbnails untrusted input. This can corrupt heap memory and may allow arbitrary code execution. This issue is fixed in version 13.0.0."
+              },
+              "properties": {
+                "cvssv40_baseScore": 9.2,
+                "cvssv40_vector": "CVSS:4.0/AV:N/AC:H/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+                "precision": "very-high",
+                "security-severity": "9.5",
+                "tags": [
+                  "vulnerability",
+                  "security",
+                  "CRITICAL"
+                ]
+              }
+            },
+            {
+              "id": "CVE-2026-112403",
+              "name": "LanguageSpecificPackageVulnerability",
+              "shortDescription": {
+                "text": "pillow: Pillow: Heap buffer overflow in ImagingJpegDecode"
+              },
+              "fullDescription": {
+                "text": "Pillow is a Python imaging library. Prior to 13.0.0, Pillow's JPEG decoder can write a full-width scanline into a buffer sized for a requested draft scale. ImagingJpegDecode does not verify libjpeg's actual output width and component count after scaling is requested, and an 8-bit lossless SOF3 JPEG decoded by a build linked to libjpeg-turbo 3.x can ignore the requested downscaling geometry. An attacker can supply such a JPEG to an application that uses draft() or thumbnail() to request downscaling. This can corrupt heap memory, crash the process, or potentially allow code execution. Older libjpeg-turbo 2.x and IJG builds reject the SOF3 input. This issue is fixed in version 13.0.0."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "helpUri": "https://avd.aquasec.com/nvd/cve-2026-112403",
+              "help": {
+                "text": "Vulnerability CVE-2026-112403\nSeverity: CRITICAL\nPackage: pillow\nFixed Version: 13.0.0\nLink: [CVE-2026-112403](https://avd.aquasec.com/nvd/cve-2026-112403)\nPillow is a Python imaging library. Prior to 13.0.0, Pillow's JPEG decoder can write a full-width scanline into a buffer sized for a requested draft scale. ImagingJpegDecode does not verify libjpeg's actual output width and component count after scaling is requested, and an 8-bit lossless SOF3 JPEG decoded by a build linked to libjpeg-turbo 3.x can ignore the requested downscaling geometry. An attacker can supply such a JPEG to an application that uses draft() or thumbnail() to request downscaling. This can corrupt heap memory, crash the process, or potentially allow code execution. Older libjpeg-turbo 2.x and IJG builds reject the SOF3 input. This issue is fixed in version 13.0.0.",
+                "markdown": "**Vulnerability CVE-2026-112403**\n| Severity | Package | Fixed Version | Link |\n| --- | --- | --- | --- |\n|CRITICAL|pillow|13.0.0|[CVE-2026-112403](https://avd.aquasec.com/nvd/cve-2026-112403)|\n\nPillow is a Python imaging library. Prior to 13.0.0, Pillow's JPEG decoder can write a full-width scanline into a buffer sized for a requested draft scale. ImagingJpegDecode does not verify libjpeg's actual output width and component count after scaling is requested, and an 8-bit lossless SOF3 JPEG decoded by a build linked to libjpeg-turbo 3.x can ignore the requested downscaling geometry. An attacker can supply such a JPEG to an application that uses draft() or thumbnail() to request downscaling. This can corrupt heap memory, crash the process, or potentially allow code execution. Older libjpeg-turbo 2.x and IJG builds reject the SOF3 input. This issue is fixed in version 13.0.0."
+              },
+              "properties": {
+                "cvssv40_baseScore": 9.2,
+                "cvssv40_vector": "CVSS:4.0/AV:N/AC:H/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+                "precision": "very-high",
+                "security-severity": "9.5",
+                "tags": [
+                  "vulnerability",
+                  "security",
+                  "CRITICAL"
+                ]
+              }
+            },
+            {
+              "id": "CVE-2026-112900",
+              "name": "LanguageSpecificPackageVulnerability",
+              "shortDescription": {
+                "text": "pillow: Pillow: Argument Injection in Ghostscript call, potentially leading into RCE"
+              },
+              "fullDescription": {
+                "text": "Pillow is a Python imaging library. From 2.6.0 until 13.0.0, Pillow is vulnerable to argument injection when invoking Ghostscript for EPS input. EpsImagePlugin.Ghostscript passes a caller-controlled input filename after -f without converting it to a safe absolute path, so a name beginning with a hyphen can be interpreted as a Ghostscript option. An attacker who controls the filename can inject Ghostscript arguments. Arbitrary command execution specifically requires a leading @ argument-file filename and control of the referenced text file containing additional Ghostscript arguments; the reported chain reproduces with the default -dSAFER invocation. This issue is fixed in version 13.0.0."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "helpUri": "https://avd.aquasec.com/nvd/cve-2026-112900",
+              "help": {
+                "text": "Vulnerability CVE-2026-112900\nSeverity: CRITICAL\nPackage: pillow\nFixed Version: 13.0.0\nLink: [CVE-2026-112900](https://avd.aquasec.com/nvd/cve-2026-112900)\nPillow is a Python imaging library. From 2.6.0 until 13.0.0, Pillow is vulnerable to argument injection when invoking Ghostscript for EPS input. EpsImagePlugin.Ghostscript passes a caller-controlled input filename after -f without converting it to a safe absolute path, so a name beginning with a hyphen can be interpreted as a Ghostscript option. An attacker who controls the filename can inject Ghostscript arguments. Arbitrary command execution specifically requires a leading @ argument-file filename and control of the referenced text file containing additional Ghostscript arguments; the reported chain reproduces with the default -dSAFER invocation. This issue is fixed in version 13.0.0.",
+                "markdown": "**Vulnerability CVE-2026-112900**\n| Severity | Package | Fixed Version | Link |\n| --- | --- | --- | --- |\n|CRITICAL|pillow|13.0.0|[CVE-2026-112900](https://avd.aquasec.com/nvd/cve-2026-112900)|\n\nPillow is a Python imaging library. From 2.6.0 until 13.0.0, Pillow is vulnerable to argument injection when invoking Ghostscript for EPS input. EpsImagePlugin.Ghostscript passes a caller-controlled input filename after -f without converting it to a safe absolute path, so a name beginning with a hyphen can be interpreted as a Ghostscript option. An attacker who controls the filename can inject Ghostscript arguments. Arbitrary command execution specifically requires a leading @ argument-file filename and control of the referenced text file containing additional Ghostscript arguments; the reported chain reproduces with the default -dSAFER invocation. This issue is fixed in version 13.0.0."
+              },
+              "properties": {
+                "cvssv40_baseScore": 9.2,
+                "cvssv40_vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+                "precision": "very-high",
+                "security-severity": "9.5",
+                "tags": [
+                  "vulnerability",
+                  "security",
+                  "CRITICAL"
+                ]
+              }
+            },
+            {
+              "id": "CVE-2026-96639",
+              "name": "LanguageSpecificPackageVulnerability",
+              "shortDescription": {
+                "text": "Pillow is a Python imaging library. From 11.0.0 until 13.0.0, multi-fr ..."
+              },
+              "fullDescription": {
+                "text": "Pillow is a Python imaging library. From 11.0.0 until 13.0.0, multi-frame loaders can retain an ImagingCore allocation created for a narrow frame mode while a later frame of the same dimensions changes the logical mode and decoder tiles to wider RGB or CMYK data. ImageFile.load_prepare() reuses the stale native storage because _im is non-null without verifying that its mode and size still match. Crafted PSD, MPO, DCX, or MIC frame transitions can then write wider pixels into the narrow allocation, causing native out-of-bounds writes and crashes. The MPO path can also cause a native over-read and, in demonstrated runtime-specific profiles, command execution. This issue is fixed in version 13.0.0."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "helpUri": "https://avd.aquasec.com/nvd/cve-2026-96639",
+              "help": {
+                "text": "Vulnerability CVE-2026-96639\nSeverity: CRITICAL\nPackage: pillow\nFixed Version: 13.0.0\nLink: [CVE-2026-96639](https://avd.aquasec.com/nvd/cve-2026-96639)\nPillow is a Python imaging library. From 11.0.0 until 13.0.0, multi-frame loaders can retain an ImagingCore allocation created for a narrow frame mode while a later frame of the same dimensions changes the logical mode and decoder tiles to wider RGB or CMYK data. ImageFile.load_prepare() reuses the stale native storage because _im is non-null without verifying that its mode and size still match. Crafted PSD, MPO, DCX, or MIC frame transitions can then write wider pixels into the narrow allocation, causing native out-of-bounds writes and crashes. The MPO path can also cause a native over-read and, in demonstrated runtime-specific profiles, command execution. This issue is fixed in version 13.0.0.",
+                "markdown": "**Vulnerability CVE-2026-96639**\n| Severity | Package | Fixed Version | Link |\n| --- | --- | --- | --- |\n|CRITICAL|pillow|13.0.0|[CVE-2026-96639](https://avd.aquasec.com/nvd/cve-2026-96639)|\n\nPillow is a Python imaging library. From 11.0.0 until 13.0.0, multi-frame loaders can retain an ImagingCore allocation created for a narrow frame mode while a later frame of the same dimensions changes the logical mode and decoder tiles to wider RGB or CMYK data. ImageFile.load_prepare() reuses the stale native storage because _im is non-null without verifying that its mode and size still match. Crafted PSD, MPO, DCX, or MIC frame transitions can then write wider pixels into the narrow allocation, causing native out-of-bounds writes and crashes. The MPO path can also cause a native over-read and, in demonstrated runtime-specific profiles, command execution. This issue is fixed in version 13.0.0."
+              },
+              "properties": {
+                "cvssv3_baseScore": 9.8,
+                "cvssv3_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+                "precision": "very-high",
+                "security-severity": "9.8",
+                "tags": [
+                  "vulnerability",
+                  "security",
+                  "CRITICAL"
+                ]
+              }
+            },
+            {
+              "id": "CVE-2026-102268",
+              "name": "LanguageSpecificPackageVulnerability",
+              "shortDescription": {
+                "text": "pyjwt: PyJWT: Authentication bypass via improper public key validation"
+              },
+              "fullDescription": {
+                "text": "PyJWT is a Python implementation of JSON Web Token standards. Prior to 2.14.0, is_pem_format in jwt/utils.py is affected because is_pem_format does not recognize every PEM representation accepted by the cryptography loader. This occurs when an application mixes HMAC and asymmetric algorithms and supplies a mutated public-key PEM as raw key bytes. As a result, HMACAlgorithm.prepare_key treats the unrecognized asymmetric public key as an HMAC secret. Consequently, an attacker who knows the public key can forge authenticated HMAC tokens. This issue is fixed in version 2.14.0."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "helpUri": "https://avd.aquasec.com/nvd/cve-2026-102268",
+              "help": {
+                "text": "Vulnerability CVE-2026-102268\nSeverity: CRITICAL\nPackage: pyjwt\nFixed Version: 2.14.0\nLink: [CVE-2026-102268](https://avd.aquasec.com/nvd/cve-2026-102268)\nPyJWT is a Python implementation of JSON Web Token standards. Prior to 2.14.0, is_pem_format in jwt/utils.py is affected because is_pem_format does not recognize every PEM representation accepted by the cryptography loader. This occurs when an application mixes HMAC and asymmetric algorithms and supplies a mutated public-key PEM as raw key bytes. As a result, HMACAlgorithm.prepare_key treats the unrecognized asymmetric public key as an HMAC secret. Consequently, an attacker who knows the public key can forge authenticated HMAC tokens. This issue is fixed in version 2.14.0.",
+                "markdown": "**Vulnerability CVE-2026-102268**\n| Severity | Package | Fixed Version | Link |\n| --- | --- | --- | --- |\n|CRITICAL|pyjwt|2.14.0|[CVE-2026-102268](https://avd.aquasec.com/nvd/cve-2026-102268)|\n\nPyJWT is a Python implementation of JSON Web Token standards. Prior to 2.14.0, is_pem_format in jwt/utils.py is affected because is_pem_format does not recognize every PEM representation accepted by the cryptography loader. This occurs when an application mixes HMAC and asymmetric algorithms and supplies a mutated public-key PEM as raw key bytes. As a result, HMACAlgorithm.prepare_key treats the unrecognized asymmetric public key as an HMAC secret. Consequently, an attacker who knows the public key can forge authenticated HMAC tokens. This issue is fixed in version 2.14.0."
+              },
+              "properties": {
+                "cvssv3_baseScore": 9.1,
+                "cvssv3_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N",
+                "precision": "very-high",
+                "security-severity": "9.1",
+                "tags": [
+                  "vulnerability",
+                  "security",
+                  "CRITICAL"
+                ]
+              }
+            }
+          ],
+          "version": "0.69.3"
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CVE-2026-68770",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "Package: sentence-transformers\nInstalled Version: 5.4.1\nVulnerability CVE-2026-68770\nSeverity: CRITICAL\nFixed Version: 5.6.0\nLink: [CVE-2026-68770](https://avd.aquasec.com/nvd/cve-2026-68770)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "apps/services/ai-advisor/requirements.txt",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 38,
+                  "startColumn": 1,
+                  "endLine": 38,
+                  "endColumn": 1
+                }
+              },
+              "message": {
+                "text": "apps/services/ai-advisor/requirements.txt: sentence-transformers@5.4.1"
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CVE-2026-90711",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "Package: proxy-addr\nInstalled Version: 2.0.7\nVulnerability CVE-2026-90711\nSeverity: CRITICAL\nFixed Version: 2.0.8\nLink: [CVE-2026-90711](https://avd.aquasec.com/nvd/cve-2026-90711)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "apps/services/chat-service/package-lock.json",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 6669,
+                  "startColumn": 1,
+                  "endLine": 6681,
+                  "endColumn": 1
+                }
+              },
+              "message": {
+                "text": "apps/services/chat-service/package-lock.json: proxy-addr@2.0.7"
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CVE-2026-90711",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "Package: proxy-addr\nInstalled Version: 2.0.7\nVulnerability CVE-2026-90711\nSeverity: CRITICAL\nFixed Version: 2.0.8\nLink: [CVE-2026-90711](https://avd.aquasec.com/nvd/cve-2026-90711)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "apps/services/crop-growth-model/package-lock.json",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 3509,
+                  "startColumn": 1,
+                  "endLine": 3521,
+                  "endColumn": 1
+                }
+              },
+              "message": {
+                "text": "apps/services/crop-growth-model/package-lock.json: proxy-addr@2.0.7"
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CVE-2026-90711",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "Package: proxy-addr\nInstalled Version: 2.0.7\nVulnerability CVE-2026-90711\nSeverity: CRITICAL\nFixed Version: 2.0.8\nLink: [CVE-2026-90711](https://avd.aquasec.com/nvd/cve-2026-90711)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "apps/services/disaster-assessment/package-lock.json",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 6510,
+                  "startColumn": 1,
+                  "endLine": 6522,
+                  "endColumn": 1
+                }
+              },
+              "message": {
+                "text": "apps/services/disaster-assessment/package-lock.json: proxy-addr@2.0.7"
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CVE-2026-90711",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "Package: proxy-addr\nInstalled Version: 2.0.7\nVulnerability CVE-2026-90711\nSeverity: CRITICAL\nFixed Version: 2.0.8\nLink: [CVE-2026-90711](https://avd.aquasec.com/nvd/cve-2026-90711)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "apps/services/field-management-service/package-lock.json",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 6932,
+                  "startColumn": 1,
+                  "endLine": 6944,
+                  "endColumn": 1
+                }
+              },
+              "message": {
+                "text": "apps/services/field-management-service/package-lock.json: proxy-addr@2.0.7"
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CVE-2026-90711",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "Package: proxy-addr\nInstalled Version: 2.0.7\nVulnerability CVE-2026-90711\nSeverity: CRITICAL\nFixed Version: 2.0.8\nLink: [CVE-2026-90711](https://avd.aquasec.com/nvd/cve-2026-90711)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "apps/services/lai-estimation/package-lock.json",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 3824,
+                  "startColumn": 1,
+                  "endLine": 3836,
+                  "endColumn": 1
+                }
+              },
+              "message": {
+                "text": "apps/services/lai-estimation/package-lock.json: proxy-addr@2.0.7"
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CVE-2026-63374",
+          "ruleIndex": 2,
+          "level": "error",
+          "message": {
+            "text": "Package: anyio\nInstalled Version: 4.7.0\nVulnerability CVE-2026-63374\nSeverity: CRITICAL\nFixed Version: 4.14.2\nLink: [CVE-2026-63374](https://avd.aquasec.com/nvd/cve-2026-63374)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "apps/services/leveling-optimizer-service/requirements.txt",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 10,
+                  "startColumn": 1,
+                  "endLine": 10,
+                  "endColumn": 1
+                }
+              },
+              "message": {
+                "text": "apps/services/leveling-optimizer-service/requirements.txt: anyio@4.7.0"
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CVE-2026-90711",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "Package: proxy-addr\nInstalled Version: 2.0.7\nVulnerability CVE-2026-90711\nSeverity: CRITICAL\nFixed Version: 2.0.8\nLink: [CVE-2026-90711](https://avd.aquasec.com/nvd/cve-2026-90711)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "apps/services/marketplace-service/package-lock.json",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 6762,
+                  "startColumn": 1,
+                  "endLine": 6774,
+                  "endColumn": 1
+                }
+              },
+              "message": {
+                "text": "apps/services/marketplace-service/package-lock.json: proxy-addr@2.0.7"
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CVE-2026-90711",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "Package: proxy-addr\nInstalled Version: 2.0.7\nVulnerability CVE-2026-90711\nSeverity: CRITICAL\nFixed Version: 2.0.8\nLink: [CVE-2026-90711](https://avd.aquasec.com/nvd/cve-2026-90711)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "apps/services/yield-prediction/package-lock.json",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 3518,
+                  "startColumn": 1,
+                  "endLine": 3530,
+                  "endColumn": 1
+                }
+              },
+              "message": {
+                "text": "apps/services/yield-prediction/package-lock.json: proxy-addr@2.0.7"
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CVE-2026-90711",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "Package: proxy-addr\nInstalled Version: 2.0.7\nVulnerability CVE-2026-90711\nSeverity: CRITICAL\nFixed Version: 2.0.8\nLink: [CVE-2026-90711](https://avd.aquasec.com/nvd/cve-2026-90711)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "archive/deprecated-services/community-chat/package-lock.json",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1074,
+                  "startColumn": 1,
+                  "endLine": 1086,
+                  "endColumn": 1
+                }
+              },
+              "message": {
+                "text": "archive/deprecated-services/community-chat/package-lock.json: proxy-addr@2.0.7"
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CVE-2026-90711",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "Package: proxy-addr\nInstalled Version: 2.0.7\nVulnerability CVE-2026-90711\nSeverity: CRITICAL\nFixed Version: 2.0.8\nLink: [CVE-2026-90711](https://avd.aquasec.com/nvd/cve-2026-90711)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "archive/kernel-legacy/kernel/services/field_core/package-lock.json",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1898,
+                  "startColumn": 1,
+                  "endLine": 1910,
+                  "endColumn": 1
+                }
+              },
+              "message": {
+                "text": "archive/kernel-legacy/kernel/services/field_core/package-lock.json: proxy-addr@2.0.7"
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CVE-2026-114139",
+          "ruleIndex": 3,
+          "level": "error",
+          "message": {
+            "text": "Package: @sentry/nextjs\nInstalled Version: 9.47.1\nVulnerability CVE-2026-114139\nSeverity: CRITICAL\nFixed Version: 9.47.2, 10.75.2, 11.0.0-rc.1\nLink: [CVE-2026-114139](https://avd.aquasec.com/nvd/cve-2026-114139)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "package-lock.json",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 8638,
+                  "startColumn": 1,
+                  "endLine": 8664,
+                  "endColumn": 1
+                }
+              },
+              "message": {
+                "text": "package-lock.json: @sentry/nextjs@9.47.1"
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CVE-2026-85061",
+          "ruleIndex": 4,
+          "level": "error",
+          "message": {
+            "text": "Package: maplibre-gl\nInstalled Version: 4.7.1\nVulnerability CVE-2026-85061\nSeverity: CRITICAL\nFixed Version: 6.4.1\nLink: [CVE-2026-85061](https://avd.aquasec.com/nvd/cve-2026-85061)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "package-lock.json",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 21057,
+                  "startColumn": 1,
+                  "endLine": 21095,
+                  "endColumn": 1
+                }
+              },
+              "message": {
+                "text": "package-lock.json: maplibre-gl@4.7.1"
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CVE-2026-75604",
+          "ruleIndex": 5,
+          "level": "error",
+          "message": {
+            "text": "Package: next\nInstalled Version: 15.5.14\nVulnerability CVE-2026-75604\nSeverity: CRITICAL\nFixed Version: 15.5.24, 16.3.3\nLink: [CVE-2026-75604](https://avd.aquasec.com/nvd/cve-2026-75604)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "package-lock.json",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 269,
+                  "startColumn": 1,
+                  "endLine": 320,
+                  "endColumn": 1
+                }
+              },
+              "message": {
+                "text": "package-lock.json: next@15.5.14"
+              }
+            },
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "package-lock.json",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1382,
+                  "startColumn": 1,
+                  "endLine": 1433,
+                  "endColumn": 1
+                }
+              },
+              "message": {
+                "text": "package-lock.json: next@15.5.14"
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "GHSA-2464-fhr4-w9xw",
+          "ruleIndex": 6,
+          "level": "error",
+          "message": {
+            "text": "Package: next\nInstalled Version: 15.5.14\nVulnerability GHSA-2464-fhr4-w9xw\nSeverity: CRITICAL\nFixed Version: 15.5.28, 16.4.1\nLink: [GHSA-2464-fhr4-w9xw](https://github.com/advisories/GHSA-2464-fhr4-w9xw)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "package-lock.json",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 269,
+                  "startColumn": 1,
+                  "endLine": 320,
+                  "endColumn": 1
+                }
+              },
+              "message": {
+                "text": "package-lock.json: next@15.5.14"
+              }
+            },
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "package-lock.json",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1382,
+                  "startColumn": 1,
+                  "endLine": 1433,
+                  "endColumn": 1
+                }
+              },
+              "message": {
+                "text": "package-lock.json: next@15.5.14"
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "GHSA-2xp9-vwfh-vxw4",
+          "ruleIndex": 7,
+          "level": "error",
+          "message": {
+            "text": "Package: next\nInstalled Version: 15.5.14\nVulnerability GHSA-2xp9-vwfh-vxw4\nSeverity: CRITICAL\nFixed Version: 15.5.24, 16.3.3\nLink: [GHSA-2xp9-vwfh-vxw4](https://github.com/advisories/GHSA-2xp9-vwfh-vxw4)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "package-lock.json",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 269,
+                  "startColumn": 1,
+                  "endLine": 320,
+                  "endColumn": 1
+                }
+              },
+              "message": {
+                "text": "package-lock.json: next@15.5.14"
+              }
+            },
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "package-lock.json",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1382,
+                  "startColumn": 1,
+                  "endLine": 1433,
+                  "endColumn": 1
+                }
+              },
+              "message": {
+                "text": "package-lock.json: next@15.5.14"
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CVE-2026-90711",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "Package: proxy-addr\nInstalled Version: 2.0.7\nVulnerability CVE-2026-90711\nSeverity: CRITICAL\nFixed Version: 2.0.8\nLink: [CVE-2026-90711](https://avd.aquasec.com/nvd/cve-2026-90711)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "package-lock.json",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 23614,
+                  "startColumn": 1,
+                  "endLine": 23624,
+                  "endColumn": 1
+                }
+              },
+              "message": {
+                "text": "package-lock.json: proxy-addr@2.0.7"
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CVE-2026-90711",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "Package: proxy-addr\nInstalled Version: 2.0.7\nVulnerability CVE-2026-90711\nSeverity: CRITICAL\nFixed Version: 2.0.8\nLink: [CVE-2026-90711](https://avd.aquasec.com/nvd/cve-2026-90711)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "packages/shared-audit/package-lock.json",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1143,
+                  "startColumn": 1,
+                  "endLine": 1156,
+                  "endColumn": 1
+                }
+              },
+              "message": {
+                "text": "packages/shared-audit/package-lock.json: proxy-addr@2.0.7"
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CVE-2026-63374",
+          "ruleIndex": 2,
+          "level": "error",
+          "message": {
+            "text": "Package: anyio\nInstalled Version: 4.12.1\nVulnerability CVE-2026-63374\nSeverity: CRITICAL\nFixed Version: 4.14.2\nLink: [CVE-2026-63374](https://avd.aquasec.com/nvd/cve-2026-63374)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "uv.lock",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1,
+                  "startColumn": 1,
+                  "endLine": 1,
+                  "endColumn": 1
+                }
+              },
+              "message": {
+                "text": "uv.lock: anyio@4.12.1"
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "GHSA-6q48-6c7w-9gw2",
+          "ruleIndex": 8,
+          "level": "error",
+          "message": {
+            "text": "Package: certifi\nInstalled Version: 2026.2.25\nVulnerability GHSA-6q48-6c7w-9gw2\nSeverity: CRITICAL\nFixed Version: 2026.10.18\nLink: [GHSA-6q48-6c7w-9gw2](https://github.com/advisories/GHSA-6q48-6c7w-9gw2)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "uv.lock",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1,
+                  "startColumn": 1,
+                  "endLine": 1,
+                  "endColumn": 1
+                }
+              },
+              "message": {
+                "text": "uv.lock: certifi@2026.2.25"
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CVE-2026-112393",
+          "ruleIndex": 9,
+          "level": "error",
+          "message": {
+            "text": "Package: pillow\nInstalled Version: 11.3.0\nVulnerability CVE-2026-112393\nSeverity: CRITICAL\nFixed Version: 13.0.0\nLink: [CVE-2026-112393](https://avd.aquasec.com/nvd/cve-2026-112393)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "uv.lock",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1,
+                  "startColumn": 1,
+                  "endLine": 1,
+                  "endColumn": 1
+                }
+              },
+              "message": {
+                "text": "uv.lock: pillow@11.3.0"
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CVE-2026-112398",
+          "ruleIndex": 10,
+          "level": "error",
+          "message": {
+            "text": "Package: pillow\nInstalled Version: 11.3.0\nVulnerability CVE-2026-112398\nSeverity: CRITICAL\nFixed Version: 13.0.0\nLink: [CVE-2026-112398](https://avd.aquasec.com/nvd/cve-2026-112398)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "uv.lock",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1,
+                  "startColumn": 1,
+                  "endLine": 1,
+                  "endColumn": 1
+                }
+              },
+              "message": {
+                "text": "uv.lock: pillow@11.3.0"
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CVE-2026-112403",
+          "ruleIndex": 11,
+          "level": "error",
+          "message": {
+            "text": "Package: pillow\nInstalled Version: 11.3.0\nVulnerability CVE-2026-112403\nSeverity: CRITICAL\nFixed Version: 13.0.0\nLink: [CVE-2026-112403](https://avd.aquasec.com/nvd/cve-2026-112403)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "uv.lock",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1,
+                  "startColumn": 1,
+                  "endLine": 1,
+                  "endColumn": 1
+                }
+              },
+              "message": {
+                "text": "uv.lock: pillow@11.3.0"
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CVE-2026-112900",
+          "ruleIndex": 12,
+          "level": "error",
+          "message": {
+            "text": "Package: pillow\nInstalled Version: 11.3.0\nVulnerability CVE-2026-112900\nSeverity: CRITICAL\nFixed Version: 13.0.0\nLink: [CVE-2026-112900](https://avd.aquasec.com/nvd/cve-2026-112900)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "uv.lock",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1,
+                  "startColumn": 1,
+                  "endLine": 1,
+                  "endColumn": 1
+                }
+              },
+              "message": {
+                "text": "uv.lock: pillow@11.3.0"
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CVE-2026-96639",
+          "ruleIndex": 13,
+          "level": "error",
+          "message": {
+            "text": "Package: pillow\nInstalled Version: 11.3.0\nVulnerability CVE-2026-96639\nSeverity: CRITICAL\nFixed Version: 13.0.0\nLink: [CVE-2026-96639](https://avd.aquasec.com/nvd/cve-2026-96639)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "uv.lock",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1,
+                  "startColumn": 1,
+                  "endLine": 1,
+                  "endColumn": 1
+                }
+              },
+              "message": {
+                "text": "uv.lock: pillow@11.3.0"
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CVE-2026-102268",
+          "ruleIndex": 14,
+          "level": "error",
+          "message": {
+            "text": "Package: pyjwt\nInstalled Version: 2.11.0\nVulnerability CVE-2026-102268\nSeverity: CRITICAL\nFixed Version: 2.14.0\nLink: [CVE-2026-102268](https://avd.aquasec.com/nvd/cve-2026-102268)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "uv.lock",
+                  "uriBaseId": "ROOTPATH"
+                },
+                "region": {
+                  "startLine": 1,
+                  "startColumn": 1,
+                  "endLine": 1,
+                  "endColumn": 1
+                }
+              },
+              "message": {
+                "text": "uv.lock: pyjwt@2.11.0"
+              }
+            }
+          ]
+        }
+      ],
+      "columnKind": "utf16CodeUnits",
+      "originalUriBaseIds": {
+        "ROOTPATH": {
+          "uri": "file:///tmp/sahool-trivy-composite-882204c263d7/baseline/"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,215 @@
+{
+  "base_commit": "ab53c98596daca1740d2ac5a5dbd48db7b24e34f",
+  "files": {
+    ".github/workflows/security-checks.yml": "81c0c125b2bcead019016cc14e3027ec922e1eecb8dfd104744a752c1e6e2695",
+    ".github/workflows/security.yml": "ef145aa3ea75c078ec7930ab00e5e3e93b8cf3a615b71012db2055b926c208c3",
+    "idp/templates/python-fastapi/skeleton/requirements.txt": "f08cd122f453a36ed957fef2891b7c86a62e10cfe9d6f96f5f7b86c20cd8bd72",
+    "shared/observability/requirements.txt": "e5025ce87195eb066843260338d1274356cf950d369dc730aca1f15a6a93444b",
+    "tools/eo-validation/requirements.txt": "0fd94e6eeb2a0c707d7bffc43ce7226de120dc8b093463852f41cc3d8454a245",
+    "scripts/ci/audit_python_requirements.py": "99b33579870f559cb8ab1c64937e92b637dbd5c6550fd7f28f2f1f72b5c5672a",
+    "scripts/ci/render_security_requirements.cjs": "e5caa87dafc87c64073b531b3150e19c6a7e7d9fd8fb71581d78b7054680651e",
+    "scripts/ci/run_optional_safety.py": "9758bd2174e09973ce8ad1a898c6ea43e3c1872939bf84f6ccf438e2b58e1eff",
+    "scripts/ci/tests/render_security_requirements.test.cjs": "42ac3966461fb0ca22d530b694d7f46cb89fb2a9ba0ac8da56b84f7869b53bb3",
+    "scripts/ci/trivy_scan_receipt.py": "6ff2c3296cb49c7b264bb5465804e6b9d04b915510775d3cf15b9b83afe7a22d",
+    "tests/unit/ci/test_dependency_scan_integrity.py": "db9dd59424312c934a5247ee9c6c0ea1850512e85fa462a0f4c698cfe5c99f18"
+  },
+  "full_audit": {
+    "attempted_inputs": 98,
+    "clean_inputs": 56,
+    "complete": true,
+    "coverage_complete": true,
+    "failed_inputs": 0,
+    "findings_across_inputs": 533,
+    "inputs_with_findings": 42,
+    "planned_inputs": 98,
+    "policy": "Vulnerabilities are advisory; incomplete execution or coverage fails the check",
+    "rendered_template_variants": 20,
+    "source_count": 79
+  },
+  "audit_duration_seconds": 579.21,
+  "audit_source_hashes_match_final_tree": true,
+  "selective_receipt_refresh": {
+    "reason": "Comment-only changes after initial plan; reran only2 affected manifests and retained original complete sweep and adapter-omission failure",
+    "path": "/workspace/scratch/882204c263d7/security-scan-evidence/source-comment-refresh"
+  },
+  "advisory_inventory": {
+    "package_version_advisory_records": 128,
+    "packages": 16,
+    "path": "/workspace/scratch/882204c263d7/security-scan-evidence/full-audit-finding-inventory.json",
+    "note": "533raw occurrences across inputs include repeated packages/variants; findings are retained, not suppressed"
+  },
+  "four_original_execution_gaps": {
+    "tools/eo-validation/requirements.txt": {
+      "audited_inputs": 1,
+      "statuses": {
+        "clean": 1
+      },
+      "findings_across_inputs": 0,
+      "interpreters": [
+        "3.12"
+      ]
+    },
+    "shared/observability/requirements.txt": {
+      "audited_inputs": 1,
+      "statuses": {
+        "clean": 1
+      },
+      "findings_across_inputs": 0,
+      "interpreters": [
+        "3.11"
+      ]
+    },
+    "idp/templates/python-fastapi/skeleton/requirements.txt": {
+      "audited_inputs": 1,
+      "statuses": {
+        "findings": 1
+      },
+      "findings_across_inputs": 11,
+      "interpreters": [
+        "3.11"
+      ]
+    },
+    "idp/templates/data-pipeline/skeleton/requirements.txt": {
+      "audited_inputs": 20,
+      "statuses": {
+        "clean": 20
+      },
+      "findings_across_inputs": 0,
+      "interpreters": [
+        "3.11"
+      ]
+    }
+  },
+  "validation": {
+    "pytest": {
+      "tests": 63,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "nunjucks_tests": 22,
+    "nunjucks_passed": 22,
+    "ruff_check_exit": 0,
+    "ruff_format_exit": 0,
+    "actionlint_exit": 0,
+    "diff_check_exit": 0
+  },
+  "trivy_actual": {
+    "command": [
+      "/workspace/scratch/882204c263d7/pyjwt-evidence/dependency-followup/trivy-0.69.3",
+      "fs",
+      "--cache-dir",
+      "/tmp/sahool-trivy-js-rescan-882204c263d7",
+      "--skip-check-update",
+      "--scanners",
+      "vuln",
+      "--severity",
+      "CRITICAL",
+      "--exit-code",
+      "1",
+      "--format",
+      "sarif",
+      "--output",
+      "/workspace/scratch/882204c263d7/security-scan-evidence/live-trivy/trivy-results.sarif",
+      "."
+    ],
+    "critical_count": 26,
+    "database": {
+      "cache_directory": "/tmp/sahool-trivy-js-rescan-882204c263d7",
+      "database_sha256": "d81ea576fbcd02c304b980d8eec4dd1a372648b648bfb876f48790d63ee58f93",
+      "metadata": {
+        "DownloadedAt": "2026-10-31T19:24:31.517003446Z",
+        "NextUpdate": "2026-11-01T13:09:00.833221529Z",
+        "UpdatedAt": "2026-10-31T13:09:00.83322165Z",
+        "Version": 2
+      }
+    },
+    "duration_seconds": 0.72,
+    "error": null,
+    "execution_error": null,
+    "exit_code": 1,
+    "report": "/workspace/scratch/882204c263d7/security-scan-evidence/live-trivy/trivy-results.sarif",
+    "report_sha256": "f9f5946d569f6b3fe5cb57154261376e8d03dcca81dd0cce72c9a424c1592aa1",
+    "runs": 1,
+    "schema_validation": "strict structural contract for Trivy CRITICAL SARIF 2.1.0 (not a complete JSON Schema validator)",
+    "status": "findings",
+    "structural_validation": true,
+    "timed_out": false,
+    "trivy_versions": [
+      "0.69.3"
+    ]
+  },
+  "trivy_event_policy": [
+    {
+      "command": [
+        "/workspace/scratch/882204c263d7/pyjwt-venv/bin/python",
+        "scripts/ci/trivy_scan_receipt.py",
+        "gate",
+        "--receipt",
+        "/workspace/scratch/882204c263d7/security-scan-evidence/live-trivy/receipt.json",
+        "--event",
+        "pull_request"
+      ],
+      "exit_code": 0,
+      "stdout": "::notice::Trivy found 26 CRITICAL findings; informational on pull requests\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/workspace/scratch/882204c263d7/pyjwt-venv/bin/python",
+        "scripts/ci/trivy_scan_receipt.py",
+        "gate",
+        "--receipt",
+        "/workspace/scratch/882204c263d7/security-scan-evidence/live-trivy/receipt.json",
+        "--event",
+        "push"
+      ],
+      "exit_code": 1,
+      "stdout": "::error::Trivy found 26 CRITICAL findings; gate failed\n",
+      "stderr": ""
+    }
+  ],
+  "fail_closed_examples": "/workspace/scratch/882204c263d7/security-scan-evidence/incomplete-report-demonstrations/results.json",
+  "safety_actual": {
+    "reason": "SAFETY_API_KEY is not set; Safety was not invoked",
+    "status": "not_configured"
+  },
+  "local_bootstrap_failure": {
+    "initial_sweep": "/workspace/scratch/882204c263d7/security-scan-evidence/full-python-audit",
+    "original_failure_log": "/workspace/scratch/882204c263d7/security-scan-evidence/pip-bootstrap-1.log",
+    "cause": "Workspace proxy rejects CPython3.11 HTTP/1.0 CONNECT with426 before dependency resolution; failures retained as execution_error"
+  },
+  "local_adaptation": {
+    "source_interpreter": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "source_module": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/http/client.py",
+    "official_source": "https://github.com/python/cpython/blob/v3.12.14/Lib/http/client.py",
+    "official_documentation": "https://docs.python.org/3.12/library/http.client.html#http.client.HTTPConnection.set_tunnel",
+    "source_module_sha256": "c2c0694155837d72fc710a4138e5d1e53ae1a652b117a2e23a5b1b0db527a0f9",
+    "extracted_methods_sha256": "723a5b96a8440a7d1113d4a4baa9474c785d16de79645c0eb197aa7c468ff7e8",
+    "sitecustomize_sha256": "e6d81e481cfee3056b60942cb995d4a76257b40b4d10aff67e95ae189dae3b7a",
+    "scope": "Temporary per-process PYTHONPATH only; no stdlib/proxy/TLS/index/resolver settings changed; no repository files changed",
+    "official_download_url": "https://raw.githubusercontent.com/python/cpython/v3.12.14/Lib/http/client.py",
+    "official_module_sha256": "c2c0694155837d72fc710a4138e5d1e53ae1a652b117a2e23a5b1b0db527a0f9",
+    "methods_match_official_ast_ignoring_docstring_indentation": true,
+    "python311_execution_proof": {
+      "interpreter": "3.11.17 (main, Oct 14 2026, 01:05:33) [Clang 23.1.3 ]",
+      "marker_python_version": "3.11",
+      "python_lt_312": true,
+      "python_ge_312": false,
+      "tls_verify_mode": 2,
+      "tls_check_hostname": true,
+      "stdlib_file_sha256": "1d41c7caf2d3b263a6e1e313120db4c8fc5021c0c9783ee861bf1a43c9cde5d8",
+      "tunnel_source": "/workspace/scratch/882204c263d7/security-scan-evidence/http11-connect-compat/cpython312_tunnel.py"
+    }
+  },
+  "independent_review": "dependency_audit approved failure propagation, templatecoverage, EO-onlyinterpreterrouting andTrivycache/DB consistency; relativecache paths additionally normalized andtested.",
+  "limits": [
+    "Full sweep covers baseab53 plus scannerrepair manifests; PythonPR1997/JSsecurity updates are separate candidates.",
+    "pip-audit findings are advisory; TrivyCRITICAL findings are advisoryonPR and enforcingother events. Allincomplete scans fail.",
+    "ConfiguredSafety mode checked againstpinnedsource anddeterministicprocess tests; actualSafety explicitlynotconfigured because noAPIkey ispresent.",
+    "Trivyvalidation enforces theconfiguredCRITICALSARIFstructuralcontract; it isnot acompleteSARIFJSONSchema validator.",
+    "HTTP1.1 CONNECT adaptation istemporarylocalprocess-only, outsidegit/CI; interpretermarkers remainPython3.11 andTLSverification staysenabled."
+  ],
+  "commit": "e6af2af99b1010be05a6f4362a579c63ba4aaa14",
+  "tree": "22e6e48da9435b6c985dac3ff92e9374d3c59959"
+}

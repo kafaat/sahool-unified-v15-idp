@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "source_service_commit": "acbd26152b920b44deb16ce1d2da71421f36449b",
+  "base_commit": "ab53c98596daca1740d2ac5a5dbd48db7b24e34f",
+  "source_hashes": {
+    ".github/workflows/ci.yml": "424adccf9a46063a7244828bd515dd8775eb7f3ee6d21e497ec91b92418c2418",
+    ".github/workflows/quality-gate.yml": "932041f1eb8e109b400175303c42634d2ec12e4b42331a58e7f067adaa7f7e2a",
+    ".github/workflows/shared-pyjwt-security.yml": "b8f8c6d856e0f46a85d5a112624a98153f2afb44d45361e8a3e5cbc3a7eb3ce3",
+    "apps/services/advisory-service/requirements.txt": "c1001c0e0ee61db6f82f4798764698b88e18213283554db4ed41b196ecacd050",
+    "apps/services/agent-registry/requirements.txt": "3fe0ba54d05a3848249dd112b1e0c304b20f1e661fb4d1857a7e2524f75d0007",
+    "apps/services/ai-advisor/requirements.txt": "483a6cf79b8663557022ffa3c315c45bfaec1b27858f5248d12ce0b8d99b7bcc",
+    "apps/services/ai-agents-core/requirements.txt": "30859c652013735e8fd943df1c3f1ab824d162847070f5af812a3baf3251576f",
+    "apps/services/ai-agents-service/requirements.txt": "ad543dc9b432d58daaadaeed2441433cdb86f4338c265ddfd80a6da283055a6a",
+    "apps/services/ai-chat-assistant/requirements.txt": "d24d9a12f405ec625b96d1222a0211e6efd0e2b99faee6a5ca1f80f02df97eb3",
+    "apps/services/billing-core/requirements.txt": "de19c13697dffaf6ef9d5334b362b529516356ee0ffcb197991e3523b23e48fe",
+    "apps/services/carbon-service/requirements.txt": "7372c66dd8df523f62fa762cf8e83f591fa0711bc39aa143021a013e80c34ff7",
+    "apps/services/code-review-service/requirements.txt": "4b327540bc0e165e739e080463d219ccfd44140560d4e053ae0f659be50cb2b3",
+    "apps/services/community-service/requirements.txt": "69b78f986a252b01595138b909889c10242becb35ce0930a39d8f85d3e8846e1",
+    "apps/services/copilot-api/requirements.txt": "428562327c6ceee17f03e3c753219ccc544a1e57e6eefbde923e763f54385fd9",
+    "apps/services/crm-service/requirements.txt": "17dd255617944049646aaf765f21a0b1bc7c905dd8288faf0506d63714f6e308",
+    "apps/services/crop-intelligence-service/requirements.txt": "35f1d8decdd1e9b80b5917eea0c49c322ddba81fcfe17e31bd574bc3773b1dbf",
+    "apps/services/drone-service/requirements.txt": "35f56582194d409fca77798c7d02376598c7f0a555d18eda8f5289ee9486713c",
+    "apps/services/equipment-service/requirements.txt": "06b6c832b23c2bc2a1a86a69bc519fed26db8968f2156f16442d57578e075b22",
+    "apps/services/field-management-service/constraints.txt": "7d29816b9440db7536b5d4a8b62ba0185105b10abe215010f1a87b28dd5d25ec",
+    "apps/services/globalgap-compliance/requirements.txt": "2dd2d1b25d4636936b29f8cb2270a72dc2814e022597cd9d80ba222897a1392b",
+    "apps/services/indicators-service/requirements.txt": "ce981209f3c49f7522051ba8d2f195e42aa8c062db061e294161f6c2c830e7a4",
+    "apps/services/iot-gateway/requirements.txt": "f738012294fe73b0a8f29d84bc1504a6a767ee5a80cb6c0e5074e64d6455e668",
+    "apps/services/irrigation-smart/requirements.txt": "76984347eb2a2855325e12c3d59175360bb6446ce2d72dbd12b636c7cd1e649f",
+    "apps/services/knowledge-graph/requirements.txt": "a10181f707d6bb8b63347b21773fc5cc82cc1a4c915232a76ce7ed9e40c4108e",
+    "apps/services/leveling-optimizer-service/requirements.txt": "6892efcdafc96f172f3dfee1cb90fa7b847d477056a0c529e730c6cd109f642c",
+    "apps/services/llm-orchestrator-service/requirements.txt": "781eb770778b6a82a40bb9f106a12963fc7a439c1209c1fe77d0ac0e0f480dea",
+    "apps/services/logistics-service/requirements.txt": "baa2c4178ec6fafc43596bda2752680c471b33bd8ab7ab1ee99de99bb2cd4838",
+    "apps/services/lowcode-engine/requirements.txt": "540022edd67e6f0be4c739557d7ad16492d1df7b63f165676764cc56a71ccac3",
+    "apps/services/ndvi-processor/requirements.txt": "69f207b21eca0188bbcf14994b05b0ec80f16974e7a622b64de55876438dfa4f",
+    "apps/services/notification-service/requirements.txt": "68549e3ddc0181b113f2a016aca358a85a1698059e67fe57b8e521142eed6e63",
+    "apps/services/pest-detection-service/requirements.txt": "37f934865a13dd5683a1183af237f736e5f9375e220af91d0bf3306cee62c535",
+    "apps/services/provider-config/requirements.txt": "ec82c9bb936a7c26bc49ddc0e9fccc421cfedd1868a0f3e0e5825c21fbe9080b",
+    "apps/services/requirements.txt": "623cd2923b6e5df177ff85f4ae0724994f97421ee39317a4964fb3b063204c71",
+    "apps/services/shared/requirements.txt": "2502b754a9df9d84e88ac184f1b02752c19f2de12687edd6ccf35621eb47b69f",
+    "apps/services/skills-service/requirements.txt": "ed1fb2e9d0ef13e687ff6d8960288abe4908eb8c9e89c09e436021fdfc0e9ff6",
+    "apps/services/task-service/requirements.txt": "646060989d5793db07cb44566ccc0fec86aa2ae92cfa92116e5553765346b3a4",
+    "apps/services/terrain-core-service/requirements.txt": "3b98eb825467c5fba67e096fbb0d99018014f38aff05f46acf770bc18f36a68a",
+    "apps/services/vegetation-analysis-service/requirements.txt": "342980f09668832cdd5f905956303d3aa781635cd77e39d58847a11fbfaa572c",
+    "apps/services/virtual-sensors/requirements.txt": "221752cf19b4844755b1aff70433a0cf87fdb49f1afd9473823a72c3d2a52a6e",
+    "apps/services/weather-service/requirements.txt": "b670f7367012fec88f64cf2adb37b6027f0b2376d6f3e46658b4e29cb19749b3",
+    "apps/services/wechat-service/requirements.txt": "10d3f7d3c6a433b076a03311141738ec5601945966e8acd647e4c23f803c757f",
+    "apps/services/whatsapp-bot-service/requirements.txt": "96152bc3a03e6f61b045e38b2fdf0c07c6dbe3bcdfd654d9794115421b3a723f",
+    "apps/services/yolo26-vision-service/requirements.txt": "f19178ffd14c6e0955f6a2c712300fe9d8e7bcde13b6ad9830cbaee6e13d9e56",
+    "docker/constraints-ai.txt": "2527b97c2bdfac529c5e6ad74b6f3c4019ae08328d91f9f4a531dac8fa78f550",
+    "packages/shared-crypto/requirements.txt": "fe5b5026c65c88d07e6df0f5b2cdd0c89d9d290b27a7c017e16769e0c78a7e3a",
+    "requirements/testing.txt": "c3e3a4f7b70fe8996c39fd7110eca5ac7380b30d73730fa05857d916f75c28a2",
+    "sahool-platform/apps/auth/requirements.txt": "a67fe5f4d8f41d639dc0d42988e19a12d50bc258b41ee4289070602ae6286d0a",
+    "shared/auth/requirements-2fa.txt": "6a5b90af4f6b5f4726a2f0b92d8ca215559b91610402b26fad6792db4747ad49",
+    "apps/services/ai-advisor/tests/test_embedding_dependency_security.py": "3efa29bb2784874825cf21f3556c7ad387fe8b9abf402a3ae53081b4dd6cd20b",
+    "tests/unit/security/test_dependency_security_regressions.py": "d1a5fa7a2caa5be3f41730616134c51d14ea1a0113ea587df7d3ee63e38bd0f1"
+  },
+  "consumer_resolution": {
+    "passed": 44,
+    "total": 44,
+    "python_target": "3.11",
+    "platform": "x86_64-unknown-linux-gnu"
+  },
+  "resolution_scope": "Each adjacent Dockerfile constraint contract, central compatibility for standalone manifests, and the independently packaged legacy auth contract.",
+  "general_tests": [
+    {
+      "name": "settings-final-baseline",
+      "exit_code": 1,
+      "counts": {
+        "tests": 4,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "failed_tests": [
+        "test_nested_settings_cannot_read_secrets_through_an_external_directory_symlink"
+      ]
+    },
+    {
+      "name": "dependency-final-candidate",
+      "exit_code": 0,
+      "counts": {
+        "tests": 19,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "failed_tests": []
+    }
+  ],
+  "embedding_tests": [
+    {
+      "name": "embedding-secure-current",
+      "exit_code": 0,
+      "counts": {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "failed_tests": []
+    },
+    {
+      "name": "embedding-secure-baseline5.6",
+      "exit_code": 1,
+      "counts": {
+        "tests": 5,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "failed_tests": [
+        "test_untrusted_local_model_cannot_execute_custom_python"
+      ]
+    }
+  ],
+  "embedding_audit": {
+    "exit_code": 0,
+    "package_count": 52,
+    "findings": 0,
+    "pip_check_exit_code": 0,
+    "freeze_sha256": "554dab2e1a75454070ce4ef45725db963d6d62ceaf78883eae8c775561a72c48"
+  },
+  "embedding_advisory_lookup": {
+    "installed_torch": "2.13.0+cpu",
+    "upstream_advisory_version": "2.13.0",
+    "official_distribution_source": "https://download.pytorch.org/whl/cpu/torch/",
+    "packages_excluded": [],
+    "vulnerabilities_ignored": []
+  },
+  "source_evidence_sha256": "b2135ccd15e24d69703e4876f431829bb0682ec6ce0f9df0307b3d81888b72eb",
+  "primary_security_sources": [
+    "https://github.com/pydantic/pydantic-settings/security/advisories/GHSA-4xgf-cpjx-pc3j",
+    "https://github.com/agronholm/anyio/security/advisories/GHSA-82r6-8w77-94w6",
+    "https://github.com/advisories/GHSA-jhr6-gm9c-rqjv",
+    "https://github.com/Kludex/python-multipart/security/advisories/GHSA-pp6c-gr5w-3c5g",
+    "https://github.com/Kludex/python-multipart/security/advisories/GHSA-v9pg-7xvm-68hf",
+    "https://github.com/Kludex/python-multipart/security/advisories/GHSA-5rvq-cxj2-64vf",
+    "https://github.com/Kludex/python-multipart/security/advisories/GHSA-6jv3-5f52-599m",
+    "https://download.pytorch.org/whl/cpu/torch/"
+  ],
+  "scope_limits": [
+    "The full 52-package audit covers the tested CPU embedding environment, not every production AI service.",
+    "YOLO retains its torch>=2.6,<2.7 compatibility cap. Raising the shared Docker AI floor requires a separate YOLO migration and runtime verification.",
+    "The separately packaged legacy auth service still imports python-jose; only its multipart dependency changes here."
+  ]
+}

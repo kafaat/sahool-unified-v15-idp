@@ -232,7 +232,7 @@ jobs:
           pip install --upgrade pip wheel
           pip install -c constraints.txt -r requirements/testing.txt --quiet 2>/dev/null \
             || pip install pytest pytest-asyncio pytest-cov pytest-timeout httpx \
-               "pyjwt[crypto]" cryptography cffi fastapi pydantic pydantic-settings \
+               "pyjwt[crypto]" cryptography "bcrypt>=4.2.0,<5.0.0" cffi fastapi "python-multipart>=0.0.31,<0.1.0" pydantic pydantic-settings \
                jsonschema sqlalchemy structlog redis prometheus-client schemathesis \
                tenacity numpy pillow aiofiles pyotp qrcode nats-py aiohttp --quiet
           pip install tortoise-orm --quiet || true

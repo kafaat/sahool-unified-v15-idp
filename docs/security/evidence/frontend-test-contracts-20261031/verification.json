@@ -1,0 +1,233 @@
+{
+  "base_commit": "ab53c98596daca1740d2ac5a5dbd48db7b24e34f",
+  "date_utc": "2026-10-31",
+  "scope": "Auth response validation and stale frontend/readiness test contracts; CSP hardening remains unresolved.",
+  "source_sha256": {
+    "apps/admin/src/app/__tests__/seo-metadata.test.tsx": "1c726d6f6bced5cf4da73d35cc5d3bf6d6516759df876dcf834228782cf97ab7",
+    "apps/admin/src/components/fields/__tests__/FieldCreateDialog.test.tsx": "5a6da29dfce9593672b7dbd1b0a023224bba5553d4957db85717da0ea109b625",
+    "apps/services/crop-growth-model/src/__tests__/health.spec.ts": "636dfbf076045b45c3bb9b4927c65daedcb9123e1dcbeec1e1377c32bac700ae",
+    "apps/web/src/app/api/auth/__tests__/refresh-route.test.ts": "fc6e6823853a486ba1a8baa74cb554e98a7c563f9f4a3ca3ff6a069cde54f7a9",
+    "apps/web/src/components/layouts/__tests__/sidebar.test.tsx": "a3dc7524591466d861afd2cc6bb2b5e290c256df10d2f4d8f14d9fc23771c292",
+    "apps/web/src/features/fields/__tests__/tenant-guard.test.ts": "da1cd31c3c78e20497c173021c179904cda6a8cd9cf64b036bdc5dca6c1fc95c",
+    "apps/web/src/lib/api/__tests__/auth-client.test.ts": "45cefe181e47e3bfe7e91b80f03a43fc664311c78cbf227efe7159ec38766dcd",
+    "apps/web/src/lib/api/auth-client.ts": "4dd8748e7b5a1804419ce656de38ea40e884d53a0be3e0287fdf6fe5c308e7e1"
+  },
+  "runtime": {
+    "version": "v20.20.2",
+    "archive_url": "https://nodejs.org/dist/v20.20.2/node-v20.20.2-linux-x64.tar.xz",
+    "checksum_url": "https://nodejs.org/dist/v20.20.2/SHASUMS256.txt",
+    "sha256": "df770b2a6f130ed8627c9782c988fda9669fa23898329a61a871e32f965e007d",
+    "official_sha256": "df770b2a6f130ed8627c9782c988fda9669fa23898329a61a871e32f965e007d",
+    "verified": true,
+    "binary": "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node"
+  },
+  "installed_test_dependencies": {
+    "vitest": "3.2.4",
+    "next_web": "15.5.14",
+    "next_admin": "15.5.14",
+    "jest": "29.7.0",
+    "typescript": "5.9.3",
+    "note": "Existing isolated dependency installation reused. This is not a claim of a fresh npm-ci installation or acceptance of the separate JavaScript security upgrade."
+  },
+  "checks": {
+    "focused_web": {
+      "total": 88,
+      "passed": 88,
+      "failed": 0,
+      "skipped": 0,
+      "source": "Selected four repaired suites in the complete final web report"
+    },
+    "focused_admin": {
+      "total": 102,
+      "passed": 102,
+      "failed": 0,
+      "skipped": 0,
+      "report_sha256": "d10cd43247d2ccc037e7ceea44690f94309f7cdf0c26d7e11e17c80ee9afc060"
+    },
+    "full_web": {
+      "command": [
+        "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+        "/workspace/scratch/882204c263d7/frontend-test-contracts/node_modules/vitest/vitest.mjs",
+        "run",
+        "--maxWorkers=2",
+        "--reporter=json",
+        "--outputFile=/workspace/scratch/882204c263d7/frontend-test-evidence/final-web-full.json"
+      ],
+      "working_directory": "/workspace/scratch/882204c263d7/frontend-test-contracts/apps/web",
+      "exit_code": 1,
+      "total": 1366,
+      "passed": 1358,
+      "failed": 8,
+      "skipped": 0,
+      "report_sha256": "480489724810e82f182fb6fa8f924b2cb30ba84a23ff4cc54efbbc9b291f885a",
+      "failed_suites": [
+        {
+          "path": "apps/web/src/lib/security/csp-config.test.ts",
+          "message": "",
+          "cases": [
+            "CSP Directives should include nonce in script-src when provided",
+            "CSP Directives should include nonce in style-src when provided",
+            "CSP Directives should include strict-dynamic in script-src with nonce (non-dev)",
+            "CSP Header Building should include nonce in header"
+          ]
+        },
+        {
+          "path": "apps/web/src/lib/security/__tests__/csp-config.test.ts",
+          "message": "",
+          "cases": [
+            "CSP Configuration getCSPDirectives should include nonce in script-src when provided",
+            "CSP Configuration getCSPDirectives should include nonce in style-src when provided",
+            "CSP Configuration getCSPConfig should pass nonce to directives",
+            "CSP Configuration getCSPHeader should include nonce when provided"
+          ]
+        }
+      ]
+    },
+    "full_admin": {
+      "command": [
+        "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+        "/workspace/scratch/882204c263d7/frontend-test-contracts/node_modules/vitest/vitest.mjs",
+        "run",
+        "--maxWorkers=2",
+        "--reporter=json",
+        "--outputFile=/workspace/scratch/882204c263d7/frontend-test-evidence/candidate-admin-full.json"
+      ],
+      "working_directory": "/workspace/scratch/882204c263d7/frontend-test-contracts/apps/admin",
+      "exit_code": 0,
+      "total": 2515,
+      "passed": 2515,
+      "failed": 0,
+      "skipped": 0,
+      "report_sha256": "8ed9760fb156f77ba4421ec5758cda7d33e44bfd5d512e403c0e82a9bcd00521",
+      "failed_suites": []
+    },
+    "crop_readiness": {
+      "command": [
+        "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+        "/workspace/scratch/882204c263d7/frontend-test-contracts/node_modules/jest/bin/jest.js",
+        "src/__tests__/health.spec.ts",
+        "--runInBand",
+        "--json",
+        "--outputFile=/workspace/scratch/882204c263d7/frontend-test-evidence/candidate-health-built.json"
+      ],
+      "working_directory": "/workspace/scratch/882204c263d7/frontend-test-contracts/apps/services/crop-growth-model",
+      "exit_code": 0,
+      "total": 4,
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "report_sha256": "0340e50ddd66c2dcdc4fb86e2681e5247950f1b32d37027b78271f49c00f904f",
+      "failed_suites": []
+    },
+    "web_typecheck": {
+      "command": [
+        "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+        "/workspace/scratch/882204c263d7/frontend-test-contracts/node_modules/typescript/bin/tsc",
+        "--noEmit",
+        "--incremental",
+        "false"
+      ],
+      "cwd": "/workspace/scratch/882204c263d7/frontend-test-contracts/apps/web",
+      "exit_code": 0
+    },
+    "web_lint": {
+      "command": [
+        "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+        "/workspace/scratch/882204c263d7/frontend-test-contracts/node_modules/eslint/bin/eslint.js",
+        "src/lib/api/auth-client.ts",
+        "src/lib/api/__tests__/auth-client.test.ts",
+        "src/features/fields/__tests__/tenant-guard.test.ts",
+        "src/components/layouts/__tests__/sidebar.test.tsx",
+        "src/app/api/auth/__tests__/refresh-route.test.ts",
+        "--format",
+        "json"
+      ],
+      "cwd": "/workspace/scratch/882204c263d7/frontend-test-contracts/apps/web",
+      "exit_code": 0
+    },
+    "admin_lint": {
+      "command": [
+        "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+        "/workspace/scratch/882204c263d7/frontend-test-contracts/node_modules/eslint/bin/eslint.js",
+        "src/app/__tests__/seo-metadata.test.tsx",
+        "src/components/fields/__tests__/FieldCreateDialog.test.tsx",
+        "--format",
+        "json"
+      ],
+      "cwd": "/workspace/scratch/882204c263d7/frontend-test-contracts/apps/admin",
+      "exit_code": 0,
+      "stderr": ""
+    },
+    "auth_negative_control": {
+      "command": [
+        "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+        "/workspace/scratch/882204c263d7/frontend-test-evidence/auth-negative-control/node_modules/vitest/vitest.mjs",
+        "run",
+        "--maxWorkers=1",
+        "--reporter=json",
+        "--outputFile=/workspace/scratch/882204c263d7/frontend-test-evidence/final-auth-negative-control.json"
+      ],
+      "cwd": "/workspace/scratch/882204c263d7/frontend-test-evidence/auth-negative-control",
+      "exit_code": 1,
+      "elapsed_seconds": 1.4100501537322998,
+      "baseline_auth_sha256": "793dd78419e306698b8c29d683b9422219f17741fbc9f938117e774ea8cd7629",
+      "candidate_test_sha256": "45cefe181e47e3bfe7e91b80f03a43fc664311c78cbf227efe7159ec38766dcd",
+      "counts": {
+        "numTotalTests": 49,
+        "numPassedTests": 21,
+        "numFailedTests": 28,
+        "numPendingTests": 0
+      },
+      "failed_cases": [
+        "AuthApiClient login should reject non-JSON login responses",
+        "AuthApiClient login should handle invalid JSON response",
+        "AuthApiClient login rejects a non-object JSON payload null",
+        "AuthApiClient login rejects a non-object JSON payload []",
+        "AuthApiClient login rejects a non-object JSON payload 'OK'",
+        "AuthApiClient login rejects a non-object JSON payload 42",
+        "AuthApiClient login rejects an incomplete session payload {}",
+        "AuthApiClient login rejects an incomplete session payload {\"access_token\":\"token\"}",
+        "AuthApiClient login rejects an incomplete session payload {\"access_token\":\"token\",\"user\":null}",
+        "AuthApiClient login rejects an incomplete session payload {\"access_token\":\"token\",\"user\":[]}",
+        "AuthApiClient login rejects an incomplete session payload {\"access_token\":\" \",\"user\":{\"id\":\"1\"}}",
+        "AuthApiClient login rejects an incomplete session payload {\"access_token\":42,\"user\":{\"id\":\"1\"}}",
+        "AuthApiClient login rejects an incomplete session payload {\"access_token\":\"token\",\"user\":{\"id\":\"\"}}",
+        "AuthApiClient login rejects an incomplete session payload {\"access_token\":\"token\",\"user\":{\"id\":42}}",
+        "AuthApiClient login respects an explicit failure even when HTTP succeeds and token fields exist",
+        "AuthApiClient login does not expose an object as an error string",
+        "AuthApiClient login should handle error response without message or error field",
+        "AuthApiClient register rejects invalid JSON instead of reporting registration success",
+        "AuthApiClient register rejects a non-object registration payload null",
+        "AuthApiClient register rejects a non-object registration payload []",
+        "AuthApiClient register rejects a non-object registration payload 'OK'",
+        "AuthApiClient register rejects a non-object registration payload 42",
+        "AuthApiClient register rejects an incomplete registration payload {}",
+        "AuthApiClient register rejects an incomplete registration payload {\"success\":true}",
+        "AuthApiClient register rejects an incomplete registration payload {\"success\":true,\"message\":\" \"}",
+        "AuthApiClient register rejects an incomplete registration payload {\"success\":true,\"message\":\"Registered\",\"access_token\":\"token\"}",
+        "AuthApiClient register rejects an incomplete registration payload {\"success\":true,\"message\":\"Registered\",\"user\":{}}",
+        "AuthApiClient register rejects an explicit registration failure on an HTTP success response"
+      ]
+    }
+  },
+  "existing_csp_gap": {
+    "unchanged": true,
+    "failures": 8,
+    "trace": [
+      "apps/web/src/middleware.ts: addSecurityHeaders generates response X-Nonce and serializes getCSPHeader(nonce).",
+      "apps/web/src/lib/security/csp-config.ts: getCSPDirectives deliberately ignores _nonce and retains inline script/style compatibility; no nonce source or strict-dynamic is emitted.",
+      "apps/web/src/app/layout.tsx: theme initialization script has no nonce. No alternative production web CSP nonce-source header was found."
+    ],
+    "decision": "Keep the eight existing security assertions failing; do not weaken them or change CSP policy in this contract repair."
+  },
+  "local_setup": {
+    "build_command": "node node_modules/typescript/bin/tsc --project packages/nestjs-auth/tsconfig.json --incremental false",
+    "build_exit_code": 0,
+    "production_package_changes": false,
+    "retained_initial_failures": [
+      "Incomplete local dependency symlinks initially prevented Next/Axios imports; fixed local untracked links, retained logs.",
+      "Crop test initially could not resolve nestjs-auth declarations; normal local package build resolved it."
+    ],
+    "evidence_directory": "/workspace/scratch/882204c263d7/frontend-test-evidence"
+  }
+}

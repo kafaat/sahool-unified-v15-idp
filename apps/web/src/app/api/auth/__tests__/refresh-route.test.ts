@@ -144,7 +144,10 @@ describe('Token Refresh Proxy Route', () => {
     expect(body.success).toBe(true);
     expect(body.access_token).toBe('new-access-token');
     expect(response.cookies.get('access_token')).toMatchObject({
-      value: 'new-access-token', httpOnly: true, sameSite: 'strict', path: '/',
+      value: 'new-access-token',
+      httpOnly: true,
+      sameSite: 'strict',
+      path: '/',
     });
     expect(response.headers.get('set-cookie')).toContain('HttpOnly');
   });

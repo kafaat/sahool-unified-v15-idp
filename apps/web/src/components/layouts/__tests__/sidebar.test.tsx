@@ -102,6 +102,7 @@ vi.mock('lucide-react', async (importOriginal) => {
   return {
     ...actual,
     LayoutDashboard: IconMock,
+    DatabaseZap: IconMock,
     Sprout: IconMock,
     FileText: IconMock,
     TrendingUp: IconMock,

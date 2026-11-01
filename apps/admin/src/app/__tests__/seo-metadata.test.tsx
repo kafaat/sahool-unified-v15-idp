@@ -118,11 +118,10 @@ describe('Root Layout SEO', () => {
     expect(layoutContent).toContain('leaflet');
   });
 
-  it('does NOT force dynamic rendering at the root layout', () => {
-    // force-dynamic was removed from the root layout — it was killing static
-    // optimization for the entire admin app. Dynamic rendering is now opt-in
-    // per-route, not layout-wide.
-    expect(layoutContent).not.toMatch(/export const dynamic = ['"]force-dynamic['"]/);
+  it('renders the root layout dynamically for the request-specific CSP nonce', () => {
+    expect(layoutContent).toMatch(/export const dynamic = ['"]force-dynamic['"]/);
+    expect(layoutContent).toContain('await headers()');
+    expect(layoutContent).toContain("headersList.get('X-Nonce')");
   });
 
   it('wraps children with Providers', () => {

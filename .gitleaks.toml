@@ -24,6 +24,7 @@ paths = [
     '''yarn\.lock$''',
     '''poetry\.lock$''',
     '''Pipfile\.lock$''',
+    '''uv\.lock$''',
     '''go\.sum$''',
 
     # Build artifacts and generated files

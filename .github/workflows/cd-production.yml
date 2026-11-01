@@ -72,7 +72,7 @@ jobs:
       kubeconfig_available: ${{ steps.secrets.outputs.kubeconfig_available }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.inputs.version || github.ref }}
 
@@ -241,7 +241,7 @@ jobs:
       url: https://sahool.io
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ needs.validate-release.outputs.version }}
 
@@ -391,7 +391,7 @@ jobs:
     if: needs.deploy-green.result == 'success' && needs.validate-release.outputs.kubeconfig_available == 'true'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Configure kubectl
         uses: azure/k8s-set-context@v5
@@ -400,7 +400,7 @@ jobs:
           kubeconfig: ${{ secrets.KUBE_CONFIG_PRODUCTION }}
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: '3.11'
 

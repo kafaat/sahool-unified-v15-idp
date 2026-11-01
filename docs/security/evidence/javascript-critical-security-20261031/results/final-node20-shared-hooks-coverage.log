@@ -1,0 +1,34 @@
+
+ RUN  v3.2.7 /workspace/scratch/882204c263d7/javascript-security-fix/packages/shared-hooks
+      Coverage enabled with v8
+
+ ✓ src/auth/permissions.test.ts (25 tests) 8ms
+ ✓ src/auth/useAuth.test.ts (19 tests) 7ms
+ ✓ src/useWebSocket.test.ts (16 tests) 94ms
+
+ Test Files  3 passed (3)
+      Tests  60 passed (60)
+   Start at  21:16:00
+   Duration  1.67s (transform 187ms, setup 352ms, collect 320ms, tests 109ms, environment 2.07s, prepare 331ms)
+
+JUNIT report written to /workspace/scratch/882204c263d7/js-security-evidence/final-node20-shared-hooks.xml
+ % Coverage report from v8
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |   30.68 |    85.24 |   83.33 |   30.68 |                   
+ src               |   22.41 |    77.14 |     100 |   22.41 |                   
+  index.ts         |       0 |      100 |     100 |       0 | 7-47              
+  useApi.ts        |       0 |      100 |     100 |       0 | 6-220             
+  useAuth.ts       |       0 |      100 |     100 |       0 | 6-250             
+  useDebounce.ts   |       0 |      100 |     100 |       0 | 6-63              
+  ...calStorage.ts |       0 |      100 |     100 |       0 | 6-105             
+  useWebSocket.ts  |   93.33 |    73.33 |     100 |   93.33 | ...29-132,168-170 
+ src/auth          |   89.52 |    95.83 |   72.22 |   89.52 |                   
+  index.ts         |       0 |      100 |     100 |       0 | 7-22              
+  permissions.ts   |     100 |    92.85 |     100 |     100 | 187               
+  useAuth.ts       |    62.5 |      100 |   54.54 |    62.5 | ...,97-99,105-107 
+ src/events        |       0 |      100 |     100 |       0 |                   
+  index.ts         |       0 |      100 |     100 |       0 | 6                 
+  ...ventStream.ts |       0 |      100 |     100 |       0 | 10-388            
+-------------------|---------|----------|---------|---------|-------------------

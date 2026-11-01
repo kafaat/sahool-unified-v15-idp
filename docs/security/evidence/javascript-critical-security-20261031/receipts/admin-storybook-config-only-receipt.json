@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+    "/workspace/scratch/882204c263d7/javascript-security-fix/apps/admin/node_modules/storybook/bin/index.cjs",
+    "build",
+    "--output-dir",
+    "/workspace/scratch/882204c263d7/js-security-evidence/storybook-config-only-output",
+    "--disable-telemetry"
+  ],
+  "working_directory": "/workspace/scratch/882204c263d7/javascript-security-fix/apps/admin",
+  "launch_environment_has_NEXT_PRIVATE_LOCAL_WEBPACK": false,
+  "inherited_variable_was_removed": false,
+  "diagnostic_preload": false,
+  "exit_code": 0,
+  "seconds": 17.874069452285767,
+  "node_version": "v20.20.2",
+  "lock_sha256_before": "4efcc25c1d00362b6ffcb042d8bba7176a85aa99edc178fe59ba9187a92bc86a",
+  "lock_sha256_after": "4efcc25c1d00362b6ffcb042d8bba7176a85aa99edc178fe59ba9187a92bc86a",
+  "storybook_config_sha256": "bcc4e73c11808aff41e6550e955f533536775a5a0599d90c61f04e88637d1325",
+  "storybook_config_sha256_after": "bcc4e73c11808aff41e6550e955f533536775a5a0599d90c61f04e88637d1325"
+}

@@ -1,0 +1,15 @@
+[
+  {
+    "pid": 100968,
+    "cwd": "/workspace/scratch/882204c263d7/javascript-security-fix/apps/services/chat-service",
+    "command": [
+      "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+      "/workspace/scratch/882204c263d7/javascript-security-fix/node_modules/jest/bin/jest.js",
+      "--runInBand",
+      "--json",
+      "--outputFile=/workspace/scratch/882204c263d7/js-security-evidence/chat-service-final-tests.json",
+      ""
+    ],
+    "reason": "278 cases completed; Jest explicitly reported open asynchronous handles and did not exit. Stop the owned test process without claiming a successful process exit."
+  }
+]

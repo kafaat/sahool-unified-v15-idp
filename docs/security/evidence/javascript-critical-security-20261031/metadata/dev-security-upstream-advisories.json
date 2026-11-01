@@ -1,0 +1,218 @@
+{
+  "tinypool_versions": {
+    "url": "https://registry.npmjs.org/tinypool",
+    "data": {
+      "dist-tags": {
+        "latest": "2.2.0"
+      },
+      "versions": [
+        "1.0.0",
+        "1.0.1",
+        "1.0.2",
+        "1.1.0",
+        "1.1.1"
+      ]
+    }
+  },
+  "vitest_versions": {
+    "url": "https://registry.npmjs.org/vitest",
+    "data": {
+      "dist-tags": {
+        "V3": "3.2.7",
+        "beta": "5.1.0-beta.1",
+        "rc": "5.0.0-rc.4",
+        "latest": "5.0.5",
+        "V4": "4.1.12"
+      },
+      "versions": [
+        "3.0.0",
+        "3.0.1",
+        "3.0.2",
+        "3.0.3",
+        "3.0.4",
+        "3.0.5",
+        "3.0.6",
+        "3.0.7",
+        "3.0.8",
+        "3.0.9",
+        "3.1.0",
+        "3.1.1",
+        "3.1.2",
+        "3.1.3",
+        "3.1.4",
+        "3.2.0",
+        "3.2.1",
+        "3.2.2",
+        "3.2.3",
+        "3.2.4",
+        "3.2.5",
+        "3.2.6",
+        "3.2.7"
+      ]
+    }
+  },
+  "tinypool_2_breaking_release": {
+    "url": "https://api.github.com/repos/tinylibs/tinypool/releases/tags/v2.0.0",
+    "data": {
+      "html_url": "https://github.com/tinylibs/tinypool/releases/tag/v2.0.0",
+      "body": "## What's Changed\r\n* fix!: drop Node 18 support by @AriPerkkio in https://github.com/tinylibs/tinypool/pull/118\r\n* perf: use `availableParallelism` instead of `exec` by @sheremet-va in https://github.com/tinylibs/tinypool/pull/123\r\n\r\n\r\n**Full Changelog**: https://github.com/tinylibs/tinypool/compare/v1.1.1...v2.0.0",
+      "published_at": "2025-08-30T08:45:48Z"
+    }
+  },
+  "tinypool_options_advisory": {
+    "url": "https://api.github.com/advisories/GHSA-85c8-ppgw-ccpr",
+    "data": {
+      "ghsa_id": "GHSA-85c8-ppgw-ccpr",
+      "summary": "Tinypool: Prototype Pollution Gadget to RCE in run() options",
+      "vulnerabilities": [
+        {
+          "package": {
+            "ecosystem": "npm",
+            "name": "tinypool"
+          },
+          "vulnerable_version_range": "< 2.1.2",
+          "first_patched_version": "2.1.2",
+          "vulnerable_functions": []
+        }
+      ],
+      "html_url": "https://github.com/advisories/GHSA-85c8-ppgw-ccpr"
+    }
+  },
+  "storybook_origin_advisory": {
+    "url": "https://api.github.com/advisories/GHSA-f2ph-cmg5-wxc8",
+    "data": {
+      "ghsa_id": "GHSA-f2ph-cmg5-wxc8",
+      "summary": "Storybook: Missing origin validation in Storybook preview allows code injection from malicious websites",
+      "vulnerabilities": [
+        {
+          "package": {
+            "ecosystem": "npm",
+            "name": "storybook"
+          },
+          "vulnerable_version_range": ">= 8.0.0, < 8.6.19",
+          "first_patched_version": "8.6.19",
+          "vulnerable_functions": []
+        },
+        {
+          "package": {
+            "ecosystem": "npm",
+            "name": "storybook"
+          },
+          "vulnerable_version_range": ">= 9.0.0, < 9.1.21",
+          "first_patched_version": "9.1.21",
+          "vulnerable_functions": []
+        },
+        {
+          "package": {
+            "ecosystem": "npm",
+            "name": "storybook"
+          },
+          "vulnerable_version_range": ">= 10.0.0, < 10.6.2",
+          "first_patched_version": "10.6.2",
+          "vulnerable_functions": []
+        },
+        {
+          "package": {
+            "ecosystem": "npm",
+            "name": "storybook"
+          },
+          "vulnerable_version_range": ">= 11.0.0-alpha.0, < 11.0.0-alpha.6",
+          "first_patched_version": "11.0.0-alpha.6",
+          "vulnerable_functions": []
+        },
+        {
+          "package": {
+            "ecosystem": "npm",
+            "name": "@storybook/core"
+          },
+          "vulnerable_version_range": ">= 8.0.0, < 8.6.19",
+          "first_patched_version": "8.6.19",
+          "vulnerable_functions": []
+        },
+        {
+          "package": {
+            "ecosystem": "npm",
+            "name": "@storybook/core-server"
+          },
+          "vulnerable_version_range": ">= 8.0.0, < 8.6.19",
+          "first_patched_version": "8.6.19",
+          "vulnerable_functions": []
+        },
+        {
+          "package": {
+            "ecosystem": "npm",
+            "name": "@storybook/experimental-addon-test"
+          },
+          "vulnerable_version_range": ">= 8.0.0, < 8.6.19",
+          "first_patched_version": "8.6.19",
+          "vulnerable_functions": []
+        },
+        {
+          "package": {
+            "ecosystem": "npm",
+            "name": "@storybook/addon-vitest"
+          },
+          "vulnerable_version_range": ">= 9.0.0, < 9.1.21",
+          "first_patched_version": "9.1.21",
+          "vulnerable_functions": []
+        },
+        {
+          "package": {
+            "ecosystem": "npm",
+            "name": "@storybook/addon-vitest"
+          },
+          "vulnerable_version_range": ">= 10.0.0, < 10.6.2",
+          "first_patched_version": "10.6.2",
+          "vulnerable_functions": []
+        },
+        {
+          "package": {
+            "ecosystem": "npm",
+            "name": "@storybook/addon-vitest"
+          },
+          "vulnerable_version_range": ">= 11.0.0-alpha.0, < 11.0.0-alpha.6",
+          "first_patched_version": "11.0.0-alpha.6",
+          "vulnerable_functions": []
+        },
+        {
+          "package": {
+            "ecosystem": "npm",
+            "name": "@storybook/addon-mcp"
+          },
+          "vulnerable_version_range": ">= 10.6.0, < 10.6.2",
+          "first_patched_version": "10.6.2",
+          "vulnerable_functions": []
+        },
+        {
+          "package": {
+            "ecosystem": "npm",
+            "name": "@storybook/addon-mcp"
+          },
+          "vulnerable_version_range": ">= 11.0.0-alpha.0, < 11.0.0-alpha.6",
+          "first_patched_version": "11.0.0-alpha.6",
+          "vulnerable_functions": []
+        }
+      ],
+      "html_url": "https://github.com/advisories/GHSA-f2ph-cmg5-wxc8"
+    }
+  },
+  "handlebars_advisory": {
+    "url": "https://api.github.com/advisories/GHSA-p8wg-vrv2-v86f",
+    "data": {
+      "ghsa_id": "GHSA-p8wg-vrv2-v86f",
+      "summary": "Handlebars: JavaScript Injection via Own Property Check Bypass",
+      "vulnerabilities": [
+        {
+          "package": {
+            "ecosystem": "npm",
+            "name": "handlebars"
+          },
+          "vulnerable_version_range": ">= 3.0.0, <= 4.7.9",
+          "first_patched_version": "4.7.10",
+          "vulnerable_functions": []
+        }
+      ],
+      "html_url": "https://github.com/advisories/GHSA-p8wg-vrv2-v86f"
+    }
+  }
+}

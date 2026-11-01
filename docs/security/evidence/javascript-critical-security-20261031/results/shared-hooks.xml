@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="60" failures="0" errors="0" time="0.109329031">
+    <testsuite name="src/useWebSocket.test.ts" timestamp="2026-10-31T20:16:02.630Z" hostname="e21b596917c8" tests="16" failures="0" errors="0" skipped="0" time="0.093900678">
+        <testcase classname="src/useWebSocket.test.ts" name="useWebSocket &gt; connection management &gt; should establish connection on mount" time="0.026036266">
+        </testcase>
+        <testcase classname="src/useWebSocket.test.ts" name="useWebSocket &gt; connection management &gt; should not connect when enabled is false" time="0.003638215">
+        </testcase>
+        <testcase classname="src/useWebSocket.test.ts" name="useWebSocket &gt; connection management &gt; should disconnect on unmount" time="0.002244496">
+        </testcase>
+        <testcase classname="src/useWebSocket.test.ts" name="useWebSocket &gt; message handling &gt; should handle incoming messages" time="0.003826002">
+        </testcase>
+        <testcase classname="src/useWebSocket.test.ts" name="useWebSocket &gt; message handling &gt; should handle malformed messages gracefully" time="0.00206438">
+        </testcase>
+        <testcase classname="src/useWebSocket.test.ts" name="useWebSocket &gt; message handling &gt; should send messages when connected" time="0.009600092">
+        </testcase>
+        <testcase classname="src/useWebSocket.test.ts" name="useWebSocket &gt; message handling &gt; should not send messages when not connected" time="0.002415609">
+        </testcase>
+        <testcase classname="src/useWebSocket.test.ts" name="useWebSocket &gt; error handling &gt; should handle connection errors" time="0.010632348">
+        </testcase>
+        <testcase classname="src/useWebSocket.test.ts" name="useWebSocket &gt; reconnection logic &gt; should reconnect with exponential backoff" time="0.013015149">
+        </testcase>
+        <testcase classname="src/useWebSocket.test.ts" name="useWebSocket &gt; reconnection logic &gt; should cap backoff delay at MAX_RECONNECT_DELAY (30 seconds)" time="0.005644389">
+        </testcase>
+        <testcase classname="src/useWebSocket.test.ts" name="useWebSocket &gt; reconnection logic &gt; should stop reconnecting after maxReconnectAttempts" time="0.002194712">
+        </testcase>
+        <testcase classname="src/useWebSocket.test.ts" name="useWebSocket &gt; reconnection logic &gt; should reset reconnect attempts after successful connection" time="0.002381468">
+        </testcase>
+        <testcase classname="src/useWebSocket.test.ts" name="useWebSocket &gt; manual control &gt; should manually disconnect" time="0.001449742">
+        </testcase>
+        <testcase classname="src/useWebSocket.test.ts" name="useWebSocket &gt; manual control &gt; should manually reconnect" time="0.001752719">
+        </testcase>
+        <testcase classname="src/useWebSocket.test.ts" name="useWebSocket &gt; backoff calculation tests &gt; should calculate correct delays for first 5 attempts" time="0.002584068">
+        </testcase>
+        <testcase classname="src/useWebSocket.test.ts" name="useWebSocket &gt; backoff calculation tests &gt; should verify MAX_RECONNECT_DELAY is enforced" time="0.001794231">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/auth/permissions.test.ts" timestamp="2026-10-31T20:16:02.635Z" hostname="e21b596917c8" tests="25" failures="0" errors="0" skipped="0" time="0.008030564">
+        <testcase classname="src/auth/permissions.test.ts" name="Permissions &gt; PERMISSIONS constant &gt; should have field permissions" time="0.001392407">
+        </testcase>
+        <testcase classname="src/auth/permissions.test.ts" name="Permissions &gt; PERMISSIONS constant &gt; should have NDVI permissions" time="0.000147958">
+        </testcase>
+        <testcase classname="src/auth/permissions.test.ts" name="Permissions &gt; PERMISSIONS constant &gt; should have alert permissions" time="0.000127348">
+        </testcase>
+        <testcase classname="src/auth/permissions.test.ts" name="Permissions &gt; PERMISSIONS constant &gt; should have user management permissions" time="0.000140968">
+        </testcase>
+        <testcase classname="src/auth/permissions.test.ts" name="Permissions &gt; PERMISSIONS constant &gt; should have system permissions" time="0.000089051">
+        </testcase>
+        <testcase classname="src/auth/permissions.test.ts" name="Permissions &gt; ROLES constant &gt; should have all defined roles" time="0.00020957">
+        </testcase>
+        <testcase classname="src/auth/permissions.test.ts" name="Permissions &gt; roleHasPermission &gt; should return true when role has the permission" time="0.000124944">
+        </testcase>
+        <testcase classname="src/auth/permissions.test.ts" name="Permissions &gt; roleHasPermission &gt; should return false when role lacks the permission" time="0.000089952">
+        </testcase>
+        <testcase classname="src/auth/permissions.test.ts" name="Permissions &gt; hasPermission &gt; should return true when any role has the permission" time="0.000130022">
+        </testcase>
+        <testcase classname="src/auth/permissions.test.ts" name="Permissions &gt; hasPermission &gt; should return false when no role has the permission" time="0.000234747">
+        </testcase>
+        <testcase classname="src/auth/permissions.test.ts" name="Permissions &gt; hasPermission &gt; should return false for empty roles array" time="0.000089112">
+        </testcase>
+        <testcase classname="src/auth/permissions.test.ts" name="Permissions &gt; hasPermission &gt; should check multiple roles" time="0.000085166">
+        </testcase>
+        <testcase classname="src/auth/permissions.test.ts" name="Permissions &gt; hasAnyPermission &gt; should return true when user has any of the permissions" time="0.000111906">
+        </testcase>
+        <testcase classname="src/auth/permissions.test.ts" name="Permissions &gt; hasAnyPermission &gt; should return false when user has none of the permissions" time="0.000090423">
+        </testcase>
+        <testcase classname="src/auth/permissions.test.ts" name="Permissions &gt; hasAnyPermission &gt; should return false for empty required permissions" time="0.000143622">
+        </testcase>
+        <testcase classname="src/auth/permissions.test.ts" name="Permissions &gt; hasAllPermissions &gt; should return true when user has all permissions" time="0.000145195">
+        </testcase>
+        <testcase classname="src/auth/permissions.test.ts" name="Permissions &gt; hasAllPermissions &gt; should return false when user is missing any permission" time="0.000081951">
+        </testcase>
+        <testcase classname="src/auth/permissions.test.ts" name="Permissions &gt; hasAllPermissions &gt; should return true for empty required permissions" time="0.000120408">
+        </testcase>
+        <testcase classname="src/auth/permissions.test.ts" name="Permissions &gt; getRolePermissions &gt; should return permissions for farmer role" time="0.001131552">
+        </testcase>
+        <testcase classname="src/auth/permissions.test.ts" name="Permissions &gt; getRolePermissions &gt; should return all permissions for super_admin role" time="0.000169251">
+        </testcase>
+        <testcase classname="src/auth/permissions.test.ts" name="Permissions &gt; getRolePermissions &gt; should return empty array for unknown role" time="0.000550072">
+        </testcase>
+        <testcase classname="src/auth/permissions.test.ts" name="Permissions &gt; getPermissionsForRoles &gt; should combine permissions from multiple roles" time="0.000258752">
+        </testcase>
+        <testcase classname="src/auth/permissions.test.ts" name="Permissions &gt; getPermissionsForRoles &gt; should return unique permissions" time="0.000104495">
+        </testcase>
+        <testcase classname="src/auth/permissions.test.ts" name="Permissions &gt; ROLE_PERMISSIONS mapping &gt; should have permissions defined for all roles" time="0.000485057">
+        </testcase>
+        <testcase classname="src/auth/permissions.test.ts" name="Permissions &gt; ROLE_PERMISSIONS mapping &gt; should have super_admin with all permissions" time="0.00010862">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/auth/useAuth.test.ts" timestamp="2026-10-31T20:16:02.641Z" hostname="e21b596917c8" tests="19" failures="0" errors="0" skipped="0" time="0.007397789">
+        <testcase classname="src/auth/useAuth.test.ts" name="createAuthContextValue &gt; with authenticated user &gt; should return correct auth state for farmer" time="0.002510579">
+        </testcase>
+        <testcase classname="src/auth/useAuth.test.ts" name="createAuthContextValue &gt; with authenticated user &gt; should return correct auth state for admin" time="0.000349546">
+        </testcase>
+        <testcase classname="src/auth/useAuth.test.ts" name="createAuthContextValue &gt; with no user (unauthenticated) &gt; should return unauthenticated state" time="0.000271301">
+        </testcase>
+        <testcase classname="src/auth/useAuth.test.ts" name="createAuthContextValue &gt; with no user (unauthenticated) &gt; should return loading state" time="0.000112957">
+        </testcase>
+        <testcase classname="src/auth/useAuth.test.ts" name="createAuthContextValue &gt; with no user (unauthenticated) &gt; should return error state" time="0.000114369">
+        </testcase>
+        <testcase classname="src/auth/useAuth.test.ts" name="createAuthContextValue &gt; permission checks &gt; farmer should have basic view permissions" time="0.000178193">
+        </testcase>
+        <testcase classname="src/auth/useAuth.test.ts" name="createAuthContextValue &gt; permission checks &gt; farmer should not have admin permissions" time="0.000117683">
+        </testcase>
+        <testcase classname="src/auth/useAuth.test.ts" name="createAuthContextValue &gt; permission checks &gt; admin should have most permissions" time="0.000146827">
+        </testcase>
+        <testcase classname="src/auth/useAuth.test.ts" name="createAuthContextValue &gt; permission checks &gt; super_admin should have all permissions" time="0.00014941">
+        </testcase>
+        <testcase classname="src/auth/useAuth.test.ts" name="createAuthContextValue &gt; canAny &gt; should return true if user has any of the permissions" time="0.000127778">
+        </testcase>
+        <testcase classname="src/auth/useAuth.test.ts" name="createAuthContextValue &gt; canAny &gt; should return false if user has none of the permissions" time="0.000092426">
+        </testcase>
+        <testcase classname="src/auth/useAuth.test.ts" name="createAuthContextValue &gt; canAll &gt; should return true if user has all permissions" time="0.000118905">
+        </testcase>
+        <testcase classname="src/auth/useAuth.test.ts" name="createAuthContextValue &gt; canAll &gt; should return false if user lacks any permission" time="0.000082241">
+        </testcase>
+        <testcase classname="src/auth/useAuth.test.ts" name="createAuthContextValue &gt; role checks &gt; should correctly check hasRole" time="0.000099858">
+        </testcase>
+        <testcase classname="src/auth/useAuth.test.ts" name="createAuthContextValue &gt; role checks &gt; should correctly check hasAnyRole" time="0.000116262">
+        </testcase>
+        <testcase classname="src/auth/useAuth.test.ts" name="createAuthContextValue &gt; permissions list &gt; should return permissions array for user roles" time="0.000968781">
+        </testcase>
+        <testcase classname="src/auth/useAuth.test.ts" name="createAuthContextValue &gt; permissions list &gt; should return combined permissions for multi-role user" time="0.000253124">
+        </testcase>
+        <testcase classname="src/auth/useAuth.test.ts" name="createAuthContextValue &gt; permissions list &gt; should return empty array for unauthenticated user" time="0.000113017">
+        </testcase>
+        <testcase classname="src/auth/useAuth.test.ts" name="createAuthContextValue &gt; actions &gt; should include login, logout, refreshToken actions" time="0.000116642">
+        </testcase>
+    </testsuite>
+</testsuites>

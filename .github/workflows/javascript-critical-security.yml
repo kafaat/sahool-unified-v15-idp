@@ -1,0 +1,94 @@
+name: JavaScript Critical Security
+
+on:
+  pull_request:
+    paths:
+      - '**/package.json'
+      - '**/package-lock.json'
+      - 'apps/web/src/components/dashboard/MapView.tsx'
+      - 'apps/web/src/features/fields/examples/NdviTileLayerExample.tsx'
+      - 'apps/admin/.storybook/**'
+      - 'tests/security/javascript-*'
+      - 'tests/security/browser/**'
+      - '.github/workflows/javascript-critical-security.yml'
+  push:
+    branches: [main]
+    paths:
+      - '**/package.json'
+      - '**/package-lock.json'
+      - 'apps/web/src/components/dashboard/MapView.tsx'
+      - 'apps/web/src/features/fields/examples/NdviTileLayerExample.tsx'
+      - 'apps/admin/.storybook/**'
+      - 'tests/security/javascript-*'
+      - 'tests/security/browser/**'
+      - '.github/workflows/javascript-critical-security.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  security-regressions:
+    name: Installed packages and real map rendering
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98 # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '20'
+          cache: npm
+      - name: Install the declared npm version and frozen dependencies
+        run: |
+          npm install --global npm@10.9.0
+          npm ci --ignore-scripts --no-audit --no-fund
+          mkdir -p test-results
+          node --version > test-results/node-version.txt
+          npm --version > test-results/npm-version.txt
+          sha256sum package-lock.json > test-results/lock-sha256.txt
+      - name: Audit the full dependency closure and reject critical findings
+        run: |
+          npm audit --audit-level=critical --json > test-results/npm-audit.json
+          node -e "const a = require('./test-results/npm-audit.json'); if (!a.metadata?.vulnerabilities || a.metadata.vulnerabilities.critical !== 0) process.exit(1)"
+      - name: Check every tracked lock and exercise installed security boundaries
+        run: |
+          node --test --test-reporter=spec --test-reporter-destination=stdout \
+            --test-reporter=junit --test-reporter-destination=test-results/javascript-security-node.xml \
+            tests/security/javascript-dependencies.test.cjs
+      - name: Exercise the patched Vitest worker pool and V8 coverage with shared hooks
+        working-directory: packages/shared-hooks
+        run: |
+          node ../../node_modules/vitest/vitest.mjs run --coverage \
+            --reporter=default --reporter=junit --outputFile.junit=../../test-results/shared-hooks.xml
+      - name: Exercise the patched Vitest worker pool and V8 coverage with shared UI
+        working-directory: packages/shared-ui
+        run: |
+          node ../../node_modules/vitest/vitest.mjs run --coverage \
+            --reporter=default --reporter=junit --outputFile.junit=../../test-results/shared-ui.xml
+      - name: Build shared packages for the admin Storybook consumer
+        run: npm run build:packages
+      - name: Build the patched Storybook consumer with its own compiler configuration
+        env:
+          STORYBOOK_DISABLE_TELEMETRY: '1'
+        run: npm run build-storybook --workspace=apps/admin
+      - name: Install the browser runtime
+        run: node node_modules/playwright/cli.js install --with-deps chromium --only-shell
+      - name: Render the real map and reject executable attribution and popup content
+        run: node node_modules/playwright/cli.js test --config tests/security/javascript-browser.playwright.config.ts
+      - name: Verify browser output did not erase earlier audit and test reports
+        run: |
+          for report in npm-audit.json javascript-security-node.xml shared-hooks.xml shared-ui.xml javascript-security-browser.xml; do
+            test -s "test-results/$report"
+          done
+      - name: Preserve test evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: javascript-security-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            test-results/
+            packages/shared-hooks/coverage/coverage-final.json
+            packages/shared-ui/coverage/coverage-final.json
+          if-no-files-found: warn

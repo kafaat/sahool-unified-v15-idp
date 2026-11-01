@@ -1,0 +1,42 @@
+
+ RUN  v3.2.7 /workspace/scratch/882204c263d7/javascript-security-fix/packages/shared-ui
+      Coverage enabled with v8
+
+ ✓ src/components/auth/PermissionGate.test.tsx (13 tests) 52ms
+ ✓ src/components/ErrorBoundary.test.tsx (10 tests) 102ms
+
+ Test Files  2 passed (2)
+      Tests  23 passed (23)
+   Start at  21:16:03
+   Duration  1.45s (transform 144ms, setup 152ms, collect 279ms, tests 154ms, environment 1.12s, prepare 171ms)
+
+JUNIT report written to /workspace/scratch/882204c263d7/js-security-evidence/final-node20-shared-ui.xml
+ % Coverage report from v8
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |      11 |     87.3 |   90.32 |      11 |                   
+ src               |       0 |      100 |     100 |       0 |                   
+  index.ts         |       0 |      100 |     100 |       0 | 8-57              
+ src/components    |    7.54 |     82.5 |    92.3 |    7.54 |                   
+  Alert.tsx        |       0 |      100 |     100 |       0 | 8-76              
+  Button.tsx       |       0 |      100 |     100 |       0 | 8-83              
+  Card.tsx         |       0 |      100 |     100 |       0 | 8-93              
+  ...rBoundary.tsx |   71.66 |    69.56 |   77.77 |   71.66 | ...21-128,187-210 
+  FocusTrap.tsx    |       0 |      100 |     100 |       0 | 3-61              
+  Input.tsx        |       0 |      100 |     100 |       0 | 10-152            
+  ...eSwitcher.tsx |       0 |      100 |     100 |       0 | 11-48             
+  ...ngOverlay.tsx |       0 |      100 |     100 |       0 | 4-54              
+  ...ngSpinner.tsx |       0 |      100 |     100 |       0 | 12-51             
+  Modal.tsx        |       0 |      100 |     100 |       0 | 10-191            
+  Select.tsx       |       0 |      100 |     100 |       0 | 10-323            
+  ...rityBadge.tsx |       0 |      100 |     100 |       0 | 8-60              
+  Skeleton.tsx     |       0 |      100 |     100 |       0 | 8-83              
+  SkipLink.tsx     |       0 |      100 |     100 |       0 | 14-34             
+  StatCard.tsx     |       0 |      100 |     100 |       0 | 8-80              
+  StatusBadge.tsx  |       0 |      100 |     100 |       0 | 8-41              
+  Tabs.tsx         |       0 |      100 |     100 |       0 | 10-214            
+  ...llyHidden.tsx |       0 |      100 |     100 |       0 | 14-18             
+ ...omponents/auth |   73.13 |    95.45 |      75 |   73.13 |                   
+  ...ssionGate.tsx |   73.13 |    95.45 |      75 |   73.13 | 102,121-141       
+-------------------|---------|----------|---------|---------|-------------------

@@ -1,0 +1,508 @@
+{
+  "scanner": "Trivy0.69.3",
+  "database_sha256": "d81ea576fbcd02c304b980d8eec4dd1a372648b648bfb876f48790d63ee58f93",
+  "baseline_commit": "ab53c98596daca1740d2ac5a5dbd48db7b24e34f",
+  "python_commit": "a5372955f0becf5810c46e3159bbaabe741fc8e1",
+  "python_tree": "cd60192df2a3bf39b1fdf0d1f5d17d112fd6349d",
+  "javascript_source": "Final uncommitted javascript-security-fix dependency files; exact per-file hashes in composite-source-manifest.json",
+  "original_dependency_inputs": 206,
+  "additional_dependency_metadata_files": 12,
+  "total_projection_files": 218,
+  "python_overlay_files": 48,
+  "baseline_projection_matches_all_original_findings": true,
+  "baseline_language_inputs": 110,
+  "composite_language_inputs": 110,
+  "baseline_critical_results": 26,
+  "composite_critical_results": 0,
+  "baseline_exit_code": 1,
+  "composite_exit_code": 0,
+  "javascript_worktree_dependency_hashes_still_unchanged": true,
+  "scope_note": "This is a dependency-manifest-only composition, not a Git merge, application build or deployed runtime. Both source worktrees were left unchanged.",
+  "comparison": [
+    {
+      "id": "CVE-2026-68770",
+      "package": "sentence-transformers",
+      "installed_version": "5.4.1",
+      "severity": "CRITICAL",
+      "paths": [
+        "apps/services/ai-advisor/requirements.txt"
+      ],
+      "current_declaration_or_lock_versions": {
+        "apps/services/ai-advisor/requirements.txt": [
+          "sentence-transformers==6.0.0  # CVE-2026-68770: reject untrusted local custom-model code"
+        ]
+      },
+      "current_matching_findings": [],
+      "status": "resolved_in_composite_scan"
+    },
+    {
+      "id": "CVE-2026-90711",
+      "package": "proxy-addr",
+      "installed_version": "2.0.7",
+      "severity": "CRITICAL",
+      "paths": [
+        "apps/services/chat-service/package-lock.json"
+      ],
+      "current_declaration_or_lock_versions": {
+        "apps/services/chat-service/package-lock.json": [
+          "2.0.8"
+        ]
+      },
+      "current_matching_findings": [],
+      "status": "resolved_in_composite_scan"
+    },
+    {
+      "id": "CVE-2026-90711",
+      "package": "proxy-addr",
+      "installed_version": "2.0.7",
+      "severity": "CRITICAL",
+      "paths": [
+        "apps/services/crop-growth-model/package-lock.json"
+      ],
+      "current_declaration_or_lock_versions": {
+        "apps/services/crop-growth-model/package-lock.json": [
+          "2.0.8"
+        ]
+      },
+      "current_matching_findings": [],
+      "status": "resolved_in_composite_scan"
+    },
+    {
+      "id": "CVE-2026-90711",
+      "package": "proxy-addr",
+      "installed_version": "2.0.7",
+      "severity": "CRITICAL",
+      "paths": [
+        "apps/services/disaster-assessment/package-lock.json"
+      ],
+      "current_declaration_or_lock_versions": {
+        "apps/services/disaster-assessment/package-lock.json": [
+          "2.0.8"
+        ]
+      },
+      "current_matching_findings": [],
+      "status": "resolved_in_composite_scan"
+    },
+    {
+      "id": "CVE-2026-90711",
+      "package": "proxy-addr",
+      "installed_version": "2.0.7",
+      "severity": "CRITICAL",
+      "paths": [
+        "apps/services/field-management-service/package-lock.json"
+      ],
+      "current_declaration_or_lock_versions": {
+        "apps/services/field-management-service/package-lock.json": [
+          "2.0.8"
+        ]
+      },
+      "current_matching_findings": [],
+      "status": "resolved_in_composite_scan"
+    },
+    {
+      "id": "CVE-2026-90711",
+      "package": "proxy-addr",
+      "installed_version": "2.0.7",
+      "severity": "CRITICAL",
+      "paths": [
+        "apps/services/lai-estimation/package-lock.json"
+      ],
+      "current_declaration_or_lock_versions": {
+        "apps/services/lai-estimation/package-lock.json": [
+          "2.0.8"
+        ]
+      },
+      "current_matching_findings": [],
+      "status": "resolved_in_composite_scan"
+    },
+    {
+      "id": "CVE-2026-63374",
+      "package": "anyio",
+      "installed_version": "4.7.0",
+      "severity": "CRITICAL",
+      "paths": [
+        "apps/services/leveling-optimizer-service/requirements.txt"
+      ],
+      "current_declaration_or_lock_versions": {
+        "apps/services/leveling-optimizer-service/requirements.txt": [
+          "anyio==4.14.2  # CVE-2026-63374: IDNA 2008 TLS hostname validation"
+        ]
+      },
+      "current_matching_findings": [],
+      "status": "resolved_in_composite_scan"
+    },
+    {
+      "id": "CVE-2026-90711",
+      "package": "proxy-addr",
+      "installed_version": "2.0.7",
+      "severity": "CRITICAL",
+      "paths": [
+        "apps/services/marketplace-service/package-lock.json"
+      ],
+      "current_declaration_or_lock_versions": {
+        "apps/services/marketplace-service/package-lock.json": [
+          "2.0.8"
+        ]
+      },
+      "current_matching_findings": [],
+      "status": "resolved_in_composite_scan"
+    },
+    {
+      "id": "CVE-2026-90711",
+      "package": "proxy-addr",
+      "installed_version": "2.0.7",
+      "severity": "CRITICAL",
+      "paths": [
+        "apps/services/yield-prediction/package-lock.json"
+      ],
+      "current_declaration_or_lock_versions": {
+        "apps/services/yield-prediction/package-lock.json": [
+          "2.0.8"
+        ]
+      },
+      "current_matching_findings": [],
+      "status": "resolved_in_composite_scan"
+    },
+    {
+      "id": "CVE-2026-90711",
+      "package": "proxy-addr",
+      "installed_version": "2.0.7",
+      "severity": "CRITICAL",
+      "paths": [
+        "archive/deprecated-services/community-chat/package-lock.json"
+      ],
+      "current_declaration_or_lock_versions": {
+        "archive/deprecated-services/community-chat/package-lock.json": [
+          "2.0.8"
+        ]
+      },
+      "current_matching_findings": [],
+      "status": "resolved_in_composite_scan"
+    },
+    {
+      "id": "CVE-2026-90711",
+      "package": "proxy-addr",
+      "installed_version": "2.0.7",
+      "severity": "CRITICAL",
+      "paths": [
+        "archive/kernel-legacy/kernel/services/field_core/package-lock.json"
+      ],
+      "current_declaration_or_lock_versions": {
+        "archive/kernel-legacy/kernel/services/field_core/package-lock.json": [
+          "2.0.8"
+        ]
+      },
+      "current_matching_findings": [],
+      "status": "resolved_in_composite_scan"
+    },
+    {
+      "id": "CVE-2026-114139",
+      "package": "@sentry/nextjs",
+      "installed_version": "9.47.1",
+      "severity": "CRITICAL",
+      "paths": [
+        "package-lock.json"
+      ],
+      "current_declaration_or_lock_versions": {
+        "package-lock.json": [
+          "9.47.2"
+        ]
+      },
+      "current_matching_findings": [],
+      "status": "resolved_in_composite_scan"
+    },
+    {
+      "id": "CVE-2026-85061",
+      "package": "maplibre-gl",
+      "installed_version": "4.7.1",
+      "severity": "CRITICAL",
+      "paths": [
+        "package-lock.json"
+      ],
+      "current_declaration_or_lock_versions": {
+        "package-lock.json": [
+          "6.4.1"
+        ]
+      },
+      "current_matching_findings": [],
+      "status": "resolved_in_composite_scan"
+    },
+    {
+      "id": "CVE-2026-75604",
+      "package": "next",
+      "installed_version": "15.5.14",
+      "severity": "CRITICAL",
+      "paths": [
+        "package-lock.json",
+        "package-lock.json"
+      ],
+      "current_declaration_or_lock_versions": {
+        "package-lock.json": [
+          "15.5.28"
+        ]
+      },
+      "current_matching_findings": [],
+      "status": "resolved_in_composite_scan"
+    },
+    {
+      "id": "GHSA-2464-fhr4-w9xw",
+      "package": "next",
+      "installed_version": "15.5.14",
+      "severity": "CRITICAL",
+      "paths": [
+        "package-lock.json",
+        "package-lock.json"
+      ],
+      "current_declaration_or_lock_versions": {
+        "package-lock.json": [
+          "15.5.28"
+        ]
+      },
+      "current_matching_findings": [],
+      "status": "resolved_in_composite_scan"
+    },
+    {
+      "id": "GHSA-2xp9-vwfh-vxw4",
+      "package": "next",
+      "installed_version": "15.5.14",
+      "severity": "CRITICAL",
+      "paths": [
+        "package-lock.json",
+        "package-lock.json"
+      ],
+      "current_declaration_or_lock_versions": {
+        "package-lock.json": [
+          "15.5.28"
+        ]
+      },
+      "current_matching_findings": [],
+      "status": "resolved_in_composite_scan"
+    },
+    {
+      "id": "CVE-2026-90711",
+      "package": "proxy-addr",
+      "installed_version": "2.0.7",
+      "severity": "CRITICAL",
+      "paths": [
+        "package-lock.json"
+      ],
+      "current_declaration_or_lock_versions": {
+        "package-lock.json": [
+          "2.0.8"
+        ]
+      },
+      "current_matching_findings": [],
+      "status": "resolved_in_composite_scan"
+    },
+    {
+      "id": "CVE-2026-90711",
+      "package": "proxy-addr",
+      "installed_version": "2.0.7",
+      "severity": "CRITICAL",
+      "paths": [
+        "packages/shared-audit/package-lock.json"
+      ],
+      "current_declaration_or_lock_versions": {
+        "packages/shared-audit/package-lock.json": [
+          "2.0.8"
+        ]
+      },
+      "current_matching_findings": [],
+      "status": "resolved_in_composite_scan"
+    },
+    {
+      "id": "CVE-2026-63374",
+      "package": "anyio",
+      "installed_version": "4.12.1",
+      "severity": "CRITICAL",
+      "paths": [
+        "uv.lock"
+      ],
+      "current_declaration_or_lock_versions": {
+        "uv.lock": [
+          "4.15.1"
+        ]
+      },
+      "current_matching_findings": [],
+      "status": "resolved_in_composite_scan"
+    },
+    {
+      "id": "GHSA-6q48-6c7w-9gw2",
+      "package": "certifi",
+      "installed_version": "2026.2.25",
+      "severity": "CRITICAL",
+      "paths": [
+        "uv.lock"
+      ],
+      "current_declaration_or_lock_versions": {
+        "uv.lock": [
+          "2026.10.23"
+        ]
+      },
+      "current_matching_findings": [],
+      "status": "resolved_in_composite_scan"
+    },
+    {
+      "id": "CVE-2026-112393",
+      "package": "pillow",
+      "installed_version": "11.3.0",
+      "severity": "CRITICAL",
+      "paths": [
+        "uv.lock"
+      ],
+      "current_declaration_or_lock_versions": {
+        "uv.lock": [
+          "13.0.0"
+        ]
+      },
+      "current_matching_findings": [],
+      "status": "resolved_in_composite_scan"
+    },
+    {
+      "id": "CVE-2026-112398",
+      "package": "pillow",
+      "installed_version": "11.3.0",
+      "severity": "CRITICAL",
+      "paths": [
+        "uv.lock"
+      ],
+      "current_declaration_or_lock_versions": {
+        "uv.lock": [
+          "13.0.0"
+        ]
+      },
+      "current_matching_findings": [],
+      "status": "resolved_in_composite_scan"
+    },
+    {
+      "id": "CVE-2026-112403",
+      "package": "pillow",
+      "installed_version": "11.3.0",
+      "severity": "CRITICAL",
+      "paths": [
+        "uv.lock"
+      ],
+      "current_declaration_or_lock_versions": {
+        "uv.lock": [
+          "13.0.0"
+        ]
+      },
+      "current_matching_findings": [],
+      "status": "resolved_in_composite_scan"
+    },
+    {
+      "id": "CVE-2026-112900",
+      "package": "pillow",
+      "installed_version": "11.3.0",
+      "severity": "CRITICAL",
+      "paths": [
+        "uv.lock"
+      ],
+      "current_declaration_or_lock_versions": {
+        "uv.lock": [
+          "13.0.0"
+        ]
+      },
+      "current_matching_findings": [],
+      "status": "resolved_in_composite_scan"
+    },
+    {
+      "id": "CVE-2026-96639",
+      "package": "pillow",
+      "installed_version": "11.3.0",
+      "severity": "CRITICAL",
+      "paths": [
+        "uv.lock"
+      ],
+      "current_declaration_or_lock_versions": {
+        "uv.lock": [
+          "13.0.0"
+        ]
+      },
+      "current_matching_findings": [],
+      "status": "resolved_in_composite_scan"
+    },
+    {
+      "id": "CVE-2026-102268",
+      "package": "pyjwt",
+      "installed_version": "2.11.0",
+      "severity": "CRITICAL",
+      "paths": [
+        "uv.lock"
+      ],
+      "current_declaration_or_lock_versions": {
+        "uv.lock": [
+          "2.15.1"
+        ]
+      },
+      "current_matching_findings": [],
+      "status": "resolved_in_composite_scan"
+    }
+  ],
+  "scan_receipts": [
+    {
+      "label": "baseline-projection",
+      "command": [
+        "/workspace/scratch/882204c263d7/pyjwt-evidence/dependency-followup/trivy-0.69.3",
+        "--cache-dir",
+        "/tmp/sahool-trivy-js-rescan-882204c263d7",
+        "fs",
+        "--skip-check-update",
+        "--skip-db-update",
+        "--scanners",
+        "vuln",
+        "--severity",
+        "CRITICAL",
+        "--exit-code",
+        "1",
+        "--format",
+        "sarif",
+        "--output",
+        "/workspace/scratch/882204c263d7/javascript-security-evidence/trivy-fixed-db/baseline-projection-critical.sarif",
+        "."
+      ],
+      "cwd": "/tmp/sahool-trivy-composite-882204c263d7/baseline",
+      "started_at": "2026-10-31T20:25:49.133898+00:00",
+      "duration_seconds": 0.524,
+      "exit_code": 1,
+      "language_inputs": 110,
+      "critical_results": 26,
+      "input_files": 218,
+      "input_hashes_unchanged": true,
+      "sarif_sha256": "4582bc99fd70446f1dea3f0dae9e7601ebe3fb1148c59a5b86fbe5956c4b8745",
+      "db_sha256_after": "d81ea576fbcd02c304b980d8eec4dd1a372648b648bfb876f48790d63ee58f93"
+    },
+    {
+      "label": "python-js-composite",
+      "command": [
+        "/workspace/scratch/882204c263d7/pyjwt-evidence/dependency-followup/trivy-0.69.3",
+        "--cache-dir",
+        "/tmp/sahool-trivy-js-rescan-882204c263d7",
+        "fs",
+        "--skip-check-update",
+        "--skip-db-update",
+        "--scanners",
+        "vuln",
+        "--severity",
+        "CRITICAL",
+        "--exit-code",
+        "1",
+        "--format",
+        "sarif",
+        "--output",
+        "/workspace/scratch/882204c263d7/javascript-security-evidence/trivy-fixed-db/python-js-composite-critical.sarif",
+        "."
+      ],
+      "cwd": "/tmp/sahool-trivy-composite-882204c263d7/combined",
+      "started_at": "2026-10-31T20:25:50.890217+00:00",
+      "duration_seconds": 0.578,
+      "exit_code": 0,
+      "language_inputs": 110,
+      "critical_results": 0,
+      "input_files": 218,
+      "input_hashes_unchanged": true,
+      "sarif_sha256": "dd2c893a3c525b05f7365200a18361438548d91fc5e9c2416629f8891bbbc9fd",
+      "db_sha256_after": "d81ea576fbcd02c304b980d8eec4dd1a372648b648bfb876f48790d63ee58f93"
+    }
+  ]
+}

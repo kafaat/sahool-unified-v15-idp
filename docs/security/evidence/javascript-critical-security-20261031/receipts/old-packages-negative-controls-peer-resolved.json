@@ -1,0 +1,16 @@
+{
+  "base": "ab53c98596daca1740d2ac5a5dbd48db7b24e34f",
+  "command": [
+    "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+    "--test",
+    "--test-name-pattern",
+    "proxy-addr|Handlebars|actual Vitest worker|Sentry cannot",
+    "/workspace/scratch/882204c263d7/javascript-main-baseline/tests/security/javascript-dependencies-negative.test.cjs"
+  ],
+  "exit_code": 1,
+  "seconds": 0.772,
+  "test_source_sha256": "2b1c5caf7fa31c1ee2054c0e969772c0bd69723a05136fa41e644738bcb1fdb1",
+  "log_sha256": "5a4dfe7561215c0784a869c7e602daf6386f2a9a54a696fbab9e310aa2e54344",
+  "NODE_PATH": "/tmp/sahool-post-frontend/apps/web/node_modules",
+  "note": "NODE_PATH supplies the actual existing Next15.5.14 peer to the preserved Sentry9.47.1 install. No package or test assertions changed."
+}

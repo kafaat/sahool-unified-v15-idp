@@ -1,0 +1,789 @@
+{
+  "base_commit": "ab53c98596daca1740d2ac5a5dbd48db7b24e34f",
+  "branch": "fix/flutter-sdk-resolution-20261031",
+  "selected_flutter": "3.44.9",
+  "dart": "3.12.2",
+  "intl": "0.20.2",
+  "dart_constraint": ">=3.10.0 <3.13.0",
+  "primary_package_versions_changed": 0,
+  "field_package_versions_changed": 17,
+  "commands": [
+    {
+      "command": [
+        "/workspace/scratch/882204c263d7/flutter-toolchains/3.27.1/flutter/bin/flutter",
+        "pub",
+        "get"
+      ],
+      "cwd": "/workspace/scratch/882204c263d7/flutter-compat-fix/apps/mobile",
+      "sdk": "3.27.1",
+      "started_at": "2026-10-31T19:27:30.124552+00:00",
+      "duration_seconds": 80.784,
+      "exit_code": 1,
+      "log": "/workspace/scratch/882204c263d7/flutter-compat-evidence/baseline-3.27.1-root-pub-get.log"
+    },
+    {
+      "command": [
+        "/workspace/scratch/882204c263d7/flutter-toolchains/3.47.9/flutter/bin/flutter",
+        "pub",
+        "get"
+      ],
+      "cwd": "/workspace/scratch/882204c263d7/flutter-compat-fix/apps/mobile",
+      "sdk": "3.47.9",
+      "started_at": "2026-10-31T19:29:16.984477+00:00",
+      "duration_seconds": 42.328,
+      "exit_code": 0,
+      "log": "/workspace/scratch/882204c263d7/flutter-compat-evidence/candidate-3.47.9-root-original-manifest-pub-get.log"
+    },
+    {
+      "command": [
+        "/workspace/scratch/882204c263d7/flutter-toolchains/3.47.9/flutter/bin/dart",
+        "run",
+        "build_runner",
+        "build",
+        "--delete-conflicting-outputs"
+      ],
+      "cwd": "/workspace/scratch/882204c263d7/flutter-compat-fix/apps/mobile",
+      "sdk": "3.47.9",
+      "started_at": "2026-10-31T19:30:33.404875+00:00",
+      "duration_seconds": 309.629,
+      "exit_code": -15,
+      "log": "/workspace/scratch/882204c263d7/flutter-compat-evidence/candidate-3.47.9-root-original-codegen.log"
+    },
+    {
+      "command": [
+        "/tmp/sahool-flutter-882204c263d7/3.44.9/flutter/bin/dart",
+        "run",
+        "build_runner",
+        "build",
+        "--delete-conflicting-outputs"
+      ],
+      "cwd": "/workspace/scratch/882204c263d7/flutter-compat-fix/apps/mobile",
+      "sdk": "3.44.9",
+      "started_at": "2026-10-31T19:56:08.671017+00:00",
+      "duration_seconds": 95.858,
+      "exit_code": 0,
+      "timeout_seconds": 240,
+      "timed_out": false,
+      "log": "/workspace/scratch/882204c263d7/flutter-compat-evidence/candidate-3.44.9-root-codegen.log"
+    },
+    {
+      "command": [
+        "/tmp/sahool-flutter-882204c263d7/3.44.9/flutter/bin/dart",
+        "run",
+        "build_runner",
+        "build",
+        "--delete-conflicting-outputs"
+      ],
+      "cwd": "/workspace/scratch/882204c263d7/flutter-compat-fix/apps/mobile/sahool_field_app",
+      "sdk": "3.44.9",
+      "started_at": "2026-10-31T20:06:52.337615+00:00",
+      "duration_seconds": 76.581,
+      "exit_code": 0,
+      "timeout_seconds": 240,
+      "timed_out": false,
+      "log": "/workspace/scratch/882204c263d7/flutter-compat-evidence/final-3.44.9-field-codegen.log"
+    },
+    {
+      "command": [
+        "/tmp/sahool-flutter-882204c263d7/3.44.9/flutter/bin/dart",
+        "run",
+        "build_runner",
+        "build",
+        "--delete-conflicting-outputs"
+      ],
+      "cwd": "/workspace/scratch/882204c263d7/flutter-compat-fix/packages/sahool-mobile-core",
+      "sdk": "3.44.9",
+      "started_at": "2026-10-31T20:12:40.443090+00:00",
+      "duration_seconds": 23.208,
+      "exit_code": 0,
+      "timeout_seconds": 180,
+      "timed_out": false,
+      "log": "/workspace/scratch/882204c263d7/flutter-compat-evidence/final-3.44.9-core-codegen-fixed-directive.log"
+    },
+    {
+      "command": [
+        "/tmp/sahool-flutter-882204c263d7/3.44.9/flutter/bin/flutter",
+        "test",
+        "test/unit/",
+        "test/widget/",
+        "test/integration/",
+        "--reporter=expanded"
+      ],
+      "cwd": "/workspace/scratch/882204c263d7/flutter-compat-fix/apps/mobile",
+      "sdk": "3.44.9",
+      "started_at": "2026-10-31T20:05:10.024013+00:00",
+      "duration_seconds": 17.497,
+      "exit_code": 0,
+      "timeout_seconds": 600,
+      "timed_out": false,
+      "log": "/workspace/scratch/882204c263d7/flutter-compat-evidence/final-3.44.9-root-tests-with-native-sqlite.log"
+    },
+    {
+      "command": [
+        "/tmp/sahool-flutter-882204c263d7/3.44.9/flutter/bin/flutter",
+        "test",
+        "test/unit/core/flutter_sdk_compatibility_test.dart",
+        "test/unit/core/app_logger_test.dart",
+        "test/unit/core/config_test.dart",
+        "--reporter=expanded"
+      ],
+      "cwd": "/workspace/scratch/882204c263d7/flutter-compat-fix/apps/mobile",
+      "sdk": "3.44.9",
+      "started_at": "2026-10-31T20:11:08.564539+00:00",
+      "duration_seconds": 10.306,
+      "exit_code": 0,
+      "timeout_seconds": 180,
+      "timed_out": false,
+      "log": "/workspace/scratch/882204c263d7/flutter-compat-evidence/final-3.44.9-native-compile-and-themes.log"
+    },
+    {
+      "command": [
+        "/tmp/sahool-flutter-882204c263d7/3.44.9/flutter/bin/flutter",
+        "test",
+        "--reporter=expanded"
+      ],
+      "cwd": "/workspace/scratch/882204c263d7/flutter-compat-fix/apps/mobile/sahool_field_app",
+      "sdk": "3.44.9",
+      "started_at": "2026-10-31T20:08:33.139113+00:00",
+      "duration_seconds": 188.569,
+      "exit_code": 1,
+      "timeout_seconds": 360,
+      "timed_out": false,
+      "log": "/workspace/scratch/882204c263d7/flutter-compat-evidence/final-3.44.9-field-tests.log"
+    },
+    {
+      "command": [
+        "/tmp/sahool-flutter-882204c263d7/3.44.9/flutter/bin/flutter",
+        "test",
+        "test/unit/features/ai_advisor/ai_advisor_api_test.dart",
+        "test/unit/features/alerts/alert_service_api_test.dart",
+        "test/unit/features/irrigation/irrigation_engine_api_test.dart",
+        "test/unit/features/lab/soil_analysis_api_test.dart",
+        "--reporter=expanded"
+      ],
+      "cwd": "/workspace/scratch/882204c263d7/flutter-compat-fix/apps/mobile/sahool_field_app",
+      "sdk": "3.44.9",
+      "started_at": "2026-10-31T20:13:21.457022+00:00",
+      "duration_seconds": 8.534,
+      "exit_code": 0,
+      "timeout_seconds": 180,
+      "timed_out": false,
+      "log": "/workspace/scratch/882204c263d7/flutter-compat-evidence/final-3.44.9-field-api-compatibility-tests.log"
+    },
+    {
+      "command": [
+        "/tmp/sahool-flutter-882204c263d7/3.44.9/flutter/bin/flutter",
+        "build",
+        "web",
+        "--release",
+        "--no-pub"
+      ],
+      "cwd": "/workspace/scratch/882204c263d7/flutter-compat-fix/apps/mobile",
+      "sdk": "3.44.9",
+      "started_at": "2026-10-31T20:05:44.212082+00:00",
+      "duration_seconds": 66.995,
+      "exit_code": 1,
+      "timeout_seconds": 600,
+      "timed_out": false,
+      "log": "/workspace/scratch/882204c263d7/flutter-compat-evidence/final-3.44.9-root-web-build.log"
+    }
+  ],
+  "notes": [
+    "SQLite tests used an isolated libsqlite3.so symlink to the existing system libsqlite3.so.0, matching the libsqlite3-dev alias installed by CI.",
+    "39 generated-only tracked files and2 SDK-automatic analyzer-option edits were restored after recording validation output, to keep the patch limited to source/manifests/workflows. CI regenerates before testing.",
+    "No local Android SDK installed; actual Android build remains a GitHub CI gate.",
+    "Flutter web build fails through the unchanged native storage import chain; no SQLCipher/storage migration attempted.",
+    "Full field suite retains16 unrelated failures after4 Dart callback compilation failures are resolved by a45-test focused rerun.",
+    "All remaining standalone core analyzer error source files are byte-identical to base."
+  ],
+  "locks": [
+    {
+      "command": [
+        "/tmp/sahool-flutter-882204c263d7/3.44.9/flutter/bin/flutter",
+        "pub",
+        "get",
+        "--enforce-lockfile"
+      ],
+      "cwd": "/workspace/scratch/882204c263d7/flutter-compat-fix/apps/mobile",
+      "sdk": "3.44.9",
+      "started_at": "2026-10-31T20:14:02.293136+00:00",
+      "duration_seconds": 1.37,
+      "exit_code": 0,
+      "timeout_seconds": 60,
+      "timed_out": false,
+      "log": "/workspace/scratch/882204c263d7/flutter-compat-evidence/final-3.44.9-root-enforce-lockfile.log",
+      "lockfile": "apps/mobile/pubspec.lock",
+      "sha256_before": "60d69322a6d6336030f41deac669090954997ddd0e947977da39b288e22ac45b",
+      "sha256_after": "60d69322a6d6336030f41deac669090954997ddd0e947977da39b288e22ac45b",
+      "unchanged": true
+    },
+    {
+      "command": [
+        "/tmp/sahool-flutter-882204c263d7/3.44.9/flutter/bin/flutter",
+        "pub",
+        "get",
+        "--enforce-lockfile"
+      ],
+      "cwd": "/workspace/scratch/882204c263d7/flutter-compat-fix/apps/mobile/sahool_field_app",
+      "sdk": "3.44.9",
+      "started_at": "2026-10-31T20:14:03.702173+00:00",
+      "duration_seconds": 1.778,
+      "exit_code": 0,
+      "timeout_seconds": 60,
+      "timed_out": false,
+      "log": "/workspace/scratch/882204c263d7/flutter-compat-evidence/final-3.44.9-field-enforce-lockfile.log",
+      "lockfile": "apps/mobile/sahool_field_app/pubspec.lock",
+      "sha256_before": "c118b25e53b4d2d630c3f5393580f1f737b0af4094a46421e026888d2e752115",
+      "sha256_after": "c118b25e53b4d2d630c3f5393580f1f737b0af4094a46421e026888d2e752115",
+      "unchanged": true
+    },
+    {
+      "command": [
+        "/tmp/sahool-flutter-882204c263d7/3.44.9/flutter/bin/flutter",
+        "pub",
+        "get",
+        "--enforce-lockfile"
+      ],
+      "cwd": "/workspace/scratch/882204c263d7/flutter-compat-fix/apps/mobile/sahool_app",
+      "sdk": "3.44.9",
+      "started_at": "2026-10-31T20:14:05.512927+00:00",
+      "duration_seconds": 1.069,
+      "exit_code": 0,
+      "timeout_seconds": 60,
+      "timed_out": false,
+      "log": "/workspace/scratch/882204c263d7/flutter-compat-evidence/final-3.44.9-unified-enforce-lockfile.log",
+      "lockfile": "apps/mobile/sahool_app/pubspec.lock",
+      "sha256_before": "1a52149413ced1961e1b8a79cb6c238296e1496e7e6f9f7844d6dcb357f75d40",
+      "sha256_after": "1a52149413ced1961e1b8a79cb6c238296e1496e7e6f9f7844d6dcb357f75d40",
+      "unchanged": true
+    }
+  ],
+  "analysis": [
+    {
+      "label": "final-3.44.9-root-and-field-analyze",
+      "exit_code": 1,
+      "findings": {
+        "warning": 1651,
+        "info": 1600
+      },
+      "error_source_files": []
+    },
+    {
+      "label": "final-3.44.9-unified-analyze",
+      "exit_code": 1,
+      "findings": {
+        "warning": 4,
+        "info": 13
+      },
+      "error_source_files": []
+    },
+    {
+      "label": "final-3.44.9-core-analyze",
+      "exit_code": 1,
+      "findings": {
+        "info": 752,
+        "error": 219,
+        "warning": 933
+      },
+      "error_source_files": [
+        {
+          "path": "packages/sahool-mobile-core/integration_test/app_test.dart",
+          "unchanged_from_base": true,
+          "sha256": "122bc8923314cfdb7fcb772140a47196afaa161c0b842318d90abf5ec86536e6"
+        },
+        {
+          "path": "packages/sahool-mobile-core/integration_test/features/auth_test.dart",
+          "unchanged_from_base": true,
+          "sha256": "f8bfd44030dd5f362755381cb7b25a72ad54f2a9c38b0eec362085025f2659ee"
+        },
+        {
+          "path": "packages/sahool-mobile-core/integration_test/features/fields_test.dart",
+          "unchanged_from_base": true,
+          "sha256": "1ad6b84fbbc78b19d3d7d8d88905ad0edc2aeafbd1bace5a7df8beea1b4fadf9"
+        },
+        {
+          "path": "packages/sahool-mobile-core/integration_test/features/inventory_test.dart",
+          "unchanged_from_base": true,
+          "sha256": "0ec6d9d6cf94da8ad7f7fd140da2b60136d80cfc62bd9bd3c92bb1f21b3283ba"
+        },
+        {
+          "path": "packages/sahool-mobile-core/integration_test/features/satellite_test.dart",
+          "unchanged_from_base": true,
+          "sha256": "b8e71623aad5a3ff97d24f793063a153c816ff644e6dccc3e8ff4f84210dc466"
+        },
+        {
+          "path": "packages/sahool-mobile-core/integration_test/features/vra_test.dart",
+          "unchanged_from_base": true,
+          "sha256": "f167d575223bc20fbd8d8798f2068c89ac7c0b1e18bc761d337985e7d62826b6"
+        },
+        {
+          "path": "packages/sahool-mobile-core/integration_test/helpers/test_helpers.dart",
+          "unchanged_from_base": true,
+          "sha256": "ad985427fc2af8c91ae2b733276958a3d4099187e4c68b158a4cb119946acbdc"
+        },
+        {
+          "path": "packages/sahool-mobile-core/integration_test/helpers/test_utils.dart",
+          "unchanged_from_base": true,
+          "sha256": "a4053ab556f58cac941ae29e459ff1e86c651c2f09ceffa93a292cb3de65c5d1"
+        },
+        {
+          "path": "packages/sahool-mobile-core/integration_test/map_interaction_test.dart",
+          "unchanged_from_base": true,
+          "sha256": "d3ecec1d1ee2395b06c12c3b8ded3595daa3698d256220999c1e31ecc34e4479"
+        },
+        {
+          "path": "packages/sahool-mobile-core/integration_test/offline_mode_test.dart",
+          "unchanged_from_base": true,
+          "sha256": "3b7cf4536f2564d94938a7066917d265c30bd5762d35383dba6dc966f735f98d"
+        },
+        {
+          "path": "packages/sahool-mobile-core/integration_test/weather_display_test.dart",
+          "unchanged_from_base": true,
+          "sha256": "64f5d38d6a9cbaafffa5d41809df0743f62f8b669552135a504998bc9f574330"
+        },
+        {
+          "path": "packages/sahool-mobile-core/lib/core/animations/animations.dart",
+          "unchanged_from_base": true,
+          "sha256": "52813f8f6894ed0c92bc31f80f2f16c6725d74ab2385dd321bbfeffb76500436"
+        },
+        {
+          "path": "packages/sahool-mobile-core/lib/core/api/api.dart",
+          "unchanged_from_base": true,
+          "sha256": "9ed5d745c0a81c6fcb49ddb4082f7cac8f278a226a7170641be7302ea6686c23"
+        },
+        {
+          "path": "packages/sahool-mobile-core/lib/core/api/unified_api_client.dart",
+          "unchanged_from_base": true,
+          "sha256": "aa72b0b81510dd5c2288fe3bd08d5f39ba099ab7e90b5bc8449d0bfb492cfeec"
+        },
+        {
+          "path": "packages/sahool-mobile-core/lib/core/network/dio_error_handler.dart",
+          "unchanged_from_base": true,
+          "sha256": "1639d08e6356787e532d185679016621bdce7d8021082e813ce2bd448def6550"
+        },
+        {
+          "path": "packages/sahool-mobile-core/lib/core/routes/app_router.dart",
+          "unchanged_from_base": true,
+          "sha256": "e460dddd1b5a170eb9b098e5c4e369041354f8565fe6b77ef4bb92697fbab0fc"
+        },
+        {
+          "path": "packages/sahool-mobile-core/lib/core/widgets/widgets.dart",
+          "unchanged_from_base": true,
+          "sha256": "2a10939bd7787b4e1298ff86cb3e4078ef86bbe8f2a1385059bc8246af98d83f"
+        },
+        {
+          "path": "packages/sahool-mobile-core/lib/features/analytics/data/analytics_repository.dart",
+          "unchanged_from_base": true,
+          "sha256": "22409f6af59e0e649f6c8682ae9cc2b08cecead842c14eb1400b3958c8569513"
+        },
+        {
+          "path": "packages/sahool-mobile-core/lib/features/astronomical_calendar/data/remote/astronomical_api.dart",
+          "unchanged_from_base": true,
+          "sha256": "f5be733890e2bbc4424d5133132fe4e7ee4dc17d2cc80cc458734e2ccbe02e8d"
+        },
+        {
+          "path": "packages/sahool-mobile-core/lib/features/astronomical_calendar/domain/entities/astronomical_entities.dart",
+          "unchanged_from_base": true,
+          "sha256": "5b7cf4cd0f2d23a26d3b2e46b3b7b88b060b75c71d20572fe105538bba0fccda"
+        },
+        {
+          "path": "packages/sahool-mobile-core/lib/features/auth/auth.dart",
+          "unchanged_from_base": true,
+          "sha256": "39fc3822edf22a38ff878d2d1d54b71fb6dbcf2a65d438b73c77b552cdb13841"
+        },
+        {
+          "path": "packages/sahool-mobile-core/lib/features/billing/presentation/screens/billing_screen.dart",
+          "unchanged_from_base": true,
+          "sha256": "d181ba8714a9ccb44ee9f0859fb5c226791dcdc6b5b780bb0cbf3963eafff8ca"
+        },
+        {
+          "path": "packages/sahool-mobile-core/lib/features/community/presentation/providers/community_provider.dart",
+          "unchanged_from_base": true,
+          "sha256": "6533e8a14807cd727447f806877ac0f5bc708c6941a3ce6eff88ad7931a76f50"
+        },
+        {
+          "path": "packages/sahool-mobile-core/lib/features/crm/crm.dart",
+          "unchanged_from_base": true,
+          "sha256": "32611ff219ecf24b17b8cda6a4733a99c2265b4445c4365c731b87dbd3ad1306"
+        },
+        {
+          "path": "packages/sahool-mobile-core/lib/features/crop_health/crop_health.dart",
+          "unchanged_from_base": true,
+          "sha256": "42af78003ebb3f777496704484c016a7a56dbbcc1965f98cd6601e9d05e95a73"
+        },
+        {
+          "path": "packages/sahool-mobile-core/lib/features/crop_health/presentation/screens/crop_health_dashboard.dart",
+          "unchanged_from_base": true,
+          "sha256": "3653bfa4d998d41ca0edf6bbe9f989d25a71e343255adf539e64ca093eaa0204"
+        },
+        {
+          "path": "packages/sahool-mobile-core/lib/features/equipment/equipment.dart",
+          "unchanged_from_base": true,
+          "sha256": "2159f54af7aacb23bd06a277343c0520a6eb3485b49347e8d7f4d74af4cc353e"
+        },
+        {
+          "path": "packages/sahool-mobile-core/lib/features/features.dart",
+          "unchanged_from_base": true,
+          "sha256": "ee17d78e791e782da8d18d061b66d5e53e5d45a27480bd0f2af401b943b5a32b"
+        },
+        {
+          "path": "packages/sahool-mobile-core/lib/features/field_hub/ui/field_dashboard.dart",
+          "unchanged_from_base": true,
+          "sha256": "30b47f35de7e2d6ebe559f94ff0f8402072f2cdc7e98055aa039fbc14e2fb763"
+        },
+        {
+          "path": "packages/sahool-mobile-core/lib/features/fields/presentation/screens/fields_list_screen.dart",
+          "unchanged_from_base": true,
+          "sha256": "d8c9a9b9c072662d07ad57de7b42165ccc6879c20ee116e928bca17bc8994fc5"
+        },
+        {
+          "path": "packages/sahool-mobile-core/lib/features/gamification/presentation/providers/gamification_provider.dart",
+          "unchanged_from_base": true,
+          "sha256": "4d065d76192c55504e46e44c7eba4c5bf1b7d29264a7b4cd7bc3f674dc3e8129"
+        },
+        {
+          "path": "packages/sahool-mobile-core/lib/features/home/logic/sync_provider.dart",
+          "unchanged_from_base": true,
+          "sha256": "52cec351c433dd0615ffba5f7ae01b9bc6886c61aa355c7fb17e9f4e73f4ac3d"
+        },
+        {
+          "path": "packages/sahool-mobile-core/lib/features/iot/iot.dart",
+          "unchanged_from_base": true,
+          "sha256": "d6d04588a2db7df168d462f78a5609c3fce039bdecc113339e9f2476691cefc0"
+        },
+        {
+          "path": "packages/sahool-mobile-core/lib/features/notifications/notifications.dart",
+          "unchanged_from_base": true,
+          "sha256": "12eb7d2b42bbe4bee86555a7b2d10d553c03da60a1b549083aab3fdec911e0e5"
+        },
+        {
+          "path": "packages/sahool-mobile-core/lib/features/profile/data/profile_repository.dart",
+          "unchanged_from_base": true,
+          "sha256": "d1b44ace8c7f0cf88538d21ad4c5fb21c653f44df4652c18ae21aa94aaff662c"
+        },
+        {
+          "path": "packages/sahool-mobile-core/lib/features/profile/profile.dart",
+          "unchanged_from_base": true,
+          "sha256": "c3ca7e1c9e8a305b44fe737f5665cbe59ca3fbc0e4766b3ce46d681fe777c0b9"
+        },
+        {
+          "path": "packages/sahool-mobile-core/lib/features/rotation/screens/rotation_plan_screen.dart",
+          "unchanged_from_base": true,
+          "sha256": "489d6a4267667f9bb4a987726017fa74a11f763e92ace8ff2e579d864ee1d07a"
+        },
+        {
+          "path": "packages/sahool-mobile-core/lib/features/settings/settings.dart",
+          "unchanged_from_base": true,
+          "sha256": "4546ed335f5829126a4a08e37b7ca3831b2ee4b84fb2c35205228a0d3fed5f38"
+        },
+        {
+          "path": "packages/sahool-mobile-core/lib/features/sync/providers/sync_events_provider.dart",
+          "unchanged_from_base": true,
+          "sha256": "45c6785bfb2a245baccf851683b406f821002bb54261f355984dc3f2bc827376"
+        },
+        {
+          "path": "packages/sahool-mobile-core/lib/features/tasks/tasks.dart",
+          "unchanged_from_base": true,
+          "sha256": "6ddea34a2b514f0398d0ca76ad3ab9a85658309c5fefcdba0061b0467c55abc0"
+        },
+        {
+          "path": "packages/sahool-mobile-core/lib/features/terrain/data/terrain_repository.dart",
+          "unchanged_from_base": true,
+          "sha256": "3399b600ac08e2317648931b5fc88258d33ac36f530e8a504f7d7ce43b6d9655"
+        },
+        {
+          "path": "packages/sahool-mobile-core/lib/features/vision/data/yolo26_service.dart",
+          "unchanged_from_base": true,
+          "sha256": "16e942677f4fda648adffd9e04e01b0ed23a8e2ac507c2ee1d8f9aa84d0c1128"
+        },
+        {
+          "path": "packages/sahool-mobile-core/lib/features/wallet/wallet.dart",
+          "unchanged_from_base": true,
+          "sha256": "46a59143db6a65038c0f9f7d12c5d87a0daaebb9485f46df13211cfff82a2c3a"
+        },
+        {
+          "path": "packages/sahool-mobile-core/lib/features/weather/presentation/screens/weather_screen.dart",
+          "unchanged_from_base": true,
+          "sha256": "e5bb3a375711c78f8d0ce47c1a96c17a924f3e3b9f4f389499c7f00e10cf2d5d"
+        },
+        {
+          "path": "packages/sahool-mobile-core/lib/sahool_mobile_core.dart",
+          "unchanged_from_base": true,
+          "sha256": "381f9ff560a9a972c53706ffc5bd0d390646e1a12965dc0ff951fd231d9916fb"
+        },
+        {
+          "path": "packages/sahool-mobile-core/test/features/field/boundaries_test.dart",
+          "unchanged_from_base": true,
+          "sha256": "5ddba8fa6da58884094d23330f87f4e5ea5938217de2e9c2b34dbfe9f4b9064a"
+        },
+        {
+          "path": "packages/sahool-mobile-core/test/features/marketplace/marketplace_test.dart",
+          "unchanged_from_base": true,
+          "sha256": "2f8b10a1c2f81071ad7d0b20a331382140c64dc4778b60d3e662aeea25e66943"
+        }
+      ]
+    }
+  ],
+  "guard": {
+    "command": "python -m pytest -q tests/unit/test_flutter_toolchain_consistency.py --timeout=30",
+    "passed": 17,
+    "exit_code": 0,
+    "ruff_check": 0,
+    "ruff_format_check": 0
+  },
+  "root_actionlint": {
+    "command": [
+      "/workspace/scratch/882204c263d7/ci-followup-evidence/actionlint",
+      ".github/workflows/deploy-preview.yml",
+      ".github/workflows/flutter-apk.yml",
+      ".github/workflows/frontend-tests.yml",
+      ".github/workflows/lighthouse-ci.yml",
+      ".github/workflows/mobile-ci.yml",
+      ".github/workflows/mobile-release.yml",
+      ".github/workflows/release-candidate.yml",
+      ".github/workflows/reusable-setup.yml",
+      ".github/workflows/test.yml"
+    ],
+    "exit_code": 0
+  },
+  "nested_actionlint": {
+    "baseline_findings": 10,
+    "current_findings": 10,
+    "classification": "Unchanged deprecated v3 action runtimes in dormant nested standalone workflows."
+  },
+  "parent_review": {
+    "changes": [
+      "Aligned Android platform installation to API36 in flutter-apk.yml, mobile-ci.yml, mobile-release.yml and frontend-tests.yml, matching both actual app compileSdk declarations. Build-tools35.0.0 is retained."
+    ],
+    "no_additional_runtime_test_claim": true,
+    "root_actionlint_after_android_platform_alignment_exit_code": 0,
+    "parent_guard_attempt": {
+      "exit_code": 1,
+      "reason": "The parent default Python executable has no pytest. The guard did not run in that attempt; the agent successful17-case receipt is retained. No packages or test policy were changed to hide the setup failure."
+    }
+  },
+  "first_pr_ci_and_r8_correction": {
+    "observed_head_sha": "c40ebd50c809652b5e04541fb6b04aa9057b9958",
+    "observed_base_sha": "ab53c98596daca1740d2ac5a5dbd48db7b24e34f",
+    "tested_merge_sha": "be8071b360971666c18a0b9ba8a7e7779dda336f",
+    "local_head_before_correction": "a50c55d47595232cfb7699d3ddb80188fb8e5c0e",
+    "local_tree_matches_published_tree": "c0e8764541f4f1d23752bcb0f60193e59ae6c534",
+    "android_build": {
+      "run_id": 41238802797,
+      "job_id": 124648999694,
+      "url": "https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41238802797/job/124648999694",
+      "conclusion": "failure",
+      "failed_step": "Build Android APK",
+      "command": "flutter build apk --debug",
+      "exit_code": 1,
+      "failure": "Applying com.android.application failed because android.enableR8 was removed in Android Gradle Plugin 7.0; Gradle explicitly requested its removal from gradle.properties.",
+      "failed_at": "2026-10-31T20:36:13.2776756Z",
+      "correction": "Remove only the obsolete android.enableR8=true property from both applications; retain android.enableR8.fullMode and all other R8/build settings.",
+      "changed_properties_files": [
+        "apps/mobile/android/gradle.properties",
+        "apps/mobile/sahool_field_app/android/gradle.properties"
+      ],
+      "default_shrinker_reference": "https://developer.android.com/build/releases/agp-3-4-0-release-notes?hl=en",
+      "post_correction_apk_result": "Not yet verified; requires the next ordinary GitHub CI run."
+    },
+    "test_results": [
+      {
+        "run_id": 41238802657,
+        "job_id": 124648282519,
+        "url": "https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41238802657/job/124648282519",
+        "selection": "Primary unit/widget/integration",
+        "unit_passed": 564,
+        "widget_passed": 41,
+        "integration_passed": 61,
+        "total_passed": 666,
+        "failed": 0,
+        "job_conclusion": "success",
+        "analysis_note": "The separate analysis step reported 1,276 errors, starting with missing field-app generated symbols; its existing warning fallback masks the analyzer exit. This is not a clean analysis claim."
+      },
+      {
+        "run_id": 41238802797,
+        "job_id": 124648999718,
+        "url": "https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41238802797/job/124648999718",
+        "selection": "Wider primary app test directory",
+        "passed": 2703,
+        "failed": 6,
+        "job_conclusion": "failure",
+        "failed_step": "Run Unit Tests"
+      },
+      {
+        "run_id": 41238802809,
+        "job_id": 124649223327,
+        "url": "https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41238802809/job/124649223327",
+        "selection": "Full field-app test directory",
+        "passed": 4729,
+        "failed": 15,
+        "job_conclusion": "success",
+        "conclusion_note": "The actual Flutter test summary failed; the existing tee pipeline masks its exit status."
+      }
+    ],
+    "prior_local_results_preserved": true,
+    "field_android_build": {
+      "run_id": 41238802809,
+      "job_id": 124650681151,
+      "url": "https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41238802809/job/124650681151",
+      "conclusion": "failure",
+      "failed_step": "Build Debug APK",
+      "exit_code": 1,
+      "failure": "Applying com.android.application failed because android.enableR8 was removed in Android Gradle Plugin 7.0, matching the primary Android build failure.",
+      "failed_at": "2026-10-31T20:40:50.9554979Z",
+      "covered_by_same_two_file_r8_correction": true,
+      "post_correction_apk_result": "Not yet verified; requires the next ordinary GitHub CI run."
+    },
+    "ios_build": {
+      "run_id": 41238802797,
+      "job_id": 124648999729,
+      "url": "https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41238802797/job/124648999729",
+      "job_conclusion": "success",
+      "actual_build_exit_code": 1,
+      "failed_step": "Build iOS (No Codesign)",
+      "command": "flutter build ios --debug --no-codesign",
+      "failure": "While adding Swift Package Manager integration, xcodebuild could not resolve package dependencies because the public headers include directory for flutter_native_splash is invalid or not contained in the target.",
+      "failed_at": "2026-10-31T20:35:39.8010920Z",
+      "masked_by_existing_continue_on_error": true,
+      "successful_ios_build_proven": false,
+      "addressed_by_r8_correction": false
+    },
+    "cocoapods_compatibility": {
+      "reason": "Flutter 3.44 enables SwiftPM by default, exposing the missing public-header directory in the locked flutter_native_splash 2.4.4 Swift package. Preserve the two applications existing CocoaPods integration until the plugin/native graph migration is validated.",
+      "setting": "flutter.config.enable-swift-package-manager",
+      "value": false,
+      "applications": [
+        "apps/mobile/pubspec.yaml",
+        "apps/mobile/sahool_field_app/pubspec.yaml"
+      ],
+      "official_flutter_reference": "https://docs.flutter.dev/packages-and-plugins/swift-package-manager/for-app-developers#turn-off-swiftpm-for-a-single-project",
+      "upstream_plugin_reference": "https://pub.dev/packages/flutter_native_splash/changelog",
+      "locked_plugin_version": "2.4.4",
+      "plugin_package_swift_sha256": "2d3eea4dcc857518374a81cf3c8869777b0188cbe811985bba0c0fe5dd440c2d",
+      "plugin_default_include_directory_exists": false,
+      "plugin_package_swift_sets_publicHeadersPath": false,
+      "guard": {
+        "command": "/workspace/scratch/882204c263d7/pyjwt-venv/bin/python -m pytest -q tests/unit/test_flutter_toolchain_consistency.py --timeout=30",
+        "passed": 23,
+        "exit_code": 0,
+        "duration_seconds": 1.65,
+        "new_negative_cases": "Missing flag, boolean true, and string false in each of the two CocoaPods applications.",
+        "ruff_check_exit_code": 0,
+        "ruff_format_check_exit_code": 0
+      },
+      "flutter_manifest_validation": {
+        "commands": [
+          {
+            "label": "sdk",
+            "command": [
+              "/tmp/sahool-flutter-882204c263d7/3.44.9/flutter/bin/flutter",
+              "--version",
+              "--machine"
+            ],
+            "cwd": "/workspace/scratch/882204c263d7/flutter-compat-fix/apps/mobile",
+            "started_at": "2026-10-31T20:47:54.673225+00:00",
+            "duration_seconds": 0.231,
+            "exit_code": 0,
+            "log": "/workspace/scratch/882204c263d7/flutter-compat-evidence/pr1999-ci/swiftpm-compat-sdk.log"
+          },
+          {
+            "label": "primary-config",
+            "command": [
+              "/tmp/sahool-flutter-882204c263d7/3.44.9/flutter/bin/flutter",
+              "--no-version-check",
+              "config",
+              "--list"
+            ],
+            "cwd": "/workspace/scratch/882204c263d7/flutter-compat-fix/apps/mobile",
+            "started_at": "2026-10-31T20:47:54.904692+00:00",
+            "duration_seconds": 0.103,
+            "exit_code": 0,
+            "log": "/workspace/scratch/882204c263d7/flutter-compat-evidence/pr1999-ci/swiftpm-compat-primary-config.log"
+          },
+          {
+            "label": "primary-pub",
+            "command": [
+              "/tmp/sahool-flutter-882204c263d7/3.44.9/flutter/bin/flutter",
+              "--no-version-check",
+              "pub",
+              "get",
+              "--offline",
+              "--enforce-lockfile"
+            ],
+            "cwd": "/workspace/scratch/882204c263d7/flutter-compat-fix/apps/mobile",
+            "started_at": "2026-10-31T20:47:55.007629+00:00",
+            "duration_seconds": 2.93,
+            "exit_code": 0,
+            "log": "/workspace/scratch/882204c263d7/flutter-compat-evidence/pr1999-ci/swiftpm-compat-primary-pub.log"
+          },
+          {
+            "label": "field-config",
+            "command": [
+              "/tmp/sahool-flutter-882204c263d7/3.44.9/flutter/bin/flutter",
+              "--no-version-check",
+              "config",
+              "--list"
+            ],
+            "cwd": "/workspace/scratch/882204c263d7/flutter-compat-fix/apps/mobile/sahool_field_app",
+            "started_at": "2026-10-31T20:47:57.937936+00:00",
+            "duration_seconds": 0.111,
+            "exit_code": 0,
+            "log": "/workspace/scratch/882204c263d7/flutter-compat-evidence/pr1999-ci/swiftpm-compat-field-config.log"
+          },
+          {
+            "label": "field-pub",
+            "command": [
+              "/tmp/sahool-flutter-882204c263d7/3.44.9/flutter/bin/flutter",
+              "--no-version-check",
+              "pub",
+              "get",
+              "--offline",
+              "--enforce-lockfile"
+            ],
+            "cwd": "/workspace/scratch/882204c263d7/flutter-compat-fix/apps/mobile/sahool_field_app",
+            "started_at": "2026-10-31T20:47:58.048939+00:00",
+            "duration_seconds": 3.017,
+            "exit_code": 0,
+            "log": "/workspace/scratch/882204c263d7/flutter-compat-evidence/pr1999-ci/swiftpm-compat-field-pub.log"
+          }
+        ],
+        "lock_sha256_before": {
+          "apps/mobile/pubspec.lock": "60d69322a6d6336030f41deac669090954997ddd0e947977da39b288e22ac45b",
+          "apps/mobile/sahool_field_app/pubspec.lock": "c118b25e53b4d2d630c3f5393580f1f737b0af4094a46421e026888d2e752115",
+          "apps/mobile/sahool_app/pubspec.lock": "1a52149413ced1961e1b8a79cb6c238296e1496e7e6f9f7844d6dcb357f75d40"
+        },
+        "lock_sha256_after": {
+          "apps/mobile/pubspec.lock": "60d69322a6d6336030f41deac669090954997ddd0e947977da39b288e22ac45b",
+          "apps/mobile/sahool_field_app/pubspec.lock": "c118b25e53b4d2d630c3f5393580f1f737b0af4094a46421e026888d2e752115",
+          "apps/mobile/sahool_app/pubspec.lock": "1a52149413ced1961e1b8a79cb6c238296e1496e7e6f9f7844d6dcb357f75d40"
+        },
+        "locks_unchanged": true
+      },
+      "global_configuration": "No global Flutter configuration was written. The read-only flutter config --list command reports the global SwiftPM setting as Not set; project acceptance was checked by Flutter pub get.",
+      "automatic_localization_outputs_restored": [
+        {
+          "path": "apps/mobile/lib/generated/l10n/app_localizations.dart",
+          "automatic_generation_sha256": "9803df66cc3e10c81759998a69d5266016f5ee601eb2e452af032897ef9ffb56",
+          "restored_head_sha256": "40b6899868263f865cd667d4697fbd50a55b8a6b62dd6640d49b69f1b945d849"
+        },
+        {
+          "path": "apps/mobile/sahool_field_app/lib/generated/l10n/app_localizations.dart",
+          "automatic_generation_sha256": "e3caf44e85775537864890883fbc5e271192c0dbc7cc4adbce5cf2be2b06faca",
+          "restored_head_sha256": "0a8a76a0d7f183f8238cc1502b4aeca4731f16475ffa21037203898686084430"
+        },
+        {
+          "path": "apps/mobile/sahool_field_app/lib/generated/l10n/app_localizations_ar.dart",
+          "automatic_generation_sha256": "7fef1b5af3f0f08aed00cce237f594d2d2dc4cdfadbcb77fc365e915c4758c57",
+          "restored_head_sha256": "ce57075849cad4fd29b7652d52f3580268754f0b2b6b0dc16effd8322fc47130"
+        },
+        {
+          "path": "apps/mobile/sahool_field_app/lib/generated/l10n/app_localizations_en.dart",
+          "automatic_generation_sha256": "f76a9f5cd24c8b99e8db87083e0fc47f37c351b89b338a50b09f3a3ae89d9be1",
+          "restored_head_sha256": "694af8792dd20e106485d4378cf6a61253d0b69b895d3eb6a79ec3a8d031190c"
+        }
+      ],
+      "podfiles_xcode_projects_and_package_versions_changed": false,
+      "post_correction_ios_build_result": "Not yet verified; the previous CI build exited 1 and was masked by continue-on-error. A new real macOS build is required."
+    }
+  }
+}

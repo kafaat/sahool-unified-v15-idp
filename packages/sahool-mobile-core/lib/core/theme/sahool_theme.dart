@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 
+// Border Radius and Spacing tokens are now centralized in spacing.dart.
+// Import SahoolRadius and SahoolSpacing from 'spacing.dart' instead.
+// انتقلت رموز نصف القطر والتباعد إلى spacing.dart
+export 'spacing.dart';
+
 /// SAHOOL Design System - Agri-Industrial Design Language
 /// مصمم للاستخدام الميداني تحت أشعة الشمس وبالقفازات
 ///
@@ -365,8 +370,3 @@ class SahoolShadows {
     ),
   ];
 }
-
-// Border Radius and Spacing tokens are now centralized in spacing.dart.
-// Import SahoolRadius and SahoolSpacing from 'spacing.dart' instead.
-// انتقلت رموز نصف القطر والتباعد إلى spacing.dart
-export 'spacing.dart';

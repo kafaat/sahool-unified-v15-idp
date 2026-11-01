@@ -1,0 +1,16 @@
+{
+  "timestamp": "2026-10-31T20:21:01.782588+00:00",
+  "cache_path": "/tmp/sahool-trivy-js-rescan-882204c263d7",
+  "archive": "/workspace/scratch/882204c263d7/pyjwt-evidence/dependency-followup/trivy-db-20261031T130900Z.gz",
+  "archive_sha256": "0cd4e31dd3bcf56f3774f72da775136d29b78f27568da0cdf903a3984f6d0f73",
+  "db_sha256": "d81ea576fbcd02c304b980d8eec4dd1a372648b648bfb876f48790d63ee58f93",
+  "db_bytes": 1674162176,
+  "metadata": {
+    "Version": 2,
+    "NextUpdate": "2026-11-01T13:09:00.833221529Z",
+    "UpdatedAt": "2026-10-31T13:09:00.83322165Z",
+    "DownloadedAt": "2026-10-31T19:24:31.517003446Z"
+  },
+  "free_bytes_before": 6659092480,
+  "free_bytes_after": 5010362368
+}

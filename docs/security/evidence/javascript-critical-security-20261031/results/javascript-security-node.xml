@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+	<testcase name="patched dependencies in apps/services/chat-service/package-lock.json" time="0.010020" classname="test"/>
+	<testcase name="patched dependencies in apps/services/code-review-agent/package-lock.json" time="0.002561" classname="test"/>
+	<testcase name="patched dependencies in apps/services/crop-growth-model/package-lock.json" time="0.005222" classname="test"/>
+	<testcase name="patched dependencies in apps/services/disaster-assessment/package-lock.json" time="0.004684" classname="test"/>
+	<testcase name="patched dependencies in apps/services/field-management-service/package-lock.json" time="0.004367" classname="test"/>
+	<testcase name="patched dependencies in apps/services/lai-estimation/package-lock.json" time="0.004002" classname="test"/>
+	<testcase name="patched dependencies in apps/services/marketplace-service/package-lock.json" time="0.003514" classname="test"/>
+	<testcase name="patched dependencies in apps/services/yield-prediction/package-lock.json" time="0.003530" classname="test"/>
+	<testcase name="patched dependencies in archive/deprecated-services/community-chat/package-lock.json" time="0.003112" classname="test"/>
+	<testcase name="patched dependencies in archive/kernel-legacy/kernel/services/field_core/package-lock.json" time="0.002155" classname="test"/>
+	<testcase name="patched dependencies in package-lock.json" time="0.014685" classname="test"/>
+	<testcase name="patched dependencies in packages/shared-audit/package-lock.json" time="0.001477" classname="test"/>
+	<testcase name="patched dependencies in packages/shared-crypto/package-lock.json" time="0.002155" classname="test"/>
+	<testcase name="patched dependencies in packages/shared-db/package-lock.json" time="0.000476" classname="test"/>
+	<testcase name="patched dependencies in packages/shared-events/package-lock.json" time="0.000404" classname="test"/>
+	<testcase name="proxy-addr rejects a spoofed forwarded client through ::ffff:10.0.0.0/8 from 198.51.100.23" time="0.002008" classname="test"/>
+	<testcase name="proxy-addr rejects a spoofed forwarded client through ::ffff:10.0.0.0/8 from ::ffff:198.51.100.23" time="0.000604" classname="test"/>
+	<testcase name="proxy-addr rejects a spoofed forwarded client through ::/1 from 198.51.100.23" time="0.000299" classname="test"/>
+	<testcase name="proxy-addr rejects a spoofed forwarded client through ::/1 from ::ffff:198.51.100.23" time="0.001615" classname="test"/>
+	<testcase name="proxy-addr preserves legitimate proxy forwarding through 10.0.0.0/8" time="0.000318" classname="test"/>
+	<testcase name="proxy-addr preserves legitimate proxy forwarding through ::ffff:10.0.0.0/104" time="0.000254" classname="test"/>
+	<testcase name="Handlebars still renders valid parsed templates and escapes user content" time="0.007390" classname="test"/>
+	<testcase name="Handlebars denies the Function constructor even when it is an own prototype property" time="0.000915" classname="test"/>
+	<testcase name="Handlebars rejects an executable blockParams length in an untrusted AST" time="0.001130" classname="test"/>
+	<testcase name="the actual Vitest worker pool ignores an inherited worker filename" time="0.086227" classname="test"/>
+	<testcase name="web: installed Next.js matches the declared patched version" time="0.001372" classname="test"/>
+	<testcase name="web: Sentry cannot bypass authorization outside its exact envelope route" time="0.593359" classname="test"/>
+	<testcase name="web: Next.js image optimizer uses patched Sharp and performs native image conversion" time="0.060685" classname="test"/>
+	<testcase name="admin: installed Next.js matches the declared patched version" time="0.000761" classname="test"/>
+	<testcase name="admin: Sentry cannot bypass authorization outside its exact envelope route" time="0.160413" classname="test"/>
+	<testcase name="admin: Next.js image optimizer uses patched Sharp and performs native image conversion" time="0.004640" classname="test"/>
+	<!-- tests 31 -->
+	<!-- suites 0 -->
+	<!-- pass 31 -->
+	<!-- fail 0 -->
+	<!-- cancelled 0 -->
+	<!-- skipped 0 -->
+	<!-- todo 0 -->
+	<!-- duration_ms 1112.008491 -->
+</testsuites>

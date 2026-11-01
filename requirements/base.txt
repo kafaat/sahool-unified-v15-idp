@@ -6,9 +6,9 @@
 # Version: 16.0.0
 
 # FastAPI Framework Stack
-fastapi==0.135.1
+fastapi==0.143.0
 uvicorn[standard]>=0.34.0,<1.0.0
-pydantic==2.13.1
+pydantic==2.14.0
 
 # Async HTTP Client
 httpx==0.28.1
@@ -23,4 +23,4 @@ jsonschema>=4.20.0
 redis>=7.1.0,<8.0.0
 
 # Environment & Configuration
-python-dotenv==1.2.2
+python-dotenv==1.2.4

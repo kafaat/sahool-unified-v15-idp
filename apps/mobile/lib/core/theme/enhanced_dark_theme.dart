@@ -329,7 +329,7 @@ class EnhancedDarkTheme {
       ),
 
       // Card Theme
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: variant == DarkThemeVariant.amoled ? 0 : 2,
         color: colors.surface,
         surfaceTintColor: Colors.transparent,
@@ -462,7 +462,7 @@ class EnhancedDarkTheme {
       ),
 
       // Dialog Theme
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor: colors.surface,
         surfaceTintColor: Colors.transparent,
         elevation: variant == DarkThemeVariant.amoled ? 0 : 16,
@@ -589,7 +589,7 @@ class EnhancedDarkTheme {
       ),
 
       // Tab Bar Theme
-      tabBarTheme: TabBarTheme(
+      tabBarTheme: TabBarThemeData(
         labelColor: accentColors.primary,
         unselectedLabelColor: EnhancedDarkColors.textSecondary,
         indicatorColor: accentColors.primary,

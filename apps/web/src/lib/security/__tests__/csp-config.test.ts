@@ -49,16 +49,16 @@ describe('CSP Configuration', () => {
       expect(directives['script-src']).toContain("'self'");
     });
 
-    it('should include nonce in script-src when provided', () => {
+    it('should preserve inline hydration compatibility without an unapplied script nonce', () => {
       const nonce = 'test-nonce-123';
       const directives = getCSPDirectives(nonce);
-      expect(directives['script-src']).toContain(`'nonce-${nonce}'`);
+      expect(directives['script-src']).not.toContain(`'nonce-${nonce}'`);
     });
 
-    it('should include nonce in style-src when provided', () => {
+    it('should preserve inline styles without an unapplied style nonce', () => {
       const nonce = 'test-nonce-123';
       const directives = getCSPDirectives(nonce);
-      expect(directives['style-src']).toContain(`'nonce-${nonce}'`);
+      expect(directives['style-src']).not.toContain(`'nonce-${nonce}'`);
     });
 
     it('should block object-src', () => {
@@ -155,9 +155,9 @@ describe('CSP Configuration', () => {
       expect(config.directives['default-src']).toBeDefined();
     });
 
-    it('should pass nonce to directives', () => {
+    it('should preserve the compatibility policy for legacy nonce callers', () => {
       const config = getCSPConfig('my-nonce');
-      expect(config.directives['script-src']).toContain("'nonce-my-nonce'");
+      expect(config.directives['script-src']).not.toContain("'nonce-my-nonce'");
     });
   });
 
@@ -168,9 +168,9 @@ describe('CSP Configuration', () => {
       expect(header).toContain('default-src');
     });
 
-    it('should include nonce when provided', () => {
+    it('should omit unapplied nonce when provided', () => {
       const header = getCSPHeader('test-nonce');
-      expect(header).toContain('nonce-test-nonce');
+      expect(header).not.toContain('nonce-test-nonce');
     });
   });
 

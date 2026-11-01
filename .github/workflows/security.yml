@@ -40,12 +40,12 @@ jobs:
     # SECURITY FIX: Security scans must block the pipeline on failure
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: TruffleHog Secrets Scan
-        uses: trufflesecurity/trufflehog@v3.94.3
+        uses: trufflesecurity/trufflehog@v3.99.7
         # Secrets detection must fail the pipeline
         with:
           path: ./
@@ -134,62 +134,90 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
-      - name: Set up Python
-        uses: actions/setup-python@v6
+      - name: Set up Python 3.12 for the independent EO tool
+        id: python312
+        uses: actions/setup-python@v7
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: '3.12'
 
-      - name: Install scanning tools
+      - name: Set up Python 3.11 for service dependency audits
+        id: python311
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+
+      - name: Set up the Nunjucks runtime
+        uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+
+      - name: Install pinned dependency scanning tools
+        id: scanner_tools
         run: |
-          pip install --upgrade pip
-          pip install safety pip-audit
+          python -m pip install pip-audit==2.10.1 PyYAML==6.0.3 pytest==9.1.1
+          "${{ steps.python312.outputs.python-path }}" -m pip install pip-audit==2.10.1
+          npm install --prefix "$RUNNER_TEMP/security-renderer" \
+            --no-save --ignore-scripts --no-audit --no-fund nunjucks@3.2.4
 
-      - name: Scan with Safety
+      - name: Test scan receipts and real template rendering
+        env:
+          NUNJUCKS_MODULE: ${{ runner.temp }}/security-renderer/node_modules/nunjucks
         run: |
-          echo "🔍 Scanning Python dependencies with Safety..."
-          # Using 'scan' command (check was deprecated June 2024)
+          python -m pytest tests/unit/ci/test_dependency_scan_integrity.py \
+            --confcutdir=tests/unit/ci -q -o addopts= \
+            --junitxml=python-dependency-scans/scanner-tests.xml
+          node --test scripts/ci/tests/render_security_requirements.test.cjs
 
-          for req in $(find . -name "requirements.txt" -type f -not -path "./archive/*"); do
-            echo "Scanning: $req"
-            safety scan --target "$req" --output json > safety-report-$(echo $req | md5sum | cut -d' ' -f1).json || true
-          done
-
-          # Check pyproject.toml
-          if [ -f "pyproject.toml" ]; then
-            pip install -e ".[base,infrastructure,testing]" || true
-            safety scan --output json > safety-report-pyproject.json || true
+      - name: Run Safety only when configured
+        if: always() && steps.scanner_tools.outcome == 'success'
+        env:
+          SAFETY_API_KEY: ${{ secrets.SAFETY_API_KEY }}
+        run: |
+          if [ -n "$SAFETY_API_KEY" ]; then
+            python -m pip install safety==3.8.1
           fi
+          python scripts/ci/run_optional_safety.py \
+            --directory . --output python-dependency-scans/safety
 
-      - name: Scan with pip-audit
+      - name: Audit every Python requirements input
+        id: python_audit
+        if: always() && steps.scanner_tools.outcome == 'success'
+        continue-on-error: true  # The completeness gate below propagates failure after artifact upload.
         run: |
-          echo "🔍 Scanning Python dependencies with pip-audit..."
-
-          for req in $(find . -name "requirements.txt" -type f -not -path "./archive/*"); do
-            echo "Auditing: $req"
-            pip-audit -r "$req" --format json > audit-report-$(echo $req | md5sum | cut -d' ' -f1).json || true
-          done
+          python scripts/ci/audit_python_requirements.py \
+            --repository . --output python-dependency-scans/pip-audit \
+            --nunjucks-module "$RUNNER_TEMP/security-renderer/node_modules/nunjucks" \
+            --python311 "${{ steps.python311.outputs.python-path }}" \
+            --python312 "${{ steps.python312.outputs.python-path }}" --jobs 4
 
       - name: Upload Python scan results
         uses: actions/upload-artifact@v7
         if: always()
         with:
           name: python-dependency-scans
-          path: |
-            safety-report-*.json
-            audit-report-*.json
+          path: python-dependency-scans/
           retention-days: 30
+          if-no-files-found: error
+
+      - name: Require a complete Python dependency audit
+        if: always()
+        run: |
+          if [ "${{ steps.python_audit.outcome }}" != "success" ]; then
+            echo "::error::Python dependency audit is incomplete; inspect the retained per-input receipts."
+            exit 1
+          fi
 
   dependency-scan-nodejs:
     name: Node.js Dependency Scan
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -229,10 +257,10 @@ jobs:
     # SECURITY: Bandit SAST must block the pipeline on findings
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
@@ -275,10 +303,10 @@ jobs:
     # SECURITY: Semgrep SAST must block the pipeline on findings
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
@@ -340,7 +368,7 @@ jobs:
         language: ['python', 'javascript']
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
@@ -378,7 +406,7 @@ jobs:
           - weather-service
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Free up disk space
         run: |
@@ -420,7 +448,7 @@ jobs:
 
       - name: Cache Trivy DB
         if: steps.install_trivy.outputs.installed == 'true'
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ~/.cache/trivy
           key: trivy-db-${{ runner.os }}-${{ matrix.service }}-${{ github.run_number }}
@@ -550,7 +578,7 @@ jobs:
     # SECURITY: Dockerfile scanning must block the pipeline on errors
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Run Hadolint
         run: |
@@ -661,7 +689,7 @@ jobs:
     # SECURITY: IaC scanning must block the pipeline on findings
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Install Checkov
         run: pip install checkov
@@ -734,7 +762,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Check Dependabot config
         run: |

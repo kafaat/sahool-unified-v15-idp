@@ -67,10 +67,10 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/node": "20.19.37",
-    "@types/react": "19.2.7",
+    "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "^4.7.0",
-    "@vitest/coverage-v8": "3.2.4",
+    "@vitest/coverage-v8": "3.2.7",
     "depcheck": "^1.4.7",
     "eslint-plugin-react": "^7.37.5",
     "jsdom": "^27.3.0",
@@ -79,24 +79,24 @@
     "oxlint": "^0.18.1",
     "typedoc": "^0.28.17",
     "typescript": "5.9.3",
-    "vitest": "3.2.4"
+    "vitest": "3.2.7"
   },
   "overrides": {
-    "@types/react": "19.2.7",
+    "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
     "glob": "^10.5.0",
     "qs": "^6.14.1",
     "js-yaml": "^4.1.1",
     "tmp": "^0.2.4",
-    "axios": ">=1.15.0",
+    "axios": ">=1.20.0",
     "webpack": ">=5.104.1",
     "lodash": ">=4.18.1",
     "picomatch": ">=4.0.4",
     "rollup": ">=4.58.1",
     "serialize-javascript": ">=7.0.3",
     "minimatch": ">=10.2.3",
-    "multer": "2.1.1",
-    "nodemailer": "^8.0.4",
+    "multer": "2.2.0",
+    "nodemailer": "^10.0.10",
     "@angular-devkit/core": {
       "ajv": "8.18.0"
     },
@@ -106,12 +106,16 @@
     "file-type": "21.3.3",
     "prisma": "~5.22.0",
     "@prisma/client": "~5.22.0",
-    "handlebars": ">=4.7.9",
+    "handlebars": ">=4.7.10 <5.0.0",
+    "vitest": {
+      "tinypool": "2.1.2"
+    },
     "path-to-regexp": ">=0.1.13",
     "socket.io-parser": ">=4.2.6",
     "smol-toml": ">=1.6.1",
     "yaml": ">=2.8.3",
-    "next": ">=15.5.14"
+    "next": "15.5.28",
+    "proxy-addr": "^2.0.8"
   },
   "engines": {
     "node": ">=20.0.0",
@@ -124,6 +128,6 @@
     "helmet": "^8.1.0",
     "next-intl": "3.26.5",
     "prisma": "~5.22.0",
-    "react": "^19.2.4"
+    "react": "^19.2.7"
   }
 }

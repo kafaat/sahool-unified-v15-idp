@@ -38,8 +38,8 @@ void main() {
               queryParams: any(named: 'queryParams'),
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async {
-          final fromJson = _.namedArguments[const Symbol('fromJson')]
+            )).thenAnswer((invocation) async {
+          final fromJson = invocation.namedArguments[const Symbol('fromJson')]
               as SamplesPageResponse Function(dynamic);
           return ApiResponse.success(fromJson(responseData));
         });
@@ -63,8 +63,8 @@ void main() {
               queryParams: any(named: 'queryParams'),
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async {
-          final fromJson = _.namedArguments[const Symbol('fromJson')]
+            )).thenAnswer((invocation) async {
+          final fromJson = invocation.namedArguments[const Symbol('fromJson')]
               as SamplesPageResponse Function(dynamic);
           return ApiResponse.success(fromJson({
             'samples': [],
@@ -129,8 +129,8 @@ void main() {
               queryParams: any(named: 'queryParams'),
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async {
-          final fromJson = _.namedArguments[const Symbol('fromJson')]
+            )).thenAnswer((invocation) async {
+          final fromJson = invocation.namedArguments[const Symbol('fromJson')]
               as SoilSampleModel Function(dynamic);
           return ApiResponse.success(fromJson(sampleSoilJson()));
         });
@@ -155,8 +155,8 @@ void main() {
               queryParams: any(named: 'queryParams'),
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async {
-          final fromJson = _.namedArguments[const Symbol('fromJson')]
+            )).thenAnswer((invocation) async {
+          final fromJson = invocation.namedArguments[const Symbol('fromJson')]
               as SoilSampleModel Function(dynamic);
           return ApiResponse.success(
               fromJson(sampleSoilJson(id: 'new-sample')));
@@ -201,8 +201,8 @@ void main() {
               queryParams: any(named: 'queryParams'),
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async {
-          final fromJson = _.namedArguments[const Symbol('fromJson')]
+            )).thenAnswer((invocation) async {
+          final fromJson = invocation.namedArguments[const Symbol('fromJson')]
               as SoilSampleModel Function(dynamic);
           return ApiResponse.success(fromJson(sampleSoilJson()));
         });
@@ -241,8 +241,8 @@ void main() {
               queryParams: any(named: 'queryParams'),
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async {
-          final fromJson = _.namedArguments[const Symbol('fromJson')]
+            )).thenAnswer((invocation) async {
+          final fromJson = invocation.namedArguments[const Symbol('fromJson')]
               as SoilSampleModel Function(dynamic);
           return ApiResponse.success(
               fromJson(sampleSoilJson(status: 'in_transit')));
@@ -286,8 +286,8 @@ void main() {
               queryParams: any(named: 'queryParams'),
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async {
-          final fromJson = _.namedArguments[const Symbol('fromJson')]
+            )).thenAnswer((invocation) async {
+          final fromJson = invocation.namedArguments[const Symbol('fromJson')]
               as AnalysisResultModel Function(dynamic);
           return ApiResponse.success(fromJson(analysisData));
         });
@@ -323,8 +323,8 @@ void main() {
               queryParams: any(named: 'queryParams'),
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async {
-          final fromJson = _.namedArguments[const Symbol('fromJson')]
+            )).thenAnswer((invocation) async {
+          final fromJson = invocation.namedArguments[const Symbol('fromJson')]
               as LabStats Function(dynamic);
           return ApiResponse.success(fromJson(statsData));
         });
@@ -352,8 +352,8 @@ void main() {
               queryParams: any(named: 'queryParams'),
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async {
-          final fromJson = _.namedArguments[const Symbol('fromJson')]
+            )).thenAnswer((invocation) async {
+          final fromJson = invocation.namedArguments[const Symbol('fromJson')]
               as SoilSampleModel Function(dynamic);
           return ApiResponse.success(
               fromJson(sampleSoilJson(barcode: 'BC-2026-042')));

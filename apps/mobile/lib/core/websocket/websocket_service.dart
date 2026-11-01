@@ -381,7 +381,10 @@ class WebSocketService {
         try {
           _sendMessage({'type': 'ping'});
         } catch (e) {
-          AppLogger.w('Ping failed, channel may have closed', error: e);
+          AppLogger.w(
+            'Ping failed, channel may have closed',
+            data: {'error_type': e.runtimeType.toString()},
+          );
           timer.cancel();
         }
       } else {

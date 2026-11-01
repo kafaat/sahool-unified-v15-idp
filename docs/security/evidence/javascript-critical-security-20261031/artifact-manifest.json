@@ -1,0 +1,385 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-10-31T20:41:51.822835+00:00",
+  "hash_algorithm": "SHA-256",
+  "scope": "Copied artifacts plus derived source/failure summaries. This manifest and verification.json are excluded to avoid circular hashing.",
+  "artifacts": [
+    {
+      "path": "README.md",
+      "source": "Generated from retained source receipts and inspected repository state",
+      "bytes": 13114,
+      "sha256": "89ad5aed293c6f29347cd7462744c54b89c027cb0c2dbf7dd259043fe6733fc8",
+      "copy": "derived"
+    },
+    {
+      "path": "consumer-test-results.json",
+      "source": "Generated from retained source receipts and inspected repository state",
+      "bytes": 44126,
+      "sha256": "6746faa2d574ffe9d60141017cb1b26a48b69d2d3817e33ed21b3c05b06b0585",
+      "copy": "derived"
+    },
+    {
+      "path": "metadata/dev-security-upstream-advisories.json",
+      "source": "/workspace/scratch/882204c263d7/js-security-evidence/dev-security-upstream-advisories.json",
+      "bytes": 6508,
+      "sha256": "779d037d1eb3a08144bae3a8074e110c74eed9886cb17102f93a499d58eb938f",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "metadata/minimal-dev-security-primary-metadata.json",
+      "source": "/workspace/scratch/882204c263d7/js-security-evidence/minimal-dev-security-primary-metadata.json",
+      "bytes": 7522,
+      "sha256": "d82ba9b5de0918c75e228abb66e553f576e34213170a0dd7ca6e91a2d8eee170",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "metadata/target-package-metadata.json",
+      "source": "/workspace/scratch/882204c263d7/js-security-evidence/target-package-metadata.json",
+      "bytes": 2086,
+      "sha256": "f846741788de8ed1511cbc1387098df00ebe63cb363379d8089265b8addf2537",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "metadata/vitest-3.2.7-primary-metadata.json",
+      "source": "/workspace/scratch/882204c263d7/js-security-evidence/vitest-3.2.7-primary-metadata.json",
+      "bytes": 2671,
+      "sha256": "8243e9387a60d58cf73f55ec74858e7914e440a920812d0b265f03e585c5e5b4",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "receipts/admin-storybook-config-only-receipt.json",
+      "source": "/workspace/scratch/882204c263d7/js-security-evidence/admin-storybook-config-only-receipt.json",
+      "bytes": 1072,
+      "sha256": "8b06649b8b5a8d920c6ba936204569b1691e69709536b9114b575335151da333",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "receipts/admin-storybook-diagnosis.json",
+      "source": "/workspace/scratch/882204c263d7/js-security-evidence/admin-storybook-diagnosis.json",
+      "bytes": 14226,
+      "sha256": "c4f7530c4ec25991fa166db7d571932586ce669001b8ef91edcc6c152c13080e",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "receipts/browser-evidence-preservation.json",
+      "source": "/workspace/scratch/882204c263d7/js-security-evidence/browser-evidence-preservation.json",
+      "bytes": 1311,
+      "sha256": "cf624bfc24d398c6d7c787fb7369aea5e8f9068632115d1d60918f26acd05c3a",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "receipts/chat-open-handles-termination.json",
+      "source": "/workspace/scratch/882204c263d7/js-security-evidence/chat-open-handles-termination.json",
+      "bytes": 675,
+      "sha256": "5ab32de7c5188a79854adf29113d53f3913f0eafde1abe1c7144bd731362cf93",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "receipts/final-app-runner-acceptance.json",
+      "source": "/workspace/scratch/882204c263d7/js-security-evidence/final-app-runner-acceptance.json",
+      "bytes": 2038,
+      "sha256": "360aec26678be31efac68db319ecf9f7e1991de9fe6d41d0a310b7720ce586df",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "receipts/final-lock-semantic-diff.json",
+      "source": "/workspace/scratch/882204c263d7/js-security-evidence/final-lock-semantic-diff.json",
+      "bytes": 35618,
+      "sha256": "7d8e7b186851990aef0ef36ce0ba05c61f58328cf06c9f7b15e1ae6d491d7e70",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "receipts/final-node20-checks.json",
+      "source": "/workspace/scratch/882204c263d7/js-security-evidence/final-node20-checks.json",
+      "bytes": 4257,
+      "sha256": "f06b49ce1218ffb4132d034c60a23c27264fafde58f4ae350f7b9b8c31c8dda3",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "receipts/final-node20-consumer-checks.json",
+      "source": "/workspace/scratch/882204c263d7/js-security-evidence/final-node20-consumer-checks.json",
+      "bytes": 6038,
+      "sha256": "d9d6eebddb373e37504aa84e63ddba145ef312c1ae6e3b2860676aeebf3e70cb",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "receipts/final-node20-web-production-build.json",
+      "source": "/workspace/scratch/882204c263d7/js-security-evidence/final-node20-web-production-build.json",
+      "bytes": 473,
+      "sha256": "ef60ab3429fbfe688b3d8776e90501125e12d628a6beeb307faab5e7cc63bb95",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "receipts/final-standalone-lock-consistency.json",
+      "source": "/workspace/scratch/882204c263d7/js-security-evidence/final-standalone-lock-consistency.json",
+      "bytes": 4694,
+      "sha256": "2ea6ae1cf17597727003c39b638c0be605b7ec01b0db1a7dd38745d7c0591d10",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "receipts/node20-install-receipt.json",
+      "source": "/workspace/scratch/882204c263d7/js-security-tools/node20/install-receipt.json",
+      "bytes": 475,
+      "sha256": "fd6fd74d9cdcd963d58b03f304c3f50891dda6aec34b07712dde2ade20c9b9f2",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "receipts/old-packages-negative-controls-peer-resolved.json",
+      "source": "/workspace/scratch/882204c263d7/js-security-evidence/old-packages-negative-controls-peer-resolved.json",
+      "bytes": 826,
+      "sha256": "137eeb752161de3711f25f897456ccc7366db2f75fd0f277692e288716a90b6d",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "reports/npm-audit-final.json",
+      "source": "/workspace/scratch/882204c263d7/js-security-evidence/final-node20-npm-audit.log",
+      "bytes": 150574,
+      "sha256": "e70aeaf3df5e41cd0336d06f10078a5f678e1bb5ca18fa2075566790a6219d4b",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "results/final-node20-shared-hooks-coverage.log",
+      "source": "/workspace/scratch/882204c263d7/js-security-evidence/final-node20-shared-hooks-coverage.log",
+      "bytes": 2127,
+      "sha256": "34fe6136a0e8c399c6f42b638cc81495c177178e494f523323635a6c7abdd3c5",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "results/final-node20-shared-ui-coverage.log",
+      "source": "/workspace/scratch/882204c263d7/js-security-evidence/final-node20-shared-ui-coverage.log",
+      "bytes": 2835,
+      "sha256": "8c6ab8fdd36a7146ec3271ddecdfefd85d2668fa8fa6ff2a318b79fe05ed5e6d",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "results/final-report-preservation-browser.log",
+      "source": "/workspace/scratch/882204c263d7/js-security-evidence/final-report-preservation-browser.log",
+      "bytes": 583,
+      "sha256": "91bd3424f45c7af8ad3886ef7f1a24a7598807fe20a973b408d0b2cc0d3084af",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "results/final-report-preservation-node.log",
+      "source": "/workspace/scratch/882204c263d7/js-security-evidence/final-report-preservation-node.log",
+      "bytes": 2956,
+      "sha256": "8e36b68df011d33d791c497c465894c0d3c6776265e279bc108e31ffdcbe2217",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "results/javascript-security-browser.xml",
+      "source": "/workspace/scratch/882204c263d7/javascript-security-fix/test-results/javascript-security-browser.xml",
+      "bytes": 594,
+      "sha256": "1bb7633df65010f875cc88f5b6a4f74db5e16314cec63e554bc4796d4e756d27",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "results/javascript-security-node.xml",
+      "source": "/workspace/scratch/882204c263d7/javascript-security-fix/test-results/javascript-security-node.xml",
+      "bytes": 4178,
+      "sha256": "240d551edaab0ba999db718a16d72b4d29e1e7679aa6927c51b710999589a7a3",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "results/old-packages-negative-controls-peer-resolved.log",
+      "source": "/workspace/scratch/882204c263d7/js-security-evidence/old-packages-negative-controls-peer-resolved.log",
+      "bytes": 15157,
+      "sha256": "5a4dfe7561215c0784a869c7e602daf6386f2a9a54a696fbab9e310aa2e54344",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "results/shared-hooks.xml",
+      "source": "/workspace/scratch/882204c263d7/javascript-security-fix/test-results/shared-hooks.xml",
+      "bytes": 12145,
+      "sha256": "2ada4a167f92dcba5da29ef475671b30d00d5d2ac2aa31213e3fc8b1b91df3e6",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "results/shared-ui.xml",
+      "source": "/workspace/scratch/882204c263d7/javascript-security-fix/test-results/shared-ui.xml",
+      "bytes": 4899,
+      "sha256": "e9ed5441e6692af3976939331cb2d34a4f15fc9d56ad47fe2ce59bf32053f926",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "source-manifest.json",
+      "source": "Generated from retained source receipts and inspected repository state",
+      "bytes": 8724,
+      "sha256": "7151770aa79596bcadf8d5b89d5dc690e21b33a971680281c64d49a836df5abe",
+      "copy": "derived"
+    },
+    {
+      "path": "trivy/baseline-projection-command.json",
+      "source": "/workspace/scratch/882204c263d7/javascript-security-evidence/trivy-fixed-db/baseline-projection-command.json",
+      "bytes": 979,
+      "sha256": "d8ad253a9739d2084a9962101984187c818dfee8e0375fa53ce556e78f3ac3f3",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "trivy/baseline-projection-critical.sarif",
+      "source": "/workspace/scratch/882204c263d7/javascript-security-evidence/trivy-fixed-db/baseline-projection-critical.sarif",
+      "bytes": 78794,
+      "sha256": "4582bc99fd70446f1dea3f0dae9e7601ebe3fb1148c59a5b86fbe5956c4b8745",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "trivy/baseline-projection-trivy.log",
+      "source": "/workspace/scratch/882204c263d7/javascript-security-evidence/trivy-fixed-db/baseline-projection-trivy.log",
+      "bytes": 3660,
+      "sha256": "479bf3a0b1ac7a0c59b636e310f44bd5ecabefe2ffeee51d465c241caef5eee3",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "trivy/composite-source-manifest.json",
+      "source": "/workspace/scratch/882204c263d7/javascript-security-evidence/trivy-fixed-db/composite-source-manifest.json",
+      "bytes": 123693,
+      "sha256": "0bf4ffb5ccfa392da2f38e71890d48ac8bd11a2391601abf1730c74f6f06deef",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "trivy/database-restoration.json",
+      "source": "/workspace/scratch/882204c263d7/javascript-security-evidence/trivy-fixed-db/database-restoration.json",
+      "bytes": 686,
+      "sha256": "fe2068a7674bb4179134d391e22a747013fbbe8ef7d275815e6f594a1aef8d91",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "trivy/dependency-inputs-after.json",
+      "source": "/workspace/scratch/882204c263d7/javascript-security-evidence/trivy-fixed-db/dependency-inputs-after.json",
+      "bytes": 24782,
+      "sha256": "27b32bbcbee6859242068ef7cc57a3c15ad179803650c68002e62ad4dbf6de83",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "trivy/dependency-inputs-before.json",
+      "source": "/workspace/scratch/882204c263d7/javascript-security-evidence/trivy-fixed-db/dependency-inputs-before.json",
+      "bytes": 24782,
+      "sha256": "27b32bbcbee6859242068ef7cc57a3c15ad179803650c68002e62ad4dbf6de83",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "trivy/javascript-final-trivy-command.json",
+      "source": "/workspace/scratch/882204c263d7/javascript-security-evidence/trivy-fixed-db/javascript-final-trivy-command.json",
+      "bytes": 998,
+      "sha256": "4b33027d465bec81f959db68c3c01f957b1fc8c2f677d37e8d7ffa171dab3905",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "trivy/javascript-final-trivy-critical.sarif",
+      "source": "/workspace/scratch/882204c263d7/javascript-security-evidence/trivy-fixed-db/javascript-final-trivy-critical.sarif",
+      "bytes": 41484,
+      "sha256": "995d6fe5593f9aa8283fc4b0cf5d0ccdb601aa78e434ba0f9cc4f5486729deab",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "trivy/javascript-final-trivy.log",
+      "source": "/workspace/scratch/882204c263d7/javascript-security-evidence/trivy-fixed-db/javascript-final-trivy.log",
+      "bytes": 2252,
+      "sha256": "1ef14bf2211a58cbdc062b926ae9881ad51b91e3246c8b86b8ada7d0d18efc85",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "trivy/javascript-sixteen-findings-comparison.json",
+      "source": "/workspace/scratch/882204c263d7/javascript-security-evidence/trivy-fixed-db/javascript-sixteen-findings-comparison.json",
+      "bytes": 9908,
+      "sha256": "4c20e9b1deffe08bfe0333eb21cc69272e95876933be1ef6e036a0b1e9423f13",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "trivy/projection-scan-receipts.json",
+      "source": "/workspace/scratch/882204c263d7/javascript-security-evidence/trivy-fixed-db/projection-scan-receipts.json",
+      "bytes": 2090,
+      "sha256": "903de8a147ed31a6e5896ded48b9dc7bd14e67f7e38c8a7600db1527faa55722",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "trivy/python-js-composite-command.json",
+      "source": "/workspace/scratch/882204c263d7/javascript-security-evidence/trivy-fixed-db/python-js-composite-command.json",
+      "bytes": 978,
+      "sha256": "735472b0271446d8da563e9a15010e753e67ca7786fc8363625f2c5fa5221e9d",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "trivy/python-js-composite-comparison.json",
+      "source": "/workspace/scratch/882204c263d7/javascript-security-evidence/trivy-fixed-db/python-js-composite-comparison.json",
+      "bytes": 14488,
+      "sha256": "abb15d876c5c21cc04d9b14f333ca5b94ef468b55fc39087f54ecd38efe1d57f",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "trivy/python-js-composite-critical.sarif",
+      "source": "/workspace/scratch/882204c263d7/javascript-security-evidence/trivy-fixed-db/python-js-composite-critical.sarif",
+      "bytes": 633,
+      "sha256": "dd2c893a3c525b05f7365200a18361438548d91fc5e9c2416629f8891bbbc9fd",
+      "copy": "byte-for-byte"
+    },
+    {
+      "path": "trivy/python-js-composite-trivy.log",
+      "source": "/workspace/scratch/882204c263d7/javascript-security-evidence/trivy-fixed-db/python-js-composite-trivy.log",
+      "bytes": 3660,
+      "sha256": "ff50443ebcd564b1f7fb81d9438d7579bcd9d62f371065a9ac271e75d2617e95",
+      "copy": "byte-for-byte"
+    }
+  ],
+  "referenced_original_files_not_copied": [
+    {
+      "source": "/workspace/scratch/882204c263d7/js-security-evidence/final-node20-npm-ci.log",
+      "bytes": 1012,
+      "sha256": "cbdee56fec33ece057e111f94e258a2aa0c20cb82a1dee21c424e6397323f13d",
+      "retained_in_bundle": false
+    },
+    {
+      "source": "/workspace/scratch/882204c263d7/js-security-evidence/final-node20-web-production-build.log",
+      "bytes": 10985,
+      "sha256": "c19e1b970f8ec8a10037c2b19d429a85a6218f4ba3bbf219eeb6eb7196bf3785",
+      "retained_in_bundle": false
+    },
+    {
+      "source": "/workspace/scratch/882204c263d7/js-security-evidence/admin-storybook-config-only.log",
+      "bytes": 25595,
+      "sha256": "527f19eb0854634c4b9f8fb9d0a1adceb60a00a510a6051362cee96943d51277",
+      "retained_in_bundle": false
+    },
+    {
+      "source": "/workspace/scratch/882204c263d7/js-security-evidence/final-vitest-web.json",
+      "bytes": 384865,
+      "sha256": "cdc1314577d0ccde7a946b5a780ac26e1051838bfb934322e1fdaac4fd30dd5c",
+      "retained_in_bundle": false
+    },
+    {
+      "source": "/workspace/scratch/882204c263d7/js-security-evidence/final-vitest-web.log",
+      "bytes": 708,
+      "sha256": "f5ce62afda94553e5668b22c8176dab38c3c86ea02acb89239cdb83c9a9aba53",
+      "retained_in_bundle": false
+    },
+    {
+      "source": "/workspace/scratch/882204c263d7/js-security-evidence/final-vitest-admin.json",
+      "bytes": 636681,
+      "sha256": "cf463a22d87672d60fd44ba02bde6936454c38cbce5dde4a64456187672ea5bd",
+      "retained_in_bundle": false
+    },
+    {
+      "source": "/workspace/scratch/882204c263d7/js-security-evidence/final-vitest-admin.log",
+      "bytes": 742,
+      "sha256": "30c11f6f6db90694d4c1cbdd601fafaa9fd16ee1eba5f922367e2e577f8f737c",
+      "retained_in_bundle": false
+    },
+    {
+      "source": "/workspace/scratch/882204c263d7/js-security-evidence/web-final-typecheck.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "retained_in_bundle": false
+    },
+    {
+      "source": "/workspace/scratch/882204c263d7/js-security-evidence/admin-final-typecheck.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "retained_in_bundle": false
+    },
+    {
+      "source": "/workspace/scratch/882204c263d7/js-security-evidence/final-node20-shared-build.log",
+      "bytes": 2704,
+      "sha256": "21d88051335c1675401718918708dc001cc3db45f26a70fa7e3cd0434738e21b",
+      "retained_in_bundle": false
+    }
+  ]
+}

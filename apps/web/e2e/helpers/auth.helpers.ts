@@ -59,7 +59,7 @@ export async function login(
  * تسجيل دخول وهمي لاختبارات CI/E2E
  */
 export async function mockLogin(page: Page) {
-  const baseURL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000";
+  const baseURL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3040";
 
   // Set mock authentication cookies
   await page.context().addCookies([

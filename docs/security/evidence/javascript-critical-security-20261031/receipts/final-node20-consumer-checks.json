@@ -1,0 +1,137 @@
+[
+  {
+    "label": "chat-service-final-tests",
+    "command": [
+      "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+      "/workspace/scratch/882204c263d7/javascript-security-fix/node_modules/jest/bin/jest.js",
+      "--runInBand",
+      "--json",
+      "--outputFile=/workspace/scratch/882204c263d7/js-security-evidence/chat-service-final-tests.json"
+    ],
+    "cwd": "/workspace/scratch/882204c263d7/javascript-security-fix/apps/services/chat-service",
+    "exit_code": -15,
+    "seconds": 374.315,
+    "log_sha256": "fbb40b76eaec47aa2c8660f9fecc8c3e71ef91438dd704e53dbfb12e1cda1018"
+  },
+  {
+    "label": "crop-growth-model-final-tests",
+    "command": [
+      "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+      "/workspace/scratch/882204c263d7/javascript-security-fix/node_modules/jest/bin/jest.js",
+      "--runInBand",
+      "--json",
+      "--outputFile=/workspace/scratch/882204c263d7/js-security-evidence/crop-growth-model-final-tests.json"
+    ],
+    "cwd": "/workspace/scratch/882204c263d7/javascript-security-fix/apps/services/crop-growth-model",
+    "exit_code": 1,
+    "seconds": 6.964,
+    "log_sha256": "9c7d54f45e0b8b398ece883472b34a837644392c119b17990b5c0beaf1e65dbe"
+  },
+  {
+    "label": "disaster-assessment-final-tests",
+    "command": [
+      "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+      "/workspace/scratch/882204c263d7/javascript-security-fix/node_modules/jest/bin/jest.js",
+      "--runInBand",
+      "--json",
+      "--outputFile=/workspace/scratch/882204c263d7/js-security-evidence/disaster-assessment-final-tests.json"
+    ],
+    "cwd": "/workspace/scratch/882204c263d7/javascript-security-fix/apps/services/disaster-assessment",
+    "exit_code": 0,
+    "seconds": 4.165,
+    "log_sha256": "b4eefce6e42b519b2c475aef34719b11cda0bcf992a1e930d386d47f2d789cdc"
+  },
+  {
+    "label": "field-management-service-final-tests",
+    "command": [
+      "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+      "/workspace/scratch/882204c263d7/javascript-security-fix/node_modules/jest/bin/jest.js",
+      "--runInBand",
+      "--json",
+      "--outputFile=/workspace/scratch/882204c263d7/js-security-evidence/field-management-service-final-tests.json"
+    ],
+    "cwd": "/workspace/scratch/882204c263d7/javascript-security-fix/apps/services/field-management-service",
+    "exit_code": 1,
+    "seconds": 10.179,
+    "log_sha256": "da5ac9a1c813e74007b03e1abf96bea2f9c6d315260c41df59d81f5b80b1b260"
+  },
+  {
+    "label": "lai-estimation-final-tests",
+    "command": [
+      "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+      "/workspace/scratch/882204c263d7/javascript-security-fix/node_modules/jest/bin/jest.js",
+      "--runInBand",
+      "--json",
+      "--outputFile=/workspace/scratch/882204c263d7/js-security-evidence/lai-estimation-final-tests.json"
+    ],
+    "cwd": "/workspace/scratch/882204c263d7/javascript-security-fix/apps/services/lai-estimation",
+    "exit_code": 0,
+    "seconds": 4.817,
+    "log_sha256": "776758f52db7a8851293de0fc726114047eced813a98051fa7b69b8410f62afb"
+  },
+  {
+    "label": "marketplace-service-final-tests",
+    "command": [
+      "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+      "/workspace/scratch/882204c263d7/javascript-security-fix/node_modules/jest/bin/jest.js",
+      "--runInBand",
+      "--json",
+      "--outputFile=/workspace/scratch/882204c263d7/js-security-evidence/marketplace-service-final-tests.json"
+    ],
+    "cwd": "/workspace/scratch/882204c263d7/javascript-security-fix/apps/services/marketplace-service",
+    "exit_code": 1,
+    "seconds": 13.119,
+    "log_sha256": "37c2160295f9cea35d600c3b5f33c2749debbf306270221772a5f70d482059cc"
+  },
+  {
+    "label": "yield-prediction-final-tests",
+    "command": [
+      "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+      "/workspace/scratch/882204c263d7/javascript-security-fix/node_modules/jest/bin/jest.js",
+      "--runInBand",
+      "--json",
+      "--outputFile=/workspace/scratch/882204c263d7/js-security-evidence/yield-prediction-final-tests.json"
+    ],
+    "cwd": "/workspace/scratch/882204c263d7/javascript-security-fix/apps/services/yield-prediction",
+    "exit_code": 0,
+    "seconds": 2.693,
+    "log_sha256": "c2e74e26dd2b6043a636bf0734a359fff39885d1364ecd1c43f0c20b29d6f497"
+  },
+  {
+    "label": "web-final-typecheck",
+    "command": [
+      "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+      "/workspace/scratch/882204c263d7/javascript-security-fix/node_modules/typescript/bin/tsc",
+      "--noEmit"
+    ],
+    "cwd": "/workspace/scratch/882204c263d7/javascript-security-fix/apps/web",
+    "exit_code": 0,
+    "seconds": 32.137,
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "label": "admin-final-typecheck",
+    "command": [
+      "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+      "/workspace/scratch/882204c263d7/javascript-security-fix/node_modules/typescript/bin/tsc",
+      "--noEmit"
+    ],
+    "cwd": "/workspace/scratch/882204c263d7/javascript-security-fix/apps/admin",
+    "exit_code": 0,
+    "seconds": 3.148,
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "label": "admin-storybook-build",
+    "command": [
+      "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+      "/workspace/scratch/882204c263d7/js-security-tools/node_modules/npm/bin/npm-cli.js",
+      "run",
+      "build-storybook"
+    ],
+    "cwd": "/workspace/scratch/882204c263d7/javascript-security-fix/apps/admin",
+    "exit_code": 1,
+    "seconds": 3.311,
+    "log_sha256": "d5d3478e921491537a2cd863a45f312760ec594676a01d55b03b2616b339cf3e"
+  }
+]

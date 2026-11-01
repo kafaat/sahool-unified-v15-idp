@@ -1,0 +1,289 @@
+{
+  "schema_version": 1,
+  "verified_at_utc": "2026-10-31T19:50:34.491145+00:00",
+  "scope": "Root pyproject optional extras and generated uv.lock; independently packaged service environments are separate.",
+  "base_commit": "ab53c98596daca1740d2ac5a5dbd48db7b24e34f",
+  "resolver": "uv 0.13.4",
+  "requires_python_before": ">=3.11",
+  "requires_python_after": ">=3.11",
+  "lock_package_records": 115,
+  "sources_sha256": {
+    "pyproject.toml": "6c9e8446149aa40fc70904e4c91ff58931c3a802a89903652ff0b00250961504",
+    "uv.lock": "831299956612d4366b8806387f8d23df2ac61d7f5b2aee1b234e9064d97e39ef",
+    "constraints.txt": "2a213f08d2282b78e7218b9892b0593cd4ff73d30c2db9659fdac4117692b34f",
+    "tests/unit/test_python_lock_consistency.py": "c6c496099e383308cb7f784744bd4f90db427a9fc59c291d9b446a65e795f80f",
+    "tests/unit/test_infrastructure_fixes.py": "2e753fd4cfc1d12d0760f58fc14db54c21fc6cce432433a9ae771b03d3986d37",
+    "tests/unit/test_ndvi_calculation.py": "226bb0ad1a208e911dcb316d2c13e5074defedde9645bb926e24fcb82be95fe9",
+    "scripts/ci/check_python_lock_runtime.py": "0b050fbfe9a69e420d2f228a4258b1448122098a7169987d6d4a9f40f3a4be17"
+  },
+  "security_version_changes": {
+    "anyio": {
+      "original_lock": "4.12.1",
+      "patched_floor": "4.14.2",
+      "final_lock": "4.15.1"
+    },
+    "certifi": {
+      "original_lock": "2026.2.25",
+      "patched_floor": "2026.10.18",
+      "final_lock": "2026.10.23"
+    },
+    "cryptography": {
+      "original_lock": "46.0.5",
+      "patched_floor": "50.0.2",
+      "final_lock": "50.0.2"
+    },
+    "pillow": {
+      "original_lock": "11.3.0",
+      "patched_floor": "13.0.0",
+      "final_lock": "13.0.0"
+    },
+    "pyjwt": {
+      "original_lock": "2.11.0",
+      "patched_floor": "2.15.1",
+      "final_lock": "2.15.1"
+    },
+    "aiohttp": {
+      "original_lock": "3.13.3",
+      "patched_floor": "3.14.4",
+      "final_lock": "3.14.4"
+    },
+    "starlette": {
+      "original_lock": "0.52.1",
+      "patched_floor": "1.3.1",
+      "final_lock": "1.3.1"
+    },
+    "opentelemetry-api": {
+      "original_lock": "1.39.1",
+      "patched_floor": "1.45.1",
+      "final_lock": "1.45.1"
+    },
+    "black": {
+      "original_lock": "24.10.0",
+      "patched_floor": "26.10.1",
+      "final_lock": "26.10.1"
+    },
+    "filelock": {
+      "original_lock": "3.25.0",
+      "patched_floor": "4.2.1",
+      "final_lock": "4.2.1"
+    },
+    "idna": {
+      "original_lock": "3.11",
+      "patched_floor": "3.15",
+      "final_lock": "3.15"
+    },
+    "keras": {
+      "original_lock": "3.13.2",
+      "patched_floor": "3.15.0",
+      "final_lock": "3.15.0"
+    },
+    "multidict": {
+      "original_lock": "6.7.1",
+      "patched_floor": "6.9.1",
+      "final_lock": "6.9.1"
+    },
+    "pygments": {
+      "original_lock": "2.19.2",
+      "patched_floor": "2.20.0",
+      "final_lock": "2.20.0"
+    },
+    "requests": {
+      "original_lock": "2.32.5",
+      "patched_floor": "2.33.0",
+      "final_lock": "2.33.0"
+    },
+    "setuptools": {
+      "original_lock": "82.0.0",
+      "patched_floor": "84.1.0",
+      "final_lock": "84.1.0"
+    },
+    "urllib3": {
+      "original_lock": "2.6.3",
+      "patched_floor": "2.8.0",
+      "final_lock": "2.8.0"
+    },
+    "virtualenv": {
+      "original_lock": "21.1.0",
+      "patched_floor": "21.14.10",
+      "final_lock": "21.14.10"
+    }
+  },
+  "removed_obsolete_auth_packages": [
+    "python-jose",
+    "ecdsa",
+    "pyasn1",
+    "rsa"
+  ],
+  "runtime_matrix": [
+    {
+      "python": "3.11.17",
+      "collection_and_test_result": {
+        "tests": 102,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "command_exit_codes": {
+        "lock-check": 0,
+        "sync": 0,
+        "pip-check": 0,
+        "freeze": 0,
+        "collect": 0,
+        "runtime": 0
+      },
+      "runtime_seconds": 13.63,
+      "versions": {
+        "numpy": "1.26.4",
+        "tensorflow-cpu": "2.21.0",
+        "keras": "3.15.0",
+        "cryptography": "50.0.2",
+        "pyjwt": "2.15.1",
+        "pillow": "13.0.0",
+        "fastapi": "0.135.1",
+        "starlette": "1.3.1",
+        "opentelemetry-api": "1.45.1",
+        "opentelemetry-sdk": "1.45.1"
+      },
+      "audit": {
+        "packages": 110,
+        "raw_advisory_entries": 0,
+        "exit_code": 0
+      },
+      "junit_sha256": "85fa94800b5f9a73cfa9eff3071a48db7610519724cd7fb424b022539bb8b912",
+      "audit_json_sha256": "9078e9f72a278102d34aab7ed51d5ca30f6fba2c22a86161a668d9383eed855c",
+      "installed_manifest_sha256": "35858f324865e40ffbad3e6f260617fcfafa7f9be291dd74a59a16a8fba88c7d"
+    },
+    {
+      "python": "3.12.14",
+      "collection_and_test_result": {
+        "tests": 102,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "command_exit_codes": {
+        "lock-check": 0,
+        "sync": 0,
+        "pip-check": 0,
+        "freeze": 0,
+        "collect": 0,
+        "runtime": 0
+      },
+      "runtime_seconds": 10.94,
+      "versions": {
+        "numpy": "1.26.4",
+        "tensorflow-cpu": "2.21.0",
+        "keras": "3.15.0",
+        "cryptography": "50.0.2",
+        "pyjwt": "2.15.1",
+        "pillow": "13.0.0",
+        "fastapi": "0.135.1",
+        "starlette": "1.3.1",
+        "opentelemetry-api": "1.45.1",
+        "opentelemetry-sdk": "1.45.1"
+      },
+      "audit": {
+        "packages": 110,
+        "raw_advisory_entries": 0,
+        "exit_code": 0
+      },
+      "junit_sha256": "7071dc1713cee1361af6f969192db30b77b34b428ffa9d49520ae7e9705e325e",
+      "audit_json_sha256": "9078e9f72a278102d34aab7ed51d5ca30f6fba2c22a86161a668d9383eed855c",
+      "installed_manifest_sha256": "35858f324865e40ffbad3e6f260617fcfafa7f9be291dd74a59a16a8fba88c7d"
+    },
+    {
+      "python": "3.13.16",
+      "collection_and_test_result": {
+        "tests": 102,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "command_exit_codes": {
+        "lock-check": 0,
+        "sync": 0,
+        "pip-check": 0,
+        "freeze": 0,
+        "collect": 0,
+        "runtime": 0
+      },
+      "runtime_seconds": 13.06,
+      "versions": {
+        "numpy": "2.4.2",
+        "tensorflow-cpu": "2.21.0",
+        "keras": "3.15.0",
+        "cryptography": "50.0.2",
+        "pyjwt": "2.15.1",
+        "pillow": "13.0.0",
+        "fastapi": "0.135.1",
+        "starlette": "1.3.1",
+        "opentelemetry-api": "1.45.1",
+        "opentelemetry-sdk": "1.45.1"
+      },
+      "audit": {
+        "packages": 110,
+        "raw_advisory_entries": 0,
+        "exit_code": 0
+      },
+      "junit_sha256": "c9211984be9e1d3804c54179d4acff59369bc2d32971d1e1754229fd4dad00c4",
+      "audit_json_sha256": "f6309db719bc2fb5de1a986277deb1aca4725131a56dd82d6d911f3056209591",
+      "installed_manifest_sha256": "3c468ffb5a21dab33fc274b223d7097eda6622e560380c5769f56295a90a94e6"
+    }
+  ],
+  "trivy": {
+    "version": "0.69.3",
+    "database_updated_at": "2026-10-31T13:09:00.83322165Z",
+    "severity": "CRITICAL",
+    "original_root_findings": 8,
+    "final_root_findings": 0,
+    "exit_code": 0,
+    "report_sha256": "ae8f015cbb5ae3c700fc6aefcc32fe1724439a01e1a880caaad73984d0a93f66"
+  },
+  "baseline_crypto_image": {
+    "cryptography": "46.0.5",
+    "pillow": "12.2.0",
+    "pyjwt": "2.15.1",
+    "tests": 17,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "other_cases_deselected": 4,
+    "junit_sha256": "4b425202839994cdaa2a4b447010f2ddc51b47a270e52dbc8b56e712a79c946d"
+  },
+  "retained_failed_attempts": [
+    {
+      "stage": "initial uv lock --check",
+      "exit_code": 1,
+      "cause": "Universal resolver conflict: NumPy<2 conflicts with TensorFlow ml-dtypes NumPy>=2.1 on Python>=3.13."
+    },
+    {
+      "stage": "reused Python3.13 pip check",
+      "exit_code": 1,
+      "cause": "Duplicate old/new bcrypt and Pydantic distribution metadata in the repeatedly updated isolated environment. Fresh frozen environment passed all checks."
+    }
+  ],
+  "limits": [
+    "TensorFlow2.21.0 has no published CPython3.14 wheel; Python support policy and unconditional TensorFlow requirement were not changed.",
+    "Linux CPU runtime acceptance on Python3.11,3.12,3.13 is not GPU or cross-platform acceptance.",
+    "The separately packaged sahool-platform/apps/auth app retains its own python-jose imports and dependency; removing unused root jose is not a migration of that service."
+  ],
+  "matrix_sources_sha256": {
+    "pyproject.toml": "6c9e8446149aa40fc70904e4c91ff58931c3a802a89903652ff0b00250961504",
+    "uv.lock": "831299956612d4366b8806387f8d23df2ac61d7f5b2aee1b234e9064d97e39ef",
+    "constraints.txt": "35a90540684d2026e9aa4f71862f87022cdbcc4ef1fba3552ec54a748f404ec6",
+    "tests/unit/test_python_lock_consistency.py": "c6c496099e383308cb7f784744bd4f90db427a9fc59c291d9b446a65e795f80f",
+    "tests/unit/test_infrastructure_fixes.py": "2e753fd4cfc1d12d0760f58fc14db54c21fc6cce432433a9ae771b03d3986d37",
+    "tests/unit/test_ndvi_calculation.py": "226bb0ad1a208e911dcb316d2c13e5074defedde9645bb926e24fcb82be95fe9",
+    "scripts/ci/check_python_lock_runtime.py": "0b050fbfe9a69e420d2f228a4258b1448122098a7169987d6d4a9f40f3a4be17"
+  },
+  "post_matrix_constraint_update": {
+    "package": "pydantic-settings",
+    "previous": "2.13.1",
+    "current": "2.14.2",
+    "advisory": "CVE-2026-58203 / GHSA-4xgf-cpjx-pc3j",
+    "in_root_lock": false,
+    "root_lock_changed": false,
+    "verification": "36 root lock consistency tests passed again after the constraint update",
+    "junit_sha256": "9f30fb607dd5473624c0d697b5bb8e423d22106194549ecd372ee5e04132fd1e"
+  }
+}

@@ -1,0 +1,9 @@
+[2m[WebServer] [22m(node:110798) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+  ✓  1 tests/security/browser/maplibre.spec.ts:11:5 › real attribution controls strip consecutive executable attributes and preserve safe credit links (1.5s)
+  ✓  2 tests/security/browser/maplibre.spec.ts:31:5 › the actual dashboard renders NDVI fields, supports layer selection and keeps popup names as text (4.1s)
+
+  2 passed (7.5s)

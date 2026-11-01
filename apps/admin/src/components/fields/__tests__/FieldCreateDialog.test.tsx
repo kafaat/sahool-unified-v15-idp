@@ -8,19 +8,37 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { FIELD_ENDPOINTS } from '@sahool/shared-types/contracts';
 import React from 'react';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Mocks
 // ═══════════════════════════════════════════════════════════════════════════
 
+const drawnBoundary = vi.hoisted(() => ({
+  coordinates: [[[44.1, 15.1], [44.2, 15.1], [44.2, 15.2], [44.1, 15.1]]],
+  bbox: [44.1, 15.1, 44.2, 15.2] as [number, number, number, number],
+}));
+
 // Mock next/dynamic - DrawableMap is dynamically imported
 vi.mock('next/dynamic', () => ({
   __esModule: true,
   default: () => {
     const _React = require('react');
-    return function MockDrawableMap(_props: any) {
-      return _React.createElement('div', { 'data-testid': 'mock-drawable-map' });
+    return function MockDrawableMap(props: {
+      onBoundaryDraw: (coordinates: number[][][]) => void;
+      onBboxSelect: (bbox: [number, number, number, number]) => void;
+    }) {
+      return _React.createElement('div', { 'data-testid': 'mock-drawable-map' },
+        _React.createElement('button', {
+          type: 'button',
+          'data-testid': 'draw-boundary',
+          onClick: () => {
+            props.onBoundaryDraw(drawnBoundary.coordinates);
+            props.onBboxSelect(drawnBoundary.bbox);
+          },
+        }, 'Draw boundary')
+      );
     };
   },
 }));
@@ -361,6 +379,34 @@ describe('FieldCreateDialog', () => {
 
   // ─── Close Behavior ─────────────────────────────────────────────────────
 
+  it('submits a valid field through the central field creation endpoint', async () => {
+    const createdField = { id: 'field-1', name: 'Test Field' };
+    mockPost.mockResolvedValue({ data: createdField });
+    render(<FieldCreateDialog {...defaultProps} />);
+    fireEvent.change(screen.getByPlaceholderText('Field Name'), {
+      target: { value: ' Test Field ' },
+    });
+    fireEvent.change(screen.getByLabelText(/نوع المحصول/), {
+      target: { value: 'wheat' },
+    });
+    fireEvent.change(screen.getByLabelText(/نوع الري/), {
+      target: { value: 'drip' },
+    });
+    fireEvent.click(screen.getByTestId('draw-boundary'));
+    fireEvent.submit(screen.getByRole('dialog').querySelector('form')!);
+
+    await waitFor(() => expect(defaultProps.onSuccess).toHaveBeenCalledWith(createdField));
+    expect(mockPost).toHaveBeenCalledExactlyOnceWith(FIELD_ENDPOINTS.CREATE, {
+      name: 'Test Field',
+      nameAr: undefined,
+      cropType: 'wheat',
+      irrigationType: 'drip',
+      coordinates: drawnBoundary.coordinates[0],
+      boundary: { type: 'Polygon', coordinates: drawnBoundary.coordinates },
+    });
+    expect(defaultProps.onClose).toHaveBeenCalledOnce();
+  });
+
   describe('close behavior', () => {
     it('close button calls onClose', () => {
       render(<FieldCreateDialog {...defaultProps} />);
@@ -542,9 +588,5 @@ describe('FieldCreateDialog', () => {
       expect(content).toContain("e.key === 'Escape'");
     });
 
-    it('posts to /api/v1/fields endpoint', () => {
-      const content = fs.readFileSync(filePath, 'utf-8');
-      expect(content).toContain("apiClient.post('/api/v1/fields'");
-    });
   });
 });

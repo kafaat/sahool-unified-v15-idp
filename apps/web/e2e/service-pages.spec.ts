@@ -100,7 +100,7 @@ async function setupPage(page: Page) {
   });
 
   // Set auth cookies
-  const baseURL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000";
+  const baseURL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3040";
   await page.context().addCookies([
     {
       name: "access_token",

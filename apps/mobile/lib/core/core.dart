@@ -6,7 +6,7 @@ library;
 
 // Configuration
 export 'config/env_config.dart';
-export 'config/config.dart';
+export 'config/api_config.dart';
 
 // Theme
 export 'theme/sahool_theme.dart';

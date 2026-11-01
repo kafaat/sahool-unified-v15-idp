@@ -53,7 +53,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Check for E2E tests
         id: check
@@ -86,7 +86,7 @@ jobs:
               ['github']
             ],
             use: {
-              baseURL: process.env.BASE_URL || 'http://localhost:3000',
+              baseURL: process.env.BASE_URL || 'http://localhost:3040',
               trace: 'on-first-retry',
               screenshot: 'only-on-failure',
               video: 'retain-on-failure',
@@ -117,7 +117,7 @@ jobs:
             // Web server configuration
             webServer: process.env.CI ? undefined : {
               command: 'npm run dev',
-              url: 'http://localhost:3000',
+              url: 'http://localhost:3040',
               reuseExistingServer: !process.env.CI,
             },
           });
@@ -273,7 +273,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Download test setup
         uses: actions/download-artifact@v8
@@ -282,7 +282,7 @@ jobs:
           path: tests/e2e/
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '20'
 
@@ -310,7 +310,7 @@ jobs:
           # Wait for server to be ready
           echo "Waiting for server to start..."
           for i in {1..30}; do
-            if curl -s http://localhost:3000 > /dev/null 2>&1; then
+            if curl -s http://localhost:3040 > /dev/null 2>&1; then
               echo "✅ Server is ready!"
               exit 0
             fi
@@ -338,7 +338,7 @@ jobs:
           mkdir -p results
           npx playwright test --project=${{ matrix.browser }} || true
         env:
-          BASE_URL: http://localhost:3000
+          BASE_URL: http://localhost:3040
           CI: true
 
       - name: Stop Web Server
@@ -377,7 +377,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Download test setup
         uses: actions/download-artifact@v8
@@ -418,7 +418,7 @@ jobs:
           EOF
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '20'
 
@@ -445,7 +445,7 @@ jobs:
 
           # Wait for server to be ready
           for i in {1..30}; do
-            if curl -s http://localhost:3000 > /dev/null 2>&1; then
+            if curl -s http://localhost:3040 > /dev/null 2>&1; then
               echo "✅ Server is ready!"
               exit 0
             fi
@@ -468,7 +468,7 @@ jobs:
         working-directory: tests/e2e
         run: npx playwright test tests/visual.spec.ts --update-snapshots || true
         env:
-          BASE_URL: http://localhost:3000
+          BASE_URL: http://localhost:3040
           CI: true
 
       - name: Stop Web Server

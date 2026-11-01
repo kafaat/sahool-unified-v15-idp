@@ -9,4 +9,4 @@ nats-py>=2.6.0,<3.0.0
 httpx==0.28.1
 
 # Utilities
-python-dotenv==1.2.2
+python-dotenv==1.2.4

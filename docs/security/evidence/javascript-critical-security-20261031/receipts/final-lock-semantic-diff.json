@@ -1,0 +1,1499 @@
+[
+  {
+    "path": "apps/services/chat-service/package-lock.json",
+    "old_entries": 647,
+    "new_entries": 855,
+    "added": 245,
+    "removed": 37,
+    "version_changes": [
+      {
+        "path": "node_modules/jest-each",
+        "before": "30.2.0",
+        "after": "29.7.0"
+      },
+      {
+        "path": "node_modules/cjs-module-lexer",
+        "before": "2.1.1",
+        "after": "1.4.3"
+      },
+      {
+        "path": "node_modules/jest-runner",
+        "before": "30.2.0",
+        "after": "29.7.0"
+      },
+      {
+        "path": "node_modules/@jest/globals",
+        "before": "30.2.0",
+        "after": "29.7.0"
+      },
+      {
+        "path": "node_modules/@jest/environment",
+        "before": "30.2.0",
+        "after": "29.7.0"
+      },
+      {
+        "path": "node_modules/yargs",
+        "before": "17.7.2",
+        "after": "17.7.3"
+      },
+      {
+        "path": "node_modules/jest-environment-node",
+        "before": "30.2.0",
+        "after": "29.7.0"
+      },
+      {
+        "path": "node_modules/jest-resolve",
+        "before": "30.2.0",
+        "after": "29.7.0"
+      },
+      {
+        "path": "node_modules/proxy-addr",
+        "before": "2.0.7",
+        "after": "2.0.8"
+      },
+      {
+        "path": "node_modules/@types/qs",
+        "before": "6.14.0",
+        "after": "6.15.1"
+      },
+      {
+        "path": "node_modules/istanbul-lib-source-maps",
+        "before": "5.0.6",
+        "after": "4.0.1"
+      },
+      {
+        "path": "node_modules/jest-changed-files",
+        "before": "30.2.0",
+        "after": "29.7.0"
+      },
+      {
+        "path": "node_modules/picomatch",
+        "before": "4.0.1",
+        "after": "4.0.7"
+      },
+      {
+        "path": "node_modules/jest-config",
+        "before": "30.2.0",
+        "after": "29.7.0"
+      },
+      {
+        "path": "node_modules/lodash",
+        "before": "4.17.21",
+        "after": "4.18.1"
+      },
+      {
+        "path": "node_modules/expect",
+        "before": "30.2.0",
+        "after": "29.7.0"
+      },
+      {
+        "path": "node_modules/jest-snapshot",
+        "before": "30.2.0",
+        "after": "29.7.0"
+      },
+      {
+        "path": "node_modules/class-validator",
+        "before": "0.14.3",
+        "after": "0.15.1"
+      },
+      {
+        "path": "node_modules/jest-diff",
+        "before": "30.2.0",
+        "after": "29.7.0"
+      },
+      {
+        "path": "node_modules/@sinonjs/fake-timers",
+        "before": "13.0.5",
+        "after": "10.3.0"
+      },
+      {
+        "path": "node_modules/jest-leak-detector",
+        "before": "30.2.0",
+        "after": "29.7.0"
+      },
+      {
+        "path": "node_modules/@jest/fake-timers",
+        "before": "30.2.0",
+        "after": "29.7.0"
+      },
+      {
+        "path": "node_modules/jest-circus",
+        "before": "30.2.0",
+        "after": "29.7.0"
+      },
+      {
+        "path": "node_modules/@babel/plugin-syntax-jsx",
+        "before": "7.27.1",
+        "after": "7.29.7"
+      },
+      {
+        "path": "node_modules/jest-matcher-utils",
+        "before": "30.2.0",
+        "after": "29.7.0"
+      },
+      {
+        "path": "node_modules/@jest/core",
+        "before": "30.2.0",
+        "after": "29.7.0"
+      },
+      {
+        "path": "node_modules/jest-cli",
+        "before": "30.2.0",
+        "after": "29.7.0"
+      },
+      {
+        "path": "node_modules/@jest/reporters",
+        "before": "30.2.0",
+        "after": "29.7.0"
+      },
+      {
+        "path": "node_modules/handlebars",
+        "before": "4.7.8",
+        "after": "4.7.10"
+      },
+      {
+        "path": "node_modules/jest-validate",
+        "before": "30.2.0",
+        "after": "29.7.0"
+      },
+      {
+        "path": "node_modules/hasown",
+        "before": "2.0.2",
+        "after": "2.0.4"
+      },
+      {
+        "path": "node_modules/@types/node",
+        "before": "22.19.3",
+        "after": "20.19.43"
+      },
+      {
+        "path": "node_modules/jest-runtime",
+        "before": "30.2.0",
+        "after": "29.7.0"
+      },
+      {
+        "path": "node_modules/pure-rand",
+        "before": "7.0.1",
+        "after": "6.1.0"
+      },
+      {
+        "path": "node_modules/dedent",
+        "before": "1.7.1",
+        "after": "1.7.2"
+      },
+      {
+        "path": "node_modules/jest-mock",
+        "before": "30.2.0",
+        "after": "29.7.0"
+      },
+      {
+        "path": "node_modules/@jest/test-result",
+        "before": "30.2.0",
+        "after": "29.7.0"
+      },
+      {
+        "path": "node_modules/@types/express-serve-static-core",
+        "before": "5.1.0",
+        "after": "4.19.9"
+      },
+      {
+        "path": "node_modules/@jest/expect",
+        "before": "30.2.0",
+        "after": "29.7.0"
+      },
+      {
+        "path": "node_modules/jest-resolve-dependencies",
+        "before": "30.2.0",
+        "after": "29.7.0"
+      },
+      {
+        "path": "node_modules/@jest/source-map",
+        "before": "30.0.1",
+        "after": "29.6.3"
+      },
+      {
+        "path": "node_modules/jest-docblock",
+        "before": "30.2.0",
+        "after": "29.7.0"
+      },
+      {
+        "path": "node_modules/pretty-format",
+        "before": "30.2.0",
+        "after": "29.7.0"
+      },
+      {
+        "path": "node_modules/@types/jest",
+        "before": "30.0.0",
+        "after": "29.5.14"
+      },
+      {
+        "path": "node_modules/jest-watcher",
+        "before": "30.2.0",
+        "after": "29.7.0"
+      },
+      {
+        "path": "node_modules/@jest/expect-utils",
+        "before": "30.2.0",
+        "after": "29.7.0"
+      },
+      {
+        "path": "node_modules/@babel/helper-plugin-utils",
+        "before": "7.27.1",
+        "after": "7.29.7"
+      },
+      {
+        "path": "node_modules/@jest/console",
+        "before": "30.2.0",
+        "after": "29.7.0"
+      },
+      {
+        "path": "node_modules/@types/serve-static",
+        "before": "2.2.0",
+        "after": "1.15.10"
+      },
+      {
+        "path": "node_modules/jest",
+        "before": "30.2.0",
+        "after": "29.7.0"
+      },
+      {
+        "path": "node_modules/jest-message-util",
+        "before": "30.2.0",
+        "after": "29.7.0"
+      },
+      {
+        "path": "node_modules/@types/express",
+        "before": "5.0.6",
+        "after": "4.17.25"
+      },
+      {
+        "path": "node_modules/@babel/plugin-syntax-typescript",
+        "before": "7.27.1",
+        "after": "7.29.7"
+      },
+      {
+        "path": "node_modules/@jest/test-sequencer",
+        "before": "30.2.0",
+        "after": "29.7.0"
+      }
+    ]
+  },
+  {
+    "path": "apps/services/code-review-agent/package-lock.json",
+    "old_entries": 229,
+    "new_entries": 317,
+    "added": 105,
+    "removed": 17,
+    "version_changes": [
+      {
+        "path": "node_modules/rollup",
+        "before": "4.55.1",
+        "after": "4.67.3"
+      },
+      {
+        "path": "node_modules/@esbuild/linux-mips64el",
+        "before": "0.27.2",
+        "after": "0.28.2"
+      },
+      {
+        "path": "node_modules/@typescript-eslint/tsconfig-utils",
+        "before": "8.52.0",
+        "after": "8.72.1"
+      },
+      {
+        "path": "node_modules/@rollup/rollup-win32-ia32-msvc",
+        "before": "4.55.1",
+        "after": "4.67.3"
+      },
+      {
+        "path": "node_modules/minimatch",
+        "before": "9.0.5",
+        "after": "10.2.6"
+      },
+      {
+        "path": "node_modules/@eslint/eslintrc/node_modules/minimatch",
+        "before": "3.1.2",
+        "after": "3.1.5"
+      },
+      {
+        "path": "node_modules/@vitest/runner",
+        "before": "3.2.4",
+        "after": "3.2.7"
+      },
+      {
+        "path": "node_modules/vitest",
+        "before": "3.2.4",
+        "after": "3.2.7"
+      },
+      {
+        "path": "node_modules/tinyglobby",
+        "before": "0.2.15",
+        "after": "0.2.17"
+      },
+      {
+        "path": "node_modules/expect-type",
+        "before": "1.3.0",
+        "after": "1.4.0"
+      },
+      {
+        "path": "node_modules/@rollup/rollup-linux-loong64-gnu",
+        "before": "4.55.1",
+        "after": "4.67.3"
+      },
+      {
+        "path": "node_modules/@rollup/rollup-freebsd-arm64",
+        "before": "4.55.1",
+        "after": "4.67.3"
+      },
+      {
+        "path": "node_modules/flatted",
+        "before": "3.3.3",
+        "after": "3.4.4"
+      },
+      {
+        "path": "node_modules/@esbuild/linux-ppc64",
+        "before": "0.27.2",
+        "after": "0.28.2"
+      },
+      {
+        "path": "node_modules/eslint/node_modules/minimatch",
+        "before": "3.1.2",
+        "after": "3.1.5"
+      },
+      {
+        "path": "node_modules/@esbuild/linux-arm",
+        "before": "0.27.2",
+        "after": "0.28.2"
+      },
+      {
+        "path": "node_modules/@vitest/mocker",
+        "before": "3.2.4",
+        "after": "3.2.7"
+      },
+      {
+        "path": "node_modules/@typescript-eslint/utils",
+        "before": "8.52.0",
+        "after": "8.72.1"
+      },
+      {
+        "path": "node_modules/tsx",
+        "before": "4.21.0",
+        "after": "4.23.15"
+      },
+      {
+        "path": "node_modules/@rollup/rollup-linux-arm64-gnu",
+        "before": "4.55.1",
+        "after": "4.67.3"
+      },
+      {
+        "path": "node_modules/@rollup/rollup-win32-arm64-msvc",
+        "before": "4.55.1",
+        "after": "4.67.3"
+      },
+      {
+        "path": "node_modules/source-map-js",
+        "before": "1.2.1",
+        "after": "1.2.2"
+      },
+      {
+        "path": "node_modules/@esbuild/openharmony-arm64",
+        "before": "0.27.2",
+        "after": "0.28.2"
+      },
+      {
+        "path": "node_modules/@esbuild/win32-x64",
+        "before": "0.27.2",
+        "after": "0.28.2"
+      },
+      {
+        "path": "node_modules/@rollup/rollup-win32-x64-gnu",
+        "before": "4.55.1",
+        "after": "4.67.3"
+      },
+      {
+        "path": "node_modules/@eslint-community/eslint-utils",
+        "before": "4.9.1",
+        "after": "4.10.1"
+      },
+      {
+        "path": "node_modules/@typescript-eslint/project-service",
+        "before": "8.52.0",
+        "after": "8.72.1"
+      },
+      {
+        "path": "node_modules/@rollup/rollup-linux-ppc64-gnu",
+        "before": "4.55.1",
+        "after": "4.67.3"
+      },
+      {
+        "path": "node_modules/@eslint/eslintrc",
+        "before": "3.3.3",
+        "after": "3.3.7"
+      },
+      {
+        "path": "node_modules/@esbuild/freebsd-arm64",
+        "before": "0.27.2",
+        "after": "0.28.2"
+      },
+      {
+        "path": "node_modules/@vitest/expect",
+        "before": "3.2.4",
+        "after": "3.2.7"
+      },
+      {
+        "path": "node_modules/@esbuild/win32-ia32",
+        "before": "0.27.2",
+        "after": "0.28.2"
+      },
+      {
+        "path": "node_modules/@esbuild/darwin-x64",
+        "before": "0.27.2",
+        "after": "0.28.2"
+      },
+      {
+        "path": "node_modules/@rollup/rollup-linux-riscv64-gnu",
+        "before": "4.55.1",
+        "after": "4.67.3"
+      },
+      {
+        "path": "node_modules/@vitest/utils",
+        "before": "3.2.4",
+        "after": "3.2.7"
+      },
+      {
+        "path": "node_modules/@rollup/rollup-darwin-arm64",
+        "before": "4.55.1",
+        "after": "4.67.3"
+      },
+      {
+        "path": "node_modules/@rollup/rollup-linux-arm64-musl",
+        "before": "4.55.1",
+        "after": "4.67.3"
+      },
+      {
+        "path": "node_modules/tinypool",
+        "before": "1.1.1",
+        "after": "2.1.2"
+      },
+      {
+        "path": "node_modules/@anthropic-ai/claude-agent-sdk",
+        "before": "0.1.77",
+        "after": "0.2.141"
+      },
+      {
+        "path": "node_modules/@humanfs/node",
+        "before": "0.16.7",
+        "after": "0.16.8"
+      },
+      {
+        "path": "node_modules/eslint/node_modules/brace-expansion",
+        "before": "1.1.12",
+        "after": "1.1.21"
+      },
+      {
+        "path": "node_modules/@typescript-eslint/visitor-keys",
+        "before": "8.52.0",
+        "after": "8.72.1"
+      },
+      {
+        "path": "node_modules/@rollup/rollup-linux-s390x-gnu",
+        "before": "4.55.1",
+        "after": "4.67.3"
+      },
+      {
+        "path": "node_modules/eslint",
+        "before": "9.39.2",
+        "after": "9.39.5"
+      },
+      {
+        "path": "node_modules/@rollup/rollup-linux-ppc64-musl",
+        "before": "4.55.1",
+        "after": "4.67.3"
+      },
+      {
+        "path": "node_modules/@esbuild/netbsd-x64",
+        "before": "0.27.2",
+        "after": "0.28.2"
+      },
+      {
+        "path": "node_modules/@rollup/rollup-darwin-x64",
+        "before": "4.55.1",
+        "after": "4.67.3"
+      },
+      {
+        "path": "node_modules/@rollup/rollup-linux-arm-musleabihf",
+        "before": "4.55.1",
+        "after": "4.67.3"
+      },
+      {
+        "path": "node_modules/@rollup/rollup-linux-x64-gnu",
+        "before": "4.55.1",
+        "after": "4.67.3"
+      },
+      {
+        "path": "node_modules/balanced-match",
+        "before": "1.0.2",
+        "after": "4.0.4"
+      },
+      {
+        "path": "node_modules/@eslint/config-array/node_modules/brace-expansion",
+        "before": "1.1.12",
+        "after": "1.1.21"
+      },
+      {
+        "path": "node_modules/zod",
+        "before": "3.25.76",
+        "after": "4.6.7"
+      },
+      {
+        "path": "node_modules/@esbuild/linux-s390x",
+        "before": "0.27.2",
+        "after": "0.28.2"
+      },
+      {
+        "path": "node_modules/@humanfs/core",
+        "before": "0.19.1",
+        "after": "0.19.2"
+      },
+      {
+        "path": "node_modules/typescript-eslint",
+        "before": "8.52.0",
+        "after": "8.72.1"
+      },
+      {
+        "path": "node_modules/postcss",
+        "before": "8.5.6",
+        "after": "8.5.32"
+      },
+      {
+        "path": "node_modules/@typescript-eslint/typescript-estree",
+        "before": "8.52.0",
+        "after": "8.72.1"
+      },
+      {
+        "path": "node_modules/nanoid",
+        "before": "3.3.11",
+        "after": "3.3.20"
+      },
+      {
+        "path": "node_modules/@esbuild/openbsd-x64",
+        "before": "0.27.2",
+        "after": "0.28.2"
+      },
+      {
+        "path": "node_modules/@esbuild/sunos-x64",
+        "before": "0.27.2",
+        "after": "0.28.2"
+      },
+      {
+        "path": "node_modules/semver",
+        "before": "7.7.3",
+        "after": "7.8.5"
+      },
+      {
+        "path": "node_modules/@esbuild/android-arm64",
+        "before": "0.27.2",
+        "after": "0.28.2"
+      },
+      {
+        "path": "node_modules/@rollup/rollup-openbsd-x64",
+        "before": "4.55.1",
+        "after": "4.67.3"
+      },
+      {
+        "path": "node_modules/@types/node",
+        "before": "20.19.28",
+        "after": "20.19.43"
+      },
+      {
+        "path": "node_modules/@esbuild/linux-ia32",
+        "before": "0.27.2",
+        "after": "0.28.2"
+      },
+      {
+        "path": "node_modules/tinyspy",
+        "before": "4.0.4",
+        "after": "4.0.6"
+      },
+      {
+        "path": "node_modules/@esbuild/openbsd-arm64",
+        "before": "0.27.2",
+        "after": "0.28.2"
+      },
+      {
+        "path": "node_modules/@typescript-eslint/type-utils",
+        "before": "8.52.0",
+        "after": "8.72.1"
+      },
+      {
+        "path": "node_modules/@esbuild/android-x64",
+        "before": "0.27.2",
+        "after": "0.28.2"
+      },
+      {
+        "path": "node_modules/js-yaml",
+        "before": "4.1.1",
+        "after": "4.3.2"
+      },
+      {
+        "path": "node_modules/@esbuild/linux-loong64",
+        "before": "0.27.2",
+        "after": "0.28.2"
+      },
+      {
+        "path": "node_modules/ts-api-utils",
+        "before": "2.4.0",
+        "after": "2.5.0"
+      },
+      {
+        "path": "node_modules/ajv",
+        "before": "6.12.6",
+        "after": "8.20.0"
+      },
+      {
+        "path": "node_modules/@esbuild/linux-riscv64",
+        "before": "0.27.2",
+        "after": "0.28.2"
+      },
+      {
+        "path": "node_modules/json-schema-traverse",
+        "before": "0.4.1",
+        "after": "1.0.0"
+      },
+      {
+        "path": "node_modules/@rollup/rollup-android-arm64",
+        "before": "4.55.1",
+        "after": "4.67.3"
+      },
+      {
+        "path": "node_modules/@vitest/pretty-format",
+        "before": "3.2.4",
+        "after": "3.2.7"
+      },
+      {
+        "path": "node_modules/@esbuild/linux-arm64",
+        "before": "0.27.2",
+        "after": "0.28.2"
+      },
+      {
+        "path": "node_modules/ignore",
+        "before": "7.0.5",
+        "after": "7.0.14"
+      },
+      {
+        "path": "node_modules/@esbuild/darwin-arm64",
+        "before": "0.27.2",
+        "after": "0.28.2"
+      },
+      {
+        "path": "node_modules/brace-expansion",
+        "before": "2.0.2",
+        "after": "5.0.12"
+      },
+      {
+        "path": "node_modules/@rollup/rollup-win32-x64-msvc",
+        "before": "4.55.1",
+        "after": "4.67.3"
+      },
+      {
+        "path": "node_modules/@eslint/eslintrc/node_modules/brace-expansion",
+        "before": "1.1.12",
+        "after": "1.1.21"
+      },
+      {
+        "path": "node_modules/@rollup/rollup-linux-loong64-musl",
+        "before": "4.55.1",
+        "after": "4.67.3"
+      },
+      {
+        "path": "node_modules/@esbuild/win32-arm64",
+        "before": "0.27.2",
+        "after": "0.28.2"
+      },
+      {
+        "path": "node_modules/@rollup/rollup-linux-arm-gnueabihf",
+        "before": "4.55.1",
+        "after": "4.67.3"
+      },
+      {
+        "path": "node_modules/@rollup/rollup-openharmony-arm64",
+        "before": "4.55.1",
+        "after": "4.67.3"
+      },
+      {
+        "path": "node_modules/@rollup/rollup-freebsd-x64",
+        "before": "4.55.1",
+        "after": "4.67.3"
+      },
+      {
+        "path": "node_modules/@vitest/spy",
+        "before": "3.2.4",
+        "after": "3.2.7"
+      },
+      {
+        "path": "node_modules/@esbuild/android-arm",
+        "before": "0.27.2",
+        "after": "0.28.2"
+      },
+      {
+        "path": "node_modules/picomatch",
+        "before": "4.0.3",
+        "after": "4.0.7"
+      },
+      {
+        "path": "node_modules/@eslint/js",
+        "before": "9.39.2",
+        "after": "9.39.5"
+      },
+      {
+        "path": "node_modules/@typescript-eslint/parser",
+        "before": "8.52.0",
+        "after": "8.72.1"
+      },
+      {
+        "path": "node_modules/@esbuild/freebsd-x64",
+        "before": "0.27.2",
+        "after": "0.28.2"
+      },
+      {
+        "path": "node_modules/@jridgewell/sourcemap-codec",
+        "before": "1.5.5",
+        "after": "1.6.0"
+      },
+      {
+        "path": "node_modules/@typescript-eslint/types",
+        "before": "8.52.0",
+        "after": "8.72.1"
+      },
+      {
+        "path": "node_modules/@eslint/config-array",
+        "before": "0.21.1",
+        "after": "0.21.2"
+      },
+      {
+        "path": "node_modules/@types/estree",
+        "before": "1.0.8",
+        "after": "1.0.10"
+      },
+      {
+        "path": "node_modules/@typescript-eslint/visitor-keys/node_modules/eslint-visitor-keys",
+        "before": "4.2.1",
+        "after": "5.0.1"
+      },
+      {
+        "path": "node_modules/esbuild",
+        "before": "0.27.2",
+        "after": "0.28.2"
+      },
+      {
+        "path": "node_modules/@eslint/config-array/node_modules/minimatch",
+        "before": "3.1.2",
+        "after": "3.1.5"
+      },
+      {
+        "path": "node_modules/vite",
+        "before": "7.3.1",
+        "after": "7.3.7"
+      },
+      {
+        "path": "node_modules/@esbuild/linux-x64",
+        "before": "0.27.2",
+        "after": "0.28.2"
+      },
+      {
+        "path": "node_modules/@vitest/snapshot",
+        "before": "3.2.4",
+        "after": "3.2.7"
+      },
+      {
+        "path": "node_modules/@rollup/rollup-linux-x64-musl",
+        "before": "4.55.1",
+        "after": "4.67.3"
+      },
+      {
+        "path": "node_modules/@rollup/rollup-android-arm-eabi",
+        "before": "4.55.1",
+        "after": "4.67.3"
+      },
+      {
+        "path": "node_modules/@esbuild/aix-ppc64",
+        "before": "0.27.2",
+        "after": "0.28.2"
+      },
+      {
+        "path": "node_modules/acorn",
+        "before": "8.15.0",
+        "after": "8.19.0"
+      },
+      {
+        "path": "node_modules/@rollup/rollup-linux-riscv64-musl",
+        "before": "4.55.1",
+        "after": "4.67.3"
+      },
+      {
+        "path": "node_modules/@typescript-eslint/scope-manager",
+        "before": "8.52.0",
+        "after": "8.72.1"
+      },
+      {
+        "path": "node_modules/@typescript-eslint/eslint-plugin",
+        "before": "8.52.0",
+        "after": "8.72.1"
+      },
+      {
+        "path": "node_modules/@esbuild/netbsd-arm64",
+        "before": "0.27.2",
+        "after": "0.28.2"
+      }
+    ]
+  },
+  {
+    "path": "apps/services/crop-growth-model/package-lock.json",
+    "old_entries": 376,
+    "new_entries": 672,
+    "added": 306,
+    "removed": 10,
+    "version_changes": [
+      {
+        "path": "node_modules/proxy-addr",
+        "before": "2.0.7",
+        "after": "2.0.8"
+      },
+      {
+        "path": "node_modules/picomatch",
+        "before": "4.0.1",
+        "after": "4.0.7"
+      },
+      {
+        "path": "node_modules/lodash",
+        "before": "4.17.21",
+        "after": "4.18.1"
+      },
+      {
+        "path": "node_modules/class-validator",
+        "before": "0.14.3",
+        "after": "0.15.1"
+      },
+      {
+        "path": "node_modules/side-channel-list",
+        "before": "1.0.0",
+        "after": "1.0.1"
+      },
+      {
+        "path": "node_modules/proxy-from-env",
+        "before": "1.1.0",
+        "after": "2.1.0"
+      },
+      {
+        "path": "node_modules/hasown",
+        "before": "2.0.2",
+        "after": "2.0.4"
+      },
+      {
+        "path": "node_modules/@types/node",
+        "before": "22.19.3",
+        "after": "20.19.43"
+      },
+      {
+        "path": "node_modules/@babel/helper-validator-identifier",
+        "before": "7.28.5",
+        "after": "7.29.7"
+      },
+      {
+        "path": "node_modules/@babel/code-frame",
+        "before": "7.27.1",
+        "after": "7.29.7"
+      },
+      {
+        "path": "node_modules/side-channel",
+        "before": "1.1.0",
+        "after": "1.1.1"
+      }
+    ]
+  },
+  {
+    "path": "apps/services/disaster-assessment/package-lock.json",
+    "old_entries": 634,
+    "new_entries": 655,
+    "added": 28,
+    "removed": 7,
+    "version_changes": [
+      {
+        "path": "node_modules/proxy-addr",
+        "before": "2.0.7",
+        "after": "2.0.8"
+      },
+      {
+        "path": "node_modules/@types/qs",
+        "before": "6.14.0",
+        "after": "6.15.1"
+      },
+      {
+        "path": "node_modules/picomatch",
+        "before": "4.0.1",
+        "after": "4.0.7"
+      },
+      {
+        "path": "node_modules/lodash",
+        "before": "4.17.21",
+        "after": "4.18.1"
+      },
+      {
+        "path": "node_modules/class-validator",
+        "before": "0.14.4",
+        "after": "0.15.1"
+      },
+      {
+        "path": "node_modules/ajv",
+        "before": "8.12.0",
+        "after": "6.15.0"
+      },
+      {
+        "path": "node_modules/handlebars",
+        "before": "4.7.8",
+        "after": "4.7.10"
+      },
+      {
+        "path": "node_modules/proxy-from-env",
+        "before": "1.1.0",
+        "after": "2.1.0"
+      },
+      {
+        "path": "node_modules/@types/node",
+        "before": "20.19.35",
+        "after": "20.19.43"
+      },
+      {
+        "path": "node_modules/json-schema-traverse",
+        "before": "1.0.0",
+        "after": "0.4.1"
+      },
+      {
+        "path": "node_modules/@types/express-serve-static-core",
+        "before": "5.1.1",
+        "after": "4.19.9"
+      },
+      {
+        "path": "node_modules/@types/serve-static",
+        "before": "2.2.0",
+        "after": "1.15.10"
+      },
+      {
+        "path": "node_modules/@types/express",
+        "before": "5.0.6",
+        "after": "4.17.25"
+      }
+    ]
+  },
+  {
+    "path": "apps/services/field-management-service/package-lock.json",
+    "old_entries": 701,
+    "new_entries": 669,
+    "added": 10,
+    "removed": 42,
+    "version_changes": [
+      {
+        "path": "node_modules/proxy-addr",
+        "before": "2.0.7",
+        "after": "2.0.8"
+      },
+      {
+        "path": "node_modules/picomatch",
+        "before": "4.0.1",
+        "after": "4.0.7"
+      },
+      {
+        "path": "node_modules/lodash",
+        "before": "4.17.21",
+        "after": "4.18.1"
+      },
+      {
+        "path": "node_modules/ajv",
+        "before": "8.12.0",
+        "after": "6.15.0"
+      },
+      {
+        "path": "node_modules/handlebars",
+        "before": "4.7.9",
+        "after": "4.7.10"
+      },
+      {
+        "path": "node_modules/json-schema-traverse",
+        "before": "1.0.0",
+        "after": "0.4.1"
+      }
+    ]
+  },
+  {
+    "path": "apps/services/lai-estimation/package-lock.json",
+    "old_entries": 406,
+    "new_entries": 672,
+    "added": 279,
+    "removed": 13,
+    "version_changes": [
+      {
+        "path": "node_modules/proxy-addr",
+        "before": "2.0.7",
+        "after": "2.0.8"
+      },
+      {
+        "path": "node_modules/picomatch",
+        "before": "4.0.1",
+        "after": "4.0.7"
+      },
+      {
+        "path": "node_modules/lodash",
+        "before": "4.17.21",
+        "after": "4.18.1"
+      },
+      {
+        "path": "node_modules/class-validator",
+        "before": "0.14.3",
+        "after": "0.15.1"
+      },
+      {
+        "path": "node_modules/side-channel-list",
+        "before": "1.0.0",
+        "after": "1.0.1"
+      },
+      {
+        "path": "node_modules/proxy-from-env",
+        "before": "1.1.0",
+        "after": "2.1.0"
+      },
+      {
+        "path": "node_modules/hasown",
+        "before": "2.0.2",
+        "after": "2.0.4"
+      },
+      {
+        "path": "node_modules/@types/node",
+        "before": "22.19.3",
+        "after": "20.19.43"
+      },
+      {
+        "path": "node_modules/@babel/helper-validator-identifier",
+        "before": "7.28.5",
+        "after": "7.29.7"
+      },
+      {
+        "path": "node_modules/@babel/code-frame",
+        "before": "7.27.1",
+        "after": "7.29.7"
+      },
+      {
+        "path": "node_modules/side-channel",
+        "before": "1.1.0",
+        "after": "1.1.1"
+      }
+    ]
+  },
+  {
+    "path": "apps/services/marketplace-service/package-lock.json",
+    "old_entries": 658,
+    "new_entries": 649,
+    "added": 11,
+    "removed": 20,
+    "version_changes": [
+      {
+        "path": "node_modules/proxy-addr",
+        "before": "2.0.7",
+        "after": "2.0.8"
+      },
+      {
+        "path": "node_modules/@types/qs",
+        "before": "6.14.0",
+        "after": "6.15.1"
+      },
+      {
+        "path": "node_modules/picomatch",
+        "before": "4.0.1",
+        "after": "4.0.7"
+      },
+      {
+        "path": "node_modules/lodash",
+        "before": "4.17.21",
+        "after": "4.18.1"
+      },
+      {
+        "path": "node_modules/class-validator",
+        "before": "0.14.4",
+        "after": "0.15.1"
+      },
+      {
+        "path": "node_modules/ajv",
+        "before": "8.12.0",
+        "after": "6.15.0"
+      },
+      {
+        "path": "node_modules/handlebars",
+        "before": "4.7.8",
+        "after": "4.7.10"
+      },
+      {
+        "path": "node_modules/@types/node",
+        "before": "20.19.35",
+        "after": "20.19.43"
+      },
+      {
+        "path": "node_modules/json-schema-traverse",
+        "before": "1.0.0",
+        "after": "0.4.1"
+      },
+      {
+        "path": "node_modules/@types/express-serve-static-core",
+        "before": "5.1.1",
+        "after": "4.19.9"
+      },
+      {
+        "path": "node_modules/@types/serve-static",
+        "before": "2.2.0",
+        "after": "1.15.10"
+      },
+      {
+        "path": "node_modules/@types/express",
+        "before": "5.0.6",
+        "after": "4.17.25"
+      }
+    ]
+  },
+  {
+    "path": "apps/services/yield-prediction/package-lock.json",
+    "old_entries": 378,
+    "new_entries": 637,
+    "added": 270,
+    "removed": 11,
+    "version_changes": [
+      {
+        "path": "node_modules/proxy-addr",
+        "before": "2.0.7",
+        "after": "2.0.8"
+      },
+      {
+        "path": "node_modules/picomatch",
+        "before": "4.0.1",
+        "after": "4.0.7"
+      },
+      {
+        "path": "node_modules/lodash",
+        "before": "4.17.21",
+        "after": "4.18.1"
+      },
+      {
+        "path": "node_modules/class-validator",
+        "before": "0.14.3",
+        "after": "0.15.1"
+      },
+      {
+        "path": "node_modules/side-channel-list",
+        "before": "1.0.0",
+        "after": "1.0.1"
+      },
+      {
+        "path": "node_modules/proxy-from-env",
+        "before": "1.1.0",
+        "after": "2.1.0"
+      },
+      {
+        "path": "node_modules/hasown",
+        "before": "2.0.2",
+        "after": "2.0.4"
+      },
+      {
+        "path": "node_modules/@types/node",
+        "before": "22.19.3",
+        "after": "20.19.43"
+      },
+      {
+        "path": "node_modules/@babel/helper-validator-identifier",
+        "before": "7.28.5",
+        "after": "7.29.7"
+      },
+      {
+        "path": "node_modules/@babel/code-frame",
+        "before": "7.27.1",
+        "after": "7.29.7"
+      },
+      {
+        "path": "node_modules/side-channel",
+        "before": "1.1.0",
+        "after": "1.1.1"
+      }
+    ]
+  },
+  {
+    "path": "archive/deprecated-services/community-chat/package-lock.json",
+    "old_entries": 134,
+    "new_entries": 444,
+    "added": 310,
+    "removed": 0,
+    "version_changes": [
+      {
+        "path": "node_modules/undici-types",
+        "before": "7.16.0",
+        "after": "6.21.0"
+      },
+      {
+        "path": "node_modules/hasown",
+        "before": "2.0.2",
+        "after": "2.0.4"
+      },
+      {
+        "path": "node_modules/proxy-addr",
+        "before": "2.0.7",
+        "after": "2.0.8"
+      },
+      {
+        "path": "node_modules/@types/node",
+        "before": "25.0.2",
+        "after": "20.19.43"
+      }
+    ]
+  },
+  {
+    "path": "archive/kernel-legacy/kernel/services/field_core/package-lock.json",
+    "old_entries": 245,
+    "new_entries": 248,
+    "added": 7,
+    "removed": 4,
+    "version_changes": [
+      {
+        "path": "",
+        "before": "1.0.0",
+        "after": "16.0.0"
+      },
+      {
+        "path": "node_modules/@types/express-serve-static-core",
+        "before": "4.19.7",
+        "after": "5.1.3"
+      },
+      {
+        "path": "node_modules/proxy-addr",
+        "before": "2.0.7",
+        "after": "2.0.8"
+      },
+      {
+        "path": "node_modules/@types/qs",
+        "before": "6.14.0",
+        "after": "6.15.1"
+      },
+      {
+        "path": "node_modules/@types/uuid",
+        "before": "9.0.8",
+        "after": "10.0.0"
+      },
+      {
+        "path": "node_modules/@types/node",
+        "before": "20.19.27",
+        "after": "22.20.5"
+      },
+      {
+        "path": "node_modules/@types/serve-static",
+        "before": "1.15.10",
+        "after": "2.2.0"
+      },
+      {
+        "path": "node_modules/uuid",
+        "before": "9.0.1",
+        "after": "11.1.1"
+      },
+      {
+        "path": "node_modules/reflect-metadata",
+        "before": "0.1.14",
+        "after": "0.2.2"
+      },
+      {
+        "path": "node_modules/@types/express",
+        "before": "4.17.25",
+        "after": "5.0.6"
+      }
+    ]
+  },
+  {
+    "path": "package-lock.json",
+    "old_entries": 2203,
+    "new_entries": 2250,
+    "added": 178,
+    "removed": 131,
+    "version_changes": [
+      {
+        "path": "node_modules/@vitest/snapshot",
+        "before": "3.2.4",
+        "after": "3.2.7"
+      },
+      {
+        "path": "node_modules/@vitest/pretty-format",
+        "before": "3.2.4",
+        "after": "3.2.7"
+      },
+      {
+        "path": "node_modules/@vitest/runner",
+        "before": "3.2.4",
+        "after": "3.2.7"
+      },
+      {
+        "path": "node_modules/vitest",
+        "before": "3.2.4",
+        "after": "3.2.7"
+      },
+      {
+        "path": "node_modules/@vitest/spy",
+        "before": "3.2.4",
+        "after": "3.2.7"
+      },
+      {
+        "path": "node_modules/@emnapi/runtime",
+        "before": "1.9.0",
+        "after": "1.11.3"
+      },
+      {
+        "path": "node_modules/@img/sharp-linux-ppc64",
+        "before": "0.34.5",
+        "after": "0.35.5"
+      },
+      {
+        "path": "node_modules/tinyspy",
+        "before": "4.0.4",
+        "after": "4.0.6"
+      },
+      {
+        "path": "node_modules/sharp",
+        "before": "0.34.5",
+        "after": "0.35.5"
+      },
+      {
+        "path": "node_modules/@img/sharp-libvips-linux-ppc64",
+        "before": "1.2.4",
+        "after": "1.3.4"
+      },
+      {
+        "path": "node_modules/@img/sharp-linux-riscv64",
+        "before": "0.34.5",
+        "after": "0.35.5"
+      },
+      {
+        "path": "node_modules/sharp/node_modules/@img/sharp-win32-ia32",
+        "before": "0.34.5",
+        "after": "0.35.5"
+      },
+      {
+        "path": "node_modules/@vitest/coverage-v8",
+        "before": "3.2.4",
+        "after": "3.2.7"
+      },
+      {
+        "path": "node_modules/@vitest/utils",
+        "before": "3.2.4",
+        "after": "3.2.7"
+      },
+      {
+        "path": "node_modules/proxy-addr",
+        "before": "2.0.7",
+        "after": "2.0.8"
+      },
+      {
+        "path": "node_modules/sharp/node_modules/@img/sharp-libvips-linux-s390x",
+        "before": "1.2.4",
+        "after": "1.3.4"
+      },
+      {
+        "path": "node_modules/@vitest/mocker",
+        "before": "3.2.4",
+        "after": "3.2.7"
+      },
+      {
+        "path": "node_modules/@vitest/expect",
+        "before": "3.2.4",
+        "after": "3.2.7"
+      },
+      {
+        "path": "node_modules/kdbush",
+        "before": "4.0.2",
+        "after": "4.1.0"
+      },
+      {
+        "path": "node_modules/@img/sharp-libvips-linux-riscv64",
+        "before": "1.2.4",
+        "after": "1.3.4"
+      },
+      {
+        "path": "node_modules/handlebars",
+        "before": "4.7.8",
+        "after": "4.7.10"
+      },
+      {
+        "path": "node_modules/tinypool",
+        "before": "1.1.1",
+        "after": "2.1.2"
+      },
+      {
+        "path": "node_modules/semver",
+        "before": "7.7.4",
+        "after": "7.8.5"
+      },
+      {
+        "path": "node_modules/sharp/node_modules/@img/sharp-linux-s390x",
+        "before": "0.34.5",
+        "after": "0.35.5"
+      }
+    ]
+  },
+  {
+    "path": "packages/shared-audit/package-lock.json",
+    "old_entries": 126,
+    "new_entries": 125,
+    "added": 0,
+    "removed": 1,
+    "version_changes": [
+      {
+        "path": "",
+        "before": "1.0.0",
+        "after": "16.0.0"
+      },
+      {
+        "path": "node_modules/class-validator",
+        "before": "0.14.3",
+        "after": "0.15.1"
+      },
+      {
+        "path": "node_modules/proxy-addr",
+        "before": "2.0.7",
+        "after": "2.0.8"
+      },
+      {
+        "path": "node_modules/@types/node",
+        "before": "20.19.27",
+        "after": "20.19.43"
+      },
+      {
+        "path": "node_modules/uuid",
+        "before": "10.0.0",
+        "after": "11.1.1"
+      }
+    ]
+  },
+  {
+    "path": "packages/shared-crypto/package-lock.json",
+    "old_entries": 273,
+    "new_entries": 273,
+    "added": 0,
+    "removed": 0,
+    "version_changes": []
+  },
+  {
+    "path": "packages/shared-db/package-lock.json",
+    "old_entries": 5,
+    "new_entries": 5,
+    "added": 0,
+    "removed": 0,
+    "version_changes": []
+  },
+  {
+    "path": "packages/shared-events/package-lock.json",
+    "old_entries": 9,
+    "new_entries": 9,
+    "added": 0,
+    "removed": 0,
+    "version_changes": []
+  }
+]

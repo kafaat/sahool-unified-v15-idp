@@ -34,7 +34,7 @@ jobs:
     name: Secrets Scan
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -120,7 +120,7 @@ jobs:
       actions: read
       contents: read
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Free up disk space
         run: |
@@ -131,14 +131,39 @@ jobs:
           docker system prune -af --volumes || true
           df -h
 
-      - name: Set up Python
-        uses: actions/setup-python@v6
+      - name: Set up Python 3.12 for the independent EO tool
+        id: python312
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Set up Python 3.11 for service dependency audits
+        id: python311
+        uses: actions/setup-python@v7
         with:
           python-version: '3.11'
-          cache: 'pip'
 
-      - name: Install safety
-        run: pip install safety pip-audit
+      - name: Set up the Nunjucks runtime
+        uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+
+      - name: Install pinned dependency scanning tools
+        id: scanner_tools
+        run: |
+          python -m pip install pip-audit==2.10.1 PyYAML==6.0.3 pytest==9.1.1
+          "${{ steps.python312.outputs.python-path }}" -m pip install pip-audit==2.10.1
+          npm install --prefix "$RUNNER_TEMP/security-renderer" \
+            --no-save --ignore-scripts --no-audit --no-fund nunjucks@3.2.4
+
+      - name: Test scan receipts and real template rendering
+        env:
+          NUNJUCKS_MODULE: ${{ runner.temp }}/security-renderer/node_modules/nunjucks
+        run: |
+          python -m pytest tests/unit/ci/test_dependency_scan_integrity.py \
+            --confcutdir=tests/unit/ci -q -o addopts= \
+            --junitxml=python-dependency-scans/scanner-tests.xml
+          node --test scripts/ci/tests/render_security_requirements.test.cjs
 
       - name: Install Trivy
         id: install_trivy
@@ -171,148 +196,78 @@ jobs:
 
       - name: Cache Trivy DB
         if: steps.install_trivy.outputs.installed == 'true'
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ~/.cache/trivy
           key: trivy-db-${{ runner.os }}-${{ github.run_id }}
           restore-keys: |
             trivy-db-${{ runner.os }}-
 
-      - name: Scan Python dependencies with Safety
-        continue-on-error: true
+      - name: Run Safety only when configured
+        if: always() && steps.scanner_tools.outcome == 'success'
+        env:
+          SAFETY_API_KEY: ${{ secrets.SAFETY_API_KEY }}
         run: |
-          echo "🔍 Scanning Python dependencies with Safety..."
-          # Note: Safety now requires API key for full functionality
-          # Using 'scan' command (check was deprecated June 2024)
-          SAFETY_ISSUES=0
-          for req in $(find . -name "requirements.txt" -type f -not -path "./.git/*" -not -path "./archive/*"); do
-            echo "Scanning: $req"
-            safety scan --target "$req" 2>&1 || SAFETY_ISSUES=$((SAFETY_ISSUES + 1))
-          done
-          if [ $SAFETY_ISSUES -gt 0 ]; then
-            echo "::warning::Safety found potential issues in $SAFETY_ISSUES requirements files"
+          if [ -n "$SAFETY_API_KEY" ]; then
+            python -m pip install safety==3.8.1
           fi
-          echo "✅ Safety scan completed"
+          python scripts/ci/run_optional_safety.py \
+            --directory . --output python-dependency-scans/safety
 
-      - name: Scan Python dependencies with pip-audit
-        continue-on-error: true
+      - name: Audit every Python requirements input
+        id: python_audit
+        if: always() && steps.scanner_tools.outcome == 'success'
+        continue-on-error: true  # The completeness gate below propagates failure after artifact upload.
         run: |
-          echo "🔍 Scanning Python dependencies with pip-audit..."
-          AUDIT_ISSUES=0
-          for req in $(find . -name "requirements.txt" -type f -not -path "./.git/*" -not -path "./archive/*" | head -10); do
-            echo "Auditing: $req"
-            pip-audit -r "$req" 2>&1 || AUDIT_ISSUES=$((AUDIT_ISSUES + 1))
-          done
-          if [ $AUDIT_ISSUES -gt 0 ]; then
-            echo "::warning::pip-audit found potential issues in $AUDIT_ISSUES requirements files"
-          fi
-          echo "✅ pip-audit scan completed"
+          python scripts/ci/audit_python_requirements.py \
+            --repository . --output python-dependency-scans/pip-audit \
+            --nunjucks-module "$RUNNER_TEMP/security-renderer/node_modules/nunjucks" \
+            --python311 "${{ steps.python311.outputs.python-path }}" \
+            --python312 "${{ steps.python312.outputs.python-path }}" --jobs 4
 
-      - name: Run Trivy filesystem scan
+      - name: Run Trivy filesystem scan and preserve its real outcome
         id: trivy
-        if: steps.install_trivy.outputs.installed == 'true'
-        continue-on-error: true  # SARIF upload step enforces gating via GitHub code scanning
-        run: |
-          echo "🔍 Running Trivy filesystem scan..."
-          mkdir -p trivy-results
-          # Gate on CRITICAL CVEs: exit-code 1 fails the scan step,
-          # but continue-on-error lets SARIF still upload to Security tab.
-          trivy fs \
-            --skip-check-update \
-            --scanners vuln \
-            --severity CRITICAL \
-            --exit-code 1 \
-            --format sarif \
-            --output trivy-results.sarif \
-            . || echo "::error::Trivy found CRITICAL vulnerabilities - see Security tab"
-
-      - name: Create empty SARIF if Trivy failed
         if: always()
-        id: synthesize_sarif
+        continue-on-error: true  # Completeness and event-specific findings gates run after artifact upload.
         run: |
-          # Track whether Trivy actually produced a report. A synthesized
-          # empty SARIF allows the upload step below to run without a file
-          # error, but the gating step must know not to trust it.
-          if [ ! -f "trivy-results.sarif" ]; then
-            echo "::warning::Trivy did not produce a SARIF report — synthesizing empty file so upload doesn't fail. Gate will treat this as scan-failure."
-            echo '{"version":"2.1.0","$schema":"https://json.schemastore.org/sarif-2.1.0.json","runs":[{"tool":{"driver":{"name":"Trivy","version":"0.62.1"}},"results":[]}]}' > trivy-results.sarif
-            echo "synthesized=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "synthesized=false" >> "$GITHUB_OUTPUT"
-          fi
+          python3 scripts/ci/trivy_scan_receipt.py scan --output trivy-results
 
-      - name: Upload Trivy results to GitHub Security
+      - name: Upload validated Trivy results to GitHub Security
         uses: github/codeql-action/upload-sarif@v4
-        if: always()
+        if: always() && steps.trivy.outputs.valid_report == 'true'
         continue-on-error: true
         with:
-          sarif_file: 'trivy-results.sarif'
-          category: 'trivy-dependency-scan'
+          sarif_file: trivy-results/trivy-results.sarif
+          category: trivy-dependency-scan
 
-      - name: Report vulnerabilities
+      - name: Preserve dependency scanner reports and actual outcomes
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: dependency-security-receipts-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            python-dependency-scans/
+            trivy-results/
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Require a complete Python dependency audit
         if: always()
         run: |
-          if [ -f "trivy-results.sarif" ]; then
-            # Check if there are any results in the SARIF file
-            RESULTS=$(cat trivy-results.sarif | python3 -c "import sys,json; d=json.load(sys.stdin); print(len(d.get('runs',[{}])[0].get('results',[])))" 2>/dev/null || echo "0")
-            if [ "$RESULTS" != "0" ]; then
-              echo "::warning::Trivy found $RESULTS potential security issues"
-              echo "## ⚠️ Security Scan Results" >> $GITHUB_STEP_SUMMARY
-              echo "Trivy detected $RESULTS potential issues. Please review the Security tab." >> $GITHUB_STEP_SUMMARY
-            else
-              echo "✅ No critical vulnerabilities found by Trivy"
-            fi
-          fi
-
-      - name: Gate on CRITICAL vulnerabilities
-        if: steps.install_trivy.outputs.installed == 'true'
-        # CVE gate semantics:
-        #   * On pushes to main/develop/release branches, fail the job
-        #     on any CRITICAL CVE or on a synthesized (empty) SARIF.
-        #   * On pull requests, surface the findings but don't block —
-        #     we can't reasonably require a PR to also fix every
-        #     pre-existing CVE on main (283+ on main per Dependabot).
-        #     PRs that INTRODUCE new CVEs should be caught by the
-        #     dependency-review bot separately.
-        # Runs AFTER SARIF upload so GitHub Security tab is always populated.
-        run: |
-          IS_PR="${{ github.event_name == 'pull_request' }}"
-          if [ "${{ steps.synthesize_sarif.outputs.synthesized }}" = "true" ]; then
-            if [ "$IS_PR" = "true" ]; then
-              echo "::warning::Trivy scan did not complete — gate skipped on PR (enforced on push to main)."
-              exit 0
-            fi
-            echo "::error::Trivy scan did not complete — refusing to approve based on synthesized empty report"
+          if [ "${{ steps.python_audit.outcome }}" != "success" ]; then
+            echo "::error::Python dependency audit is incomplete; inspect the retained per-input receipts."
             exit 1
           fi
-          if [ -f "trivy-results.sarif" ]; then
-            CRITICAL_COUNT=$(python3 -c "
-          import json, sys
-          with open('trivy-results.sarif') as f:
-              d = json.load(f)
-          count = 0
-          for run in d.get('runs', []):
-              for res in run.get('results', []):
-                  level = res.get('level', '')
-                  # SARIF uses 'error' for CRITICAL
-                  if level == 'error':
-                      count += 1
-          print(count)
-          " 2>/dev/null || echo "0")
-            if [ "$CRITICAL_COUNT" -gt 0 ]; then
-              if [ "$IS_PR" = "true" ]; then
-                echo "::warning::Trivy found $CRITICAL_COUNT CRITICAL CVEs (informational on PRs; see Security tab)"
-                echo "## ⚠️ CRITICAL Vulnerabilities Detected" >> $GITHUB_STEP_SUMMARY
-                echo "$CRITICAL_COUNT CRITICAL CVEs detected. Review the Security tab." >> $GITHUB_STEP_SUMMARY
-                echo "The gate fails closed on pushes to main/develop — clean them up before release." >> $GITHUB_STEP_SUMMARY
-                exit 0
-              fi
-              echo "::error::Trivy found $CRITICAL_COUNT CRITICAL vulnerabilities - blocking push to main"
-              echo "## ❌ CRITICAL Vulnerabilities Found" >> $GITHUB_STEP_SUMMARY
-              echo "$CRITICAL_COUNT CRITICAL CVEs detected. Review the Security tab and patch before merging." >> $GITHUB_STEP_SUMMARY
-              exit 1
-            fi
-          fi
+
+      - name: Gate on complete Trivy results and CRITICAL vulnerabilities
+        if: always()
+        # Findings are informational on PRs and enforcing on other events.
+        # Missing/invalid/failed scans fail closed on every event.
+        env:
+          SCAN_EVENT: ${{ github.event_name }}
+        run: |
+          python3 scripts/ci/trivy_scan_receipt.py gate \
+            --receipt trivy-results/receipt.json --event "$SCAN_EVENT"
 
   code-security:
     name: Code Security Analysis (SAST)
@@ -325,10 +280,10 @@ jobs:
     outputs:
       has_findings: ${{ steps.count-findings.outputs.has_findings }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: '3.11'
 
@@ -434,7 +389,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Scan Dockerfiles
         run: |
@@ -472,15 +427,15 @@ jobs:
       contents: read
       actions: read
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: '3.11'
 
       - name: Set up Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '20'
 
@@ -552,10 +507,10 @@ jobs:
       actions: read
       contents: read
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Cache OWASP database
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ~/.dependency-check
           key: ${{ runner.os }}-owasp-db-${{ env.CACHE_VERSION }}
@@ -563,7 +518,7 @@ jobs:
             ${{ runner.os }}-owasp-db-
 
       - name: Set up Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '20'
 
@@ -648,15 +603,15 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: '3.11'
 
       - name: Set up Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '20'
 
@@ -702,7 +657,7 @@ jobs:
           echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
           echo "| Secrets Scan | ${{ needs.secrets-scan.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Dependency Scan | ${{ needs.dependency-scan.result == 'success' && '✅ Passed' || (needs.dependency-scan.result == 'skipped' && '⏭️ Skipped' || '⚠️ Issues Found') }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Dependency Scan | ${{ needs.dependency-scan.result == 'success' && '✅ Completed (review findings)' || (needs.dependency-scan.result == 'skipped' && '⏭️ Skipped' || '❌ Incomplete or blocked') }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Code Security | ${{ needs.code-security.result == 'skipped' && '⏭️ Skipped' || (needs.code-security.outputs.has_findings == 'true' && '⚠️ Findings Detected' || (needs.code-security.result == 'success' && '✅ Passed' || '❌ Failed')) }} |" >> $GITHUB_STEP_SUMMARY
           echo "| SBOM Generation | ${{ needs.sbom-generation.result == 'success' && '✅ Generated' || (needs.sbom-generation.result == 'skipped' && '⏭️ Skipped' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY
           echo "| License Compliance | ${{ needs.license-check.result == 'success' && '✅ Passed' || (needs.license-check.result == 'skipped' && '⏭️ Skipped' || '⚠️ Review Needed') }} |" >> $GITHUB_STEP_SUMMARY

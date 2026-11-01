@@ -39,7 +39,7 @@ concurrency:
 
 env:
   NODE_VERSION: '20'
-  FLUTTER_VERSION: '3.27.1'
+  FLUTTER_VERSION: '3.44.9'
   JAVA_VERSION: '17'
 
 jobs:
@@ -56,10 +56,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -70,7 +70,7 @@ jobs:
 
       - name: Restore packages build cache
         id: packages-cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             packages/*/dist
@@ -108,7 +108,7 @@ jobs:
           done
 
       - name: Save packages build cache
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v6
         continue-on-error: true
         with:
           path: |
@@ -132,16 +132,16 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             node_modules
@@ -154,7 +154,7 @@ jobs:
 
       - name: Restore packages build
         id: restore-cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           path: |
             packages/*/dist
@@ -199,16 +199,16 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             node_modules
@@ -220,7 +220,7 @@ jobs:
 
       - name: Restore packages build
         id: restore-cache-web-tests
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           path: |
             packages/*/dist
@@ -266,16 +266,16 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             node_modules
@@ -352,16 +352,16 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             node_modules
@@ -374,7 +374,7 @@ jobs:
 
       - name: Restore packages build
         id: restore-cache-admin
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           path: |
             packages/*/dist
@@ -419,16 +419,16 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             node_modules
@@ -440,7 +440,7 @@ jobs:
 
       - name: Restore packages build
         id: restore-cache-admin-tests
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           path: |
             packages/*/dist
@@ -493,16 +493,16 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             node_modules
@@ -577,7 +577,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Install native SQLite3 library
         run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
@@ -591,7 +591,7 @@ jobs:
           cache: true
 
       - name: Cache Flutter dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ~/.pub-cache
@@ -603,6 +603,14 @@ jobs:
 
       - name: Get Flutter dependencies
         run: flutter pub get
+
+      - name: Preserve resolved Flutter lock
+        uses: actions/upload-artifact@v7
+        with:
+          name: flutter-resolved-lock-${{ github.sha }}
+          path: apps/mobile/pubspec.lock
+          if-no-files-found: error
+          retention-days: 7
 
       - name: Create .env file
         run: |
@@ -673,7 +681,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Install native SQLite3 library
         run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
@@ -687,7 +695,7 @@ jobs:
           cache: true
 
       - name: Cache Flutter dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ~/.pub-cache
@@ -804,14 +812,14 @@ jobs:
         working-directory: .
 
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Install native SQLite3 library
         run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
         working-directory: .
 
       - name: Setup Java
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6
         with:
           distribution: 'temurin'
           java-version: ${{ env.JAVA_VERSION }}
@@ -825,7 +833,7 @@ jobs:
         # docs/prompts/fix-flutter-android-ci-flake.md). On a miss the
         # retry-wrapped install below will populate it.
         id: cache-android-ndk
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: /usr/local/lib/android/sdk/ndk/27.0.12077973
           key: android-ndk-27.0.12077973-${{ runner.os }}
@@ -839,7 +847,7 @@ jobs:
           for attempt in 1 2 3; do
             echo "Attempt $attempt: installing Android SDK components..."
             if yes | sdkmanager --install \
-                 "platforms;android-35" \
+                 "platforms;android-36" \
                  "ndk;27.0.12077973"; then
               echo "✓ SDK components installed on attempt $attempt"
               exit 0
@@ -863,7 +871,7 @@ jobs:
           ANDROID_SDK_ROOT: ${{ runner.temp }}/android-sdk
 
       - name: Cache Flutter dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ~/.pub-cache
@@ -876,7 +884,7 @@ jobs:
         run: flutter pub get
 
       - name: Setup Python for icon generation
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: '3.11'
 
@@ -975,7 +983,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -985,7 +993,7 @@ jobs:
           cache: true
 
       - name: Cache Flutter dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ~/.pub-cache
@@ -998,7 +1006,7 @@ jobs:
         run: flutter pub get
 
       - name: Setup Python for icon generation
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: '3.11'
 
@@ -1053,7 +1061,6 @@ jobs:
 
       - name: Run code generation
         uses: ./.github/actions/flutter-codegen
-        continue-on-error: true
         with:
           working-directory: apps/mobile
           clean-first: 'true'
@@ -1062,13 +1069,11 @@ jobs:
         run: |
           cd ios
           pod install --repo-update || pod install
-        continue-on-error: true
 
       - name: Build iOS (No Codesign)
         run: |
           echo "Building iOS app (no codesign)..."
           flutter build ios --debug --no-codesign
-        continue-on-error: true
 
   # =============================================================================
   # Job 5: E2E Tests for Web (Playwright)
@@ -1082,16 +1087,16 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Cache node_modules
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             node_modules
@@ -1161,7 +1166,7 @@ jobs:
           timeout=120
           elapsed=0
           while [ $elapsed -lt $timeout ]; do
-            if curl -f http://localhost:3000 2>/dev/null; then
+            if curl --fail --silent --show-error --output /dev/null --max-time 5 http://localhost:3040 2>/dev/null; then
               echo "✅ Server is ready after ${elapsed}s"
               # Brief warmup so Next.js finishes compiling the /login
               # route (the first Playwright smoke test target) before
@@ -1190,7 +1195,7 @@ jobs:
           npx playwright test --project=chromium --reporter=html
         env:
           CI: true
-          PLAYWRIGHT_BASE_URL: http://localhost:3000
+          PLAYWRIGHT_BASE_URL: http://localhost:3040
 
       - name: Stop Web App
         if: always()
@@ -1261,14 +1266,14 @@ jobs:
         working-directory: .
 
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Install native SQLite3 library
         run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
         working-directory: .
 
       - name: Setup Java
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6
         with:
           distribution: 'temurin'
           java-version: ${{ env.JAVA_VERSION }}
@@ -1280,7 +1285,7 @@ jobs:
         # Same NDK cache as the Android Build job — see §5 of
         # docs/prompts/fix-flutter-android-ci-flake.md.
         id: cache-android-ndk
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: /usr/local/lib/android/sdk/ndk/27.0.12077973
           key: android-ndk-27.0.12077973-${{ runner.os }}
@@ -1292,7 +1297,7 @@ jobs:
           for attempt in 1 2 3; do
             echo "Attempt $attempt: installing Android SDK components..."
             if yes | sdkmanager --install \
-                 "platforms;android-35" \
+                 "platforms;android-36" \
                  "ndk;27.0.12077973"; then
               echo "✓ SDK components installed on attempt $attempt"
               exit 0
@@ -1316,7 +1321,7 @@ jobs:
           ANDROID_SDK_ROOT: ${{ runner.temp }}/android-sdk
 
       - name: Cache Flutter dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ~/.pub-cache
@@ -1502,7 +1507,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Download All Artifacts
         uses: actions/download-artifact@v8
@@ -1669,16 +1674,16 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Restore packages build
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           path: |
             packages/*/dist

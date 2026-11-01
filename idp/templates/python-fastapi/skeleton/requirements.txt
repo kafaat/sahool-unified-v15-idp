@@ -4,6 +4,6 @@ pydantic==2.12.5
 prometheus-client==0.24.1
 opentelemetry-api==1.39.1
 opentelemetry-sdk==1.39.1
-opentelemetry-exporter-otlp-proto-http==0.60b1
+opentelemetry-exporter-otlp-proto-http==1.39.1
 opentelemetry-instrumentation-fastapi==0.60b1
 structlog==24.4.0

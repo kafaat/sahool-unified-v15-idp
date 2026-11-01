@@ -1,0 +1,30 @@
+{
+  "before": {
+    "npm-audit.json": "e70aeaf3df5e41cd0336d06f10078a5f678e1bb5ca18fa2075566790a6219d4b",
+    "javascript-security-node.xml": "240d551edaab0ba999db718a16d72b4d29e1e7679aa6927c51b710999589a7a3",
+    "shared-hooks.xml": "2ada4a167f92dcba5da29ef475671b30d00d5d2ac2aa31213e3fc8b1b91df3e6",
+    "shared-ui.xml": "e9ed5441e6692af3976939331cb2d34a4f15fc9d56ad47fe2ce59bf32053f926"
+  },
+  "after": {
+    "npm-audit.json": "e70aeaf3df5e41cd0336d06f10078a5f678e1bb5ca18fa2075566790a6219d4b",
+    "javascript-security-node.xml": "240d551edaab0ba999db718a16d72b4d29e1e7679aa6927c51b710999589a7a3",
+    "shared-hooks.xml": "2ada4a167f92dcba5da29ef475671b30d00d5d2ac2aa31213e3fc8b1b91df3e6",
+    "shared-ui.xml": "e9ed5441e6692af3976939331cb2d34a4f15fc9d56ad47fe2ce59bf32053f926"
+  },
+  "unchanged": true,
+  "runs": [
+    {
+      "label": "final-report-preservation-node",
+      "exit_code": 0,
+      "seconds": 1.18,
+      "log_sha256": "8e36b68df011d33d791c497c465894c0d3c6776265e279bc108e31ffdcbe2217"
+    },
+    {
+      "label": "final-report-preservation-browser",
+      "exit_code": 0,
+      "seconds": 8.645,
+      "log_sha256": "91bd3424f45c7af8ad3886ef7f1a24a7598807fe20a973b408d0b2cc0d3084af"
+    }
+  ],
+  "browser_junit_sha256": "1bb7633df65010f875cc88f5b6a4f74db5e16314cec63e554bc4796d4e756d27"
+}

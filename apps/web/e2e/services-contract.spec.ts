@@ -415,7 +415,7 @@ async function setupContractTracking(page: Page): Promise<ApiCallTracker> {
   });
 
   // Auth cookies (aligned with service-pages.spec.ts)
-  const baseURL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000";
+  const baseURL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3040";
   await page.context().addCookies([
     {
       name: "access_token",
@@ -550,7 +550,7 @@ test.describe("Service Contract: Cross-cutting", () => {
 
     // Every observed call must be same-origin and start with /api/
     const baseHost = new URL(
-      process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000",
+      process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3040",
     ).host;
 
     const offenders: string[] = [];

@@ -1,0 +1,13 @@
+{
+  "command": [
+    "/workspace/scratch/882204c263d7/js-security-tools/node20/node-v20.20.2-linux-x64/bin/node",
+    "/workspace/scratch/882204c263d7/js-security-tools/node_modules/npm/bin/npm-cli.js",
+    "run",
+    "build",
+    "--workspace=apps/web"
+  ],
+  "exit_code": 0,
+  "seconds": 146.17,
+  "root_lock_sha256": "4efcc25c1d00362b6ffcb042d8bba7176a85aa99edc178fe59ba9187a92bc86a",
+  "log_sha256": "c19e1b970f8ec8a10037c2b19d429a85a6218f4ba3bbf219eeb6eb7196bf3785"
+}

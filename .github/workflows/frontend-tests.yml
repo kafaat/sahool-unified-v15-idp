@@ -39,7 +39,7 @@ concurrency:
 
 env:
   NODE_VERSION: '20'
-  FLUTTER_VERSION: '3.27.1'
+  FLUTTER_VERSION: '3.44.9'
   JAVA_VERSION: '17'
 
 jobs:
@@ -847,7 +847,7 @@ jobs:
           for attempt in 1 2 3; do
             echo "Attempt $attempt: installing Android SDK components..."
             if yes | sdkmanager --install \
-                 "platforms;android-35" \
+                 "platforms;android-36" \
                  "ndk;27.0.12077973"; then
               echo "✓ SDK components installed on attempt $attempt"
               exit 0
@@ -1297,7 +1297,7 @@ jobs:
           for attempt in 1 2 3; do
             echo "Attempt $attempt: installing Android SDK components..."
             if yes | sdkmanager --install \
-                 "platforms;android-35" \
+                 "platforms;android-36" \
                  "ndk;27.0.12077973"; then
               echo "✓ SDK components installed on attempt $attempt"
               exit 0

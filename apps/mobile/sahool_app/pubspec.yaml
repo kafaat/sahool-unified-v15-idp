@@ -4,7 +4,9 @@ publish_to: 'none'
 version: 16.0.0+1
 
 environment:
-  sdk: '>=3.2.0 <4.0.0'  # Flutter 3.27.x uses Dart 3.6.0
+  # Current generators fail with Dart 3.13; see docs/mobile/FLUTTER_TOOLCHAIN.md.
+  sdk: '>=3.10.0 <3.13.0'
+  flutter: '>=3.44.9'
 
 dependencies:
   flutter:

@@ -37,8 +37,8 @@ void main() {
               queryParams: any(named: 'queryParams'),
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async {
-          final fromJson = _.namedArguments[const Symbol('fromJson')]
+            )).thenAnswer((invocation) async {
+          final fromJson = invocation.namedArguments[const Symbol('fromJson')]
               as Map<String, dynamic> Function(dynamic);
           return ApiResponse.success(fromJson(responseData));
         });
@@ -63,8 +63,8 @@ void main() {
               queryParams: any(named: 'queryParams'),
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async {
-          final fromJson = _.namedArguments[const Symbol('fromJson')]
+            )).thenAnswer((invocation) async {
+          final fromJson = invocation.namedArguments[const Symbol('fromJson')]
               as Map<String, dynamic> Function(dynamic);
           return ApiResponse.success(fromJson({
             'answer': 'Response',
@@ -144,8 +144,8 @@ void main() {
               queryParams: any(named: 'queryParams'),
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async {
-          final fromJson = _.namedArguments[const Symbol('fromJson')]
+            )).thenAnswer((invocation) async {
+          final fromJson = invocation.namedArguments[const Symbol('fromJson')]
               as List<dynamic> Function(dynamic);
           return ApiResponse.success(fromJson(searchData));
         });
@@ -205,8 +205,8 @@ void main() {
               queryParams: any(named: 'queryParams'),
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async {
-          final fromJson = _.namedArguments[const Symbol('fromJson')]
+            )).thenAnswer((invocation) async {
+          final fromJson = invocation.namedArguments[const Symbol('fromJson')]
               as Map<String, dynamic> Function(dynamic);
           return ApiResponse.success(fromJson(recData));
         });
@@ -249,8 +249,8 @@ void main() {
               queryParams: any(named: 'queryParams'),
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async {
-          final fromJson = _.namedArguments[const Symbol('fromJson')]
+            )).thenAnswer((invocation) async {
+          final fromJson = invocation.namedArguments[const Symbol('fromJson')]
               as List<dynamic> Function(dynamic);
           return ApiResponse.success(fromJson(historyData));
         });
@@ -305,8 +305,8 @@ void main() {
               queryParams: any(named: 'queryParams'),
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async {
-          final fromJson = _.namedArguments[const Symbol('fromJson')]
+            )).thenAnswer((invocation) async {
+          final fromJson = invocation.namedArguments[const Symbol('fromJson')]
               as List<dynamic> Function(dynamic);
           return ApiResponse.success(fromJson(toolsData));
         });

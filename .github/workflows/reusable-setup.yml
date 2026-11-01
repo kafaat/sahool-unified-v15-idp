@@ -73,7 +73,7 @@ on:
         description: 'Flutter version to use'
         required: false
         type: string
-        default: '3.27.1'
+        default: '3.44.9'
       flutter-channel:
         description: 'Flutter channel (stable, beta, dev)'
         required: false

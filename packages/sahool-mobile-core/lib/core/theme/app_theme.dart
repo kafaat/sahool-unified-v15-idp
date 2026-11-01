@@ -277,7 +277,7 @@ class AppTheme {
       ),
 
       // Card Theme - Glass style
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 0,
         color: Colors.white.withValues(alpha: 0.8),
         surfaceTintColor: Colors.transparent,
@@ -359,7 +359,7 @@ class AppTheme {
       ),
 
       // Dialog - Glass style
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor: Colors.white.withValues(alpha: 0.95),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
@@ -463,7 +463,7 @@ class AppTheme {
       ),
 
       // Card Theme - Glass style
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 0,
         color: glassColors.glassDark.withValues(alpha: 0.8),
         surfaceTintColor: Colors.transparent,
@@ -545,7 +545,7 @@ class AppTheme {
       ),
 
       // Dialog - Glass style
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor: glassColors.glassDark.withValues(alpha: 0.95),
         surfaceTintColor: Colors.transparent,
         elevation: 0,

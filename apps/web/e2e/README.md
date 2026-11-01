@@ -51,7 +51,7 @@ Update the following variables:
 
 - `TEST_USER_EMAIL`: Test user email
 - `TEST_USER_PASSWORD`: Test user password
-- `PLAYWRIGHT_BASE_URL`: Application URL (default: http://localhost:3000)
+- `PLAYWRIGHT_BASE_URL`: Application URL (default: http://localhost:3040)
 
 ## Running Tests | تشغيل الاختبارات
 

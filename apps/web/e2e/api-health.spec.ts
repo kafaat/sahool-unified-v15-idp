@@ -86,7 +86,7 @@ test.describe("Error Handling Endpoints", () => {
     const response = await request.post("/api/csp-report", {
       data: {
         "csp-report": {
-          "document-uri": `${process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000"}/dashboard`,
+          "document-uri": `${process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3040"}/dashboard`,
           "violated-directive": "script-src",
           "blocked-uri": "http://evil.example.com",
         },
@@ -120,7 +120,7 @@ test.describe("API Integration Verification", () => {
 
     // Auth cookies
     const baseURL =
-      process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000";
+      process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3040";
     await page.context().addCookies([
       {
         name: "access_token",

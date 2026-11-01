@@ -140,7 +140,7 @@ test.describe("Sidebar Navigation & Icons", () => {
 
     // Set auth cookies to bypass login redirect
     const baseURL =
-      process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000";
+      process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3040";
     await page.context().addCookies([
       {
         name: "access_token",

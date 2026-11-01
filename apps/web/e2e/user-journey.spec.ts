@@ -194,7 +194,7 @@ async function installDefaultMocks(page: Page) {
 
 async function setSessionCookies(page: Page) {
   const baseURL =
-    process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000";
+    process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3040";
   await page.context().addCookies([
     {
       name: "access_token",
@@ -284,7 +284,7 @@ test.describe("User Journey · End-to-End Vertical Slice", () => {
       expect(registerCall.path).toBe("/api/v1/auth/register");
       // Must be same-origin (no NEXT_PUBLIC_API_URL leak)
       const baseHost = new URL(
-        process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000",
+        process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3040",
       ).host;
       expect(new URL(registerCall.url).host).toBe(baseHost);
     }
@@ -350,7 +350,7 @@ test.describe("User Journey · End-to-End Vertical Slice", () => {
     }
 
     const baseHost = new URL(
-      process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000",
+      process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3040",
     ).host;
     const offenders = calls.filter((c) => {
       try {

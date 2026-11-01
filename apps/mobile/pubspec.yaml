@@ -60,7 +60,7 @@ dependencies:
   # UI
   cupertino_icons: ^1.0.8
   # google_fonts removed: using local IBM Plex Sans Arabic fonts instead
-  flutter_svg: ^2.0.16
+  flutter_svg: ^2.3.0
   cached_network_image: ^3.4.1
   flutter_cache_manager: ^3.4.1  # Image & file cache management
 
@@ -76,7 +76,7 @@ dependencies:
   # Maps - Multiple Providers Support
   # دعم متعدد لمزودي الخرائط
   flutter_map: ">=8.1.1 <8.2.0"  # Pin to 8.1.x - 8.2.x requires http ^1.5.0 which may conflict
-  flutter_map_cache: ^2.0.0  # Lightweight offline map caching (MIT license)
+  flutter_map_cache: ^2.1.0  # Lightweight offline map caching (MIT license)
   latlong2: ^0.9.1
   # Note: maplibre_gl removed - requires Java 21 and NDK 28, flutter_map is sufficient
   # Note: vector_map_tiles removed - incompatible with flutter_map 8.x

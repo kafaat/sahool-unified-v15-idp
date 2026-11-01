@@ -37,10 +37,10 @@ jobs:
 
     services:
       postgres:
-        # PostgreSQL 16 with PostGIS 3.5 (Debian bookworm). The 16-3.4 tag is
+        # PostgreSQL 16 with PostGIS 3.6 (Debian trixie). The 16-3.4/16-3.5 tags are
         # bullseye-based and apt.postgresql.org no longer serves bullseye-pgdg,
         # so postgresql-16-pgtap could not be installed in it.
-        image: postgis/postgis:16-3.5
+        image: postgis/postgis:16-3.6
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -78,11 +78,11 @@ jobs:
       - name: Install pgTAP extension inside the postgres container
         # Extension files must live on the server, not the runner. The simplest
         # robust path is to apt-install ``postgresql-16-pgtap`` directly inside
-        # the postgis/postgis:16-3.5 service container and then CREATE EXTENSION.
+        # the postgis/postgis:16-3.6 service container and then CREATE EXTENSION.
         run: |
           set -euo pipefail
           CID=$(docker ps \
-            --filter "ancestor=postgis/postgis:16-3.5" \
+            --filter "ancestor=postgis/postgis:16-3.6" \
             --format "{{.ID}}" | head -1)
           if [ -z "$CID" ]; then
             echo "::error::postgres service container not found"

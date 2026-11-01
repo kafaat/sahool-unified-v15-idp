@@ -95,7 +95,7 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install Ruff
-        run: pip install ruff==0.15.11
+        run: pip install ruff==0.16.10
 
       - name: Run Ruff auto-fix
         id: fix

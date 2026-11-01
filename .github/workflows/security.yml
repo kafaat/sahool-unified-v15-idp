@@ -156,7 +156,7 @@ jobs:
       - name: Install pinned dependency scanning tools
         id: scanner_tools
         run: |
-          python -m pip install pip-audit==2.10.1 PyYAML==6.0.3 pytest==9.0.3
+          python -m pip install pip-audit==2.10.1 PyYAML==6.0.3 pytest==9.1.1
           "${{ steps.python312.outputs.python-path }}" -m pip install pip-audit==2.10.1
           npm install --prefix "$RUNNER_TEMP/security-renderer" \
             --no-save --ignore-scripts --no-audit --no-fund nunjucks@3.2.4

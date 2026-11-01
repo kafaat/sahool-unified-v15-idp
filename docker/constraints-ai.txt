@@ -90,7 +90,7 @@ nats-py>=2.9.0,<3.0.0  # Allow upgrade to 2.14.0 (constraints.txt pin)
 # ─────────────────────────────────────────────────────────────────────────────
 # Database and Caching
 # ─────────────────────────────────────────────────────────────────────────────
-asyncpg>=0.30.0,<1.0.0  # Compatible with constraints.txt asyncpg==0.31.0
+asyncpg>=0.30.0,<1.0.0  # Compatible with constraints.txt asyncpg==0.32.0
 # Note: redis extras removed for constraints compatibility - install separately
 redis>=7.1.0,<8.0.0
 sqlalchemy>=2.0.0,<3.0.0

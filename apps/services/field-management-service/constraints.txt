@@ -38,7 +38,7 @@ urllib3>=2.8.0,<3.0.0  # Security floor aligned with central constraints
 anyio>=4.14.2,<5.0.0  # CVE-2026-63374: IDNA 2008 TLS hostname validation
 certifi>=2026.10.23  # Current certificate authority security update
 idna>=3.15  # Security floor aligned with central constraints
-multidict>=6.9.1,<7.0.0  # Security floor aligned with central constraints
+multidict>=7.2.1,<8.0.0  # Security floor aligned with central constraints
 jinja2>=3.1.5  # CVE-2024-56201: sandbox escape, CVE-2024-34064: XSS in xmlattr
 werkzeug>=3.0.6  # CVE-2024-34069: debugger arbitrary code execution
 

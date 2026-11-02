@@ -1,0 +1,43 @@
+{
+  "test_path": "tests/security/dependency-consolidation.test.cjs",
+  "test_sha256": "a95faf3ff3b2101427941ac86d1b91524c15dd68d698d78a8f12fb273209cfac",
+  "node_version": "v20.20.2",
+  "method": "The same regression source is run against two isolated, real npm installations; local loopback only.",
+  "cases": {
+    "before": {
+      "dependencies": {
+        "body-parser": "1.20.8",
+        "vitest": "3.2.7",
+        "vite": "7.3.7"
+      },
+      "counts": {
+        "tests": 4,
+        "pass": 1,
+        "fail": 3,
+        "skipped": 0
+      },
+      "log_sha256": "ffdeb444333fb4cd20432f9ddee07e2180741d9bfc0dcb94138b8ce14587dbd6",
+      "source_matches_candidate": true
+    },
+    "after": {
+      "dependencies": {
+        "body-parser": "1.20.9",
+        "vitest": "4.1.12",
+        "vite": "7.3.7"
+      },
+      "counts": {
+        "tests": 4,
+        "pass": 4,
+        "fail": 0,
+        "skipped": 0
+      },
+      "log_sha256": "43977d2bea1dd6c1aacdaf3bcdd792db24be510e61fb00d101714ba13ea5827a",
+      "source_matches_candidate": true
+    }
+  },
+  "observed_failures": [
+    "The parser subprocess crashes with an unhandled Gunzip Z_DATA_ERROR after trailing bytes.",
+    "The old mock generator executes a harmless local marker from a module URL.",
+    "The old mock generator produces invalid JavaScript for a quoted export name."
+  ]
+}

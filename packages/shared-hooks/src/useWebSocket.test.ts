@@ -70,7 +70,7 @@ describe('useWebSocket', () => {
     vi.useFakeTimers();
 
     // Mock WebSocket constructor with static constants
-    const MockWebSocketConstructor = vi.fn((url: string) => {
+    const MockWebSocketConstructor = vi.fn(function (url: string) {
       const instance = new MockWebSocket(url);
       mockWebSocketInstances.push(instance);
       return instance as unknown as WebSocket;

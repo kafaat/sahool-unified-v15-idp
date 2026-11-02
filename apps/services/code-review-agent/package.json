@@ -29,10 +29,10 @@
     "tsx": "^4.19.0",
     "typescript": "5.9.3",
     "typescript-eslint": "^8.56.1",
-    "vitest": "3.2.7"
+    "vitest": "4.1.12"
   },
   "engines": {
-    "node": ">=20.0.0",
+    "node": "^20.19.0 || ^22.12.0 || >=24.0.0",
     "npm": ">=10.0.0"
   },
   "keywords": [
@@ -46,10 +46,8 @@
   "license": "UNLICENSED",
   "private": true,
   "overrides": {
-    "vitest": {
-      "tinypool": "2.1.2"
-    },
     "lodash": ">=4.17.21",
-    "picomatch": "^4.0.4"
+    "picomatch": "^4.0.4",
+    "vite": "7.3.7"
   }
 }

@@ -1,0 +1,245 @@
+TAP version 13
+# Subtest: patched dependencies in apps/services/chat-service/package-lock.json
+ok 1 - patched dependencies in apps/services/chat-service/package-lock.json
+  ---
+  duration_ms: 9.060692
+  ...
+# Subtest: patched dependencies in apps/services/code-review-agent/package-lock.json
+ok 2 - patched dependencies in apps/services/code-review-agent/package-lock.json
+  ---
+  duration_ms: 1.888147
+  ...
+# Subtest: patched dependencies in apps/services/crop-growth-model/package-lock.json
+not ok 3 - patched dependencies in apps/services/crop-growth-model/package-lock.json
+  ---
+  duration_ms: 4.092397
+  location: '/workspace/scratch/7de7742d3309/sahool-pr-node/tests/security/javascript-dependencies.test.cjs:56:3'
+  failureType: 'testCodeFailure'
+  error: 'apps/services/crop-growth-model/package-lock.json: node_modules/body-parser@1.20.3 is affected'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (/workspace/scratch/7de7742d3309/sahool-pr-node/tests/security/javascript-dependencies.test.cjs:62:18)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: patched dependencies in apps/services/disaster-assessment/package-lock.json
+not ok 4 - patched dependencies in apps/services/disaster-assessment/package-lock.json
+  ---
+  duration_ms: 2.261756
+  location: '/workspace/scratch/7de7742d3309/sahool-pr-node/tests/security/javascript-dependencies.test.cjs:56:3'
+  failureType: 'testCodeFailure'
+  error: 'apps/services/disaster-assessment/package-lock.json: node_modules/body-parser@1.20.4 is affected'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (/workspace/scratch/7de7742d3309/sahool-pr-node/tests/security/javascript-dependencies.test.cjs:62:18)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: patched dependencies in apps/services/field-management-service/package-lock.json
+ok 5 - patched dependencies in apps/services/field-management-service/package-lock.json
+  ---
+  duration_ms: 4.576189
+  ...
+# Subtest: patched dependencies in apps/services/lai-estimation/package-lock.json
+not ok 6 - patched dependencies in apps/services/lai-estimation/package-lock.json
+  ---
+  duration_ms: 3.577921
+  location: '/workspace/scratch/7de7742d3309/sahool-pr-node/tests/security/javascript-dependencies.test.cjs:56:3'
+  failureType: 'testCodeFailure'
+  error: 'apps/services/lai-estimation/package-lock.json: node_modules/body-parser@1.20.3 is affected'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (/workspace/scratch/7de7742d3309/sahool-pr-node/tests/security/javascript-dependencies.test.cjs:62:18)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: patched dependencies in apps/services/marketplace-service/package-lock.json
+ok 7 - patched dependencies in apps/services/marketplace-service/package-lock.json
+  ---
+  duration_ms: 4.193195
+  ...
+# Subtest: patched dependencies in apps/services/yield-prediction/package-lock.json
+not ok 8 - patched dependencies in apps/services/yield-prediction/package-lock.json
+  ---
+  duration_ms: 2.182669
+  location: '/workspace/scratch/7de7742d3309/sahool-pr-node/tests/security/javascript-dependencies.test.cjs:56:3'
+  failureType: 'testCodeFailure'
+  error: 'apps/services/yield-prediction/package-lock.json: node_modules/body-parser@1.20.3 is affected'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (/workspace/scratch/7de7742d3309/sahool-pr-node/tests/security/javascript-dependencies.test.cjs:62:18)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: patched dependencies in archive/deprecated-services/community-chat/package-lock.json
+ok 9 - patched dependencies in archive/deprecated-services/community-chat/package-lock.json
+  ---
+  duration_ms: 1.708502
+  ...
+# Subtest: patched dependencies in archive/kernel-legacy/kernel/services/field_core/package-lock.json
+ok 10 - patched dependencies in archive/kernel-legacy/kernel/services/field_core/package-lock.json
+  ---
+  duration_ms: 1.093968
+  ...
+# Subtest: patched dependencies in package-lock.json
+ok 11 - patched dependencies in package-lock.json
+  ---
+  duration_ms: 11.100581
+  ...
+# Subtest: patched dependencies in packages/shared-audit/package-lock.json
+not ok 12 - patched dependencies in packages/shared-audit/package-lock.json
+  ---
+  duration_ms: 0.708021
+  location: '/workspace/scratch/7de7742d3309/sahool-pr-node/tests/security/javascript-dependencies.test.cjs:56:3'
+  failureType: 'testCodeFailure'
+  error: 'packages/shared-audit/package-lock.json: node_modules/body-parser@1.20.4 is affected'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (/workspace/scratch/7de7742d3309/sahool-pr-node/tests/security/javascript-dependencies.test.cjs:62:18)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: patched dependencies in packages/shared-crypto/package-lock.json
+ok 13 - patched dependencies in packages/shared-crypto/package-lock.json
+  ---
+  duration_ms: 1.022283
+  ...
+# Subtest: patched dependencies in packages/shared-db/package-lock.json
+ok 14 - patched dependencies in packages/shared-db/package-lock.json
+  ---
+  duration_ms: 0.19728
+  ...
+# Subtest: patched dependencies in packages/shared-events/package-lock.json
+ok 15 - patched dependencies in packages/shared-events/package-lock.json
+  ---
+  duration_ms: 0.147647
+  ...
+# Subtest: proxy-addr rejects a spoofed forwarded client through ::ffff:10.0.0.0/8 from 198.51.100.23
+ok 16 - proxy-addr rejects a spoofed forwarded client through ::ffff:10.0.0.0/8 from 198.51.100.23
+  ---
+  duration_ms: 3.817402
+  ...
+# Subtest: proxy-addr rejects a spoofed forwarded client through ::ffff:10.0.0.0/8 from ::ffff:198.51.100.23
+ok 17 - proxy-addr rejects a spoofed forwarded client through ::ffff:10.0.0.0/8 from ::ffff:198.51.100.23
+  ---
+  duration_ms: 0.562837
+  ...
+# Subtest: proxy-addr rejects a spoofed forwarded client through ::/1 from 198.51.100.23
+ok 18 - proxy-addr rejects a spoofed forwarded client through ::/1 from 198.51.100.23
+  ---
+  duration_ms: 0.139375
+  ...
+# Subtest: proxy-addr rejects a spoofed forwarded client through ::/1 from ::ffff:198.51.100.23
+ok 19 - proxy-addr rejects a spoofed forwarded client through ::/1 from ::ffff:198.51.100.23
+  ---
+  duration_ms: 0.226573
+  ...
+# Subtest: proxy-addr preserves legitimate proxy forwarding through 10.0.0.0/8
+ok 20 - proxy-addr preserves legitimate proxy forwarding through 10.0.0.0/8
+  ---
+  duration_ms: 2.700541
+  ...
+# Subtest: proxy-addr preserves legitimate proxy forwarding through ::ffff:10.0.0.0/104
+ok 21 - proxy-addr preserves legitimate proxy forwarding through ::ffff:10.0.0.0/104
+  ---
+  duration_ms: 0.201507
+  ...
+# Subtest: Handlebars still renders valid parsed templates and escapes user content
+ok 22 - Handlebars still renders valid parsed templates and escapes user content
+  ---
+  duration_ms: 5.63133
+  ...
+# Subtest: Handlebars denies the Function constructor even when it is an own prototype property
+ok 23 - Handlebars denies the Function constructor even when it is an own prototype property
+  ---
+  duration_ms: 0.895827
+  ...
+# Subtest: Handlebars rejects an executable blockParams length in an untrusted AST
+ok 24 - Handlebars rejects an executable blockParams length in an untrusted AST
+  ---
+  duration_ms: 0.80289
+  ...
+# Subtest: the installed Vitest worker dependency cannot redirect an inherited worker filename
+ok 25 - the installed Vitest worker dependency cannot redirect an inherited worker filename
+  ---
+  duration_ms: 2.119857
+  ...
+# Subtest: web: installed Next.js matches the declared patched version
+ok 26 - web: installed Next.js matches the declared patched version
+  ---
+  duration_ms: 1.554315
+  ...
+# Subtest: web: Sentry cannot bypass authorization outside its exact envelope route
+ok 27 - web: Sentry cannot bypass authorization outside its exact envelope route
+  ---
+  duration_ms: 398.428042
+  ...
+# Subtest: web: Next.js image optimizer uses patched Sharp and performs native image conversion
+ok 28 - web: Next.js image optimizer uses patched Sharp and performs native image conversion
+  ---
+  duration_ms: 155.492915
+  ...
+# Subtest: admin: installed Next.js matches the declared patched version
+ok 29 - admin: installed Next.js matches the declared patched version
+  ---
+  duration_ms: 0.764504
+  ...
+# Subtest: admin: Sentry cannot bypass authorization outside its exact envelope route
+ok 30 - admin: Sentry cannot bypass authorization outside its exact envelope route
+  ---
+  duration_ms: 155.406831
+  ...
+# Subtest: admin: Next.js image optimizer uses patched Sharp and performs native image conversion
+ok 31 - admin: Next.js image optimizer uses patched Sharp and performs native image conversion
+  ---
+  duration_ms: 4.916209
+  ...
+1..31
+# tests 31
+# suites 0
+# pass 26
+# fail 5
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 916.796472

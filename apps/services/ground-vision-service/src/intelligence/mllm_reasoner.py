@@ -69,7 +69,8 @@ class AnthropicProvider:
             try:
                 from anthropic import AsyncAnthropic
 
-                self.client = AsyncAnthropic(api_key=self.api_key)
+                # Upgrade the SDK while retaining the existing image/message API contract.
+                self.client = AsyncAnthropic(api_key=self.api_key, default_headers={"anthropic-version": "2023-06-01"})
             except ImportError:
                 logger.error("anthropic package not installed")
                 raise

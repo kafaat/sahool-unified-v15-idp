@@ -13,16 +13,16 @@ bandit>=1.7.10                 # Security vulnerability scanner
 safety>=3.2.0                  # Check dependencies for vulnerabilities
 
 # Code Quality
-vulture>=2.14                  # Find dead/unused code
+vulture>=2.16                  # Find dead/unused code
 radon>=6.0.1                   # Code complexity analyzer
 xenon>=0.9.3                   # Monitor code complexity thresholds
 
 # Testing Tools
 pytest>=8.3.0                  # Testing framework
 pytest-cov>=6.0.0              # Coverage reporting
-pytest-asyncio==0.26.0         # Async test support
+pytest-asyncio==1.3.0          # Async test support
 pytest-xdist>=3.5.0            # Parallel test execution
-pytest-mock==3.16.0            # Mock support (pinned to match pyproject.toml)
+pytest-mock==3.17.0            # Mock support (pinned to match pyproject.toml)
 sqlalchemy[asyncio]>=2.0.0     # SQLAlchemy with async support (needed by shared/libs/database.py tests)
 httpx>=0.24.0                  # HTTP client (needed by FastAPI TestClient)
 cffi>=1.15.0                   # C FFI (needed by cryptography/PyJWT)

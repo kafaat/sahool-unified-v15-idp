@@ -229,13 +229,13 @@ class KnowledgeRetriever:
 
             # Search in Qdrant
             # البحث في Qdrant
-            search_results = self.client.search(
+            search_results = self.client.query_points(
                 collection_name=self.collection_name,
-                query_vector=query_embedding.tolist(),
+                query=query_embedding.tolist(),
                 limit=top_k,
                 score_threshold=score_threshold,
                 query_filter=query_filter,
-            )
+            ).points
 
             # Convert to Document objects
             # التحويل إلى كائنات Document
@@ -307,7 +307,8 @@ class KnowledgeRetriever:
 
             return {
                 "collection_name": self.collection_name,
-                "vectors_count": collection_info.vectors_count,
+                # This collection stores one dense vector for every point.
+                "vectors_count": collection_info.points_count,
                 "points_count": collection_info.points_count,
                 "status": collection_info.status,
             }

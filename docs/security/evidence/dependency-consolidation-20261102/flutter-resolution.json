@@ -1,0 +1,43 @@
+[
+  {
+    "label": "primary",
+    "command": [
+      "/tmp/sahool-flutter-3.44.9/bin/flutter",
+      "pub",
+      "get",
+      "--enforce-lockfile"
+    ],
+    "cwd": "/workspace/scratch/7de7742d3309/sahool-pr-flutter/apps/mobile",
+    "exit_code": 0,
+    "lock_sha256_before": "4a7b0643e1a69b151cb3c30449ad852c47abecbdbb4be8554e69dd49c3c37fa0",
+    "lock_sha256_after": "4a7b0643e1a69b151cb3c30449ad852c47abecbdbb4be8554e69dd49c3c37fa0",
+    "log": "/workspace/scratch/7de7742d3309/pr-evidence/flutter-primary-supported-resolution.log"
+  },
+  {
+    "label": "field",
+    "command": [
+      "/tmp/sahool-flutter-3.44.9/bin/flutter",
+      "pub",
+      "get",
+      "--enforce-lockfile"
+    ],
+    "cwd": "/workspace/scratch/7de7742d3309/sahool-pr-flutter/apps/mobile/sahool_field_app",
+    "exit_code": 0,
+    "lock_sha256_before": "c118b25e53b4d2d630c3f5393580f1f737b0af4094a46421e026888d2e752115",
+    "lock_sha256_after": "c118b25e53b4d2d630c3f5393580f1f737b0af4094a46421e026888d2e752115",
+    "log": "/workspace/scratch/7de7742d3309/pr-evidence/flutter-field-supported-resolution.log"
+  },
+  {
+    "label": "core",
+    "command": [
+      "/tmp/sahool-flutter-3.44.9/bin/flutter",
+      "pub",
+      "get"
+    ],
+    "cwd": "/workspace/scratch/7de7742d3309/sahool-pr-flutter/packages/sahool-mobile-core",
+    "exit_code": 0,
+    "lock_sha256_before": null,
+    "lock_sha256_after": "937c482a8389d72c9a2cb0814e7909c90b317c4f20b9001a5876a12fa88692b5",
+    "log": "/workspace/scratch/7de7742d3309/pr-evidence/flutter-core-supported-resolution.log"
+  }
+]

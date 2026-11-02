@@ -1,0 +1,6 @@
+Using Python 3.12.14 environment at: /tmp/sahool-ai-sdk-env
+Resolved 38 packages in 14ms
+Uninstalled 1 package in 25ms
+Installed 1 package in 27ms
+ - anthropic==2.4.0
+ + anthropic==2.3.0

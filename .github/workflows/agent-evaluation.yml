@@ -46,7 +46,8 @@ jobs:
     # Service containers for evaluation (optional - tests can run without them)
     services:
       qdrant:
-        image: qdrant/qdrant:v1.7.0
+        # Match compose/Helm: query_points requires the Query API introduced in 1.10.
+        image: qdrant/qdrant:v1.10.1
         ports:
           - 6333:6333
         env:

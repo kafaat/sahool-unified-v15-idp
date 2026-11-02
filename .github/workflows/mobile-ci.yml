@@ -16,6 +16,11 @@ on:
       - 'claude/**'
     paths:
       - 'apps/mobile/**'
+      - 'packages/sahool-mobile-core/**'
+      - '.github/dependabot.yml'
+      - 'constraints.txt'
+      - 'tests/unit/test_flutter_toolchain_consistency.py'
+      - 'tests/unit/test_mobile_dependency_compatibility.py'
       - '.github/workflows/mobile-ci.yml'
   pull_request:
     branches:
@@ -23,6 +28,11 @@ on:
       - develop
     paths:
       - 'apps/mobile/**'
+      - 'packages/sahool-mobile-core/**'
+      - '.github/dependabot.yml'
+      - 'constraints.txt'
+      - 'tests/unit/test_flutter_toolchain_consistency.py'
+      - 'tests/unit/test_mobile_dependency_compatibility.py'
       - '.github/workflows/mobile-ci.yml'
   workflow_dispatch:
     inputs:
@@ -62,6 +72,24 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.0.2
+
+      - name: Setup Python for mobile dependency policy
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.12'
+
+      - name: Install mobile policy check dependencies
+        working-directory: ${{ github.workspace }}
+        run: python -m pip install -c constraints.txt pytest pytest-asyncio PyYAML packaging
+
+      - name: Check the Flutter toolchain and dependency compatibility
+        id: mobile-dependency-policy
+        working-directory: ${{ github.workspace }}
+        run: |
+          python -m pytest -q -o addopts= \
+            tests/unit/test_flutter_toolchain_consistency.py \
+            tests/unit/test_mobile_dependency_compatibility.py \
+            --junitxml=test-results/mobile-dependency-compatibility.xml
 
       - name: Setup Java ${{ env.JAVA_VERSION }}
         uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
@@ -184,7 +212,9 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: analysis-results
-          path: apps/mobile/sahool_field_app/analyze_output.txt
+          path: |
+            apps/mobile/sahool_field_app/analyze_output.txt
+            test-results/mobile-dependency-compatibility.xml
           retention-days: 7
 
   # ─────────────────────────────────────────────────────────────────────────────

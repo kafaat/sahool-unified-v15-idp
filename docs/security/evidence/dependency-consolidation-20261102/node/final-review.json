@@ -1,0 +1,33 @@
+{
+  "reviewed_commit": "b5328978",
+  "compared_main": "0f17b625047ea6d5108f42a240d507d7c855c912",
+  "reviewed_node_commits": [
+    "af4561c7bcc1d54a15e66eadf4a48f7ff5d71dbe",
+    "f1956e6c02009ad41fd255a82eb960807661c594"
+  ],
+  "node_version": "20.20.2",
+  "review_results": {
+    "node_source_changes_match_tested_commits": true,
+    "root_workspace_metadata_matches_manifests": true,
+    "tracked_locks_inspected": 15,
+    "patched_body_parser_resolutions": 12,
+    "regression_source_hash_matches_receipt": true
+  },
+  "checks": [
+    {
+      "cwd": "repository root",
+      "command": "node node_modules/typescript/lib/tsc.js --noEmit --incremental false -p apps/web/tsconfig.json",
+      "exit_code": 0,
+      "log": "final-review-web-types.log"
+    },
+    {
+      "cwd": "repository root",
+      "command": "node node_modules/typescript/lib/tsc.js --noEmit --incremental false -p apps/admin/tsconfig.json",
+      "exit_code": 0,
+      "log": "final-review-admin-types.log"
+    }
+  ],
+  "limits": [
+    "Unchanged standalone metadata drift remains in packages/shared-db/package-lock.json and packages/shared-events/package-lock.json. The frozen root workspace lock is synchronized."
+  ]
+}

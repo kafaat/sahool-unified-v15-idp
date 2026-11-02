@@ -249,7 +249,9 @@ class AnthropicProvider(LLMProvider):
             try:
                 from anthropic import AsyncAnthropic
 
-                self._client = AsyncAnthropic(api_key=self.api_key)
+                # Retain sampling semantics when SDK 2 changes its default API version.
+                # https://platform.claude.com/docs/en/api/migration-2026-10-21
+                self._client = AsyncAnthropic(api_key=self.api_key, default_headers={"anthropic-version": "2023-06-01"})
             except ImportError:
                 logger.error("anthropic package not installed")
                 return None
@@ -293,7 +295,7 @@ class AnthropicProvider(LLMProvider):
         response = await client.messages.create(
             model=model or self.default_model,
             max_tokens=max_tokens,
-            temperature=temperature,
+            extra_body={"temperature": temperature},  # Legacy API field removed from the SDK 2 signature.
             system=system_msg,
             messages=chat_messages,
         )

@@ -124,6 +124,9 @@ updates:
           - "riverpod*"
           - "drift*"
           - "go_router"
+        update-types:
+          - "minor"
+          - "patch"
       ui-packages:
         patterns:
           - "flutter_svg"
@@ -133,6 +136,17 @@ updates:
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
+      # drift_dev 2.28.1+ needs build/source_gen 3+, incompatible with the
+      # retained Freezed/Riverpod 2.x generators. The compatible generator
+      # requires drift <2.29. Drift 2.32+ also changes the SQLCipher integration.
+      # Revisit together after migration (docs/mobile/FLUTTER_TOOLCHAIN.md).
+      - dependency-name: "drift"
+        versions: [">=2.29.0"]
+      - dependency-name: "drift_dev"
+        versions: [">=2.28.1"]
+      # 2.6.5 transitively requires freezed_annotation 3.x.
+      - dependency-name: "riverpod_generator"
+        versions: [">=2.6.5"]
 
   # ─────────────────────────────────────────────────────────────────────────────
   # GitHub Actions

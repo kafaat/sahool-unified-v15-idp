@@ -1,0 +1,65 @@
+{
+  "recorded_at": "2026-11-02T21:09:33.759588+00:00",
+  "tested_code_commit": "b5328978206c6f50829bd720185a331402496b27",
+  "integrated_main": "0f17b625047ea6d5108f42a240d507d7c855c912",
+  "source_integrity": [
+    {
+      "receipt": "python/consolidation-python-evidence.json",
+      "matching_source_files": 86,
+      "mismatches": []
+    },
+    {
+      "receipt": "flutter/flutter-review-guard-receipt.json",
+      "matching_source_files": 3,
+      "mismatches": []
+    }
+  ],
+  "integration_suites": {
+    "python-root": {
+      "tests": 102,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "python-ai": {
+      "tests": 16,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "mobile-policy": {
+      "tests": 86,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "local_runtimes": {
+    "python": "3.12.14",
+    "pytest": "9.2.0",
+    "node": "20.20.2",
+    "npm": "10.9.0",
+    "flutter": "3.44.9",
+    "dart": "3.12.2"
+  },
+  "distinct_test_counts": {
+    "node_agent": 6063,
+    "additional_javascript_security": 4,
+    "python": 291,
+    "mobile_policy": 86,
+    "native_flutter": 2
+  },
+  "counting_notes": [
+    "The integrated Python and mobile suites repeat cases in the independent review; do not add them twice.",
+    "The 16 AI cases were also repeated with genuine Anthropic 2.3.0 and 2.4.0 installations.",
+    "The four additional JavaScript regression cases were repeated against parser1 and a real standalone parser2 lock.",
+    "Node shared-hooks and shared-ui coverage reruns are already included in the root suite."
+  ],
+  "limits": [
+    "CI was not yet available when this local receipt was written. Consult checks on the final PR head.",
+    "No live Anthropic inference, remote Qdrant server, deployment, APK/iOS build, or sqlite3 major migration was performed.",
+    "npm audit remains non-clean: 107 findings (17 high, 79 moderate, 11 low). No new direct advisory was introduced relative to the initial main audit.",
+    "All 15 tracked npm locks were inspected for targeted vulnerable dependency resolutions. This is not a claim that every untouched standalone lock has synchronized metadata.",
+    "Flutter requested major upgrades are deliberately deferred; compatible manifest bounds and mandatory regression guards are provided instead."
+  ]
+}

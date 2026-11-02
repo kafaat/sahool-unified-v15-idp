@@ -1,0 +1,18 @@
+Using CPython 3.12.14 interpreter at: /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12
+Resolved 115 packages in 38ms
+Updated fastapi v0.143.0 -> v0.162.0
+Updated opentelemetry-api v1.45.1 -> v1.45.2
+Updated opentelemetry-instrumentation v0.66b1 -> v0.66b2
+Updated opentelemetry-instrumentation-asgi v0.66b1 -> v0.66b2
+Updated opentelemetry-instrumentation-fastapi v0.66b1 -> v0.66b2
+Updated opentelemetry-sdk v1.45.1 -> v1.45.2
+Updated opentelemetry-semantic-conventions v0.66b1 -> v0.66b2
+Updated opentelemetry-util-http v0.66b1 -> v0.66b2
+Updated pre-commit v4.6.2 -> v4.7.0
+Updated pydantic v2.14.0 -> v2.14.2
+Updated pydantic-core v2.50.0 -> v2.50.2
+Updated pytest v9.1.1 -> v9.2.0
+Updated pytest-mock v3.16.0 -> v3.17.0
+Updated ruff v0.16.10 -> v0.17.3
+Updated sqlalchemy v2.1.4 -> v2.1.6
+Updated tortoise-orm v1.1.8 -> v1.1.9

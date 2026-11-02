@@ -1,0 +1,77 @@
+{
+  "issues": [
+    {
+      "type": "npm_workspace_divergence",
+      "severity": "warning",
+      "package": "typescript",
+      "source": "npm workspaces",
+      "source_version": "5.9.3, ~5.7.2",
+      "constraint_version": "no override",
+      "message": "typescript has 2 versions across workspaces: packages/api-client=5.9.3; packages/design-system=5.9.3; packages/field-shared=5.9.3; packages/i18n=5.9.3; packages/mock-data=5.9.3"
+    },
+    {
+      "type": "npm_workspace_divergence",
+      "severity": "warning",
+      "package": "@nestjs/common",
+      "source": "npm workspaces",
+      "source_version": "^10.4.15, ^10.4.22",
+      "constraint_version": "no override",
+      "message": "@nestjs/common has 2 versions across workspaces: packages/shared-audit=^10.4.15; apps/services/field-management-service=^10.4.15; apps/services/partner-auth-service=^10.4.15; apps/services/user-service=^10.4.15; apps/services/chat-service=^10.4.22"
+    },
+    {
+      "type": "npm_workspace_divergence",
+      "severity": "warning",
+      "package": "@nestjs/core",
+      "source": "npm workspaces",
+      "source_version": "^10.4.15, ^10.4.22",
+      "constraint_version": "no override",
+      "message": "@nestjs/core has 2 versions across workspaces: packages/shared-audit=^10.4.15; apps/services/field-management-service=^10.4.15; apps/services/partner-auth-service=^10.4.15; apps/services/user-service=^10.4.15; apps/services/chat-service=^10.4.22"
+    },
+    {
+      "type": "npm_workspace_divergence",
+      "severity": "warning",
+      "package": "@nestjs/cache-manager",
+      "source": "npm workspaces",
+      "source_version": "^2.2.0, ^2.3.0",
+      "constraint_version": "no override",
+      "message": "@nestjs/cache-manager has 2 versions across workspaces: apps/services/field-management-service=^2.2.0; apps/services/marketplace-service=^2.3.0"
+    },
+    {
+      "type": "npm_workspace_divergence",
+      "severity": "warning",
+      "package": "@nestjs/platform-express",
+      "source": "npm workspaces",
+      "source_version": "^10.4.15, ^10.4.22",
+      "constraint_version": "no override",
+      "message": "@nestjs/platform-express has 2 versions across workspaces: apps/services/field-management-service=^10.4.15; apps/services/partner-auth-service=^10.4.15; apps/services/user-service=^10.4.15; apps/services/chat-service=^10.4.22; apps/services/crop-growth-model=^10.4.15"
+    },
+    {
+      "type": "npm_workspace_divergence",
+      "severity": "warning",
+      "package": "@nestjs/swagger",
+      "source": "npm workspaces",
+      "source_version": "^8.1.0, ^8.1.1",
+      "constraint_version": "no override",
+      "message": "@nestjs/swagger has 2 versions across workspaces: apps/services/field-management-service=^8.1.0; apps/services/partner-auth-service=^8.1.0; apps/services/user-service=^8.1.0; apps/services/chat-service=^8.1.1; apps/services/crop-growth-model=^8.1.0"
+    },
+    {
+      "type": "npm_workspace_divergence",
+      "severity": "warning",
+      "package": "@nestjs/testing",
+      "source": "npm workspaces",
+      "source_version": "^10.4.15, ^10.4.22",
+      "constraint_version": "no override",
+      "message": "@nestjs/testing has 2 versions across workspaces: apps/services/field-management-service=^10.4.15; apps/services/partner-auth-service=^10.4.15; apps/services/user-service=^10.4.15; apps/services/chat-service=^10.4.22; apps/services/crop-growth-model=^10.4.15"
+    },
+    {
+      "type": "npm_workspace_divergence",
+      "severity": "warning",
+      "package": "@nestjs/schematics",
+      "source": "npm workspaces",
+      "source_version": "^10.0.0, ^10.2.3",
+      "constraint_version": "no override",
+      "message": "@nestjs/schematics has 2 versions across workspaces: apps/services/partner-auth-service=^10.2.3; apps/services/research-core=^10.0.0"
+    }
+  ],
+  "total": 8
+}

@@ -129,6 +129,7 @@ const createMockCacheService = () => ({
 
 describe("Health Endpoints", () => {
   let controller: AppController;
+  let originalNatsUrl: string | undefined;
 
   const mockMarketService = {
     findAllProducts: jest.fn(),
@@ -190,6 +191,8 @@ describe("Health Endpoints", () => {
   };
 
   beforeEach(async () => {
+    originalNatsUrl = process.env.NATS_URL;
+    process.env.NATS_URL = "nats://unit-test.invalid:4222";
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
       providers: [
@@ -204,6 +207,8 @@ describe("Health Endpoints", () => {
   });
 
   afterEach(() => {
+    if (originalNatsUrl === undefined) delete process.env.NATS_URL;
+    else process.env.NATS_URL = originalNatsUrl;
     jest.clearAllMocks();
   });
 
@@ -235,6 +240,15 @@ describe("Health Endpoints", () => {
       expect(result).toHaveProperty("checks");
       expect(result.checks).toHaveProperty("database", "connected");
       expect(result.checks).toHaveProperty("nats", "connected");
+    });
+
+    it("should remain ready when optional NATS is not configured", async () => {
+      delete process.env.NATS_URL;
+      const result = await controller.readinessCheck();
+
+      expect(result.status).toBe("ready");
+      expect(result.checks.nats).toBe("not_configured");
+      expect(mockEventsService.isConnected).not.toHaveBeenCalled();
     });
 
     it("should include a valid ISO timestamp", async () => {

@@ -1,0 +1,130 @@
+{
+  "base_sha": "920ed84e28741e9946f09a673feb22398712377b",
+  "before": {
+    "info": 0,
+    "low": 12,
+    "moderate": 83,
+    "high": 19,
+    "critical": 0,
+    "total": 114
+  },
+  "after": {
+    "info": 0,
+    "low": 11,
+    "moderate": 79,
+    "high": 17,
+    "critical": 0,
+    "total": 107
+  },
+  "new_direct_advisories": [],
+  "removed_direct_advisories": [
+    {
+      "package": "@vitest/mocker",
+      "url": "https://github.com/advisories/GHSA-82fw-gwwq-j7x9",
+      "severity": "moderate",
+      "title": "Vitest: Path Traversal / Arbitrary File Read via @vitest/mocker Redirect Mock"
+    },
+    {
+      "package": "@vitest/mocker",
+      "url": "https://github.com/advisories/GHSA-qxg6-89mg-rqv8",
+      "severity": "moderate",
+      "title": "Vitest: Code injection via unauthenticated manual mock registration"
+    },
+    {
+      "package": "body-parser",
+      "url": "https://github.com/advisories/GHSA-27r3-jxmh-p828",
+      "severity": "high",
+      "title": "body-parser vulnerable to Denial of Service via trailing bytes after a compressed request body"
+    },
+    {
+      "package": "body-parser",
+      "url": "https://github.com/advisories/GHSA-v422-hmwv-36x6",
+      "severity": "low",
+      "title": "body-parser vulnerable to denial of service when invalid limit value silently disables size enforcement"
+    },
+    {
+      "package": "qs",
+      "url": "https://github.com/advisories/GHSA-4mjr-xmp4-gh2g",
+      "severity": "moderate",
+      "title": "qs: Denial of Service via Attacker Controlled isBuffer"
+    },
+    {
+      "package": "qs",
+      "url": "https://github.com/advisories/GHSA-6pq8-jhm2-2vcw",
+      "severity": "moderate",
+      "title": "qs : qs.stringify with arrayFormat 'comma' throws an uncaught TypeError on array elements carrying a non-callable own toString (DoS)"
+    },
+    {
+      "package": "qs",
+      "url": "https://github.com/advisories/GHSA-q8mj-m7cp-5q26",
+      "severity": "moderate",
+      "title": "qs has a remotely triggerable DoS: qs.stringify crashes with TypeError on null/undefined entries in comma-format arrays when encodeValuesOnly is set"
+    },
+    {
+      "package": "qs",
+      "url": "https://github.com/advisories/GHSA-x5fp-wj9c-mxmx",
+      "severity": "moderate",
+      "title": "qs array-limit bypass via bracket-key comma parsing"
+    },
+    {
+      "package": "vite",
+      "url": "https://github.com/advisories/GHSA-4w7w-66w2-5vf9",
+      "severity": "moderate",
+      "title": "Vite Vulnerable to Path Traversal in Optimized Deps `.map` Handling"
+    },
+    {
+      "package": "vite",
+      "url": "https://github.com/advisories/GHSA-587h-7wmj-h5pm",
+      "severity": "high",
+      "title": "launch-editor: `fs.existsSync()` existence check can be bypassed on Windows"
+    },
+    {
+      "package": "vite",
+      "url": "https://github.com/advisories/GHSA-698v-4r3x-3vcv",
+      "severity": "moderate",
+      "title": "launch-editor: escapeCmdArgs() omits % escaping on Windows"
+    },
+    {
+      "package": "vite",
+      "url": "https://github.com/advisories/GHSA-9jrq-w75r-8gcw",
+      "severity": "low",
+      "title": "Vite: Cross origin script execution through Vite custom middleware"
+    },
+    {
+      "package": "vite",
+      "url": "https://github.com/advisories/GHSA-fx2h-pf6j-xcff",
+      "severity": "moderate",
+      "title": "vite: `server.fs.deny` bypass on Windows alternate paths"
+    },
+    {
+      "package": "vite",
+      "url": "https://github.com/advisories/GHSA-p9ff-h696-f583",
+      "severity": "high",
+      "title": "Vite Vulnerable to Arbitrary File Read via Vite Dev Server WebSocket"
+    },
+    {
+      "package": "vite",
+      "url": "https://github.com/advisories/GHSA-r825-w8mm-5pxw",
+      "severity": "moderate",
+      "title": "launch-editor: Editor CLI flag misinterpretation causing arbitrary command execution for some editors"
+    },
+    {
+      "package": "vite",
+      "url": "https://github.com/advisories/GHSA-rq7h-c2jc-7f22",
+      "severity": "moderate",
+      "title": "Vite: Files outside `server.fs.allow` could be served when project paths match system paths on non-Windows machine"
+    },
+    {
+      "package": "vite",
+      "url": "https://github.com/advisories/GHSA-v6wh-96g9-6wx3",
+      "severity": "moderate",
+      "title": "launch-editor: NTLMv2 hash disclosure via UNC path handling on Windows"
+    },
+    {
+      "package": "vitest",
+      "url": "https://github.com/advisories/GHSA-82fw-gwwq-j7x9",
+      "severity": "moderate",
+      "title": "Vitest: Path Traversal / Arbitrary File Read via @vitest/mocker Redirect Mock"
+    }
+  ]
+}

@@ -1,0 +1,95 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> sahool-unified@16.0.0 build:packages
+> npm run build --workspace=packages/shared-types && npm run build --workspace=packages/shared-utils && npm run build --workspace=packages/i18n && npm run build --workspace=packages/shared-ui && npm run build --workspace=packages/api-client && npm run build --workspace=packages/shared-hooks
+
+
+> @sahool/shared-types@16.0.0 build
+> rm -f tsconfig.tsbuildinfo && tsc
+
+
+> @sahool/shared-utils@16.0.0 build
+> tsup src/index.ts --format cjs,esm --dts
+
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Target: es2020
+CJS Build start
+ESM Build start
+CJS dist/index.js 67.43 KB
+CJS ⚡️ Build success in 39ms
+ESM dist/index.mjs 64.57 KB
+ESM ⚡️ Build success in 41ms
+DTS Build start
+DTS ⚡️ Build success in 1683ms
+DTS dist/index.d.ts  25.92 KB
+DTS dist/index.d.mts 25.92 KB
+
+> @sahool/i18n@16.0.0 build
+> rm -f tsconfig.tsbuildinfo && tsc
+
+
+> @sahool/shared-ui@16.0.0 build
+> tsup src/index.ts --format cjs,esm --dts --external react
+
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Target: es2020
+CJS Build start
+ESM Build start
+CJS dist/index.js 51.71 KB
+CJS ⚡️ Build success in 79ms
+ESM dist/index.mjs 44.29 KB
+ESM ⚡️ Build success in 79ms
+DTS Build start
+DTS ⚡️ Build success in 3102ms
+DTS dist/index.d.ts  14.52 KB
+DTS dist/index.d.mts 14.52 KB
+
+> @sahool/api-client@16.0.0 build
+> tsup src/index.ts src/types.ts src/errors.ts --format cjs,esm --dts --external @sahool/shared-types
+
+CLI Building entry: src/errors.ts, src/index.ts, src/types.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Target: es2020
+CJS Build start
+ESM Build start
+CJS dist/index.js  46.71 KB
+CJS dist/errors.js 7.77 KB
+CJS dist/types.js  758.00 B
+CJS ⚡️ Build success in 34ms
+ESM dist/chunk-WBQAMGXK.mjs 0 B
+ESM dist/errors.mjs         478.00 B
+ESM dist/index.mjs          38.60 KB
+ESM dist/types.mjs          31.00 B
+ESM dist/chunk-V5JGFA4X.mjs 6.35 KB
+ESM ⚡️ Build success in 34ms
+DTS Build start
+DTS ⚡️ Build success in 2279ms
+DTS dist/index.d.ts   8.79 KB
+DTS dist/errors.d.ts  3.97 KB
+DTS dist/types.d.ts   14.21 KB
+DTS dist/index.d.mts  8.79 KB
+DTS dist/errors.d.mts 3.97 KB
+DTS dist/types.d.mts  14.21 KB
+
+> @sahool/shared-hooks@16.0.0 build
+> tsup src/index.ts --format cjs,esm --dts --external react
+
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.1
+CLI Target: es2020
+CJS Build start
+ESM Build start
+ESM dist/index.mjs 17.83 KB
+ESM ⚡️ Build success in 36ms
+CJS dist/index.js 20.22 KB
+CJS ⚡️ Build success in 36ms
+DTS Build start
+DTS ⚡️ Build success in 1631ms
+DTS dist/index.d.ts  6.95 KB
+DTS dist/index.d.mts 6.95 KB

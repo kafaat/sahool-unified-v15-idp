@@ -9,6 +9,7 @@ on:
       - 'apps/web/src/features/fields/examples/NdviTileLayerExample.tsx'
       - 'apps/admin/.storybook/**'
       - 'tests/security/javascript-*'
+      - 'tests/security/dependency-consolidation.test.cjs'
       - 'tests/security/browser/**'
       - '.github/workflows/javascript-critical-security.yml'
   push:
@@ -20,6 +21,7 @@ on:
       - 'apps/web/src/features/fields/examples/NdviTileLayerExample.tsx'
       - 'apps/admin/.storybook/**'
       - 'tests/security/javascript-*'
+      - 'tests/security/dependency-consolidation.test.cjs'
       - 'tests/security/browser/**'
       - '.github/workflows/javascript-critical-security.yml'
   workflow_dispatch:
@@ -56,7 +58,8 @@ jobs:
         run: |
           node --test --test-reporter=spec --test-reporter-destination=stdout \
             --test-reporter=junit --test-reporter-destination=test-results/javascript-security-node.xml \
-            tests/security/javascript-dependencies.test.cjs
+            tests/security/javascript-dependencies.test.cjs \
+            tests/security/dependency-consolidation.test.cjs
       - name: Exercise the patched Vitest worker pool and V8 coverage with shared hooks
         working-directory: packages/shared-hooks
         run: |

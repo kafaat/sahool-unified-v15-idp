@@ -1214,13 +1214,13 @@ class QdrantBackend(VectorStoreBackendBase):
                 conditions.append(FieldCondition(key=key, match=MatchValue(value=value)))
             qdrant_filter = Filter(must=conditions)
 
-        hits = self._client.search(
+        hits = self._client.query_points(
             collection_name=collection,
-            query_vector=vector,
+            query=vector,
             limit=top_k,
             query_filter=qdrant_filter,
             with_vectors=True,
-        )
+        ).points
 
         results = []
         for rank, hit in enumerate(hits, 1):

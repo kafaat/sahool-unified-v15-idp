@@ -1,0 +1,49 @@
+  Generating the build script.
+  Compiling the build script.
+  Reading the asset graph.
+  Creating the asset graph.
+  Doing initial build cleanup.
+  Deleting 21 declared outputs which already existed on disk.
+  Updating the asset graph.
+  Building, full build because builders changed.
+  0s riverpod_generator on 780 inputs; lib/core/accessibility/accessibility_utils.dart
+W SDK language version 3.12.0 is newer than `analyzer` language version 3.9.0. Run `flutter packages upgrade`.
+  6s riverpod_generator on 780 inputs: 1 no-op; spent 6s sdk; lib/core/accessibility/semantics_helper.dart
+  20s riverpod_generator on 780 inputs: 46 no-op; spent 12s analyzing, 6s sdk, 2s resolving; lib/core/database/migration_strategy.dart
+  22s riverpod_generator on 780 inputs: 54 no-op; spent 13s analyzing, 6s sdk, 2s resolving; lib/core/deeplink/deeplink_routes.dart
+  23s riverpod_generator on 780 inputs: 121 no-op; spent 14s analyzing, 6s sdk, 2s resolving; lib/core/motion/motion_providers.dart
+  24s riverpod_generator on 780 inputs: 163 no-op; spent 14s analyzing, 6s sdk, 2s resolving; lib/core/persistence/persistence.dart
+  25s riverpod_generator on 780 inputs: 211 no-op; spent 16s analyzing, 6s sdk, 2s resolving; lib/core/storage/database_encryption.dart
+  30s riverpod_generator on 780 inputs: 215 no-op; spent 20s analyzing, 6s sdk, 3s resolving; lib/core/sync/network_status.dart
+  31s riverpod_generator on 780 inputs: 318 no-op; spent 21s analyzing, 6s sdk, 3s resolving, 1s building; lib/features/astronomical/presentation/screens/astronomical_screen.dart
+  33s riverpod_generator on 780 inputs: 1 output, 331 no-op; spent 21s analyzing, 6s sdk, 3s resolving, 1s building; lib/features/auth/services/otp_service.dart
+  34s riverpod_generator on 780 inputs: 1 output, 446 no-op; spent 22s analyzing, 6s sdk, 3s resolving, 1s building; lib/features/field_scout/field_scout.dart
+  35s riverpod_generator on 780 inputs: 1 output, 592 no-op; spent 23s analyzing, 6s sdk, 3s resolving, 2s building; lib/features/pivot_irrigation/pivot_irrigation.dart
+  36s riverpod_generator on 780 inputs: 1 output, 728 no-op; spent 23s analyzing, 6s sdk, 3s resolving, 2s building; lib/features/tasks/providers/tasks_provider.dart
+  36s riverpod_generator on 780 inputs: 1 output, 779 no-op; spent 24s analyzing, 6s sdk, 3s resolving, 2s building
+  0s freezed on 119 inputs; lib/features/advisor/data/models/fertilizer_models.dart
+  0s freezed on 119 inputs: 2 output, 7 no-op; lib/features/ai_advisor/domain/models/advisory_request.dart
+  1s freezed on 119 inputs: 7 output, 112 no-op
+  0s json_serializable on 243 inputs; lib/core/storage/converters/geo_converter.dart
+  0s json_serializable on 243 inputs: 3 no-op; lib/core/storage/mixins/tenant_mixin.dart
+  1s json_serializable on 243 inputs: 20 skipped, 3 output, 27 no-op; lib/features/community/data/models/chat_models.freezed.dart
+  2s json_serializable on 243 inputs: 56 skipped, 4 output, 66 no-op; spent 2s analyzing; lib/features/irrigation/data/repository/irrigation_repository.freezed.dart
+  3s json_serializable on 243 inputs: 76 skipped, 4 output, 86 no-op; spent 2s analyzing; lib/features/payment/data/tharwatt_service.freezed.dart
+  4s json_serializable on 243 inputs: 102 skipped, 7 output, 113 no-op; spent 3s analyzing; lib/features/virtual_sensors/data/models/virtual_sensor_models.freezed.dart
+  4s json_serializable on 243 inputs: 112 skipped, 7 output, 124 no-op; spent 3s analyzing
+  0s drift_dev on 628 inputs; lib/core/database/migration_strategy.dart
+  2s drift_dev on 628 inputs: 63 skipped, 86 output; spent 1s analyzing; test/core/database/database_test.dart
+  5s drift_dev on 628 inputs: 63 skipped, 103 output; spent 4s analyzing; lib/core/storage/database_encryption.dart
+  10s drift_dev on 628 inputs: 78 skipped, 124 output, 4 no-op; spent 9s analyzing; lib/features/crm/data/crm_local_database.freezed.dart
+  13s drift_dev on 628 inputs: 126 skipped, 174 output, 7 no-op; spent 12s analyzing; test/core/database/encryption_test.dart
+  14s drift_dev on 628 inputs: 126 skipped, 178 output, 7 no-op; spent 13s analyzing; test/core/database/migration_test.dart
+  16s drift_dev on 628 inputs: 126 skipped, 180 output, 7 no-op; spent 15s analyzing; test/core/database/weather_dao_test.dart
+  18s drift_dev on 628 inputs: 126 skipped, 181 output, 7 no-op; spent 17s analyzing; lib/core/database/migration_strategy.dart
+  19s drift_dev on 628 inputs: 342 skipped, 186 output, 97 no-op; spent 17s analyzing, 1s building; test/core/database/sync_queue_dao_test.dart.types.temp.dart
+  19s drift_dev on 628 inputs: 344 skipped, 187 output, 97 no-op; spent 17s analyzing, 2s building
+  0s source_gen:combining_builder on 946 inputs; lib/core/accessibility/accessibility_utils.dart
+  1s source_gen:combining_builder on 946 inputs: 151 skipped, 12 output, 776 no-op; test/core/database/migration_integration_test.dart.types.temp.dart
+  1s source_gen:combining_builder on 946 inputs: 155 skipped, 14 output, 777 no-op
+  Running the post build.
+  Writing the asset graph.
+  Built with build_runner in 64s; wrote 218 outputs.

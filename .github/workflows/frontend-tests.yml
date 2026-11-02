@@ -655,15 +655,30 @@ jobs:
           working-directory: apps/mobile
           clean-first: 'true'
 
+      # Analysis recursively visits both nested apps. Resolve each package and
+      # generate its sources before analyzing the complete apps/mobile tree.
+      - name: Generate shared mobile core for analysis
+        uses: ./.github/actions/flutter-codegen
+        with:
+          working-directory: packages/sahool-mobile-core
+          clean-first: 'false'
+
+      - name: Generate nested field app for analysis
+        uses: ./.github/actions/flutter-codegen
+        with:
+          working-directory: apps/mobile/sahool_field_app
+          clean-first: 'false'
+
+      - name: Resolve nested unified app for analysis
+        working-directory: apps/mobile/sahool_app
+        run: flutter pub get --enforce-lockfile
+
       - name: Run Flutter Analyze
         id: analyze
+        shell: bash
         run: |
           echo "Running Flutter analyze..."
-          flutter analyze --no-fatal-infos --no-fatal-warnings 2>&1 | tee analyze_output.txt || {
-            echo "::warning::Flutter analysis found issues (pre-existing)"
-            echo "## ⚠️ Flutter Analyze Warnings" >> $GITHUB_STEP_SUMMARY
-            echo "Flutter analyze found issues in apps/mobile. Run \`cd apps/mobile && flutter analyze\` locally to see details." >> $GITHUB_STEP_SUMMARY
-          }
+          flutter analyze --no-pub --no-fatal-infos --no-fatal-warnings 2>&1 | tee analyze_output.txt
 
   # =============================================================================
   # Job 3b: Flutter - Unit Tests

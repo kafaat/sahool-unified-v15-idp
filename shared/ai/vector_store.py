@@ -603,30 +603,27 @@ class SQLiteBackend(VectorStoreBackendBase):
     ) -> int:
         """Delete documents by IDs"""
         cursor = self._conn.cursor()
+        # An external-content FTS entry must be removed only once.
+        parameters = [(document_id, collection) for document_id in dict.fromkeys(ids)]
 
-        # Using parameterized query with ? placeholders - safe from SQL injection
-        placeholders = ",".join("?" * len(ids))
-        delete_docs_sql = f"""
-            DELETE FROM documents
-            WHERE id IN ({placeholders}) AND collection = ?
-        """  # nosec B608 - parameterized query with ? placeholders
-        cursor.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query, python.sqlalchemy.security.sqlalchemy-execute-raw-query -- parameterized query with ? placeholders; ids are UUIDs, collection is internal
-            delete_docs_sql,
-            (*ids, collection),
-        )
-
-        # Delete from FTS
-        delete_fts_sql = f"""
+        # Remove external-content FTS entries while their source rows still
+        # exist, and only for documents belonging to the requested collection.
+        cursor.executemany(
+            """
             DELETE FROM documents_fts
-            WHERE id IN ({placeholders})
-        """  # nosec B608 - parameterized query with ? placeholders
-        cursor.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query, python.sqlalchemy.security.sqlalchemy-execute-raw-query -- parameterized query with ? placeholders; ids are UUIDs
-            delete_fts_sql,
-            ids,
+            WHERE id IN (SELECT id FROM documents WHERE id = ? AND collection = ?)
+            """,
+            parameters,
         )
+
+        cursor.executemany(
+            "DELETE FROM documents WHERE id = ? AND collection = ?",
+            parameters,
+        )
+        deleted_count = cursor.rowcount
 
         self._conn.commit()
-        return cursor.rowcount
+        return deleted_count
 
     async def get(
         self,

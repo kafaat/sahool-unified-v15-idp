@@ -1,0 +1,62 @@
+{
+  "published_pr": 2027,
+  "published_head_before_followup": "5ae806cd8ac3e0da53067e72b6ce211d871cd123",
+  "fix_commit": "6aa1109523a90a6e07efcea4474402cfe5002329",
+  "semgrep_check_id": 125558846704,
+  "baseline_main_sha": "920ed84e28741e9946f09a673feb22398712377b",
+  "flagged_method_identical_to_baseline": true,
+  "backend": "SQLiteBackend.delete (not PgVector or DDL)",
+  "behavior_changes": [
+    "Use static parameterized statements with executemany; remove dynamic placeholder construction and the two old suppressions.",
+    "Remove external-content FTS entries before their document source rows.",
+    "Restrict FTS deletion to the requested collection.",
+    "Deduplicate IDs before removing FTS entries and return the actual deleted document count."
+  ],
+  "scanner": {
+    "version": "1.183.0",
+    "rule": "python.sqlalchemy.security.sqlalchemy-execute-raw-query.sqlalchemy-execute-raw-query",
+    "source_url": "https://raw.githubusercontent.com/semgrep/semgrep-rules/develop/python/sqlalchemy/security/sqlalchemy-execute-raw-query.yaml",
+    "rule_sha256": "ad1a0cdc4622c4031d8a43796d66a4ed89778a1ebd9d8140d42ef81e857bda3d",
+    "targets": 1,
+    "before_findings": 2,
+    "after_findings": 0,
+    "before_errors": 0,
+    "after_errors": 0,
+    "reports": [
+      "semgrep-sql-before.json",
+      "semgrep-sql-final.json"
+    ]
+  },
+  "tests": {
+    "ai-sqlite-final.xml": {
+      "tests": 26,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "sqlite-delete-negative-final.xml": {
+      "tests": 10,
+      "failures": 6,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "runtime": "Python3.12.14, genuine installed Anthropic2.3.0 and LangChain1.7.9; real SQLite/FTS5 and in-memory Qdrant; mocked provider transports",
+  "mandatory_ci": {
+    "workflow": ".github/workflows/python-lock-security.yml",
+    "job": "cpu-embedding",
+    "step": "Exercise SDK request contracts and vector-store isolation",
+    "selector": "tests/unit/ai/test_ai_vector_store.py::TestSQLiteBackend",
+    "path_filters": [
+      "push",
+      "pull_request"
+    ],
+    "continue_on_error": false
+  },
+  "source_sha256": {
+    "shared/ai/vector_store.py": "02daba2b42af3fdb44e9d28ba6c541ffe6f720d2826d384460ab85e0bbb2e2f6",
+    "tests/unit/ai/test_ai_vector_store.py": "d34a861b8db32842c0b3ef47d8cb5fe724ce0341db10d24ee0da424550c6764a",
+    ".github/workflows/python-lock-security.yml": "c0528aee84505bd085be764ab9e2d457fbc8cac369e88f4f0de4a00ec4e8e9ed"
+  },
+  "pre_fix_source_sha256": "239fefece1504ca4c71a70ec9f3992ffaa566ffd44b07cfaf87d6d3bb2f2a95b"
+}

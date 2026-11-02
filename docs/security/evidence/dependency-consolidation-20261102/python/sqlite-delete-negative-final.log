@@ -1,0 +1,46 @@
+...FFFFFF.                                                               [100%]
+=================================== FAILURES ===================================
+_ TestSQLiteBackend.test_delete_treats_document_ids_and_collection_as_bound_data _
+tests/unit/ai/test_ai_vector_store.py:502: in test_delete_treats_document_ids_and_collection_as_bound_data
+    assert await backend.delete([document_id], collection) == 1
+E   assert 0 == 1
+_ TestSQLiteBackend.test_delete_preserves_other_collection_documents_and_full_text[ids0-0] _
+tests/unit/ai/test_ai_vector_store.py:519: in test_delete_preserves_other_collection_documents_and_full_text
+    assert await backend.delete(ids, "first") == expected_count
+E   assert 1 == 0
+_ TestSQLiteBackend.test_delete_preserves_other_collection_documents_and_full_text[ids1-1] _
+tests/unit/ai/test_ai_vector_store.py:522: in test_delete_preserves_other_collection_documents_and_full_text
+    assert [doc.id for doc in await backend.full_text_search("wheat", "second")] == ["foreign"]
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../pr-evidence/python/vector_store_before_sql_fix.py:755: in full_text_search
+    cursor.execute(
+E   sqlite3.DatabaseError: fts5: missing row 1 from content table 'main'.'documents'
+_ TestSQLiteBackend.test_delete_preserves_other_collection_documents_and_full_text[ids2-1] _
+tests/unit/ai/test_ai_vector_store.py:519: in test_delete_preserves_other_collection_documents_and_full_text
+    assert await backend.delete(ids, "first") == expected_count
+E   assert 0 == 1
+_______ TestSQLiteBackend.test_delete_counts_documents_and_is_idempotent _______
+tests/unit/ai/test_ai_vector_store.py:531: in test_delete_counts_documents_and_is_idempotent
+    assert await backend.delete(["doc"], "test") == 1
+E   assert 0 == 1
+_ TestSQLiteBackend.test_delete_handles_empty_and_large_batches_with_fixed_bind_count _
+tests/unit/ai/test_ai_vector_store.py:550: in test_delete_handles_empty_and_large_batches_with_fixed_bind_count
+    assert await backend.delete(ids, "test") == len(ids)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../pr-evidence/python/vector_store_before_sql_fix.py:613: in delete
+    cursor.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query, python.sqlalchemy.security.sqlalchemy-execute-raw-query -- parameterized query with ? placeholders; ids are UUIDs, collection is internal
+E   sqlite3.OperationalError: too many SQL variables
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/_pytest/config/__init__.py:1507
+  /workspace/scratch/7de7742d3309/sahool-pr-python/.venv/lib/python3.12/site-packages/_pytest/config/__init__.py:1507: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; anyio
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/ai/test_ai_vector_store.py::TestSQLiteBackend::test_delete_treats_document_ids_and_collection_as_bound_data
+FAILED tests/unit/ai/test_ai_vector_store.py::TestSQLiteBackend::test_delete_preserves_other_collection_documents_and_full_text[ids0-0]
+FAILED tests/unit/ai/test_ai_vector_store.py::TestSQLiteBackend::test_delete_preserves_other_collection_documents_and_full_text[ids1-1]
+FAILED tests/unit/ai/test_ai_vector_store.py::TestSQLiteBackend::test_delete_preserves_other_collection_documents_and_full_text[ids2-1]
+FAILED tests/unit/ai/test_ai_vector_store.py::TestSQLiteBackend::test_delete_counts_documents_and_is_idempotent
+FAILED tests/unit/ai/test_ai_vector_store.py::TestSQLiteBackend::test_delete_handles_empty_and_large_batches_with_fixed_bind_count
+6 failed, 4 passed, 1 warning in 0.50s

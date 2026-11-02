@@ -9,6 +9,7 @@ on:
       - 'scripts/ci/check_python_lock_runtime.py'
       - 'scripts/ci/check_ai_sdk_runtime.py'
       - 'shared/ai/vector_store.py'
+      - 'tests/unit/ai/test_ai_vector_store.py'
       - 'tests/unit/test_python_lock_consistency.py'
       - 'tests/unit/test_infrastructure_fixes.py'
       - 'tests/unit/test_ndvi_calculation.py'
@@ -32,6 +33,7 @@ on:
       - 'scripts/ci/check_python_lock_runtime.py'
       - 'scripts/ci/check_ai_sdk_runtime.py'
       - 'shared/ai/vector_store.py'
+      - 'tests/unit/ai/test_ai_vector_store.py'
       - 'tests/unit/test_python_lock_consistency.py'
       - 'tests/unit/test_infrastructure_fixes.py'
       - 'tests/unit/test_ndvi_calculation.py'
@@ -97,10 +99,10 @@ jobs:
         run: |
           .venv/bin/ruff check tests/unit/test_python_lock_consistency.py \
             tests/unit/test_infrastructure_fixes.py scripts/ci/check_python_lock_runtime.py \
-            scripts/ci/check_ai_sdk_runtime.py
+            scripts/ci/check_ai_sdk_runtime.py tests/unit/ai/test_ai_vector_store.py
           .venv/bin/ruff format --check tests/unit/test_python_lock_consistency.py \
             tests/unit/test_infrastructure_fixes.py scripts/ci/check_python_lock_runtime.py \
-            scripts/ci/check_ai_sdk_runtime.py
+            scripts/ci/check_ai_sdk_runtime.py tests/unit/ai/test_ai_vector_store.py
 
       - name: Exercise the real crypto, image and numerical runtimes
         run: |
@@ -179,10 +181,11 @@ jobs:
             apps/services/ai-advisor/tests/test_embedding_dependency_security.py \
             -q -o addopts='' --junitxml=python-lock-evidence/embedding/current.xml
 
-      - name: Exercise SDK request contracts and real Qdrant retrieval
+      - name: Exercise SDK request contracts and vector-store isolation
         run: |
           "$RUNNER_TEMP/embedding-venv/bin/python" -m pytest \
-            scripts/ci/check_ai_sdk_runtime.py -q -o addopts='' \
+            scripts/ci/check_ai_sdk_runtime.py \
+            tests/unit/ai/test_ai_vector_store.py::TestSQLiteBackend -q -o addopts='' \
             --junitxml=python-lock-evidence/embedding/sdk-runtime.xml \
             --html=python-lock-evidence/embedding/sdk-runtime.html --self-contained-html
 

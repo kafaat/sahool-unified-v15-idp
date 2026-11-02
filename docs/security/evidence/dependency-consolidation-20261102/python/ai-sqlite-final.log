@@ -1,0 +1,12 @@
+..........................                                               [100%]
+=============================== warnings summary ===============================
+apps/services/ai-advisor/tests/test_embedding_dependency_security.py::test_ai_advisor_real_embeddings_manager_loads_and_encodes
+  /workspace/scratch/7de7742d3309/sahool-pr-python/apps/services/ai-advisor/src/rag/embeddings.py:49: FutureWarning: The `get_sentence_embedding_dimension` method has been renamed to `get_embedding_dimension`.
+    self.embedding_dimension = self.model.get_sentence_embedding_dimension()
+
+apps/services/ai-advisor/tests/test_embedding_dependency_security.py::test_copilot_real_embedding_service_uses_the_local_model
+  /workspace/scratch/7de7742d3309/sahool-pr-python/apps/services/copilot-api/src/rag/embeddings.py:124: FutureWarning: The `get_sentence_embedding_dimension` method has been renamed to `get_embedding_dimension`.
+    self._dimension = self._model.get_sentence_embedding_dimension()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+26 passed, 2 warnings in 14.35s

@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-11-02T21:39:51.187780+00:00",
+  "repository": "kafaat/sahool-unified-v15-idp",
+  "pr": 2027,
+  "classification": "Pre-existing field-management-service test compilation failures; unchanged by dependency consolidation.",
+  "baseline": {
+    "head_sha": "0f17b625047ea6d5108f42a240d507d7c855c912",
+    "event": "push",
+    "run_id": 41523284919,
+    "run_url": "https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41523284919",
+    "job_id": 125550267815,
+    "job_url": "https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41523284919/job/125550267815",
+    "job_conclusion": "success",
+    "actual_test_outcome": "failure",
+    "suites": {
+      "total": 12,
+      "passed": 8,
+      "failed": 4
+    },
+    "tests": {
+      "total": 107,
+      "passed": 107,
+      "failed": 0
+    },
+    "log_file": "ci-main-field-management-tests.log",
+    "log_sha256": "23da33d89a68508b7f76e282ec07d312ac9166500fc404381ed108a41d7c1f41"
+  },
+  "candidate": {
+    "head_sha": "5ae806cd8ac3e0da53067e72b6ce211d871cd123",
+    "event": "pull_request",
+    "run_id": 41526034301,
+    "run_url": "https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41526034301",
+    "job_id": 125563912932,
+    "job_url": "https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41526034301/job/125563912932",
+    "job_conclusion": "success",
+    "actual_test_outcome": "failure",
+    "suites": {
+      "total": 12,
+      "passed": 8,
+      "failed": 4
+    },
+    "tests": {
+      "total": 107,
+      "passed": 107,
+      "failed": 0
+    },
+    "log_file": "ci-pr2027-field-management-tests.log",
+    "log_sha256": "8d569522d788dd8ad331b37ddcdf75c9bcae99369913e3e7163832d925d5e2d5"
+  },
+  "candidate_tested_merge_sha": "4a5d00501b4a1e5b600f5aeb3691bfe741f292ea",
+  "candidate_tested_tree": "37b9d30a608efb40c491a64901689e263024c243",
+  "compiler_errors_identical_in_both_runs": [
+    {
+      "code": "TS2554",
+      "source": "apps/services/field-management-service/src/tasks/__tests__/tasks.service.spec.ts",
+      "locations": [
+        {
+          "line": 227,
+          "column": 36
+        },
+        {
+          "line": 249,
+          "column": 21
+        },
+        {
+          "line": 261,
+          "column": 21
+        },
+        {
+          "line": 275,
+          "column": 21
+        }
+      ],
+      "message": "Expected 2 arguments, but got 1."
+    },
+    {
+      "code": "TS2307",
+      "source": "apps/services/field-management-service/src/events/field-events.service.ts",
+      "line": 3,
+      "column": 31,
+      "message": "Cannot find module '@sahool/shared-events' or its corresponding type declarations."
+    }
+  ],
+  "failed_suites": [
+    "src/tasks/__tests__/tasks.service.spec.ts",
+    "src/fields/__tests__/fields.service.spec.ts",
+    "src/field-operations/__tests__/field-operations.service.spec.ts",
+    "src/crop-seasons/__tests__/crop-seasons.service.spec.ts"
+  ],
+  "source_attribution": [
+    {
+      "path": "apps/services/field-management-service/src/tasks/__tests__/tasks.service.spec.ts",
+      "byte_identical": true,
+      "main_blob": "5e6443d97bc369b193146f70a913c70d7178129f",
+      "pr_blob": "5e6443d97bc369b193146f70a913c70d7178129f",
+      "sha256": "fcfa697591a7f5aeff08a763ca3950f9de88ce166018580f79ba7b8b1ad4f6ad"
+    },
+    {
+      "path": "apps/services/field-management-service/src/tasks/tasks.service.ts",
+      "byte_identical": true,
+      "main_blob": "a9ef2445426cb9d2dc6c6476fef4b9dceac17ab5",
+      "pr_blob": "a9ef2445426cb9d2dc6c6476fef4b9dceac17ab5",
+      "sha256": "600bf4d713063f0b0691a6391e6fdd11212a5ee6b7998cc1e14b3ee844ae2831"
+    },
+    {
+      "path": "apps/services/field-management-service/src/events/field-events.service.ts",
+      "byte_identical": true,
+      "main_blob": "0c9e393d81c586588ce0baba62d4bb339f077f9c",
+      "pr_blob": "0c9e393d81c586588ce0baba62d4bb339f077f9c",
+      "sha256": "0ab1e7c002d4143df1673f3ff017c0d5142c4676f299ec60d1b9667b94fac0b9"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "byte_identical": true,
+      "main_blob": "864617eb6d27c6407f39d466ae0dfa8ff3e3fd2f",
+      "pr_blob": "864617eb6d27c6407f39d466ae0dfa8ff3e3fd2f",
+      "sha256": "cdc1a8b52d72290110d8ca52cdf6c6b0ee0418a5c4deabba2669338cabc115da"
+    }
+  ],
+  "unchanged_source_trees": [
+    {
+      "path": "apps/services/field-management-service/src",
+      "main_tree": "2f0b09195a6f31ee9b94d5a39c92050daf1d43c6",
+      "pr_tree": "2f0b09195a6f31ee9b94d5a39c92050daf1d43c6",
+      "identical": true
+    },
+    {
+      "path": "packages/shared-events",
+      "main_tree": "8636667036918c7ebc3c3dca2e0b67dd280b3289",
+      "pr_tree": "8636667036918c7ebc3c3dca2e0b67dd280b3289",
+      "identical": true
+    }
+  ],
+  "workflow_behavior": "The existing Run tests command converts a failing npm test exit into a warning, so the job is green despite four suite compilation failures. Its shared-package build loop omits packages/shared-events in both revisions.",
+  "scope_decision": "Preserve evidence; do not modify unchanged field-management source or the existing CI behavior in this dependency consolidation.",
+  "reporting_limit": "Do not claim all repository Node.js suites passed. Separately verified targeted tests and successful frontend jobs retain their recorded results."
+}

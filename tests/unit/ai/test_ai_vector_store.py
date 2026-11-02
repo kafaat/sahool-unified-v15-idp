@@ -15,6 +15,7 @@ Created: January 2026
 """
 
 import shutil
+import sqlite3
 import tempfile
 from datetime import UTC, datetime, timezone
 from pathlib import Path
@@ -482,6 +483,75 @@ class TestSQLiteBackend:
 
         assert len(results) == 1
         assert results[0].id == "doc1"
+
+    @pytest.mark.asyncio
+    async def test_delete_treats_document_ids_and_collection_as_bound_data(self, backend):
+        await backend.initialize()
+        collection = "wheat'); DROP TABLE documents; --"
+        document_id = "doc'); DELETE FROM documents; --"
+        await backend.create_collection(collection, 3, DistanceMetric.COSINE)
+        await backend.insert(
+            [
+                VectorDocument(id=document_id, vector=[1.0, 0.0, 0.0], content="wheat selected"),
+                VectorDocument(id="survivor", vector=[0.0, 1.0, 0.0], content="wheat retained"),
+            ],
+            collection,
+        )
+
+        assert await backend.delete(["' OR 1=1 --"], collection) == 0
+        assert await backend.delete([document_id], collection) == 1
+        assert await backend.count(collection) == 1
+        assert await backend.get(document_id, collection) is None
+        assert [doc.id for doc in await backend.full_text_search("wheat", collection)] == ["survivor"]
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "ids,expected_count", [(["foreign"], 0), (["owned", "foreign"], 1), (["owned", "owned"], 1)]
+    )
+    async def test_delete_preserves_other_collection_documents_and_full_text(self, backend, ids, expected_count):
+        await backend.initialize()
+        for collection, document_id in [("first", "owned"), ("second", "foreign")]:
+            await backend.create_collection(collection, 3, DistanceMetric.COSINE)
+            await backend.insert(
+                [VectorDocument(id=document_id, vector=[1.0, 0.0, 0.0], content="wheat advisory")], collection
+            )
+
+        assert await backend.delete(ids, "first") == expected_count
+        assert await backend.count("first") == 1 - expected_count
+        assert await backend.get("foreign", "second") is not None
+        assert [doc.id for doc in await backend.full_text_search("wheat", "second")] == ["foreign"]
+        assert len(await backend.full_text_search("wheat", "first")) == 1 - expected_count
+
+    @pytest.mark.asyncio
+    async def test_delete_counts_documents_and_is_idempotent(self, backend):
+        await backend.initialize()
+        await backend.create_collection("test", 3, DistanceMetric.COSINE)
+        await backend.insert([VectorDocument(id="doc", vector=[1.0, 0.0, 0.0], content="wheat")], "test")
+        assert await backend.delete(["missing"], "test") == 0
+        assert await backend.delete(["doc"], "test") == 1
+        assert await backend.delete(["doc"], "test") == 0
+        assert await backend.count("test") == 0
+        assert await backend.full_text_search("wheat", "test") == []
+
+    @pytest.mark.asyncio
+    async def test_delete_handles_empty_and_large_batches_with_fixed_bind_count(self, backend):
+        await backend.initialize()
+        await backend.create_collection("test", 3, DistanceMetric.COSINE)
+        ids = [f"doc-{index}" for index in range(10)]
+        await backend.insert(
+            [VectorDocument(id=document_id, vector=[1.0, 0.0, 0.0], content="wheat") for document_id in ids], "test"
+        )
+        # A static per-document statement needs only two bind variables,
+        # regardless of the number of IDs supplied by the caller.
+        previous_limit = backend._conn.setlimit(sqlite3.SQLITE_LIMIT_VARIABLE_NUMBER, 2)
+        try:
+            assert await backend.delete([], "test") == 0
+            assert await backend.count("test") == len(ids)
+            assert await backend.delete(ids, "test") == len(ids)
+        finally:
+            backend._conn.setlimit(sqlite3.SQLITE_LIMIT_VARIABLE_NUMBER, previous_limit)
+        assert await backend.count("test") == 0
+        assert await backend.full_text_search("wheat", "test") == []
 
     @pytest.mark.asyncio
     async def test_persistence(self, temp_dir):

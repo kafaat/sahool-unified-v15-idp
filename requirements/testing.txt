@@ -5,7 +5,7 @@
 # Synced with constraints.txt
 
 # Pytest Framework
-pytest==9.1.1
+pytest==9.2.0
 pytest-asyncio==1.3.0
 pytest-cov>=6.0.0
 pytest-timeout>=2.2.0
@@ -14,11 +14,11 @@ pytest-timeout>=2.2.0
 httpx==0.28.1
 
 # Mocking
-pytest-mock==3.16.0
+pytest-mock==3.17.0
 
 # Integration test dependencies (imported by test modules)
 pydantic>=2.10.0
-pydantic-settings>=2.0.0
+pydantic-settings>=2.16.2
 PyJWT>=2.15.1
 PyYAML>=6.0.0
 cryptography>=42.0.0

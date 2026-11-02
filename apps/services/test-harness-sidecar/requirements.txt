@@ -1,7 +1,7 @@
 # Sidecar runtime — keep minimal. Pinned via repo's constraints.txt in CI.
-fastapi>=0.115
-uvicorn[standard]>=0.30
-pydantic>=2.10
+fastapi>=0.162.0
+uvicorn[standard]>=0.54.0
+pydantic>=2.14.2
 pydantic-settings>=2.5
 asyncpg>=0.29
 structlog>=24.1

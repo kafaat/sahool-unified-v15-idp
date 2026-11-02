@@ -64,3 +64,19 @@ CVE-2026-25547
 # Revisit: remove once npm ships a release bundling tinyglobby with
 # picomatch>=4.0.4.
 CVE-2026-33671
+
+# undici 6.29.0 — TLS checkServerIdentity dropped by Agent (CVE-2026-109383),
+# fetch() crash on >5 content codings (CVE-2026-109869), crash on TLS 1.2
+# renegotiation hostname mismatch (CVE-2026-87018).
+# Package: undici 6.29.0 bundled inside npm@11.21.1's own
+# /usr/local/lib/node_modules/npm/node_modules/undici (npm-internal tooling;
+# npm 12.2.1 bundles the same version). Not part of the application's runtime
+# dependency tree, and npm's bundled undici is not affected by package.json
+# "overrides". Only reachable when npm/npx itself fetches from the configured
+# registry (the Prisma migration step on container startup); npm passes no
+# custom checkServerIdentity callback.
+# Accepted risk: npm-internal tooling CVEs only. Fixed in undici 6.29.1.
+# Revisit: remove once npm ships a release bundling undici>=6.29.1.
+CVE-2026-109383
+CVE-2026-109869
+CVE-2026-87018

@@ -95,7 +95,7 @@
     "rollup": ">=4.58.1",
     "serialize-javascript": ">=7.0.3",
     "minimatch": ">=10.2.3",
-    "multer": "2.2.0",
+    "multer": "2.5.0",
     "nodemailer": "^10.0.10",
     "@angular-devkit/core": {
       "ajv": "8.18.0"

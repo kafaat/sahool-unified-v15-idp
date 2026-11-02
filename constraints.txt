@@ -84,7 +84,7 @@ structlog>=25.0.0,<26.0.0
 # ─────────────────────────────────────────────────────────────────────────────
 numpy>=1.26.0,<2.0.0; python_version < '3.13'
 numpy>=2.1.0,<2.5.0; python_version >= '3.13'
-scipy>=1.11.0,<1.18.0
+scipy>=1.17.1,<1.18.0
 optuna>=3.6.0,<5.0.0
 Pillow==13.0.0  # Security fixes for October 2026 image-decoder CVEs
 shapely==2.2.0

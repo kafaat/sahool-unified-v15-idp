@@ -28,6 +28,9 @@ WORKDIR /workspace/crop-growth-model
 # Replace workspace dependency with local file path for Docker build
 # package.json may use version string OR file: reference depending on context
 RUN sed -i 's|"@sahool/nestjs-auth": "[^"]*"|"@sahool/nestjs-auth": "file:../nestjs-auth"|' package.json
+# Keep the lockfile's link entry in step with the rewritten path; otherwise
+# npm crashes reading the dangling ../../../packages/nestjs-auth entry.
+RUN sed -i 's|\.\./\.\./\.\./packages/nestjs-auth|../nestjs-auth|g' package-lock.json
 
 # Disable nestjs-auth prepare script to prevent premature tsc build during install
 # (nestjs-auth is built explicitly in a later step with proper peer deps available)

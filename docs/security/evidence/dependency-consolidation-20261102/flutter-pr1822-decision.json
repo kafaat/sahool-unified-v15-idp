@@ -1,0 +1,153 @@
+{
+  "pr": 1822,
+  "head_sha": "85312fc1b94f40413429441c8e1e8021b45de769",
+  "disposition": "superseded_by_compatibility_fix; major_migration_deferred",
+  "manifest_sources_sha256": "11cd061866ed6bc89448ecc5c384a2dd977ceeb1b7afbabfdcf439f88b4b0514",
+  "package_decisions": [
+    {
+      "package": "drift",
+      "requested": "2.34.0",
+      "retained": "2.28.2",
+      "reason": "The compatible drift_dev 2.28.0 requires drift <2.29.0."
+    },
+    {
+      "package": "drift_dev",
+      "requested": "2.34.0",
+      "retained": "2.28.0",
+      "reason": "All published versions >=2.28.1 and <2.32 require build/source_gen >=3; Freezed 2.5.8 and riverpod_generator 2.6.4 require <3."
+    },
+    {
+      "package": "riverpod_generator",
+      "requested": "4.0.4",
+      "retained": "2.6.4",
+      "reason": "Even 2.6.5 transitively requires freezed_annotation ^3.0.0; actual flutter pub get failed on that trial."
+    },
+    {
+      "package": "riverpod_annotation",
+      "requested": "4.0.3",
+      "retained": "2.6.1",
+      "reason": "riverpod_generator 2.6.4 depends on exactly 2.6.1."
+    },
+    {
+      "package": "flutter_riverpod",
+      "requested": "3.3.2",
+      "retained": "2.6.1",
+      "reason": "App uses legacy StateNotifierProvider/StateProvider and generated Riverpod 2 APIs; 3.x migration is not present in the dependency PR."
+    },
+    {
+      "package": "sqlite3",
+      "requested": "3.3.3",
+      "retained": "2.9.4",
+      "reason": "Published 3.3.3 archive removes lib/open.dart, which current database source imports for SQLCipher binding."
+    },
+    {
+      "package": "freezed",
+      "requested": "3.2.6-dev.1",
+      "retained": "2.5.8",
+      "reason": "Prerelease 3.x generator is incompatible with retained generated-model contracts."
+    }
+  ],
+  "primary_sources": [
+    "https://pub.dev/api/packages/drift_dev/versions/2.28.0",
+    "https://pub.dev/api/packages/drift/versions/2.28.2",
+    "https://pub.dev/api/packages/drift_dev/versions/2.28.3",
+    "https://pub.dev/api/packages/drift_dev/versions/2.28.2",
+    "https://pub.dev/api/packages/drift_dev/versions/2.28.1",
+    "https://pub.dev/api/packages/drift_dev/versions/2.29.0",
+    "https://pub.dev/api/packages/drift_dev/versions/2.30.0",
+    "https://pub.dev/api/packages/drift_dev/versions/2.31.0",
+    "https://pub.dev/api/packages/drift_dev/versions/2.34.0",
+    "https://pub.dev/api/packages/drift/versions/2.31.0",
+    "https://pub.dev/api/packages/drift/versions/2.34.0",
+    "https://pub.dev/api/packages/freezed/versions/2.5.8",
+    "https://pub.dev/api/packages/riverpod_generator/versions/2.6.4",
+    "https://pub.dev/api/packages/drift/versions/2.28.0",
+    "https://pub.dev/api/packages/drift/versions/2.28.1",
+    "https://pub.dev/api/packages/drift_dev/versions/2.28.1-dev.0",
+    "https://pub.dev/api/packages/drift_dev/versions/2.30.1",
+    "https://pub.dev/api/packages/freezed/versions/2.5.5",
+    "https://pub.dev/api/packages/freezed/versions/2.5.6",
+    "https://pub.dev/api/packages/freezed/versions/2.5.7",
+    "https://pub.dev/api/packages/riverpod_generator/versions/2.6.2",
+    "https://pub.dev/api/packages/riverpod_generator/versions/2.6.3",
+    "https://pub.dev/api/packages/riverpod_generator/versions/2.6.5"
+  ],
+  "limitations": [
+    "No Android/iOS build or encrypted-database migration was performed.",
+    "No claim that the requested major versions were applied."
+  ],
+  "validation": {
+    "flutter": "3.44.9",
+    "dart": "3.12.2",
+    "policy_tests": {
+      "passed": 41,
+      "warnings": 1,
+      "warning": "pytest-asyncio absent from isolated policy environment; asyncio_mode config unused."
+    },
+    "native_compatibility_tests": {
+      "passed": 2,
+      "command": "flutter test --no-pub --reporter expanded test/unit/core/flutter_sdk_compatibility_test.dart"
+    },
+    "primary_codegen": {
+      "exit_code": 0,
+      "outputs": 373,
+      "actions": 2427,
+      "reported_duration": "1m 44s",
+      "warning": "Analyzer 7.6.0 supports language 3.9; tested Dart SDK language 3.12."
+    },
+    "pub_resolutions": [
+      {
+        "label": "primary",
+        "command": [
+          "/tmp/sahool-flutter-3.44.9/bin/flutter",
+          "pub",
+          "get",
+          "--enforce-lockfile"
+        ],
+        "cwd": "/workspace/scratch/7de7742d3309/sahool-pr-flutter/apps/mobile",
+        "exit_code": 0,
+        "lock_sha256_before": "4a7b0643e1a69b151cb3c30449ad852c47abecbdbb4be8554e69dd49c3c37fa0",
+        "lock_sha256_after": "4a7b0643e1a69b151cb3c30449ad852c47abecbdbb4be8554e69dd49c3c37fa0",
+        "log": "/workspace/scratch/7de7742d3309/pr-evidence/flutter-primary-supported-resolution.log"
+      },
+      {
+        "label": "field",
+        "command": [
+          "/tmp/sahool-flutter-3.44.9/bin/flutter",
+          "pub",
+          "get",
+          "--enforce-lockfile"
+        ],
+        "cwd": "/workspace/scratch/7de7742d3309/sahool-pr-flutter/apps/mobile/sahool_field_app",
+        "exit_code": 0,
+        "lock_sha256_before": "c118b25e53b4d2d630c3f5393580f1f737b0af4094a46421e026888d2e752115",
+        "lock_sha256_after": "c118b25e53b4d2d630c3f5393580f1f737b0af4094a46421e026888d2e752115",
+        "log": "/workspace/scratch/7de7742d3309/pr-evidence/flutter-field-supported-resolution.log"
+      },
+      {
+        "label": "core",
+        "command": [
+          "/tmp/sahool-flutter-3.44.9/bin/flutter",
+          "pub",
+          "get"
+        ],
+        "cwd": "/workspace/scratch/7de7742d3309/sahool-pr-flutter/packages/sahool-mobile-core",
+        "exit_code": 0,
+        "lock_sha256_before": null,
+        "lock_sha256_after": "937c482a8389d72c9a2cb0814e7909c90b317c4f20b9001a5876a12fa88692b5",
+        "log": "/workspace/scratch/7de7742d3309/pr-evidence/flutter-core-supported-resolution.log"
+      }
+    ],
+    "ruff_check": "passed",
+    "ruff_format_check": "passed"
+  },
+  "logs_sha256": {
+    "flutter-core-supported-resolution.log": "ac9704d3858568ac2a143f73228f6316b3254a995b01fa9f63529a45321ed22d",
+    "flutter-field-supported-resolution.log": "0280272169af40b35f77b9f72ae8664ea098653df09caaca8c6f1df2186cf40f",
+    "flutter-native-compatibility.log": "cfb21cf2aef6b98f479fa02cd21ad5a3967487b03c39ebe532e2ec9c58572017",
+    "flutter-policy-tests.log": "38b4d7ce7fa8466920dd2fd4cb619e939d61769b9c7a0c529aac5a09842ffca2",
+    "flutter-primary-codegen.log": "26834bb1331e571d0a4e4e4ea49fbe80df6f5e39eeef1df1cb62cf7797e1b186",
+    "flutter-primary-pub-get.log": "8d9627af0ab9fc8657d98c51a481189dcae9f6b9e6196178af829d351cd27f92",
+    "flutter-primary-supported-resolution.log": "6cca15fd1e073dc6d36e4d010587de40eff99388f055ddcad012f9ffb6d3d383"
+  }
+}

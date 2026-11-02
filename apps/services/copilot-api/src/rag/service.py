@@ -375,13 +375,13 @@ class CopilotRAGService:
                     qdrant_filter = Filter(must=conditions)
 
             # Search
-            search_results = self._qdrant_client.search(
+            search_results = self._qdrant_client.query_points(
                 collection_name=self.config.qdrant_collection,
-                query_vector=embedding_result.embedding,
+                query=embedding_result.embedding,
                 limit=top_k,
                 query_filter=qdrant_filter,
                 score_threshold=self.config.min_score_threshold,
-            )
+            ).points
 
             results = []
             for hit in search_results:
@@ -580,7 +580,8 @@ class CopilotRAGService:
             try:
                 collection_info = self._qdrant_client.get_collection(self.config.qdrant_collection)
                 stats["qdrant_points_count"] = collection_info.points_count
-                stats["qdrant_vectors_count"] = collection_info.vectors_count
+                # This collection stores one dense vector for every point.
+                stats["qdrant_vectors_count"] = collection_info.points_count
             except Exception:
                 pass
 

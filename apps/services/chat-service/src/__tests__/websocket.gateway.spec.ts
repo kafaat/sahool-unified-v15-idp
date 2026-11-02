@@ -17,6 +17,7 @@ import { Socket } from "socket.io";
 import * as jwt from "jsonwebtoken";
 
 describe("WebSocket Gateway (ChatGateway)", () => {
+  let module: TestingModule;
   let gateway: ChatGateway;
   let chatService: ChatService;
   let mockSocket: Partial<Socket>;
@@ -88,7 +89,7 @@ describe("WebSocket Gateway (ChatGateway)", () => {
       disconnect: jest.fn(),
     };
 
-    const module: TestingModule = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       providers: [
         ChatGateway,
         {
@@ -111,7 +112,8 @@ describe("WebSocket Gateway (ChatGateway)", () => {
     jest.clearAllMocks();
   });
 
-  afterEach(() => {
+  afterEach(async () => {
+    await module.close();
     jest.clearAllMocks();
     delete process.env.JWT_SECRET;
   });

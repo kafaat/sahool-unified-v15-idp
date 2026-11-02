@@ -1,0 +1,37 @@
+{
+  "recorded_at": "2026-11-02T21:41:40.327536+00:00",
+  "previous_published_head": "5ae806cd8ac3e0da53067e72b6ce211d871cd123",
+  "tested_local_code_commit": "2daefd4e8202b3e211ae97a0f30611bcaee27f71",
+  "followup_commits": [
+    "6aa1109523a90a6e07efcea4474402cfe5002329",
+    "b203dcc16fe1aae74b2740cf845fc1943aae3d32"
+  ],
+  "original_python_receipt": {
+    "unchanged_sources": 84,
+    "superseded_sources": [
+      ".github/workflows/python-lock-security.yml",
+      "shared/ai/vector_store.py"
+    ],
+    "replacement_receipt": "python/sqlite-semgrep-followup-receipt.json"
+  },
+  "combined_ai_sqlite_embedding_tests": {
+    "tests": 26,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "distinct_python_cases_verified": 301,
+  "flutter_workflow_sha256": "93a3a88b7a1d13259ee28acf62e821bcb94621590b960f57d35984733e1c7ba6",
+  "flutter_setup_receipt": "flutter/flutter-ci-setup-receipt.json",
+  "remaining_baseline_failures": [
+    "flutter/flutter-ci-tests-and-ios.json",
+    "node/ci-baseline-limitations.json"
+  ],
+  "notes": [
+    "Historical receipts are unchanged and identify the code/test environment at their original verification time.",
+    "The SQLite follow-up was independently reviewed and its combined acceptance suite repeated on the integrated checkout.",
+    "The Flutter CI setup fix preserves the complete analyzer scope and makes analyzer errors fatal; warnings/info remain nonfatal.",
+    "Full field Flutter and field-management Node suites retain proven baseline failures hidden by existing unrelated CI steps. This is not an all-tests-green claim.",
+    "Remote CI for this follow-up is assessed separately on the final PR head."
+  ]
+}

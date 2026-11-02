@@ -48,7 +48,7 @@ describe('WebSocketClient', () => {
 
     vi.stubGlobal(
       'WebSocket',
-      vi.fn(() => mockWebSocket)
+      vi.fn(function () { return mockWebSocket; })
     );
 
     // Set OPEN constant

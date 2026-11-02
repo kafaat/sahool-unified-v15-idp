@@ -41,9 +41,9 @@ const mockAxiosInstance = {
 };
 
 vi.mock('@sahool/api-client', () => ({
-  SahoolApiClient: vi.fn().mockImplementation(() => ({
-    axiosInstance: mockAxiosInstance,
-  })),
+  SahoolApiClient: vi.fn().mockImplementation(function () {
+    return { axiosInstance: mockAxiosInstance };
+  }),
 }));
 
 // ═══════════════════════════════════════════════════════════════════════════

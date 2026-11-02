@@ -104,6 +104,8 @@ class BaseAgent(ABC):
         # Initialize Claude LLM | تهيئة نموذج Claude
         self.llm = ChatAnthropic(
             anthropic_api_key=settings.anthropic_api_key,
+            # The 2026 API removes temperature; preserve the configured sampling contract.
+            default_headers={"anthropic-version": "2023-06-01"},
             model=settings.claude_model,
             max_tokens=settings.max_tokens,
             temperature=settings.temperature,

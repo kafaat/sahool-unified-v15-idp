@@ -1,0 +1,408 @@
+  console.error
+    Database health check failed: Error: Connection refused
+        at Object.<anonymous> (/workspace/scratch/7de7742d3309/sahool-pr-node/apps/services/chat-service/src/__tests__/chat.service.spec.ts:184:46)
+        at Promise.then.completed (/workspace/scratch/7de7742d3309/sahool-pr-node/node_modules/jest-circus/build/utils.js:298:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (/workspace/scratch/7de7742d3309/sahool-pr-node/node_modules/jest-circus/build/utils.js:231:10)
+        at _callCircusTest (/workspace/scratch/7de7742d3309/sahool-pr-node/node_modules/jest-circus/build/run.js:316:40)
+        at _runTest (/workspace/scratch/7de7742d3309/sahool-pr-node/node_modules/jest-circus/build/run.js:252:3)
+        at _runTestsForDescribeBlock (/workspace/scratch/7de7742d3309/sahool-pr-node/node_modules/jest-circus/build/run.js:126:9)
+        at _runTestsForDescribeBlock (/workspace/scratch/7de7742d3309/sahool-pr-node/node_modules/jest-circus/build/run.js:121:9)
+        at _runTestsForDescribeBlock (/workspace/scratch/7de7742d3309/sahool-pr-node/node_modules/jest-circus/build/run.js:121:9)
+        at run (/workspace/scratch/7de7742d3309/sahool-pr-node/node_modules/jest-circus/build/run.js:71:3)
+        at runAndTransformResultsToJestFormat (/workspace/scratch/7de7742d3309/sahool-pr-node/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+        at jestAdapter (/workspace/scratch/7de7742d3309/sahool-pr-node/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+        at runTestInternal (/workspace/scratch/7de7742d3309/sahool-pr-node/node_modules/jest-runner/build/runTest.js:367:16)
+        at runTest (/workspace/scratch/7de7742d3309/sahool-pr-node/node_modules/jest-runner/build/runTest.js:444:34)
+
+      27 |       databaseHealthy = true;
+      28 |     } catch (error) {
+    > 29 |       console.error("Database health check failed:", error);
+         |               ^
+      30 |     }
+      31 |
+      32 |     return {
+
+      at HealthController.health (src/health/health.controller.ts:29:15)
+      at Object.<anonymous> (src/__tests__/chat.service.spec.ts:186:22)
+
+PASS src/__tests__/chat.service.spec.ts (6.332 s)
+  Health Endpoints
+    ChatController /chat/health
+      ✓ should return health status with service name and timestamp (15 ms)
+    HealthController
+      ✓ should return healthy status with database check on /health (4 ms)
+      ✓ should report database disconnected when query fails on /health (149 ms)
+      ✓ should return ok on /healthz without database check (2 ms)
+      ✓ should report readiness based on database connectivity on /readyz (4 ms)
+      ✓ should report not_ready when database is down on /readyz (4 ms)
+      ✓ should return alive on /livez (3 ms)
+  Module Initialization
+    ✓ should compile the ChatService with PrismaService dependency (3 ms)
+    ✓ should compile ChatController with ChatService dependency (7 ms)
+    ✓ should compile HealthController with PrismaService dependency (3 ms)
+  ChatService - Conversation Creation
+    ✓ should return existing conversation when one already exists for the participants (6 ms)
+    ✓ should create a new conversation when none exists (3 ms)
+    ✓ should assign the first participant as BUYER and second as SELLER (4 ms)
+    ✓ should create a conversation with orderId (3 ms)
+    ✓ should handle conversation creation without productId or orderId (6 ms)
+    ✓ should propagate database errors during conversation creation (3 ms)
+  ChatService - Message Creation & Validation
+    ✓ should send a text message successfully within a transaction (2 ms)
+    ✓ should throw NotFoundException when conversation does not exist (8 ms)
+    ✓ should throw BadRequestException when sender is not a participant (2 ms)
+    ✓ should send an OFFER type message with amount and currency (3 ms)
+    ✓ should default messageType to TEXT and offerCurrency to YER when not specified (1 ms)
+    ✓ should update conversation lastMessage and lastMessageAt within the transaction (2 ms)
+    ✓ should increment unread count for participants other than the sender (3 ms)
+    ✓ should wrap unexpected transaction errors as BadRequestException (3 ms)
+    ✓ should re-throw NotFoundException and BadRequestException without wrapping (2 ms)
+    ✓ should retrieve paginated messages in chronological order (2 ms)
+    ✓ should calculate pagination offset correctly for page 3 (3 ms)
+  ChatService - Participant Management
+    getUserConversations
+      ✓ should return conversations with unread counts for a user (2 ms)
+      ✓ should filter by tenant and only return active conversations (1 ms)
+      ✓ should return empty array when user has no conversations (1 ms)
+      ✓ should include lastReadAt from participant data (2 ms)
+    getConversationById
+      ✓ should return conversation with participants for a valid ID (1 ms)
+      ✓ should throw NotFoundException for a non-existent conversation (2 ms)
+      ✓ should scope the lookup to the tenant (1 ms)
+    markMessageAsRead
+      ✓ should mark a message as read when the reader is not the sender (1 ms)
+      ✓ should not update read status when the reader is the sender (2 ms)
+      ✓ should throw NotFoundException when message does not exist (1 ms)
+      ✓ should scope the message lookup to the tenant (2 ms)
+    markConversationAsRead
+      ✓ should mark all unread messages and reset participant unread count (7 ms)
+      ✓ should throw NotFoundException if conversation does not exist (3 ms)
+    updateTypingIndicator
+      ✓ should set typing status to true for a participant (1 ms)
+      ✓ should set typing status to false for a participant (1 ms)
+    updateOnlineStatus
+      ✓ should mark user as online and update lastSeenAt (2 ms)
+      ✓ should mark user as offline (2 ms)
+      ✓ should work with tenantId parameter (1 ms)
+    getUnreadCount
+      ✓ should sum unread counts across all conversations (2 ms)
+      ✓ should return zero when all conversations have been read (2 ms)
+      ✓ should return zero when user has no conversations (3 ms)
+      ✓ should work with tenantId parameter (1 ms)
+    getMessagesCursor - cursor-based pagination
+      ✓ should return messages without cursor for initial load (2 ms)
+      ✓ should indicate hasMore when more messages exist beyond the limit (2 ms)
+      ✓ should use cursor and skip for subsequent pages (3 ms)
+
+[Nest] 5  - 11/02/2026, 9:53:08 PM   ERROR [ChatGateway] Authentication verification failed
+Invalid token
+[Nest] 5  - 11/02/2026, 9:53:08 PM   ERROR [ChatGateway] Failed to update user online status
+[Nest] 5  - 11/02/2026, 9:53:08 PM   ERROR [ChatGateway] Failed to update user offline status
+[Nest] 5  - 11/02/2026, 9:53:08 PM   ERROR [ChatGateway] Error joining conversation
+[Nest] 5  - 11/02/2026, 9:53:08 PM   ERROR [ChatGateway] Error sending message
+[Nest] 5  - 11/02/2026, 9:53:08 PM   ERROR [ChatGateway] Error updating typing indicator
+[Nest] 5  - 11/02/2026, 9:53:08 PM   ERROR [ChatGateway] Error handling read receipt
+[Nest] 5  - 11/02/2026, 9:53:08 PM   ERROR [ChatGateway] Error marking conversation as read
+[Nest] 5  - 11/02/2026, 9:53:08 PM   ERROR [ChatGateway] JWT_SECRET environment variable is not set
+[Nest] 5  - 11/02/2026, 9:53:08 PM   ERROR [ChatGateway] Error sending message
+[Nest] 5  - 11/02/2026, 9:53:08 PM   ERROR [ChatGateway] Error joining conversation
+PASS src/__tests__/websocket.gateway.spec.ts
+  WebSocket Gateway (ChatGateway)
+    Gateway Initialization
+      ✓ should be defined (6 ms)
+      ✓ should have server instance (2 ms)
+      ✓ should have chatService injected (2 ms)
+    Client Connection
+      ✓ should accept authenticated connection (11 ms)
+      ✓ should reject unauthenticated connection (2 ms)
+      ✓ should reject connection with invalid token (2 ms)
+      ✓ should reject connection with "none" algorithm (2 ms)
+      ✓ should reject connection with unsupported algorithm (1 ms)
+      ✓ should accept token from query parameter (2 ms)
+      ✓ should store userId in socket data (2 ms)
+      ✓ should handle connection errors gracefully (2 ms)
+    Client Disconnection
+      ✓ should handle disconnection (1 ms)
+      ✓ should update user offline status (1 ms)
+      ✓ should notify other users about offline status (1 ms)
+      ✓ should handle disconnection without userId (1 ms)
+      ✓ should handle disconnection errors gracefully (2 ms)
+    Join Conversation
+      ✓ should allow participant to join conversation (2 ms)
+      ✓ should verify user is a participant (2 ms)
+      ✓ should reject non-participant from joining (1 ms)
+      ✓ should require authentication (2 ms)
+      ✓ should handle invalid conversation (2 ms)
+    Send Message
+      ✓ should send message successfully (2 ms)
+      ✓ should broadcast message to conversation room (1 ms)
+      ✓ should verify authenticated userId matches senderId (2 ms)
+      ✓ should require authentication (8 ms)
+      ✓ should handle send errors (1 ms)
+    Typing Indicator
+      ✓ should update typing status (2 ms)
+      ✓ should broadcast typing indicator to other participants (1 ms)
+      ✓ should handle stop typing (1 ms)
+      ✓ should require authentication (2 ms)
+      ✓ should handle errors gracefully (2 ms)
+    Read Receipt
+      ✓ should mark message as read (1 ms)
+      ✓ should notify sender about read receipt (2 ms)
+      ✓ should require authentication (1 ms)
+      ✓ should handle errors (2 ms)
+    Mark Conversation Read
+      ✓ should mark conversation as read (2 ms)
+      ✓ should notify other participants (2 ms)
+      ✓ should require authentication (2 ms)
+      ✓ should handle errors (2 ms)
+    Leave Conversation
+      ✓ should allow user to leave conversation (2 ms)
+      ✓ should require authentication (2 ms)
+    User Online Status
+      ✓ should check if user is online (2 ms)
+      ✓ should return false for offline user (2 ms)
+      ✓ should update online status on connection (2 ms)
+      ✓ should update offline status on disconnection (2 ms)
+    Send to User
+      ✓ should send event to specific user (3 ms)
+      ✓ should not send to offline user (2 ms)
+      ✓ should send notifications to online users (2 ms)
+    Security and Validation
+      ✓ should reject token without userId (2 ms)
+      ✓ should reject connection without JWT_SECRET (1 ms)
+      ✓ should use authenticated userId from socket data (1 ms)
+      ✓ should validate algorithm from token header (2 ms)
+    Memory Management
+      ✓ should clean up user socket map on disconnect (2 ms)
+      ✓ should prevent duplicate socket entries (10 ms)
+    Error Messages
+      ✓ should not expose internal errors to clients (3 ms)
+      ✓ should provide generic error messages (2 ms)
+
+PASS src/__tests__/conversation.service.spec.ts
+  ConversationService (Conversation Operations)
+    Conversation Creation
+      ✓ should create a new conversation when one does not exist (8 ms)
+      ✓ should return existing conversation if already exists (2 ms)
+      ✓ should create conversation with product context (2 ms)
+      ✓ should create conversation with order context (2 ms)
+      ✓ should create conversation without product or order (2 ms)
+      ✓ should assign BUYER role to first participant (3 ms)
+      ✓ should assign SELLER role to second participant (1 ms)
+      ✓ should create participants for all provided user IDs (2 ms)
+      ✓ should include participants and messages in created conversation (1 ms)
+      ✓ should handle database errors during creation (24 ms)
+    Get User Conversations
+      ✓ should retrieve all active conversations for user (2 ms)
+      ✓ should return conversations ordered by last update (2 ms)
+      ✓ should include unread count for each conversation (2 ms)
+      ✓ should include last read timestamp for user (1 ms)
+      ✓ should include last message for each conversation (2 ms)
+      ✓ should handle conversations with no messages (2 ms)
+      ✓ should only include active conversations (1 ms)
+      ✓ should return empty array when user has no conversations (2 ms)
+      ✓ should filter by user ID in participant list (1 ms)
+      ✓ should exclude messages sent by user from unread count (1 ms)
+      ✓ should handle database errors gracefully (1 ms)
+    Get Conversation By ID
+      ✓ should retrieve conversation by ID (16 ms)
+      ✓ should include participants in response (2 ms)
+      ✓ should throw NotFoundException when conversation does not exist (7 ms)
+      ✓ should retrieve conversation with product context (2 ms)
+      ✓ should retrieve conversation with order context (2 ms)
+      ✓ should handle database errors (1 ms)
+    Conversation Participants
+      ✓ should verify user is a participant in conversation (2 ms)
+      ✓ should include participant roles (1 ms)
+      ✓ should include participant online status (1 ms)
+      ✓ should include participant unread count (1 ms)
+      ✓ should include participant typing status (2 ms)
+      ✓ should include participant join timestamp (1 ms)
+      ✓ should include participant last read timestamp (2 ms)
+      ✓ should handle conversations with multiple participants (1 ms)
+    Conversation State Management
+      ✓ should track conversation active state (1 ms)
+      ✓ should track last message timestamp (2 ms)
+      ✓ should track last message content (1 ms)
+      ✓ should track conversation creation timestamp (5 ms)
+      ✓ should track conversation update timestamp (1 ms)
+      ✓ should update conversation on new messages (2 ms)
+    Conversation Context
+      ✓ should link conversation to product (1 ms)
+      ✓ should link conversation to order (1 ms)
+      ✓ should link conversation to both product and order (1 ms)
+      ✓ should create standalone conversation without context (2 ms)
+    Edge Cases and Error Handling
+      ✓ should handle conversation with no last message (1 ms)
+      ✓ should handle conversation lookup with invalid ID format (2 ms)
+      ✓ should prevent duplicate conversation creation (1 ms)
+      ✓ should handle user with no active conversations (1 ms)
+      ✓ should handle concurrent conversation creation attempts (2 ms)
+      ✓ should handle participant with null lastReadAt (1 ms)
+      ✓ should handle large number of conversations (11 ms)
+      ✓ should handle database timeout errors (5 ms)
+      ✓ should handle malformed participant data (2 ms)
+    Performance and Scalability
+      ✓ should efficiently query conversations with pagination support (2 ms)
+      ✓ should optimize by including only last message (1 ms)
+      ✓ should handle concurrent conversation retrievals (2 ms)
+      ✓ should efficiently count unread messages (1 ms)
+
+PASS src/__tests__/message.service.spec.ts
+  MessageService (Message Operations)
+    Message Sending
+      ✓ should send a text message (5 ms)
+      ✓ should send an image message with attachment URL (2 ms)
+      ✓ should send an offer message with price details (2 ms)
+      ✓ should send system message (11 ms)
+      ✓ should validate conversation exists before sending (32 ms)
+      ✓ should validate sender is a participant (2 ms)
+      ✓ should update conversation lastMessage and lastMessageAt (6 ms)
+      ✓ should increment unread count for recipients (1 ms)
+      ✓ should handle empty message content gracefully (6 ms)
+      ✓ should handle special characters in message content (2 ms)
+    Message Retrieval and Pagination
+      ✓ should retrieve messages with default pagination (7 ms)
+      ✓ should retrieve messages with custom pagination (2 ms)
+      ✓ should return messages in chronological order (1 ms)
+      ✓ should calculate skip correctly for pagination (2 ms)
+      ✓ should handle empty message list (1 ms)
+    Cursor-Based Pagination
+      ✓ should retrieve first page without cursor (2 ms)
+      ✓ should retrieve next page with cursor (1 ms)
+      ✓ should indicate no more messages when at end (2 ms)
+      ✓ should use custom limit (1 ms)
+    Message Read Status
+      ✓ should mark single message as read (2 ms)
+      ✓ should not mark own messages as read (1 ms)
+      ✓ should update participant lastReadAt when marking message read (1 ms)
+      ✓ should reset unread count when marking message read (1 ms)
+      ✓ should throw NotFoundException for non-existent message (1 ms)
+    Bulk Read Operations
+      ✓ should mark all messages in conversation as read (2 ms)
+      ✓ should only mark unread messages (2 ms)
+      ✓ should not mark own messages as read (1 ms)
+      ✓ should update participant after bulk read (1 ms)
+    Unread Message Count
+      ✓ should calculate total unread count across conversations (2 ms)
+      ✓ should return zero when no unread messages (1 ms)
+      ✓ should return zero when user has no conversations (1 ms)
+      ✓ should query only user-specific participants (2 ms)
+    Message Type Validation
+      ✓ should handle TEXT message type (1 ms)
+      ✓ should handle IMAGE message type with URL (1 ms)
+      ✓ should handle OFFER message type with amount (1 ms)
+      ✓ should handle SYSTEM message type (1 ms)
+    Error Handling
+      ✓ should handle database transaction failures (2 ms)
+      ✓ should handle message not found error (1 ms)
+      ✓ should sanitize error messages for security (2 ms)
+    Performance and Edge Cases
+      ✓ should handle large pagination offsets (1 ms)
+      ✓ should handle concurrent read operations (2 ms)
+      ✓ should handle message with maximum content length (1 ms)
+
+PASS test/chat.service.spec.ts
+  ChatService
+    createConversation - إنشاء محادثة
+      ✓ should create a new conversation successfully (5 ms)
+      ✓ should return existing conversation if already exists (2 ms)
+      ✓ should create conversation with orderId (1 ms)
+      ✓ should create conversation with correct participant roles (2 ms)
+    sendMessage - إرسال رسالة
+      ✓ should send a message successfully (2 ms)
+      ✓ should throw NotFoundException when conversation not found (25 ms)
+      ✓ should throw BadRequestException when sender is not a participant (2 ms)
+      ✓ should send message with attachment (5 ms)
+      ✓ should send message with offer amount (4 ms)
+      ✓ should increment unread count for other participants (1 ms)
+    getMessages - جلب الرسائل
+      ✓ should get messages for a conversation with pagination (1 ms)
+      ✓ should handle pagination correctly for page 2 (1 ms)
+      ✓ should return messages in chronological order (2 ms)
+      ✓ should calculate total pages correctly (1 ms)
+    getConversationById - جلب المحادثة بالمعرف
+      ✓ should return conversation by ID (1 ms)
+      ✓ should throw NotFoundException when conversation not found (2 ms)
+    getUserConversations - جلب محادثات المستخدم
+      ✓ should return all conversations for a user (1 ms)
+      ✓ should include unread count for each conversation (10 ms)
+    markMessageAsRead - تحديد الرسالة كمقروءة
+      ✓ should mark message as read (1 ms)
+      ✓ should not mark message as read if user is the sender (2 ms)
+      ✓ should throw NotFoundException when message not found (1 ms)
+    getUnreadCount - عدد الرسائل غير المقروءة
+      ✓ should return total unread count for user (2 ms)
+      ✓ should return 0 when user has no unread messages (1 ms)
+    markConversationAsRead - تحديد المحادثة كمقروءة
+      ✓ should mark all messages in conversation as read (1 ms)
+      ✓ should reset unread count for participant (2 ms)
+    updateTypingIndicator - تحديث مؤشر الكتابة
+      ✓ should update typing indicator (1 ms)
+    updateOnlineStatus - تحديث حالة الاتصال
+      ✓ should update user online status (1 ms)
+      ✓ should set user offline status (1 ms)
+
+PASS src/__tests__/chat.controller.spec.ts
+  ChatController
+    Constructor and Initialization
+      ✓ should be defined (6 ms)
+      ✓ should have chatService injected (2 ms)
+    Health Check
+      ✓ should return health status (3 ms)
+      ✓ should return current timestamp (2 ms)
+    Create Conversation
+      ✓ should create a new conversation when user is a participant (2 ms)
+      ✓ should create conversation with orderId (2 ms)
+      ✓ should return existing conversation if already exists (2 ms)
+      ✓ should throw UnauthorizedException if user is not a participant (28 ms)
+      ✓ should allow second participant to create conversation (2 ms)
+      ✓ should handle service errors (2 ms)
+    Get User Conversations
+      ✓ should return user conversations (2 ms)
+      ✓ should return empty array if user has no conversations (2 ms)
+      ✓ should include unread counts (1 ms)
+    Get Conversation by ID
+      ✓ should return conversation details (2 ms)
+      ✓ should verify user access before returning conversation (1 ms)
+      ✓ should throw UnauthorizedException if user is not a participant (2 ms)
+      ✓ should throw NotFoundException if conversation does not exist (2 ms)
+    Get Messages
+      ✓ should return paginated messages (1 ms)
+      ✓ should use default pagination values (2 ms)
+      ✓ should handle custom pagination (4 ms)
+      ✓ should verify user access before returning messages (2 ms)
+      ✓ should throw UnauthorizedException for unauthorized access (4 ms)
+    Send Message
+      ✓ should send a message (2 ms)
+      ✓ should override senderId with authenticated userId (2 ms)
+      ✓ should send message with offer (1 ms)
+      ✓ should send message with attachment (2 ms)
+      ✓ should handle service errors (1 ms)
+    Mark Message as Read
+      ✓ should mark a message as read (2 ms)
+      ✓ should not mark own message as read (1 ms)
+      ✓ should throw NotFoundException for invalid messageId (2 ms)
+    Mark Conversation as Read
+      ✓ should mark all messages in conversation as read (1 ms)
+      ✓ should verify user access before marking as read (2 ms)
+      ✓ should throw UnauthorizedException for unauthorized access (1 ms)
+    Get Unread Count
+      ✓ should return unread message count (2 ms)
+      ✓ should return zero for no unread messages (9 ms)
+      ✓ should handle large unread counts (1 ms)
+    Access Control
+      ✓ should verify conversation access correctly (1 ms)
+      ✓ should deny access to non-participants (1 ms)
+      ✓ should allow access to all participants (1 ms)
+    Error Handling
+      ✓ should propagate NotFoundException (2 ms)
+      ✓ should handle database connection errors (1 ms)
+      ✓ should handle validation errors (2 ms)
+
+Test Suites: 6 passed, 6 total
+Tests:       278 passed, 278 total
+Snapshots:   0 total
+Time:        11.655 s, estimated 25 s
+Ran all test suites.

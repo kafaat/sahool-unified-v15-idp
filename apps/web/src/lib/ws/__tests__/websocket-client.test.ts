@@ -65,7 +65,7 @@ describe('WebSocket Client', () => {
     });
 
     // @ts-expect-error - MockWebSocket is test-only
-    global.WebSocket = vi.fn((url: string) => {
+    global.WebSocket = vi.fn(function (url: string) {
       const ws = new MockWebSocket(url);
       wsInstances.push(ws);
       return ws;

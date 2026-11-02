@@ -19,7 +19,8 @@ dependencies:
   riverpod_annotation: ^2.6.1
 
   # Database (Offline)
-  drift: ^2.24.0
+  # Drift >=2.29 needs the build 3+ generator migration; keep SQLCipher/Freezed 2.x compatible.
+  drift: '>=2.28.2 <2.29.0'
   sqlite3: ^2.4.6  # Required for SQLCipher migration
   sqflite: ^2.4.1  # Local notifications storage
   sqlcipher_flutter_libs: ^0.6.1  # SQLCipher for encrypted database (includes SQLite)
@@ -154,10 +155,10 @@ dev_dependencies:
   # Import organization - ترتيب الاستيرادات
   import_sorter: ^4.6.0  # 5.0.0 doesn't exist on pub.dev
   build_runner: ^2.4.13
-  drift_dev: ^2.24.0
+  drift_dev: '>=2.28.0 <2.28.1'  # 2.28.1+ requires build/source_gen 3.x
   freezed: 2.5.8  # Retain generated Freezed 2.x model APIs
   json_serializable: ^6.9.0
-  riverpod_generator: ^2.6.3  # Required for @riverpod annotations
+  riverpod_generator: '>=2.6.4 <2.6.5'  # 2.6.5 pulls Freezed annotations 3.x
   # mockito removed: 5.4.5 incompatible with analyzer 7.x, 5.4.6+ requires Dart 3.7.0
   mocktail: ^1.0.4  # Mock library for unit testing (simpler API than mockito)
   fake_async: ^1.3.1  # Resolved with flutter_test and integration_test from the SDK

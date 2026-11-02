@@ -1,0 +1,533 @@
+PASS src/__tests__/marketplace.service.spec.ts (9.856 s)
+  Health Endpoints
+    GET /healthz
+      ✓ should return status ok with service name and version (17 ms)
+      ✓ should include a valid ISO timestamp (5 ms)
+    GET /readyz
+      ✓ should return readiness status with dependency checks (13 ms)
+      ✓ should remain ready when optional NATS is not configured (3 ms)
+      ✓ should include a valid ISO timestamp (2 ms)
+  Module Initialization
+    ✓ should compile the AppModule with all required providers (5 ms)
+    ✓ should resolve AppController from the module (4 ms)
+    ✓ should resolve MarketService from the module (1 ms)
+    ✓ should resolve WalletService from the module (3 ms)
+    ✓ should resolve FintechService facade from the module (7 ms)
+  Product Listing Validation
+    ✓ should only return AVAILABLE products by default (4 ms)
+    ✓ should return products with bilingual name fields (3 ms)
+    ✓ should filter by category and return correct results (3 ms)
+    ✓ should filter products by price range correctly (2 ms)
+    ✓ should throw NotFoundException for non-existent product by ID (27 ms)
+    ✓ should return paginated response with meta information (2 ms)
+    ✓ should order products with featured items first (3 ms)
+    ✓ should create a product with all required fields (6 ms)
+    ✓ should convert yield data into a marketplace product (2 ms)
+  Order Creation Validation
+    ✓ should create an order with correct total calculation (3 ms)
+    ✓ should reject order when product does not exist (14 ms)
+    ✓ should reject order when requested quantity exceeds stock (2 ms)
+    ✓ should handle multi-item orders with correct subtotals (1 ms)
+    ✓ should generate a unique order number prefixed with SAH- (2 ms)
+  Wallet Balance Checks
+    ✓ should return existing wallet for a known user (1 ms)
+    ✓ should create a new wallet with zero balance for unknown user (2 ms)
+    ✓ should reject deposit with zero or negative amount (9 ms)
+    ✓ should reject withdrawal with zero or negative amount (7 ms)
+    ✓ should translate credit tiers to Arabic correctly (2 ms)
+    ✓ should return wallet limits with remaining daily allowance (2 ms)
+    ✓ should throw NotFoundException for wallet limits on non-existent wallet (3 ms)
+    ✓ should update wallet limits based on credit tier (2 ms)
+    ✓ should set PLATINUM tier limits for highest credit tier (1 ms)
+    ✓ should set default BRONZE tier limits for unrecognized tier (1 ms)
+    ✓ should reject transfer to the same wallet (1 ms)
+    ✓ should reject transfer with zero or negative amount (2 ms)
+    ✓ should return transaction history for a wallet (2 ms)
+
+PASS src/__tests__/payment.service.spec.ts
+  Payment Service - Wallet Operations
+    getWallet
+      ✓ should return existing wallet (10 ms)
+      ✓ should create wallet if it does not exist (3 ms)
+      ✓ should support different user types (18 ms)
+    deposit
+      ✓ should deposit money to wallet (5 ms)
+      ✓ should prevent duplicate deposits with idempotency key (2 ms)
+      ✓ should reject negative deposit amounts (41 ms)
+      ✓ should reject zero deposit amounts (2 ms)
+      ✓ should create audit log for deposit (3 ms)
+      ✓ should use SERIALIZABLE isolation level for deposits (4 ms)
+    withdraw
+      ✓ should withdraw money from wallet (3 ms)
+      ✓ should reject withdrawal when balance is insufficient (6 ms)
+      ✓ should reject negative withdrawal amounts (2 ms)
+      ✓ should enforce daily withdrawal limits (2 ms)
+      ✓ should enforce single transaction limits (2 ms)
+      ✓ should reset daily withdrawal counter on new day (1 ms)
+      ✓ should prevent duplicate withdrawals with idempotency key (2 ms)
+      ✓ should use optimistic locking to prevent race conditions (2 ms)
+    getTransactions
+      ✓ should return transaction history (1 ms)
+      ✓ should support custom limit (2 ms)
+    Wallet Limits
+      ✓ should return wallet limits (1 ms)
+      ✓ should throw error for non-existent wallet (8 ms)
+      ✓ should update wallet limits based on credit tier - PLATINUM (2 ms)
+      ✓ should update wallet limits based on credit tier - GOLD (2 ms)
+      ✓ should update wallet limits based on credit tier - BRONZE (default) (7 ms)
+    Escrow Management
+      ✓ should create escrow and hold funds (3 ms)
+      ✓ should get escrow by order ID (2 ms)
+      ✓ should get wallet escrows (2 ms)
+    Wallet Dashboard
+      ✓ should return comprehensive wallet dashboard (3 ms)
+      ✓ should calculate escrow balances correctly (2 ms)
+      ✓ should include monthly transaction chart (2 ms)
+    FintechService Integration
+      ✓ should delegate wallet operations to WalletService (2 ms)
+      ✓ should return finance statistics (2 ms)
+    Payment Processing
+      Order Payment Flow
+        ✓ should process full order payment from buyer wallet (2 ms)
+        ✓ should reject payment if wallet balance is insufficient (2 ms)
+      Refund Processing
+        ✓ should process refund to buyer wallet on order cancellation (2 ms)
+        ✓ should handle partial refunds correctly (2 ms)
+      Seller Payout
+        ✓ should transfer funds to seller after order completion (2 ms)
+    Security Tests - Payment
+      Authorization Checks
+        ✓ should prevent unauthorized wallet access (1 ms)
+        ✓ should verify user owns wallet before operations (2 ms)
+      Input Validation - Amounts
+        ✓ should reject negative payment amounts (8 ms)
+        ✓ should reject zero payment amounts (3 ms)
+        ✓ should reject extremely large amounts (6 ms)
+        ✓ should reject non-numeric amounts (2 ms)
+      Double-Spend Protection
+        ✓ should prevent duplicate deposits with idempotency key (2 ms)
+        ✓ should prevent duplicate withdrawals with idempotency key (1 ms)
+        ✓ should use optimistic locking to prevent concurrent modifications (23 ms)
+        ✓ should use SELECT FOR UPDATE to lock rows (2 ms)
+      Rate Limiting & Fraud Prevention
+        ✓ should enforce daily withdrawal limits (2 ms)
+        ✓ should enforce single transaction limits (3 ms)
+        ✓ should reset daily limits at midnight (1 ms)
+      Audit Trail
+        ✓ should create audit log for every transaction (2 ms)
+        ✓ should record IP address in audit log (6 ms)
+
+PASS src/__tests__/order.service.spec.ts
+  MarketService - Order Operations
+    createOrder
+      ✓ should create an order with single product (4 ms)
+      ✓ should create an order with multiple products (3 ms)
+      ✓ should calculate service fee correctly (2%) (2 ms)
+      ✓ should include fixed delivery fee (5 ms)
+      ✓ should generate unique order number (1 ms)
+    Stock Management in Orders
+      ✓ should decrement product stock when order is created (1 ms)
+      ✓ should throw error when product stock is insufficient (14 ms)
+      ✓ should throw error when product does not exist (2 ms)
+      ✓ should handle concurrent orders atomically with transactions (2 ms)
+    getUserOrders
+      ✓ should return buyer orders with pagination (2 ms)
+      ✓ should return seller orders (1 ms)
+      ✓ should include order items with product details (2 ms)
+      ✓ should sort orders by creation date descending (1 ms)
+    Event Publishing
+      ✓ should publish order.placed event when order is created (5 ms)
+      ✓ should publish inventory low stock event when stock is low (102 ms)
+    Edge Cases
+      ✓ should handle order with empty items array (6 ms)
+      ✓ should handle transaction rollback on error (11 ms)
+      ✓ should handle large orders with many items (3 ms)
+      ✓ should handle special characters in buyer information (2 ms)
+    Security Tests
+      Input Validation
+        ✓ should reject negative quantities (3 ms)
+        ✓ should reject zero quantities (2 ms)
+        ✓ should reject excessively large quantities (1 ms)
+        ✓ should sanitize SQL injection attempts in product IDs (2 ms)
+        ✓ should reject invalid buyer ID format (2 ms)
+        ✓ should validate phone number format (2 ms)
+      Price Manipulation Prevention
+        ✓ should use server-side prices, not client-provided prices (4 ms)
+        ✓ should recalculate totals server-side (1 ms)
+      Race Condition Prevention
+        ✓ should use database transactions for atomic operations (1 ms)
+        ✓ should prevent double-spending of inventory (5 ms)
+      Order Status Security
+        ✓ should only allow valid status transitions (2 ms)
+    Transaction Integrity
+      ✓ should rollback all changes if order creation fails (3 ms)
+      ✓ should maintain data consistency across multiple products (1 ms)
+      ✓ should handle concurrent order attempts correctly (2 ms)
+
+PASS src/fintech/wallet.service.spec.ts
+  WalletService
+    getWallet
+      ✓ should return existing wallet with Arabic tier translation (6 ms)
+      ✓ should create new wallet if not exists (2 ms)
+    getCreditTierAr
+      ✓ should translate credit tiers to Arabic (2 ms)
+    deposit
+      ✓ should throw error for zero or negative amount (27 ms)
+      ✓ should return existing transaction for duplicate idempotency key (2 ms)
+      ✓ should deposit amount with audit logging (2 ms)
+    withdraw
+      ✓ should throw error for zero or negative amount (10 ms)
+      ✓ should throw error for insufficient balance (1 ms)
+      ✓ should return existing transaction for duplicate idempotency key (1 ms)
+    getTransactions
+      ✓ should return wallet transactions (2 ms)
+    getWalletLimits
+      ✓ should return wallet limits (1 ms)
+      ✓ should throw error for non-existent wallet (3 ms)
+    updateWalletLimits
+      ✓ should update limits based on credit tier (3 ms)
+    getWalletDashboard
+      ✓ should return complete wallet dashboard (2 ms)
+      ✓ should throw error for non-existent wallet (6 ms)
+    Advanced Security Tests
+      Transaction Serialization
+        ✓ should use SERIALIZABLE isolation level for critical operations (2 ms)
+        ✓ should handle transaction timeout gracefully (3 ms)
+      Balance Integrity
+        ✓ should maintain balance integrity across multiple operations (2 ms)
+        ✓ should prevent balance from going negative (2 ms)
+      Concurrent Transaction Handling
+        ✓ should handle optimistic locking conflicts (1 ms)
+      Fraud Detection Patterns
+        ✓ should flag suspicious rapid withdrawal patterns (2 ms)
+        ✓ should detect unusual transaction amounts (8 ms)
+        ✓ should monitor cross-country transaction patterns (2 ms)
+      Audit Compliance
+        ✓ should record complete audit trail with metadata (2 ms)
+        ✓ should maintain immutable audit logs (1 ms)
+      Error Handling & Recovery
+        ✓ should rollback transaction on wallet update failure (6 ms)
+        ✓ should handle database connection errors (1 ms)
+        ✓ should handle constraint violation errors (1 ms)
+      Performance & Scalability
+        ✓ should handle high transaction volumes efficiently (25 ms)
+        ✓ should batch read operations efficiently (1 ms)
+      Authorization & Access Control
+        ✓ should prevent cross-wallet access (1 ms)
+        ✓ should validate admin privileges for sensitive operations (1 ms)
+
+PASS src/__tests__/marketplace.controller.spec.ts
+  AppController (Marketplace)
+    GET /healthz
+      ✓ should return health status (6 ms)
+    GET /market/products
+      ✓ should return all products (5 ms)
+      ✓ should filter products by category (2 ms)
+      ✓ should filter products by governorate (2 ms)
+      ✓ should filter products by seller ID (1 ms)
+      ✓ should filter products by price range (2 ms)
+    GET /market/products/:id
+      ✓ should return a single product by ID (2 ms)
+      ✓ should handle product not found (16 ms)
+    POST /market/products
+      ✓ should create a new product (2 ms)
+      ✓ should validate product data (1 ms)
+    POST /market/list-harvest
+      ✓ should convert yield prediction to product (2 ms)
+    POST /market/orders
+      ✓ should create a new order (7 ms)
+      ✓ should handle insufficient stock error (3 ms)
+      ✓ should handle product not found error (2 ms)
+    GET /market/orders/:userId
+      ✓ should return buyer orders for authorized user (2 ms)
+      ✓ should return seller orders for authorized user (2 ms)
+      ✓ should allow admin to access any user orders (2 ms)
+      ✓ should throw ForbiddenException for unauthorized access (11 ms)
+    GET /market/stats
+      ✓ should return market statistics (3 ms)
+    Integration: Product to Order Flow
+      ✓ should create product and then create order for it (2 ms)
+    Error Handling
+      ✓ should handle database connection errors gracefully (2 ms)
+      ✓ should handle validation errors (2 ms)
+      ✓ should handle concurrent order creation (2 ms)
+    PUT /fintech/wallet/:walletId/limits
+      ✓ should allow wallet owner to update limits (2 ms)
+      ✓ should allow admin to update any wallet limits (3 ms)
+      ✓ should throw ForbiddenException for non-owner non-admin (2 ms)
+      ✓ should throw ForbiddenException when wallet not found (2 ms)
+
+PASS src/fintech/escrow.service.spec.ts
+  EscrowService
+    createEscrow
+      ✓ should throw error for zero or negative amount (27 ms)
+      ✓ should return existing escrow for duplicate idempotency key (2 ms)
+      ✓ should create escrow with locked buyer balance (2 ms)
+      ✓ should throw error if escrow already exists for order (2 ms)
+    releaseEscrow
+      ✓ should return existing transaction for duplicate idempotency key (2 ms)
+      ✓ should throw error for non-held escrow (2 ms)
+      ✓ should throw error for non-existent escrow (1 ms)
+    refundEscrow
+      ✓ should return existing transaction for duplicate idempotency key (2 ms)
+      ✓ should throw error for already released escrow (1 ms)
+      ✓ should refund held escrow to buyer (2 ms)
+      ✓ should allow refund of disputed escrow (12 ms)
+    getEscrowByOrder
+      ✓ should return escrow with wallets for order (2 ms)
+      ✓ should return null for non-existent order (2 ms)
+    getWalletEscrows
+      ✓ should return escrows as buyer and seller (1 ms)
+    Transaction Integrity
+      Escrow Creation Integrity
+        ✓ should ensure atomic escrow creation and balance deduction (5 ms)
+        ✓ should rollback if escrow creation fails (2 ms)
+        ✓ should validate wallet has sufficient balance before escrow (1 ms)
+      Escrow Release Integrity
+        ✓ should atomically release escrow and credit seller (5 ms)
+        ✓ should verify escrow status before release (1 ms)
+        ✓ should validate escrow balance matches before release (2 ms)
+      Escrow Refund Integrity
+        ✓ should atomically refund escrow to buyer (2 ms)
+        ✓ should only allow refund for HELD or DISPUTED escrows (1 ms)
+      Concurrent Escrow Operations
+        ✓ should prevent concurrent release and refund of same escrow (6 ms)
+    Security Tests - Escrow
+      Input Validation
+        ✓ should reject zero or negative escrow amounts (2 ms)
+        ✓ should prevent duplicate escrow for same order (2 ms)
+        ✓ should validate wallet existence before escrow operations (1 ms)
+        ✓ should validate seller wallet exists (2 ms)
+      Idempotency Protection
+        ✓ should return existing escrow for duplicate idempotency key on creation (1 ms)
+        ✓ should return existing transaction for duplicate idempotency key on release (2 ms)
+        ✓ should return existing transaction for duplicate idempotency key on refund (1 ms)
+      State Transition Validation
+        ✓ should only allow valid escrow state transitions (2 ms)
+      Authorization & Access Control
+        ✓ should verify order ownership before escrow operations (1 ms)
+        ✓ should only allow seller or buyer to view escrow details (4 ms)
+      Balance Verification
+        ✓ should ensure buyer has sufficient balance for escrow creation (1 ms)
+        ✓ should track escrow balance separately from available balance (2 ms)
+
+PASS src/fintech/fintech.service.spec.ts
+  FintechService (Facade)
+    Wallet Operations (delegated)
+      ✓ should delegate getWallet to WalletService (6 ms)
+      ✓ should delegate deposit to WalletService (3 ms)
+      ✓ should delegate withdraw to WalletService (2 ms)
+      ✓ should delegate getTransactions to WalletService (1 ms)
+      ✓ should delegate getWalletDashboard to WalletService (2 ms)
+    Credit Operations (delegated)
+      ✓ should delegate calculateCreditScore to CreditService (2 ms)
+      ✓ should delegate getCreditReport to CreditService (13 ms)
+      ✓ should delegate recordCreditEvent to CreditService (3 ms)
+    Loan Operations (delegated)
+      ✓ should delegate requestLoan to LoanService (2 ms)
+      ✓ should delegate approveLoan to LoanService (1 ms)
+      ✓ should delegate repayLoan to LoanService (3 ms)
+      ✓ should delegate scheduled payment operations to LoanService (2 ms)
+    Escrow Operations (delegated)
+      ✓ should delegate createEscrow to EscrowService (3 ms)
+      ✓ should delegate releaseEscrow to EscrowService (2 ms)
+      ✓ should delegate refundEscrow to EscrowService (2 ms)
+      ✓ should delegate getWalletEscrows to EscrowService (2 ms)
+    Statistics
+      ✓ should return finance statistics (2 ms)
+      ✓ should handle empty statistics gracefully (2 ms)
+    Helper Methods
+      ✓ should delegate getCreditTierAr to WalletService (2 ms)
+      ✓ should delegate getLoanPurposeAr to LoanService (2 ms)
+
+PASS src/fintech/loan.service.spec.ts
+  LoanService
+    getLoanPurposeAr
+      ✓ should translate loan purposes to Arabic (7 ms)
+    requestLoan
+      ✓ should create loan request within credit limit (2 ms)
+      ✓ should reject loan exceeding credit limit (23 ms)
+      ✓ should throw error for non-existent wallet (2 ms)
+      ✓ should calculate 2% admin fee correctly (1 ms)
+    approveLoan
+      ✓ should approve pending loan and credit wallet (2 ms)
+      ✓ should reject non-pending loans (1 ms)
+      ✓ should throw error for non-existent loan (2 ms)
+    repayLoan
+      ✓ should throw error for zero or negative amount (3 ms)
+      ✓ should return existing transaction for duplicate idempotency key (1 ms)
+    getUserLoans
+      ✓ should return all loans for wallet (2 ms)
+    createScheduledPayment
+      ✓ should create scheduled payment (2 ms)
+      ✓ should throw error for non-existent wallet (1 ms)
+    getScheduledPayments
+      ✓ should return active scheduled payments (1 ms)
+      ✓ should return all scheduled payments when activeOnly is false (2 ms)
+    cancelScheduledPayment
+      ✓ should cancel scheduled payment (1 ms)
+      ✓ should throw error for non-existent payment (2 ms)
+    executeScheduledPayment
+      ✓ should execute scheduled payment successfully (1 ms)
+      ✓ should throw error for insufficient balance (21 ms)
+      ✓ should throw error for inactive payment (6 ms)
+      ✓ should throw error for non-existent payment (1 ms)
+
+PASS test/marketplace.spec.ts
+  MarketplaceService - خدمة السوق
+    createProduct - إنشاء منتج
+      ✓ should create a new product successfully (4 ms)
+      ✓ should create product with all required fields (1 ms)
+      ✓ should create product with optional fields (2 ms)
+    findAllProducts - البحث عن منتجات
+      ✓ should return all available products (1 ms)
+      ✓ should filter products by category (1 ms)
+      ✓ should filter products by governorate (1 ms)
+      ✓ should filter products by sellerId (1 ms)
+      ✓ should filter products by price range (1 ms)
+      ✓ should filter products by minimum price only (3 ms)
+      ✓ should filter products by maximum price only (1 ms)
+      ✓ should combine multiple filters (2 ms)
+      ✓ should return empty data when no products match filters (1 ms)
+    findProductById - جلب منتج بالمعرف
+      ✓ should return product by ID (1 ms)
+      ✓ should throw NotFoundException when product not found (20 ms)
+    createOrder - إنشاء طلب
+      ✓ should create an order successfully (2 ms)
+      ✓ should calculate order totals correctly (1 ms)
+      ✓ should throw error when product not found (2 ms)
+      ✓ should throw error when stock is insufficient (1 ms)
+      ✓ should decrement product stock after order (1 ms)
+      ✓ should create order with multiple items (8 ms)
+      ✓ should generate unique order number (3 ms)
+    getUserOrders - جلب طلبات المستخدم
+      ✓ should return buyer orders (2 ms)
+      ✓ should return seller orders (1 ms)
+      ✓ should return empty array when no orders found (1 ms)
+    convertYieldToProduct - تحويل توقع الحصاد لمنتج
+      ✓ should convert yield data to product listing (2 ms)
+      ✓ should include harvest date in product (1 ms)
+      ✓ should set crop image URL correctly (1 ms)
+    getMarketStats - إحصائيات السوق
+      ✓ should return market statistics (1 ms)
+      ✓ should count only available products (1 ms)
+      ✓ should count only harvest category for totalHarvests (2 ms)
+      ✓ should return recent products limited to 5 (2 ms)
+
+PASS src/reviews/reviews.controller.spec.ts
+  ReviewsController
+    ✓ should be defined (5 ms)
+    createProductReview
+      ✓ should create a new review (3 ms)
+    getProductReviewStats
+      ✓ should return review statistics before getting reviews (2 ms)
+    getProductReviews
+      ✓ should return product reviews with filters (2 ms)
+    getReviewById
+      ✓ should return a single review by ID (2 ms)
+    getBuyerReviews
+      ✓ should return buyer reviews with pagination (10 ms)
+    updateProductReview
+      ✓ should update a review (1 ms)
+    deleteProductReview
+      ✓ should delete a review (2 ms)
+    markReviewHelpful
+      ✓ should mark review as helpful (2 ms)
+    reportReview
+      ✓ should report a review (1 ms)
+    getSellerResponses
+      ✓ should return seller responses with pagination (2 ms)
+
+PASS src/__tests__/idempotency.service.spec.ts
+  IdempotencyService
+    ✓ passes through when no idempotency key is provided (6 ms)
+    ✓ replays the cached response on the second call with matching payload (2 ms)
+    ✓ throws UnprocessableEntityException on key collision with different payload (19 ms)
+    ✓ canonicalises object key order so {a,b} and {b,a} hash equal (3 ms)
+    ✓ deletes the in-progress row when the work function throws (4 ms)
+  WalletTransactionDto currency allow-list
+    ✓ accepts SAR as a valid currency (3 ms)
+    ✓ accepts YER as a valid currency (1 ms)
+    ✓ rejects JPY as an unknown currency (1 ms)
+    ✓ allows omitting currency (optional field)
+
+PASS src/__tests__/product.service.spec.ts
+  MarketService - Product Operations
+    findAllProducts
+      ✓ should return paginated list of available products (5 ms)
+      ✓ should filter products by category (1 ms)
+      ✓ should filter products by governorate (2 ms)
+      ✓ should filter products by seller ID (1 ms)
+      ✓ should filter products by price range (1 ms)
+      ✓ should apply multiple filters simultaneously (3 ms)
+      ✓ should handle pagination parameters (2 ms)
+      ✓ should return featured products first (2 ms)
+    findProductById
+      ✓ should return a product by ID (1 ms)
+      ✓ should throw NotFoundException when product does not exist (24 ms)
+    createProduct
+      ✓ should create a new product with all fields (2 ms)
+      ✓ should create a product with minimal required fields (1 ms)
+      ✓ should handle different seller types (1 ms)
+    convertYieldToProduct
+      ✓ should convert yield data to a product listing (2 ms)
+      ✓ should use default quality grade if not provided (1 ms)
+      ✓ should generate proper crop image URLs (15 ms)
+      ✓ should use default image for unknown crops (2 ms)
+      ✓ should include current year in product name (1 ms)
+    Stock Management
+      ✓ should track product stock correctly (2 ms)
+      ✓ should handle zero stock products (1 ms)
+    getMarketStats
+      ✓ should return comprehensive market statistics (2 ms)
+      ✓ should handle empty marketplace (1 ms)
+    Edge Cases
+      ✓ should handle database errors gracefully (1 ms)
+      ✓ should handle large product catalogs with pagination (1 ms)
+      ✓ should handle products with special characters in names (1 ms)
+      ✓ should handle concurrent read operations (2 ms)
+
+PASS src/fintech/credit.service.spec.ts
+  CreditService
+    getCreditTierAr
+      ✓ should translate credit tiers to Arabic (12 ms)
+    calculateCreditScore
+      ✓ should calculate PLATINUM tier for excellent farm data (3 ms)
+      ✓ should calculate GOLD tier for good farm data (2 ms)
+      ✓ should calculate SILVER tier for average farm data (1 ms)
+      ✓ should calculate BRONZE tier for poor farm data (2 ms)
+    calculateAdvancedCreditScore
+      ✓ should calculate advanced score with all factors (2 ms)
+    getCreditFactors
+      ✓ should return credit factors for user (2 ms)
+      ✓ should throw error for non-existent wallet (14 ms)
+    recordCreditEvent
+      ✓ should record positive credit event and update score (2 ms)
+      ✓ should record negative credit event and update score (2 ms)
+      ✓ should throw error for non-existent wallet (2 ms)
+    getCreditReport
+      ✓ should generate comprehensive credit report (2 ms)
+      ✓ should identify high risk level for low scores (1 ms)
+      ✓ should throw error for non-existent wallet (1 ms)
+
+PASS src/market/market.service.spec.ts
+  MarketService
+    findAllProducts
+      ✓ should return all available products (6 ms)
+      ✓ should filter products by category (2 ms)
+      ✓ should filter products by price range (2 ms)
+    findProductById
+      ✓ should return a product by id (2 ms)
+      ✓ should throw NotFoundException when product not found (17 ms)
+    createProduct
+      ✓ should create a new product (17 ms)
+    convertYieldToProduct
+      ✓ should convert yield data to a product listing (1 ms)
+    getMarketStats
+      ✓ should return market statistics (2 ms)
+
+Test Suites: 14 passed, 14 total
+Tests:       356 passed, 356 total
+Snapshots:   0 total
+Time:        13.649 s, estimated 43 s
+Ran all test suites.

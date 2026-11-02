@@ -1,0 +1,23 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.14, pytest-9.2.0, pluggy-1.6.0
+rootdir: /workspace/scratch/7de7742d3309/sahool-pr-python
+configfile: pyproject.toml
+plugins: cov-7.0.0, asyncio-1.3.0, anyio-4.15.1, xdist-3.8.0, mock-3.17.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 102 items
+
+tests/unit/test_python_lock_consistency.py ............................. [ 28%]
+.......                                                                  [ 35%]
+tests/unit/test_infrastructure_fixes.py .....                            [ 40%]
+tests/unit/test_ndvi_calculation.py .................................... [ 75%]
+..                                                                       [ 77%]
+scripts/ci/check_python_lock_runtime.py .......................          [100%]
+
+=============================== warnings summary ===============================
+scripts/ci/check_python_lock_runtime.py::test_fastapi_starlette_request_validation_and_errors
+  /workspace/scratch/7de7742d3309/sahool-pr-python/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+- generated xml file: /workspace/scratch/7de7742d3309/pr-evidence/python/root-runtime.xml -
+======================= 102 passed, 1 warning in 10.41s ========================

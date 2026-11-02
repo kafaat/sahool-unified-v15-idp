@@ -21,15 +21,21 @@ const minimum = (version, floor) => {
 };
 
 const floors = {
+  'body-parser': '1.20.9',
   'proxy-addr': '2.0.8',
   'maplibre-gl': '6.4.1',
   handlebars: '4.7.10',
-  vitest: '3.2.6',
+  vitest: '4.1.12',
+  '@vitest/mocker': '4.1.12',
   tinypool: '2.1.2',
   storybook: '8.6.19',
   '@storybook/core': '8.6.19',
 };
 const patched = (name, version) => {
+  if (name === 'body-parser') {
+    return minimum(version, '1.20.9') &&
+      (!version.startsWith('2.') || minimum(version, '2.4.0'));
+  }
   if (name === 'next') {
     return minimum(version, '15.5.28') &&
       (!version.startsWith('16.') || minimum(version, '16.4.1'));
@@ -110,7 +116,14 @@ test('Handlebars rejects an executable blockParams length in an untrusted AST', 
   }
 });
 
-test('the actual Vitest worker pool ignores an inherited worker filename', async () => {
+test('the installed Vitest worker dependency cannot redirect an inherited worker filename', async () => {
+  const vitestPackage = require('vitest/package.json');
+  if (!vitestPackage.dependencies?.tinypool) {
+    // Vitest 4 replaced Tinypool with its own worker implementation. Keep this
+    // boundary explicit: the former vulnerable dependency is no longer reachable.
+    assert.ok(minimum(vitestPackage.version, '4.1.12'));
+    return;
+  }
   const vitestRequire = createRequire(require.resolve('vitest/package.json'));
   const { default: Tinypool } = await import(pathToFileURL(vitestRequire.resolve('tinypool')).href);
   const temporary = mkdtempSync(path.join(tmpdir(), 'sahool-worker-boundary-'));

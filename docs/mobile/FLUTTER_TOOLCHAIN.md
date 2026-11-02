@@ -33,6 +33,67 @@ existing dependency families. A newer SDK migration must validate those
 generators and the encrypted database integration together; this repair does
 not change storage behavior or Python requirements.
 
+## Dependency compatibility boundaries
+
+PR [#1822](https://github.com/kafaat/sahool-unified-v15-idp/pull/1822)
+cannot be applied as a manifest/lock-only update. Its Drift 2.34 / SQLite 3.x,
+Riverpod 3.x / generator 4.x and Freezed 3 prerelease require source and native
+storage migration. The primary and field apps still import `sqlite3/open.dart`
+and install `openCipherOnAndroid`; their SQLCipher configuration must remain
+usable by existing encrypted databases.
+
+The supported graph currently resolves to Drift **2.28.2** and drift_dev
+**2.28.0**. These are the latest versions compatible with the retained generator
+families:
+
+| Candidate | Published constraint conflict |
+| --- | --- |
+| drift_dev 2.28.1 through 2.31.0 | Requires `build >=3` and `source_gen >=3`; Freezed 2.5.8 and riverpod_generator 2.6.4 require both below 3. |
+| Drift 2.29 through 2.31 | The compatible drift_dev 2.28.0 requires `drift <2.29`. |
+| Drift 2.32 and newer | Moves to SQLite 3.x, removes the imported `sqlite3/open.dart` API and changes the native encryption integration. |
+| riverpod_generator 2.6.5 | Pulls riverpod_analyzer_utils 0.5.10, which requires `freezed_annotation ^3.0.0`; `flutter pub get` rejects it alongside the app's `^2.4.4` constraint. |
+
+All three consuming manifests therefore cap Drift below 2.29, drift_dev
+below 2.28.1 and riverpod_generator below 2.6.5. Existing caret constraints retain
+SQLite 2.x, SQLCipher 0.6.x and Riverpod/Freezed 2.x. Application lock package versions remain unchanged.
+Dependabot's Flutter group accepts minor/patch updates and has matching narrow
+generator exclusions. Other package update and security settings are preserved.
+
+`tests/unit/test_mobile_dependency_compatibility.py` checks all four manifests
+and all three application locks, including the unified app that consumes the
+shared core through a path dependency. It rejects override bypasses and checks
+the transitive `riverpod`, `analyzer`, `build`, `source_gen` and
+`riverpod_analyzer_utils` versions as well as the direct packages. The published
+Freezed/Riverpod 2 generators require analyzer below 8 and build/source_gen
+below 3; analyzer_utils 0.5.10 requires Freezed annotations 3.
+
+Mobile CI runs both policy test files from the repository root before Flutter
+analysis. Its path filters include the shared core, the application manifests
+and locks, Dependabot, Python constraints and the policy tests. Policy failures
+propagate through the existing analyze job; they are not advisory checks.
+Negative tests cover missing workflow inputs and bypassed policy execution.
+
+Pub remains the dependency solver. Removing the boundaries requires
+regenerating models/providers, passing native tests, and verifying old encrypted
+database files with the new native encryption build configuration.
+
+Validation of the bounded graph passed **86 policy checks**, enforced pub
+resolution in both applications without changing either lock's SHA-256,
+shared-core pub resolution, primary code generation (373 outputs / 2,427
+actions), and the two native entry-point/theme tests. This does not validate a
+SQLite 3 migration or build an Android/iOS application package.
+
+Published manifests: [drift_dev 2.28.0](https://pub.dev/api/packages/drift_dev/versions/2.28.0),
+[drift_dev 2.28.1](https://pub.dev/api/packages/drift_dev/versions/2.28.1),
+[drift_dev 2.31.0](https://pub.dev/api/packages/drift_dev/versions/2.31.0),
+[Freezed 2.5.8](https://pub.dev/api/packages/freezed/versions/2.5.8),
+[riverpod_generator 2.6.4](https://pub.dev/api/packages/riverpod_generator/versions/2.6.4), and
+[riverpod_analyzer_utils 0.5.10](https://pub.dev/api/packages/riverpod_analyzer_utils/versions/0.5.10).
+The [flutter_riverpod 2.6.1 manifest](https://pub.dev/api/packages/flutter_riverpod/versions/2.6.1)
+also pins the transitive Riverpod runtime to 2.6.1.
+See also [Drift encryption migration](https://drift.simonbinder.eu/platforms/encryption/)
+and [Riverpod 3 migration](https://riverpod.dev/docs/3.0_migration).
+
 ## Android and source compatibility
 
 Both Android applications use AGP 8.12.2, Kotlin 2.2.20, Gradle 8.14,
@@ -56,7 +117,7 @@ From the repository root, install Flutter 3.44.9 and use its bundled Dart.
 CI installs `libsqlite3-dev` before native SQLite tests.
 
 ```sh
-python -m pytest -q tests/unit/test_flutter_toolchain_consistency.py
+python -m pytest -q tests/unit/test_flutter_toolchain_consistency.py tests/unit/test_mobile_dependency_compatibility.py
 cd apps/mobile
 flutter pub get --enforce-lockfile
 dart run build_runner build --delete-conflicting-outputs

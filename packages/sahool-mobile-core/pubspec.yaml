@@ -22,7 +22,8 @@ dependencies:
   riverpod_annotation: ^2.6.1
 
   # Database (Offline) - قاعدة بيانات مشفرة
-  drift: ^2.24.0
+  # Drift >=2.29 needs the build 3+ generator migration; keep SQLCipher/Freezed 2.x compatible.
+  drift: '>=2.28.2 <2.29.0'
   sqlite3: ^2.4.6
   sqflite: ^2.4.1
   sqlcipher_flutter_libs: ^0.6.1
@@ -135,10 +136,10 @@ dev_dependencies:
   flutter_lints: ^5.0.0
   import_sorter: ^4.6.0
   build_runner: ^2.4.13
-  drift_dev: ^2.24.0
+  drift_dev: '>=2.28.0 <2.28.1'  # 2.28.1+ requires build/source_gen 3.x
   freezed: 2.5.8
   json_serializable: ^6.9.0
-  riverpod_generator: ^2.6.3
+  riverpod_generator: '>=2.6.4 <2.6.5'
   mocktail: ^1.0.4
 
 dependency_overrides:

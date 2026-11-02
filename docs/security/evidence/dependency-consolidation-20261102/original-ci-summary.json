@@ -1,0 +1,247 @@
+[
+  {
+    "pr": 1822,
+    "total": 23,
+    "non_success": [
+      {
+        "id": 28072368521,
+        "name": "SAHOOL Platform v16 - CI/CD",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 28072368511,
+        "name": "SAHOOL Complete CI/CD",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 28072368484,
+        "name": "Test Suite",
+        "status": "completed",
+        "conclusion": "failure"
+      }
+    ]
+  },
+  {
+    "pr": 2009,
+    "total": 25,
+    "non_success": [
+      {
+        "id": 41372066073,
+        "name": "Quality Orchestrator (8-Layer Analysis)",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 41372066103,
+        "name": "JavaScript Critical Security",
+        "status": "completed",
+        "conclusion": "failure"
+      }
+    ]
+  },
+  {
+    "pr": 2017,
+    "total": 23,
+    "non_success": []
+  },
+  {
+    "pr": 2018,
+    "total": 34,
+    "non_success": [
+      {
+        "id": 41381385412,
+        "name": "SAHOOL Platform v16 - CI/CD",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 41381385288,
+        "name": "Shared PyJWT Security",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 41381385379,
+        "name": "Dependency Consistency Check",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 41381383079,
+        "name": "Auto-Merge PRs",
+        "status": "completed",
+        "conclusion": "cancelled"
+      }
+    ]
+  },
+  {
+    "pr": 2019,
+    "total": 29,
+    "non_success": [
+      {
+        "id": 41381390507,
+        "name": "Auto-Merge PRs",
+        "status": "completed",
+        "conclusion": "cancelled"
+      },
+      {
+        "id": 41381391539,
+        "name": "Auto-Merge PRs",
+        "status": "completed",
+        "conclusion": "cancelled"
+      }
+    ]
+  },
+  {
+    "pr": 2020,
+    "total": 25,
+    "non_success": [
+      {
+        "id": 41381403101,
+        "name": "Auto-Merge PRs",
+        "status": "completed",
+        "conclusion": "cancelled"
+      },
+      {
+        "id": 41381402336,
+        "name": "Auto-Merge PRs",
+        "status": "completed",
+        "conclusion": "cancelled"
+      }
+    ]
+  },
+  {
+    "pr": 2021,
+    "total": 29,
+    "non_success": [
+      {
+        "id": 41381410025,
+        "name": "Auto-Merge PRs",
+        "status": "completed",
+        "conclusion": "cancelled"
+      }
+    ]
+  },
+  {
+    "pr": 2022,
+    "total": 25,
+    "non_success": [
+      {
+        "id": 41381417638,
+        "name": "Auto-Merge PRs",
+        "status": "completed",
+        "conclusion": "cancelled"
+      },
+      {
+        "id": 41381418141,
+        "name": "Auto-Merge PRs",
+        "status": "completed",
+        "conclusion": "cancelled"
+      }
+    ]
+  },
+  {
+    "pr": 2023,
+    "total": 27,
+    "non_success": [
+      {
+        "id": 41381939061,
+        "name": "Quality Gate - منظومة الجودة المتكاملة",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 41381938916,
+        "name": "Shared PyJWT Security",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 41381938920,
+        "name": "SAHOOL Platform v16 - CI/CD",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 41381938961,
+        "name": "CI Pipeline",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 41381939115,
+        "name": "Dependency Consistency Check",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 41381939109,
+        "name": "Python Lock Security",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 41381938561,
+        "name": "Auto-Merge PRs",
+        "status": "completed",
+        "conclusion": "cancelled"
+      },
+      {
+        "id": 41381938033,
+        "name": "Auto-Merge PRs",
+        "status": "completed",
+        "conclusion": "cancelled"
+      }
+    ]
+  },
+  {
+    "pr": 2024,
+    "total": 21,
+    "non_success": [
+      {
+        "id": 41381947028,
+        "name": "Auto-Merge PRs",
+        "status": "completed",
+        "conclusion": "cancelled"
+      },
+      {
+        "id": 41381946136,
+        "name": "Auto-Merge PRs",
+        "status": "completed",
+        "conclusion": "cancelled"
+      }
+    ]
+  },
+  {
+    "pr": 2025,
+    "total": 24,
+    "non_success": [
+      {
+        "id": 41381966962,
+        "name": "Auto-Merge PRs",
+        "status": "completed",
+        "conclusion": "cancelled"
+      },
+      {
+        "id": 41381967750,
+        "name": "Auto-Merge PRs",
+        "status": "completed",
+        "conclusion": "cancelled"
+      }
+    ]
+  },
+  {
+    "pr": 2026,
+    "total": 26,
+    "non_success": [
+      {
+        "id": 41381973259,
+        "name": "Auto-Merge PRs",
+        "status": "completed",
+        "conclusion": "cancelled"
+      }
+    ]
+  }
+]

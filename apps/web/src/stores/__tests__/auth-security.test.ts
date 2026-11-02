@@ -239,12 +239,14 @@ describe('Auth Store Security', () => {
       const closeSpy = vi.fn();
 
       // Mock BroadcastChannel globally
-      globalThis.BroadcastChannel = vi.fn().mockImplementation(() => ({
-        postMessage: postMessageSpy,
-        close: closeSpy,
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-      })) as unknown as typeof BroadcastChannel;
+      globalThis.BroadcastChannel = vi.fn().mockImplementation(function () {
+        return {
+          postMessage: postMessageSpy,
+          close: closeSpy,
+          addEventListener: vi.fn(),
+          removeEventListener: vi.fn(),
+        };
+      }) as unknown as typeof BroadcastChannel;
 
       global.fetch = vi.fn().mockImplementation((url: string) => {
         if (typeof url === 'string' && url.includes('/api/auth/session')) {

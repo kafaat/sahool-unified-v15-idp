@@ -1,0 +1,51 @@
+{
+  "head_sha": "5ae806cd8ac3e0da53067e72b6ce211d871cd123",
+  "base_sha": "0f17b625047ea6d5108f42a240d507d7c855c912",
+  "workflow_run_id": 41526034180,
+  "job_id": 125553885378,
+  "job_url": "https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41526034180/job/125553885378",
+  "github_conclusion": "success",
+  "actual_analyzer_diagnostics": {
+    "errors": 3462,
+    "warnings": 1948,
+    "info": 1865,
+    "total": 7275
+  },
+  "errors_by_package": {
+    "apps/mobile": 0,
+    "apps/mobile/sahool_field_app": 3346,
+    "apps/mobile/sahool_app": 116
+  },
+  "codegen": {
+    "outputs": 373,
+    "actions": 2427,
+    "success": true
+  },
+  "attribution": {
+    "unchanged_compared_paths": [
+      "apps/mobile/**/*.dart",
+      "packages/sahool-mobile-core/**/*.dart",
+      "apps/mobile/**/pubspec.lock",
+      "apps/mobile/analysis_options.yaml",
+      ".github/workflows/frontend-tests.yml",
+      ".github/actions/flutter-codegen/action.yml"
+    ],
+    "changed_paths": [],
+    "dart_file_count": 2439,
+    "reason": "Frontend workflow resolves and generates only the primary package, then recursively analyzes nested packages without their package configurations/generated files. Its existing shell fallback turns analyzer failure into a successful job."
+  },
+  "separate_field_job": {
+    "job_id": 125553884149,
+    "errors": 0,
+    "warnings": 728,
+    "info": 1093,
+    "outputs": 353,
+    "actions": 2657,
+    "policy_tests_passed": 86
+  },
+  "limitations": [
+    "Full app test and build jobs pending at time of diagnostic extraction.",
+    "No claim that all Flutter analysis is clean.",
+    "Nested-package setup experiment pending."
+  ]
+}

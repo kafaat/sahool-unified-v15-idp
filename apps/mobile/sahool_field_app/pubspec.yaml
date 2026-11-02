@@ -20,7 +20,8 @@ dependencies:
 
   # Database (Offline) - SECURITY: Using SQLCipher for encrypted database
   # قاعدة بيانات مشفرة باستخدام SQLCipher للأمان
-  drift: ^2.24.0
+  # Drift >=2.29 needs the build 3+ generator migration; keep SQLCipher/Freezed 2.x compatible.
+  drift: '>=2.28.2 <2.29.0'
   sqlcipher_flutter_libs: ^0.6.1  # SQLCipher for encrypted database (CRITICAL SECURITY)
   path_provider: ^2.1.5
   path: ^1.9.0  # Must match Flutter SDK version requirement
@@ -146,13 +147,13 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^5.0.0
   build_runner: ^2.4.13
-  drift_dev: ^2.24.0
+  drift_dev: '>=2.28.0 <2.28.1'  # 2.28.1+ requires build/source_gen 3.x
   freezed: 2.5.8  # Retain generated Freezed 2.x model APIs
   json_serializable: ^6.9.0
   # mockito removed: 5.4.5 incompatible with analyzer 7.x, 5.4.6+ requires Dart 3.7.0
   mocktail: ^1.0.4  # For comprehensive testing and mocking
 
-  riverpod_generator: ^2.6.3
+  riverpod_generator: '>=2.6.4 <2.6.5'
 
   # App Branding
   flutter_launcher_icons: ^0.14.2

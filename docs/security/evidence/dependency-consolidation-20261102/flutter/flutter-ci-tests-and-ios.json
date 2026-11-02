@@ -1,0 +1,387 @@
+{
+  "head_sha": "5ae806cd8ac3e0da53067e72b6ce211d871cd123",
+  "primary_tests": {
+    "job_id": 125559665637,
+    "url": "https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41526034180/job/125559665637",
+    "reported_conclusion": "success",
+    "actual_summary": "02:05 +2723: All tests passed!",
+    "passed": 2723,
+    "failed": 0
+  },
+  "primary_ios": {
+    "job_id": 125559665617,
+    "url": "https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41526034180/job/125559665617",
+    "reported_conclusion": "success",
+    "actual_build_output": "✓ Built build/ios/iphoneos/Runner.app",
+    "xcode_seconds": 241,
+    "configuration": "debug, no-codesign",
+    "limitation": "A simulator/device launch and signed distribution build were not performed."
+  },
+  "field_tests": {
+    "job_id": 125557834244,
+    "url": "https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41526034086/job/125557834244",
+    "reported_conclusion": "success",
+    "actual_summary": "04:01 +4727 -17: Some tests failed.",
+    "passed": 4727,
+    "failed": 17,
+    "random_order_seed": 3931415406,
+    "coverage_percent": 20.5,
+    "failure_classes": {
+      "notifier_state_after_dispose": 14,
+      "default_tenant_assertion": 1,
+      "network_timeout": 1,
+      "shared_chat_fixture": 1
+    },
+    "failures": [
+      {
+        "name": "test/unit/core/env_config_test.dart: EnvConfig Tenant Configuration default tenant ID should not be empty [E]",
+        "detail": [
+          "Expected: non-empty",
+          "Actual: ''",
+          ""
+        ]
+      },
+      {
+        "name": "test/unit/http/api_client_test.dart: ApiClient error handling should handle no connection error [E]",
+        "detail": [
+          "TimeoutException after 0:00:30.000000: Test timed out after 30 seconds. See https://pub.dev/packages/test#timeouts",
+          "dart:isolate  _RawReceivePort._handleMessage",
+          ""
+        ]
+      },
+      {
+        "name": "test/unit/features/marketplace/marketplace_notifier_test.dart: MarketplaceNotifier - Cart Operations clearCart empties all items [E]",
+        "detail": [
+          "Bad state: Tried to use MarketplaceNotifier after `dispose` was called.",
+          "",
+          "Consider checking `mounted`."
+        ]
+      },
+      {
+        "name": "test/unit/features/marketplace/marketplace_notifier_test.dart: MarketplaceNotifier - Cart Operations removeFromCart does nothing for non-existent product [E]",
+        "detail": [
+          "Bad state: Tried to use MarketplaceNotifier after `dispose` was called.",
+          "",
+          "Consider checking `mounted`."
+        ]
+      },
+      {
+        "name": "test/unit/features/marketplace/marketplace_notifier_test.dart: MarketplaceNotifier - Cart Operations updateCartQuantity with negative removes item [E]",
+        "detail": [
+          "Bad state: Tried to use MarketplaceNotifier after `dispose` was called.",
+          "",
+          "Consider checking `mounted`."
+        ]
+      },
+      {
+        "name": "test/unit/features/marketplace/marketplace_notifier_test.dart: MarketplaceNotifier - Cart Operations addToCart with custom quantity [E]",
+        "detail": [
+          "Bad state: Tried to use MarketplaceNotifier after `dispose` was called.",
+          "",
+          "Consider checking `mounted`."
+        ]
+      },
+      {
+        "name": "test/unit/features/marketplace/marketplace_notifier_test.dart: MarketplaceNotifier - Cart Operations removeFromCart removes specific product [E]",
+        "detail": [
+          "Bad state: Tried to use MarketplaceNotifier after `dispose` was called.",
+          "",
+          "Consider checking `mounted`."
+        ]
+      },
+      {
+        "name": "test/unit/features/marketplace/marketplace_notifier_test.dart: MarketplaceNotifier - Cart Operations cartTotal sums all items [E]",
+        "detail": [
+          "Bad state: Tried to use MarketplaceNotifier after `dispose` was called.",
+          "",
+          "Consider checking `mounted`."
+        ]
+      },
+      {
+        "name": "test/unit/features/marketplace/marketplace_notifier_test.dart: MarketplaceNotifier - Cart Operations updateCartQuantity changes quantity [E]",
+        "detail": [
+          "Bad state: Tried to use MarketplaceNotifier after `dispose` was called.",
+          "",
+          "Consider checking `mounted`."
+        ]
+      },
+      {
+        "name": "test/unit/features/marketplace/marketplace_notifier_test.dart: MarketplaceNotifier - Cart Operations addToCart increments quantity for existing product [E]",
+        "detail": [
+          "Bad state: Tried to use MarketplaceNotifier after `dispose` was called.",
+          "",
+          "Consider checking `mounted`."
+        ]
+      },
+      {
+        "name": "test/unit/features/marketplace/marketplace_notifier_test.dart: MarketplaceNotifier - Cart Operations addToCart keeps separate entries for different products [E]",
+        "detail": [
+          "Bad state: Tried to use MarketplaceNotifier after `dispose` was called.",
+          "",
+          "Consider checking `mounted`."
+        ]
+      },
+      {
+        "name": "test/unit/features/marketplace/marketplace_notifier_test.dart: MarketplaceNotifier - Cart Operations initial state has empty cart [E]",
+        "detail": [
+          "Bad state: Tried to use MarketplaceNotifier after `dispose` was called.",
+          "",
+          "Consider checking `mounted`."
+        ]
+      },
+      {
+        "name": "test/unit/features/marketplace/marketplace_notifier_test.dart: MarketplaceNotifier - Cart Operations cartItemCount returns number of distinct items [E]",
+        "detail": [
+          "Bad state: Tried to use MarketplaceNotifier after `dispose` was called.",
+          "",
+          "Consider checking `mounted`."
+        ]
+      },
+      {
+        "name": "test/unit/features/marketplace/marketplace_notifier_test.dart: MarketplaceNotifier - Cart Operations addToCart adds new product [E]",
+        "detail": [
+          "Bad state: Tried to use MarketplaceNotifier after `dispose` was called.",
+          "",
+          "Consider checking `mounted`."
+        ]
+      },
+      {
+        "name": "test/unit/features/marketplace/marketplace_notifier_test.dart: MarketplaceNotifier - Cart Operations updateCartQuantity with 0 removes item [E]",
+        "detail": [
+          "Bad state: Tried to use MarketplaceNotifier after `dispose` was called.",
+          "",
+          "Consider checking `mounted`."
+        ]
+      },
+      {
+        "name": "test/unit/features/marketplace/marketplace_notifier_test.dart: MarketplaceNotifier - Cart Operations createOrder returns null when cart is empty [E]",
+        "detail": [
+          "Bad state: Tried to use MarketplaceNotifier after `dispose` was called.",
+          "",
+          "Consider checking `mounted`."
+        ]
+      },
+      {
+        "name": "test/unit/features/chat_models_test.dart: Conversation lastMessagePreview returns text content for text messages [E]",
+        "detail": [
+          "Expected: 'Last message content'",
+          "Actual: '📷 صورة'",
+          "Which: is different."
+        ]
+      }
+    ],
+    "masking": "Existing step runs bash -e without pipefail, so tee hides the failed test command."
+  },
+  "previous_field_run": {
+    "job_id": 124649223327,
+    "url": "https://github.com/kafaat/sahool-unified-v15-idp/actions/runs/41238802809/job/124649223327",
+    "passed": 4729,
+    "failed": 15,
+    "random_order_seed": 1571091874,
+    "failures": [
+      {
+        "name": "test/unit/core/env_config_test.dart: EnvConfig Tenant Configuration default tenant ID should not be empty [E]",
+        "detail": [
+          "Expected: non-empty",
+          "Actual: ''"
+        ]
+      },
+      {
+        "name": "test/unit/features/marketplace/marketplace_notifier_test.dart: MarketplaceNotifier - Cart Operations updateCartQuantity with 0 removes item [E]",
+        "detail": [
+          "Bad state: Tried to use MarketplaceNotifier after `dispose` was called.",
+          ""
+        ]
+      },
+      {
+        "name": "test/unit/features/marketplace/marketplace_notifier_test.dart: MarketplaceNotifier - Cart Operations addToCart keeps separate entries for different products [E]",
+        "detail": [
+          "Bad state: Tried to use MarketplaceNotifier after `dispose` was called.",
+          ""
+        ]
+      },
+      {
+        "name": "test/unit/features/marketplace/marketplace_notifier_test.dart: MarketplaceNotifier - Cart Operations addToCart increments quantity for existing product [E]",
+        "detail": [
+          "Bad state: Tried to use MarketplaceNotifier after `dispose` was called.",
+          ""
+        ]
+      },
+      {
+        "name": "test/unit/features/marketplace/marketplace_notifier_test.dart: MarketplaceNotifier - Cart Operations addToCart with custom quantity [E]",
+        "detail": [
+          "Bad state: Tried to use MarketplaceNotifier after `dispose` was called.",
+          ""
+        ]
+      },
+      {
+        "name": "test/unit/features/marketplace/marketplace_notifier_test.dart: MarketplaceNotifier - Cart Operations createOrder returns null when cart is empty [E]",
+        "detail": [
+          "Bad state: Tried to use MarketplaceNotifier after `dispose` was called.",
+          ""
+        ]
+      },
+      {
+        "name": "test/unit/features/marketplace/marketplace_notifier_test.dart: MarketplaceNotifier - Cart Operations addToCart adds new product [E]",
+        "detail": [
+          "Bad state: Tried to use MarketplaceNotifier after `dispose` was called.",
+          ""
+        ]
+      },
+      {
+        "name": "test/unit/features/marketplace/marketplace_notifier_test.dart: MarketplaceNotifier - Cart Operations cartItemCount returns number of distinct items [E]",
+        "detail": [
+          "Bad state: Tried to use MarketplaceNotifier after `dispose` was called.",
+          ""
+        ]
+      },
+      {
+        "name": "test/unit/features/marketplace/marketplace_notifier_test.dart: MarketplaceNotifier - Cart Operations removeFromCart does nothing for non-existent product [E]",
+        "detail": [
+          "Bad state: Tried to use MarketplaceNotifier after `dispose` was called.",
+          ""
+        ]
+      },
+      {
+        "name": "test/unit/features/marketplace/marketplace_notifier_test.dart: MarketplaceNotifier - Cart Operations removeFromCart removes specific product [E]",
+        "detail": [
+          "Bad state: Tried to use MarketplaceNotifier after `dispose` was called.",
+          ""
+        ]
+      },
+      {
+        "name": "test/unit/features/marketplace/marketplace_notifier_test.dart: MarketplaceNotifier - Cart Operations updateCartQuantity with negative removes item [E]",
+        "detail": [
+          "Bad state: Tried to use MarketplaceNotifier after `dispose` was called.",
+          ""
+        ]
+      },
+      {
+        "name": "test/unit/features/marketplace/marketplace_notifier_test.dart: MarketplaceNotifier - Cart Operations clearCart empties all items [E]",
+        "detail": [
+          "Bad state: Tried to use MarketplaceNotifier after `dispose` was called.",
+          ""
+        ]
+      },
+      {
+        "name": "test/unit/features/marketplace/marketplace_notifier_test.dart: MarketplaceNotifier - Cart Operations cartTotal sums all items [E]",
+        "detail": [
+          "Bad state: Tried to use MarketplaceNotifier after `dispose` was called.",
+          ""
+        ]
+      },
+      {
+        "name": "test/unit/http/api_client_test.dart: ApiClient error handling should handle no connection error [E]",
+        "detail": [
+          "TimeoutException after 0:00:30.000000: Test timed out after 30 seconds. See https://pub.dev/packages/test#timeouts",
+          "dart:isolate  _RawReceivePort._handleMessage"
+        ]
+      },
+      {
+        "name": "test/unit/features/chat_models_test.dart: Conversation lastMessagePreview returns text content for text messages [E]",
+        "detail": [
+          "Expected: 'Last message content'",
+          "Actual: '📎 ملف'"
+        ]
+      }
+    ],
+    "additional_current_notifier_cases": [
+      {
+        "name": "test/unit/features/marketplace/marketplace_notifier_test.dart: MarketplaceNotifier - Cart Operations updateCartQuantity changes quantity [E]",
+        "detail": [
+          "Bad state: Tried to use MarketplaceNotifier after `dispose` was called.",
+          "",
+          "Consider checking `mounted`."
+        ]
+      },
+      {
+        "name": "test/unit/features/marketplace/marketplace_notifier_test.dart: MarketplaceNotifier - Cart Operations initial state has empty cart [E]",
+        "detail": [
+          "Bad state: Tried to use MarketplaceNotifier after `dispose` was called.",
+          "",
+          "Consider checking `mounted`."
+        ]
+      }
+    ]
+  },
+  "attribution": {
+    "sources_and_locks_identical_to_base": "flutter-ci-frontend-analyze-125553885378.json",
+    "finding": "All four field failure classes also occurred in the prior run. Current main and candidate Dart sources and all three app locks are identical. The current randomized run has two additional notifier disposal cases; no dependency upgrade regression established.",
+    "test_source_observations": [
+      "MarketplaceNotifier starts loadProducts in constructor and writes state after awaited HTTP returns without a mounted guard.",
+      "Chat tests shallow-copy conversationJson, then mutate the shared nested lastMessage.type map."
+    ]
+  },
+  "current_head_ci_snapshot": {
+    "checked_at_utc": "2026-11-02 21:38:15 UTC",
+    "remote_pr_head": "5ae806cd8ac3e0da53067e72b6ce211d871cd123",
+    "runs": [
+      {
+        "run_id": 41526034086,
+        "jobs": [
+          {
+            "job_id": 125553884149,
+            "name": "Analyze Code",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "job_id": 125557834244,
+            "name": "Run Tests",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "job_id": 125566496303,
+            "name": "Build Debug APK",
+            "status": "in_progress",
+            "conclusion": null,
+            "current_step": "Generate code"
+          }
+        ]
+      },
+      {
+        "run_id": 41526034180,
+        "jobs": [
+          {
+            "job_id": 125553885378,
+            "name": "Flutter - Analyze",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "job_id": 125559665617,
+            "name": "Flutter - iOS Build",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "job_id": 125559665637,
+            "name": "Flutter - Unit Tests",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "job_id": 125559665653,
+            "name": "Flutter - Android Build",
+            "status": "in_progress",
+            "conclusion": null,
+            "current_step": "Build Android APK"
+          },
+          {
+            "job_id": 125566702965,
+            "name": "Integration - Mobile",
+            "status": "in_progress",
+            "conclusion": null,
+            "current_step": "Run code generation"
+          }
+        ]
+      }
+    ]
+  },
+  "pending": [
+    "primary Android build",
+    "field Android build",
+    "mobile integration"
+  ]
+}

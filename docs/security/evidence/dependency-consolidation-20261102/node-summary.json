@@ -1,0 +1,425 @@
+{
+  "base": "920ed84e28741e9946f09a673feb22398712377b",
+  "sources": [
+    {
+      "pr": 2009,
+      "head": "fc9f762dbdcc587dc0e9d3bab2b5a41e2240849f"
+    },
+    {
+      "pr": 2017,
+      "head": "460733c7d60dba69c4fbd7ced5cc89c69ae0ae2d"
+    }
+  ],
+  "runtime": {
+    "node": "20.20.2",
+    "npm": "10.9.0"
+  },
+  "manifests": [
+    {
+      "path": "apps/admin/package.json",
+      "section": "devDependencies",
+      "package": "@vitest/coverage-v8",
+      "before": "3.2.7",
+      "after": "4.1.12"
+    },
+    {
+      "path": "apps/admin/package.json",
+      "section": "devDependencies",
+      "package": "vitest",
+      "before": "3.2.7",
+      "after": "4.1.12"
+    },
+    {
+      "path": "apps/services/chat-service/package.json",
+      "section": "dependencies",
+      "package": "@nestjs/common",
+      "before": "^10.4.15",
+      "after": "^10.4.22"
+    },
+    {
+      "path": "apps/services/chat-service/package.json",
+      "section": "dependencies",
+      "package": "@nestjs/core",
+      "before": "^10.4.15",
+      "after": "^10.4.22"
+    },
+    {
+      "path": "apps/services/chat-service/package.json",
+      "section": "dependencies",
+      "package": "@nestjs/platform-express",
+      "before": "^10.4.15",
+      "after": "^10.4.22"
+    },
+    {
+      "path": "apps/services/chat-service/package.json",
+      "section": "dependencies",
+      "package": "@nestjs/platform-socket.io",
+      "before": "^10.4.15",
+      "after": "^10.4.22"
+    },
+    {
+      "path": "apps/services/chat-service/package.json",
+      "section": "dependencies",
+      "package": "@nestjs/swagger",
+      "before": "^8.1.0",
+      "after": "^8.1.1"
+    },
+    {
+      "path": "apps/services/chat-service/package.json",
+      "section": "dependencies",
+      "package": "@nestjs/websockets",
+      "before": "^10.4.15",
+      "after": "^10.4.22"
+    },
+    {
+      "path": "apps/services/chat-service/package.json",
+      "section": "devDependencies",
+      "package": "@nestjs/testing",
+      "before": "^10.4.15",
+      "after": "^10.4.22"
+    },
+    {
+      "path": "apps/services/chat-service/package.json",
+      "section": "overrides",
+      "package": "body-parser",
+      "before": null,
+      "after": "^1.20.9"
+    },
+    {
+      "path": "apps/services/chat-service/package.json",
+      "section": "overrides",
+      "package": "express",
+      "before": null,
+      "after": "^4.22.3"
+    },
+    {
+      "path": "apps/services/chat-service/package.json",
+      "section": "overrides",
+      "package": "multer",
+      "before": null,
+      "after": "2.5.0"
+    },
+    {
+      "path": "apps/services/chat-service/package.json",
+      "section": "overrides",
+      "package": "qs",
+      "before": null,
+      "after": "^6.17.1"
+    },
+    {
+      "path": "apps/services/chat-service/package.json",
+      "section": "overrides",
+      "package": "serialize-javascript",
+      "before": null,
+      "after": "^7.1.4"
+    },
+    {
+      "path": "apps/services/code-review-agent/package.json",
+      "section": "devDependencies",
+      "package": "vitest",
+      "before": "3.2.7",
+      "after": "4.1.12"
+    },
+    {
+      "path": "apps/services/code-review-agent/package.json",
+      "section": "overrides",
+      "package": "vite",
+      "before": null,
+      "after": "7.3.7"
+    },
+    {
+      "path": "apps/services/code-review-agent/package.json",
+      "section": "overrides",
+      "package": "vitest",
+      "before": {
+        "tinypool": "2.1.2"
+      },
+      "after": null
+    },
+    {
+      "path": "apps/services/code-review-agent/package.json",
+      "section": "engines",
+      "package": "node",
+      "before": ">=20.0.0",
+      "after": "^20.19.0 || ^22.12.0 || >=24.0.0"
+    },
+    {
+      "path": "apps/services/marketplace-service/package.json",
+      "section": "dependencies",
+      "package": "@nestjs/cache-manager",
+      "before": "^2.2.0",
+      "after": "^2.3.0"
+    },
+    {
+      "path": "apps/services/marketplace-service/package.json",
+      "section": "dependencies",
+      "package": "@nestjs/common",
+      "before": "^10.4.15",
+      "after": "^10.4.22"
+    },
+    {
+      "path": "apps/services/marketplace-service/package.json",
+      "section": "dependencies",
+      "package": "@nestjs/core",
+      "before": "^10.4.15",
+      "after": "^10.4.22"
+    },
+    {
+      "path": "apps/services/marketplace-service/package.json",
+      "section": "dependencies",
+      "package": "@nestjs/platform-express",
+      "before": "^10.4.15",
+      "after": "^10.4.22"
+    },
+    {
+      "path": "apps/services/marketplace-service/package.json",
+      "section": "dependencies",
+      "package": "@nestjs/swagger",
+      "before": "^8.1.0",
+      "after": "^8.1.1"
+    },
+    {
+      "path": "apps/services/marketplace-service/package.json",
+      "section": "devDependencies",
+      "package": "@nestjs/testing",
+      "before": "^10.4.15",
+      "after": "^10.4.22"
+    },
+    {
+      "path": "apps/services/marketplace-service/package.json",
+      "section": "overrides",
+      "package": "body-parser",
+      "before": null,
+      "after": "^1.20.9"
+    },
+    {
+      "path": "apps/services/marketplace-service/package.json",
+      "section": "overrides",
+      "package": "express",
+      "before": null,
+      "after": "^4.22.3"
+    },
+    {
+      "path": "apps/services/marketplace-service/package.json",
+      "section": "overrides",
+      "package": "multer",
+      "before": null,
+      "after": "2.5.0"
+    },
+    {
+      "path": "apps/services/marketplace-service/package.json",
+      "section": "overrides",
+      "package": "qs",
+      "before": null,
+      "after": "^6.17.1"
+    },
+    {
+      "path": "apps/services/marketplace-service/package.json",
+      "section": "overrides",
+      "package": "serialize-javascript",
+      "before": null,
+      "after": "^7.1.4"
+    },
+    {
+      "path": "apps/web/package.json",
+      "section": "devDependencies",
+      "package": "@vitest/coverage-v8",
+      "before": "3.2.7",
+      "after": "4.1.12"
+    },
+    {
+      "path": "apps/web/package.json",
+      "section": "devDependencies",
+      "package": "vite",
+      "before": "^6.4.5",
+      "after": "7.3.7"
+    },
+    {
+      "path": "apps/web/package.json",
+      "section": "devDependencies",
+      "package": "vitest",
+      "before": "3.2.7",
+      "after": "4.1.12"
+    },
+    {
+      "path": "archive/deprecated-services/community-chat/package.json",
+      "section": "dependencies",
+      "package": "express",
+      "before": "^4.21.2",
+      "after": "^4.22.3"
+    },
+    {
+      "path": "archive/frontend-legacy/frontend/dashboard/package.json",
+      "section": "dependencies",
+      "package": "next",
+      "before": "15.5.9",
+      "after": "15.5.28"
+    },
+    {
+      "path": "archive/kernel-legacy/kernel/services/field_core/package.json",
+      "section": "dependencies",
+      "package": "express",
+      "before": "^4.21.2",
+      "after": "^4.22.3"
+    },
+    {
+      "path": "package.json",
+      "section": "devDependencies",
+      "package": "@vitest/coverage-v8",
+      "before": "3.2.7",
+      "after": "4.1.12"
+    },
+    {
+      "path": "package.json",
+      "section": "devDependencies",
+      "package": "vitest",
+      "before": "3.2.7",
+      "after": "4.1.12"
+    },
+    {
+      "path": "package.json",
+      "section": "overrides",
+      "package": "body-parser@1",
+      "before": null,
+      "after": "^1.20.9"
+    },
+    {
+      "path": "package.json",
+      "section": "overrides",
+      "package": "body-parser@2",
+      "before": null,
+      "after": "^2.4.0"
+    },
+    {
+      "path": "package.json",
+      "section": "overrides",
+      "package": "qs",
+      "before": "^6.14.1",
+      "after": "^6.17.1"
+    },
+    {
+      "path": "package.json",
+      "section": "overrides",
+      "package": "serialize-javascript",
+      "before": ">=7.0.3",
+      "after": ">=7.1.4"
+    },
+    {
+      "path": "package.json",
+      "section": "overrides",
+      "package": "vite",
+      "before": null,
+      "after": "7.3.7"
+    },
+    {
+      "path": "package.json",
+      "section": "overrides",
+      "package": "vitest",
+      "before": {
+        "tinypool": "2.1.2"
+      },
+      "after": null
+    },
+    {
+      "path": "package.json",
+      "section": "engines",
+      "package": "node",
+      "before": ">=20.0.0",
+      "after": "^20.19.0 || ^22.12.0 || >=24.0.0"
+    },
+    {
+      "path": "packages/shared-hooks/package.json",
+      "section": "devDependencies",
+      "package": "vitest",
+      "before": "3.2.7",
+      "after": "4.1.12"
+    },
+    {
+      "path": "packages/shared-ui/package.json",
+      "section": "devDependencies",
+      "package": "vitest",
+      "before": "3.2.7",
+      "after": "4.1.12"
+    },
+    {
+      "path": "packages/shared-utils/package.json",
+      "section": "devDependencies",
+      "package": "vitest",
+      "before": "3.2.7",
+      "after": "4.1.12"
+    },
+    {
+      "path": "sahool-platform/apps/web/package.json",
+      "section": "dependencies",
+      "package": "next",
+      "before": "15.3.0",
+      "after": "15.5.28"
+    }
+  ],
+  "tests": {
+    "root_vitest": {
+      "files": 94,
+      "passed": 2793
+    },
+    "admin_vitest": {
+      "files": 74,
+      "passed": 2515
+    },
+    "code_review_vitest": {
+      "files": 5,
+      "passed": 90
+    },
+    "chat_jest": {
+      "files": 6,
+      "passed": 278
+    },
+    "marketplace_jest": {
+      "files": 14,
+      "passed": 356
+    },
+    "installed_security_node": {
+      "passed": 31
+    },
+    "unique_total": 6063,
+    "additional_coverage_runs": {
+      "shared_hooks": 60,
+      "shared_ui": 23
+    }
+  },
+  "builds": [
+    "shared packages",
+    "Storybook admin",
+    "shared-events",
+    "chat-service Nest build",
+    "marketplace-service Nest build",
+    "code-review-agent TypeScript check"
+  ],
+  "frozen_checks": [
+    "root actual npm ci",
+    "chat-service dry-run npm ci",
+    "marketplace-service dry-run npm ci",
+    "code-review-agent dry-run npm ci",
+    "archive community-chat dry-run npm ci",
+    "archive field_core dry-run npm ci"
+  ],
+  "audit": {
+    "info": 0,
+    "low": 11,
+    "moderate": 79,
+    "high": 17,
+    "critical": 0,
+    "total": 107
+  },
+  "limitations": [
+    "Audit still reports existing unrelated advisories; not a clean security audit. Next15.5.28 has an indirect moderate finding via postcss.",
+    "The old Nest12/cache-manager12 proposal was replaced with patched same-major Nest10 and transitive overrides.",
+    "Vitest5 proposal was replaced with official patched Vitest4.1.12 to retain Node20 compatibility.",
+    "No deployment or external data services were exercised."
+  ],
+  "repairs": [
+    "Regenerated workspace and per-service locks; npm ci mismatch was the cause of all six PR2009 failures.",
+    "Migrated constructor mocks from arrow functions to constructible functions without removing assertions.",
+    "Close ChatGateway testing modules so interval handles terminate normally.",
+    "Isolate marketplace readiness NATS_URL fixture and test not_configured explicitly."
+  ]
+}

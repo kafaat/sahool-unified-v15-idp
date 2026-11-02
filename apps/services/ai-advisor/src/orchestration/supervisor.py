@@ -53,6 +53,8 @@ class Supervisor:
         # تهيئة Claude لاستدلال المشرف
         self.llm = ChatAnthropic(
             anthropic_api_key=settings.anthropic_api_key,
+            # The 2026 API removes temperature; preserve focused routing at 0.3.
+            default_headers={"anthropic-version": "2023-06-01"},
             model=settings.claude_model,
             max_tokens=settings.max_tokens,
             temperature=0.3,  # Lower temperature for more focused routing

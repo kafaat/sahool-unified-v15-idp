@@ -1,0 +1,422 @@
+{
+  ".gitattributes": {
+    "bytes": 173,
+    "sha256": "4296e078e799ad3ca725e4d45d92e9d57507e3b3f14ff6315e5ad6b2074cbf6d"
+  },
+  "README.md": {
+    "bytes": 14840,
+    "sha256": "b23180f7fc590f43ff08588056aedbb3bdc0d83e95c8d023e46159cd75fc403f"
+  },
+  "consolidated-npm-ci.log": {
+    "bytes": 1012,
+    "sha256": "466c148418995bb35d129485e718ce00a0dd3407d80f91b9b89a4d54f83c6964"
+  },
+  "flutter/flutter-ci-frontend-analyze-125553885378.json": {
+    "bytes": 1661,
+    "sha256": "bee20e1393e5411ed9b42dd998c8eafe72fa5497c395b83ca640ff8993496b2b"
+  },
+  "flutter/flutter-ci-setup-core-codegen.log": {
+    "bytes": 5146,
+    "sha256": "6f5359474ec6ffb7a3dcc77124ccf7f951660b1b0f0f93c9fc9d5bd96409cd16"
+  },
+  "flutter/flutter-ci-setup-core-pub-get.log": {
+    "bytes": 115,
+    "sha256": "c149975eca5ee0a197d32755b07b2ba876a6a3330b250356e87c2c810af33df0"
+  },
+  "flutter/flutter-ci-setup-field-codegen.log": {
+    "bytes": 3244,
+    "sha256": "9ac36a7d003e8d7db3a88858d0fdf2cd859004fb5ccc6947152da938b94f952b"
+  },
+  "flutter/flutter-ci-setup-field-pub-get.log": {
+    "bytes": 5303,
+    "sha256": "8e2df631e2fb2e39f6731c5f71adf055cb4d6d5d81f88f323ac0691c38f37b9d"
+  },
+  "flutter/flutter-ci-setup-receipt.json": {
+    "bytes": 5594,
+    "sha256": "ab0ff91be83e6f80d6a07d87356561c89935073e1a19433a4e83961d9bdef526"
+  },
+  "flutter/flutter-ci-setup-root-analyze.log": {
+    "bytes": 746415,
+    "sha256": "63e113732c58cc385bc8937abd74e91dc6805dd3087097a2d523a1beea81fe0a"
+  },
+  "flutter/flutter-ci-setup-unified-pub-get.log": {
+    "bytes": 4657,
+    "sha256": "60da2fb1c25929c817fdbfef3ce42a2f51bfb6257b776a826ff0f5849602339e"
+  },
+  "flutter/flutter-ci-tests-and-ios.json": {
+    "bytes": 15419,
+    "sha256": "8214303d146a154832dc8b901d12d8237ae5c5657d9a518804e43d42b62cc81e"
+  },
+  "flutter/flutter-core-supported-resolution.log": {
+    "bytes": 9027,
+    "sha256": "ac9704d3858568ac2a143f73228f6316b3254a995b01fa9f63529a45321ed22d"
+  },
+  "flutter/flutter-field-supported-resolution.log": {
+    "bytes": 9333,
+    "sha256": "0280272169af40b35f77b9f72ae8664ea098653df09caaca8c6f1df2186cf40f"
+  },
+  "flutter/flutter-native-compatibility.log": {
+    "bytes": 380,
+    "sha256": "cfb21cf2aef6b98f479fa02cd21ad5a3967487b03c39ebe532e2ec9c58572017"
+  },
+  "flutter/flutter-primary-codegen.log": {
+    "bytes": 5002,
+    "sha256": "26834bb1331e571d0a4e4e4ea49fbe80df6f5e39eeef1df1cb62cf7797e1b186"
+  },
+  "flutter/flutter-primary-pub-get.log": {
+    "bytes": 1188,
+    "sha256": "8d9627af0ab9fc8657d98c51a481189dcae9f6b9e6196178af829d351cd27f92"
+  },
+  "flutter/flutter-primary-supported-resolution.log": {
+    "bytes": 9363,
+    "sha256": "6cca15fd1e073dc6d36e4d010587de40eff99388f055ddcad012f9ffb6d3d383"
+  },
+  "flutter/flutter-review-guard-receipt.json": {
+    "bytes": 2731,
+    "sha256": "4a707223e0aab215e8faef3ebac24d91e4ff85efc2715407630a0390f3858a06"
+  },
+  "flutter/flutter-review-guards-after.log": {
+    "bytes": 179,
+    "sha256": "646f571fb57ae2349e2884052e2f94c458dc9850346dea9a9a18a0df52a35480"
+  },
+  "flutter/flutter-review-guards-after.xml": {
+    "bytes": 15215,
+    "sha256": "df41e8dc9ea9cf96e9efbc286b225fc671dbbe6ac82ba0a1dc07ea07610df3a2"
+  },
+  "flutter/flutter-review-guards-before.log": {
+    "bytes": 10227,
+    "sha256": "5d368f31a15f7f808eecbe4ff60793fb25ba36efedd30f7c64eeb888934078d7"
+  },
+  "flutter-pr1822-decision.json": {
+    "bytes": 6631,
+    "sha256": "458117e8fd471da078da40227978714cc5aec192e4341ee9c88ff49ea3bb886b"
+  },
+  "flutter-resolution.json": {
+    "bytes": 1553,
+    "sha256": "33701303c8557acd4937f06798370eb7ffbe7a9bebbde85e14997cadccac9e78"
+  },
+  "followup-validation.json": {
+    "bytes": 1677,
+    "sha256": "ae07210f5c03013f74b01940e72d132f936ef2e17baa67723959f830620911a4"
+  },
+  "integrated-ai-sqlite-final.log": {
+    "bytes": 1104,
+    "sha256": "fd197ae9bba5cd11fe8439f8b4779add36916e6dfdcbadc51296f098797cc165"
+  },
+  "integrated-ai-sqlite-final.xml": {
+    "bytes": 3999,
+    "sha256": "c9145285b3a79dce9f6a900cd2a3ac7a8b2888c1a5d09c5a36d4a87809e285f5"
+  },
+  "integrated-dependency-drift.json": {
+    "bytes": 3849,
+    "sha256": "c0548b92da89f4c933ec88cf54bf2d140aa6b47f55c113b988008e40ff09dc6d"
+  },
+  "integrated-mobile-policy.log": {
+    "bytes": 179,
+    "sha256": "deaaee687df57a8b242a7b60567aa64ba96bf9eccfdb05a38a04d2c816c6e964"
+  },
+  "integrated-mobile-policy.xml": {
+    "bytes": 15215,
+    "sha256": "10658b2a6ca5b7ca57b3771d6035c5854d8f294905bd15f03921eb5d6b695c16"
+  },
+  "integrated-python-ai.log": {
+    "bytes": 1104,
+    "sha256": "176acd68a65de2e6b47572495f6dec51910bb50bb404cc48e3aebc7bccc795f8"
+  },
+  "integrated-python-ai.xml": {
+    "bytes": 2553,
+    "sha256": "ad905b6df1d97cf01cb9bce90cc87b7b311a8dde384cb33bcff25d7f746e0874"
+  },
+  "integrated-python-root.log": {
+    "bytes": 1647,
+    "sha256": "86b1a6b4f1654fcc3c2a5913ff44fa7682bffe0abba414e8d4a9ebca1f71da83"
+  },
+  "integrated-python-root.xml": {
+    "bytes": 13969,
+    "sha256": "c96c1c2513a76cfe5ddc591a14bde8877ca8201a06b15174d43edd3fc0d828cc"
+  },
+  "integration-validation.json": {
+    "bytes": 2343,
+    "sha256": "5e0fffce0f6e2e6daee83b07414580a5bf1a2a736af90d7d0690c285def72700"
+  },
+  "javascript-after.log": {
+    "bytes": 991,
+    "sha256": "43977d2bea1dd6c1aacdaf3bcdd792db24be510e61fb00d101714ba13ea5827a"
+  },
+  "javascript-before.log": {
+    "bytes": 4370,
+    "sha256": "ffdeb444333fb4cd20432f9ddee07e2180741d9bfc0dcb94138b8ce14587dbd6"
+  },
+  "javascript-consolidated.log": {
+    "bytes": 7337,
+    "sha256": "9452fc6436cbe83b36018fd68728912ecfbc417dd1297c09a3be565a98499348"
+  },
+  "javascript-regression-receipt.json": {
+    "bytes": 1356,
+    "sha256": "3f21df509d1c85608dc3d57620a4f79bc89a51ba7e73a1da267e349795d6665d"
+  },
+  "javascript-standalone-code-review.log": {
+    "bytes": 990,
+    "sha256": "2dcf35fdf58325af2f68bdfb0615a89307e07030ee49b6d59061c3673da6c688"
+  },
+  "live-source-prs.json": {
+    "bytes": 5991,
+    "sha256": "c29f7dda5278bf882ad7d343e7bdf26519bf47a0e0766346b8a3969543b9cf3b"
+  },
+  "main-reconciliation.json": {
+    "bytes": 2146,
+    "sha256": "505b681117ee1a3b1f9af990e4c50564db38ab26812bf910f17b13ca297f0e3a"
+  },
+  "node/admin-vitest.log": {
+    "bytes": 258,
+    "sha256": "8e3ef6c8dd1681b489b51114ac85bc7e6e0015d25ec93a6d81aabf365ae93714"
+  },
+  "node/build-packages.log": {
+    "bytes": 2803,
+    "sha256": "1004d2a1b4b58403156a25625f28a970817168e855757d85db1afbd127f3ac33"
+  },
+  "node/build-storybook.log": {
+    "bytes": 27119,
+    "sha256": "a11c0d587adfb302e8ca815270788c78cdb5099098fff98d700b9aa858b44b4f"
+  },
+  "node/chat-jest.log": {
+    "bytes": 23126,
+    "sha256": "6854c893c9ed370e4541d91881783e2845deedca295f1b20ae0f0a13097b49df"
+  },
+  "node/ci-baseline-limitations.json": {
+    "bytes": 5314,
+    "sha256": "ea729b183809c98ace774643bcbe7588448f20cf16481d6147d321f91e95cf4d"
+  },
+  "node/code-review-tests.log": {
+    "bytes": 264,
+    "sha256": "8366010dca10b2dcd818253bbbfb739ad05e560ce850c400d910db5d11d05faa"
+  },
+  "node/final-review-admin-types.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "node/final-review-web-types.log": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "node/final-review.json": {
+    "bytes": 1195,
+    "sha256": "33dfcadf9c8b4042401674e8e169889750e74bc813d9c7b92047a89c7c15cd8d"
+  },
+  "node/marketplace-jest.log": {
+    "bytes": 26629,
+    "sha256": "3a8c3bc3efea1e7c8f4f3162d45e682610c9f8038d3fc8ee94dc7062a9398b18"
+  },
+  "node/root-all-workspaces-audit.json": {
+    "bytes": 74445,
+    "sha256": "1d02a34dd96346fbcae41afad360d74e8186bd8da87c61e665ec46083c2560d7"
+  },
+  "node/root-final-npm-ci.log": {
+    "bytes": 1127,
+    "sha256": "d73f21b450070708eb952b5d2248f76ca5578c8731200ff276490f9bb684fd59"
+  },
+  "node/root-vitest.log": {
+    "bytes": 250,
+    "sha256": "db6adc082086c349863f1ffef5cf21759ba52744e3fa48a8813338475d015381"
+  },
+  "node-parser-locks-after.log": {
+    "bytes": 6457,
+    "sha256": "0c454a2a824f981e46fd99c627ccd8cb1ef538f0e2c26c2002233e8947b76e78"
+  },
+  "node-parser-locks-before.log": {
+    "bytes": 10755,
+    "sha256": "fe94a8577fe64b1fd134870447a64a3053fd667a22d8af6684a985865bff288c"
+  },
+  "node-parser-locks.json": {
+    "bytes": 4232,
+    "sha256": "5a16da37328ca8f55f7dfa2849a980e1dbbd4d57a6d066170550e0777b962590"
+  },
+  "node-summary.json": {
+    "bytes": 11043,
+    "sha256": "eb66c350cf3ce080c44b04c1508c9dfbe15a6f85af93adc88f9d6138585d77c9"
+  },
+  "npm-audit-comparison.json": {
+    "bytes": 4590,
+    "sha256": "25c9f938e11e0fd3843a70ae4d5387435be7a5cd80729795250111a02cbfb552"
+  },
+  "npm-main-baseline-audit.json": {
+    "bytes": 86556,
+    "sha256": "03ed0e3c9f55a814fe75cd6a7acc86e8edda57e203b7e50c7988a6821fe7f98d"
+  },
+  "original-ci-summary.json": {
+    "bytes": 5105,
+    "sha256": "1eb879e73c747693295498fd338569c1dcee7125c9b045d263b9a54001d8c151"
+  },
+  "python/ai-advisor-compiled.txt": {
+    "bytes": 15598,
+    "sha256": "2218ed78ad973f84b8f44841b06c55646173b607aa18714397de37eab8791559"
+  },
+  "python/ai-runtime-minimum.log": {
+    "bytes": 1199,
+    "sha256": "379ba56e90f0b2568cafa26a0c2aec39c5f1415e6605862b99750e74277e5873"
+  },
+  "python/ai-runtime-minimum.xml": {
+    "bytes": 2553,
+    "sha256": "3fea7d349a593ce1d0d14800486bf433741d6972f7d94bd6f7ea210b21dfeb4f"
+  },
+  "python/ai-runtime.log": {
+    "bytes": 1191,
+    "sha256": "3e3cf972991785e29c225c19fabb1b13e8b8c0db211a5c7a6a0bfeac405d2df2"
+  },
+  "python/ai-runtime.xml": {
+    "bytes": 2553,
+    "sha256": "d0c7c9479302b43f45ec3b43e9a5af56086dcc61a89f8ab73ab066e5fb7b3680"
+  },
+  "python/ai-sdk-environment-2.3.txt": {
+    "bytes": 1541,
+    "sha256": "695da4199bd7937540a090ad35c91d2f5f0b1f9efe749e9c27811cea8a97b80f"
+  },
+  "python/ai-sdk-environment-2.4.txt": {
+    "bytes": 1541,
+    "sha256": "1d31d28b7f6973d389b882c6dded90f13bfa7b533b7a6861ebc158a319d36a77"
+  },
+  "python/ai-sdk-full-audit.json": {
+    "bytes": 4923,
+    "sha256": "b67ac0b094484c139ec8574364698b4d61eb2f1152d53481720f15ae79b01e36"
+  },
+  "python/ai-sqlite-final.log": {
+    "bytes": 1090,
+    "sha256": "1a64c011ce8bd8adf66da5921e0218a789d871b66e3871260f3160b8da474d91"
+  },
+  "python/ai-sqlite-final.xml": {
+    "bytes": 3999,
+    "sha256": "52478a5d612b6b440adc00939b2147a9ee26003225118e6f95cdc5d3d5a6e4d8"
+  },
+  "python/anthropic2-before.log": {
+    "bytes": 23840,
+    "sha256": "22bccace2692ef05a8dff2af9ca517278431dd301166a655ba4a1a4d7e1adfd0"
+  },
+  "python/anthropic2-before.xml": {
+    "bytes": 22668,
+    "sha256": "25bc3b75ff2548747f00e78da0cedcbbf2b5d4fc0a1a2aeb3f0fddc583dd7233"
+  },
+  "python/anthropic2-minimum-install.log": {
+    "bytes": 187,
+    "sha256": "59d833203073e9d1fcdf0a199acd055d2a67be4d1954a544479612b7ec12ca77"
+  },
+  "python/anthropic2-minimum-pip-check.log": {
+    "bytes": 125,
+    "sha256": "f722d4194d83381ed0ecdf9df60cf866b4a668f392efb488275c8f28e243c88e"
+  },
+  "python/consolidation-python-evidence.json": {
+    "bytes": 15227,
+    "sha256": "08212be5fb43bece02c3e29d9e26343c4623b470a181d387f520f9d64fae5e37"
+  },
+  "python/copilot-api-compiled.txt": {
+    "bytes": 9644,
+    "sha256": "a7a78ca2dc2577041d0a3196a5cc16defe12f46ac60ec8aa048e142603495176"
+  },
+  "python/copilot-auth.log": {
+    "bytes": 736,
+    "sha256": "2b4b2725e5f5df66f235b9645c23d0107dab10c6cf43898b1db7add7e8c7f94c"
+  },
+  "python/copilot-auth.xml": {
+    "bytes": 1787,
+    "sha256": "9233f1dc7014d85c9668136d39d02193e16b516beb4b4915998f7955c766b933"
+  },
+  "python/dependency-drift.json": {
+    "bytes": 860,
+    "sha256": "9049557c3e5e357ee6dbe0613728bc2e5b8cbd904a40900477d43e6dfcad8ecb"
+  },
+  "python/dev-compiled.txt": {
+    "bytes": 6849,
+    "sha256": "9b3159d6e6647dd07f43fb8dc4ab9edaead1bf5e0b5a944a3ab6540d749639b9"
+  },
+  "python/field-intelligence-compiled.txt": {
+    "bytes": 5639,
+    "sha256": "cd8e7d11c51662763f82e70c07a999b5aa92ccd07b4ed86dfbb86cd9c9cd2efe"
+  },
+  "python/ground-vision-compiled.txt": {
+    "bytes": 5867,
+    "sha256": "24e1d71a3628572010eb7234cbd5aabf40c26324ddbcd135bef1cd99c4890a06"
+  },
+  "python/llm-orchestrator-compiled.txt": {
+    "bytes": 14059,
+    "sha256": "38f122a1f0eaaa408426f91a9efea6823ce671b8f7d22c4ca46c7d4e8be45f14"
+  },
+  "python/qdrant-before.log": {
+    "bytes": 7976,
+    "sha256": "ce6b37e7e2544161a6945cb4237db199aad504e3bd44957ad8fc8c9bba774436"
+  },
+  "python/qdrant-before.xml": {
+    "bytes": 6424,
+    "sha256": "dfc95a792e56859bcea3fd832b5d84e6bd324c75ae060b465df4a6b3ef136ced"
+  },
+  "python/root-environment.txt": {
+    "bytes": 2003,
+    "sha256": "988459e66209a3b3166a63c7541360a29cefb73341ea6e9ca79ba3ddc6a1ddad"
+  },
+  "python/root-full-audit.json": {
+    "bytes": 6325,
+    "sha256": "1d2c53968f2c7cd8c30f3aa0984217288d2f0a5eabbf604d0f9e56f61d300bcb"
+  },
+  "python/root-runtime.log": {
+    "bytes": 1637,
+    "sha256": "69d7e3237000de881255ec9dffce8a0756089b1635d40990d38b874d8de344cf"
+  },
+  "python/root-runtime.xml": {
+    "bytes": 13969,
+    "sha256": "9b3d7f9735080b8cd20fe4d9c09ef5dd6fe1a2f07f0d01638a5f3c8cc6654faf"
+  },
+  "python/ruff-ci.json": {
+    "bytes": 2,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "python/semgrep-annotations-before.json": {
+    "bytes": 1795,
+    "sha256": "37b702645d0f693f21a5d82decd5cff25376701f94c004fa56b5e4d6b95bf95b"
+  },
+  "python/semgrep-sql-before.json": {
+    "bytes": 4199,
+    "sha256": "bbcde90a8d16e383ac54085c9771c1ab4cd41b1d4cc2ee12448050d2c92889bf"
+  },
+  "python/semgrep-sql-final.json": {
+    "bytes": 1411,
+    "sha256": "bb910ec61dea22d845adf1f56423987e7816892d03c88bbb9b0f211891719892"
+  },
+  "python/semgrep-version.txt": {
+    "bytes": 8,
+    "sha256": "eae97141f5249535743e3ff7303787504f8cf505e8c4c9ab59faeeb34e663f33"
+  },
+  "python/shared-auth-compiled.txt": {
+    "bytes": 3832,
+    "sha256": "ba8f9522786a41a69cf76a4514e12ca6ad2f2f2cfcffb1a463fb6a40da569d25"
+  },
+  "python/shared-auth.log": {
+    "bytes": 3116,
+    "sha256": "0faa22412995736b5b780516f685e9019ed3a87a09886019f13285b802741153"
+  },
+  "python/shared-auth.xml": {
+    "bytes": 22645,
+    "sha256": "7d94a1cebd97fbd45e1c3cbbff58e113e8c63a3c630874c567b791a2d6fd422b"
+  },
+  "python/sqlite-delete-negative-final.log": {
+    "bytes": 3829,
+    "sha256": "988f59ea6e622d3a81b9228a92c0fe42b715e3f85e182d3ab8b66244a411af89"
+  },
+  "python/sqlite-delete-negative-final.xml": {
+    "bytes": 3862,
+    "sha256": "7d353043a941887647e8dcc2d26c4ad4036c86631a0cb32832a4b22b3862ff70"
+  },
+  "python/sqlite-semgrep-followup-receipt.json": {
+    "bytes": 2570,
+    "sha256": "391602a70ad4e52c02ed567b2eb484e5eeae14a8aa2e01038bfe190d7d83a037"
+  },
+  "python/stale-lock-negative.log": {
+    "bytes": 274,
+    "sha256": "749338c54b5f2952991d5c763400912c524488ad1fd5e0dc6ed91a77c3b5b108"
+  },
+  "python/uv-lock.log": {
+    "bytes": 860,
+    "sha256": "b6880120818cb3bdf282cfd54dcb6614b6a09bc7358c8ca0ef72d2b6dad6cba0"
+  },
+  "source-prs.json": {
+    "bytes": 11430,
+    "sha256": "8a9d41af9cc6debcbc9c37469f131f480e50b3297e5691cff22405c5a5dfe984"
+  }
+}

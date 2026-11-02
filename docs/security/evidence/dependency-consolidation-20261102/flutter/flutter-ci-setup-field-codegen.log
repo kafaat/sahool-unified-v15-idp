@@ -1,0 +1,76 @@
+[INFO] Generating build script...
+[INFO] Generating build script completed, took 367ms
+
+[INFO] Precompiling build script......
+[INFO] Precompiling build script... completed, took 6.5s
+
+[INFO] Initializing inputs
+[INFO] Building new asset graph...
+[INFO] Building new asset graph completed, took 2.4s
+
+[INFO] Checking for unexpected pre-existing outputs....
+[INFO] Deleting 6 declared outputs which already existed on disk.
+[INFO] Checking for unexpected pre-existing outputs. completed, took 0ms
+
+[INFO] Running build...
+[WARNING] riverpod_generator on lib/core/deeplink/deeplink_models.dart:
+Your current `analyzer` version may not fully support your current SDK version.
+
+Analyzer language version: 3.9.0
+SDK language version: 3.12.0
+
+Please ensure you are on the latest `analyzer` version, which can be seen at
+https://pub.dev/packages/analyzer.
+
+[INFO] Generating SDK summary...
+[INFO] 2.5s elapsed, 0/16 actions completed.
+[INFO] 5.2s elapsed, 0/16 actions completed.
+[INFO] 6.5s elapsed, 0/16 actions completed.
+[INFO] Generating SDK summary completed, took 6.6s
+
+[INFO] 8.0s elapsed, 82/110 actions completed.
+[INFO] 9.0s elapsed, 147/188 actions completed.
+[INFO] 10.1s elapsed, 175/244 actions completed.
+[INFO] 11.2s elapsed, 251/297 actions completed.
+[INFO] 12.2s elapsed, 262/301 actions completed.
+[INFO] 15.3s elapsed, 264/305 actions completed.
+[INFO] 16.3s elapsed, 315/348 actions completed.
+[INFO] 17.4s elapsed, 397/427 actions completed.
+[INFO] 18.4s elapsed, 543/567 actions completed.
+[INFO] 28.9s elapsed, 607/622 actions completed.
+[INFO] 32.5s elapsed, 612/625 actions completed.
+[INFO] 37.2s elapsed, 629/631 actions completed.
+[INFO] 38.4s elapsed, 823/824 actions completed.
+[INFO] 39.4s elapsed, 991/992 actions completed.
+[INFO] 40.6s elapsed, 1125/1145 actions completed.
+[INFO] 41.7s elapsed, 1153/1173 actions completed.
+[INFO] 42.7s elapsed, 1205/1226 actions completed.
+[INFO] 43.7s elapsed, 1233/1249 actions completed.
+[INFO] 44.8s elapsed, 1264/1280 actions completed.
+[INFO] 45.9s elapsed, 1302/1318 actions completed.
+[INFO] 47.2s elapsed, 1329/1346 actions completed.
+[INFO] 48.2s elapsed, 1357/1373 actions completed.
+[INFO] 49.3s elapsed, 1393/1409 actions completed.
+[INFO] 50.4s elapsed, 1418/1435 actions completed.
+[INFO] 51.5s elapsed, 1441/1458 actions completed.
+[INFO] 54.1s elapsed, 1460/1476 actions completed.
+[INFO] 55.1s elapsed, 1487/1502 actions completed.
+[INFO] 56.1s elapsed, 1513/1528 actions completed.
+[INFO] 57.2s elapsed, 1547/1564 actions completed.
+[INFO] 58.2s elapsed, 1580/1595 actions completed.
+[INFO] 59.3s elapsed, 1614/1629 actions completed.
+[INFO] 1m 0s elapsed, 1695/1711 actions completed.
+[INFO] 1m 1s elapsed, 1755/1771 actions completed.
+[INFO] 1m 2s elapsed, 1780/1796 actions completed.
+[INFO] 1m 3s elapsed, 1799/1812 actions completed.
+[INFO] 1m 4s elapsed, 1813/1814 actions completed.
+[INFO] 1m 5s elapsed, 1813/1814 actions completed.
+[INFO] 1m 6s elapsed, 1813/1814 actions completed.
+[INFO] 1m 7s elapsed, 2075/2075 actions completed.
+[INFO] Running build completed, took 1m 8s
+
+[INFO] Caching finalized dependency graph...
+[INFO] Caching finalized dependency graph completed, took 170ms
+
+[INFO] Succeeded after 1m 8s with 353 outputs (2657 actions)
+

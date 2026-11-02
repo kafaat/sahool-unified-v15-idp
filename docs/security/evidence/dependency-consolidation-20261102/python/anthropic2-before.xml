@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="5" skipped="0" tests="5" time="11.881" timestamp="2026-11-02T21:57:02.154641+01:00" hostname="011c66793ea3"><testcase classname="scripts.ci.check_ai_sdk_runtime" name="test_advisor_real_anthropic_sdk_request_and_response[options0]" time="4.018"><failure message="tenacity.RetryError: RetryError[&lt;Future at 0x7f676a3c1760 state=finished raised TypeError&gt;]">self = &lt;AsyncRetrying object at 0x7f676a3c0fb0 (stop=&lt;tenacity.stop.stop_after_attempt object at 0x7f676a396570&gt;, wait=&lt;tenac...0x7f676a396750&gt;, before=&lt;function before_nothing at 0x7f676caa7ce0&gt;, after=&lt;function after_nothing at 0x7f676cac6ac0&gt;)&gt;
+fn = &lt;function AnthropicProvider.chat at 0x7f676a3dca40&gt;
+args = (&lt;_sdk_advisor_llm.llm.multi_provider.AnthropicProvider object at 0x7f676a3c0ef0&gt;, [LLMMessage(role='system', content='farm adviser'), LLMMessage(role='user', content='wheat')])
+kwargs = {}
+
+    async def __call__(  # type: ignore[override]
+        self, fn: WrappedFn, *args: t.Any, **kwargs: t.Any
+    ) -&gt; WrappedFnReturnT:
+        self.begin()
+    
+        retry_state = RetryCallState(retry_object=self, fn=fn, args=args, kwargs=kwargs)
+        while True:
+            do = await self.iter(retry_state=retry_state)
+            if isinstance(do, DoAttempt):
+                try:
+&gt;                   result = await fn(*args, **kwargs)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+/tmp/sahool-ai-sdk-env/lib/python3.12/site-packages/tenacity/asyncio/__init__.py:114: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/services/ai-advisor/src/llm/multi_provider.py:266: in chat
+    return await self.circuit_breaker.call_async(self._chat_impl, messages, model, max_tokens, temperature)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+apps/services/ai-advisor/src/llm/multi_provider.py:104: in call_async
+    raise e
+apps/services/ai-advisor/src/llm/multi_provider.py:99: in call_async
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+apps/services/ai-advisor/src/llm/multi_provider.py:293: in _chat_impl
+    response = await client.messages.create(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (&lt;anthropic.resources.messages.messages.AsyncMessages object at 0x7f676a3c15e0&gt;,)
+kwargs = {'model': 'claude-3-5-sonnet-20241022', 'max_tokens': 4096, 'temperature': 0.7, 'system': 'farm adviser', ...}
+
+    @functools.wraps(func)
+    def wrapper(*args: object, **kwargs: object) -&gt; object:
+        given_params: set[str] = set()
+        for i, _ in enumerate(args):
+            try:
+                given_params.add(positional[i])
+            except IndexError:
+                raise TypeError(
+                    f"{func.__name__}() takes {len(positional)} argument(s) but {len(args)} were given"
+                ) from None
+    
+        for key in kwargs.keys():
+            given_params.add(key)
+    
+        for variant in variants:
+            matches = all((param in given_params for param in variant))
+            if matches:
+                break
+        else:  # no break
+            if len(variants) &gt; 1:
+                variations = human_join(
+                    ["(" + human_join([quote(arg) for arg in variant], final="and") + ")" for variant in variants]
+                )
+                msg = f"Missing required arguments; Expected either {variations} arguments to be given"
+            else:
+                assert len(variants) &gt; 0
+    
+                # TODO: this error message is not deterministic
+                missing = list(set(variants[0]) - given_params)
+                if len(missing) &gt; 1:
+                    msg = f"Missing required arguments: {human_join([quote(arg) for arg in missing])}"
+                else:
+                    msg = f"Missing required argument: {quote(missing[0])}"
+            raise TypeError(msg)
+&gt;       return func(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: AsyncMessages.create() got an unexpected keyword argument 'temperature'
+
+/tmp/sahool-anthropic2-overlay/anthropic/_utils/_utils.py:294: TypeError
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f676a397620&gt;
+anthropic_transport = namespace(requests=[], headers=[], text='wheat advisory')
+options = {}
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "options",
+        [{}, {"model": "claude-sonnet-4-20250514", "max_tokens": 256, "temperature": 0.2}],
+    )
+    async def test_advisor_real_anthropic_sdk_request_and_response(monkeypatch, anthropic_transport, options):
+        source = ROOT / "apps/services/ai-advisor/src"
+        _packages(monkeypatch, "_sdk_advisor_llm", source, [".llm", ".monitoring"])
+        module = _load(monkeypatch, "_sdk_advisor_llm.llm.multi_provider", source / "llm/multi_provider.py")
+        provider = module.AnthropicProvider()
+        try:
+&gt;           result = await provider.chat(
+                [module.LLMMessage("system", "farm adviser"), module.LLMMessage("user", "wheat")], **options
+            )
+
+scripts/ci/check_ai_sdk_runtime.py:233: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/tmp/sahool-ai-sdk-env/lib/python3.12/site-packages/tenacity/asyncio/__init__.py:189: in async_wrapped
+    return await copy(fn, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/tmp/sahool-ai-sdk-env/lib/python3.12/site-packages/tenacity/asyncio/__init__.py:111: in __call__
+    do = await self.iter(retry_state=retry_state)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/tmp/sahool-ai-sdk-env/lib/python3.12/site-packages/tenacity/asyncio/__init__.py:153: in iter
+    result = await action(retry_state)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+/tmp/sahool-ai-sdk-env/lib/python3.12/site-packages/tenacity/_utils.py:99: in inner
+    return call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+rs = &lt;RetryCallState 140082147397312: attempt #3; slept for 4.0; last result: failed (TypeError AsyncMessages.create() got an unexpected keyword argument 'temperature')&gt;
+
+    def exc_check(rs: "RetryCallState") -&gt; None:
+        fut = t.cast(Future, rs.outcome)
+        retry_exc = self.retry_error_cls(fut)
+        if self.reraise:
+            raise retry_exc.reraise()
+&gt;       raise retry_exc from fut.exception()
+E       tenacity.RetryError: RetryError[&lt;Future at 0x7f676a3c1760 state=finished raised TypeError&gt;]
+
+/tmp/sahool-ai-sdk-env/lib/python3.12/site-packages/tenacity/__init__.py:419: RetryError</failure></testcase><testcase classname="scripts.ci.check_ai_sdk_runtime" name="test_advisor_real_anthropic_sdk_request_and_response[options1]" time="4.014"><failure message="tenacity.RetryError: RetryError[&lt;Future at 0x7f676a3c0ef0 state=finished raised TypeError&gt;]">self = &lt;AsyncRetrying object at 0x7f676a3c3500 (stop=&lt;tenacity.stop.stop_after_attempt object at 0x7f676a3c2b70&gt;, wait=&lt;tenac...0x7f676a3c3050&gt;, before=&lt;function before_nothing at 0x7f676caa7ce0&gt;, after=&lt;function after_nothing at 0x7f676cac6ac0&gt;)&gt;
+fn = &lt;function AnthropicProvider.chat at 0x7f676a3dd8a0&gt;
+args = (&lt;_sdk_advisor_llm.llm.multi_provider.AnthropicProvider object at 0x7f676a397110&gt;, [LLMMessage(role='system', content='farm adviser'), LLMMessage(role='user', content='wheat')])
+kwargs = {'model': 'claude-sonnet-4-20250514', 'max_tokens': 256, 'temperature': 0.2}
+
+    async def __call__(  # type: ignore[override]
+        self, fn: WrappedFn, *args: t.Any, **kwargs: t.Any
+    ) -&gt; WrappedFnReturnT:
+        self.begin()
+    
+        retry_state = RetryCallState(retry_object=self, fn=fn, args=args, kwargs=kwargs)
+        while True:
+            do = await self.iter(retry_state=retry_state)
+            if isinstance(do, DoAttempt):
+                try:
+&gt;                   result = await fn(*args, **kwargs)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+/tmp/sahool-ai-sdk-env/lib/python3.12/site-packages/tenacity/asyncio/__init__.py:114: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+apps/services/ai-advisor/src/llm/multi_provider.py:266: in chat
+    return await self.circuit_breaker.call_async(self._chat_impl, messages, model, max_tokens, temperature)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+apps/services/ai-advisor/src/llm/multi_provider.py:104: in call_async
+    raise e
+apps/services/ai-advisor/src/llm/multi_provider.py:99: in call_async
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+apps/services/ai-advisor/src/llm/multi_provider.py:293: in _chat_impl
+    response = await client.messages.create(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (&lt;anthropic.resources.messages.messages.AsyncMessages object at 0x7f676a3c3c50&gt;,)
+kwargs = {'model': 'claude-sonnet-4-20250514', 'max_tokens': 256, 'temperature': 0.2, 'system': 'farm adviser', ...}
+
+    @functools.wraps(func)
+    def wrapper(*args: object, **kwargs: object) -&gt; object:
+        given_params: set[str] = set()
+        for i, _ in enumerate(args):
+            try:
+                given_params.add(positional[i])
+            except IndexError:
+                raise TypeError(
+                    f"{func.__name__}() takes {len(positional)} argument(s) but {len(args)} were given"
+                ) from None
+    
+        for key in kwargs.keys():
+            given_params.add(key)
+    
+        for variant in variants:
+            matches = all((param in given_params for param in variant))
+            if matches:
+                break
+        else:  # no break
+            if len(variants) &gt; 1:
+                variations = human_join(
+                    ["(" + human_join([quote(arg) for arg in variant], final="and") + ")" for variant in variants]
+                )
+                msg = f"Missing required arguments; Expected either {variations} arguments to be given"
+            else:
+                assert len(variants) &gt; 0
+    
+                # TODO: this error message is not deterministic
+                missing = list(set(variants[0]) - given_params)
+                if len(missing) &gt; 1:
+                    msg = f"Missing required arguments: {human_join([quote(arg) for arg in missing])}"
+                else:
+                    msg = f"Missing required argument: {quote(missing[0])}"
+            raise TypeError(msg)
+&gt;       return func(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: AsyncMessages.create() got an unexpected keyword argument 'temperature'
+
+/tmp/sahool-anthropic2-overlay/anthropic/_utils/_utils.py:294: TypeError
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f676a397680&gt;
+anthropic_transport = namespace(requests=[], headers=[], text='wheat advisory')
+options = {'model': 'claude-sonnet-4-20250514', 'max_tokens': 256, 'temperature': 0.2}
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "options",
+        [{}, {"model": "claude-sonnet-4-20250514", "max_tokens": 256, "temperature": 0.2}],
+    )
+    async def test_advisor_real_anthropic_sdk_request_and_response(monkeypatch, anthropic_transport, options):
+        source = ROOT / "apps/services/ai-advisor/src"
+        _packages(monkeypatch, "_sdk_advisor_llm", source, [".llm", ".monitoring"])
+        module = _load(monkeypatch, "_sdk_advisor_llm.llm.multi_provider", source / "llm/multi_provider.py")
+        provider = module.AnthropicProvider()
+        try:
+&gt;           result = await provider.chat(
+                [module.LLMMessage("system", "farm adviser"), module.LLMMessage("user", "wheat")], **options
+            )
+
+scripts/ci/check_ai_sdk_runtime.py:233: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/tmp/sahool-ai-sdk-env/lib/python3.12/site-packages/tenacity/asyncio/__init__.py:189: in async_wrapped
+    return await copy(fn, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/tmp/sahool-ai-sdk-env/lib/python3.12/site-packages/tenacity/asyncio/__init__.py:111: in __call__
+    do = await self.iter(retry_state=retry_state)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/tmp/sahool-ai-sdk-env/lib/python3.12/site-packages/tenacity/asyncio/__init__.py:153: in iter
+    result = await action(retry_state)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+/tmp/sahool-ai-sdk-env/lib/python3.12/site-packages/tenacity/_utils.py:99: in inner
+    return call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+rs = &lt;RetryCallState 140082140689472: attempt #3; slept for 4.0; last result: failed (TypeError AsyncMessages.create() got an unexpected keyword argument 'temperature')&gt;
+
+    def exc_check(rs: "RetryCallState") -&gt; None:
+        fut = t.cast(Future, rs.outcome)
+        retry_exc = self.retry_error_cls(fut)
+        if self.reraise:
+            raise retry_exc.reraise()
+&gt;       raise retry_exc from fut.exception()
+E       tenacity.RetryError: RetryError[&lt;Future at 0x7f676a3c0ef0 state=finished raised TypeError&gt;]
+
+/tmp/sahool-ai-sdk-env/lib/python3.12/site-packages/tenacity/__init__.py:419: RetryError</failure></testcase><testcase classname="scripts.ci.check_ai_sdk_runtime" name="test_langchain_consumers_keep_configured_sampling[agent]" time="0.146"><failure message="AssertionError: assert '2026-10-21' == '2023-06-01'&#10;  &#10;  - 2023-06-01&#10;  + 2026-10-21">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f676a3c3b30&gt;
+anthropic_transport = namespace(requests=[{'max_tokens': 4096, 'messages': [{'role': 'user', 'content': 'wheat'}], 'model': 'claude-3-5-sonn...'anthropic-version': '2026-10-21', 'x-stainless-raw-response': 'raw', 'content-length': '145'}], text='wheat advisory')
+consumer = 'agent'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("consumer", ["agent", "supervisor"])
+    async def test_langchain_consumers_keep_configured_sampling(monkeypatch, anthropic_transport, consumer):
+        source = ROOT / "apps/services/ai-advisor/src"
+        name = "_sdk_advisor_agents"
+        _packages(monkeypatch, name, source, [".agents", ".orchestration"])
+        base = _load(monkeypatch, name + ".agents.base_agent", source / "agents/base_agent.py")
+    
+        class LocalAgent(base.BaseAgent):
+            def get_system_prompt(self):
+                return "farm adviser"
+    
+        if consumer == "agent":
+            instance = LocalAgent(name="local", role="farm adviser")
+        else:
+            monkeypatch.setattr(sys.modules[name + ".agents"], "BaseAgent", base.BaseAgent, raising=False)
+            module = _load(monkeypatch, name + ".orchestration.supervisor", source / "orchestration/supervisor.py")
+            instance = module.Supervisor(agents={})
+            anthropic_transport.text = json.dumps(
+                {"agents_needed": [], "reasoning": "Local fixture", "query_breakdown": {}}
+            )
+        try:
+            if consumer == "agent":
+                result = await instance.think("wheat", use_rag=False)
+                assert result["response"] == "wheat advisory"
+                assert instance.conversation_memory.get_messages()[-1]["content"] == "wheat advisory"
+            else:
+                result = await instance.route_query("wheat")
+                assert result["reasoning"] == "Local fixture"
+&gt;           _assert_anthropic_protocol(anthropic_transport)
+
+scripts/ci/check_ai_sdk_runtime.py:279: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+state = namespace(requests=[{'max_tokens': 4096, 'messages': [{'role': 'user', 'content': 'wheat'}], 'model': 'claude-3-5-sonn...'anthropic-version': '2026-10-21', 'x-stainless-raw-response': 'raw', 'content-length': '145'}], text='wheat advisory')
+
+    def _assert_anthropic_protocol(state):
+        assert len(state.requests) == 1
+        # SDK 2 defaults to an API that rejects sampling parameters. Preserve the
+        # supported version explicitly, as required by Anthropic's migration guide.
+&gt;       assert state.headers[0]["anthropic-version"] == "2023-06-01"
+E       AssertionError: assert '2026-10-21' == '2023-06-01'
+E         
+E         - 2023-06-01
+E         + 2026-10-21
+
+scripts/ci/check_ai_sdk_runtime.py:218: AssertionError</failure></testcase><testcase classname="scripts.ci.check_ai_sdk_runtime" name="test_langchain_consumers_keep_configured_sampling[supervisor]" time="0.014"><failure message="AssertionError: assert '2026-10-21' == '2023-06-01'&#10;  &#10;  - 2023-06-01&#10;  + 2026-10-21">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f676a3c1c70&gt;
+anthropic_transport = namespace(requests=[{'max_tokens': 4096, 'messages': [{'role': 'user', 'content': 'Query: wheat\n\nContext: {}'}], 'mo...: 'raw', 'content-length': '1367'}], text='{"agents_needed": [], "reasoning": "Local fixture", "query_breakdown": {}}')
+consumer = 'supervisor'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("consumer", ["agent", "supervisor"])
+    async def test_langchain_consumers_keep_configured_sampling(monkeypatch, anthropic_transport, consumer):
+        source = ROOT / "apps/services/ai-advisor/src"
+        name = "_sdk_advisor_agents"
+        _packages(monkeypatch, name, source, [".agents", ".orchestration"])
+        base = _load(monkeypatch, name + ".agents.base_agent", source / "agents/base_agent.py")
+    
+        class LocalAgent(base.BaseAgent):
+            def get_system_prompt(self):
+                return "farm adviser"
+    
+        if consumer == "agent":
+            instance = LocalAgent(name="local", role="farm adviser")
+        else:
+            monkeypatch.setattr(sys.modules[name + ".agents"], "BaseAgent", base.BaseAgent, raising=False)
+            module = _load(monkeypatch, name + ".orchestration.supervisor", source / "orchestration/supervisor.py")
+            instance = module.Supervisor(agents={})
+            anthropic_transport.text = json.dumps(
+                {"agents_needed": [], "reasoning": "Local fixture", "query_breakdown": {}}
+            )
+        try:
+            if consumer == "agent":
+                result = await instance.think("wheat", use_rag=False)
+                assert result["response"] == "wheat advisory"
+                assert instance.conversation_memory.get_messages()[-1]["content"] == "wheat advisory"
+            else:
+                result = await instance.route_query("wheat")
+                assert result["reasoning"] == "Local fixture"
+&gt;           _assert_anthropic_protocol(anthropic_transport)
+
+scripts/ci/check_ai_sdk_runtime.py:279: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+state = namespace(requests=[{'max_tokens': 4096, 'messages': [{'role': 'user', 'content': 'Query: wheat\n\nContext: {}'}], 'mo...: 'raw', 'content-length': '1367'}], text='{"agents_needed": [], "reasoning": "Local fixture", "query_breakdown": {}}')
+
+    def _assert_anthropic_protocol(state):
+        assert len(state.requests) == 1
+        # SDK 2 defaults to an API that rejects sampling parameters. Preserve the
+        # supported version explicitly, as required by Anthropic's migration guide.
+&gt;       assert state.headers[0]["anthropic-version"] == "2023-06-01"
+E       AssertionError: assert '2026-10-21' == '2023-06-01'
+E         
+E         - 2023-06-01
+E         + 2026-10-21
+
+scripts/ci/check_ai_sdk_runtime.py:218: AssertionError</failure></testcase><testcase classname="scripts.ci.check_ai_sdk_runtime" name="test_ground_vision_real_anthropic_sdk_images_and_structured_response" time="0.028"><failure message="AssertionError: assert '2026-10-21' == '2023-06-01'&#10;  &#10;  - 2023-06-01&#10;  + 2026-10-21">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f676a2b9490&gt;
+anthropic_transport = namespace(requests=[{'max_tokens': 2000, 'messages': [{'role': 'user', 'content': [{'type': 'image', 'source': {'type'...8\\u064a\\u0627\\u0646\\u0627\\u062a \\u0627\\u062e\\u062a\\u0628\\u0627\\u0631 \\u0645\\u062d\\u0644\\u064a\\u0629"}')
+
+    @pytest.mark.asyncio
+    async def test_ground_vision_real_anthropic_sdk_images_and_structured_response(monkeypatch, anthropic_transport):
+        source = ROOT / "apps/services/ground-vision-service/src"
+        _packages(monkeypatch, "_sdk_ground", source, [".intelligence", ".core", ".models"])
+        module = _load(monkeypatch, "_sdk_ground.intelligence.mllm_reasoner", source / "intelligence/mllm_reasoner.py")
+        anthropic_transport.text = json.dumps(
+            {
+                "crop_type": "wheat",
+                "crop_type_ar": "قمح",
+                "growth_stage": "vegetative",
+                "growth_stage_ar": "نمو خضري",
+                "confidence": 0.9,
+                "reasoning": "Local fixture",
+                "reasoning_ar": "بيانات اختبار محلية",
+            }
+        )
+        provider = module.AnthropicProvider(api_key="local-test-key")
+        try:
+            result = await provider.analyze("wheat", [{"data": "aW1hZ2U=", "timestamp": "2026-11-02"}], module.LLMResponse)
+            assert result.crop_type == "wheat" and result.confidence == 0.9
+&gt;           _assert_anthropic_protocol(anthropic_transport)
+
+scripts/ci/check_ai_sdk_runtime.py:312: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+state = namespace(requests=[{'max_tokens': 2000, 'messages': [{'role': 'user', 'content': [{'type': 'image', 'source': {'type'...8\\u064a\\u0627\\u0646\\u0627\\u062a \\u0627\\u062e\\u062a\\u0628\\u0627\\u0631 \\u0645\\u062d\\u0644\\u064a\\u0629"}')
+
+    def _assert_anthropic_protocol(state):
+        assert len(state.requests) == 1
+        # SDK 2 defaults to an API that rejects sampling parameters. Preserve the
+        # supported version explicitly, as required by Anthropic's migration guide.
+&gt;       assert state.headers[0]["anthropic-version"] == "2023-06-01"
+E       AssertionError: assert '2026-10-21' == '2023-06-01'
+E         
+E         - 2023-06-01
+E         + 2026-10-21
+
+scripts/ci/check_ai_sdk_runtime.py:218: AssertionError</failure></testcase></testsuite></testsuites>

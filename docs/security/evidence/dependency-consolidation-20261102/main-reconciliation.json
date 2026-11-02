@@ -1,0 +1,64 @@
+{
+  "initial_base": "920ed84e28741e9946f09a673feb22398712377b",
+  "updated_base": "0f17b625047ea6d5108f42a240d507d7c855c912",
+  "reason": "Six source dependency PRs merged independently during the review. Every added requirement and Vite version was already present in the tested candidate.",
+  "preserved_updates": [
+    {
+      "path": "apps/services/ai-advisor/requirements.txt",
+      "package": "anthropic",
+      "merged_requirement_preserved": "<3.0.0,>=2.3.0"
+    },
+    {
+      "path": "apps/services/ai-advisor/requirements.txt",
+      "package": "qdrant-client",
+      "merged_requirement_preserved": "!=1.17.0,!=1.17.1,<2.0.0,>=1.20.0"
+    },
+    {
+      "path": "apps/services/ai-agents-core/requirements-test.txt",
+      "package": "pytest-html",
+      "merged_requirement_preserved": ">=4.2.0"
+    },
+    {
+      "path": "apps/services/copilot-api/requirements.txt",
+      "package": "qdrant-client",
+      "merged_requirement_preserved": "<2.0.0,>=1.20.0"
+    },
+    {
+      "path": "apps/services/field-intelligence/requirements.txt",
+      "package": "anthropic",
+      "merged_requirement_preserved": "<3.0.0,>=2.3.0"
+    },
+    {
+      "path": "apps/services/ground-vision-service/requirements.txt",
+      "package": "anthropic",
+      "merged_requirement_preserved": "<3.0.0,>=2.3.0"
+    },
+    {
+      "path": "apps/services/llm-orchestrator-service/requirements.txt",
+      "package": "anthropic",
+      "merged_requirement_preserved": "<3.0.0,>=2.3.0"
+    },
+    {
+      "path": "constraints.txt",
+      "package": "scipy",
+      "merged_requirement_preserved": "<1.18.0,>=1.17.1"
+    },
+    {
+      "path": "docker/constraints-ai.txt",
+      "package": "qdrant-client",
+      "merged_requirement_preserved": "!=1.17.0,!=1.17.1,<2.0.0,>=1.20.0"
+    },
+    {
+      "path": "package-lock.json",
+      "package": "vite",
+      "version_preserved": "7.3.7"
+    }
+  ],
+  "conflicts_resolved": [
+    "apps/services/ai-advisor/requirements.txt",
+    "apps/services/field-intelligence/requirements.txt",
+    "apps/services/llm-orchestrator-service/requirements.txt",
+    "docker/constraints-ai.txt",
+    "package-lock.json"
+  ]
+}

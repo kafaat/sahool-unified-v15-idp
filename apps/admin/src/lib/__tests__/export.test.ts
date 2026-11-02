@@ -64,6 +64,7 @@ describe('Export Utilities', () => {
   });
 
   afterEach(() => {
+    vi.unstubAllGlobals();
     createElementSpy.mockRestore();
     appendChildSpy.mockRestore();
     removeChildSpy.mockRestore();
@@ -84,7 +85,7 @@ describe('Export Utilities', () => {
       const OriginalBlob = globalThis.Blob;
       const BlobSpy = vi
         .fn()
-        .mockImplementation((parts?: BlobPart[], options?: BlobPropertyBag) => {
+        .mockImplementation(function (parts?: BlobPart[], options?: BlobPropertyBag) {
           if (parts) blobParts.push(...parts);
           return new OriginalBlob(parts, options);
         });

@@ -32,7 +32,7 @@ shapely==2.2.0
 pyproj==3.7.2
 
 # LLM Integration
-anthropic>=0.85.0,<1.0.0  # Aligned with constraints-ai.txt
+anthropic>=2.3.0,<3.0.0  # Aligned with constraints-ai.txt
 openai>=2.26.0,<3.0.0  # Aligned with constraints-ai.txt
 
 # Logging & Monitoring

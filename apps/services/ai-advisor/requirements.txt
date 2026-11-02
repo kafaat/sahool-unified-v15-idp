@@ -23,7 +23,7 @@ langsmith>=0.3.45,<1.0.0
 
 # Anthropic Claude API (Primary)
 # واجهة برمجة Claude من Anthropic (الأساسي)
-anthropic>=0.85.0,<1.0.0  # langchain-anthropic>=1.0.0 requires anthropic>=0.85.0
+anthropic>=2.3.0,<3.0.0  # langchain-anthropic>=1.0.0 requires anthropic>=0.85.0
 
 # OpenAI GPT API (Optional Fallback)
 # واجهة برمجة OpenAI (بديل اختياري)

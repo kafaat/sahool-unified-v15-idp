@@ -14,7 +14,7 @@ aiohttp>=3.13.3  # CVE-2025-53643 (zip bomb), CVE-2025-69223
 # Async Support
 asyncio-throttle>=1.0.0
 # Vector Database
-qdrant-client>=1.9.0,<2.0.0  # CVE-2024-3829 (input validation) fixed in 1.9.0
+qdrant-client>=1.20.0,<2.0.0  # CVE-2024-3829 (input validation) fixed in 1.9.0
 # Embeddings (local, offline-first)
 sentence-transformers>=6.0.0,<7.0.0  # CVE-2026-68770: explicit trust required for custom model code
 torch>=2.13.0,<2.15.0  # Current security fixes; retain Python 3.10 compatibility

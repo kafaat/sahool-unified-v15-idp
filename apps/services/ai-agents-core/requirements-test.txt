@@ -35,5 +35,5 @@ pylint>=2.17.0
 locust>=2.15.1  # For load testing (optional)
 
 # Test Reporting
-pytest-html>=3.2.0
+pytest-html>=4.2.0
 pytest-json-report>=1.5.0

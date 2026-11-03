@@ -55,14 +55,13 @@ jobs:
         working-directory: apps/web
         run: |
           npm run start &
-          sleep 10
-          curl --retry 10 --retry-delay 3 --retry-all-errors http://localhost:3040 || true
+          curl --fail --silent --show-error --output /dev/null --retry 30 --retry-delay 2 --retry-connrefused --retry-max-time 90 --max-time 3 http://localhost:3040
         env:
           NODE_ENV: production
 
       - name: Run E2E tests
         working-directory: apps/web
-        run: npx playwright test --project=chromium --reporter=junit,html || true
+        run: npx playwright test --project=chromium --reporter=junit,html
         env:
           CI: true
           PLAYWRIGHT_JUNIT_OUTPUT_NAME: test-results/results.xml

@@ -310,7 +310,7 @@ jobs:
           # Wait for server to be ready
           echo "Waiting for server to start..."
           for i in {1..30}; do
-            if curl -s http://localhost:3040 > /dev/null 2>&1; then
+            if curl --fail --silent --max-time 3 http://localhost:3040 > /dev/null 2>&1; then
               echo "✅ Server is ready!"
               exit 0
             fi
@@ -336,7 +336,7 @@ jobs:
         working-directory: tests/e2e
         run: |
           mkdir -p results
-          npx playwright test --project=${{ matrix.browser }} || true
+          npx playwright test --project=${{ matrix.browser }}
         env:
           BASE_URL: http://localhost:3040
           CI: true
@@ -445,7 +445,7 @@ jobs:
 
           # Wait for server to be ready
           for i in {1..30}; do
-            if curl -s http://localhost:3040 > /dev/null 2>&1; then
+            if curl --fail --silent --max-time 3 http://localhost:3040 > /dev/null 2>&1; then
               echo "✅ Server is ready!"
               exit 0
             fi

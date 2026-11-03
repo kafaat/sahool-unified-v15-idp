@@ -40,7 +40,7 @@ jobs:
     # SECURITY FIX: Security scans must block the pipeline on failure
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
 
@@ -134,22 +134,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
 
       - name: Set up Python 3.12 for the independent EO tool
         id: python312
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@v7.1.0
         with:
           python-version: '3.12'
 
       - name: Set up Python 3.11 for service dependency audits
         id: python311
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@v7.1.0
         with:
           python-version: '3.11'
 
       - name: Set up the Nunjucks runtime
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@v7.1.0
         with:
           node-version: '20'
 
@@ -214,10 +214,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -257,10 +257,10 @@ jobs:
     # SECURITY: Bandit SAST must block the pipeline on findings
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
 
       - name: Set up Python
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@v7.1.0
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
@@ -303,10 +303,10 @@ jobs:
     # SECURITY: Semgrep SAST must block the pipeline on findings
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
 
       - name: Set up Python
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@v7.1.0
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
@@ -368,7 +368,7 @@ jobs:
         language: ['python', 'javascript']
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
@@ -406,7 +406,7 @@ jobs:
           - weather-service
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
 
       - name: Free up disk space
         run: |
@@ -578,7 +578,7 @@ jobs:
     # SECURITY: Dockerfile scanning must block the pipeline on errors
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
 
       - name: Run Hadolint
         run: |
@@ -689,7 +689,7 @@ jobs:
     # SECURITY: IaC scanning must block the pipeline on findings
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
 
       - name: Install Checkov
         run: pip install checkov
@@ -762,7 +762,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
 
       - name: Check Dependabot config
         run: |

@@ -126,7 +126,7 @@ dependencies:
 
   # Sharing & URLs
   share_plus: ^10.1.4
-  url_launcher: ^6.2.2
+  url_launcher: ^6.3.3
 
   # Date/Time
   jiffy: ^6.3.1

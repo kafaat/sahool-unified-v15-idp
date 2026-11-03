@@ -1,0 +1,113 @@
+[INFO] Generating build script...
+[INFO] Generating build script completed, took 628ms
+
+[INFO] Precompiling build script......
+[INFO] Precompiling build script... completed, took 9.8s
+
+[INFO] Initializing inputs
+[INFO] Building new asset graph...
+[INFO] Building new asset graph completed, took 2.2s
+
+[INFO] Checking for unexpected pre-existing outputs....
+[INFO] Deleting 5 declared outputs which already existed on disk.
+[INFO] Checking for unexpected pre-existing outputs. completed, took 1ms
+
+[INFO] Running build...
+[INFO] Generating SDK summary...
+[INFO] 2.5s elapsed, 0/16 actions completed.
+[WARNING] riverpod_generator on lib/generated/l10n/app_localizations_ar.dart:
+Your current `analyzer` version may not fully support your current SDK version.
+
+Analyzer language version: 3.9.0
+SDK language version: 3.12.0
+
+Please update to the latest `analyzer` version (14.7.0) by running
+`flutter packages upgrade`.
+
+If you are not getting the latest version by running the above command, you
+can try adding a constraint like the following to your pubspec to start
+diagnosing why you can't get the latest version:
+
+dev_dependencies:
+  analyzer: ^14.7.0
+
+[INFO] 4.9s elapsed, 0/16 actions completed.
+[INFO] 6.4s elapsed, 0/16 actions completed.
+[INFO] Generating SDK summary completed, took 6.4s
+
+[INFO] 7.5s elapsed, 37/62 actions completed.
+[INFO] 8.6s elapsed, 55/88 actions completed.
+[INFO] 9.7s elapsed, 62/95 actions completed.
+[INFO] 10.7s elapsed, 134/157 actions completed.
+[INFO] 11.8s elapsed, 216/233 actions completed.
+[INFO] 12.9s elapsed, 282/321 actions completed.
+[INFO] 13.9s elapsed, 347/386 actions completed.
+[INFO] 14.9s elapsed, 366/403 actions completed.
+[INFO] 15.9s elapsed, 367/403 actions completed.
+[INFO] 17.1s elapsed, 446/479 actions completed.
+[INFO] 19.2s elapsed, 453/486 actions completed.
+[INFO] 20.2s elapsed, 479/509 actions completed.
+[INFO] 21.2s elapsed, 550/578 actions completed.
+[INFO] 22.2s elapsed, 634/660 actions completed.
+[INFO] 23.3s elapsed, 767/784 actions completed.
+[INFO] 33.5s elapsed, 807/818 actions completed.
+[INFO] 42.3s elapsed, 811/820 actions completed.
+[INFO] 43.4s elapsed, 815/820 actions completed.
+[INFO] 45.8s elapsed, 829/830 actions completed.
+[INFO] 47.5s elapsed, 845/846 actions completed.
+[INFO] 48.8s elapsed, 868/876 actions completed.
+[INFO] 49.9s elapsed, 884/899 actions completed.
+[INFO] 51.0s elapsed, 917/932 actions completed.
+[INFO] 52.0s elapsed, 954/970 actions completed.
+[INFO] 53.4s elapsed, 959/979 actions completed.
+[INFO] 54.6s elapsed, 965/985 actions completed.
+[INFO] 55.6s elapsed, 992/1009 actions completed.
+[INFO] 56.7s elapsed, 1004/1022 actions completed.
+[INFO] 57.7s elapsed, 1012/1028 actions completed.
+[INFO] 58.9s elapsed, 1025/1040 actions completed.
+[INFO] 1m 0s elapsed, 1039/1055 actions completed.
+[INFO] 1m 1s elapsed, 1047/1061 actions completed.
+[INFO] 1m 2s elapsed, 1064/1079 actions completed.
+[INFO] 1m 3s elapsed, 1084/1099 actions completed.
+[INFO] 1m 4s elapsed, 1109/1125 actions completed.
+[INFO] 1m 5s elapsed, 1162/1182 actions completed.
+[INFO] 1m 6s elapsed, 1214/1226 actions completed.
+[INFO] 1m 9s elapsed, 1226/1235 actions completed.
+[INFO] 1m 10s elapsed, 1226/1235 actions completed.
+[INFO] 1m 11s elapsed, 1226/1235 actions completed.
+[INFO] 1m 13s elapsed, 1243/1259 actions completed.
+[INFO] 1m 14s elapsed, 1243/1259 actions completed.
+[INFO] 1m 15s elapsed, 1243/1259 actions completed.
+[INFO] 1m 16s elapsed, 1243/1259 actions completed.
+[INFO] 1m 17s elapsed, 1243/1259 actions completed.
+[INFO] 1m 18s elapsed, 1243/1259 actions completed.
+[INFO] 1m 19s elapsed, 1243/1259 actions completed.
+[INFO] 1m 21s elapsed, 1243/1259 actions completed.
+[INFO] 1m 22s elapsed, 1245/1261 actions completed.
+[INFO] 1m 23s elapsed, 1245/1261 actions completed.
+[INFO] 1m 24s elapsed, 1245/1261 actions completed.
+[INFO] 1m 25s elapsed, 1246/1262 actions completed.
+[INFO] 1m 26s elapsed, 1250/1266 actions completed.
+[INFO] 1m 27s elapsed, 1250/1266 actions completed.
+[INFO] 1m 28s elapsed, 1250/1266 actions completed.
+[INFO] 1m 29s elapsed, 1254/1270 actions completed.
+[INFO] 1m 30s elapsed, 1254/1270 actions completed.
+[INFO] 1m 31s elapsed, 1256/1272 actions completed.
+[INFO] 1m 32s elapsed, 1256/1272 actions completed.
+[INFO] 1m 33s elapsed, 1262/1278 actions completed.
+[INFO] 1m 34s elapsed, 1270/1286 actions completed.
+[INFO] 1m 35s elapsed, 1277/1293 actions completed.
+[INFO] 1m 36s elapsed, 1294/1310 actions completed.
+[INFO] 1m 38s elapsed, 1329/1330 actions completed.
+[INFO] 1m 39s elapsed, 1329/1330 actions completed.
+[INFO] 1m 40s elapsed, 1329/1330 actions completed.
+[INFO] 1m 41s elapsed, 1329/1330 actions completed.
+[INFO] 1m 42s elapsed, 1339/1354 actions completed.
+[INFO] 1m 43s elapsed, 1598/1602 actions completed.
+[INFO] Running build completed, took 1m 44s
+
+[INFO] Caching finalized dependency graph...
+[INFO] Caching finalized dependency graph completed, took 191ms
+
+[INFO] Succeeded after 1m 44s with 373 outputs (2427 actions)
+

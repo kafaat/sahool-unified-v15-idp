@@ -1,0 +1,87 @@
+{
+  "candidate_ci_head": "5ae806cd8ac3e0da53067e72b6ce211d871cd123",
+  "local_worktree_head_before_ci_fix": "f1223e930fe9be106dbee7b78d9e8d5ea4c6612a",
+  "source_attribution_receipt": "flutter-ci-frontend-analyze-125553885378.json",
+  "fix_scope": "CI only: initialize and generate real nested projects, then preserve analyzer failure status with explicit bash/pipefail and no success fallback.",
+  "local_analyzer": {
+    "command": "flutter analyze --no-pub --no-fatal-infos --no-fatal-warnings",
+    "cwd": "apps/mobile",
+    "exit_code": 0,
+    "errors": 0,
+    "warnings": 1652,
+    "info": 1602,
+    "scope": "entire existing mobile tree; no new excludes"
+  },
+  "setup": {
+    "field_codegen": {
+      "exit_code": 0,
+      "outputs": 353,
+      "actions": 2657,
+      "duration": "1m8s"
+    },
+    "core_codegen": {
+      "exit_code": 0,
+      "outputs": 218,
+      "duration": "64s"
+    },
+    "field_pub_get_enforce_lockfile": 0,
+    "unified_pub_get_enforce_lockfile": 0,
+    "core_pub_get": 0
+  },
+  "lock_sha256_unchanged": {
+    "apps/mobile/pubspec.lock": "4a7b0643e1a69b151cb3c30449ad852c47abecbdbb4be8554e69dd49c3c37fa0",
+    "apps/mobile/sahool_field_app/pubspec.lock": "c118b25e53b4d2d630c3f5393580f1f737b0af4094a46421e026888d2e752115",
+    "apps/mobile/sahool_app/pubspec.lock": "1a52149413ced1961e1b8a79cb6c238296e1496e7e6f9f7844d6dcb357f75d40"
+  },
+  "workflow_yaml_parsed": true,
+  "generated_paths_restored": [
+    "apps/mobile/sahool_app/lib/generated/l10n/app_localizations.dart",
+    "apps/mobile/sahool_app/lib/generated/l10n/app_localizations_ar.dart",
+    "apps/mobile/sahool_app/lib/generated/l10n/app_localizations_en.dart",
+    "apps/mobile/sahool_field_app/lib/features/advisor/data/models/fertilizer_models.freezed.dart",
+    "apps/mobile/sahool_field_app/lib/features/advisor/data/models/irrigation_models.freezed.dart",
+    "apps/mobile/sahool_field_app/lib/features/community/data/models/chat_models.freezed.dart",
+    "apps/mobile/sahool_field_app/lib/features/crop_health/data/models/diagnosis_model.freezed.dart",
+    "apps/mobile/sahool_field_app/lib/features/crop_health/data/models/diagnosis_models.freezed.dart",
+    "apps/mobile/sahool_field_app/lib/features/virtual_sensors/data/models/virtual_sensor_models.freezed.dart",
+    "apps/mobile/sahool_field_app/lib/generated/l10n/app_localizations.dart",
+    "apps/mobile/sahool_field_app/lib/generated/l10n/app_localizations_ar.dart",
+    "apps/mobile/sahool_field_app/lib/generated/l10n/app_localizations_en.dart",
+    "packages/sahool-mobile-core/lib/core/storage/database.g.dart",
+    "packages/sahool-mobile-core/lib/features/advisor/data/models/fertilizer_models.freezed.dart",
+    "packages/sahool-mobile-core/lib/features/advisor/data/models/fertilizer_models.g.dart",
+    "packages/sahool-mobile-core/lib/features/advisor/data/models/irrigation_models.freezed.dart",
+    "packages/sahool-mobile-core/lib/features/advisor/data/models/irrigation_models.g.dart",
+    "packages/sahool-mobile-core/lib/features/auth/config/otp_config.g.dart",
+    "packages/sahool-mobile-core/lib/features/community/data/models/chat_models.freezed.dart",
+    "packages/sahool-mobile-core/lib/features/community/data/models/chat_models.g.dart",
+    "packages/sahool-mobile-core/lib/features/crop_health/data/models/diagnosis_models.freezed.dart",
+    "packages/sahool-mobile-core/lib/features/crop_health/data/models/diagnosis_models.g.dart",
+    "packages/sahool-mobile-core/lib/features/pivot_irrigation/domain/models/pivot_models.freezed.dart",
+    "packages/sahool-mobile-core/lib/features/pivot_irrigation/domain/models/pivot_models.g.dart",
+    "packages/sahool-mobile-core/lib/features/pivot_irrigation/domain/models/span_zone_models.freezed.dart",
+    "packages/sahool-mobile-core/lib/features/pivot_irrigation/domain/models/span_zone_models.g.dart",
+    "packages/sahool-mobile-core/lib/features/virtual_sensors/data/models/virtual_sensor_models.freezed.dart",
+    "packages/sahool-mobile-core/lib/features/virtual_sensors/data/models/virtual_sensor_models.g.dart",
+    "packages/sahool-mobile-core/test/core/database/database_test.g.dart",
+    "packages/sahool-mobile-core/test/core/database/field_dao_test.g.dart",
+    "packages/sahool-mobile-core/test/core/database/migration_integration_test.g.dart",
+    "packages/sahool-mobile-core/test/core/database/sync_queue_dao_test.g.dart",
+    "packages/sahool-mobile-core/test/core/database/weather_dao_test.g.dart"
+  ],
+  "logs_sha256": {
+    "flutter-ci-setup-before-localizations-analyze.log": "2f71fceded9463811aa2ace2f16777ce398707297d5730a42550bb95e280b41e",
+    "flutter-ci-setup-unified-pub-get.log": "60da2fb1c25929c817fdbfef3ce42a2f51bfb6257b776a826ff0f5849602339e",
+    "flutter-ci-setup-core-codegen.log": "6f5359474ec6ffb7a3dcc77124ccf7f951660b1b0f0f93c9fc9d5bd96409cd16",
+    "flutter-ci-setup-field-pub-get.log": "8e2df631e2fb2e39f6731c5f71adf055cb4d6d5d81f88f323ac0691c38f37b9d",
+    "flutter-ci-setup-root-analyze.log": "63e113732c58cc385bc8937abd74e91dc6805dd3087097a2d523a1beea81fe0a",
+    "flutter-ci-setup-core-pub-get.log": "c149975eca5ee0a197d32755b07b2ba876a6a3330b250356e87c2c810af33df0",
+    "flutter-ci-setup-field-codegen.log": "9ac36a7d003e8d7db3a88858d0fdf2cd859004fb5ccc6947152da938b94f952b"
+  },
+  "limitations": [
+    "This receipt verifies the minimal CI setup locally. The revised workflow has not yet run on GitHub.",
+    "Warnings and info remain nonfatal as before.",
+    "No production Dart edits, dependency version changes, or new analyzer exclusions.",
+    "App unit tests and builds are monitored separately."
+  ]
+}

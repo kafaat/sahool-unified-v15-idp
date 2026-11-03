@@ -1,0 +1,141 @@
+{
+  "repository": "kafaat/sahool-unified-v15-idp",
+  "initial_base": "920ed84e28741e9946f09a673feb22398712377b",
+  "integrated_base": "0f17b625047ea6d5108f42a240d507d7c855c912",
+  "observed_at": "2026-11-02T21:07:43.497Z",
+  "note": "Six source PRs were merged independently during the review. The consolidation did not merge any source PR or update main.",
+  "prs": [
+    {
+      "number": 1822,
+      "url": "https://github.com/kafaat/sahool-unified-v15-idp/pull/1822",
+      "title": "chore(deps): bump the flutter-core group across 1 directory with 5 updates",
+      "state": "open",
+      "merged": false,
+      "head_sha": "85312fc1b94f40413429441c8e1e8021b45de769",
+      "base_sha": "20027b86b688105d8672f399fc21d43cba3ba66e",
+      "merged_at": null,
+      "merge_commit_sha": null
+    },
+    {
+      "number": 2009,
+      "url": "https://github.com/kafaat/sahool-unified-v15-idp/pull/2009",
+      "title": "chore(deps): bump the npm_and_yarn group across 7 directories with 8 updates",
+      "state": "open",
+      "merged": false,
+      "head_sha": "fc9f762dbdcc587dc0e9d3bab2b5a41e2240849f",
+      "base_sha": "920ed84e28741e9946f09a673feb22398712377b",
+      "merged_at": null,
+      "merge_commit_sha": null
+    },
+    {
+      "number": 2017,
+      "url": "https://github.com/kafaat/sahool-unified-v15-idp/pull/2017",
+      "title": "chore(deps): bump vite from 6.4.1 to 7.3.7",
+      "state": "closed",
+      "merged": true,
+      "head_sha": "460733c7d60dba69c4fbd7ced5cc89c69ae0ae2d",
+      "base_sha": "920ed84e28741e9946f09a673feb22398712377b",
+      "merged_at": "2026-11-02T20:51:45Z",
+      "merge_commit_sha": "bcbee2d09b116dbfba31cd23bdcd94a30a4fd198"
+    },
+    {
+      "number": 2018,
+      "url": "https://github.com/kafaat/sahool-unified-v15-idp/pull/2018",
+      "title": "chore(deps): bump the services-deps group in /apps/services with 3 updates",
+      "state": "open",
+      "merged": false,
+      "head_sha": "ebb1a126e900844445093cbedc5f2e5e0888b2d8",
+      "base_sha": "920ed84e28741e9946f09a673feb22398712377b",
+      "merged_at": null,
+      "merge_commit_sha": null
+    },
+    {
+      "number": 2019,
+      "url": "https://github.com/kafaat/sahool-unified-v15-idp/pull/2019",
+      "title": "chore(deps): update qdrant-client requirement from !=1.17.0,!=1.17.1,<2.0.0,>=1.12.0 to !=1.17.0,!=1.17.1,>=1.20.0,<2.0.0 in /apps/services",
+      "state": "closed",
+      "merged": true,
+      "head_sha": "cbfd82da639bca42c1d026bb4fdf2c7f3f064256",
+      "base_sha": "920ed84e28741e9946f09a673feb22398712377b",
+      "merged_at": "2026-11-02T20:53:09Z",
+      "merge_commit_sha": "0f17b625047ea6d5108f42a240d507d7c855c912"
+    },
+    {
+      "number": 2020,
+      "url": "https://github.com/kafaat/sahool-unified-v15-idp/pull/2020",
+      "title": "chore(deps): update certifi requirement from >=2026.10.18 to >=2026.10.23 in /apps/services",
+      "state": "open",
+      "merged": false,
+      "head_sha": "fce0d0997ee1856b65b140bdf0b6667fdfb2ff0d",
+      "base_sha": "920ed84e28741e9946f09a673feb22398712377b",
+      "merged_at": null,
+      "merge_commit_sha": null
+    },
+    {
+      "number": 2021,
+      "url": "https://github.com/kafaat/sahool-unified-v15-idp/pull/2021",
+      "title": "chore(deps): update anthropic requirement from <1.0.0,>=0.85.0 to >=2.3.0,<3.0.0 in /apps/services",
+      "state": "closed",
+      "merged": true,
+      "head_sha": "220d4c5ad875fbc672972430c5bfda5cad2c9bc1",
+      "base_sha": "920ed84e28741e9946f09a673feb22398712377b",
+      "merged_at": "2026-11-02T20:52:50Z",
+      "merge_commit_sha": "c0285a2c9e02ea6a42c04c85414a705ecc2ce907"
+    },
+    {
+      "number": 2022,
+      "url": "https://github.com/kafaat/sahool-unified-v15-idp/pull/2022",
+      "title": "chore(deps): update pytest-html requirement from >=3.2.0 to >=4.2.0 in /apps/services",
+      "state": "closed",
+      "merged": true,
+      "head_sha": "24206760e9241d31d53407c4cf5b849d12b360f0",
+      "base_sha": "920ed84e28741e9946f09a673feb22398712377b",
+      "merged_at": "2026-11-02T20:52:13Z",
+      "merge_commit_sha": "d1b905703456ddabccb342789ca5f907fcc0b4e2"
+    },
+    {
+      "number": 2023,
+      "url": "https://github.com/kafaat/sahool-unified-v15-idp/pull/2023",
+      "title": "chore(deps): bump the python-minor group across 1 directory with 13 updates",
+      "state": "open",
+      "merged": false,
+      "head_sha": "3796fd148ab93e569005c48788189aca61868ddd",
+      "base_sha": "0f17b625047ea6d5108f42a240d507d7c855c912",
+      "merged_at": null,
+      "merge_commit_sha": null
+    },
+    {
+      "number": 2024,
+      "url": "https://github.com/kafaat/sahool-unified-v15-idp/pull/2024",
+      "title": "chore(deps): update vulture requirement from >=2.14 to >=2.16",
+      "state": "open",
+      "merged": false,
+      "head_sha": "f9045f72ae868947f985b500bf41692ab70e3613",
+      "base_sha": "920ed84e28741e9946f09a673feb22398712377b",
+      "merged_at": null,
+      "merge_commit_sha": null
+    },
+    {
+      "number": 2025,
+      "url": "https://github.com/kafaat/sahool-unified-v15-idp/pull/2025",
+      "title": "chore(deps): update scipy requirement from <1.18.0,>=1.11.0 to >=1.17.1,<1.18.0",
+      "state": "closed",
+      "merged": true,
+      "head_sha": "c53549c9948718cfb5ac963394ba4108d214dc30",
+      "base_sha": "920ed84e28741e9946f09a673feb22398712377b",
+      "merged_at": "2026-11-02T20:50:55Z",
+      "merge_commit_sha": "807e1a087eeb57f87c91bd7c19b6f7091988ea8c"
+    },
+    {
+      "number": 2026,
+      "url": "https://github.com/kafaat/sahool-unified-v15-idp/pull/2026",
+      "title": "chore(deps): update qdrant-client requirement from !=1.17.0,!=1.17.1,<2.0.0,>=1.12.0 to !=1.17.0,!=1.17.1,>=1.20.0,<2.0.0",
+      "state": "closed",
+      "merged": true,
+      "head_sha": "1c60b87f4e32b6a66340f80e8177bc055182176d",
+      "base_sha": "920ed84e28741e9946f09a673feb22398712377b",
+      "merged_at": "2026-11-02T20:41:17Z",
+      "merge_commit_sha": "21c761734965559942921ed49ee48692ceae483e"
+    }
+  ]
+}

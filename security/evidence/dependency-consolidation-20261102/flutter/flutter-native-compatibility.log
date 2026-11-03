@@ -1,0 +1,5 @@
+00:00 +0: loading /workspace/scratch/7de7742d3309/sahool-pr-flutter/apps/mobile/test/unit/core/flutter_sdk_compatibility_test.dart
+00:00 +0: native app entry point and core exports compile together
+[33m21:52:20.178 ⚠️ [ENV_CONFIG] Failed to read dotenv key "APP_VERSION"[0m
+00:00 +1: custom component styling survives the ThemeData API migration
+00:00 +2: All tests passed!

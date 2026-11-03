@@ -1,0 +1,23 @@
+{
+  "issues": [
+    {
+      "type": "npm_workspace_divergence",
+      "severity": "warning",
+      "package": "typescript",
+      "source": "npm workspaces",
+      "source_version": "5.9.3, ~5.7.2",
+      "constraint_version": "no override",
+      "message": "typescript has 2 versions across workspaces: packages/api-client=5.9.3; packages/design-system=5.9.3; packages/field-shared=5.9.3; packages/i18n=5.9.3; packages/mock-data=5.9.3"
+    },
+    {
+      "type": "npm_workspace_divergence",
+      "severity": "warning",
+      "package": "@nestjs/schematics",
+      "source": "npm workspaces",
+      "source_version": "^10.0.0, ^10.2.3",
+      "constraint_version": "no override",
+      "message": "@nestjs/schematics has 2 versions across workspaces: apps/services/partner-auth-service=^10.2.3; apps/services/research-core=^10.0.0"
+    }
+  ],
+  "total": 2
+}

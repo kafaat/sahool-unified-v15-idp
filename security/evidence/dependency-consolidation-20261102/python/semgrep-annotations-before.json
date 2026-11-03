@@ -1,0 +1,26 @@
+[
+  {
+    "path": "shared/ai/vector_store.py",
+    "blob_href": "https://github.com/kafaat/sahool-unified-v15-idp/blob/5ae806cd8ac3e0da53067e72b6ce211d871cd123/shared/ai/vector_store.py",
+    "start_line": 613,
+    "start_column": null,
+    "end_line": 616,
+    "end_column": null,
+    "annotation_level": "failure",
+    "title": "Semgrep Finding: python.sqlalchemy.security.sqlalchemy-execute-raw-query.sqlalchemy-execute-raw-query",
+    "message": "Avoiding SQL string concatenation: untrusted input concatenated with raw SQL query can result in SQL Injection. In order to execute raw query safely, prepared statement should be used. SQLAlchemy provides TextualSQL to easily used prepared statement with named parameters. For complex SQL composition, use SQL Expression Language or Schema Definition Language. In most cases, SQLAlchemy ORM will be a better option.",
+    "raw_details": null
+  },
+  {
+    "path": "shared/ai/vector_store.py",
+    "blob_href": "https://github.com/kafaat/sahool-unified-v15-idp/blob/5ae806cd8ac3e0da53067e72b6ce211d871cd123/shared/ai/vector_store.py",
+    "start_line": 623,
+    "start_column": null,
+    "end_line": 626,
+    "end_column": null,
+    "annotation_level": "failure",
+    "title": "Semgrep Finding: python.sqlalchemy.security.sqlalchemy-execute-raw-query.sqlalchemy-execute-raw-query",
+    "message": "Avoiding SQL string concatenation: untrusted input concatenated with raw SQL query can result in SQL Injection. In order to execute raw query safely, prepared statement should be used. SQLAlchemy provides TextualSQL to easily used prepared statement with named parameters. For complex SQL composition, use SQL Expression Language or Schema Definition Language. In most cases, SQLAlchemy ORM will be a better option.",
+    "raw_details": null
+  }
+]

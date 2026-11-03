@@ -1,0 +1,44 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.14, pytest-9.2.0, pluggy-1.7.0
+rootdir: /workspace/scratch/7de7742d3309/sahool-pr-python
+configfile: pyproject.toml
+plugins: asyncio-1.3.0, anyio-4.16.0, timeout-2.4.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+timeout: 30.0s
+timeout method: signal
+timeout func_only: False
+collected 162 items
+
+tests/unit/auth/test_auth_endpoints.py ................................. [ 20%]
+................                                                         [ 30%]
+tests/unit/auth/test_auth_flow_bugs.py ...............................   [ 49%]
+tests/unit/auth/test_shared_pyjwt_security.py .......................... [ 65%]
+.............                                                            [ 73%]
+tests/unit/test_shared_auth.py ........................                  [ 88%]
+tests/unit/security/test_dependency_security_regressions.py ............ [ 95%]
+.......                                                                  [100%]
+
+=============================== warnings summary ===============================
+../../../../tmp/sahool-shared-auth-env/lib/python3.12/site-packages/fastapi/testclient.py:1
+  /tmp/sahool-shared-auth-env/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+tests/unit/test_shared_auth.py: 16 warnings
+  /tmp/sahool-shared-auth-env/lib/python3.12/site-packages/jwt/api_jwt.py:149: InsecureKeyLengthWarning: The HMAC key is 31 bytes long, which is below the minimum recommended length of 32 bytes for SHA256. See RFC 7518 Section 3.2.
+    return self._jws.encode(
+
+tests/unit/test_shared_auth.py: 13 warnings
+  /tmp/sahool-shared-auth-env/lib/python3.12/site-packages/jwt/api_jwt.py:370: InsecureKeyLengthWarning: The HMAC key is 31 bytes long, which is below the minimum recommended length of 32 bytes for SHA256. See RFC 7518 Section 3.2.
+    decoded = self.decode_complete(
+
+tests/unit/test_shared_auth.py::TestVerifyToken::test_verify_invalid_signature
+  /tmp/sahool-shared-auth-env/lib/python3.12/site-packages/jwt/api_jwt.py:149: InsecureKeyLengthWarning: The HMAC key is 18 bytes long, which is below the minimum recommended length of 32 bytes for SHA256. See RFC 7518 Section 3.2.
+    return self._jws.encode(
+
+tests/unit/test_shared_auth.py::TestVerifyToken::test_verify_invalid_signature
+  /tmp/sahool-shared-auth-env/lib/python3.12/site-packages/jwt/api_jwt.py:370: InsecureKeyLengthWarning: The HMAC key is 18 bytes long, which is below the minimum recommended length of 32 bytes for SHA256. See RFC 7518 Section 3.2.
+    decoded = self.decode_complete(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+- generated xml file: /workspace/scratch/7de7742d3309/pr-evidence/python/shared-auth.xml -
+======================= 162 passed, 32 warnings in 5.04s =======================

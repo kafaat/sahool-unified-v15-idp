@@ -1,0 +1,143 @@
+FFFFF                                                                    [100%]
+=================================== FAILURES ===================================
+_______ test_advisor_qdrant_retrieval_keeps_tenant_and_metadata_filters ________
+
+advisor = <_sdk_advisor.rag.retriever.KnowledgeRetriever object at 0x7f46e44d1340>
+
+    def test_advisor_qdrant_retrieval_keeps_tenant_and_metadata_filters(advisor):
+        hits = advisor.retrieve("wheat", tenant_id="A", filters={"crop": "wheat"}, top_k=1)
+>       assert [hit.content for hit in hits] == ["wheat A"]
+E       AssertionError: assert [] == ['wheat A']
+E         
+E         Right contains one more item: 'wheat A'
+E         Use -v to get more diff
+
+scripts/ci/check_ai_sdk_runtime.py:90: AssertionError
+---------------------------- Captured stdout setup -----------------------------
+2026-11-02 21:50:02 [info     ] qdrant_collection_created      collection_name=advisor
+2026-11-02 21:50:02 [info     ] knowledge_retriever_initialized collection_name=advisor qdrant_host=qdrant
+2026-11-02 21:50:02 [info     ] documents_added_to_knowledge_base collection_name=advisor num_documents=3
+----------------------------- Captured stdout call -----------------------------
+2026-11-02 21:50:02 [error    ] knowledge_retrieval_failed     error="'QdrantClient' object has no attribute 'search'" query=wheat
+__________________ test_advisor_qdrant_collection_statistics ___________________
+
+advisor = <_sdk_advisor.rag.retriever.KnowledgeRetriever object at 0x7f46bef36a20>
+
+    def test_advisor_qdrant_collection_statistics(advisor):
+        stats = advisor.get_collection_info()
+>       assert "error" not in stats
+E       assert 'error' not in {'collection_name': 'advisor', 'error': "'CollectionInfo' object has no attribute 'vectors_count'"}
+
+scripts/ci/check_ai_sdk_runtime.py:98: AssertionError
+---------------------------- Captured stdout setup -----------------------------
+2026-11-02 21:50:02 [info     ] qdrant_collection_created      collection_name=advisor
+2026-11-02 21:50:02 [info     ] knowledge_retriever_initialized collection_name=advisor qdrant_host=qdrant
+2026-11-02 21:50:02 [info     ] documents_added_to_knowledge_base collection_name=advisor num_documents=3
+----------------------------- Captured stdout call -----------------------------
+2026-11-02 21:50:02 [error    ] collection_info_retrieval_failed error="'CollectionInfo' object has no attribute 'vectors_count'"
+_________ test_copilot_qdrant_search_cannot_pass_via_keyword_fallback __________
+
+copilot = <_sdk_copilot.rag.service.CopilotRAGService object at 0x7f46e4c90c20>
+
+    @pytest.mark.asyncio
+    async def test_copilot_qdrant_search_cannot_pass_via_keyword_fallback(copilot):
+        await copilot.add_document("wheat A", metadata={"crop": "wheat"}, tenant_id="A")
+        await copilot.add_document("wheat B", metadata={"crop": "wheat"}, tenant_id="B")
+        await copilot.add_document("barley A", metadata={"crop": "barley"}, tenant_id="A")
+        copilot._documents.clear()  # A broken SDK call must not pass through the in-memory fallback.
+        hits = await copilot.search("wheat", tenant_id="A", metadata_filter={"crop": "wheat"}, top_k=1)
+>       assert [hit.document.text for hit in hits] == ["wheat A"]
+E       AssertionError: assert [] == ['wheat A']
+E         
+E         Right contains one more item: 'wheat A'
+E         Use -v to get more diff
+
+scripts/ci/check_ai_sdk_runtime.py:128: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-11-02 21:50:02 [info     ] Document added                 doc_id=f36ae579-190f-4638-8238-d9d1c0a876e4
+2026-11-02 21:50:02 [info     ] Document added                 doc_id=623443a5-f4d7-4aa5-b694-879364597b73
+2026-11-02 21:50:02 [info     ] Document added                 doc_id=19799dda-725b-47f7-b593-964ddcd392f7
+2026-11-02 21:50:02 [error    ] Qdrant search failed           error="'QdrantClient' object has no attribute 'search'"
+2026-11-02 21:50:02 [info     ] Keyword search completed       query=wheat results=0 time_ms=0.11205673217773438
+__________________ test_copilot_qdrant_collection_statistics ___________________
+
+copilot = <_sdk_copilot.rag.service.CopilotRAGService object at 0x7f46bff59e80>
+
+    @pytest.mark.asyncio
+    async def test_copilot_qdrant_collection_statistics(copilot):
+        await copilot.add_document("wheat A", tenant_id="A")
+        stats = await copilot.get_stats()
+>       assert stats["qdrant_points_count"] == stats["qdrant_vectors_count"] == 1
+                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'qdrant_vectors_count'
+
+scripts/ci/check_ai_sdk_runtime.py:139: KeyError
+----------------------------- Captured stdout call -----------------------------
+2026-11-02 21:50:02 [info     ] Document added                 doc_id=b38e9f96-4151-4d5f-8288-900a6938e25c
+________ test_shared_qdrant_backend_preserves_vectors_ranks_and_filters ________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f46bee6bfb0>
+qdrant = <qdrant_client.qdrant_client.QdrantClient object at 0x7f46bee6bef0>
+
+    @pytest.mark.asyncio
+    async def test_shared_qdrant_backend_preserves_vectors_ranks_and_filters(monkeypatch, qdrant):
+        module = _load(monkeypatch, "_sdk_vector_store", ROOT / "shared/ai/vector_store.py")
+        backend = module.QdrantBackend()
+        backend._client = qdrant
+        await backend.create_collection("shared", 3, module.DistanceMetric.COSINE)
+        await backend.insert(
+            [
+                module.VectorDocument(str(UUID(int=index)), vector, content=text, metadata={"tenant_id": tenant})
+                for index, vector, text, tenant in [
+                    (1, [1.0, 0.0, 0.0], "exact A", "A"),
+                    (2, [1.0, 0.0, 0.0], "exact B", "B"),
+                    (3, [0.8, 0.6, 0.0], "similar A", "A"),
+                ]
+            ],
+            "shared",
+        )
+>       hits = await backend.search([1.0, 0.0, 0.0], "shared", top_k=2, filter={"tenant_id": "A"})
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+scripts/ci/check_ai_sdk_runtime.py:159: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_sdk_vector_store.QdrantBackend object at 0x7f46bee69610>
+vector = [1.0, 0.0, 0.0], collection = 'shared', top_k = 2
+filter = {'tenant_id': 'A'}
+
+    async def search(
+        self,
+        vector: list[float],
+        collection: str,
+        top_k: int = 10,
+        filter: dict[str, Any] | None = None,
+    ) -> list[SearchResult]:
+        """Search for similar vectors in Qdrant"""
+        from qdrant_client.models import FieldCondition, Filter, MatchValue
+    
+        qdrant_filter = None
+        if filter:
+            conditions = []
+            for key, value in filter.items():
+                conditions.append(FieldCondition(key=key, match=MatchValue(value=value)))
+            qdrant_filter = Filter(must=conditions)
+    
+>       hits = self._client.search(
+               ^^^^^^^^^^^^^^^^^^^
+            collection_name=collection,
+            query_vector=vector,
+            limit=top_k,
+            query_filter=qdrant_filter,
+            with_vectors=True,
+        )
+E       AttributeError: 'QdrantClient' object has no attribute 'search'
+
+shared/ai/vector_store.py:1217: AttributeError
+=========================== short test summary info ============================
+FAILED scripts/ci/check_ai_sdk_runtime.py::test_advisor_qdrant_retrieval_keeps_tenant_and_metadata_filters
+FAILED scripts/ci/check_ai_sdk_runtime.py::test_advisor_qdrant_collection_statistics
+FAILED scripts/ci/check_ai_sdk_runtime.py::test_copilot_qdrant_search_cannot_pass_via_keyword_fallback
+FAILED scripts/ci/check_ai_sdk_runtime.py::test_copilot_qdrant_collection_statistics
+FAILED scripts/ci/check_ai_sdk_runtime.py::test_shared_qdrant_backend_preserves_vectors_ranks_and_filters
+5 failed, 3 deselected in 18.64s

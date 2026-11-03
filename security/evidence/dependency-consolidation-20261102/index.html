@@ -1,0 +1,1412 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>Dependency PR consolidation — 2026-11-02 - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#dependency-pr-consolidation-2026-11-02" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Dependency PR consolidation — 2026-11-02
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="dependency-pr-consolidation-2026-11-02">Dependency PR consolidation — 2026-11-02<a class="headerlink" href="#dependency-pr-consolidation-2026-11-02" title="Permanent link">&para;</a></h1>
+<h2 id="scope-and-current-base">Scope and current base<a class="headerlink" href="#scope-and-current-base" title="Permanent link">&para;</a></h2>
+<p>This change repairs dependency compatibility and security regressions discovered while reviewing the repository's <strong>12 initially open Dependabot PRs</strong>. The original inventory is in <a href="source-prs.json">source-prs.json</a>; <a href="live-source-prs.json">live-source-prs.json</a> records the state observed before publication.</p>
+<p>During review, six source PRs were merged independently into <code>main</code>. This work did not perform those merges. The consolidated candidate includes main commit <code>0f17b625047ea6d5108f42a240d507d7c855c912</code>. Its reconciliation preserved every newly merged dependency update without changing the already tested candidate tree; see <a href="main-reconciliation.json">main-reconciliation.json</a>.</p>
+<p><strong>The requested Flutter major upgrades are deferred.</strong> This PR supplies verified compatibility bounds and mandatory checks for the current generator/SQLCipher stack. It does not represent completion of a Riverpod/Freezed/sqlite3 major migration.</p>
+<p><strong>This is not an all-tests-green claim.</strong> Inspection of actual CI logs also established existing field-app Flutter failures and field-management Node test-compilation failures. Their source and lock files match main; the existing jobs misleadingly report success. These baseline limitations are detailed below.</p>
+<h2 id="disposition-of-the-source-prs">Disposition of the source PRs<a class="headerlink" href="#disposition-of-the-source-prs" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>State observed before publication</th>
+<th>Consolidated result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>#1822</td>
+<td>Open</td>
+<td>Replace incompatible Flutter upgrade ranges with tested bounds. Retain Drift 2.28.2, drift_dev 2.28.0, Riverpod generator 2.6.4, annotation/flutter_riverpod 2.6.x, Freezed 2.5.8 and sqlite3 2.9.4. Major migration deferred.</td>
+</tr>
+<tr>
+<td>#2009</td>
+<td>Open</td>
+<td>Regenerate inconsistent npm locks; use compatible patched Nest 10.4.22/cache-manager 2.3.0, Express 4.22.3, body-parser 1.20.9/2.4.0 and Vitest 4.1.12. Repair affected mocks and service test lifecycle.</td>
+</tr>
+<tr>
+<td>#2017</td>
+<td>Merged independently</td>
+<td>Preserve Vite 7.3.7 and synchronize all affected workspace manifests and locks.</td>
+</tr>
+<tr>
+<td>#2018</td>
+<td>Open</td>
+<td>FastAPI 0.162.0, Uvicorn &gt;=0.54.0, Pydantic 2.14.2; synchronize service pins with central constraints.</td>
+</tr>
+<tr>
+<td>#2019</td>
+<td>Merged independently</td>
+<td>Preserve Qdrant client &gt;=1.20; migrate three real consumers to <code>query_points</code> and repair collection statistics.</td>
+</tr>
+<tr>
+<td>#2020</td>
+<td>Open</td>
+<td>Certifi &gt;=2026.10.23 in central/copied constraints, root declaration and frozen lock.</td>
+</tr>
+<tr>
+<td>#2021</td>
+<td>Merged independently</td>
+<td>Preserve Anthropic &gt;=2.3,&lt;3; align LangChain &gt;=1.7.9,&lt;2 and repair four SDK consumers while retaining API version 2023-06-01.</td>
+</tr>
+<tr>
+<td>#2022</td>
+<td>Merged independently</td>
+<td>Preserve pytest-html &gt;=4.2 and exercise real report generation.</td>
+</tr>
+<tr>
+<td>#2023</td>
+<td>Open; rebased during review</td>
+<td>Include all 13 proposed upgrades, regenerate <code>uv.lock</code>, align service/CI pins and update OTel instrumentation to 0.66b2 for SDK 1.45.2. The rebased head <code>3796fd148ab93e569005c48788189aca61868ddd</code> was checked against the candidate.</td>
+</tr>
+<tr>
+<td>#2024</td>
+<td>Open</td>
+<td>Vulture &gt;=2.16; resolve complete development requirements with pytest-asyncio 1.3.0 and pytest 9.2.0.</td>
+</tr>
+<tr>
+<td>#2025</td>
+<td>Merged independently</td>
+<td>Preserve SciPy &gt;=1.17.1,&lt;1.18 and synchronize field constraints; test real numerical execution.</td>
+</tr>
+<tr>
+<td>#2026</td>
+<td>Merged independently</td>
+<td>Preserve central Qdrant client &gt;=1.20 and align the service manifests and CI server image.</td>
+</tr>
+</tbody>
+</table>
+<p>The npm proposals' incompatible Nest 12/cache-manager 12 and Vitest 5 upgrades are replaced with patched, tested versions that preserve the project's current Nest and Node 20 contracts.</p>
+<h2 id="defects-repaired">Defects repaired<a class="headerlink" href="#defects-repaired" title="Permanent link">&para;</a></h2>
+<h3 id="javascript-dependency-and-runtime-failures">JavaScript dependency and runtime failures<a class="headerlink" href="#javascript-dependency-and-runtime-failures" title="Permanent link">&para;</a></h3>
+<p>The #2009 manifests and workspace lock disagreed, causing <code>npm ci</code> failures. The rebuilt root and affected standalone locks install consistently. All 15 tracked npm locks were inspected for the targeted packages; all 12 body-parser resolutions are on patched releases. Untouched standalone lock metadata is not claimed to have been fully synchronized.</p>
+<p>The added runtime security tests exercise actual installed packages. They demonstrate that trailing bytes after a gzip request no longer crash body-parser, and that Vitest's mock generator safely quotes module URLs and export names. The same source fails against body-parser 1.20.8/Vitest 3.2.7 and passes against patched installations. The parser 2.4.0 case uses the actual code-review-agent standalone manifest and lock.</p>
+<p>Constructor mocks now use constructible functions. Chat testing modules close their real interval handles. Marketplace's NATS readiness fixture restores the original environment and explicitly checks the unconfigured state.</p>
+<h3 id="python-sdk-and-resolver-failures">Python SDK and resolver failures<a class="headerlink" href="#python-sdk-and-resolver-failures" title="Permanent link">&para;</a></h3>
+<p>Qdrant 1.20 removed the old search method and collection field. Real in-memory acceptance tests verify retrieval, tenant/metadata filtering, top-k, thresholds, returned vectors/ranks and statistics. Copilot's keyword fallback is cleared during acceptance so it cannot conceal an SDK failure. Agent Evaluation's Qdrant image is aligned with the existing repository server version 1.10.1, which supports the Query API.</p>
+<p>Anthropic SDK 2 defaults to an API that rejects the existing sampling parameters. Following the <a href="https://platform.claude.com/docs/en/api/migration-2026-10-21">official migration guide</a>, all four consumers explicitly retain <code>anthropic-version: 2023-06-01</code>. The direct SDK call passes temperature through <code>extra_body</code>; the compatible LangChain release handles its own SDK adaptation. Tests inspect actual generated request bodies and headers and invoke the real agent/router/vision methods with local HTTP mock transports and blocked sockets. Model, max-token, system/message, sampling and token-accounting behavior are preserved.</p>
+<p>This is an SDK upgrade with the supported older API contract. It does not claim migration to API 2026-10-21.</p>
+<p>Central constraints, copied field constraints, affected service pins and CI installs are synchronized. OTel instrumentation 0.66b2 is required by the upgraded SDK's semantic-conventions dependency. The stale root lock is regenerated.</p>
+<h3 id="sqlite-deletion-follow-up-from-remote-security-review">SQLite deletion follow-up from remote security review<a class="headerlink" href="#sqlite-deletion-follow-up-from-remote-security-review" title="Permanent link">&para;</a></h3>
+<p>Remote Semgrep identified two dynamically constructed deletion statements in the existing SQLite backend. The values were already bound, but inspection also found real FTS ordering, collection-isolation and deletion-count defects. The follow-up uses constant SQL with bound parameters, removes FTS entries while their source rows still exist, restricts both operations to the requested collection, deduplicates IDs and returns the document count. The old suppressions were removed.</p>
+<p>The exact official Semgrep rule reports <strong>2 findings before and 0 after</strong>. Real SQLite/FTS tests cover hostile-looking values, cross-collection isolation, duplicate and missing IDs, idempotency, empty batches and bounded parameter counts. The final ten SQLite cases fail six times against the old source and all pass after repair. They now run in the mandatory Python Lock Security job. The integrated SDK/SQLite/embedding suite passes <strong>26/26</strong>; see <a href="python/sqlite-semgrep-followup-receipt.json">the follow-up receipt</a>.</p>
+<p>This code repair does not automatically rebuild an already inconsistent persisted FTS index or perform a data migration.</p>
+<h3 id="flutter-compatibility-boundaries">Flutter compatibility boundaries<a class="headerlink" href="#flutter-compatibility-boundaries" title="Permanent link">&para;</a></h3>
+<p>The requested sqlite3 major removes an import used by the current SQLCipher binding. Newer drift_dev releases also require generator dependencies incompatible with the project's Freezed/Riverpod stack. Actual resolution showed that even Riverpod generator 2.6.5 introduces an incompatible transitive Freezed annotation dependency.</p>
+<p>The tested manifest bounds cover the main app, field app and shared core. The policy checks also inspect the path-consuming app, three application locks, dependency overrides and transitive analyzer/build/source_gen/Riverpod boundaries. The Mobile CI analysis job runs these checks as a mandatory step. Dependabot remains enabled for compatible updates.</p>
+<p>See <a href="../../../mobile/FLUTTER_TOOLCHAIN/">the toolchain decision</a> and <a href="flutter/flutter-review-guard-receipt.json">the final guard receipt</a>. The earlier <a href="flutter-pr1822-decision.json">Flutter decision receipt</a> describes the initial 41-case stage; the final integrated guard suite contains <strong>86 passing cases</strong>.</p>
+<p>Remote review also exposed a separate analyzer setup defect: Frontend Tests generated only the primary app, then recursively analyzed uninitialized nested apps. Its success fallback hid <strong>3,462 errors</strong>. The follow-up prepares the shared core and both nested apps, then uses explicit Bash/pipefail without that fallback. Actual analysis of the same complete tree now returns <strong>exit 0 and zero errors</strong>, with no new excludes or production Dart changes. Existing warnings/info remain nonfatal. See <a href="flutter/flutter-ci-setup-receipt.json">the setup receipt</a>.</p>
+<h2 id="local-verification">Local verification<a class="headerlink" href="#local-verification" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Verification</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Node 20.20.2 / npm 10.9.0 application and existing security suites</td>
+<td><strong>6,063 distinct tests passed</strong>: root 2,793; admin 2,515; code-review 90; chat 278; marketplace 356; existing security gate 31.</td>
+</tr>
+<tr>
+<td>Added JavaScript runtime security cases</td>
+<td><strong>4 passed</strong>, included in the consolidated <strong>35/35</strong> security run; also exercised against the real parser 2.4.0 standalone lock.</td>
+</tr>
+<tr>
+<td>Root frozen Python lock/runtime</td>
+<td><strong>102 passed</strong>, repeated successfully on the final integration.</td>
+</tr>
+<tr>
+<td>Shared authentication/security and Copilot authentication</td>
+<td><strong>162 + 11 passed</strong>.</td>
+</tr>
+<tr>
+<td>AI SDK, Qdrant, numerical and CPU embedding acceptance</td>
+<td><strong>16 passed</strong> on genuine Anthropic 2.4.0 and 2.3.0 installations; repeated on the final integration with 2.3.0.</td>
+</tr>
+<tr>
+<td>SQLite deletion and FTS isolation follow-up</td>
+<td><strong>10 passed</strong>; final integrated AI/SQLite/embedding run <strong>26/26</strong>.</td>
+</tr>
+<tr>
+<td>Flutter toolchain/dependency policy</td>
+<td><strong>86 passed</strong> on the final integrated constraints and sources.</td>
+</tr>
+<tr>
+<td>Flutter native compatibility tests</td>
+<td><strong>2 passed</strong>; actual code generation succeeded with 373 outputs.</td>
+</tr>
+<tr>
+<td>Frozen dependency checks</td>
+<td>Actual root npm install; targeted standalone frozen checks; frozen Python lock with 115 packages; Flutter main/field lock-preserving resolution and shared-core resolution.</td>
+</tr>
+<tr>
+<td>Builds/static analysis</td>
+<td>Shared packages/events, admin Storybook, Chat/Marketplace Nest builds, code-review, web and admin TypeScript; full Python Ruff check and zero Python dependency-drift errors.</td>
+</tr>
+</tbody>
+</table>
+<p>The Python suites contain <strong>301 distinct verified cases</strong>, including the ten SQLite cases in the follow-up. Repeated environments/integration runs and repeated shared-hook/UI coverage cases are not counted again.</p>
+<p>The root and AI Python environment audits covered <strong>110 and 86 packages</strong>, respectively, with <strong>zero known vulnerabilities and zero skipped packages</strong>. The npm audit is <strong>not clean</strong>: the complete workspace audit changed from 114 findings (19 high) to <strong>107 findings (17 high, 79 moderate, 11 low)</strong> relative to the initial main commit. No new direct advisory was introduced. Counts include npm's dependent-package propagation and are not a count of unique CVEs. Full reports and the advisory comparison are included.</p>
+<h3 id="negative-controls">Negative controls<a class="headerlink" href="#negative-controls" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Control</th>
+<th>Before repair</th>
+<th>After repair</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>body-parser/Vitest runtime cases</td>
+<td>3 failures out of 4</td>
+<td>4 passed</td>
+</tr>
+<tr>
+<td>Targeted parser checks across all tracked locks</td>
+<td>5 failures out of 31</td>
+<td>31 passed</td>
+</tr>
+<tr>
+<td>Qdrant consumers</td>
+<td>5 failures</td>
+<td>All 5 included cases passed</td>
+</tr>
+<tr>
+<td>Anthropic SDK consumers</td>
+<td>5 failures</td>
+<td>All 5 included cases passed</td>
+</tr>
+<tr>
+<td>Additional Flutter transitive override/lock cases</td>
+<td>10 failures</td>
+<td>All 10 included cases passed</td>
+</tr>
+<tr>
+<td>Frozen root Python lock</td>
+<td>Rejected as stale</td>
+<td>Accepted</td>
+</tr>
+<tr>
+<td>Exact Semgrep SQL rule on the vector store</td>
+<td>2 findings</td>
+<td>0 findings, 0 errors</td>
+</tr>
+<tr>
+<td>SQLite deletion/FTS cases</td>
+<td>6 failed, 4 passed</td>
+<td>10 passed</td>
+</tr>
+<tr>
+<td>Frontend recursive Flutter analyzer setup</td>
+<td>3,462 errors hidden by the workflow</td>
+<td>0 errors with the full scope and a strict exit status</td>
+</tr>
+</tbody>
+</table>
+<h2 id="remote-ci-observations-and-existing-test-debt">Remote CI observations and existing test debt<a class="headerlink" href="#remote-ci-observations-and-existing-test-debt" title="Permanent link">&para;</a></h2>
+<p>On first published head <code>5ae806cd</code>, the real JavaScript security/browser checks passed; Python frozen extras passed on <strong>3.11/3.12/3.13</strong>; shared-auth passed on <strong>3.11/3.12</strong>; AI SDK/CPU embedding, dependency consistency and Agent Evaluation passed. The primary Flutter app passed <strong>2,723 tests</strong>, and its iOS debug/no-codesign build completed. Follow-up code has separate receipts and requires checks on the final PR head.</p>
+<p>Two other suites have verified baseline failures which their existing workflows hide. They are not counted among the passing targeted suites above:</p>
+<table>
+<thead>
+<tr>
+<th>Existing suite</th>
+<th>Actual result on the first published head</th>
+<th>Baseline evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Field Flutter app</td>
+<td><strong>4,727 passed / 17 failed</strong>, although the job reports success. Four categories: notifier updates after disposal, empty default tenant, network timeout, shared mutable chat fixture.</td>
+<td>A prior run had <strong>4,729 passed / 15 failed</strong> in the same categories, with a different random seed. All 2,439 Dart sources and three app locks match main. <a href="flutter/flutter-ci-tests-and-ios.json">Detailed receipt and job links</a>.</td>
+</tr>
+<tr>
+<td>Node field-management service</td>
+<td><strong>4 failed / 8 passed suites</strong>; the <strong>107 tests that execute pass</strong>. Four suites fail compilation due to stale task-service arguments and unresolved shared-events output. The workflow emits a warning and reports success.</td>
+<td>Main <code>0f17b625</code> has the identical compiler diagnostics, suite/test counts and source trees. <a href="node/ci-baseline-limitations.json">Comparison receipt and job links</a>.</td>
+</tr>
+</tbody>
+</table>
+<p>The remaining baseline failures were not hidden, weakened or rewritten as part of the dependency consolidation. Their misleading existing test-step behavior is explicitly recorded rather than inferred from a green GitHub badge.</p>
+<h2 id="evidence-and-verification-limits">Evidence and verification limits<a class="headerlink" href="#evidence-and-verification-limits" title="Permanent link">&para;</a></h2>
+<p><a href="SHA256SUMS.json">SHA256SUMS.json</a> hashes the evidence files. <a href="integration-validation.json">integration-validation.json</a> records the first integrated candidate. <a href="followup-validation.json">followup-validation.json</a> binds the subsequent SQLite and analyzer fixes to their tested sources and identifies the two historical Python hashes superseded by the follow-up. Historical receipts are preserved. The Python, Node, Flutter and JavaScript receipts retain source PR heads, package versions, commands/results and known limitations.</p>
+<p>Local Python execution used 3.12.14. Complete service requirements were resolved for 3.11, and the first published PR head passed runtime checks for 3.11/3.12/3.13. Consult the checks on the current head for the final follow-up.</p>
+<p>No live provider inference, deployment or encrypted-database major migration was performed. SDK acceptance uses local transports and in-memory Qdrant. The recorded iOS result is a remote CI debug build, not a signed release or device test. The existing npm audit backlog, baseline test failures and separate Flutter major migration remain visible follow-up work.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+    
+  </body>
+</html>

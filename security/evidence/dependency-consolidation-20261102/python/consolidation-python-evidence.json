@@ -1,0 +1,230 @@
+{
+  "base_sha": "920ed84e28741e9946f09a673feb22398712377b",
+  "commit_sha": "5d9588c23a7f7127c3be485279e7df398a1958f5",
+  "pull_requests": [
+    {
+      "number": 2018,
+      "source_head_sha": "ebb1a126e900844445093cbedc5f2e5e0888b2d8",
+      "disposition": "included_with_compatibility_fixes",
+      "versions": "FastAPI >=0.162.0,<1; Uvicorn >=0.54.0,<1; Pydantic 2.14.2 (central FastAPI pinned 0.162.0)"
+    },
+    {
+      "number": 2019,
+      "source_head_sha": "cbfd82da639bca42c1d026bb4fdf2c7f3f064256",
+      "disposition": "included_with_compatibility_fixes",
+      "versions": "qdrant-client >=1.20.0,<2.0.0 in ai-advisor and copilot-api; 1.20.0 tested"
+    },
+    {
+      "number": 2020,
+      "source_head_sha": "fce0d0997ee1856b65b140bdf0b6667fdfb2ff0d",
+      "disposition": "included",
+      "versions": "certifi >=2026.10.23 in field constraints, root constraints and pyproject; lock 2026.10.23"
+    },
+    {
+      "number": 2021,
+      "source_head_sha": "220d4c5ad875fbc672972430c5bfda5cad2c9bc1",
+      "disposition": "included_with_compatibility_fixes",
+      "versions": "anthropic >=2.3.0,<3.0.0; resolved/tested installations 2.3.0 and 2.4.0; langchain-anthropic >=1.7.9,<2.0.0; retained API 2023-06-01"
+    },
+    {
+      "number": 2022,
+      "source_head_sha": "24206760e9241d31d53407c4cf5b849d12b360f0",
+      "disposition": "included",
+      "versions": "pytest-html >=4.2.0; 4.2.0 generated acceptance HTML reports"
+    },
+    {
+      "number": 2023,
+      "source_head_sha": "f7e27b26e0b7aeff67fd10b13c051b12544e525f",
+      "disposition": "included_with_compatibility_fixes",
+      "versions": "FastAPI 0.162.0; Pydantic 2.14.2; settings 2.16.2; SQLAlchemy 2.1.6; Tortoise 1.1.9; Alembic 1.20.1; OTel API/SDK 1.45.2 + instrumentation 0.66b2; pytest 9.2.0; pytest-mock 3.17.0; ruff 0.17.3; pre-commit 4.7.0; sentence-transformers 6.2.0"
+    },
+    {
+      "number": 2024,
+      "source_head_sha": "f9045f72ae868947f985b500bf41692ab70e3613",
+      "disposition": "included",
+      "versions": "vulture >=2.16; complete requirements-dev manifest resolved with vulture 2.16"
+    },
+    {
+      "number": 2025,
+      "source_head_sha": "c53549c9948718cfb5ac963394ba4108d214dc30",
+      "disposition": "included",
+      "versions": "scipy >=1.17.1,<1.18.0 in central and copied field constraints; 1.17.1 tested against NumPy1.26.4"
+    },
+    {
+      "number": 2026,
+      "source_head_sha": "1c60b87f4e32b6a66340f80e8177bc055182176d",
+      "disposition": "included_with_compatibility_fixes",
+      "versions": "qdrant-client >=1.20.0,<2.0.0 in AI central constraints; previous 1.17 exclusions retained"
+    }
+  ],
+  "suites": [
+    {
+      "file": "root-runtime.xml",
+      "tests": 102,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "file": "shared-auth.xml",
+      "tests": 162,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "file": "copilot-auth.xml",
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "file": "ai-runtime.xml",
+      "tests": 16,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "file": "ai-runtime-minimum.xml",
+      "tests": 16,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "file": "qdrant-before.xml",
+      "tests": 5,
+      "failures": 5,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "file": "anthropic2-before.xml",
+      "tests": 5,
+      "failures": 5,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "source_sha256": {
+    ".github/workflows/python-lock-security.yml": "0bf99c84ba9ca6335235f4e1c633b122f54fff8f39e738979a8b1c49ee2c06ce",
+    ".github/workflows/shared-pyjwt-security.yml": "c9322459b583884b4ed10d0c9939ab0bf8f672c52ed2f9b2d477eaf463d6d7b3",
+    "apps/services/advisory-service/requirements.txt": "af8c037fb14f19673b51ce46d64ec97d904fed81d5d93f331ce70a350c9257ef",
+    "apps/services/agent-registry/requirements.txt": "0885e6133a726170c4235c58810e48680a042e6a2fe9bbc133a88d978e1c4b7e",
+    "apps/services/ai-advisor/requirements.txt": "e34c11549a92cdeb2d64d88a84d7646a52d37eb003a505642098f052fe8025bf",
+    "apps/services/ai-advisor/src/agents/base_agent.py": "19d43ef9a8e7d9cb14a99d3f7fcdc7d65b0efd9e3fb33b350a16bc7a27dacdcf",
+    "apps/services/ai-advisor/src/llm/multi_provider.py": "bf993ce7a945942926e3209d2bbcf9f2694aa8535349ae8e8b3c02b5563b387d",
+    "apps/services/ai-advisor/src/orchestration/supervisor.py": "1d9ebaf9a4fe38889ff30315e7ce6559d3d09f7403defe7f682e01ae9d510d12",
+    "apps/services/ai-advisor/src/rag/retriever.py": "37d80f873b0f8aff852cd37ca122261a7baed1632209ad7bf39865ed55e5e84e",
+    "apps/services/ai-agents-core/requirements-test.txt": "f39e6363d936798209eca3320a99d6e593fc515b6450b3614773eb6ce9cc67ca",
+    "apps/services/ai-agents-core/requirements.txt": "27a8a144cd157cd3e28cbb56bc5917e2253486e88dbd17409c22d6b78b040043",
+    "apps/services/ai-agents-service/requirements.txt": "4bea9b85906ed4851b4517e63a72f22bbc0d652654c6f13746d052bd138b7972",
+    "apps/services/ai-chat-assistant/requirements.txt": "b9fee13c16da61f25d8ce10eae5607e538b1fd25f19b9f28d9169c9a5abbc1ef",
+    "apps/services/alert-service/requirements.txt": "b808dacf373ac11e4e0ecc6985a4f5aac9a4f9fdd03357b6ae7c6041fd0bf657",
+    "apps/services/astronomical-calendar/requirements.txt": "06659af5cb70cda48df3faf73667747b5c614ab8237f53756c81ad6955273836",
+    "apps/services/audit-service/requirements.txt": "502c59203fabd216944b2d2b61d1650e3280854cf58edcaeea8e35a63bb2e95a",
+    "apps/services/billing-core/requirements.txt": "8a8f2f0076e12aea12ff36ca71ef0bd63db3fce7a8ce29fdcff5ac475f5b957d",
+    "apps/services/carbon-service/requirements.txt": "0fce6f0475bc48c95f7f76dac6ae2d5e4d7dab3af9417558100f4a886c905f73",
+    "apps/services/code-fix-agent/requirements.txt": "b6cc7ffd5f86366d2224ecb3b2386fde78f0d506dde1ee24080b5c442035a635",
+    "apps/services/code-review-service/requirements.txt": "a24ab966d5220cea77e788d25d728712185056b4217bc42c5d43f373d2ddbf86",
+    "apps/services/community-service/requirements.txt": "4fc265013255a3da1b0772b1211948577f0d30719ed694fe70650ec9cbfcc906",
+    "apps/services/cooperative-service/requirements.txt": "8beaad8f8fd2b702ab89ecfca7b0b7dc058dd473d3c3cfa102b513e8da798c96",
+    "apps/services/copilot-api/requirements.txt": "e43c7e480bd1cbde52e6f3f663b1dac2b85770a1a8516bb5506811c2c0a9e59a",
+    "apps/services/copilot-api/src/rag/service.py": "c22e5ffe2226ee871e3585e5a7c9e2e394b8b3525f82a49dc42e74ba6ad4c4ca",
+    "apps/services/crm-service/requirements.txt": "f0367e5b8bdf5986db3ca47095ce436ef23d7e99f578a1f2b57d2a82f79c0dd1",
+    "apps/services/crop-intelligence-service/requirements.txt": "c441b94eb5e5f3d996b89af6aa972df641fe77cba6fd854ace504f1c58db461c",
+    "apps/services/digital-twin-engine/requirements.txt": "f99294ba2e5db148718a5283b2f4b845ae2975c969393511c794b52af7f76b5d",
+    "apps/services/drone-service/requirements.txt": "701bd798c1c963cc42eaf303eb9162879cc4f7d495fb168fa4dfe671574ecfe6",
+    "apps/services/edge-orchestrator-service/requirements.txt": "8ccfb6207c0a184dce85f9d34e5c650ea5484a651e7e215b535eda1fd894ac6c",
+    "apps/services/equipment-service/requirements.txt": "8e3bbac31bb85bd523a13916622a1c2d40c8691f105755f734faf03beb739a54",
+    "apps/services/fertigation-engine/requirements.txt": "861884d962b0096234c2c9649ec307368cbd4dd76bdea7c86c51a3301ff22d0d",
+    "apps/services/field-intelligence/requirements.txt": "fcb96b2dd5e81f32c96dcdf1cc3499510603ed9b6478720b2fa7c19bdc5b89a1",
+    "apps/services/field-management-service/constraints.txt": "3e3c60d6b4ada7fdfb6ccdfca9a6c6632659fcd13325d3d1b616ae36d3d2a6b2",
+    "apps/services/field-management-service/requirements.txt": "f3ffdd7f961203199987673b6b485740b4e549926070f33a70bc8b0fb2e843ef",
+    "apps/services/field-management-service/rotation-requirements.txt": "6d9756ea894b55f678053756ae2065ed9cfa0c29deb5a3e3daff6dbbaac874e4",
+    "apps/services/globalgap-compliance/requirements.txt": "7d3819f33619a5ceebd811555c59aab89f1d4adc6ee528636fb9c3566076bf12",
+    "apps/services/ground-vision-service/requirements.txt": "588cd84762d0f1ed87ed6a71de5f9a902f0285c33bbcc823e97894487715e812",
+    "apps/services/ground-vision-service/src/intelligence/mllm_reasoner.py": "bac0a35cf914705e47c643c73f3524d0f56aac6f5939681a53db33ce556fc086",
+    "apps/services/hydrology-service/requirements.txt": "cea7c18015741867908b219ef4eb824d34215a678d0d6d5e36ddd49a57c431c8",
+    "apps/services/indicators-service/requirements.txt": "75cec45c037a0bca9368653cf58df5a21fdfc8932d1286292bbf977fd1b681dc",
+    "apps/services/inventory-service/requirements.txt": "30b5ac912b9242ff3f9b93d10b8c44251e21f0359660e1761f5968fee21335f7",
+    "apps/services/iot-gateway/requirements.txt": "e7b3dd83b2f7d0ad88124bbc350cb0bea55b57dc3e9a3b4f67e8e832bdfdf038",
+    "apps/services/iot-sensor-hub/requirements.txt": "136c0d48f9f9126c9ab9dce6ebe4bd617b7b23a2c99374c8250b0e1b547dced1",
+    "apps/services/irrigation-cycle-engine/requirements.txt": "d4df4a3cc44184ba68ad99022fa82eec1888fb159246b556af19d142ed7e9dc0",
+    "apps/services/irrigation-smart/requirements.txt": "f75e6a5cfbfbb6f7b1313f7ab116b7899a97d606651734c791b268c2d7b07101",
+    "apps/services/knowledge-graph/requirements.txt": "c6069e7827903d3d90f76edd922da246ea103ebd6bdc2bee7482cff86b6a0e79",
+    "apps/services/leveling-optimizer-service/requirements.txt": "d15d0532a318cce7d88c6f8b45667af85f7a710abeba57f38cbf6aeed5b2137e",
+    "apps/services/llm-orchestrator-service/requirements.txt": "e9297d17b65772afae6f48835062236285e0263be0b77b77c0b04ebc49ba6768",
+    "apps/services/logistics-service/requirements.txt": "f8967f0c1ea4c3c21e88b9bdc439ef8b6d2f001c93816b4ffb7ce86c81b43470",
+    "apps/services/lowcode-engine/requirements.txt": "db2434f332d35a6ebaebc5876e34b95db2cb8777e83bc4824d215075b8c7de12",
+    "apps/services/mcp-server/requirements.txt": "97d8ea22c38b7a34947804ed55e70dd97c12b7a39e58e469e8adf9c7e5ab6ccd",
+    "apps/services/ndvi-processor/requirements.txt": "93caee3ecae8cf35fdeeb6c9a04b6b1fc45628a70989ed9b612bb7361556bcad",
+    "apps/services/notification-service/requirements.txt": "9acacd5c1675f159846ed9b871db3e74ff9a3e0a2a74059d45efb251346a369f",
+    "apps/services/pest-detection-service/requirements.txt": "ab6df6206ec97235d77285a92a7c24072e3fa693bdc1038105aa500d72a7d264",
+    "apps/services/provider-config/requirements.txt": "933e1cc593680c25a82a622ebd39c70e801b4d510ef692bf51ba8687d2c2123a",
+    "apps/services/requirements.txt": "a72707ba7cf9a6a27fb8d46dfa608965f8f2c4e112e1047adae58ea0d4150890",
+    "apps/services/shared/auth/requirements.txt": "c6ba9f85d8cdc21311ae470a23d3571dcb4e22f3a6ca7acf02da0fa4444eb800",
+    "apps/services/shared/requirements.txt": "c703dafdd58bb9052842df904cb09bd1f7fcec751c3b2e85b893884d14f0dc29",
+    "apps/services/skill-router-service/requirements.txt": "3ec2da4254cb786b39b9dd89976d1608e7c8e9838fc8b5f42f278dd8aec302d1",
+    "apps/services/skills-service/requirements.txt": "6d65a70b424410a89846db95a27fef4934072a33702db03aeedaa8a1a4e8854d",
+    "apps/services/soil-analysis-service/requirements.txt": "74a74ff18f30f849bab22fe77e519ea57277d23ddfd5bd7243e75b67dc55bb12",
+    "apps/services/supply-chain-service/requirements.txt": "363e9dba9f0219fde046dfe830bbc5ce923e8f7a2402f0637e18eda1778fc1a7",
+    "apps/services/task-service/requirements.txt": "f602a43284ab1a96ed66d820826eb543efe4841d2c5c73bc7aa0d84ddec58cb9",
+    "apps/services/terrain-core-service/requirements.txt": "0b0c9ab427abc71a62b84285cc9d26c307d92bf27586152ebfe2535526784e4a",
+    "apps/services/test-harness-sidecar/requirements.txt": "2d0b743f53310982aead56861ae4cc684ca94ec63dadee6b1270e5173a1e9cdb",
+    "apps/services/traceability-service/requirements.txt": "cfc229f76d342035d453dca8bf012118a4b2ac8073295b988b71224b89c8c68c",
+    "apps/services/ussd-gateway/requirements.txt": "411b6e05aff03c0849a5f3e8e77cc01c214c9eaba7ba29f539da868ba7de6dd4",
+    "apps/services/vegetation-analysis-service/requirements.txt": "55c285c17438bba0fb89b03094d4871409ed9352da3154bf20071715acaa3d07",
+    "apps/services/virtual-sensors/requirements.txt": "d6e3750caf732fef647c62b4e2f54a6ac09cb8c06aaff75a25f07a13f3998f9e",
+    "apps/services/weather-service/requirements.txt": "8922f2588a4ee7d8047e14a9287abc90f6baefb3d82984d606c66faa117bb208",
+    "apps/services/wechat-service/requirements.txt": "8cd24c7ba03f37f41c61c8b8f9f14d935a06582203d63b14eee4e9d8323acfa4",
+    "apps/services/whatsapp-bot-service/requirements.txt": "c300fc4098a0bfa7e53082b68be5ef1f11cbcc2fb699a117825f563eee3adb13",
+    "apps/services/ws-gateway/requirements.txt": "488306dd283acf30288964864eaa908ee3b4aac1fc10f4e5af9313c98560078e",
+    "apps/services/yolo26-vision-service/requirements.txt": "1e8000bb36a6a4a6a45c76e7a7b370f919a44b6d306091f483b01a8a52934792",
+    "constraints.txt": "8e1830c21a6f5f6395082b196bc1d98f58d8b8c52fd7ecc856104bf577340322",
+    "docker/constraints-ai.txt": "4c83aab79e2c2f0749ffa122bd0df67d7d76bc28fa5fa177f5020274af56b11c",
+    "pyproject.toml": "b9e3bc9fe0e04ea01b33701979f2bd3f0bad395244f1c57abb3a5ddcd1d6a87d",
+    "requirements-dev.txt": "1b821434c0580befe88a3138e783343368b12df38ec72a2c7c4fda82592b84eb",
+    "requirements/base.txt": "aa34a4ff30aabcfc5ddceaec600b750eb6477ef03e03939cf024c32443dec1ff",
+    "requirements/infrastructure.txt": "a59beea766b902fda80fd345d8848aabb85f5c7fab0f49f0cb5b969ba8398a6b",
+    "requirements/observability.txt": "df5cc6eae642ccffde04dfd34e33ae86dd083c2e66644f4c0be025799e1abd13",
+    "requirements/testing.txt": "48792f5000fce455bc9fbe003d7670a81709ffcf0546fff53da849889aafabe2",
+    "scripts/ci/check_ai_sdk_runtime.py": "d18c4cc116c6555403d5fdd85fb3e430485782b82f3005baaa3f4dc08949e154",
+    "shared/ai/vector_store.py": "239fefece1504ca4c71a70ec9f3992ffaa566ffd44b07cfaf87d6d3bb2f2a95b",
+    "uv.lock": "3c3227cb2915e9d177c0c22ac9efbdd5d4eb8c34df9f0b87d723d9860215f579",
+    ".github/workflows/agent-evaluation.yml": "7f1299e36a312b49214fb235d4d443dc6a20f55dec221c18890514f7ca75bda1"
+  },
+  "runtime_python": "3.12.14",
+  "requirements_resolution_python": [
+    "3.11",
+    "3.12"
+  ],
+  "limits": [
+    "Runtime acceptance uses local mocked HTTP transports with sockets blocked and real in-memory Qdrant; no Anthropic service request made by acceptance tests.",
+    "The SDK upgrade preserves API 2023-06-01 and existing models, max_tokens, temperatures and output handling. It does not migrate to API 2026-10-21.",
+    "Full remote CI matrix and deployment/integration database services remain for the parent consolidated PR.",
+    "Root lock has 115 packages; root all-extras environment has 110 installed; AI acceptance environment has 86."
+  ],
+  "followup_commit_sha": "327eef4938d421622dad70fb859aef29e53dd530",
+  "audits": [
+    {
+      "file": "root-full-audit.json",
+      "packages": 110,
+      "vulnerabilities": 0,
+      "skipped": 0
+    },
+    {
+      "file": "ai-sdk-full-audit.json",
+      "packages": 86,
+      "vulnerabilities": 0,
+      "skipped": 0
+    }
+  ],
+  "official_compatibility_sources": [
+    "https://platform.claude.com/docs/en/api/migration-2026-10-21",
+    "https://qdrant.tech/documentation/search/"
+  ],
+  "ci_qdrant_image": "qdrant/qdrant:v1.10.1; matches existing production compose and Helm; query endpoint introduced in1.10"
+}

@@ -1,0 +1,9 @@
+
+ RUN  v4.1.12 /workspace/scratch/7de7742d3309/sahool-pr-node/apps/admin
+
+
+ Test Files  74 passed (74)
+      Tests  2515 passed (2515)
+   Start at  21:52:58
+   Duration  27.61s (transform 6.25s, setup 12.59s, import 7.70s, tests 19.09s, environment 49.37s)
+

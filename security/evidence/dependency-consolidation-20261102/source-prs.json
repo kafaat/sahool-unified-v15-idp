@@ -1,0 +1,341 @@
+{
+  "repository": "kafaat/sahool-unified-v15-idp",
+  "base_branch": "main",
+  "base_sha": "920ed84e28741e9946f09a673feb22398712377b",
+  "source_count": 12,
+  "pagination": {
+    "page_size": 100,
+    "second_page_count": 0
+  },
+  "source_prs": [
+    {
+      "number": 1822,
+      "url": "https://github.com/kafaat/sahool-unified-v15-idp/pull/1822",
+      "title": "chore(deps): bump the flutter-core group across 1 directory with 5 updates",
+      "head_ref": "dependabot/pub/apps/mobile/flutter-core-f82e20599d",
+      "head_sha": "85312fc1b94f40413429441c8e1e8021b45de769",
+      "base_sha": "20027b86b688105d8672f399fc21d43cba3ba66e",
+      "changed_files": 2,
+      "unresolved_review_threads": 0,
+      "workflow_count": 23,
+      "non_success_workflows": [
+        {
+          "id": 28072368521,
+          "name": "SAHOOL Platform v16 - CI/CD",
+          "status": "completed",
+          "conclusion": "failure"
+        },
+        {
+          "id": 28072368511,
+          "name": "SAHOOL Complete CI/CD",
+          "status": "completed",
+          "conclusion": "failure"
+        },
+        {
+          "id": 28072368484,
+          "name": "Test Suite",
+          "status": "completed",
+          "conclusion": "failure"
+        }
+      ]
+    },
+    {
+      "number": 2009,
+      "url": "https://github.com/kafaat/sahool-unified-v15-idp/pull/2009",
+      "title": "chore(deps): bump the npm_and_yarn group across 7 directories with 8 updates",
+      "head_ref": "dependabot/npm_and_yarn/apps/services/chat-service/npm_and_yarn-aa3c927da7",
+      "head_sha": "fc9f762dbdcc587dc0e9d3bab2b5a41e2240849f",
+      "base_sha": "920ed84e28741e9946f09a673feb22398712377b",
+      "changed_files": 12,
+      "unresolved_review_threads": 0,
+      "workflow_count": 25,
+      "non_success_workflows": [
+        {
+          "id": 41372066073,
+          "name": "Quality Orchestrator (8-Layer Analysis)",
+          "status": "completed",
+          "conclusion": "failure"
+        },
+        {
+          "id": 41372066103,
+          "name": "JavaScript Critical Security",
+          "status": "completed",
+          "conclusion": "failure"
+        }
+      ]
+    },
+    {
+      "number": 2017,
+      "url": "https://github.com/kafaat/sahool-unified-v15-idp/pull/2017",
+      "title": "chore(deps): bump vite from 6.4.1 to 7.3.7",
+      "head_ref": "dependabot/npm_and_yarn/vite-7.3.7",
+      "head_sha": "460733c7d60dba69c4fbd7ced5cc89c69ae0ae2d",
+      "base_sha": "920ed84e28741e9946f09a673feb22398712377b",
+      "changed_files": 1,
+      "unresolved_review_threads": 0,
+      "workflow_count": 23,
+      "non_success_workflows": []
+    },
+    {
+      "number": 2018,
+      "url": "https://github.com/kafaat/sahool-unified-v15-idp/pull/2018",
+      "title": "chore(deps): bump the services-deps group in /apps/services with 3 updates",
+      "head_ref": "dependabot/pip/apps/services/services-deps-de4e1e8622",
+      "head_sha": "ebb1a126e900844445093cbedc5f2e5e0888b2d8",
+      "base_sha": "920ed84e28741e9946f09a673feb22398712377b",
+      "changed_files": 64,
+      "unresolved_review_threads": 0,
+      "workflow_count": 34,
+      "non_success_workflows": [
+        {
+          "id": 41381385412,
+          "name": "SAHOOL Platform v16 - CI/CD",
+          "status": "completed",
+          "conclusion": "failure"
+        },
+        {
+          "id": 41381385288,
+          "name": "Shared PyJWT Security",
+          "status": "completed",
+          "conclusion": "failure"
+        },
+        {
+          "id": 41381385379,
+          "name": "Dependency Consistency Check",
+          "status": "completed",
+          "conclusion": "failure"
+        },
+        {
+          "id": 41381383079,
+          "name": "Auto-Merge PRs",
+          "status": "completed",
+          "conclusion": "cancelled"
+        }
+      ]
+    },
+    {
+      "number": 2019,
+      "url": "https://github.com/kafaat/sahool-unified-v15-idp/pull/2019",
+      "title": "chore(deps): update qdrant-client requirement from !=1.17.0,!=1.17.1,<2.0.0,>=1.12.0 to !=1.17.0,!=1.17.1,>=1.20.0,<2.0.0 in /apps/services",
+      "head_ref": "dependabot/pip/apps/services/qdrant-client-neq-1.17.0-and-neq-1.17.1-and-gte-1.20.0-and-lt-2.0.0",
+      "head_sha": "cbfd82da639bca42c1d026bb4fdf2c7f3f064256",
+      "base_sha": "920ed84e28741e9946f09a673feb22398712377b",
+      "changed_files": 2,
+      "unresolved_review_threads": 0,
+      "workflow_count": 29,
+      "non_success_workflows": [
+        {
+          "id": 41381390507,
+          "name": "Auto-Merge PRs",
+          "status": "completed",
+          "conclusion": "cancelled"
+        },
+        {
+          "id": 41381391539,
+          "name": "Auto-Merge PRs",
+          "status": "completed",
+          "conclusion": "cancelled"
+        }
+      ]
+    },
+    {
+      "number": 2020,
+      "url": "https://github.com/kafaat/sahool-unified-v15-idp/pull/2020",
+      "title": "chore(deps): update certifi requirement from >=2026.10.18 to >=2026.10.23 in /apps/services",
+      "head_ref": "dependabot/pip/apps/services/certifi-gte-2026.10.23",
+      "head_sha": "fce0d0997ee1856b65b140bdf0b6667fdfb2ff0d",
+      "base_sha": "920ed84e28741e9946f09a673feb22398712377b",
+      "changed_files": 1,
+      "unresolved_review_threads": 0,
+      "workflow_count": 25,
+      "non_success_workflows": [
+        {
+          "id": 41381403101,
+          "name": "Auto-Merge PRs",
+          "status": "completed",
+          "conclusion": "cancelled"
+        },
+        {
+          "id": 41381402336,
+          "name": "Auto-Merge PRs",
+          "status": "completed",
+          "conclusion": "cancelled"
+        }
+      ]
+    },
+    {
+      "number": 2021,
+      "url": "https://github.com/kafaat/sahool-unified-v15-idp/pull/2021",
+      "title": "chore(deps): update anthropic requirement from <1.0.0,>=0.85.0 to >=2.3.0,<3.0.0 in /apps/services",
+      "head_ref": "dependabot/pip/apps/services/anthropic-gte-2.3.0-and-lt-3.0.0",
+      "head_sha": "220d4c5ad875fbc672972430c5bfda5cad2c9bc1",
+      "base_sha": "920ed84e28741e9946f09a673feb22398712377b",
+      "changed_files": 4,
+      "unresolved_review_threads": 0,
+      "workflow_count": 29,
+      "non_success_workflows": [
+        {
+          "id": 41381410025,
+          "name": "Auto-Merge PRs",
+          "status": "completed",
+          "conclusion": "cancelled"
+        }
+      ]
+    },
+    {
+      "number": 2022,
+      "url": "https://github.com/kafaat/sahool-unified-v15-idp/pull/2022",
+      "title": "chore(deps): update pytest-html requirement from >=3.2.0 to >=4.2.0 in /apps/services",
+      "head_ref": "dependabot/pip/apps/services/pytest-html-gte-4.2.0",
+      "head_sha": "24206760e9241d31d53407c4cf5b849d12b360f0",
+      "base_sha": "920ed84e28741e9946f09a673feb22398712377b",
+      "changed_files": 1,
+      "unresolved_review_threads": 0,
+      "workflow_count": 25,
+      "non_success_workflows": [
+        {
+          "id": 41381417638,
+          "name": "Auto-Merge PRs",
+          "status": "completed",
+          "conclusion": "cancelled"
+        },
+        {
+          "id": 41381418141,
+          "name": "Auto-Merge PRs",
+          "status": "completed",
+          "conclusion": "cancelled"
+        }
+      ]
+    },
+    {
+      "number": 2023,
+      "url": "https://github.com/kafaat/sahool-unified-v15-idp/pull/2023",
+      "title": "chore(deps): bump the python-minor group with 13 updates",
+      "head_ref": "dependabot/pip/python-minor-4a048ac080",
+      "head_sha": "f7e27b26e0b7aeff67fd10b13c051b12544e525f",
+      "base_sha": "920ed84e28741e9946f09a673feb22398712377b",
+      "changed_files": 8,
+      "unresolved_review_threads": 0,
+      "workflow_count": 27,
+      "non_success_workflows": [
+        {
+          "id": 41381939061,
+          "name": "Quality Gate - منظومة الجودة المتكاملة",
+          "status": "completed",
+          "conclusion": "failure"
+        },
+        {
+          "id": 41381938916,
+          "name": "Shared PyJWT Security",
+          "status": "completed",
+          "conclusion": "failure"
+        },
+        {
+          "id": 41381938920,
+          "name": "SAHOOL Platform v16 - CI/CD",
+          "status": "completed",
+          "conclusion": "failure"
+        },
+        {
+          "id": 41381938961,
+          "name": "CI Pipeline",
+          "status": "completed",
+          "conclusion": "failure"
+        },
+        {
+          "id": 41381939115,
+          "name": "Dependency Consistency Check",
+          "status": "completed",
+          "conclusion": "failure"
+        },
+        {
+          "id": 41381939109,
+          "name": "Python Lock Security",
+          "status": "completed",
+          "conclusion": "failure"
+        },
+        {
+          "id": 41381938561,
+          "name": "Auto-Merge PRs",
+          "status": "completed",
+          "conclusion": "cancelled"
+        },
+        {
+          "id": 41381938033,
+          "name": "Auto-Merge PRs",
+          "status": "completed",
+          "conclusion": "cancelled"
+        }
+      ]
+    },
+    {
+      "number": 2024,
+      "url": "https://github.com/kafaat/sahool-unified-v15-idp/pull/2024",
+      "title": "chore(deps): update vulture requirement from >=2.14 to >=2.16",
+      "head_ref": "dependabot/pip/vulture-gte-2.16",
+      "head_sha": "f9045f72ae868947f985b500bf41692ab70e3613",
+      "base_sha": "920ed84e28741e9946f09a673feb22398712377b",
+      "changed_files": 1,
+      "unresolved_review_threads": 0,
+      "workflow_count": 21,
+      "non_success_workflows": [
+        {
+          "id": 41381947028,
+          "name": "Auto-Merge PRs",
+          "status": "completed",
+          "conclusion": "cancelled"
+        },
+        {
+          "id": 41381946136,
+          "name": "Auto-Merge PRs",
+          "status": "completed",
+          "conclusion": "cancelled"
+        }
+      ]
+    },
+    {
+      "number": 2025,
+      "url": "https://github.com/kafaat/sahool-unified-v15-idp/pull/2025",
+      "title": "chore(deps): update scipy requirement from <1.18.0,>=1.11.0 to >=1.17.1,<1.18.0",
+      "head_ref": "dependabot/pip/scipy-gte-1.17.1-and-lt-1.18.0",
+      "head_sha": "c53549c9948718cfb5ac963394ba4108d214dc30",
+      "base_sha": "920ed84e28741e9946f09a673feb22398712377b",
+      "changed_files": 1,
+      "unresolved_review_threads": 0,
+      "workflow_count": 24,
+      "non_success_workflows": [
+        {
+          "id": 41381966962,
+          "name": "Auto-Merge PRs",
+          "status": "completed",
+          "conclusion": "cancelled"
+        },
+        {
+          "id": 41381967750,
+          "name": "Auto-Merge PRs",
+          "status": "completed",
+          "conclusion": "cancelled"
+        }
+      ]
+    },
+    {
+      "number": 2026,
+      "url": "https://github.com/kafaat/sahool-unified-v15-idp/pull/2026",
+      "title": "chore(deps): update qdrant-client requirement from !=1.17.0,!=1.17.1,<2.0.0,>=1.12.0 to !=1.17.0,!=1.17.1,>=1.20.0,<2.0.0",
+      "head_ref": "dependabot/pip/qdrant-client-neq-1.17.0-and-neq-1.17.1-and-gte-1.20.0-and-lt-2.0.0",
+      "head_sha": "1c60b87f4e32b6a66340f80e8177bc055182176d",
+      "base_sha": "920ed84e28741e9946f09a673feb22398712377b",
+      "changed_files": 1,
+      "unresolved_review_threads": 0,
+      "workflow_count": 26,
+      "non_success_workflows": [
+        {
+          "id": 41381973259,
+          "name": "Auto-Merge PRs",
+          "status": "completed",
+          "conclusion": "cancelled"
+        }
+      ]
+    }
+  ]
+}

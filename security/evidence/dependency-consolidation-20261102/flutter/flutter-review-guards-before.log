@@ -1,0 +1,196 @@
+FFFFFFFFFF                                                               [100%]
+=================================== FAILURES ===================================
+_______ test_guard_rejects_transitive_override_bypasses[analyzer-12.1.0] _______
+
+name = 'analyzer', version = '12.1.0'
+
+    @pytest.mark.parametrize(
+        "name,version",
+        [("analyzer", "12.1.0"), ("build", "4.0.6"), ("source_gen", "4.2.3"),
+         ("riverpod_analyzer_utils", "0.5.10"), ("riverpod", "3.3.2")],
+    )
+    def test_guard_rejects_transitive_override_bypasses(name: str, version: str) -> None:
+        manifest = _load(MANIFESTS[0])
+        manifest.setdefault("dependency_overrides", {})[name] = f"^{version}"
+>       with pytest.raises(AssertionError, match="Do not bypass"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE AssertionError
+
+tests/unit/test_mobile_dependency_compatibility.py:132: Failed
+_________ test_guard_rejects_transitive_override_bypasses[build-4.0.6] _________
+
+name = 'build', version = '4.0.6'
+
+    @pytest.mark.parametrize(
+        "name,version",
+        [("analyzer", "12.1.0"), ("build", "4.0.6"), ("source_gen", "4.2.3"),
+         ("riverpod_analyzer_utils", "0.5.10"), ("riverpod", "3.3.2")],
+    )
+    def test_guard_rejects_transitive_override_bypasses(name: str, version: str) -> None:
+        manifest = _load(MANIFESTS[0])
+        manifest.setdefault("dependency_overrides", {})[name] = f"^{version}"
+>       with pytest.raises(AssertionError, match="Do not bypass"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE AssertionError
+
+tests/unit/test_mobile_dependency_compatibility.py:132: Failed
+______ test_guard_rejects_transitive_override_bypasses[source_gen-4.2.3] _______
+
+name = 'source_gen', version = '4.2.3'
+
+    @pytest.mark.parametrize(
+        "name,version",
+        [("analyzer", "12.1.0"), ("build", "4.0.6"), ("source_gen", "4.2.3"),
+         ("riverpod_analyzer_utils", "0.5.10"), ("riverpod", "3.3.2")],
+    )
+    def test_guard_rejects_transitive_override_bypasses(name: str, version: str) -> None:
+        manifest = _load(MANIFESTS[0])
+        manifest.setdefault("dependency_overrides", {})[name] = f"^{version}"
+>       with pytest.raises(AssertionError, match="Do not bypass"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE AssertionError
+
+tests/unit/test_mobile_dependency_compatibility.py:132: Failed
+_ test_guard_rejects_transitive_override_bypasses[riverpod_analyzer_utils-0.5.10] _
+
+name = 'riverpod_analyzer_utils', version = '0.5.10'
+
+    @pytest.mark.parametrize(
+        "name,version",
+        [("analyzer", "12.1.0"), ("build", "4.0.6"), ("source_gen", "4.2.3"),
+         ("riverpod_analyzer_utils", "0.5.10"), ("riverpod", "3.3.2")],
+    )
+    def test_guard_rejects_transitive_override_bypasses(name: str, version: str) -> None:
+        manifest = _load(MANIFESTS[0])
+        manifest.setdefault("dependency_overrides", {})[name] = f"^{version}"
+>       with pytest.raises(AssertionError, match="Do not bypass"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE AssertionError
+
+tests/unit/test_mobile_dependency_compatibility.py:132: Failed
+_______ test_guard_rejects_transitive_override_bypasses[riverpod-3.3.2] ________
+
+name = 'riverpod', version = '3.3.2'
+
+    @pytest.mark.parametrize(
+        "name,version",
+        [("analyzer", "12.1.0"), ("build", "4.0.6"), ("source_gen", "4.2.3"),
+         ("riverpod_analyzer_utils", "0.5.10"), ("riverpod", "3.3.2")],
+    )
+    def test_guard_rejects_transitive_override_bypasses(name: str, version: str) -> None:
+        manifest = _load(MANIFESTS[0])
+        manifest.setdefault("dependency_overrides", {})[name] = f"^{version}"
+>       with pytest.raises(AssertionError, match="Do not bypass"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE AssertionError
+
+tests/unit/test_mobile_dependency_compatibility.py:132: Failed
+__ test_guard_rejects_incompatible_transitive_lock_versions[analyzer-12.1.0] ___
+
+name = 'analyzer', version = '12.1.0'
+
+    @pytest.mark.parametrize(
+        "name,version",
+        [("analyzer", "12.1.0"), ("build", "4.0.6"), ("source_gen", "4.2.3"),
+         ("riverpod_analyzer_utils", "0.5.10"), ("riverpod", "3.3.2")],
+    )
+    def test_guard_rejects_incompatible_transitive_lock_versions(name: str, version: str) -> None:
+        manifest = _load(MANIFESTS[0])
+        lock = _load(Path(MANIFESTS[0]).with_name("pubspec.lock"))
+        lock["packages"][name]["version"] = version
+>       with pytest.raises(AssertionError, match="Incompatible locked"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE AssertionError
+
+tests/unit/test_mobile_dependency_compatibility.py:145: Failed
+____ test_guard_rejects_incompatible_transitive_lock_versions[build-4.0.6] _____
+
+name = 'build', version = '4.0.6'
+
+    @pytest.mark.parametrize(
+        "name,version",
+        [("analyzer", "12.1.0"), ("build", "4.0.6"), ("source_gen", "4.2.3"),
+         ("riverpod_analyzer_utils", "0.5.10"), ("riverpod", "3.3.2")],
+    )
+    def test_guard_rejects_incompatible_transitive_lock_versions(name: str, version: str) -> None:
+        manifest = _load(MANIFESTS[0])
+        lock = _load(Path(MANIFESTS[0]).with_name("pubspec.lock"))
+        lock["packages"][name]["version"] = version
+>       with pytest.raises(AssertionError, match="Incompatible locked"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE AssertionError
+
+tests/unit/test_mobile_dependency_compatibility.py:145: Failed
+__ test_guard_rejects_incompatible_transitive_lock_versions[source_gen-4.2.3] __
+
+name = 'source_gen', version = '4.2.3'
+
+    @pytest.mark.parametrize(
+        "name,version",
+        [("analyzer", "12.1.0"), ("build", "4.0.6"), ("source_gen", "4.2.3"),
+         ("riverpod_analyzer_utils", "0.5.10"), ("riverpod", "3.3.2")],
+    )
+    def test_guard_rejects_incompatible_transitive_lock_versions(name: str, version: str) -> None:
+        manifest = _load(MANIFESTS[0])
+        lock = _load(Path(MANIFESTS[0]).with_name("pubspec.lock"))
+        lock["packages"][name]["version"] = version
+>       with pytest.raises(AssertionError, match="Incompatible locked"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE AssertionError
+
+tests/unit/test_mobile_dependency_compatibility.py:145: Failed
+_ test_guard_rejects_incompatible_transitive_lock_versions[riverpod_analyzer_utils-0.5.10] _
+
+name = 'riverpod_analyzer_utils', version = '0.5.10'
+
+    @pytest.mark.parametrize(
+        "name,version",
+        [("analyzer", "12.1.0"), ("build", "4.0.6"), ("source_gen", "4.2.3"),
+         ("riverpod_analyzer_utils", "0.5.10"), ("riverpod", "3.3.2")],
+    )
+    def test_guard_rejects_incompatible_transitive_lock_versions(name: str, version: str) -> None:
+        manifest = _load(MANIFESTS[0])
+        lock = _load(Path(MANIFESTS[0]).with_name("pubspec.lock"))
+        lock["packages"][name]["version"] = version
+>       with pytest.raises(AssertionError, match="Incompatible locked"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE AssertionError
+
+tests/unit/test_mobile_dependency_compatibility.py:145: Failed
+___ test_guard_rejects_incompatible_transitive_lock_versions[riverpod-3.3.2] ___
+
+name = 'riverpod', version = '3.3.2'
+
+    @pytest.mark.parametrize(
+        "name,version",
+        [("analyzer", "12.1.0"), ("build", "4.0.6"), ("source_gen", "4.2.3"),
+         ("riverpod_analyzer_utils", "0.5.10"), ("riverpod", "3.3.2")],
+    )
+    def test_guard_rejects_incompatible_transitive_lock_versions(name: str, version: str) -> None:
+        manifest = _load(MANIFESTS[0])
+        lock = _load(Path(MANIFESTS[0]).with_name("pubspec.lock"))
+        lock["packages"][name]["version"] = version
+>       with pytest.raises(AssertionError, match="Incompatible locked"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE AssertionError
+
+tests/unit/test_mobile_dependency_compatibility.py:145: Failed
+=============================== warnings summary ===============================
+../../../../tmp/sahool-flutter-policy-checks/lib/python3.12/site-packages/_pytest/config/__init__.py:1636
+  /tmp/sahool-flutter-policy-checks/lib/python3.12/site-packages/_pytest/config/__init__.py:1636: PytestConfigWarning: Unknown config option: asyncio_mode
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/test_mobile_dependency_compatibility.py::test_guard_rejects_transitive_override_bypasses[analyzer-12.1.0]
+FAILED tests/unit/test_mobile_dependency_compatibility.py::test_guard_rejects_transitive_override_bypasses[build-4.0.6]
+FAILED tests/unit/test_mobile_dependency_compatibility.py::test_guard_rejects_transitive_override_bypasses[source_gen-4.2.3]
+FAILED tests/unit/test_mobile_dependency_compatibility.py::test_guard_rejects_transitive_override_bypasses[riverpod_analyzer_utils-0.5.10]
+FAILED tests/unit/test_mobile_dependency_compatibility.py::test_guard_rejects_transitive_override_bypasses[riverpod-3.3.2]
+FAILED tests/unit/test_mobile_dependency_compatibility.py::test_guard_rejects_incompatible_transitive_lock_versions[analyzer-12.1.0]
+FAILED tests/unit/test_mobile_dependency_compatibility.py::test_guard_rejects_incompatible_transitive_lock_versions[build-4.0.6]
+FAILED tests/unit/test_mobile_dependency_compatibility.py::test_guard_rejects_incompatible_transitive_lock_versions[source_gen-4.2.3]
+FAILED tests/unit/test_mobile_dependency_compatibility.py::test_guard_rejects_incompatible_transitive_lock_versions[riverpod_analyzer_utils-0.5.10]
+FAILED tests/unit/test_mobile_dependency_compatibility.py::test_guard_rejects_incompatible_transitive_lock_versions[riverpod-3.3.2]
+10 failed, 18 deselected, 1 warning in 0.71s

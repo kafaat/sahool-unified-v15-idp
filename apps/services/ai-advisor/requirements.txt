@@ -51,7 +51,7 @@ nats-py>=2.6.0,<3.0.0
 python-dotenv==1.2.4
 python-multipart==0.0.32  # Multipart/header limits and form parsing security fixes
 aiofiles==24.1.0
-tenacity==8.5.0
+tenacity==9.2.1
 
 # Monitoring and Logging
 # المراقبة والتسجيل

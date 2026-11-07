@@ -129,7 +129,7 @@ python-multipart==0.0.32  # CVE-2026-42561 and CVE-2026-53538/53539/53540
 python-dateutil==2.9.0.post0
 jsonschema==4.26.0
 tenacity==8.5.0
-slowapi>=0.1.9,<1.0.0
+slowapi>=0.1.10,<1.0.0
 orjson>=3.10.0,<4.0.0
 email-validator==2.3.0
 mypy==1.20.2

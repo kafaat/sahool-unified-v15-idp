@@ -20,7 +20,7 @@ uvicorn>=0.30.0,<1.0.0
 pydantic==2.14.2
 pydantic-settings==2.16.2
 httpx==0.28.1
-python-multipart==0.0.32  # Multipart/header limits and form parsing security fixes
+python-multipart==0.0.33  # Multipart/header limits and form parsing security fixes
 
 # ─────────────────────────────────────────────────────────────────────────────
 # LangChain Framework (Security Updates)

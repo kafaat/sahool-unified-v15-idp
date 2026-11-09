@@ -7,7 +7,7 @@ uvicorn[standard]>=0.54.0,<1.0.0
 pydantic==2.14.2
 pydantic-settings==2.16.2
 # Async support
-anyio==4.14.2  # CVE-2026-63374: IDNA 2008 TLS hostname validation
+anyio==4.16.0  # CVE-2026-63374: IDNA 2008 TLS hostname validation
 # HTTP client (for potential external calls)
 httpx==0.28.1
 # Database (optional)

@@ -4,7 +4,7 @@
 # FastAPI framework
 fastapi>=0.162.0,<1.0.0
 uvicorn[standard]>=0.54.0,<1.0.0
-pydantic==2.14.2
+pydantic==2.14.3
 pydantic-settings==2.16.2
 # Async support
 anyio==4.14.2  # CVE-2026-63374: IDNA 2008 TLS hostname validation

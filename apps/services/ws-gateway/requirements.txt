@@ -19,7 +19,7 @@ PyJWT[crypto]>=2.10.1,<3.0.0  # CVE-2024-53861; replaces python-jose (CVE-2024-3
 passlib[bcrypt]==1.7.4
 
 # Service-specific dependencies
-websockets==16.0
+websockets==17.4
 python-dateutil==2.9.0.post0
 
 structlog>=24.1.0

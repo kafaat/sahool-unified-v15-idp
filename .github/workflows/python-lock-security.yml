@@ -168,8 +168,8 @@ jobs:
           uv pip install --python "$RUNNER_TEMP/embedding-venv/bin/python" \
             --find-links https://download.pytorch.org/whl/cpu/torch/ \
             -c constraints.txt -c docker/constraints-ai.txt \
-            'torch==2.13.0+cpu' 'sentence-transformers==6.2.0' 'numpy>=1.26,<2' \
-            pytest==9.2.0 pytest-asyncio==1.3.0 structlog pydantic-settings 'setuptools>=84.1.0' \
+            'torch==2.13.0+cpu' 'sentence-transformers==6.3.0' 'numpy>=1.26,<2' \
+            pytest==9.2.0 pytest-asyncio==1.5.0 structlog pydantic-settings 'setuptools>=84.1.0' \
             anthropic langchain-anthropic qdrant-client scipy 'pytest-html>=4.2.0'
           uv pip check --python "$RUNNER_TEMP/embedding-venv/bin/python"
           uv pip freeze --python "$RUNNER_TEMP/embedding-venv/bin/python" \
@@ -224,12 +224,13 @@ jobs:
           # candidate environment. Its dependency requirements are checked below.
           uv pip install --python "$RUNNER_TEMP/embedding-venv/bin/python" \
             --target "$RUNNER_TEMP/embedding-baseline" --no-deps sentence-transformers==5.6.0
-          python - <<'PY'
+          "$RUNNER_TEMP/embedding-venv/bin/python" - <<'PY'
           import json
           import os
           import subprocess
           from pathlib import Path
           import xml.etree.ElementTree as ET
+          from importlib.metadata import version
 
           evidence = Path('python-lock-evidence/embedding')
           python = str(Path(os.environ['RUNNER_TEMP']) / 'embedding-venv/bin/python')
@@ -264,7 +265,7 @@ jobs:
           (evidence / 'differential.json').write_text(json.dumps({
               'command': command, 'baseline_exit_code': result.returncode,
               'baseline_counts': counts, 'baseline_failures': failures,
-              'candidate': '6.0.0', 'baseline': '5.6.0',
+              'candidate': version('sentence-transformers'), 'baseline': '5.6.0',
           }, indent=2) + '\n')
           PY
 

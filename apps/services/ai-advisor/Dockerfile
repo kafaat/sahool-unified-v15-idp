@@ -48,7 +48,10 @@ COPY --chown=sahool:sahool apps/services/ai-advisor/requirements.txt /tmp/requir
 COPY --chown=sahool:sahool docker/constraints-ai.txt /tmp/constraints-ai.txt
 
 # Install Python dependencies
-RUN pip-install.sh -c /tmp/constraints-ai.txt -r /tmp/requirements.txt
+# Prefer the upstream wheel CDN for the large PyTorch runtime, with the service mirrors as fallback.
+RUN python -m pip install --index-url https://pypi.org/simple --prefer-binary \
+        -c /tmp/constraints-ai.txt -r /tmp/requirements.txt || \
+    pip-install.sh -c /tmp/constraints-ai.txt -r /tmp/requirements.txt
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Stage 2: Production | المرحلة 2: الإنتاج

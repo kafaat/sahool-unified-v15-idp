@@ -32,7 +32,7 @@ concurrency:
 jobs:
   pgtap:
     name: pgTAP (RLS suite)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
 
     services:
@@ -61,7 +61,7 @@ jobs:
       PG_DB: postgres
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
 
       - name: Install runner-side tools (psql + pg_prove)
         run: |

@@ -37,7 +37,7 @@ multidict>=6.9.1,<7.0.0  # CVE-2026-104874
 requests>=2.33.0,<3.0.0  # CVE-2026-25645
 urllib3>=2.8.0,<3.0.0  # CVE-2026-97687/97688/97689
 certifi>=2026.10.23  # GHSA-6q48-6c7w-9gw2: security trust-store update
-anyio>=4.14.2,<5.0.0  # CVE-2026-63374
+anyio>=4.16.0,<5.0.0  # CVE-2026-63374
 idna>=3.15,<4.0.0  # Current security fixes for IDNA processing
 jinja2>=3.1.5  # CVE-2024-56201: sandbox escape, CVE-2024-34064: XSS in xmlattr
 werkzeug>=3.0.6  # CVE-2024-34069: debugger arbitrary code execution
@@ -128,7 +128,7 @@ python-dotenv==1.2.4
 python-multipart==0.0.34  # CVE-2026-42561 and CVE-2026-53538/53539/53540
 python-dateutil==2.9.0.post0
 jsonschema==4.26.0
-tenacity==8.5.0
+tenacity==9.2.1
 slowapi>=0.1.10,<1.0.0
 orjson>=3.10.0,<4.0.0
 email-validator==2.4.0

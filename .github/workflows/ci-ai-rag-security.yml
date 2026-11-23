@@ -68,10 +68,10 @@ jobs:
           - crop-intelligence-service
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
 
       - name: Set up Python
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@v7.1.0
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
@@ -147,7 +147,7 @@ jobs:
           - llm-orchestrator-service
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
 
       - name: Free disk space
         run: |
@@ -187,7 +187,8 @@ jobs:
             echo "✅ Build succeeded"
           else
             echo "build_success=false" >> $GITHUB_OUTPUT
-            echo "::warning::Build failed for ${{ matrix.service }} (exit code: $BUILD_EXIT) - skipping security scans"
+            echo "::error::Build failed for ${{ matrix.service }} (exit code: $BUILD_EXIT)"
+            exit "$BUILD_EXIT"
           fi
 
       - name: Install Trivy
@@ -306,7 +307,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
 
       - name: Run Hadolint
         continue-on-error: true
@@ -395,10 +396,10 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
 
       - name: Set up Python
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@v7.1.0
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 

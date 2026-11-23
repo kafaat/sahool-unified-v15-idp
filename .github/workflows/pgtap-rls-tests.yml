@@ -92,6 +92,10 @@ jobs:
           echo "Installing postgresql-16-pgtap inside container $CID"
           docker exec -u 0 "$CID" bash -c \
             "apt-get update -qq && apt-get install -y --no-install-recommends postgresql-16-pgtap"
+          # Apt may upgrade the server along with pgTAP. Reload the new binary
+          # before the running server loads extension libraries from disk.
+          docker restart "$CID" >/dev/null
+          timeout 60s bash -c 'until pg_isready -q -h "$PGHOST" -p "$PGPORT" -U "$PGUSER"; do sleep 1; done'
           PGPASSWORD="$PGPASSWORD" psql \
             -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PG_DB" \
             -v ON_ERROR_STOP=1 \

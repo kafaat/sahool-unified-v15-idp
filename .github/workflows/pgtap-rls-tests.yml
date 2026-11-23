@@ -61,7 +61,7 @@ jobs:
       PG_DB: postgres
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
 
       - name: Install runner-side tools (psql + pg_prove)
         run: |

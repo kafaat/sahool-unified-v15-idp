@@ -67,7 +67,7 @@
     "@vitest/coverage-v8": "4.1.12",
     "autoprefixer": "10.4.27",
     "eslint": "^9.39.2",
-    "eslint-config-next": "15.5.28",
+    "eslint-config-next": "15.5.29",
     "eslint-plugin-react-hooks": "^7.0.1",
     "fraction.js": "^5.3.4",
     "globals": "^17.4.0",

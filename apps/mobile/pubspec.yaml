@@ -72,7 +72,7 @@ dependencies:
   fl_chart: ^0.69.2
   
   # Calendar
-  table_calendar: ^3.2.0
+  table_calendar: ^3.2.1
 
   # Maps - Multiple Providers Support
   # دعم متعدد لمزودي الخرائط
